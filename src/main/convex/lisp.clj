@@ -137,6 +137,14 @@
                   clojure.core.protocols/datafy)))
 
 
+  convex.core.data.Syntax
+
+    (datafy [this]
+      (list 'syntax
+            (clojure.core.protocols/datafy (.getValue this))
+            (clojure.core.protocols/datafy (.getMeta this))))
+
+
   convex.core.data.prim.CVMBool
 
     (datafy [this]
@@ -176,3 +184,9 @@
   [ddv]
 
   (clojure.core.protocols/datafy ddv))
+
+
+;;;;;;;;;; Executing code on CVM
+
+
+

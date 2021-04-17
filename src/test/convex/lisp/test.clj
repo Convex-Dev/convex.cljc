@@ -6,7 +6,8 @@
 
   (:require [clojure.test :as t]
             [convex.lisp  :as $])
-  (:import (convex.core.data.prim CVMByte
+  (:import convex.core.data.Syntax
+           (convex.core.data.prim CVMByte
                                   CVMChar)))
 
 
@@ -86,6 +87,12 @@
                     "\"ok\""
                     "String")
 
+  (-convex->clojure '(syntax [:a 42]
+                             {:foo :bar})
+                    (Syntax/create ($/read-string "[:a 42]")
+                                   ($/read-string "{:foo :bar}"))
+                    "Syntax")
+  
   (-convex->clojure true
                     "true"
                     "Boolean")

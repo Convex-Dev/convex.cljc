@@ -8,7 +8,8 @@
             [convex.lisp :as $]
             [clojure.pprint]
             #?(:clj [clojure.reflect]))
-  #?(:clj (:import convex.core.State)))
+  #?(:clj (:import (convex.core Init
+                                State))))
 
 
 #?(:clj (set! *warn-on-reflection*
@@ -27,5 +28,14 @@
   State/EMPTY
 
 
+  (-> Init/STATE
+      $/convex->clojure
+      clojure.pprint/pprint)
 
+
+  ; lang.expanders.Expander
+
+  ; core.lang.Core$NUMBER
+
+  ; core.lang.impl.Fn MultiFn
   ))
