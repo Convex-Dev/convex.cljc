@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>world.convex</groupId>
+  <artifactId>convex.lisp.cljc</artifactId>
+  <version>0.0.0-alpha0</version>
+  <name>Convex.lisp</name>
+  <description>Working with Convex Lisp</description>
+  <url>https://github.com/helins/convex.lisp.cljcc</url>
+  <developers>
+    <developer>
+        <name>Adam</name>
+    </developer>
+  </developers>
+  <scm>
+      <url>https://github.com/helins/convex.lisp.cljcc</url>
+      <connection>scm:git:git://github.com/helins/convex.lisp.cljcc.git</connection>
+      <developerConnection>scm:git:ssh://git@github.com/helins/convex.lisp.cljcc.git</developerConnection>
+    <tag>HEAD</tag>
+  </scm>
+  <dependencies>
+  </dependencies>
+  <build>
+    <sourceDirectory>src/main</sourceDirectory>
+  </build>
+  <repositories>
+    <repository>
+      <id>clojars</id>
+      <url>https://repo.clojars.org/</url>
+    </repository>
+  </repositories>
+  <distributionManagement>
+    <repository>
+      <id>clojars</id>
+      <name>Clojars repository</name>
+      <url>https://clojars.org/repo</url>
+    </repository>
+  </distributionManagement>
+</project>

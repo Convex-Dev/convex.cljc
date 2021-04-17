@@ -1,0 +1,38 @@
+// Common
+
+*.class
+*.jar
+.hg/
+.hgignore
+/.cpcache
+/.nrepl-history
+/.nrepl-port
+/checkouts
+/classes
+/target
+
+
+// Compilation
+
+compiled
+
+
+// CLJS utilities
+
+.cljs
+.cljs_node_repl/
+.shadow-cljs/
+node_modules/
+out
+package.json
+
+
+// CLJS dev environment
+
+/cljs/*
+!/cljs/index.html
+
+
+// Wasmer
+
+./wasmer/runtime/*

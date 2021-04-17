@@ -1,0 +1,41 @@
+{:aliases
+ {:cljs
+  {:extra-deps {thheller/shadow-cljs {:mvn/version "2.11.23"}}
+   :main-opts  ["-m" "shadow.cljs.devtools.cli"]}
+
+  :deploy
+  {:exec-args  {:artifact  "compiled/jvm/release.jar"
+                :installer :remote}
+   :exec-fn    deps-deploy.deps-deploy/deploy
+   :extra-deps {slipset/deps-deploy {:mvn/version "0.1.5"}}}
+
+  :dev
+  {:extra-paths ["src/dev"
+                 "src/example"
+                 "src/test"]}
+
+  :jar
+  {:exec-args    {:jar      "compiled/jvm/release.jar"
+                  :sync-pom true}
+   :exec-fn      hf.depstar/jar
+   :replace-deps {seancorfield/depstar {:mvn/version "2.0.171"}}}
+
+  :install
+  {:exec-args  {:artifact  "compiled/jvm/release.jar"
+                :installer :local}
+   :exec-fn    deps-deploy.deps-deploy/deploy
+   :extra-deps {slipset/deps-deploy {:mvn/version "0.1.5"}}}
+
+  :kaocha
+  {:extra-deps {lambdaisland/kaocha {:mvn/version "1.0.829"}}}
+
+  :test
+  {:extra-paths ["src/test"]}}
+
+ :deps
+ {cljs-ajax/cljs-ajax {:mvn/version "0.8.3"}
+  world.convex/convex {:mvn/version "0.0.1-SNAPSHOT"}
+  }
+
+ :paths
+ ["src/main"]}

@@ -1,0 +1,20 @@
+{:builds
+ {:dev
+  {:asset-path "/js"
+   :modules    {:main {:entries [convex.clj.dev]}}
+   :output-dir "cljs/js"
+   :target     :browser}
+
+ :test-node
+ {:ns-regexp ".+"
+  :output-to "compiled/node/test.js"
+  :target    :node-test}}
+
+ :deps
+ {:alias [:cljs]}
+
+ :dev-http
+ {8000 ["cljs"]}
+ 
+ :nrepl
+ {:port 14563}}
