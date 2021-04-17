@@ -12,18 +12,14 @@
 
   (:require [clojure.core.protocols])
   (:import (convex.core.data ABlob
-                             ;ACell
+                             Address
                              AList
                              AMap
                              ASet
                              AString
                              AVector
-                             AccountKey
-                             ;AccountStatus
                              Address
-                             ;Blob
                              Keyword 
-                             ;SignedData
                              Symbol
                              Syntax)
            (convex.core.data.prim CVMBool
@@ -66,6 +62,20 @@
 
     (datafy [_this]
       nil)
+
+
+  convex.core.data.ABlob
+
+    (datafy [this]
+      (list 'blob
+            (.toHexString this)))
+
+  
+  convex.core.data.Address
+
+    (datafy [this]
+      (list 'address
+            (.longValue this)))
 
 
   convex.core.data.AList

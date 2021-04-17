@@ -34,6 +34,14 @@
                     "nil"
                     "Nil")
 
+  (-convex->clojure '(blob "ffff")
+                    "0xffff"
+                    "Blob")
+
+  (-convex->clojure '(address 51)
+                    "#51"
+                    "Address")
+
   (-convex->clojure (list 1
                           :two
                           'three)
