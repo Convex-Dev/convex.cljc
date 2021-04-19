@@ -6,7 +6,8 @@
 
   (:require [clojure.test :as t]
             [convex.lisp  :as $])
-  (:import convex.core.data.Syntax
+  (:import convex.core.Init
+           convex.core.data.Syntax
            (convex.core.data.prim CVMByte
                                   CVMChar)))
 
@@ -113,6 +114,7 @@
                     "42"
                     "Long")
 
+
   (let [code '(do
                 nil
                 42
@@ -123,6 +125,8 @@
                 :ok
                 ok
                 ok/super
+                (address 42)
+                (blob "11223344ff")
                 (:a :b)
                 [:a :b]
                 #{:a :b}
@@ -135,6 +139,18 @@
                  str
                  $/read-string
                  $/convex->clojure))
-          "Stress test"))
+          "Stress test")))
 
-  )
+
+
+(t/deftest edn
+
+  (t/is (= '[:a
+             (address 51)
+             (blob 255)]
+           (-> "[:a
+                 #51
+                 0xff]"
+               $/read-string
+               $/convex->edn
+               $/read-edn))))

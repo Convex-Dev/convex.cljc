@@ -1,17 +1,13 @@
 (ns convex.lisp
 
-  "# Glossary
-  
-   | Term | Meaning |
-   |---|---|
-   | DDV | Decentralized Data Object |
-   | Source | Code represented as a string |
-  "
+  ""
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.core.protocols])
+  (:require [clojure.core.protocols]
+            [clojure.tools.reader.edn])
   (:import (convex.core.data ABlob
+                             ACell
                              Address
                              AList
                              AMap
@@ -28,6 +24,8 @@
                                   CVMDouble
                                   CVMLong)
            convex.core.lang.expanders.AExpander
+           (convex.core.lang.impl CoreFn
+                                  Fn)
            convex.core.lang.Reader)
   (:refer-clojure :exclude [read-string]))
 
@@ -55,6 +53,56 @@
 ;;;;;;;;;; Converting Convex Lisp to Clojure
 
 
+
+(defn convex->clojure
+
+  "Translate Convex Lisp into Clojure data."
+
+  [convex-code]
+
+  (clojure.core.protocols/datafy convex-code))
+
+
+
+(defn convex->edn
+
+  "Translates Convex Lisp into an EDN string."
+  
+  [^ACell convex-code]
+
+  (.ednString convex-code))
+
+
+
+(defn read-edn
+
+  ""
+
+  [string]
+
+  (clojure.tools.reader.edn/read-string {:readers {'account (fn [account]
+                                                              [:convex/account
+                                                               account])
+                                                   'addr   (fn [address]
+                                                             (list 'address
+                                                                   address))
+                                                   'blob   (fn [blob]
+                                                             (list 'blob
+                                                                   blob))
+                                                   'syntax (fn [{:keys [datum]
+                                                                 mta   :meta}]
+                                                             (if (and (seq mta)
+                                                                      (not (second mta))
+                                                                      (nil? (get mta
+                                                                                 :start)))
+                                                               (list 'syntax
+                                                                     datum
+                                                                     mta)
+                                                               datum))}}
+                                        string))
+                                        
+
+  
 (extend-protocol clojure.core.protocols/Datafiable
 
 
@@ -140,9 +188,16 @@
   convex.core.data.Syntax
 
     (datafy [this]
-      (list 'syntax
-            (clojure.core.protocols/datafy (.getValue this))
-            (clojure.core.protocols/datafy (.getMeta this))))
+      (let [mta   (.getMeta this)
+            value (-> this 
+                      .getValue
+                      clojure.core.protocols/datafy)]
+        (if (seq mta)
+          (list 'syntax
+                value
+                (clojure.core.protocols/datafy mta))
+          value)))
+
 
 
   convex.core.data.prim.CVMBool
@@ -173,17 +228,23 @@
 
     (datafy [this]
       (.longValue this))
+
+
+  convex.core.lang.impl.CoreFn
+
+    (datafy [this]
+      (clojure.core.protocols/datafy (.getSymbol this)))
+
+
+  ;; TODO. Use EDN? Ops have protected fields meaning they cannot be readily translated.
+  ;;
+  convex.core.lang.impl.Fn
+
+    (datafy [this]
+      (-> this
+          convex->edn
+          read-edn))
   )
-
-
-
-(defn convex->clojure
-
-  "Translate Convex **DDV** into Clojure data."
-
-  [ddv]
-
-  (clojure.core.protocols/datafy ddv))
 
 
 ;;;;;;;;;; Executing code on CVM

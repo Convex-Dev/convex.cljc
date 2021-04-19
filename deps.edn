@@ -33,9 +33,9 @@
   {:extra-paths ["src/test"]}}
 
  :deps
- {cljs-ajax/cljs-ajax {:mvn/version "0.8.3"}
-  world.convex/convex {:mvn/version "0.0.1-SNAPSHOT"}
-  }
+ {cljs-ajax/cljs-ajax      {:mvn/version "0.8.3"}
+  org.clojure/tools.reader {:mvn/version "1.3.4"}
+  world.convex/convex      {:mvn/version "0.0.1-SNAPSHOT"}}
 
  :paths
  ["src/main"]}
