@@ -1,6 +1,8 @@
 (ns convex.lisp
 
-  ""
+  "Reading, compiling, and executing source + conversion to EDN and Clojure data structures.
+  
+   The result of context operation can be retrieved using [[result]]."
 
   {:author "Adam Helinski"}
 
@@ -44,7 +46,9 @@
 
 (defn read
 
-  "Converts Convex Lisp source to Convex data."
+  "Converts Convex Lisp source to a Convex form.
+  
+   See [[to-clojure]], [[expand]]."
 
   [string]
 
@@ -60,7 +64,7 @@
 
 (defn context
 
-  ""
+  "Creates a fake variant of `convex.core.Context` needed for compilation and execution."
 
 
   (^Context []
@@ -83,7 +87,7 @@
 
 (defn result
 
-  ""
+  "Extracts the result (eg. after expansion, compilation, execution, ...) wrapped in a [[context]]."
 
   [^Context context]
 
@@ -95,7 +99,14 @@
 
 (defn compile
 
-  ""
+  "Compile a form using the given context.
+  
+   Form is extracted from context using [[result]] if none is given and must be canonical (all items are
+   fully expanded).
+  
+   Usually run after [[expand]].
+  
+   Result can be executed. See [[run]]."
 
 
   (^Context [context]
@@ -113,7 +124,11 @@
 
 (defn expand
 
-  ""
+  "Expands a Convex form so that it is canonical (fully expanded and ready for compilation).
+
+   Usually run before [[compile]] with the result from [[read]]
+  
+   Fake [[context]] is created if none is provided."
 
 
   (^Context [form]
@@ -131,7 +146,9 @@
 
 (defn expand-compile
 
-  ""
+  "Chains [[expand]] and [[compile]] while being slightly more efficient than calling both separately.
+  
+   Result can be executed. See [[run]]."
 
 
   (^Context [form]
@@ -151,7 +168,9 @@
 
 (defn eval
 
-  ""
+  "Evaluates the given form after fully expanding and compiling it.
+  
+   Fake [[context]] is created if none is provided."
 
 
   (^Context [form]
@@ -170,7 +189,7 @@
 
 (defn query
 
-  ""
+  "Like [[run]] but the resulting state is discarded."
 
 
   (^Context [context]
@@ -188,7 +207,11 @@
 
 (defn run
 
-  ""
+  "Runs compiled Convex code.
+  
+   Fetches code using [[result]] when not explicitly provided.
+  
+   Usually run after [[compile]]."
 
 
   (^Context [context]
@@ -208,7 +231,7 @@
 
 (defn from-clojure
 
-  ""
+  "Stringifies the given clojure form and applies the result to [[read]]."
 
   [clojure-form]
 
@@ -377,7 +400,7 @@
 
 (defn read-edn
 
-  "Reads a string of Convex data expressed as EDN.
+  "Reads a string of Convex form expressed as EDN.
   
    Opposite of [[to-edn]]."
 
@@ -417,10 +440,10 @@
 
 (defn to-edn
 
-  "Translates Convex Lisp into an EDN string.
+  "Translates a Convex form into an EDN string.
   
    Opposite of [[read-edn]]."
   
-  [^ACell convex-code]
+  [^ACell form]
 
-  (.ednString convex-code))
+  (.ednString form))
