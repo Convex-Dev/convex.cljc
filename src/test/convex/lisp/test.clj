@@ -154,3 +154,26 @@
                $/read
                $/to-edn
                $/read-edn))))
+
+
+
+(t/deftest execution
+
+  (let [form ($/read "(if true 42 0)")]
+    (t/is (= ($/read "42")
+             (-> form
+                 $/eval
+                 $/result)
+             (-> form
+                 $/expand
+                 $/compile
+                 $/run
+                 $/result)
+             (-> form
+                 $/expand-compile
+                 $/run
+                 $/result)
+             (-> form
+                 $/expand-compile
+                 $/query
+                 $/result)))))

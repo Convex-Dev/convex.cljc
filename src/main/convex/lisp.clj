@@ -28,11 +28,15 @@
            (convex.core.lang Context
                              Reader))
   (:refer-clojure :exclude [compile
+                            eval
                             read]))
 
 
 (set! *warn-on-reflection*
       true)
+
+
+(declare run)
 
 
 ;;;;;;;;;; Converting text to Convex Lisp
@@ -94,10 +98,10 @@
   ""
 
 
-  ([[context canonical-form]]
+  ([context]
 
    (compile context
-            canonical-form))
+            (result context)))
 
 
   ([^Context context canonical-form]
@@ -142,16 +146,85 @@
                    form)))
 
 
+;;;;;;;;;; Execution
+
+
+(defn eval
+
+  ""
+
+
+  ([form]
+
+   (eval (context)
+         form))
+
+
+  ([context form]
+
+   (-> context
+       (expand-compile form)
+       run)))
+
+
+
+(defn query
+
+  ""
+
+
+  ([context]
+
+   (query context
+          (result context)))
+
+
+  ([^Context context form]
+
+   (.query context
+           form)))
+
+
+
+(defn run
+
+  ""
+
+
+  ([context]
+
+   (run context
+        (result context)))
+
+
+  ([^Context context compiled]
+
+   (.run context
+         compiled)))
+
+
 ;;;;;;;;;; Converting Convex Lisp to Clojure
+
+
+(defn from-clojure
+
+  ""
+
+  [clojure-form]
+
+  (-> clojure-form
+      str
+      read))
+
 
 
 (defn to-clojure
 
   "Converts Convex data to Clojure data."
 
-  [convex-code]
+  [form]
 
-  (clojure.core.protocols/datafy convex-code))
+  (clojure.core.protocols/datafy form))
 
 
 

@@ -77,11 +77,20 @@
        ($/context))
 
 
-  (-> "[:a :b"
-      ;[:a '(if true 42 0)]
+  (-> '(if true 41 0)
+      $/from-clojure
+      $/eval
+      $/result
+      $/to-clojure
+      )
+
+
+  (-> 
+      [:a '(if true 42 0)]
       str
       $/read
       $/expand-compile
+      $/query
       $/result
       $/to-clojure
       )
