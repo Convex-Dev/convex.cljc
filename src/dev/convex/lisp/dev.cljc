@@ -74,8 +74,18 @@
   
 
   (def ctx
-       (Context/createFake Init/STATE
-                           Init/HERO))
+       ($/context))
+
+
+  (-> "[:a :b"
+      ;[:a '(if true 42 0)]
+      str
+      $/read
+      $/expand-compile
+      $/result
+      $/to-clojure
+      )
+
 
   (-> (.run ctx
             (-> ctx

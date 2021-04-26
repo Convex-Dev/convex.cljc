@@ -6,7 +6,8 @@
 
   (:require [clojure.core.protocols]
             [clojure.tools.reader.edn])
-  (:import (convex.core.data ABlob
+  (:import convex.core.Init
+           (convex.core.data ABlob
                              ACell
                              Address
                              AList
@@ -23,11 +24,11 @@
                                   CVMChar
                                   CVMDouble
                                   CVMLong)
-           convex.core.lang.expanders.AExpander
-           (convex.core.lang.impl CoreFn
-                                  Fn)
-           convex.core.lang.Reader)
-  (:refer-clojure :exclude [read]))
+           convex.core.lang.impl.CoreFn
+           (convex.core.lang Context
+                             Reader))
+  (:refer-clojure :exclude [compile
+                            read]))
 
 
 (set! *warn-on-reflection*
@@ -48,6 +49,97 @@
       (.cons parsed
              (Symbol/create "do"))
       (first parsed))))
+
+
+;;;;;;;;;; Handling a Convex context
+
+
+(defn context
+
+  ""
+
+
+  (^Context []
+
+   (context Init/HERO))
+
+
+  (^Context [account]
+
+   (context Init/STATE
+            account))
+
+  
+  (^Context [state account]
+
+   (Context/createFake state
+                       account)))
+
+
+
+(defn result
+
+  ""
+
+  [^Context context]
+
+  (.getResult context))
+
+
+;;;;;;;;;; Compiling Convex data
+
+
+(defn compile
+
+  ""
+
+
+  ([[context canonical-form]]
+
+   (compile context
+            canonical-form))
+
+
+  ([^Context context canonical-form]
+
+   (.compile context
+             canonical-form)))
+
+
+
+(defn expand
+
+  ""
+
+
+  ([form]
+
+   (expand (context)
+           form))
+
+
+  ([^Context context form]
+
+   (.expand context
+            form)))
+
+
+
+(defn expand-compile
+
+  ""
+
+
+  ([form]
+
+   (expand-compile (context)
+                   form))
+
+
+  ([^Context context form]
+
+   (.expandCompile context
+                   form)))
 
 
 ;;;;;;;;;; Converting Convex Lisp to Clojure
