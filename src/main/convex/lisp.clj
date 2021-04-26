@@ -98,13 +98,13 @@
   ""
 
 
-  ([context]
+  (^Context [context]
 
    (compile context
             (result context)))
 
 
-  ([^Context context canonical-form]
+  (^Context [^Context context canonical-form]
 
    (.compile context
              canonical-form)))
@@ -116,7 +116,7 @@
   ""
 
 
-  ([form]
+  (^Context [form]
 
    (expand (context)
            form))
@@ -134,13 +134,13 @@
   ""
 
 
-  ([form]
+  (^Context [form]
 
    (expand-compile (context)
                    form))
 
 
-  ([^Context context form]
+  (^Context [^Context context form]
 
    (.expandCompile context
                    form)))
@@ -154,13 +154,13 @@
   ""
 
 
-  ([form]
+  (^Context [form]
 
    (eval (context)
          form))
 
 
-  ([context form]
+  (^Context [context form]
 
    (-> context
        (expand-compile form)
@@ -173,13 +173,13 @@
   ""
 
 
-  ([context]
+  (^Context [context]
 
    (query context
           (result context)))
 
 
-  ([^Context context form]
+  (^Context [^Context context form]
 
    (.query context
            form)))
@@ -191,13 +191,13 @@
   ""
 
 
-  ([context]
+  (^Context [context]
 
    (run context
         (result context)))
 
 
-  ([^Context context compiled]
+  (^Context [^Context context compiled]
 
    (.run context
          compiled)))
