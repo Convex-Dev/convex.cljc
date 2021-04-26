@@ -15,104 +15,104 @@
 ;;;;;;;;;;
 
 
-(defn -convex->clojure
+(defn -to-clojure
 
-  "Used by [[convex->clojure]]."
+  "Used by [[to-clojure]]."
 
   [target-clojure target-convex message]
 
   (t/is (= target-clojure
-           ($/convex->clojure (cond->
-                                target-convex
-                                (string? target-convex)
-                                $/read-string)))
+           ($/to-clojure (cond->
+                           target-convex
+                           (string? target-convex)
+                           $/read)))
         message))
 
 
 
-(t/deftest convex->clojure
+(t/deftest to-clojure
 
-  (-convex->clojure nil
-                    "nil"
-                    "Nil")
+  (-to-clojure nil
+               "nil"
+               "Nil")
 
-  (-convex->clojure '(blob "ffff")
-                    "0xffff"
-                    "Blob")
+  (-to-clojure '(blob "ffff")
+               "0xffff"
+               "Blob")
 
-  (-convex->clojure '(address 51)
-                    "#51"
-                    "Address")
+  (-to-clojure '(address 51)
+               "#51"
+               "Address")
 
-  (-convex->clojure (list 1
-                          :two
-                          'three)
-                    "(1 :two three)"
-                    "List")
+  (-to-clojure (list 1
+                     :two
+                     'three)
+               "(1 :two three)"
+               "List")
 
-  (-convex->clojure {:a  42
-                     "b" 84}
-                    "{:a    42
-                      \"b\" 84}"
-                    "Map")
+  (-to-clojure {:a  42
+                "b" 84}
+               "{:a    42
+                 \"b\" 84}"
+               "Map")
 
-  (-convex->clojure #{:a 'b}
-                    "#{:a b}"
-                    "Set")
+  (-to-clojure #{:a 'b}
+               "#{:a b}"
+               "Set")
 
-  (-convex->clojure "String"
-                    "\"String\""
-                    "String")
+  (-to-clojure "String"
+               "\"String\""
+               "String")
 
-  (-convex->clojure '[42.42 ok]
-                    "[42.42 ok]"
-                    "Vector")
+  (-to-clojure '[42.42 ok]
+               "[42.42 ok]"
+               "Vector")
 
-  (-convex->clojure :ok
-                    ":ok"
-                    "Keyword")
+  (-to-clojure :ok
+               ":ok"
+               "Keyword")
 
-  (-convex->clojure :ok
-                    ":ignored/ok"
-                    "Namespaced keyword (unsupported in CLisp)")
+  (-to-clojure :ok
+               ":ignored/ok"
+               "Namespaced keyword (unsupported in CLisp)")
 
-  (-convex->clojure 'ok
-                    "ok"
-                    "Symbol")
+  (-to-clojure 'ok
+               "ok"
+               "Symbol")
 
-  (-convex->clojure 'ok/yes
-                    "ok/yes"
-                    "Namespaced symbol")
+  (-to-clojure 'ok/yes
+               "ok/yes"
+               "Namespaced symbol")
 
-  (-convex->clojure "ok"
-                    "\"ok\""
-                    "String")
+  (-to-clojure "ok"
+               "\"ok\""
+               "String")
 
-  (-convex->clojure '(syntax [:a 42]
-                             {:foo :bar})
-                    (Syntax/create ($/read-string "[:a 42]")
-                                   ($/read-string "{:foo :bar}"))
-                    "Syntax")
+  (-to-clojure '(syntax [:a 42]
+                        {:foo :bar})
+               (Syntax/create ($/read "[:a 42]")
+                              ($/read "{:foo :bar}"))
+               "Syntax")
   
-  (-convex->clojure true
-                    "true"
-                    "Boolean")
+  (-to-clojure true
+               "true"
+               "Boolean")
 
-  (-convex->clojure 42
-                    (CVMByte/create 42)
-                    "Byte")
+  (-to-clojure 42
+               (CVMByte/create 42)
+               "Byte")
 
-  (-convex->clojure 42
-                    (CVMChar/create 42)
-                    "Char")
+  (-to-clojure \a
+               "\\a"
+               "Char")
 
-  (-convex->clojure 42.42
-                    "42.42"
-                    "Double")
+  (-to-clojure 42.42
+               "42.42"
+               "Double")
 
-  (-convex->clojure 42
-                    "42"
-                    "Long")
+  (-to-clojure 42
+               "42"
+               "Long")
 
 
   (let [code '(do
@@ -137,8 +137,8 @@
     (t/is (= code
              (-> code
                  str
-                 $/read-string
-                 $/convex->clojure))
+                 $/read
+                 $/to-clojure))
           "Stress test")))
 
 
@@ -151,6 +151,6 @@
            (-> "[:a
                  #51
                  0xff]"
-               $/read-string
-               $/convex->edn
+               $/read
+               $/to-edn
                $/read-edn))))

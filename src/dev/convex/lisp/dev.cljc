@@ -4,12 +4,21 @@
 
   {:author "Adam Helinski"}
 
-  (:require [ajax.core   :as http]
-            [convex.lisp :as $]
+  (:require [ajax.core                 :as http]
+            [convex.lisp               :as $]
             [clojure.pprint]
-            #?(:clj [clojure.reflect]))
+            #?(:clj [clojure.reflect])
+            [malli.core                :as malli])
   #?(:clj (:import (convex.core Init
-                                State))))
+                                State)
+                   (convex.core.crypto AKeyPair
+                                       Symmetric)
+                   (convex.core.data Keyword
+                                     Strings
+                                     Symbol)
+                   convex.core.data.prim.CVMDouble
+                   (convex.core.lang Context
+                                     RT))))
 
 
 #?(:clj (set! *warn-on-reflection*
@@ -29,7 +38,7 @@
 
 
   (-> Init/STATE
-      $/convex->clojure
+      $/to-clojure
       :accounts
       (->> (into []
                  (comp (map :environment)
@@ -37,17 +46,60 @@
       clojure.pprint/pprint)
 
 
+  (do
+    (-> Init/STATE
+        $/convex->edn
+        ;(->> (spit "/tmp/convex.edn"))
+        $/read-edn
+        ;clojure.pprint/pprint
+        )
+    nil)
+
 
   (-> "[:a
         #51
         0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff]"
-      $/read-string
-      $/convex->edn
+      $/read
+      $/to-edn
       $/read-edn
       )
+
+  
+  (AKeyPair/generate)
 
 
 
   ; lang.expanders.Expander
+
+  
+
+  (def ctx
+       (Context/createFake Init/STATE
+                           Init/HERO))
+
+  (-> (.run ctx
+            (-> ctx
+                (.expandCompile (-> `(~'transfer (~'address ~(.longValue Init/VILLAIN))
+                                                 3)
+                                    #_'(do
+                                       (defn foo [x]
+                                         (if (> x
+                                                0)
+                                           (recur (dec x))
+                                           x))
+                                       (foo 1e3))
+                                    str
+                                    $/read))
+                .getResult))
+      .getState
+      (.getAccount Init/HERO)
+      .getBalance
+      ;.getResult
+      $/to-clojure
+      )
+
+
+  
+
 
   ))

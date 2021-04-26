@@ -27,7 +27,7 @@
            (convex.core.lang.impl CoreFn
                                   Fn)
            convex.core.lang.Reader)
-  (:refer-clojure :exclude [read-string]))
+  (:refer-clojure :exclude [read]))
 
 
 (set! *warn-on-reflection*
@@ -37,13 +37,13 @@
 ;;;;;;;;;; Converting text to Convex Lisp
 
 
-(defn read-string
+(defn read
 
-  "Converts Convex Lisp **source** to **DDVs**."
+  "Converts Convex Lisp source to Convex data."
 
-  [source]
+  [string]
 
-  (let [parsed (Reader/readAll source)]
+  (let [parsed (Reader/readAll string)]
     (if (second parsed)
       (.cons parsed
              (Symbol/create "do"))
@@ -53,10 +53,9 @@
 ;;;;;;;;;; Converting Convex Lisp to Clojure
 
 
+(defn to-clojure
 
-(defn convex->clojure
-
-  "Translate Convex Lisp into Clojure data."
+  "Converts Convex data to Clojure data."
 
   [convex-code]
 
@@ -64,45 +63,6 @@
 
 
 
-(defn convex->edn
-
-  "Translates Convex Lisp into an EDN string."
-  
-  [^ACell convex-code]
-
-  (.ednString convex-code))
-
-
-
-(defn read-edn
-
-  ""
-
-  [string]
-
-  (clojure.tools.reader.edn/read-string {:readers {'account (fn [account]
-                                                              [:convex/account
-                                                               account])
-                                                   'addr   (fn [address]
-                                                             (list 'address
-                                                                   address))
-                                                   'blob   (fn [blob]
-                                                             (list 'blob
-                                                                   blob))
-                                                   'syntax (fn [{:keys [datum]
-                                                                 mta   :meta}]
-                                                             (if (and (seq mta)
-                                                                      (not (second mta))
-                                                                      (nil? (get mta
-                                                                                 :start)))
-                                                               (list 'syntax
-                                                                     datum
-                                                                     mta)
-                                                               datum))}}
-                                        string))
-                                        
-
-  
 (extend-protocol clojure.core.protocols/Datafiable
 
 
@@ -215,7 +175,7 @@
   convex.core.data.prim.CVMChar
 
     (datafy [this]
-      (.longValue this))
+      (char (.longValue this)))
 
 
   convex.core.data.prim.CVMDouble
@@ -242,12 +202,60 @@
 
     (datafy [this]
       (-> this
-          convex->edn
-          read-edn))
-  )
+          .toString
+          read-string
+          clojure.core.protocols/datafy )))
 
 
-;;;;;;;;;; Executing code on CVM
+;;;;;;;;;; Dealing with EDN
+
+
+(defn read-edn
+
+  "Reads a string of Convex data expressed as EDN.
+  
+   Opposite of [[to-edn]]."
+
+  [string]
+
+  (clojure.tools.reader.edn/read-string {:readers {'account    (fn [account]
+                                                                 [:convex/account
+                                                                  account])
+                                                   'addr       (fn [address]
+                                                                 (list 'address
+                                                                       address))
+                                                   'blob       (fn [blob]
+                                                                 (list 'blob
+                                                                       blob))
+                                                   'context    (fn [ctx]
+                                                                 [:convex/ctx
+                                                                  ctx])
+                                                   'expander   (fn [expander]
+                                                                 [:convex/expander
+                                                                  expander])
+                                                   'signeddata (fn [hash]
+                                                                 [:convex/signed-data
+                                                                  hash])
+                                                   'syntax     (fn [{:keys [datum]
+                                                                     mta   :meta}]
+                                                                 (if (and (seq mta)
+                                                                          (not (second mta))
+                                                                          (nil? (get mta
+                                                                                     :start)))
+                                                                   (list 'syntax
+                                                                         datum
+                                                                         mta)
+                                                                   datum))}}
+                                        string))
 
 
 
+(defn to-edn
+
+  "Translates Convex Lisp into an EDN string.
+  
+   Opposite of [[read-edn]]."
+  
+  [^ACell convex-code]
+
+  (.ednString convex-code))
