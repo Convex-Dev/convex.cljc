@@ -34,8 +34,9 @@
 
  :deps
  {cljs-ajax/cljs-ajax      {:mvn/version "0.8.3"}
-  metosin/malli            {:git/url "https://github.com/metosin/malli"
-                            :sha     "eca0e06390ed4340f2870d4684cb9516bdf2a188"}
+  metosin/malli            ;{:mvn/version "0.4.0"}
+                           {:git/url "https://github.com/metosin/malli"
+                            :sha     "8b8d45069413652af787d2e5f6f810d905c6b58c"}
   org.clojure/tools.reader {:mvn/version "1.3.4"}
   world.convex/convex      {:mvn/version "0.0.1-SNAPSHOT"}}
 

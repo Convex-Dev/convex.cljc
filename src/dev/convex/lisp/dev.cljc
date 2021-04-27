@@ -6,9 +6,11 @@
 
   (:require [ajax.core                 :as http]
             [convex.lisp               :as $]
+            [convex.lisp.schema        :as $.schema]
             [clojure.pprint]
             #?(:clj [clojure.reflect])
-            [malli.core                :as malli])
+            [malli.core                :as malli]
+            [malli.generator           :as malli.gen])
   #?(:clj (:import (convex.core Init
                                 State)
                    (convex.core.crypto AKeyPair
@@ -77,7 +79,7 @@
        ($/context))
 
 
-  (-> '(if true 41 0)
+  (-> 'Infinity
       $/from-clojure
       $/eval
       $/result
@@ -96,29 +98,54 @@
       )
 
 
-  (-> (.run ctx
-            (-> ctx
-                (.expandCompile (-> `(~'transfer (~'address ~(.longValue Init/VILLAIN))
-                                                 3)
-                                    #_'(do
-                                       (defn foo [x]
-                                         (if (> x
-                                                0)
-                                           (recur (dec x))
-                                           x))
-                                       (foo 1e3))
-                                    str
-                                    $/read))
-                .getResult))
-      .getState
-      (.getAccount Init/HERO)
-      .getBalance
-      ;.getResult
-      $/to-clojure
+  (def ctx
+       (-> '(blob "f")
+           str
+           $/read
+           $/eval
+           ;$/result
+           ;$/to-clojure
+           ))
+
+  (->> 42
+       str
+       $/read
+       ($/eval ctx)
+       $/result
+       $/to-clojure)
+
+
+
+  (def reg
+       (-> (malli/default-schemas)
+           $.schema/registry
+           (assoc :list
+                  (malli/-collection-schema {:empty '()
+                                             :pred  list?
+                                             :type  :list}))
+           ))
+
+
+
+  (time
+    (do
+      (malli.gen/sample :convex/list
+                          {:registry (-> (malli/default-schemas)
+                                         $.schema/registry
+                                         )
+                           :size     5
+                           })
+      nil))
+
+
+
+
+  (-> x
+      str
+      $/read
+      $/eval
+      ;$/result
+      .getExceptional
       )
-
-
-  
-
 
   ))
