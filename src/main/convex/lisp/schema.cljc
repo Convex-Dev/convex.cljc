@@ -25,7 +25,11 @@
   ([registry]
 
    (assoc registry
+          :convex/boolean :boolean
+          :convex/char    char?
           :convex/data    [:or
+                           :convex/boolean
+                           :convex/char
                            :convex/double
                            :convex/keyword
                            :convex/list
