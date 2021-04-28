@@ -58,28 +58,14 @@
     nil)
 
 
-  (-> "[:a
-        #51
-        0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff]"
-      $/read
-      $/to-edn
-      $/read-edn
-      )
-
   
-  (AKeyPair/generate)
-
 
 
   ; lang.expanders.Expander
 
   
 
-  (def ctx
-       ($/context))
-
-
-  (-> 'Infinity
+  (-> '(- 11 5.0)
       $/from-clojure
       $/eval
       $/result
@@ -97,39 +83,17 @@
       $/to-clojure
       )
 
-
-  (def ctx
-       (-> '(blob "f")
-           str
-           $/read
-           $/eval
-           ;$/result
-           ;$/to-clojure
-           ))
-
-  (->> 42
-       str
-       $/read
-       ($/eval ctx)
-       $/result
-       $/to-clojure)
-
-
-
-  (def reg
-       (-> (malli/default-schemas)
-           $.schema/registry
-           (assoc :list
-                  (malli/-collection-schema {:empty '()
-                                             :pred  list?
-                                             :type  :list}))
-           ))
+  
 
 
 
   (time
     (do
-      (malli.gen/sample :convex/list
+      (malli.gen/generate [:and
+                           [:sequential
+                            {:gen/fmap list*}
+                            :int]
+                           seq?]
                           {:registry (-> (malli/default-schemas)
                                          $.schema/registry
                                          )
@@ -139,13 +103,5 @@
 
 
 
-
-  (-> x
-      str
-      $/read
-      $/eval
-      ;$/result
-      .getExceptional
-      )
 
   ))

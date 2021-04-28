@@ -31,13 +31,15 @@
                            :convex/list
                            :convex/long
                            :convex/map
+                           :convex/nil
                            :convex/string
                            :convex/set
                            :convex/symbol
                            :convex/vector]
           :convex/double  [:double
                            ;; TODO. Currently, Convex does not support infinity and Malli does not generate NaN.
-                           {:gen/gen (tc.gen/double* {:infinite? false})}]
+                           {:gen/infinite? false
+                            :gen/NaN?      true}]
           :convex/keyword :keyword
           :convex/list    [:and
                            ;; TODO. Currently, Malli does not support something like `:list`.
