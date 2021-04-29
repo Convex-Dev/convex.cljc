@@ -87,9 +87,9 @@
 
   (time
     (do
-      ;(malli/explain :convex/address
-      ;                (symbol "#45")
-      (malli.gen/generate :convex/vector
+      ;(malli/validate :convex/blob
+      ;                (symbol "0xa7bb")
+      (malli.gen/generate :convex/blob
                           {:registry (-> (malli/default-schemas)
                                          $.schema/registry
                                          )

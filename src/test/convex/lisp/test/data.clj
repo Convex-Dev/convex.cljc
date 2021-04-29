@@ -173,7 +173,13 @@
 
 (tc.ct/defspec address
 
-  (property :convex/address))
+  (property-quotable :convex/address))
+
+
+
+(tc.ct/defspec blob
+
+  (property-quotable :convex/blob))
 
 
 

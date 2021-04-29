@@ -36,7 +36,7 @@
                "nil"
                "Nil")
 
-  (-to-clojure '(blob "ffff")
+  (-to-clojure (symbol "0xffff")
                "0xffff"
                "Blob")
 
@@ -125,7 +125,7 @@
               'ok
               'ok/super
               (symbol "#42")
-              '(blob "11223344ff")
+              (symbol "0x11223344ff")
               (:a :b)
               [:a :b]
               #{:a :b}

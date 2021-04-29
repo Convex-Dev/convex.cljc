@@ -33,13 +33,29 @@
                            :symbol
                            [:fn
                             (fn [sym]
-                              (println :sym sym)
-                              (boolean (re-find #"#\d+"
-                                               (name sym))))]]
+                              (boolean (re-matches #"#\d+"
+                                                   (name sym))))]]
+          :convex/blob    [:and
+                           {:gen/fmap   (fn [^long x]
+                                          (let [hexstring (#?(:clj  Long/toString
+                                                              :cljs .toString)
+                                                           x
+                                                           16)]
+                                            (symbol (str "0x"
+                                                         hexstring
+                                                         (when (odd? (count hexstring))
+                                                           \f)))))
+                            :gen/schema pos-int?}
+                           :symbol
+                           [:fn
+                            (fn [sym]
+                              (boolean (re-matches #"(?i)0x(?:(?:\d|A|B|C|D|E|F){2})*"
+                                                   (name sym))))]]
           :convex/boolean :boolean
           :convex/char    char?
           :convex/data    [:or
                            :convex/address
+                           :convex/blob
                            :convex/boolean
                            :convex/char
                            :convex/double

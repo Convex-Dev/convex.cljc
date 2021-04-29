@@ -264,8 +264,8 @@
   convex.core.data.ABlob
 
     (datafy [this]
-      (list 'blob
-            (.toHexString this)))
+      (symbol (str "0x"
+                   (.toHexString this))))
 
   
   convex.core.data.Address
@@ -414,6 +414,9 @@
                                                                  (symbol (str "#"
                                                                               address)))
                                                    'blob       (fn [blob]
+                                                                 ;;
+                                                                 ;; TODO. Cannot easily convert to hexstring, see #63.
+                                                                 ;;
                                                                  (list 'blob
                                                                        blob))
                                                    'context    (fn [ctx]
@@ -461,18 +464,25 @@
   [clojure-form]
 
   (clojure.walk/postwalk (fn [x]
-                           (cond
-                             (and (seq? x)
-                                  (= (first x)
-                                     'address))     (let [arg (second x)]
-                                                      (if (int? arg)
-                                                        (symbol (str "#"
-                                                                     (second x)))
-                                                        x))
-                             (and (double? x)
-                                  (Double/isNaN x)) (list 'unquote
-                                                          'NaN)
-                             :else                  x))
+                           (if (seq? x)
+                             (condp =
+                                    (first x)
+                               'address (let [arg (second x)]
+                                          (if (int? arg)
+                                            (symbol (str "#"
+                                                         (second x)))
+                                            x))
+                               'blob    (let [arg (second x)]
+                                          (if (string? arg)
+                                            (symbol (str "0x"
+                                                         arg))
+                                            x))
+                               x)
+                             (if (and (double? x)
+                                      (Double/isNaN x))
+                               (list 'unquote
+                                     'NaN)
+                               x)))
                          clojure-form))
 
 
