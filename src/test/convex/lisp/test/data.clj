@@ -20,9 +20,7 @@
             [clojure.test.check.properties   :as tc.prop]
             [clojure.test.check.clojure-test :as tc.ct]
             [convex.lisp                     :as $]
-            [convex.lisp.schema              :as $.schema]
-            [malli.core                      :as malli]
-            [malli.generator                 :as malli.gen])
+            [convex.lisp.test.util           :as $.test.util])
   (:refer-clojure :exclude [boolean
                             char
                             double
@@ -35,9 +33,6 @@
                             vector]))
 
 
-(declare registry)
-
-
 ;;;;;;;;;; Defaults
 
 
@@ -45,65 +40,20 @@
      5)
 
 
-;;;;;;;;;; Registry and fetching generators
-
-
-(defn generator
-
-  [k]
-
-  (malli.gen/generator k
-                       {:registry registry}))
-
-
-
-(def registry
-     (-> (malli/default-schemas)
-         $.schema/registry))
-
-
 ;;;;;;;;;; Helpers
-
-
-(defn eq
-
-  "Substitute for `=` so that NaN equals NaN."
-
-  [& arg+]
-
-  (apply =
-         (clojure.core/map hash
-              			   arg+)))
-
-
-
-(defn source->clojure
-
-  "Reads Convex Lisp source, evals it and converts the result to a Clojure value."
-
-  [source]
-
-  (-> source
-      $/read
-      $/eval
-      $/result
-      $/to-clojure))
-
-
-;;;;;;;;;;
 
 
 (defn cycle-quotable
 
-  ""
+  "Cycles `x`, after quoting it, as described in the namespace description, and returns true
+   if the result equals `x`."
 
   [x]
 
   (let [x-str ($/clojure->source x)]
-    (eq x
-        (source->clojure x-str)
-        (-> (str "'" x-str)
-            source->clojure))))
+    ($.test.util/eq x
+                    ($.test.util/source->clojure x-str)
+                    ($.test.util/source->clojure (str "'" x-str)))))
 
 
 ;;;;;;;;;; Creating properties
@@ -124,13 +74,13 @@
 
   ([k-schema f]
 
-   (tc.prop/for-all* [(generator k-schema)]
+   (tc.prop/for-all* [($.test.util/generator k-schema)]
                      (fn [x]
-                       (eq x
-                           (-> x
-                               f
-                               $/clojure->source
-                               source->clojure))))))
+                       ($.test.util/eq x
+                                       (-> x
+                                           f
+                                           $/clojure->source
+                                           $.test.util/source->clojure))))))
 
 
 
@@ -140,7 +90,7 @@
 
   [k-schema]
 
-  (tc.prop/for-all* [(generator k-schema)]
+  (tc.prop/for-all* [($.test.util/generator k-schema)]
                     cycle-quotable))
 
 
@@ -167,7 +117,7 @@
 
 (t/deftest -nil
 
-  (t/is (nil? (source->clojure "nil"))))
+  (t/is (nil? ($.test.util/source->clojure "nil"))))
  
 
 
@@ -197,12 +147,13 @@
 
 (tc.ct/defspec double
 
-  (tc.prop/for-all [x (generator :convex/double)]
-    (if (Double/isNaN x)
-      (Double/isNaN (-> x
-                        $/clojure->source
-                        source->clojure))
-      (cycle-quotable x))))
+  (tc.prop/for-all* [($.test.util/generator :convex/double)]
+                    (fn [x]
+                      (if (Double/isNaN x)
+                        (Double/isNaN (-> x
+                                          $/clojure->source
+                                          $.test.util/source->clojure))
+                        (cycle-quotable x)))))
 
 
 
