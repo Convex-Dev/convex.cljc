@@ -60,8 +60,16 @@
           :convex/nil     :nil
           :convex/set     [:set
                            [:ref :convex/data]]
-          :convex/string  :string
-          :convex/symbol  :symbol
+          :convex/string  [:string
+                            ;; TODO. Should not be necessary, see #66.
+                           {:gen/gen tc.gen/string-alphanumeric}]
+          :convex/symbol  [:and
+                           :symbol
+                           [:fn
+                            ;; TODO. Should not be necessary, see #65.
+                            (fn [x]
+                              (not (.contains (name x)
+                                              ".")))]]
           :convex/vector  [:vector [:ref :convex/data]])))
 
 

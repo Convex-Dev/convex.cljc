@@ -87,7 +87,7 @@
 
   (time
     (do
-      (malli.gen/generate :convex/char
+      (malli.gen/generate :convex/string
                           {:registry (-> (malli/default-schemas)
                                          $.schema/registry
                                          )
