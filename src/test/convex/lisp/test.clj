@@ -40,7 +40,7 @@
                "0xffff"
                "Blob")
 
-  (-to-clojure '(address 51)
+  (-to-clojure (symbol "#51")
                "#51"
                "Address")
 
@@ -115,25 +115,24 @@
                "Long")
 
 
-  (let [code '(do
-                nil
-                42
-                42.42
-                true
-                false
-                "ok"
-                :ok
-                ok
-                ok/super
-                (address 42)
-                (blob "11223344ff")
-                (:a :b)
-                [:a :b]
-                #{:a :b}
-                {:a 42
-                 :b 84}
-                (fn [x]
-                  (inc x)))]
+  (let [code [nil
+              42
+              42.42
+              true
+              false
+              "ok"
+              :ok
+              'ok
+              'ok/super
+              (symbol "#42")
+              '(blob "11223344ff")
+              (:a :b)
+              [:a :b]
+              #{:a :b}
+              {:a 42
+               :b 84}
+              '(fn [x]
+                 (inc x))]]
     (t/is (= code
              (-> code
                  str
@@ -145,9 +144,9 @@
 
 (t/deftest edn
 
-  (t/is (= '[:a
-             (address 51)
-             (blob 255)]
+  (t/is (= [:a
+            (symbol "#51")
+            '(blob 255)]
            (-> "[:a
                  #51
                  0xff]"
@@ -177,3 +176,20 @@
                  $/expand-compile
                  $/query
                  $/result)))))
+
+
+
+(t/deftest prepare-clojure
+
+  (t/testing "Address"
+    (t/is (= (symbol "#42")
+             ($/prepare-clojure '(address 42))))
+    (let [form '(address "42")]
+      (t/is (= form
+               ($/prepare-clojure form)))))
+
+  (t/testing "NaN"
+    (t/is (= '(unquote NaN)
+             ($/prepare-clojure ##NaN)))
+    (t/is (= '[(unquote NaN)]
+             ($/prepare-clojure [##NaN])))))

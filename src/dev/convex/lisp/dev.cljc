@@ -87,7 +87,9 @@
 
   (time
     (do
-      (malli.gen/generate :convex/string
+      ;(malli/explain :convex/address
+      ;                (symbol "#45")
+      (malli.gen/generate :convex/vector
                           {:registry (-> (malli/default-schemas)
                                          $.schema/registry
                                          )

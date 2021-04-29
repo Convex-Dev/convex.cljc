@@ -171,6 +171,12 @@
  
 
 
+(tc.ct/defspec address
+
+  (property :convex/address))
+
+
+
 (tc.ct/defspec boolean
 
   (property-quotable :convex/boolean))

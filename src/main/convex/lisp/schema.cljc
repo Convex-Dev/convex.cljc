@@ -4,7 +4,8 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.test.check.generators :as tc.gen]))
+  (:require [clojure.string]
+            [clojure.test.check.generators :as tc.gen]))
 
 
 ;;;;;;;;;;
@@ -25,9 +26,20 @@
   ([registry]
 
    (assoc registry
+          :convex/address [:and
+                           {:gen/fmap   #(symbol (str "#"
+                                                      %))
+                            :gen/schema pos-int?}
+                           :symbol
+                           [:fn
+                            (fn [sym]
+                              (println :sym sym)
+                              (boolean (re-find #"#\d+"
+                                               (name sym))))]]
           :convex/boolean :boolean
           :convex/char    char?
           :convex/data    [:or
+                           :convex/address
                            :convex/boolean
                            :convex/char
                            :convex/double

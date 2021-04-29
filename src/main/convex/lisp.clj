@@ -271,8 +271,8 @@
   convex.core.data.Address
 
     (datafy [this]
-      (list 'address
-            (.longValue this)))
+      (symbol (str "#"
+                   (.longValue this))))
 
 
   convex.core.data.AList
@@ -411,8 +411,8 @@
                                                                  [:convex/account
                                                                   account])
                                                    'addr       (fn [address]
-                                                                 (list 'address
-                                                                       address))
+                                                                 (symbol (str "#"
+                                                                              address)))
                                                    'blob       (fn [blob]
                                                                  (list 'blob
                                                                        blob))
@@ -461,11 +461,18 @@
   [clojure-form]
 
   (clojure.walk/postwalk (fn [x]
-                           (if (and (double? x)
-                                    (Double/isNaN x))
-                             (list 'unquote
-                                   'NaN)
-                             x))
+                           (cond
+                             (and (seq? x)
+                                  (= (first x)
+                                     'address))     (let [arg (second x)]
+                                                      (if (int? arg)
+                                                        (symbol (str "#"
+                                                                     (second x)))
+                                                        x))
+                             (and (double? x)
+                                  (Double/isNaN x)) (list 'unquote
+                                                          'NaN)
+                             :else                  x))
                          clojure-form))
 
 
