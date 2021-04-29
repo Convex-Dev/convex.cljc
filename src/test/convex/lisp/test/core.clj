@@ -42,14 +42,14 @@
                       ($.test.util/prop+
 
                         "Numerical computation of longs must result in a long"
-                        (double? ($.test.util/eval (list* core-symbol
-                                                          x)))
+                        (int? ($.test.util/eval (list* core-symbol
+                                                       x)))
 
                         "Numerical computation with at least one double must result in a double"
-                        (not (double? ($.test.util/eval (list* core-symbol
-                                                               (update x
-                                                                       (rand-int (dec (count x)))
-                                                                       double)))))))))
+                        (double? ($.test.util/eval (list* core-symbol
+                                                          (update x
+                                                                  (rand-int (dec (count x)))
+                                                                  double))))))))
   
 ;;;;;;;;;;
 

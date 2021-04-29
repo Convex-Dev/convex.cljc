@@ -93,19 +93,20 @@
 
 (defmacro prop+
 
-  "Multiplexes a `test.check` properties.
+  "Meant to be used inside a `test.check` property in order to multiplex it while keeping
+   track of which \"sub-property\" failed.
   
-   Tests each pair of error message and test proving that error. Fails with [[faill]]
-   when needed.
+   Tests each pair of text message and predicate. Fails with [[faill]] and the message when
+   a predicate returns false.
 
    ```clojure
    (prop+
 
      \"3 must be greater than 4\"
-     (not (< 3 4))
+     (< 3 4)
 
      \"Result must be double\"
-     (not (double? ...)))
+     (double? ...))
    ```"
 
   [& prop-pair+]
@@ -114,7 +115,8 @@
   `(if-some [string-error# (cond
                             ~@(reduce (fn [acc [string-error form-test]]
                                         (conj acc
-                                              form-test
+                                              (list 'not
+                                                    form-test)
                                               string-error))
                                       []
                                       (partition 2
