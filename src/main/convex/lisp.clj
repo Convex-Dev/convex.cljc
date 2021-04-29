@@ -358,7 +358,7 @@
   convex.core.data.prim.CVMByte
 
     (datafy [this]
-      (.longValue this))
+      (unchecked-byte (.longValue this)))
 
 
   convex.core.data.prim.CVMChar

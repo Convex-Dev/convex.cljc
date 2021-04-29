@@ -61,8 +61,11 @@
 
   
 
-  (-> '(concat [1 2] {:a :b})
-      $/from-clojure
+  (-> 
+      ;'(concat [1 2] {:a :b})
+      ;$/from-clojure
+      "1e6"
+      $/read
       $/eval
       $/result
       $/to-clojure
@@ -70,7 +73,7 @@
 
 
   (-> 
-      [:a '(if true 42 0)]
+      "1e200"
       str
       $/read
       $/expand-compile
@@ -90,7 +93,7 @@
     (do
       ;(malli/validate :convex/blob
       ;                (symbol "0xa7bb")
-      (malli.gen/generate :convex/number
+      (malli.gen/generate :convex/double
                           {:registry (-> (malli/default-schemas)
                                          $.schema/registry
                                          )
