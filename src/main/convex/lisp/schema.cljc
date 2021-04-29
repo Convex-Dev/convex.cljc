@@ -42,8 +42,9 @@
                            :convex/vector]
           :convex/double  [:double
                            ;; TODO. Currently, Convex does not support infinity and Malli does not generate NaN.
+						   ;; TODO. NaN is supported but buggy (see #67).
                            {:gen/infinite? false
-                            :gen/NaN?      true}]
+                            :gen/NaN?      false}]
           :convex/keyword :keyword
           :convex/list    [:and
                            ;; TODO. Currently, Malli does not support something like `:list`.

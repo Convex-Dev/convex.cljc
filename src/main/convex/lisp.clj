@@ -7,7 +7,8 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.core.protocols]
-            [clojure.tools.reader.edn])
+            [clojure.tools.reader.edn]
+            [clojure.walk])
   (:import convex.core.Init
            (convex.core.data ABlob
                              ACell
@@ -447,3 +448,58 @@
   [^ACell form]
 
   (.ednString form))
+
+
+;;;;;;;;;; Working with Clojure forms expressing Convex Lisp code
+
+
+(defn prepare-clojure
+
+  "Prepares a Clojure form so that it can be later transformed into Convex Lisp source
+   using [[str-clojure]]."
+
+  [clojure-form]
+
+  (clojure.walk/postwalk (fn [x]
+                           (if (and (double? x)
+                                    (Double/isNaN x))
+                             (list 'unquote
+                                   'NaN)
+                             x))
+                         clojure-form))
+
+
+
+(defn str-clojure
+
+  "Converts a Clojure form expressing Convex Lisp code into a source string.
+  
+   Should be used after [[prepare-clojure]]."
+
+  [clojure-form]
+
+  (pr-str clojure-form))
+
+
+
+(defn clojure->source
+
+  "Converts a Clojure form expressing Convex Lisp code into a source string by feeding it to
+   [[prepare-clojure]] and [[str-clojure]]."
+
+  [clojure-form]
+
+  (-> clojure-form
+      prepare-clojure
+      str-clojure))
+
+
+
+(defn quote-clojure
+
+  "Makes the given `clojure-form` quoted when converted into Convex Lisp source."
+
+  [clojure-form]
+
+  (list 'quote
+        clojure-form))
