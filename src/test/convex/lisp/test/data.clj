@@ -15,22 +15,11 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.core]
-            [clojure.test                    :as t]
+  (:require[clojure.test                     :as t]
             [clojure.test.check.properties   :as tc.prop]
             [clojure.test.check.clojure-test :as tc.ct]
             [convex.lisp                     :as $]
-            [convex.lisp.test.util           :as $.test.util])
-  (:refer-clojure :exclude [boolean
-                            char
-                            double
-                            keyword
-                            list
-                            long
-							map
-                            set
-                            symbol
-                            vector]))
+            [convex.lisp.test.util           :as $.test.util]))
 
 
 ;;;;;;;;;; Defaults
@@ -52,8 +41,8 @@
 
   (let [x-str ($/clojure->source x)]
     ($.test.util/eq x
-                    ($.test.util/source->clojure x-str)
-                    ($.test.util/source->clojure (str "'" x-str)))))
+                    ($.test.util/eval-source x-str)
+                    ($.test.util/eval-source (str "'" x-str)))))
 
 
 ;;;;;;;;;; Creating properties
@@ -80,7 +69,7 @@
                                        (-> x
                                            f
                                            $/clojure->source
-                                           $.test.util/source->clojure))))))
+                                           $.test.util/eval-source))))))
 
 
 
@@ -117,7 +106,7 @@
 
 (t/deftest -nil
 
-  (t/is (nil? ($.test.util/source->clojure "nil"))))
+  (t/is (nil? ($.test.util/eval-source "nil"))))
  
 
 
@@ -133,43 +122,43 @@
 
 
 
-(tc.ct/defspec boolean
+(tc.ct/defspec -boolean
 
   (property-quotable :convex/boolean))
 
 
 
-(tc.ct/defspec char
+(tc.ct/defspec -char
 
   (property-quotable :convex/char))
 
 
 
-(tc.ct/defspec double
+(tc.ct/defspec -double
 
   (tc.prop/for-all* [($.test.util/generator :convex/double)]
                     (fn [x]
                       (if (Double/isNaN x)
                         (Double/isNaN (-> x
                                           $/clojure->source
-                                          $.test.util/source->clojure))
+                                          $.test.util/eval-source))
                         (cycle-quotable x)))))
 
 
 
-(tc.ct/defspec keyword
+(tc.ct/defspec -keyword
 
   (property-quotable :convex/keyword))
 
 
 
-(tc.ct/defspec long
+(tc.ct/defspec -long
 
   (property-quotable :convex/long))
 
 
 
-(tc.ct/defspec string
+(tc.ct/defspec -string
 
   ;; TODO. Suffers from #66.
 
@@ -177,7 +166,7 @@
 
 
 
-(tc.ct/defspec symbol
+(tc.ct/defspec -symbol
 
   ;; TODO. Suffers from #65.
 
@@ -187,7 +176,7 @@
 ;;;;;;;;;; Generative tests - Collections
 
 
-(tc.ct/defspec list
+(tc.ct/defspec -list
 
   {:max-size max-size-coll}
 
@@ -195,7 +184,7 @@
 
 
 
-(tc.ct/defspec map
+(tc.ct/defspec -map
 
   {:max-size max-size-coll}
 
@@ -203,7 +192,7 @@
 
 
 
-(tc.ct/defspec set
+(tc.ct/defspec -set
 
   {:max-size max-size-coll}
 
@@ -211,7 +200,7 @@
 
 
 
-(tc.ct/defspec vector
+(tc.ct/defspec -vector
 
   {:max-size max-size-coll}
 

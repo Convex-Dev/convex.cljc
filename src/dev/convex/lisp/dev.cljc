@@ -11,6 +11,7 @@
             [clojure.pprint]
             #?(:clj [clojure.reflect])
             [clojure.test.check.properties :as tc.prop]
+            [clojure.test.check.results    :as tc.result]
             [malli.core                    :as malli]
             [malli.generator               :as malli.gen])
   #?(:clj (:import clojure.lang.RT
@@ -89,7 +90,7 @@
     (do
       ;(malli/validate :convex/blob
       ;                (symbol "0xa7bb")
-      (malli.gen/generate :convex/blob
+      (malli.gen/generate :convex/number
                           {:registry (-> (malli/default-schemas)
                                          $.schema/registry
                                          )

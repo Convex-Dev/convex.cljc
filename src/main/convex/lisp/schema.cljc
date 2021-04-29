@@ -64,6 +64,7 @@
                            :convex/long
                            :convex/map
                            :convex/nil
+                           :convex/number
                            :convex/string
                            :convex/set
                            :convex/symbol
@@ -86,6 +87,9 @@
                            [:ref :convex/data]
                            [:ref :convex/data]]
           :convex/nil     :nil
+          :convex/number  [:or
+                           :convex/double
+                           :convex/long]
           :convex/set     [:set
                            [:ref :convex/data]]
           :convex/string  [:string
