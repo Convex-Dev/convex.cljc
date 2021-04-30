@@ -15,20 +15,33 @@
 ;;;;;;;;;;
 
 
+(defn prop-clojure
+
+  ""
+
+  [core-symbol schema f-related]
+
+  (tc.prop/for-all* [($.test.util/generator schema)]
+                    (fn [x]
+                      ($.test.util/eq (apply f-related
+                                             x)
+                                      ($.test.util/eval (list* core-symbol
+                                                               x))))))
+
+
+
 (defn prop-compare
 
   ""
 
   [core-symbol f-related]
 
-  (tc.prop/for-all* [($.test.util/generator [:vector
-                                             {:min 1}
-                                             :convex/number])]
-                    (fn [x]
-                      (= (apply f-related
-                                x)
-                         ($.test.util/eval (list* core-symbol
-                                                  x))))))
+  (prop-clojure core-symbol
+                [:vector
+                 {:min 1}
+                 :convex/number]
+                f-related))
+
 
 
 (defn prop-double
@@ -159,7 +172,15 @@
 
 
 
-(tc.ct/defspec dec-double
+(tc.ct/defspec ceil
+
+  (prop-clojure 'ceil
+                [:tuple :convex/number]
+                #(StrictMath/ceil %)))
+
+
+
+(tc.ct/defspec dec--double
 
   ;; Unintuitive behavior. When sufficiently small double, is cast to 0.
   ;; Not small enough, get cast to `Long/MIN_VALUE` and underflows.
@@ -193,7 +214,7 @@
 
 
 
-(t/deftest dec-double-underflow
+(t/deftest dec--double-underflow
 
   (t/is (= Long/MAX_VALUE
            ($.test.util/eval (list 'dec
@@ -201,7 +222,7 @@
 
 
 
-(tc.ct/defspec dec-long
+(tc.ct/defspec dec--long
 
   (tc.prop/for-all* [($.test.util/generator :convex/long)]
                     (fn [x]
@@ -221,7 +242,23 @@
 
 
 
-(tc.ct/defspec inc-double
+(tc.ct/defspec exp
+
+  (prop-clojure 'exp
+                [:tuple :convex/number]
+                #(StrictMath/exp %)))
+
+
+
+(tc.ct/defspec floor
+
+  (prop-clojure 'floor
+                [:tuple :convex/number]
+                #(StrictMath/floor %)))
+
+
+
+(tc.ct/defspec inc--double
 
   ;; See [[dec-double]].
 
@@ -252,7 +289,7 @@
 
 
 
-(tc.ct/defspec inc-long
+(tc.ct/defspec inc--long
 
   (tc.prop/for-all* [($.test.util/generator :convex/long)]
                     (fn [x]
@@ -269,3 +306,71 @@
                                     Long/MAX_VALUE)
                                Long/MIN_VALUE
                                (inc x))))))))
+
+
+
+;; TODO. `log`, weird, no docstring and behaves like `vector`
+
+
+
+(tc.ct/defspec |max
+
+  (prop-compare 'max
+                max))
+
+
+
+(tc.ct/defspec |min
+
+  (prop-compare 'min
+                min))
+
+
+
+(tc.ct/defspec pow
+
+  (tc.prop/for-all* [($.test.util/generator [:tuple
+                                             :convex/number
+                                             :convex/number])]
+                    (fn [[x y]]
+                      ($.test.util/eq (StrictMath/pow x
+                                                      y)
+                                      ($.test.util/eval (list 'pow
+                                                              x
+                                                              y))))))
+
+
+
+(tc.ct/defspec signum
+
+  (tc.prop/for-all* [($.test.util/generator :convex/number)]
+                    (fn [x]
+                      (let [x-2 ($.test.util/eval (list 'signum
+                                                        x))]
+                        ($.test.util/prop+
+
+                          "Negative"
+                          (if (neg? x)
+                            (= -1
+                               x-2)
+                            true)
+
+                          "Positive"
+                          (if (pos? x)
+                            (= 1
+                               x-2)
+                            true)
+
+                          "Zero"
+                          (if (zero? x)
+                            (zero? x-2)
+                            true))))))
+
+
+
+
+(tc.ct/defspec sqrt
+
+  (prop-clojure 'sqrt
+                [:tuple :convex/number]
+                #(StrictMath/sqrt %)))
