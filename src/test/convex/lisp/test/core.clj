@@ -15,6 +15,22 @@
 ;;;;;;;;;;
 
 
+(defn prop-compare
+
+  ""
+
+  [core-symbol f-related]
+
+  (tc.prop/for-all* [($.test.util/generator [:vector
+                                             {:min 1}
+                                             :convex/number])]
+                    (fn [x]
+                      (= (apply f-related
+                                x)
+                         ($.test.util/eval (list* core-symbol
+                                                  x))))))
+
+
 (defn prop-double
 
   ""
@@ -56,27 +72,62 @@
 ;;;;;;;;;;
 
 
-(tc.ct/defspec -+
+(tc.ct/defspec |*
+
+  (prop-numeric '*))
+
+
+
+(tc.ct/defspec |+
 
   (prop-numeric '+))
 
 
 
-(tc.ct/defspec --
+(tc.ct/defspec |-
 
   (prop-numeric '-))
 
 
 
-(tc.ct/defspec -div
+(tc.ct/defspec |div
 
   (prop-double '/))
 
 
 
-(tc.ct/defspec -+
+(tc.ct/defspec |<
 
-  (prop-numeric '+))
+  (prop-compare '<
+                <))
+
+
+
+(tc.ct/defspec |<=
+
+  (prop-compare '<=
+                <=))
+
+
+
+(tc.ct/defspec |=
+
+  (prop-compare '=
+                =))
+
+
+
+(tc.ct/defspec |>=
+
+  (prop-compare '>=
+                >=))
+
+
+
+(tc.ct/defspec |>
+
+  (prop-compare '>
+                >))
 
 
 
@@ -97,7 +148,7 @@
                              (type x)))))))
 
 
-(tc.ct/defspec -byte
+(tc.ct/defspec |byte
 
   (tc.prop/for-all* [($.test.util/generator :convex/number)]
                     (fn [x]
