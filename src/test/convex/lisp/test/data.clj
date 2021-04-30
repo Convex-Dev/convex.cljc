@@ -45,6 +45,30 @@
                     ($.test.util/eval-source (str "'" x-str)))))
 
 
+
+(defn generator-E-notation
+
+  "Helps creating a generator for scientific notation."
+
+  [schema-exponent]
+
+  ($.test.util/generator [:tuple
+                          {:gen/fmap (fn [[m-1 m-2 e x]]
+                                       (str m-1
+                                            \.
+                                            m-2
+                                            e
+                                            x))}
+                          :convex/long
+                          [:and
+                           :convex/long
+                           [:>= 0]]
+                          [:enum
+                           \e
+                           \E]
+                          schema-exponent]))
+
+
 ;;;;;;;;;; Creating properties
 
 
@@ -136,13 +160,33 @@
 
 (tc.ct/defspec -double
 
-  (tc.prop/for-all* [($.test.util/generator :convex/double)]
+  (tc.prop/for-all* [($.test.util/generator :double)]
                     (fn [x]
                       (if (Double/isNaN x)
                         (Double/isNaN (-> x
                                           $/clojure->source
                                           $.test.util/eval-source))
                         (cycle-quotable x)))))
+
+
+
+(tc.ct/defspec -double-E-notation
+
+  ;; TODO. Also ensure failing (see #70).
+
+  (tc.prop/for-all* [(generator-E-notation :convex/long)]
+                    #(-> %
+                         $.test.util/eval-source
+                         double?)))
+
+
+
+#_(tc.ct/defspec -double-E-notation-fail
+
+  ;; TODO. Must be fixed, see #70.
+
+  (tc.prop/for-all* [(generator-E-notation :double)]
+                    $.test.util/eval-exceptional-source))
 
 
 

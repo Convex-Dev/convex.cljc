@@ -86,9 +86,23 @@
 
 
 
+(defn exceptional
+
+  "Returns the current exceptional value attached to the given `context` if it is indeed
+   in an exceptional state, nil otherwise."
+
+  [^Context context]
+
+  (when (.isExceptional context)
+    (.getExceptional context)))
+
+
+
 (defn result
 
-  "Extracts the result (eg. after expansion, compilation, execution, ...) wrapped in a [[context]]."
+  "Extracts the result (eg. after expansion, compilation, execution, ...) wrapped in a [[context]].
+  
+   Throws if the [[context]] is in an exceptional state. See [[exceptional]]."
 
   [^Context context]
 

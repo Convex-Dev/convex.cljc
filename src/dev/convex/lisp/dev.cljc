@@ -46,7 +46,7 @@
 
   (do
     (-> Init/STATE
-        $/convex->edn
+        $/to-edn
         ;(->> (spit "/tmp/convex.edn"))
         $/read-edn
         ;clojure.pprint/pprint
@@ -64,7 +64,7 @@
   (-> 
       ;'(concat [1 2] {:a :b})
       ;$/from-clojure
-      "1e6"
+      "1.0e5.1234"
       $/read
       $/eval
       $/result

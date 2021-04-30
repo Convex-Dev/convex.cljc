@@ -61,6 +61,19 @@
 
 
 
+(defn eval-exceptional-source
+
+  ""
+
+  [source]
+
+  (-> source
+      $/read
+      $/eval
+      $/exceptional))
+
+
+
 (defn eval-source
 
   "Reads Convex Lisp source, evals it and converts the result to a Clojure value."
