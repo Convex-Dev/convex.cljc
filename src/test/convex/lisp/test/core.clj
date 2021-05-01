@@ -424,6 +424,46 @@
 
 
 
+(tc.ct/defspec fn--arg-0
+
+  ;; Calling no-arg functions.
+
+  {:max-size max-size-coll}
+
+  (tc.prop/for-all* [($.test.util/generator :convex/data)]
+                    (fn [x]
+                      (let [x-2     (list 'quote
+                                          x)
+                            fn-form (list 'fn
+                                          []
+                                          x-2)
+                            templ   (fn [form]
+                                      ($/templ {'FN fn-form
+                                                'X  x-2}
+                                               form))]
+                        ($.test.util/prop+
+
+                          "Calling straight"
+                          ($.test.util/eval (templ '(= X
+                                                       (FN))))
+  
+                          "Calling after being interned"
+                          ($.test.util/eval (templ '(do
+                                                      (def f
+                                                           FN)
+                                                      (and (fn? f)
+                                                           (= X
+                                                              (f))))))
+  
+                          "Calling as local binding"
+                          ($.test.util/eval (templ '(let [f FN]
+                                                      (and (fn? f)
+                                                           (= X
+                                                              (f)))))))))))
+
+
+
+
 (tc.ct/defspec hash--
 
   ;; Also tests `hash?`.
@@ -748,5 +788,3 @@
 ;; address?
 
 ;; fn?
-
-;; hash?
