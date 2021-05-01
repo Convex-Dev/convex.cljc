@@ -23,7 +23,7 @@
 
   "Regular expression for a hexstring representing exactly 32 bytes."
 
-  #"(?i)0x(?:\d|A|B|C|D|E|F){32}")
+  #"(?i)0x(?:\d|A|B|C|D|E|F){64}")
 
 
 

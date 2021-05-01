@@ -79,6 +79,7 @@
 						        ;; TODO. NaN is supported but buggy (see #67).
                                 {:gen/infinite? false
                                  :gen/NaN?      false}]
+          :convex/hash         :convex/blob-32
           :convex/hexstring    [:re
                                 {:gen/gen    42  ;; Malli bug, :gen/gen must be defined for custom generation of regex
                                  :gen/fmap   $.hex/from-int

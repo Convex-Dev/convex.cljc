@@ -424,6 +424,35 @@
 
 
 
+(tc.ct/defspec hash--
+
+  ;; Also tests `hash?`.
+
+  (tc.prop/for-all* [($.test.util/generator [:or
+                                             :convex/address
+                                             :convex/blob-32])]
+                    (fn [x]
+                      (let [[h
+                             h-1?
+                             h-2?] ($.test.util/eval ($/templ {'X x}
+                                                              '(let [h (hash X)]
+                                                                 [h
+                                                                  (hash? h)
+                                                                  (hash? (hash h))])))]
+                         ($.test.util/prop+
+
+                           "Result is a hash"
+                           ($.test.util/valid? :convex/hash
+                                               h)
+
+                           "Hashing does produce a hash"
+                           h-1?
+
+                           "Hashing a hash produces a hash"
+                           h-2?)))))
+
+
+
 (tc.ct/defspec inc--double
 
   ;; See [[dec-double]].

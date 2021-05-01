@@ -85,8 +85,8 @@
   
   (time
     (do
-      ;(malli/validate :convex/blob-32
-      ;                (symbol "0xa7bb")
+      ;(malli/validate :convex/hash
+      ;                (symbol "0x0000000000000000000000000000000000000000000000000000000000000001")
       (malli.gen/generate :convex/blob-32
                           {:registry (-> (malli/default-schemas)
                                          $.schema/registry
