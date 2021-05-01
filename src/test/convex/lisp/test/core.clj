@@ -9,7 +9,18 @@
             [clojure.test.check.properties   :as tc.prop]
             [clojure.test.check.clojure-test :as tc.ct]
             [convex.lisp                     :as $]
+            [convex.lisp.hex                 :as $.hex]
             [convex.lisp.test.util           :as $.test.util]))
+
+
+;;;;;;;;;;
+
+
+(def max-size-coll
+
+  ""
+
+  5)
 
 
 ;;;;;;;;;;
@@ -82,6 +93,73 @@
                                                                   double))))))))
 
 
+
+(defn prop-pred-data-false
+
+  ""
+
+
+  ([core-symbol schema-without]
+
+   (prop-pred-data-false core-symbol
+                         schema-without
+                         nil))
+
+
+  ([core-symbol schema-without clojure-pred]
+
+   (tc.prop/for-all* [($.test.util/generator-data-without schema-without)]
+                     (if clojure-pred
+                       (fn [x]
+                         (let [x-2 ($.test.util/eval-pred core-symbol
+                                                          x)]
+                           ($.test.util/prop+
+
+                             "Always returns false"
+                             (not x-2)
+
+                             "Consistent with Clojure"
+                             (= x-2
+                                (clojure-pred x)))))
+                       (fn [x]
+                         (not ($.test.util/eval-pred core-symbol
+                                                     x)))))))
+
+
+
+(defn prop-pred-data-true
+
+  ""
+
+
+  ([core-symbol schema]
+
+   (prop-pred-data-true core-symbol
+                        schema
+                        nil))
+
+
+  ([core-symbol schema clojure-pred]
+
+   (tc.prop/for-all* [($.test.util/generator schema)]
+                     (if clojure-pred
+                       (fn [x]
+                         (let [x-2 ($.test.util/eval-pred core-symbol
+                                                          x)]
+                           ($.test.util/prop+
+
+                             "Always returns true"
+                             x-2
+
+                             "Consistent with Clojure"
+                             (= x-2
+                                (clojure-pred x)))))
+                       (fn [x]
+                         ($.test.util/eval-pred core-symbol
+                                                x))))))
+
+
+
 ;;;;;;;;;;
 
 
@@ -144,6 +222,34 @@
 
 
 
+(tc.ct/defspec account?
+
+  ;; Also tests `create-account` to some extend.
+
+  (tc.prop/for-all* [($.test.util/generator [:and
+                                             :int
+                                             [:>= 50]])]
+                    (fn [x]
+                      ($.test.util/prop+
+
+                        "Account does not exist"
+                        (false? ($.test.util/eval (list 'account?
+                                                        x)))
+
+                        ; Convex bug? Doesn't seem being able to convert 32 byte hexstrings.
+                        ;
+                        ; "Account must exist after creation"
+                        ; ($.test.util/eval ($/templ {'KEY (-> x
+                        ;                                      $.hex/from-int
+                        ;                                      $.hex/pad-32)}
+                        ;                            '(do
+                        ;                               (create-account KEY)
+                        ;                               (account? KEY))))
+                    ))))
+
+  
+
+
 (tc.ct/defspec abs
 
   (tc.prop/for-all* [($.test.util/generator :convex/number)]
@@ -159,6 +265,33 @@
                           "Type is preserved"
                           (= (type x-2)
                              (type x)))))))
+
+
+
+(tc.ct/defspec blob?--false
+
+  {:max-size max-size-coll}
+
+  (prop-pred-data-false 'blob?
+                        #{:convex/blob}))
+
+
+
+(tc.ct/defspec blob?--true
+
+  (prop-pred-data-true 'blob?
+                       :convex/blob))
+
+
+
+(tc.ct/defspec boolean?--false
+
+  {:max-size max-size-coll}
+
+  (prop-pred-data-false 'boolean?
+                        #{:convex/boolean}
+                        boolean?))
+
 
 
 (tc.ct/defspec |byte
@@ -177,6 +310,29 @@
   (prop-clojure 'ceil
                 [:tuple :convex/number]
                 #(StrictMath/ceil %)))
+
+
+
+(tc.ct/defspec coll?--false
+
+  {:max-size max-size-coll}
+
+  (prop-pred-data-false 'coll?
+                        #{:convex/list
+                          :convex/map
+                          :convex/set
+                          :convex/vector}
+                        coll?))
+
+
+
+(tc.ct/defspec coll?--true
+
+  {:max-size max-size-coll}
+
+  (prop-pred-data-true 'coll?
+                       :convex/collection
+                       coll?))
 
 
 
@@ -374,3 +530,25 @@
   (prop-clojure 'sqrt
                 [:tuple :convex/number]
                 #(StrictMath/sqrt %)))
+
+
+
+
+
+;; actor?
+;; address?
+
+;; fn?
+
+;; hash?
+
+
+;; keyword?
+;; list?
+;; long?
+;; map?
+;; nil?
+;; number?
+;; set?
+;; str?
+;; vector?

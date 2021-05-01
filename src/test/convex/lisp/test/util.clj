@@ -14,7 +14,8 @@
 
 
 (declare eval-source
-         registry)
+         registry
+         schema-data-without)
 
 
 ;;;;;;;;;; Registry and fetching generators
@@ -22,16 +23,31 @@
 
 (defn generator
 
-  [k]
+  "Returns a generator for the given `schema`."
 
-  (malli.gen/generator k
+  [schema]
+
+  (malli.gen/generator schema
                        {:registry registry}))
 
 
 
+(defn generator-data-without
+
+  "Mix between [[generator]] and [[schema-data-without]]."
+
+  [schema+]
+
+  (generator (schema-data-without schema+)))
+
+
+
 (def registry
-     (-> (malli/default-schemas)
-         $.schema/registry))
+
+  "Malli registry for Convex."
+
+  (-> (malli/default-schemas)
+      $.schema/registry))
 
 
 ;;;;;;;;;; Helpers
@@ -72,6 +88,18 @@
       $/read
       $/eval
       $/exceptional))
+
+
+
+(defn eval-pred
+
+  ""
+
+  [core-symbol x]
+
+  (eval ($/templ {'X   x
+                  'SYM core-symbol}
+                 '(SYM (quote X)))))
 
 
 
@@ -137,3 +165,27 @@
                                                  prop-pair+)))]
      (fail string-error#)
      true))
+
+
+
+(defn schema-data-without
+
+  "Returns the `:convex/data` schema without the schemas provided in the given set."
+
+  [schema+]
+
+  (into [:or]
+        (filter #(not (contains? schema+
+                                 %)))
+        (rest (registry :convex/data))))
+
+
+(defn valid?
+
+  "Is `x` valid according to `schema`?"
+
+  [schema x]
+
+  (malli/validate schema
+                  x
+                  {:registry registry}))

@@ -64,23 +64,22 @@
   
 
   (-> 
-      ;'*initial-expander*
-      '*juice*
+      '(hash (blob "42"))
       $/from-clojure
       $/eval
       $/result
-      ;$/to-clojure
+      $/to-clojure
       )
 
 
   (-> 
-      "1e200"
+      "(hash 42)"
       str
       $/read
       $/expand-compile
       $/query
       $/result
-      $/to-clojure
+      ;$/to-clojure
       )
 
   

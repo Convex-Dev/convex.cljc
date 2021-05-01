@@ -48,6 +48,11 @@
                                                         (name sym))))]]
           :convex/boolean      :boolean
           :convex/char         char?
+          :convex/collection   [:or
+                                :convex/list
+                                :convex/map
+                                :convex/set
+                                :convex/vector]
           :convex/data         [:or
                                 :convex/address
                                 :convex/blob
