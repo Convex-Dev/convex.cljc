@@ -87,11 +87,11 @@
     (do
       ;(malli/validate :convex/blob
       ;                (symbol "0xa7bb")
-      (malli.gen/generate :convex/hexstring-32
+      (malli.gen/generate :convex/list
                           {:registry (-> (malli/default-schemas)
                                          $.schema/registry
                                          )
-                           :size     50
+                           :size     5
                            })
       nil))
 

@@ -128,7 +128,7 @@
 ;;;;;;;;;; Generative tests - Scalar values
 
 
-(t/deftest -nil
+(t/deftest nil--
 
   (t/is (nil? ($.test.util/eval-source "nil"))))
  
@@ -146,19 +146,19 @@
 
 
 
-(tc.ct/defspec |boolean
+(tc.ct/defspec boolean-
 
   (property-quotable :convex/boolean))
 
 
 
-(tc.ct/defspec |char
+(tc.ct/defspec char-
 
   (property-quotable :convex/char))
 
 
 
-(tc.ct/defspec |double
+(tc.ct/defspec double-
 
   (tc.prop/for-all* [($.test.util/generator :double)]
                     (fn [x]
@@ -181,7 +181,7 @@
 
 
 
-#_(tc.ct/defspec double-E-notation-fail
+#_(tc.ct/defspec double-E-notation--fail
 
   ;; TODO. Must be fixed, see #70.
 
@@ -190,19 +190,19 @@
 
 
 
-(tc.ct/defspec |keyword
+(tc.ct/defspec keyword-
 
   (property-quotable :convex/keyword))
 
 
 
-(tc.ct/defspec |long
+(tc.ct/defspec long-
 
   (property-quotable :convex/long))
 
 
 
-(tc.ct/defspec |string
+(tc.ct/defspec string-
 
   ;; TODO. Suffers from #66.
 
@@ -210,7 +210,7 @@
 
 
 
-(tc.ct/defspec |symbol
+(tc.ct/defspec symbol-
 
   ;; TODO. Suffers from #65.
 
@@ -220,7 +220,7 @@
 ;;;;;;;;;; Generative tests - Collections
 
 
-(tc.ct/defspec |list
+(tc.ct/defspec list-
 
   {:max-size max-size-coll}
 
@@ -228,7 +228,7 @@
 
 
 
-(tc.ct/defspec |map
+(tc.ct/defspec map-
 
   {:max-size max-size-coll}
 
@@ -236,7 +236,7 @@
 
 
 
-(tc.ct/defspec |set
+(tc.ct/defspec set-
 
   {:max-size max-size-coll}
 
@@ -244,7 +244,7 @@
 
 
 
-(tc.ct/defspec |vector
+(tc.ct/defspec vector-
 
   {:max-size max-size-coll}
 

@@ -163,66 +163,66 @@
 ;;;;;;;;;;
 
 
-(tc.ct/defspec |*
+(tc.ct/defspec *--
 
   (prop-numeric '*))
 
 
 
-(tc.ct/defspec |+
+(tc.ct/defspec +--
 
   (prop-numeric '+))
 
 
 
-(tc.ct/defspec |-
+(tc.ct/defspec ---
 
   (prop-numeric '-))
 
 
 
-(tc.ct/defspec |div
+(tc.ct/defspec div--
 
   (prop-double '/))
 
 
 
-(tc.ct/defspec |<
+(tc.ct/defspec <--
 
   (prop-compare '<
                 <))
 
 
 
-(tc.ct/defspec |<=
+(tc.ct/defspec <=--
 
   (prop-compare '<=
                 <=))
 
 
 
-(tc.ct/defspec |=
+(tc.ct/defspec =--
 
   (prop-compare '=
                 =))
 
 
 
-(tc.ct/defspec |>=
+(tc.ct/defspec >=--
 
   (prop-compare '>=
                 >=))
 
 
 
-(tc.ct/defspec |>
+(tc.ct/defspec >--
 
   (prop-compare '>
                 >))
 
 
 
-(tc.ct/defspec account?
+(tc.ct/defspec account?--
 
   ;; Also tests `create-account` to some extend.
 
@@ -250,7 +250,7 @@
   
 
 
-(tc.ct/defspec abs
+(tc.ct/defspec abs--
 
   (tc.prop/for-all* [($.test.util/generator :convex/number)]
                     (fn [x]
@@ -304,7 +304,7 @@
 
 
 
-(tc.ct/defspec |byte
+(tc.ct/defspec byte--
 
   (tc.prop/for-all* [($.test.util/generator :convex/number)]
                     (fn [x]
@@ -315,7 +315,7 @@
 
 
 
-(tc.ct/defspec ceil
+(tc.ct/defspec ceil--
 
   (prop-clojure 'ceil
                 [:tuple :convex/number]
@@ -408,7 +408,7 @@
 
 
 
-(tc.ct/defspec exp
+(tc.ct/defspec exp--
 
   (prop-clojure 'exp
                 [:tuple :convex/number]
@@ -416,7 +416,7 @@
 
 
 
-(tc.ct/defspec floor
+(tc.ct/defspec floor--
 
   (prop-clojure 'floor
                 [:tuple :convex/number]
@@ -555,14 +555,14 @@
 
 
 
-(tc.ct/defspec |max
+(tc.ct/defspec max--
 
   (prop-compare 'max
                 max))
 
 
 
-(tc.ct/defspec |min
+(tc.ct/defspec min--
 
   (prop-compare 'min
                 min))
@@ -606,7 +606,7 @@
 
 
 
-(tc.ct/defspec pow
+(tc.ct/defspec pow--
 
   (tc.prop/for-all* [($.test.util/generator [:tuple
                                              :convex/number
@@ -640,7 +640,7 @@
 
 
 
-(tc.ct/defspec signum
+(tc.ct/defspec signum--
 
   (tc.prop/for-all* [($.test.util/generator :convex/number)]
                     (fn [x]
@@ -667,8 +667,7 @@
 
 
 
-
-(tc.ct/defspec sqrt
+(tc.ct/defspec sqrt--
 
   (prop-clojure 'sqrt
                 [:tuple :convex/number]
