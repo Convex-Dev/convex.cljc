@@ -6,10 +6,12 @@
 
   (:require [ajax.core                     :as http]
             [convex.lisp                   :as $]
+            [convex.lisp.hex               :as $.hex]
             [convex.lisp.schema            :as $.schema]
 			[clojure.data]
             [clojure.pprint]
             #?(:clj [clojure.reflect])
+            [clojure.walk]
             [clojure.test.check.properties :as tc.prop]
             [clojure.test.check.results    :as tc.result]
             [malli.core                    :as malli]
@@ -62,13 +64,12 @@
   
 
   (-> 
-      ;'(concat [1 2] {:a :b})
-      ;$/from-clojure
-      "1.0e5.1234"
-      $/read
+      ;'*initial-expander*
+      '*juice*
+      $/from-clojure
       $/eval
       $/result
-      $/to-clojure
+      ;$/to-clojure
       )
 
 
@@ -83,23 +84,19 @@
       )
 
   
-
-  (tc.prop/for-all [x (malli.gen/generator :int)]
-    (double? x)
-    (int? x))
-
-
   (time
     (do
       ;(malli/validate :convex/blob
       ;                (symbol "0xa7bb")
-      (malli.gen/generate :convex/double
+      (malli.gen/generate :convex/hexstring-32
                           {:registry (-> (malli/default-schemas)
                                          $.schema/registry
                                          )
-                           :size     5
+                           :size     50
                            })
       nil))
+
+
 
 
 

@@ -4,6 +4,7 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.core]
+            [clojure.string]
             [clojure.test.check.results      :as tc.result]
             [convex.lisp                     :as $]
             [convex.lisp.schema              :as $.schema]
