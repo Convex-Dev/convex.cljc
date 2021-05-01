@@ -37,14 +37,20 @@
                                    (boolean (re-matches #"#\d+"
                                                         (name sym))))]]
           :convex/blob         [:and
-                                {:gen/fmap   (fn [x]
-                                               (symbol (str "0x"
-                                                            ($.hex/from-int x))))
-                                 :gen/schema pos-int?}
+                                {:gen/fmap   $.hex/to-blob-symbol
+                                 :gen/schema :convex/hexstring}
                                 :symbol
                                 [:fn
                                  (fn [sym]
                                    (boolean (re-matches $.hex/regex
+                                                        (name sym))))]]
+		  :convex/blob-32	   [:and
+								{:gen/fmap   $.hex/to-blob-symbol
+                                 :gen/schema :convex/hexstring-32}
+                                :symbol
+                                [:fn
+                                 (fn [sym]
+                                   (boolean (re-matches $.hex/regex-32
                                                         (name sym))))]]
           :convex/boolean      :boolean
           :convex/char         char?

@@ -62,3 +62,14 @@
                                         \0))
            hexstring)
       hexstring)))
+
+
+
+(defn to-blob-symbol
+
+  "Converts a hexstring to a symbol that looks like a blob."
+
+  [hexstring]
+
+  (symbol (str "0x"
+               hexstring)))
