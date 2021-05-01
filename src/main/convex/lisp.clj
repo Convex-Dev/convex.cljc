@@ -534,3 +534,16 @@
 
   (list 'quote
         clojure-form))
+
+
+;;;;;;;;;; Templating Convex Lisp code
+
+
+(defn templ
+
+  ""
+
+  [binding+ code]
+
+  (clojure.walk/postwalk-replace binding+
+                                 code))
