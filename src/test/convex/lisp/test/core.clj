@@ -294,6 +294,16 @@
 
 
 
+(t/deftest boolean?--true
+
+  (t/is (true? ($.test.util/eval true))
+        "True")
+
+  (t/is (false? ($.test.util/eval false))
+        "False"))
+
+
+
 (tc.ct/defspec |byte
 
   (tc.prop/for-all* [($.test.util/generator :convex/number)]
@@ -465,7 +475,83 @@
 
 
 
+(tc.ct/defspec keyword?--false
+
+  {:max-size max-size-coll}
+
+  (prop-pred-data-false 'keyword?
+                        #{:convex/keyword}
+                        keyword?))
+
+
+
+(tc.ct/defspec keyword?--true
+
+  (prop-pred-data-true 'keyword?
+                       :convex/keyword
+                       keyword?))
+
+
+
 ;; TODO. `log`, weird, no docstring and behaves like `vector`
+
+
+
+(tc.ct/defspec list?--false
+
+  {:max-size max-size-coll}
+
+  (prop-pred-data-false 'list?
+                        #{:convex/list}
+                        list?))
+
+
+
+(tc.ct/defspec list?--true
+
+  {:max-size max-size-coll}
+
+  (prop-pred-data-true 'list?
+                       :convex/list
+                       list?))
+
+
+
+(tc.ct/defspec long?--false
+
+  {:max-size max-size-coll}
+
+  (prop-pred-data-false 'long?
+                        #{:convex/long}
+                        int?))
+
+
+
+(tc.ct/defspec long?--true
+
+  (prop-pred-data-true 'long?
+                       :convex/long
+                       int?))
+
+
+
+(tc.ct/defspec map?--false
+
+  {:max-size max-size-coll}
+
+  (prop-pred-data-false 'map?
+                        #{:convex/map}
+                        map?))
+
+
+
+(tc.ct/defspec map?--true
+
+  {:max-size max-size-coll}
+
+  (prop-pred-data-true 'map?
+                       :convex/map
+                       map?))
 
 
 
@@ -483,6 +569,43 @@
 
 
 
+(tc.ct/defspec nil?--false
+
+  {:max-size max-size-coll}
+
+  (prop-pred-data-false 'nil?
+                        #{:convex/nil}
+                        nil?))
+
+
+
+(t/deftest nil?--true
+
+  (t/is (true? (nil? ($.test.util/eval nil))))
+
+  (t/is (true? (nil? ($.test.util/eval '(do nil))))))
+
+
+
+(tc.ct/defspec number?--false
+
+  {:max-size max-size-coll}
+
+  (prop-pred-data-false 'number?
+                        #{:convex/double
+                          :convex/long}
+                        number?))
+
+
+
+(tc.ct/defspec number?--true
+
+  (prop-pred-data-true 'number?
+                       :convex/number
+                       number?))
+
+
+
 (tc.ct/defspec pow
 
   (tc.prop/for-all* [($.test.util/generator [:tuple
@@ -494,6 +617,26 @@
                                       ($.test.util/eval (list 'pow
                                                               x
                                                               y))))))
+
+
+
+(tc.ct/defspec set?--false
+
+  {:max-size max-size-coll}
+
+  (prop-pred-data-false 'set?
+                        #{:convex/set}
+                        set?))
+
+
+
+(tc.ct/defspec set?--true
+
+  {:max-size max-size-coll}
+
+  (prop-pred-data-true 'set?
+                       :convex/set
+                       set?))
 
 
 
@@ -533,6 +676,44 @@
 
 
 
+(tc.ct/defspec str?--false
+
+  {:max-size max-size-coll}
+
+  (prop-pred-data-false 'str?
+                        #{:convex/string}
+                        string?))
+
+
+
+(tc.ct/defspec str?--true
+
+  (prop-pred-data-true 'str?
+                       :convex/string
+                       string?))
+
+
+
+(tc.ct/defspec vector?--false
+
+  {:max-size max-size-coll}
+
+  (prop-pred-data-false 'vector?
+                        #{:convex/vector}
+                        vector?))
+
+
+
+(tc.ct/defspec vector?--true
+
+  {:max-size max-size-coll}
+
+  (prop-pred-data-true 'vector?
+                       :convex/vector
+                       vector?))
+
+
+
 
 
 ;; actor?
@@ -541,14 +722,3 @@
 ;; fn?
 
 ;; hash?
-
-
-;; keyword?
-;; list?
-;; long?
-;; map?
-;; nil?
-;; number?
-;; set?
-;; str?
-;; vector?

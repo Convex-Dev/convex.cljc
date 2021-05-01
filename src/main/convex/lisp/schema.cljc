@@ -64,7 +64,6 @@
                                 :convex/long
                                 :convex/map
                                 :convex/nil
-                                :convex/number
                                 :convex/string
                                 :convex/set
                                 :convex/symbol
@@ -87,8 +86,8 @@
           :convex/keyword      :keyword
           :convex/list         [:and
                                 ;; TODO. Currently, Malli does not support something like `:list`.
-                                {:gen/fmap   #(or (list* %)
-                                                  '())
+                                {:gen/fmap   (partial into
+                                                      '())
                                  :gen/schema :convex/vector}
                                 seq?
                                 [:sequential [:ref :convex/data]]]
