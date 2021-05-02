@@ -424,6 +424,68 @@
 
 
 
+
+
+
+(defn -eval-fn?
+
+  ""
+
+  [form]
+
+  ($.test.util/eval (list 'fn?
+                          form)))
+
+
+
+(defn -eval-fn
+
+  ""
+
+  [form arg+ ret]
+
+  ($.test.util/eval (list '=
+                          ret
+                          (list* form
+                                 arg+))))
+
+
+(defn -eval-fn-def
+
+  ""
+
+  [form arg+ ret]
+
+  ($.test.util/eval ($/templ {'?call (list* 'f
+                                            arg+)
+                              '?fn   form
+                              '?ret  ret}
+                             '(do
+                                (def f
+                                     ?fn)
+                                (and (fn? f)
+                                     (= ?ret
+                                        ?call))))))
+
+
+
+(defn -eval-fn-let
+
+  ""
+
+  [form arg+ ret]
+
+  ($.test.util/eval ($/templ {'?call (list* 'f
+                                            arg+)
+                              '?fn   form
+                              '?ret  ret}
+                             '(let [f ?fn]
+                                (and (fn? f)
+                                     (= ?ret
+                                        ?call))))))
+
+
+
 (tc.ct/defspec fn--arg-0
 
   ;; Calling no-arg functions.
@@ -444,25 +506,22 @@
                         ($.test.util/prop+
 
                           "Is function"
-                          ($.test.util/eval (templ '(fn? ?fn)))
+                          (-eval-fn? fn-form)
 
                           "Calling straight"
-                          ($.test.util/eval (templ '(= ?x
-                                                       (?fn))))
+                          (-eval-fn fn-form
+                                    nil
+                                    x-2)
   
                           "Calling after being interned"
-                          ($.test.util/eval (templ '(do
-                                                      (def f
-                                                           ?fn)
-                                                      (and (fn? f)
-                                                           (= ?x
-                                                              (f))))))
+                          (-eval-fn-def fn-form
+                                        nil
+                                        x-2)
   
                           "Calling as local binding"
-                          ($.test.util/eval (templ '(let [f ?fn]
-                                                      (and (fn? f)
-                                                           (= ?x
-                                                              (f)))))))))))
+                          (-eval-fn-let fn-form
+                                        nil
+                                        x-2))))))
 
 
 
@@ -485,37 +544,22 @@
                         ($.test.util/prop+
 
                           "Is function"
-                          ($.test.util/eval (list 'fn?
-                                                  fn-form))
+                          (-eval-fn? fn-form)
 
                           "Calling straight"
-                          ($.test.util/eval ($/templ {'?call (list* fn-form
-                                                                    arg+)
-                                                      '?ret  arg+}
-                                                     '(= ?ret
-                                                         ?call)))
+                          (-eval-fn fn-form
+                                    arg+
+                                    arg+)
 
                           "Calling after being interned"
-                          ($.test.util/eval ($/templ {'?call (list* 'f
-                                                                    arg+)
-                                                      '?fn   fn-form
-                                                      '?ret  arg+}
-                                                     '(do
-                                                        (def f
-                                                             ?fn)
-                                                        (and (fn? f)
-                                                             (= ?ret
-                                                                ?call)))))
+                          (-eval-fn-def fn-form
+                                        arg+
+                                        arg+)
 
                           "Calling as local binding"
-                          ($.test.util/eval ($/templ {'?call (list* 'f
-                                                                    arg+)
-                                                      '?fn   fn-form
-                                                      '?ret  arg+}
-                                                     '(let [f ?fn]
-                                                        (and (fn? f)
-                                                             (= ?ret
-                                                                ?call))))))))))
+                          (-eval-fn-let fn-form
+                                        arg+
+                                        arg+))))))
 
 
 
@@ -543,42 +587,27 @@
                                              binding+)
                             ret        (update arg+
                                                pos-amper
-                                               vector)]
+                                               vector)
+                            ]
                         ($.test.util/prop+
 
                           "Is function"
-                          ($.test.util/eval (list 'fn?
-                                                  fn-form))
+                          (-eval-fn? fn-form)
 
                           "Calling straight"
-                          ($.test.util/eval ($/templ {'?call (list* fn-form
-                                                                    arg+)
-                                                      '?ret  ret}
-                                                     '(= ?ret
-                                                         ?call)))
+                          (-eval-fn fn-form
+                                    arg+
+                                    ret)
 
                           "Calling after being interned"
-                          ($.test.util/eval ($/templ {'?call (list* 'f
-                                                                    arg+)
-                                                      '?fn   fn-form
-                                                      '?ret  ret}
-                                                     '(do
-                                                        (def f
-                                                             ?fn)
-                                                        (and (fn? f)
-                                                             (= ?ret
-                                                                ?call)))))
+                          (-eval-fn-def fn-form
+                                        arg+
+                                        ret)
 
                           "Calling as local binding"
-                          ($.test.util/eval ($/templ {'?call (list* 'f
-                                                                    arg+)
-                                                      '?fn   fn-form
-                                                      '?ret  ret}
-                                                     '(let [f ?fn]
-                                                        (and (fn? f)
-                                                             (= ?ret
-                                                                ?call)))))
-                          )))))
+                          (-eval-fn-let fn-form
+                                        arg+
+                                        ret))))))
 
 
 
