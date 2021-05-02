@@ -589,16 +589,7 @@
                                              binding+)
                             ret        (update arg+
                                                pos-amper
-                                               vector)
-                            ret-1      (assoc arg+
-                                              pos-amper
-                                              [])
-                            arg-1+     (into []
-                                             (concat (take pos-amper
-                                                           arg+)
-                                                     (drop (inc pos-amper)
-                                                           arg+)))
-                            ]
+                                               vector)]
                         ($.test.util/prop+
 
                           "Is function"
@@ -609,31 +600,44 @@
                                     arg+
                                     ret)
 
-                          "Calling straight (1 argument less)"
-                          (-eval-fn fn-form
-                                    arg-1+
-                                    ret-1)
-
                           "Calling after being interned"
                           (-eval-fn-def fn-form
                                         arg+
                                         ret)
 
-                          "Calling after being interned (1 argument less)"
-                          (-eval-fn-def fn-form
-                                        arg-1+
-                                        ret-1)
 
                           "Calling as local binding"
                           (-eval-fn-let fn-form
                                         arg+
                                         ret)
 
-                          "Calling as local binding (1 argument less)"
-                          (-eval-fn-let fn-form
+                          "1 argument less"
+                          (let [ret-1  (assoc arg+
+                                              pos-amper
+                                              [])
+                                arg-1+ (into []
+                                             (concat (take pos-amper
+                                                           arg+)
+                                                     (drop (inc pos-amper)
+                                                           arg+)))]
+                            ($.test.util/prop+
+
+                              "Calling straight"
+                              (-eval-fn fn-form
                                         arg-1+
                                         ret-1)
-                          )))))
+
+
+                              "Calling after being interned"
+                              (-eval-fn-def fn-form
+                                            arg-1+
+                                            ret-1)
+
+
+                              "Calling as local binding"
+                              (-eval-fn-let fn-form
+                                            arg-1+
+                                            ret-1))))))))
 
 
 

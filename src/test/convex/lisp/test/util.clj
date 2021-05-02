@@ -145,15 +145,31 @@
 
   "Returns a `test.check` error with an error message."
 
-  [string-error]
 
-  (reify tc.result/Result
+  ([string-error]
 
-    (pass? [_]
-      false)
+   (reify tc.result/Result
 
-    (result-data [_]
-      {:convex.lisp/error string-error})))
+     (pass? [_]
+       false)
+
+     (result-data [_]
+       {:convex.lisp/error [string-error]})))
+
+
+  ([failure string-error]
+
+   (let [result (update (tc.result/result-data failure)
+                        :convex.lisp/error
+                        (partial into
+                                 [string-error]))]
+     (reify tc.result/Result
+
+       (pass? [_]
+         false)
+
+       (result-data [_]
+         result)))))
 
 
 
@@ -177,18 +193,31 @@
 
   [& prop-pair+]
 
+  (assert (seq prop-pair+))
   (assert (even? (count prop-pair+)))
-  `(if-some [string-error# (cond
-                            ~@(reduce (fn [acc [string-error form-test]]
-                                        (conj acc
-                                              (list 'not
-                                                    form-test)
-                                              string-error))
-                                      []
-                                      (partition 2
-                                                 prop-pair+)))]
-     (fail string-error#)
-     true))
+  (let [f (fn f [[string-error
+                  form-test
+                  & rs]]
+            `(let [x# (try
+                        ~form-test
+                        (catch Throwable e#
+                          e#))]
+               (cond
+                 (instance? Throwable
+                            x#)               (ex-info ~(str "During: "
+                                                             string-error)
+                                                       {}
+                                                       x#)
+                 (true? x#)                   ~(if rs
+                                                 (f rs)
+                                                 true)
+                 (false? (boolean x#))        (fail ~string-error)
+                 (satisfies? tc.result/Result
+                              x#)             (fail x#
+                                                    ~string-error)
+                 :else                        (throw (ex-info "Property multiplexing does not understand returned value"
+                                                              {::result x#})))))]
+    (f prop-pair+)))
 
 
 
@@ -202,6 +231,7 @@
         (filter #(not (contains? schema+
                                  %)))
         (rest (registry :convex/data))))
+
 
 
 (defn valid?

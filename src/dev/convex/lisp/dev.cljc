@@ -64,7 +64,7 @@
   
 
   (-> 
-      '(hash (blob "42"))
+     '(fn [a] a)
       $/from-clojure
       $/eval
       $/result

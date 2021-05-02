@@ -188,6 +188,15 @@
       (t/is (= form
                ($/prepare-clojure form)))))
 
+  (t/testing "Blob"
+    (let [blob (symbol "0x42")
+          form (list 'blob
+                     blob)]
+      (t/is (= blob
+               ($/prepare-clojure '(blob "42"))))
+      (t/is (= form
+               ($/prepare-clojure form)))))
+
   (t/testing "NaN"
     (t/is (= '(unquote NaN)
              ($/prepare-clojure ##NaN)))
