@@ -456,16 +456,18 @@
 
   [form arg+ ret]
 
-  ($.test.util/eval ($/templ {'?call (list* 'f
-                                            arg+)
-                              '?fn   form
-                              '?ret  ret}
-                             '(do
-                                (def f
-                                     ?fn)
-                                (and (fn? f)
-                                     (= ?ret
-                                        ?call))))))
+  ($.test.util/result+ ($.test.util/eval ($/templ {'?call (list* 'f
+                                                                 arg+)
+                                                   '?fn   form
+                                                   '?ret  ret}
+                                                  '(do
+                                                     (def f
+                                                          ?fn)
+                                                     [(fn? f)
+                                                      (= ?ret
+                                                         ?call)])))
+                       ["Fn?"
+                        "Equal"]))
 
 
 
@@ -477,14 +479,16 @@
 
   [form arg+ ret]
 
-  ($.test.util/eval ($/templ {'?call (list* 'f
-                                            arg+)
-                              '?fn   form
-                              '?ret  ret}
-                             '(let [f ?fn]
-                                (and (fn? f)
-                                     (= ?ret
-                                        ?call))))))
+  ($.test.util/result+ ($.test.util/eval ($/templ {'?call (list* 'f
+                                                                 arg+)
+                                                   '?fn   form
+                                                   '?ret  ret}
+                                                  '(let [f ?fn]
+                                                     [(fn? f)
+                                                      (= ?ret
+                                                         ?call)])))
+                       ["Fn?"
+                        "Equal"]))
 
 
 

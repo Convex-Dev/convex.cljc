@@ -73,7 +73,7 @@
 
 
   (-> 
-      "(hash 42)"
+      "'[(unquote)]"
       str
       $/read
       $/expand-compile

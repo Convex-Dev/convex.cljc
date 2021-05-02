@@ -18,7 +18,7 @@
          schema-data-without)
 
 
-;;;;;;;;;; Registry and fetching generators
+;;;;;;;;;; Registry, fetching generators, and validation
 
 
 (defn generator
@@ -66,6 +66,19 @@
 
 
 
+(defn schema-data-without
+
+  "Returns the `:convex/data` schema without the schemas provided in the given set."
+
+  [schema+]
+
+  (into [:or]
+        (filter #(not (contains? schema+
+                                 %)))
+        (rest (registry :convex/data))))
+
+
+
 (def registry
 
   "Malli registry for Convex."
@@ -74,19 +87,19 @@
       $.schema/registry))
 
 
-;;;;;;;;;; Helpers
+
+(defn valid?
+
+  "Is `x` valid according to `schema`?"
+
+  [schema x]
+
+  (malli/validate schema
+                  x
+                  {:registry registry}))
 
 
-(defn eq
-
-  "Substitute for `=` so that NaN equals NaN."
-
-  [& arg+]
-
-  (apply =
-         (clojure.core/map hash
-              			   arg+)))
-
+;;;;;;;;;; Evaluating Convex Lisp
 
 
 (defn eval
@@ -104,7 +117,7 @@
 
 (defn eval-exceptional-source
 
-  ""
+  "Reads Convex Lisp source, evals it and returns the resulting exceptional state."
 
   [source]
 
@@ -117,7 +130,7 @@
 
 (defn eval-pred
 
-  ""
+  "Evals a predicate functions designated by `core-symbol` on value `x`."
 
   [core-symbol x]
 
@@ -140,6 +153,18 @@
       $/to-clojure))
 
 
+;;;;;;;;;; Working with generative tests
+
+
+(defn eq
+
+  "Substitute for `=` so that NaN equals NaN."
+
+  [& arg+]
+
+  (apply =
+         (clojure.core/map hash
+              			   arg+)))
 
 (defn fail
 
@@ -221,25 +246,17 @@
 
 
 
-(defn schema-data-without
+(defn result+
 
-  "Returns the `:convex/data` schema without the schemas provided in the given set."
+  "Working with collection of results obtained from evaling Convex Lisp code, returns a [[fail]] with the
+   corresponding error string (position-wise) when a false result is encountered."
 
-  [schema+]
+  [result+ error-string+]
 
-  (into [:or]
-        (filter #(not (contains? schema+
-                                 %)))
-        (rest (registry :convex/data))))
-
-
-
-(defn valid?
-
-  "Is `x` valid according to `schema`?"
-
-  [schema x]
-
-  (malli/validate schema
-                  x
-                  {:registry registry}))
+  (or (some (fn [[result error-string]]
+              (when-not result
+                (fail error-string)))
+            (partition 2
+                       (interleave result+
+                                   error-string+)))
+      true))
