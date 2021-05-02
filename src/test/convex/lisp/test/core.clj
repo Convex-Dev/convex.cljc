@@ -507,20 +507,20 @@
                                                form))]
                         ($.test.util/prop+
 
-                          "Is function"
+                          "Function?"
                           (-eval-fn? fn-form)
 
-                          "Calling straight"
+                          "Direct"
                           (-eval-fn fn-form
                                     nil
                                     x-2)
   
-                          "Calling after being interned"
+                          "Interned"
                           (-eval-fn-def fn-form
                                         nil
                                         x-2)
   
-                          "Calling as local binding"
+                          "Let"
                           (-eval-fn-let fn-form
                                         nil
                                         x-2))))))
@@ -545,20 +545,20 @@
                                            binding+)]
                         ($.test.util/prop+
 
-                          "Is function"
+                          "Function?"
                           (-eval-fn? fn-form)
 
-                          "Calling straight"
+                          "Direct"
                           (-eval-fn fn-form
                                     arg+
                                     arg+)
 
-                          "Calling after being interned"
+                          "Interned"
                           (-eval-fn-def fn-form
                                         arg+
                                         arg+)
 
-                          "Calling as local binding"
+                          "Let"
                           (-eval-fn-let fn-form
                                         arg+
                                         arg+))))))
@@ -592,21 +592,21 @@
                                                vector)]
                         ($.test.util/prop+
 
-                          "Is function"
+                          "Function?"
                           (-eval-fn? fn-form)
 
-                          "Calling straight"
+                          "Direct"
                           (-eval-fn fn-form
                                     arg+
                                     ret)
 
-                          "Calling after being interned"
+                          "Interned"
                           (-eval-fn-def fn-form
                                         arg+
                                         ret)
 
 
-                          "Calling as local binding"
+                          "Let"
                           (-eval-fn-let fn-form
                                         arg+
                                         ret)
@@ -622,22 +622,50 @@
                                                            arg+)))]
                             ($.test.util/prop+
 
-                              "Calling straight"
+                              "Direct"
                               (-eval-fn fn-form
                                         arg-1+
                                         ret-1)
 
 
-                              "Calling after being interned"
+                              "Interned"
                               (-eval-fn-def fn-form
                                             arg-1+
                                             ret-1)
 
 
-                              "Calling as local binding"
+                              "Let"
                               (-eval-fn-let fn-form
                                             arg-1+
-                                            ret-1))))))))
+                                            ret-1)))
+
+                          "Extra argument"
+                          (let [ret+1  (update arg+
+                                               pos-amper
+                                               #(vector 42
+                                                        %))
+                                arg+1+ (into []
+                                             (concat (take pos-amper
+                                                           arg+)
+                                                     [42]
+                                                     (drop pos-amper
+                                                           arg+)))]
+                            ($.test.util/prop+
+
+                              "Direct"
+                              (-eval-fn fn-form
+                                        arg+1+
+                                        ret+1)
+
+                              "Interned"
+                              (-eval-fn-def fn-form
+                                            arg+1+
+                                            ret+1)
+
+                              "Let"
+                              (-eval-fn-let fn-form
+                                            arg+1+
+                                            ret+1))))))))
 
 
 
