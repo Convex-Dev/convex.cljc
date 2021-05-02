@@ -438,28 +438,70 @@
                                           []
                                           x-2)
                             templ   (fn [form]
-                                      ($/templ {'FN fn-form
-                                                'X  x-2}
+                                      ($/templ {'?fn fn-form
+                                                '?x  x-2}
                                                form))]
                         ($.test.util/prop+
 
+                          "Is function"
+                          ($.test.util/eval (templ '(fn? ?fn)))
+
                           "Calling straight"
-                          ($.test.util/eval (templ '(= X
-                                                       (FN))))
+                          ($.test.util/eval (templ '(= ?x
+                                                       (?fn))))
   
                           "Calling after being interned"
                           ($.test.util/eval (templ '(do
                                                       (def f
-                                                           FN)
+                                                           ?fn)
                                                       (and (fn? f)
-                                                           (= X
+                                                           (= ?x
                                                               (f))))))
   
                           "Calling as local binding"
-                          ($.test.util/eval (templ '(let [f FN]
+                          ($.test.util/eval (templ '(let [f ?fn]
                                                       (and (fn? f)
-                                                           (= X
+                                                           (= ?x
                                                               (f)))))))))))
+
+
+
+(tc.ct/defspec fn--arg-fixed
+
+  ;; Calling functions with a fixed number of arguments.
+
+  {:max-size max-size-coll}
+
+  (tc.prop/for-all* [($.test.util/generator [:vector
+                                             {:min 1}
+                                             [:tuple
+                                              :convex/symbol
+                                              :convex/data]])]
+                    (fn [x]
+                      (let [arg+     (mapv #(list 'quote
+                                                  (second %))
+                                           x)
+                            binding+ (mapv first
+                                           x)
+                            fn-form  (list 'fn
+                                           binding+
+                                           binding+)]
+                        ($.test.util/prop+
+
+                          "Calling straight"
+                          ($.test.util/eval ($/templ {'?call (list* fn-form
+                                                                    arg+)
+                                                      '?ret  arg+}
+                                                     '(= ?ret
+                                                         ?call)))
+
+                          "Calling after being interned"
+                          ($.test.util/eval ($/templ {'?fn fn-form
+                                                      }
+                                                     '(do
+                                                        (def f
+                                                             ?fn)
+                          )))))
 
 
 

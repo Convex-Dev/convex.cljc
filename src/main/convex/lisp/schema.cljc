@@ -113,6 +113,7 @@
                                 {:gen/gen tc.gen/string-alphanumeric}]
           :convex/symbol       [:and
                                 :symbol
+                                [:not= '_]
                                 [:fn
                                  ;; TODO. Should not be necessary, see #65.
                                  (fn [x]
