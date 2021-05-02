@@ -424,12 +424,9 @@
 
 
 
-
-
-
 (defn -eval-fn?
 
-  ""
+  "Returns true if the given form evals to a function."
 
   [form]
 
@@ -440,7 +437,7 @@
 
 (defn -eval-fn
 
-  ""
+  "Returns true if calling the given function `form` with the given `arg+` returns `ret`."
 
   [form arg+ ret]
 
@@ -452,7 +449,10 @@
 
 (defn -eval-fn-def
 
-  ""
+  "Like [[-eval-fn]] but interns the function first using `def`.
+
+   Also tests `fn?`."
+  
 
   [form arg+ ret]
 
@@ -471,7 +471,9 @@
 
 (defn -eval-fn-let
 
-  ""
+  "Like [[-eval-fn]] but binds the function locally using `let`.
+
+   Also tests `fn?`."
 
   [form arg+ ret]
 
@@ -588,6 +590,14 @@
                             ret        (update arg+
                                                pos-amper
                                                vector)
+                            ret-1      (assoc arg+
+                                              pos-amper
+                                              [])
+                            arg-1+     (into []
+                                             (concat (take pos-amper
+                                                           arg+)
+                                                     (drop (inc pos-amper)
+                                                           arg+)))
                             ]
                         ($.test.util/prop+
 
@@ -599,15 +609,31 @@
                                     arg+
                                     ret)
 
+                          "Calling straight (1 argument less)"
+                          (-eval-fn fn-form
+                                    arg-1+
+                                    ret-1)
+
                           "Calling after being interned"
                           (-eval-fn-def fn-form
                                         arg+
                                         ret)
 
+                          "Calling after being interned (1 argument less)"
+                          (-eval-fn-def fn-form
+                                        arg-1+
+                                        ret-1)
+
                           "Calling as local binding"
                           (-eval-fn-let fn-form
                                         arg+
-                                        ret))))))
+                                        ret)
+
+                          "Calling as local binding (1 argument less)"
+                          (-eval-fn-let fn-form
+                                        arg-1+
+                                        ret-1)
+                          )))))
 
 
 
