@@ -32,6 +32,30 @@
 
 
 
+(defn generator-binding+
+
+  "Returns a generator for bindings: vector of `[Symbol Value]`.
+  
+   Ensures symbols are unique."
+
+  [min-count]
+
+  (generator [:and
+              [:vector
+               (when min-count
+                 {:min min-count})
+               [:tuple
+                :convex/symbol
+                :convex/data]]
+              [:fn
+               (fn [x]
+                 (= (count x)
+                    (count (into #{}
+                                 (map first)
+                                 x))))]]))
+
+
+
 (defn generator-data-without
 
   "Mix between [[generator]] and [[schema-data-without]]."

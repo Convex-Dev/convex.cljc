@@ -472,11 +472,7 @@
 
   {:max-size max-size-coll}
 
-  (tc.prop/for-all* [($.test.util/generator [:vector
-                                             {:min 1}
-                                             [:tuple
-                                              :convex/symbol
-                                              :convex/data]])]
+  (tc.prop/for-all* [($.test.util/generator-binding+ 1)]
                     (fn [x]
                       (let [arg+     (mapv #(list 'quote
                                                   (second %))
@@ -488,6 +484,10 @@
                                            binding+)]
                         ($.test.util/prop+
 
+                          "Is function"
+                          ($.test.util/eval (list 'fn?
+                                                  fn-form))
+
                           "Calling straight"
                           ($.test.util/eval ($/templ {'?call (list* fn-form
                                                                     arg+)
@@ -496,13 +496,89 @@
                                                          ?call)))
 
                           "Calling after being interned"
-                          ($.test.util/eval ($/templ {'?fn fn-form
-                                                      }
+                          ($.test.util/eval ($/templ {'?call (list* 'f
+                                                                    arg+)
+                                                      '?fn   fn-form
+                                                      '?ret  arg+}
                                                      '(do
                                                         (def f
                                                              ?fn)
-                          )))))
+                                                        (and (fn? f)
+                                                             (= ?ret
+                                                                ?call)))))
 
+                          "Calling as local binding"
+                          ($.test.util/eval ($/templ {'?call (list* 'f
+                                                                    arg+)
+                                                      '?fn   fn-form
+                                                      '?ret  arg+}
+                                                     '(let [f ?fn]
+                                                        (and (fn? f)
+                                                             (= ?ret
+                                                                ?call))))))))))
+
+
+
+(tc.ct/defspec fn--arg-variadic
+
+  ;; Calling functions with a variadic number of arguments.
+
+  {:max-size max-size-coll}
+
+  (tc.prop/for-all* [($.test.util/generator-binding+ 1)]
+                    (fn [x]
+                      (let [arg+       (mapv #(list 'quote
+                                                    (second %))
+                                             x)
+                            binding+   (mapv first
+                                             x)
+                            pos-amper  (rand-int (count binding+))
+                            binding-2+ (vec (concat (take pos-amper
+                                                          binding+)
+                                                    ['&]
+                                                    (drop pos-amper
+                                                          binding+)))
+                            fn-form    (list 'fn
+                                             binding-2+
+                                             binding+)
+                            ret        (update arg+
+                                               pos-amper
+                                               vector)]
+                        ($.test.util/prop+
+
+                          "Is function"
+                          ($.test.util/eval (list 'fn?
+                                                  fn-form))
+
+                          "Calling straight"
+                          ($.test.util/eval ($/templ {'?call (list* fn-form
+                                                                    arg+)
+                                                      '?ret  ret}
+                                                     '(= ?ret
+                                                         ?call)))
+
+                          "Calling after being interned"
+                          ($.test.util/eval ($/templ {'?call (list* 'f
+                                                                    arg+)
+                                                      '?fn   fn-form
+                                                      '?ret  ret}
+                                                     '(do
+                                                        (def f
+                                                             ?fn)
+                                                        (and (fn? f)
+                                                             (= ?ret
+                                                                ?call)))))
+
+                          "Calling as local binding"
+                          ($.test.util/eval ($/templ {'?call (list* 'f
+                                                                    arg+)
+                                                      '?fn   fn-form
+                                                      '?ret  ret}
+                                                     '(let [f ?fn]
+                                                        (and (fn? f)
+                                                             (= ?ret
+                                                                ?call)))))
+                          )))))
 
 
 
@@ -703,7 +779,9 @@
   {:max-size max-size-coll}
 
   (prop-pred-data-false 'number?
-                        #{:convex/double
+                        #{:convex/boolean ;; TODO. See #73.
+                          :convex/char    ;; TODO. See #68.
+                          :convex/double
                           :convex/long}
                         number?))
 
