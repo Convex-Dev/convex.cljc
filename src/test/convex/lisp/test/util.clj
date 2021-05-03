@@ -107,11 +107,37 @@
   "Evals the given Clojure `form` representing Convex Lisp code and returns the result
    as Clojure data."
 
-  [form]
 
-  (-> form
-      $/clojure->source
-      eval-source))
+  ([form]
+
+   (eval ($/context)
+         form))
+
+
+  ([context form]
+
+   (eval-source context
+                ($/clojure->source form))))
+
+
+
+(defn eval-context
+
+  "Like [[eval]] but returns the context, not the result prepared as Clojure data."
+
+
+  ([form]
+
+   (eval-context ($/context)
+                 form))
+
+
+  ([context form]
+
+   (->> form
+        $/clojure->source
+        $/read
+        ($/eval context))))
 
 
 
@@ -119,12 +145,18 @@
 
   "Reads Convex Lisp source, evals it and returns the resulting exceptional state."
 
-  [source]
+  ([source]
 
-  (-> source
-      $/read
-      $/eval
-      $/exceptional))
+   (eval-exceptional-source ($/context)
+                            source))
+
+
+  ([context source]
+
+   (->> source
+        $/read
+        ($/eval context)
+        $/exceptional)))
 
 
 
@@ -144,13 +176,20 @@
 
   "Reads Convex Lisp source, evals it and converts the result to a Clojure value."
 
-  [source]
 
-  (-> source
-      $/read
-      $/eval
-      $/result
-      $/to-clojure))
+  ([source]
+
+   (eval-source ($/context)
+                source))
+
+
+  ([context source]
+
+   (->> source
+        $/read
+        ($/eval context)
+        $/result
+        $/to-clojure)))
 
 
 ;;;;;;;;;; Working with generative tests
