@@ -64,7 +64,7 @@
   
 
   (-> 
-     '(fn [a] a)
+      '(address 123456789)
       $/from-clojure
       $/eval
       $/result
@@ -87,7 +87,7 @@
     (do
       ;(malli/validate :convex/hash
       ;                (symbol "0x0000000000000000000000000000000000000000000000000000000000000001")
-      (malli.gen/generate :convex/blob-32
+      (malli.gen/generate :convex/hexstring-32
                           {:registry (-> (malli/default-schemas)
                                          $.schema/registry
                                          )

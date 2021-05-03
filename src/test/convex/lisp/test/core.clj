@@ -26,6 +26,7 @@
 ;;;;;;;;;;
 
 
+
 (defn prop-clojure
 
   ""
@@ -222,34 +223,6 @@
 
 
 
-(tc.ct/defspec account?--
-
-  ;; Also tests `create-account` to some extend.
-
-  (tc.prop/for-all* [($.test.util/generator [:and
-                                             :int
-                                             [:>= 50]])]
-                    (fn [x]
-                      ($.test.util/prop+
-
-                        "Account does not exist"
-                        (false? ($.test.util/eval (list 'account?
-                                                        x)))
-
-                        ; Convex bug? Doesn't seem being able to convert 32 byte hexstrings.
-                        ;
-                        ; "Account must exist after creation"
-                        ; ($.test.util/eval ($/templ {'KEY (-> x
-                        ;                                      $.hex/from-int
-                        ;                                      $.hex/pad-32)}
-                        ;                            '(do
-                        ;                               (create-account KEY)
-                        ;                               (account? KEY))))
-                    ))))
-
-  
-
-
 (tc.ct/defspec abs--
 
   (tc.prop/for-all* [($.test.util/generator :convex/number)]
@@ -265,6 +238,51 @@
                           "Type is preserved"
                           (= (type x-2)
                              (type x)))))))
+
+
+
+(tc.ct/defspec -account-inexistant
+
+  (tc.prop/for-all* [($.test.util/generator [:and
+                                             :int
+                                             [:>= 50]])]
+                      (fn [x]
+                        ($.test.util/prop+
+
+                          "Account does not exist"
+                          (false? ($.test.util/eval (list 'account?
+                                                          x)))
+
+                          "Actor does not exist"
+                          (false? ($.test.util/eval (list 'actor?
+                                                          x)))))))
+
+
+
+
+(tc.ct/defspec address?--true
+
+  (tc.prop/for-all* [($.test.util/generator :convex/address)]
+                    (fn [x]
+                      ($.test.util/eval (list 'address?
+                                              x)))))
+
+
+
+(tc.ct/defspec address?--false
+
+  ;; TODO. Also test `actor?`? See #74.
+
+  {:max-size max-size-coll}
+
+  (tc.prop/for-all* [($.test.util/generator-data-without #{:convex/address
+                                                           :convex/boolean  ;; TODO. See #73
+                                                           :convex/char     ;; TODO. See #68
+                                                           :convex/double
+                                                           :convex/long})]
+                    (fn [x]
+                      (false? ($.test.util/eval ($/templ {'?x x}
+                                                         '(address? (quote ?x))))))))
 
 
 
@@ -343,6 +361,39 @@
   (prop-pred-data-true 'coll?
                        :convex/collection
                        coll?))
+
+
+
+(tc.ct/defspec create-account
+
+  (tc.prop/for-all* [($.test.util/generator :convex/hexstring-32)]
+                    (fn [x]
+                      (let [ctx ($.test.util/eval-context ($/templ {'?hexstring x}
+                                                                   '(def addr
+                                                                         (create-account ?hexstring))))]
+                        ($.test.util/prop+
+
+                          "Address is interned"
+                          ($.test.util/valid? :convex/address
+                                              ($.test.util/eval ctx
+                                                                'addr))
+
+                          "Valid account"
+                          ($.test.util/eval ctx
+                                            '(account? addr))
+
+                          "Not an actor"
+                          (not ($.test.util/eval ctx
+                                                 '(actor? addr)))
+
+                          "Result is an address"
+                          ($.test.util/eval ctx
+                                            '(address? addr))
+
+                          "Balance is 0"
+                          (zero? ($.test.util/eval ctx
+                                                   '(balance addr)))
+                          )))))
 
 
 
@@ -990,12 +1041,3 @@
   (prop-pred-data-true 'vector?
                        :convex/vector
                        vector?))
-
-
-
-
-
-;; actor?
-;; address?
-
-;; fn?
