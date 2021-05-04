@@ -364,36 +364,75 @@
 
 
 
-(tc.ct/defspec create-account
+(defn -new-account
+
+  ""
+
+  [ctx actor?]
+
+  ($.test.util/prop+
+
+    "Address is interned"
+    ($.test.util/valid? :convex/address
+                        ($.test.util/eval ctx
+                                          'addr))
+
+    "(account?)"
+    ($.test.util/eval ctx
+                      '(account? addr))
+
+    "(actor?)"
+    (actor? ($.test.util/eval ctx
+                              '(actor? addr)))
+
+    "(address?)"
+    ($.test.util/eval ctx
+                      '(address? addr))
+
+    "(balance)"
+    (zero? ($.test.util/eval ctx
+                             '(balance addr)))
+
+    "(get-holding)"
+    (nil? ($.test.util/eval ctx
+                            '(get-holding addr)))
+
+    "(account) and comparing with *state*"
+    (let [[addr-long
+           account]  ($.test.util/eval ctx
+                                       '[(long addr)
+                                         (account addr)])]
+      (= account
+         ($.test.util/eval ctx
+                           ($/templ {'?addr addr-long}
+                                    '(get-in *state*
+                                             [:accounts
+                                              ?addr])))))))
+
+
+(tc.ct/defspec create-account--
 
   (tc.prop/for-all* [($.test.util/generator :convex/hexstring-32)]
                     (fn [x]
                       (let [ctx ($.test.util/eval-context ($/templ {'?hexstring x}
                                                                    '(def addr
                                                                          (create-account ?hexstring))))]
-                        ($.test.util/prop+
+                        (-new-account ctx
+                                      false?)))))
 
-                          "Address is interned"
-                          ($.test.util/valid? :convex/address
-                                              ($.test.util/eval ctx
-                                                                'addr))
 
-                          "Valid account"
-                          ($.test.util/eval ctx
-                                            '(account? addr))
 
-                          "Not an actor"
-                          (not ($.test.util/eval ctx
-                                                 '(actor? addr)))
+(tc.ct/defspec deploy--
 
-                          "Result is an address"
-                          ($.test.util/eval ctx
-                                            '(address? addr))
+  {:max-size max-size-coll}
 
-                          "Balance is 0"
-                          (zero? ($.test.util/eval ctx
-                                                   '(balance addr)))
-                          )))))
+  (tc.prop/for-all* [($.test.util/generator :convex/data)]
+                    (fn [x]
+                      (let [ctx ($.test.util/eval-context ($/templ {'?data x}
+                                                                   '(def addr
+                                                                         (deploy (quote '?data)))))]
+                        (-new-account ctx
+                                      true?)))))
 
 
 
