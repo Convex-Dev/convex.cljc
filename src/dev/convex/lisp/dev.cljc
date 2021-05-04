@@ -66,10 +66,10 @@
   
 
   (-> 
-      "ok #test"
-      $/from-clojure)
+     '(hash-map [] :vec '() :list)
+      $/from-clojure
       $/eval
-      $/result
+      $/result)
       $/to-clojure
       )
 
@@ -90,10 +90,8 @@
     (do
       ;(malli/validate [:not [:enum 1 2]]
       ;                3
-      (malli.gen/generate [:string
-                           {:min 1
-                            :max 3
-                           :gen/gen tc.gen/string-alphanumeric}]
+      (malli.gen/generate [:+
+                           [:cat :int :keyword]]
                           {:registry (-> (malli/default-schemas)
                                          $.schema/registry
                                          )

@@ -402,6 +402,13 @@
 
 
 
+(t/deftest blob-map--
+
+  (t/is (map? ($.test.util/eval '(blob-map)))))
+
+
+
+
 (tc.ct/defspec boolean--true
 
   {:max-size max-size-coll}
@@ -921,6 +928,54 @@
 
 
 
+(tc.ct/defspec hash-map--
+
+  ;; Cannot compare with Clojure: https://github.com/Convex-Dev/convex-web/issues/66
+
+  {:max-size max-size-coll}
+
+  (tc.prop/for-all* [($.test.util/generator [:+ [:cat
+                                                 :convex/data
+                                                 :convex/data]])]
+                    (fn [x]
+                      (map? ($.test.util/eval (list* 'hash-map
+                                                     (map #(list 'quote
+                                                                 %)
+                                                          x)))))))
+
+
+
+(t/deftest hash-map--no-arg
+
+  (t/is (= {}
+           ($.test.util/eval '(hash-map)))))
+
+
+
+(tc.ct/defspec hash-set--
+
+  ;; Cannot compare with Clojure: https://github.com/Convex-Dev/convex-web/issues/66
+
+  {:max-size max-size-coll}
+
+  (tc.prop/for-all* [($.test.util/generator [:vector
+                                             {:min 1}
+                                             :convex/data])]
+                    (fn [x]
+                      (set? ($.test.util/eval (list* 'hash-set
+                                                     (map #(list 'quote
+                                                                 %)
+                                                          x)))))))
+
+
+
+(t/deftest hash-set--no-arg
+
+  (t/is (= #{}
+           ($.test.util/eval '(hash-set)))))
+
+
+
 (tc.ct/defspec inc--double
 
   ;; See [[dec-double]].
@@ -1001,6 +1056,23 @@
 
 
 ;; TODO. `log`, weird, no docstring and behaves like `vector`
+
+
+
+(tc.ct/defspec list--
+
+  {:max-size max-size-coll}
+
+  (tc.prop/for-all* [($.test.util/generator [:vector
+                                             {:min 1}
+		      							   :convex/data])]
+		      	    (fn [x]
+		      	      (= (apply list
+		      	      		  x)
+		      	         ($.test.util/eval (list* 'list
+ 		      	      							(map #(list 'quote
+                                                                %)
+                                                         x)))))))
 
 
 
@@ -1139,6 +1211,21 @@
 
 
 
+;; TODO. Currently failing, see #77
+;;
+#_(tc.ct/defspec set--
+
+  {:max-size max-size-coll}
+
+  (prop-cast 'set
+             'set?
+             :convex/collection
+             ;; `vec` cannot be used because Convex implements order differently in maps and sets
+             set
+             set?))
+
+
+
 (tc.ct/defspec set?--false
 
   {:max-size max-size-coll}
@@ -1254,6 +1341,18 @@
 
 
 
+(tc.ct/defspec vec--
+
+  {:max-size max-size-coll}
+
+  (prop-cast 'vec
+             'vector?
+             :convex/collection
+             ;; `vec` cannot be used because Convex implements order differently in maps and sets
+             vector?))
+
+
+
 (tc.ct/defspec vector?--false
 
   {:max-size max-size-coll}
@@ -1274,4 +1373,69 @@
 
 
 
-;; vec
+
+;; Creating collections
+
+; blob-map
+; hash-map
+; hash-set
+; list
+; vector
+
+
+
+;; Associative operations (with lists as well)
+
+; assoc
+; assoc-in
+; contains-key?
+; get
+; get-in
+; keys
+
+
+
+;; Map operations
+
+; merge
+; values
+
+
+
+;; Misc operations
+
+; conj
+; count
+; empty
+; empty?
+; first
+; into
+; last
+; next
+; nth
+; reduce
+; reduced
+; second
+
+
+;; Producing vectors
+
+; concat
+; map && mapv ???
+
+
+
+;; Producing lists
+
+; cons
+
+
+
+;; Set operations
+
+; difference
+; disj
+; intersection
+; subset
+; union
+
