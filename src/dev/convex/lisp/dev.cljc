@@ -8,9 +8,11 @@
             [convex.lisp                   :as $]
             [convex.lisp.hex               :as $.hex]
             [convex.lisp.schema            :as $.schema]
+            [convex.lisp.test.util         :as $.test.util]
 			[clojure.data]
             [clojure.pprint]
             #?(:clj [clojure.reflect])
+            [clojure.test.check.generators :as tc.gen]
             [clojure.walk]
             [clojure.test.check.properties :as tc.prop]
             [clojure.test.check.results    :as tc.result]
@@ -64,8 +66,8 @@
   
 
   (-> 
-      '(address 123456789)
-      $/from-clojure
+      "ok #test"
+      $/from-clojure)
       $/eval
       $/result
       $/to-clojure
@@ -82,12 +84,16 @@
       ;$/to-clojure
       )
 
+
   
   (time
     (do
-      ;(malli/validate :convex/hash
-      ;                (symbol "0x0000000000000000000000000000000000000000000000000000000000000001")
-      (malli.gen/generate :convex/blob-8
+      ;(malli/validate [:not [:enum 1 2]]
+      ;                3
+      (malli.gen/generate [:string
+                           {:min 1
+                            :max 3
+                           :gen/gen tc.gen/string-alphanumeric}]
                           {:registry (-> (malli/default-schemas)
                                          $.schema/registry
                                          )

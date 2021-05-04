@@ -39,7 +39,8 @@
       true)
 
 
-(declare run)
+(declare run
+         str-clojure)
 
 
 ;;;;;;;;;; Converting text to Convex Lisp
@@ -251,7 +252,7 @@
   [clojure-form]
 
   (-> clojure-form
-      str
+      str-clojure
       read))
 
 

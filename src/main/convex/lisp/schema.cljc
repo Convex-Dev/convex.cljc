@@ -9,6 +9,9 @@
             [convex.lisp.hex               :as $.hex]))
 
 
+(declare string)
+
+
 ;;;;;;;;;; Schemas
 
 
@@ -125,10 +128,15 @@
                                 :symbol
                                 [:not= '_]
                                 [:fn
-                                 ;; TODO. Should not be necessary, see #65.
+                                 ;; TODO. Checking for "." should not be necessary, see #65.
                                  (fn [x]
-                                   (not (.contains (name x)
-                                                   ".")))]]
+                                   (let [string (name x)]
+                                     (and (not (clojure.string/includes? string
+                                                                         "."))
+                                          (not (clojure.string/starts-with? string
+                                                                            "#"))
+                                          (not (clojure.string/starts-with? string
+                                                                            "0x")))))]]
           :convex/vector       [:vector [:ref :convex/data]])))
 
 
