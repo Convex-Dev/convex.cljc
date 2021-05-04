@@ -259,6 +259,28 @@
 
 
 
+(tc.ct/defspec address--true
+
+  (tc.prop/for-all* [($.test.util/generator [:or
+                                             :convex/address
+                                             :convex/blob-8
+                                             :convex/hexstring-8])]
+                    (fn [x]
+                      (let [[x-2
+                             cast?] ($.test.util/eval ($/templ {'?x x}
+                                                               '(let [x (address ?x)]
+                                                                  [x
+                                                                   (address? x)])))]
+                        ($.test.util/prop+
+
+                          "Consistent with Clojure"
+                          ($.test.util/valid? :convex/address
+                                              x-2)
+
+                          "Properly cast"
+                          cast?)))))
+
+
 
 (tc.ct/defspec address?--true
 
@@ -1080,3 +1102,17 @@
   (prop-pred-data-true 'vector?
                        :convex/vector
                        vector?))
+
+
+
+;; blob
+;; blob-map
+;; boolean
+;; byte
+;; char
+;; double
+;; keyword
+;; long
+;; str
+;; symbol
+;; vec

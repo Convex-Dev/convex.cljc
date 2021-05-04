@@ -44,6 +44,14 @@
                                  (fn [sym]
                                    (boolean (re-matches $.hex/regex
                                                         (name sym))))]]
+		  :convex/blob-8	   [:and
+								{:gen/fmap   $.hex/to-blob-symbol
+                                 :gen/schema :convex/hexstring-8}
+                                :symbol
+                                [:fn
+                                 (fn [sym]
+                                   (boolean (re-matches $.hex/regex-8
+                                                        (name sym))))]]
 		  :convex/blob-32	   [:and
 								{:gen/fmap   $.hex/to-blob-symbol
                                  :gen/schema :convex/hexstring-32}
@@ -81,13 +89,15 @@
                                  :gen/NaN?      false}]
           :convex/hash         :convex/blob-32
           :convex/hexstring    [:re
-                                {:gen/gen    42  ;; Malli bug, :gen/gen must be defined for custom generation of regex
-                                 :gen/fmap   $.hex/from-int
+                                {:gen/fmap   $.hex/from-int
                                  :gen/schema pos-int?}
                                 $.hex/regex]
+          :convex/hexstring-8  [:re
+                                {:gen/fmap   $.hex/pad-8
+                                 :gen/schema :convex/hexstring}
+                                $.hex/regex-8]
           :convex/hexstring-32 [:re
-                                {:gen/gen    42  ;; Malli bug, :gen/gen must be defined for custom generation of regex
-                                 :gen/fmap   $.hex/pad-32
+                                {:gen/fmap   $.hex/pad-32
                                  :gen/schema :convex/hexstring}
                                 $.hex/regex-32]
           :convex/keyword      :keyword

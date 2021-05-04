@@ -19,6 +19,14 @@
 
 
 
+(def regex-8
+
+  "Regular expression for a hexstring representing exactly 8 bytes."
+
+  #"(?i)0x(?:\d|A|B|C|D|E|F){16}")
+
+
+
 (def regex-32
 
   "Regular expression for a hexstring representing exactly 32 bytes."
@@ -47,21 +55,44 @@
 
 
 
-(defn pad-32
+(defn pad
 
-  "Pads a hexstring to 32 bytes (if needed)."
+  "Pads a hexstring to `n` bytes (if needed)."
 
-  ;; 32 bytes = 64 hex chars
+  ;; 1 byte = 2 hex chars
 
-  [hexstring]
+  [n hexstring]
 
-  (let [delta (- 64
+  (let [delta (- (* 2
+                    n)
                  (count hexstring))]
     (if (pos? delta)
       (str (clojure.string/join (repeat delta
                                         \0))
            hexstring)
       hexstring)))
+
+
+
+(defn pad-8
+
+  "Pads a hexstring to 8 bytes (if needed)."
+
+  [hexstring]
+
+  (pad 8
+       hexstring))
+
+
+
+(defn pad-32
+
+  "Pads a hexstring to 32 bytes (if needed)."
+
+  [hexstring]
+
+  (pad 32
+       hexstring))
 
 
 

@@ -87,7 +87,7 @@
     (do
       ;(malli/validate :convex/hash
       ;                (symbol "0x0000000000000000000000000000000000000000000000000000000000000001")
-      (malli.gen/generate :convex/hexstring-32
+      (malli.gen/generate :convex/blob-8
                           {:registry (-> (malli/default-schemas)
                                          $.schema/registry
                                          )
