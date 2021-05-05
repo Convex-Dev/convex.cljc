@@ -36,7 +36,7 @@
 
 (tc.ct/defspec blob--
 
-  ;; TODO. Also test hashes.
+  ;; TODO. Also test hashes, special type of blob that can be coerced to an actual blob.
 
   ($.test.prop/coerce 'blob
                       'blob?

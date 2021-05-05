@@ -90,8 +90,7 @@
     (do
       ;(malli/validate [:not [:enum 1 2]]
       ;                3
-      (malli.gen/generate [:+
-                           [:cat :int :keyword]]
+      (malli.gen/generate :convex/vector
                           {:registry (-> (malli/default-schemas)
                                          $.schema/registry
                                          )

@@ -1,7 +1,6 @@
 (ns convex.lisp.test.core
 
-  "Testing Convex Core by generating Convex Lisp forms as Clojure data, converting them to source,
-   and evaling."
+  "Testing Convex Core type predicates."
 
   {:author "Adam Helinski"}
 
@@ -22,75 +21,6 @@
   ""
 
   5)
-
-
-;;;;;;;;;; Building common types of properties
-
-
-(defn prop-pred-data-false
-
-  ""
-
-
-  ([core-symbol schema-without]
-
-   (prop-pred-data-false core-symbol
-                         schema-without
-                         nil))
-
-
-  ([core-symbol schema-without clojure-pred]
-
-   (tc.prop/for-all* [($.test.util/generator-data-without schema-without)]
-                     (if clojure-pred
-                       (fn [x]
-                         (let [x-2 ($.test.util/eval-pred core-symbol
-                                                          x)]
-                           ($.test.util/prop+
-
-                             "Always returns false"
-                             (not x-2)
-
-                             "Consistent with Clojure"
-                             (= x-2
-                                (clojure-pred x)))))
-                       (fn [x]
-                         (not ($.test.util/eval-pred core-symbol
-                                                     x)))))))
-
-
-
-(defn prop-pred-data-true
-
-  ""
-
-
-  ([core-symbol schema]
-
-   (prop-pred-data-true core-symbol
-                        schema
-                        nil))
-
-
-  ([core-symbol schema clojure-pred]
-
-   (tc.prop/for-all* [($.test.util/generator schema)]
-                     (if clojure-pred
-                       (fn [x]
-                         (let [x-2 ($.test.util/eval-pred core-symbol
-                                                          x)]
-                           ($.test.util/prop+
-
-                             "Always returns true"
-                             x-2
-
-                             "Consistent with Clojure"
-                             (= x-2
-                                (clojure-pred x)))))
-                       (fn [x]
-                         ($.test.util/eval-pred core-symbol
-                                                x))))))
-
 
 
 ;;;;;;;;;;
@@ -114,94 +44,9 @@
 
 
 
-(tc.ct/defspec address?--
-
-  (tc.prop/for-all* [($.test.util/generator :convex/address)]
-                    (fn [x]
-                      ($.test.util/eval (list 'address?
-                                              x)))))
-
-
-
-(tc.ct/defspec address?--false
-
-  ;; TODO. Also test `actor?`? See #74.
-
-  {:max-size max-size-coll}
-
-  (tc.prop/for-all* [($.test.util/generator-data-without #{:convex/address
-                                                           :convex/boolean  ;; TODO. See #73
-                                                           :convex/char     ;; TODO. See #68
-                                                           :convex/double
-                                                           :convex/long})]
-                    (fn [x]
-                      (false? ($.test.util/eval ($/templ {'?x x}
-                                                         '(address? (quote ?x))))))))
-
-
-
-(tc.ct/defspec blob?--false
-
-  {:max-size max-size-coll}
-
-  (prop-pred-data-false 'blob?
-                        #{:convex/blob}))
-
-
-
-(tc.ct/defspec blob?--true
-
-  (prop-pred-data-true 'blob?
-                       :convex/blob))
-
-
-
 (t/deftest blob-map--
 
   (t/is (map? ($.test.util/eval '(blob-map)))))
-
-
-
-(tc.ct/defspec boolean?--false
-
-  {:max-size max-size-coll}
-
-  (prop-pred-data-false 'boolean?
-                        #{:convex/boolean}
-                        boolean?))
-
-
-
-(t/deftest boolean?--true
-
-  (t/is (true? ($.test.util/eval true))
-        "True")
-
-  (t/is (false? ($.test.util/eval false))
-        "False"))
-
-
-
-(tc.ct/defspec coll?--false
-
-  {:max-size max-size-coll}
-
-  (prop-pred-data-false 'coll?
-                        #{:convex/list
-                          :convex/map
-                          :convex/set
-                          :convex/vector}
-                        coll?))
-
-
-
-(tc.ct/defspec coll?--true
-
-  {:max-size max-size-coll}
-
-  (prop-pred-data-true 'coll?
-                       :convex/collection
-                       coll?))
 
 
 
@@ -574,24 +419,6 @@
 
 
 
-(tc.ct/defspec keyword?--false
-
-  {:max-size max-size-coll}
-
-  (prop-pred-data-false 'keyword?
-                        #{:convex/keyword}
-                        keyword?))
-
-
-
-(tc.ct/defspec keyword?--true
-
-  (prop-pred-data-true 'keyword?
-                       :convex/keyword
-                       keyword?))
-
-
-
 ;; TODO. `log`, about logging
 
 
@@ -613,160 +440,6 @@
 
 
 
-(tc.ct/defspec list?--false
-
-  {:max-size max-size-coll}
-
-  (prop-pred-data-false 'list?
-                        #{:convex/list}
-                        list?))
-
-
-
-(tc.ct/defspec list?--true
-
-  {:max-size max-size-coll}
-
-  (prop-pred-data-true 'list?
-                       :convex/list
-                       list?))
-
-
-
-(tc.ct/defspec long?--false
-
-  {:max-size max-size-coll}
-
-  (prop-pred-data-false 'long?
-                        #{:convex/long}
-                        int?))
-
-
-
-(tc.ct/defspec long?--true
-
-  (prop-pred-data-true 'long?
-                       :convex/long
-                       int?))
-
-
-
-(tc.ct/defspec map?--false
-
-  {:max-size max-size-coll}
-
-  (prop-pred-data-false 'map?
-                        #{:convex/map}
-                        map?))
-
-
-
-(tc.ct/defspec map?--true
-
-  {:max-size max-size-coll}
-
-  (prop-pred-data-true 'map?
-                       :convex/map
-                       map?))
-
-
-
-(tc.ct/defspec nil?--false
-
-  {:max-size max-size-coll}
-
-  (prop-pred-data-false 'nil?
-                        #{:convex/nil}
-                        nil?))
-
-
-
-(t/deftest nil?--true
-
-  (t/is (true? (nil? ($.test.util/eval nil))))
-
-  (t/is (true? (nil? ($.test.util/eval '(do nil))))))
-
-
-
-(tc.ct/defspec number?--false
-
-  {:max-size max-size-coll}
-
-  (prop-pred-data-false 'number?
-                        #{:convex/boolean ;; TODO. See #73.
-                          :convex/char    ;; TODO. See #68.
-                          :convex/double
-                          :convex/long}
-                        number?))
-
-
-
-(tc.ct/defspec number?--true
-
-  (prop-pred-data-true 'number?
-                       :convex/number
-                       number?))
-
-
-
-(tc.ct/defspec set?--false
-
-  {:max-size max-size-coll}
-
-  (prop-pred-data-false 'set?
-                        #{:convex/set}
-                        set?))
-
-
-
-(tc.ct/defspec set?--true
-
-  {:max-size max-size-coll}
-
-  (prop-pred-data-true 'set?
-                       :convex/set
-                       set?))
-
-
-
-(tc.ct/defspec str?--false
-
-  {:max-size max-size-coll}
-
-  (prop-pred-data-false 'str?
-                        #{:convex/string}
-                        string?))
-
-
-
-(tc.ct/defspec str?--true
-
-  (prop-pred-data-true 'str?
-                       :convex/string
-                       string?))
-
-
-
-(tc.ct/defspec symbol?--true
-
-  (prop-pred-data-true 'symbol?
-                       :convex/symbol
-                       symbol?))
-
-
-
-(tc.ct/defspec symbol?--false
-
-  {:max-size max-size-coll}
-
-  (prop-pred-data-false 'symbol?
-                        #{:convex/symbol}
-                        (partial $.test.util/valid?
-                                 :convex/symbol)))
-
-
-
 (tc.ct/defspec vector--
 
   {:max-size max-size-coll}
@@ -781,27 +454,6 @@
  		      	      							  (map #(list 'quote
                                                                %)
                                                        x)))))))
-
-(tc.ct/defspec vector?--false
-
-  {:max-size max-size-coll}
-
-  (prop-pred-data-false 'vector?
-                        #{:convex/vector}
-                        vector?))
-
-
-
-(tc.ct/defspec vector?--true
-
-  {:max-size max-size-coll}
-
-  (prop-pred-data-true 'vector?
-                       :convex/vector
-                       vector?))
-
-
-
 
 ;; Creating collections
 
