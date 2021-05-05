@@ -8,8 +8,7 @@
             [clojure.test.check.properties   :as tc.prop]
             [clojure.test.check.clojure-test :as tc.ct]
             [convex.lisp                     :as $]
-            [convex.lisp.hex                 :as $.hex]
-            [convex.lisp.schema              :as $.schema]
+            [convex.lisp.test.eval           :as $.test.eval]
             [convex.lisp.test.util           :as $.test.util]))
 
 
@@ -35,18 +34,18 @@
                         ($.test.util/prop+
 
                           "Account does not exist"
-                          (false? ($.test.util/eval (list 'account?
+                          (false? ($.test.eval/form (list 'account?
                                                           x)))
 
                           "Actor does not exist"
-                          (false? ($.test.util/eval (list 'actor?
+                          (false? ($.test.eval/form (list 'actor?
                                                           x)))))))
 
 
 
 (t/deftest blob-map--
 
-  (t/is (map? ($.test.util/eval '(blob-map)))))
+  (t/is (map? ($.test.eval/form '(blob-map)))))
 
 
 
@@ -60,49 +59,50 @@
 
     "Address is interned"
     ($.test.util/valid? :convex/address
-                        ($.test.util/eval ctx
+                        ($.test.eval/form ctx
                                           'addr))
 
     "(account?)"
-    ($.test.util/eval ctx
+    ($.test.eval/form ctx
                       '(account? addr))
 
     "(actor?)"
-    (actor? ($.test.util/eval ctx
+    (actor? ($.test.eval/form ctx
                               '(actor? addr)))
 
     "(address?)"
-    ($.test.util/eval ctx
+    ($.test.eval/form ctx
                       '(address? addr))
 
     "(balance)"
-    (zero? ($.test.util/eval ctx
+    (zero? ($.test.eval/form ctx
                              '(balance addr)))
 
     "(get-holding)"
-    (nil? ($.test.util/eval ctx
+    (nil? ($.test.eval/form ctx
                             '(get-holding addr)))
 
     "(account) and comparing with *state*"
     (let [[addr-long
-           account]  ($.test.util/eval ctx
+           account]  ($.test.eval/form ctx
                                        '[(long addr)
                                          (account addr)])]
       (= account
-         ($.test.util/eval ctx
+         ($.test.eval/form ctx
                            ($/templ {'?addr addr-long}
                                     '(get-in *state*
                                              [:accounts
                                               ?addr])))))))
 
 
+
 (tc.ct/defspec create-account--
 
   (tc.prop/for-all* [($.test.util/generator :convex/hexstring-32)]
                     (fn [x]
-                      (let [ctx ($.test.util/eval-context ($/templ {'?hexstring x}
-                                                                   '(def addr
-                                                                         (create-account ?hexstring))))]
+                      (let [ctx ($.test.eval/form->context ($/templ {'?hexstring x}
+                                                                    '(def addr
+                                                                          (create-account ?hexstring))))]
                         (-new-account ctx
                                       false?)))))
 
@@ -114,9 +114,9 @@
 
   (tc.prop/for-all* [($.test.util/generator :convex/data)]
                     (fn [x]
-                      (let [ctx ($.test.util/eval-context ($/templ {'?data x}
-                                                                   '(def addr
-                                                                         (deploy (quote '?data)))))]
+                      (let [ctx ($.test.eval/form->context ($/templ {'?data x}
+                                                                    '(def addr
+                                                                          (deploy (quote '?data)))))]
                         (-new-account ctx
                                       true?)))))
 
@@ -128,7 +128,7 @@
 
   [form]
 
-  ($.test.util/eval (list 'fn?
+  ($.test.eval/form (list 'fn?
                           form)))
 
 
@@ -139,7 +139,7 @@
 
   [form arg+ ret]
 
-  ($.test.util/eval (list '=
+  ($.test.eval/form (list '=
                           ret
                           (list* form
                                  arg+))))
@@ -154,7 +154,7 @@
 
   [form arg+ ret]
 
-  ($.test.util/result+ ($.test.util/eval ($/templ {'?call (list* 'f
+  ($.test.util/result+ ($.test.eval/form ($/templ {'?call (list* 'f
                                                                  arg+)
                                                    '?fn   form
                                                    '?ret  ret}
@@ -177,7 +177,7 @@
 
   [form arg+ ret]
 
-  ($.test.util/result+ ($.test.util/eval ($/templ {'?call (list* 'f
+  ($.test.util/result+ ($.test.eval/form ($/templ {'?call (list* 'f
                                                                  arg+)
                                                    '?fn   form
                                                    '?ret  ret}
@@ -381,7 +381,7 @@
                                                  :convex/data
                                                  :convex/data]])]
                     (fn [x]
-                      (map? ($.test.util/eval (list* 'hash-map
+                      (map? ($.test.eval/form (list* 'hash-map
                                                      (map #(list 'quote
                                                                  %)
                                                           x)))))))
@@ -391,7 +391,7 @@
 (t/deftest hash-map--no-arg
 
   (t/is (= {}
-           ($.test.util/eval '(hash-map)))))
+           ($.test.eval/form '(hash-map)))))
 
 
 
@@ -405,7 +405,7 @@
                                              {:min 1}
                                              :convex/data])]
                     (fn [x]
-                      (set? ($.test.util/eval (list* 'hash-set
+                      (set? ($.test.eval/form (list* 'hash-set
                                                      (map #(list 'quote
                                                                  %)
                                                           x)))))))
@@ -415,7 +415,7 @@
 (t/deftest hash-set--no-arg
 
   (t/is (= #{}
-           ($.test.util/eval '(hash-set)))))
+           ($.test.eval/form '(hash-set)))))
 
 
 
@@ -433,7 +433,7 @@
 		      	    (fn [x]
 		      	      (= (apply list
 		      	      	   	    x)
-		      	         ($.test.util/eval (list* 'list
+		      	         ($.test.eval/form (list* 'list
  		      	      							  (map #(list 'quote
                                                               %)
                                                        x)))))))
@@ -450,7 +450,7 @@
 		      	    (fn [x]
 		      	      (= (apply vector
                                 x)
-		      	         ($.test.util/eval (list* 'vector
+		      	         ($.test.eval/form (list* 'vector
  		      	      							  (map #(list 'quote
                                                                %)
                                                        x)))))))

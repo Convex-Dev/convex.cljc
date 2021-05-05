@@ -8,6 +8,7 @@
             [clojure.test.check.clojure-test :as tc.ct]
             [convex.lisp                     :as $]
             [convex.lisp.schema              :as $.schema]
+            [convex.lisp.test.eval           :as $.test.eval]
             [convex.lisp.test.prop           :as $.test.prop]
             [convex.lisp.test.util           :as $.test.util]))
 
@@ -100,7 +101,7 @@
                     (fn [x]
                       (let [[h
                              h-1?
-                             h-2?] ($.test.util/eval ($/templ {'X x}
+                             h-2?] ($.test.eval/form ($/templ {'X x}
                                                               '(let [h (hash X)]
                                                                  [h
                                                                   (hash? h)

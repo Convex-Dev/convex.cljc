@@ -19,6 +19,7 @@
             [clojure.test.check.properties   :as tc.prop]
             [clojure.test.check.clojure-test :as tc.ct]
             [convex.lisp                     :as $]
+            [convex.lisp.test.eval           :as $.test.eval]
             [convex.lisp.test.util           :as $.test.util]))
 
 
@@ -41,8 +42,8 @@
 
   (let [x-str ($/clojure->source x)]
     ($.test.util/eq x
-                    ($.test.util/eval-source x-str)
-                    ($.test.util/eval-source (str "'" x-str)))))
+                    ($.test.eval/source x-str)
+                    ($.test.eval/source (str "'" x-str)))))
 
 
 
@@ -93,7 +94,7 @@
                                        (-> x
                                            f
                                            $/clojure->source
-                                           $.test.util/eval-source))))))
+                                           $.test.eval/source))))))
 
 
 
@@ -130,7 +131,7 @@
 
 (t/deftest nil--
 
-  (t/is (nil? ($.test.util/eval-source "nil"))))
+  (t/is (nil? ($.test.eval/source "nil"))))
  
 
 
@@ -165,7 +166,7 @@
                       (if (Double/isNaN x)
                         (Double/isNaN (-> x
                                           $/clojure->source
-                                          $.test.util/eval-source))
+                                          $.test.eval/source))
                         (cycle-quotable x)))))
 
 
@@ -176,7 +177,7 @@
 
   (tc.prop/for-all* [(generator-E-notation :convex/long)]
                     #(-> %
-                         $.test.util/eval-source
+                         $.test.eval/source
                          double?)))
 
 

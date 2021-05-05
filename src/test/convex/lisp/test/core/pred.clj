@@ -10,7 +10,7 @@
             [clojure.test.check.properties   :as tc.prop]
             [clojure.test.check.clojure-test :as tc.ct]
             [convex.lisp                     :as $]
-            [convex.lisp.schema              :as $.schema]
+            [convex.lisp.test.eval           :as $.test.eval]
             [convex.lisp.test.prop           :as $.test.prop]
             [convex.lisp.test.util           :as $.test.util]))
 
@@ -33,7 +33,7 @@
                                                            :convex/double
                                                            :convex/long})]
                     (fn [x]
-                      (false? ($.test.util/eval ($/templ {'?x x}
+                      (false? ($.test.eval/form ($/templ {'?x x}
                                                          '(address? (quote ?x))))))))
 
 
@@ -42,7 +42,7 @@
 
   (tc.prop/for-all* [($.test.util/generator :convex/address)]
                     (fn [x]
-                      ($.test.util/eval (list 'address?
+                      ($.test.eval/form (list 'address?
                                               x)))))
 
 
@@ -75,10 +75,10 @@
 
 (t/deftest boolean?--true
 
-  (t/is (true? ($.test.util/eval true))
+  (t/is (true? ($.test.eval/form true))
         "True")
 
-  (t/is (false? ($.test.util/eval false))
+  (t/is (false? ($.test.eval/form false))
         "False"))
 
 
@@ -194,9 +194,9 @@
 
 (t/deftest nil?--true
 
-  (t/is (true? (nil? ($.test.util/eval nil))))
+  (t/is (true? (nil? ($.test.eval/form nil))))
 
-  (t/is (true? (nil? ($.test.util/eval '(do nil))))))
+  (t/is (true? (nil? ($.test.eval/form '(do nil))))))
 
 
 

@@ -7,6 +7,7 @@
   (:require [clojure.test                    :as t]
             [clojure.test.check.properties   :as tc.prop]
             [clojure.test.check.clojure-test :as tc.ct]
+            [convex.lisp.test.eval           :as $.test.eval]
             [convex.lisp.test.prop           :as $.test.prop]
             [convex.lisp.test.util           :as $.test.util]))
 
@@ -38,7 +39,7 @@
                                              {:min 1}
                                              :convex/number])]
                     (fn [x]
-                      (double? ($.test.util/eval (list* '/
+                      (double? ($.test.eval/form (list* '/
                                                         x))))))
 
 
@@ -48,49 +49,49 @@
 (tc.ct/defspec <--
 
   ($.test.prop/comparison '<
-                <))
+                          <))
 
 
 
 (tc.ct/defspec <=--
 
   ($.test.prop/comparison '<=
-                <=))
+                          <=))
 
 
 
 (tc.ct/defspec =--
 
   ($.test.prop/comparison '=
-                =))
+                          =))
 
 
 
 (tc.ct/defspec >=--
 
   ($.test.prop/comparison '>=
-                >=))
+                          >=))
 
 
 
 (tc.ct/defspec >--
 
   ($.test.prop/comparison '>
-                >))
+                          >))
 
 
 
 (tc.ct/defspec max--
 
   ($.test.prop/comparison 'max
-                max))
+                          max))
 
 
 
 (tc.ct/defspec min--
 
   ($.test.prop/comparison 'min
-                min))
+                          min))
 
 
 ;;;;;;;;;; Exponentiation
@@ -112,7 +113,7 @@
                     (fn [[x y]]
                       ($.test.util/eq (StrictMath/pow x
                                                       y)
-                                      ($.test.util/eval (list 'pow
+                                      ($.test.eval/form (list 'pow
                                                               x
                                                               y))))))
 
@@ -136,7 +137,7 @@
   (tc.prop/for-all* [($.test.util/generator [:double
                                              {:min (double Long/MIN_VALUE)}])]
                     (fn [x]
-                      (let [x-2 ($.test.util/eval (list 'dec
+                      (let [x-2 ($.test.eval/form (list 'dec
                                                         x))]
                         ($.test.util/prop+
 
@@ -165,7 +166,7 @@
 (t/deftest dec--double-underflow
 
   (t/is (= Long/MAX_VALUE
-           ($.test.util/eval (list 'dec
+           ($.test.eval/form (list 'dec
                                    (double Long/MIN_VALUE))))))
 
 
@@ -174,7 +175,7 @@
 
   (tc.prop/for-all* [($.test.util/generator :convex/long)]
                     (fn [x]
-                      (let [x-2 ($.test.util/eval (list 'dec
+                      (let [x-2 ($.test.eval/form (list 'dec
                                                         x))]
                         ($.test.util/prop+
 
@@ -197,7 +198,7 @@
   (tc.prop/for-all* [($.test.util/generator [:double
                                              {:min (double Long/MIN_VALUE)}])]
                     (fn [x]
-                      (let [x-2 ($.test.util/eval (list 'inc
+                      (let [x-2 ($.test.eval/form (list 'inc
                                                         x))]
                         ($.test.util/prop+
 
@@ -225,7 +226,7 @@
 
   (tc.prop/for-all* [($.test.util/generator :convex/long)]
                     (fn [x]
-                      (let [x-2 ($.test.util/eval (list 'inc
+                      (let [x-2 ($.test.eval/form (list 'inc
                                                         x))]
                         ($.test.util/prop+
 
@@ -265,7 +266,7 @@
 
   (tc.prop/for-all* [($.test.util/generator :convex/number)]
                     (fn [x]
-                      (let [x-2 ($.test.util/eval (list 'abs
+                      (let [x-2 ($.test.eval/form (list 'abs
                                                         x))]
                         ($.test.util/prop+
 
@@ -283,7 +284,7 @@
 
   (tc.prop/for-all* [($.test.util/generator :convex/number)]
                     (fn [x]
-                      (let [x-2 ($.test.util/eval (list 'signum
+                      (let [x-2 ($.test.eval/form (list 'signum
                                                         x))]
                         ($.test.util/prop+
 

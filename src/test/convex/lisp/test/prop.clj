@@ -6,6 +6,7 @@
 
   (:require [clojure.test.check.properties :as tc.prop]
             [convex.lisp                   :as $]
+            [convex.lisp.test.eval         :as $.test.eval]
             [convex.lisp.test.util         :as $.test.util]))
 
 
@@ -17,14 +18,14 @@
 
 (defn arithmetic
 
-  "Applies a vector of numbers to `sym-convex` on the CVM.
+  "Applies a vector of numbers to `form` on the CVM.
   
    Tests 2 properties:
   
    - Using only longs results in a long
    - Using at least one double results in a double"
 
-  [sym-convex]
+  [form]
 
   (tc.prop/for-all* [($.test.util/generator [:vector
                                              {:min 1}
@@ -33,11 +34,11 @@
                       ($.test.util/prop+
 
                         "Numerical computation of longs must result in a long"
-                        (int? ($.test.util/eval (list* sym-convex
+                        (int? ($.test.eval/form (list* form
                                                        x)))
 
                         "Numerical computation with at least one double must result in a double"
-                        (double? ($.test.util/eval (list* sym-convex
+                        (double? ($.test.eval/form (list* form
                                                           (update x
                                                                   (rand-int (dec (count x)))
                                                                   double))))))))
@@ -46,28 +47,28 @@
 
 (defn coerce
 
-  "Coerce a value generated from `schema` by applying it to `sym-convex-cast`.
+  "Coerce a value generated from `schema` by applying it to `form-cast`.
   
    Tests at least 2 properties:
   
    - Is the result consistent with Clojure by applying that value to `clojure-pred`?
-   - Does the CVM confirm the result is of the right type by applying it to `sym-convex-pred`?
+   - Does the CVM confirm the result is of the right type by applying it to `form-pred`?
   
    If `clojure-cast is provided, 1 additional property is checked:
   
    - Does casting in Clojure provide the exact same result?"
 
 
-  ([sym-convex-cast sym-convex-pred clojure-pred schema]
+  ([form-cast form-pred clojure-pred schema]
 
-   (coerce sym-convex-cast
-           sym-convex-pred
+   (coerce form-cast
+           form-pred
            nil
            clojure-pred
            schema))
 
 
-  ([sym-convex-cast sym-convex-pred clojure-cast clojure-pred schema]
+  ([form-cast form-pred clojure-cast clojure-pred schema]
 
    (tc.prop/for-all* [($.test.util/generator schema)]
                      (let [suite   (fn [_x x-2 cast?]
@@ -93,8 +94,8 @@
                                      suite)]
                        (fn [x]
                          (let [[x-2
-                                cast?] ($.test.util/eval ($/templ {'?sym-cast sym-convex-cast
-                                                                   '?sym-pred sym-convex-pred
+                                cast?] ($.test.eval/form ($/templ {'?sym-cast form-cast
+                                                                   '?sym-pred form-pred
                                                                    '?x        x}
                                                                   '(let [x-2 (?sym-cast (quote ?x))]
                                                                      [x-2
@@ -107,12 +108,12 @@
 
 (defn comparison
 
-  "Checks if applying numbers to `sym-convex` on the CVM produces the exact same result (a boolean)
+  "Checks if applying numbers to `form` on the CVM produces the exact same result (a boolean)
    as in Clojure."
 
-  [sym-convex f-clojure]
+  [form f-clojure]
 
-  (like-clojure sym-convex
+  (like-clojure form
                 f-clojure
                 [:vector
                  {:min 1}
@@ -122,16 +123,16 @@
 
 (defn like-clojure
 
-  "Checks if calling `sym-convex` on the CVM with the generated value(s) produces the exact same result
+  "Checks if calling `form` on the CVM with the generated value(s) produces the exact same result
    as in Clojure by using `f-clojure`."
 
-  [sym-convex f-clojure schema]
+  [form f-clojure schema]
 
   (tc.prop/for-all* [($.test.util/generator schema)]
                     (fn [x]
                       ($.test.util/eq (apply f-clojure
                                              x)
-                                      ($.test.util/eval (list* sym-convex
+                                      ($.test.eval/form (list* form
                                                                x))))))
 
 
@@ -143,20 +144,21 @@
    Provided schema is a set of data types meant to be removed from `:convex/data`."
 
 
-  ([sym-convex schema-without]
+  ([form schema-without]
 
-   (pred-data-false sym-convex
+   (pred-data-false form
                     nil
                     schema-without))
 
 
-  ([sym-convex f-clojure schema-without]
+  ([form f-clojure schema-without]
 
    (tc.prop/for-all* [($.test.util/generator-data-without schema-without)]
                      (if f-clojure
                        (fn [x]
-                         (let [x-2 ($.test.util/eval-pred sym-convex
+                         (let [x-2 ($.test.eval/apply-one form
                                                           x)]
+                           (println :x-2 x-2)
                            ($.test.util/prop+
 
                              "Always returns false"
@@ -166,7 +168,7 @@
                              (= x-2
                                 (f-clojure x)))))
                        (fn [x]
-                         (not ($.test.util/eval-pred sym-convex
+                         (not ($.test.eval/apply-one form
                                                      x)))))))
 
 
@@ -175,23 +177,23 @@
 
   "Tests if a value generated by ´schema` passes a data predicate on the CVM.
   
-   If `f-clojure`is given, also ensures that that same value produces the exact same result
+   If `f-clojure` is given, also ensures that the very same value produces the exact same result
    in Clojure."
 
 
-  ([sym-convex schema]
+  ([form schema]
 
-   (pred-data-true sym-convex
+   (pred-data-true form
                    nil
                    schema))
 
 
-  ([sym-convex f-clojure schema]
+  ([form f-clojure schema]
 
    (tc.prop/for-all* [($.test.util/generator schema)]
                      (if f-clojure
                        (fn [x]
-                         (let [x-2 ($.test.util/eval-pred sym-convex
+                         (let [x-2 ($.test.eval/apply-one form
                                                           x)]
                            ($.test.util/prop+
 
@@ -202,5 +204,5 @@
                              (= x-2
                                 (f-clojure x)))))
                        (fn [x]
-                         ($.test.util/eval-pred sym-convex
+                         ($.test.eval/apply-one form
                                                 x))))))
