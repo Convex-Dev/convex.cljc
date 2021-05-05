@@ -1,6 +1,8 @@
 (ns convex.lisp.schema
 
-  ""
+  "Creating Malli schemas for working with Convex.
+  
+   See [[registry]]."
 
   {:author "Adam Helinski"}
 
@@ -9,17 +11,12 @@
             [convex.lisp.hex               :as $.hex]))
 
 
-(declare string)
-
-
 ;;;;;;;;;; Schemas
 
 
 (defn data
 
-  ""
-
-  ;; TODO. No address nor blob since no equivalent litteral notation.
+  "Adds to the given `registry` all schemas for Convex data types."
 
 
   ([]
@@ -140,12 +137,32 @@
           :convex/vector       [:vector [:ref :convex/data]])))
 
 
+
+(defn sym-coercible
+
+  "Returns a schema for a value that can be coerced to a Convex keyword or symbol."
+
+  []
+
+  [:or
+   :convex/keyword
+   :convex/symbol
+   [:and
+    :convex/string
+    [:fn
+     #(< 0
+         (count %)
+         32)]]])
+
+
 ;;;;;;;;;;
 
 
 (defn registry
 
-  ""
+  "Adds to the given `registry` all relevant schemas from this namespace for working with Convex.
+  
+   When used as a standalone registry, requires the core Malli registry."
 
   
   ([]

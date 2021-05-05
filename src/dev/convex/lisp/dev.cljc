@@ -69,7 +69,7 @@
      '(hash-map [] :vec '() :list)
       $/from-clojure
       $/eval
-      $/result)
+      $/result
       $/to-clojure
       )
 

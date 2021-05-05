@@ -24,77 +24,7 @@
   5)
 
 
-;;;;;;;;;; Reusable schemas
-
-
-(def schema-sym-castable
-
-  ""
-
-  [:or
-   :convex/keyword
-   :convex/symbol
-   [:and
-    :convex/string
-    [:fn
-     #(< 0
-         (count %)
-         32)]]])
-
-
 ;;;;;;;;;; Building common types of properties
-
-
-(defn prop-cast
-
-  ""
-
-
-  ([sym-core-cast sym-core-pred schema clojure-pred]
-
-   (prop-cast sym-core-cast
-              sym-core-pred
-              schema
-              nil
-              clojure-pred))
-
-
-  ([sym-core-cast sym-core-pred schema clojure-cast clojure-pred]
-
-   (tc.prop/for-all* [($.test.util/generator schema)]
-                     (let [suite   (fn [_x x-2 cast?]
-                                     ($.test.util/prop+
-
-                                       "Consistent with Clojure"
-                                       (clojure-pred x-2)
-
-                                       "Properly cast"
-                                       cast?))
-                           suite-2 (if clojure-cast
-                                     (fn [x x-2 cast?]
-                                       ($.test.util/prop+
-
-                                         "Basic tests"
-                                         (suite x
-                                                x-2
-                                                cast?)
-
-                                         "Comparing cast with Clojure's"
-                                         (= x-2
-                                            (clojure-cast x))))
-                                     suite)]
-                       (fn [x]
-                         (let [[x-2
-                                cast?] ($.test.util/eval ($/templ {'?sym-cast sym-core-cast
-                                                                   '?sym-pred sym-core-pred
-                                                                   '?x        x}
-                                                                  '(let [x-2 (?sym-cast (quote ?x))]
-                                                                     [x-2
-                                                                      (?sym-pred x-2)])))]
-                           (suite-2 x
-                                    x-2
-                                    cast?)))))))
-
 
 
 (defn prop-pred-data-false
@@ -184,22 +114,6 @@
 
 
 
-(tc.ct/defspec address--true
-
-  (prop-cast 'address
-             'address?
-             [:or
-              :convex/address
-              :convex/blob-8
-              :convex/hexstring-8
-              [:and
-               :convex/long
-               [:>= 0]]]
-             (partial $.test.util/valid?
-                      :convex/address)))
-
-
-
 (tc.ct/defspec address?--
 
   (tc.prop/for-all* [($.test.util/generator :convex/address)]
@@ -226,21 +140,6 @@
 
 
 
-(tc.ct/defspec blob--
-
-  ;; TODO. Also test hashes.
-
-  (prop-cast 'blob
-             'blob?
-             [:or
-              :convex/address
-              :convex/blob
-              :convex/hexstring]
-             (partial $.test.util/valid?
-                      :convex/blob)))
-
-
-
 (tc.ct/defspec blob?--false
 
   {:max-size max-size-coll}
@@ -263,20 +162,6 @@
 
 
 
-
-(tc.ct/defspec boolean--true
-
-  {:max-size max-size-coll}
-
-  (prop-cast 'boolean
-             'boolean?
-             [:and
-              :convex/data
-              [:not [:enum false
-                           nil]]]
-             true?))
-
-
 (tc.ct/defspec boolean?--false
 
   {:max-size max-size-coll}
@@ -294,33 +179,6 @@
 
   (t/is (false? ($.test.util/eval false))
         "False"))
-
-
-
-(tc.ct/defspec byte--
-
-  (prop-cast 'byte
-             'number?
-             [:and :convex/number
-              [:>= -1e6]
-              [:<= 1e6]]
-             unchecked-byte
-             (fn clojure-pred [x-2]
-               (<= Byte/MIN_VALUE
-                   x-2
-                   Byte/MAX_VALUE))))
-
-
-
-(tc.ct/defspec char--
-
-  (prop-cast 'char
-             'number?               ;; TODO. Incorrect, see #68
-             [:and :convex/number
-              [:>= -1e6]
-              [:<= 1e6]]
-             unchecked-char
-             char?))
 
 
 
@@ -668,35 +526,6 @@
 
 
 
-(tc.ct/defspec hash--
-
-  ;; Also tests `hash?`.
-
-  (tc.prop/for-all* [($.test.util/generator [:or
-                                             :convex/address
-                                             :convex/blob-32])]
-                    (fn [x]
-                      (let [[h
-                             h-1?
-                             h-2?] ($.test.util/eval ($/templ {'X x}
-                                                              '(let [h (hash X)]
-                                                                 [h
-                                                                  (hash? h)
-                                                                  (hash? (hash h))])))]
-                         ($.test.util/prop+
-
-                           "Result is a hash"
-                           ($.test.util/valid? :convex/hash
-                                               h)
-
-                           "Hashing does produce a hash"
-                           h-1?
-
-                           "Hashing a hash produces a hash"
-                           h-2?)))))
-
-
-
 (tc.ct/defspec hash-map--
 
   ;; Cannot compare with Clojure: https://github.com/Convex-Dev/convex-web/issues/66
@@ -745,16 +574,6 @@
 
 
 
-(tc.ct/defspec keyword--
-
-  (prop-cast 'keyword
-             'keyword?
-             schema-sym-castable
-             keyword
-             keyword?))
-
-
-
 (tc.ct/defspec keyword?--false
 
   {:max-size max-size-coll}
@@ -773,7 +592,7 @@
 
 
 
-;; TODO. `log`, weird, no docstring and behaves like `vector`
+;; TODO. `log`, about logging
 
 
 
@@ -811,16 +630,6 @@
   (prop-pred-data-true 'list?
                        :convex/list
                        list?))
-
-
-
-(tc.ct/defspec long--
-
-  (prop-cast 'long
-             'long?
-             :convex/number
-             unchecked-long
-             int?))
 
 
 
@@ -901,21 +710,6 @@
 
 
 
-;; TODO. Currently failing, see #77
-;;
-#_(tc.ct/defspec set--
-
-  {:max-size max-size-coll}
-
-  (prop-cast 'set
-             'set?
-             :convex/collection
-             ;; `vec` cannot be used because Convex implements order differently in maps and sets
-             set
-             set?))
-
-
-
 (tc.ct/defspec set?--false
 
   {:max-size max-size-coll}
@@ -933,19 +727,6 @@
   (prop-pred-data-true 'set?
                        :convex/set
                        set?))
-
-
-
-(tc.ct/defspec str--
-
-  {:max-size max-size-coll}
-
-  (prop-cast 'str
-             'str?
-             [:vector
-              :convex/data]
-             ;; No Clojure cast, Convex prints vectors with "," instead of spaces, unlike Clojure
-             string?))
 
 
 
@@ -967,16 +748,6 @@
 
 
 
-(tc.ct/defspec symbol--
-
-  (prop-cast 'symbol
-             'symbol?
-             schema-sym-castable
-             symbol
-             symbol?))
-
-
-
 (tc.ct/defspec symbol?--true
 
   (prop-pred-data-true 'symbol?
@@ -993,18 +764,6 @@
                         #{:convex/symbol}
                         (partial $.test.util/valid?
                                  :convex/symbol)))
-
-
-
-(tc.ct/defspec vec--
-
-  {:max-size max-size-coll}
-
-  (prop-cast 'vec
-             'vector?
-             :convex/collection
-             ;; `vec` cannot be used because Convex implements order differently in maps and sets
-             vector?))
 
 
 

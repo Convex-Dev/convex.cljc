@@ -6,8 +6,7 @@
 
   (:require [clojure.test.check.properties :as tc.prop]
             [convex.lisp                   :as $]
-            [convex.lisp.test.util         :as $.test.util])
-  (:refer-clojure :exclude [cast]))
+            [convex.lisp.test.util         :as $.test.util]))
 
 
 (declare like-clojure)
@@ -45,9 +44,9 @@
 
 
 
-(defn cast
+(defn coerce
 
-  "Casts a value generated from `schema` by applying it to `sym-convex-cast`.
+  "Coerce a value generated from `schema` by applying it to `sym-convex-cast`.
   
    Tests at least 2 properties:
   
@@ -61,11 +60,11 @@
 
   ([sym-convex-cast sym-convex-pred clojure-pred schema]
 
-   (cast sym-convex-cast
-         sym-convex-pred
-         schema
-         nil
-         clojure-pred))
+   (coerce sym-convex-cast
+           sym-convex-pred
+           nil
+           clojure-pred
+           schema))
 
 
   ([sym-convex-cast sym-convex-pred clojure-cast clojure-pred schema]
