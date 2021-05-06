@@ -1,6 +1,6 @@
 (ns convex.lisp
 
-  "Reading, compiling, and executing source + conversion to EDN and Clojure data structures.
+  "Reading, compiling, and executing Convex Lisp source.
   
    The result of context operation can be retrieved using [[result]]."
 
@@ -47,9 +47,9 @@
 
 (defn read
 
-  "Converts Convex Lisp source to a Convex form.
+  "Converts Convex Lisp source to a Convex object.
   
-   See [[to-clojure]], [[expand]]."
+   See [[datafy]], [[expand]], for further usage."
 
   [string]
 
@@ -114,14 +114,14 @@
 
 (defn compile
 
-  "Compile a form using the given context.
+  "Compiles an expanded Convex object using the given `context`.
   
-   Form is extracted from context using [[result]] if none is given and must be canonical (all items are
-   fully expanded).
+   Object is extracted from context using [[result]] if none is given and must be canonical (all items are
+   fully expanded). See [[expand]].
   
-   Usually run after [[expand]].
-  
-   Result can be executed. See [[run]]."
+   See [[run]] for execution after compilation.
+
+   Returns [[context]]. See [[result]]."
 
 
   (^Context [context]
@@ -130,20 +130,22 @@
             (result context)))
 
 
-  (^Context [^Context context canonical-form]
+  (^Context [^Context context canonical-object]
 
    (.compile context
-             canonical-form)))
+             canonical-object)))
 
 
 
 (defn expand
 
-  "Expands a Convex form so that it is canonical (fully expanded and ready for compilation).
+  "Expands a Convex object so that it is canonical (fully expanded and ready for compilation).
 
-   Usually run before [[compile]] with the result from [[read]]
+   Usually run before [[compile]] with the result from [[read]].
   
-   Fake [[context]] is created if none is provided."
+   Fake [[context]] is created if none is provided.
+  
+   Returns [[context]]. See [[result]]."
 
 
   (^Context [form]
@@ -163,7 +165,9 @@
 
   "Chains [[expand]] and [[compile]] while being slightly more efficient than calling both separately.
   
-   Result can be executed. See [[run]]."
+   See [[run]] for execution after compilation.
+
+   Returns [[context]]. See [[result]]."
 
 
   (^Context [form]
@@ -185,26 +189,28 @@
 
   "Evaluates the given form after fully expanding and compiling it.
   
-   Fake [[context]] is created if none is provided."
+   Returns [[context]]. See [[result]]."
 
 
-  (^Context [form]
+  (^Context [object]
 
    (eval (context)
-         form))
+         object))
 
 
-  (^Context [context form]
+  (^Context [context object]
 
    (-> context
-       (expand-compile form)
+       (expand-compile object)
        run)))
 
 
 
 (defn query
 
-  "Like [[run]] but the resulting state is discarded."
+  "Like [[run]] but the resulting state is discarded.
+  
+   Returns [[context]]. See [[result]]."
 
 
   (^Context [context]
@@ -213,10 +219,10 @@
           (result context)))
 
 
-  (^Context [^Context context form]
+  (^Context [^Context context compiled]
 
    (.query context
-           form)))
+           compiled)))
 
 
 
@@ -226,7 +232,9 @@
   
    Fetches code using [[result]] when not explicitly provided.
   
-   Usually run after [[compile]]."
+   Usually run after [[compile]].
+  
+   Returns [[context]]. See [[result]]."
 
 
   (^Context [context]
@@ -246,17 +254,17 @@
 
 (defn datafy
 
-  "Converts Convex data to Clojure data."
+  "Converts a Convex object into Clojure data."
 
-  [form]
+  [object]
 
-  (clojure.core.protocols/datafy form))
+  (clojure.core.protocols/datafy object))
 
 
 
 (defn read-form
 
-  "Stringifies the given clojure form and applies the result to [[read]]."
+  "Stringifies the given Clojure form and applies the result to [[read]]."
 
   [form]
 
