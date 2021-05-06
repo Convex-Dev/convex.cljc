@@ -195,10 +195,4 @@
       (t/is (= blob
                ($/prepare-clojure '(blob "42"))))
       (t/is (= form
-               ($/prepare-clojure form)))))
-
-  (t/testing "NaN"
-    (t/is (= '(unquote NaN)
-             ($/prepare-clojure ##NaN)))
-    (t/is (= '[(unquote NaN)]
-             ($/prepare-clojure [##NaN])))))
+               ($/prepare-clojure form))))))

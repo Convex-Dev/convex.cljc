@@ -160,7 +160,7 @@
 
 (defn arithmetic
 
-  "Applies a vector of numbers to `form` on the CVM.
+  "Checks applies a vector of numbers to `form` on the CVM.
   
    Tests 2 properties:
   
@@ -187,7 +187,7 @@
 
 (defn coerce
 
-  "Coerce a value generated from `schema` by applying it to `form-cast`.
+  "Checks coercing a value generated from `schema` by applying it to `form-cast`.
   
    Tests at least 2 properties:
   
@@ -252,6 +252,57 @@
                 [:vector
                  {:min 1}
                  :convex/number]))
+
+
+
+(defn data
+
+  "Checks generating a value from `schema` and evaling it. Result must be equal to initial value.
+
+   `f` can be provided for mapping a generated value prior to evaling."
+
+  
+  ([schema]
+
+   (data schema
+         identity))
+
+
+  ([schema f]
+
+   (check schema
+          (fn [x]
+            ($.test.util/eq x
+                            (-> x
+                                f
+                                $.test.eval/form))))))
+
+
+
+(defn data-quotable
+
+  "Like [[data]] but ensures that quoting the generated value does not change anything in the result."
+
+  [schema]
+
+  (check schema
+         (fn [x]
+           ($.test.util/eq x
+                           ($.test.eval/form x)
+                           ($.test.eval/form ($/quote-clojure x))))))
+
+
+
+(defn data-quoted
+
+  "Like [[data]] but quotes the generated values.
+  
+   Useful for preventing any symbol from being evaled."
+
+  [schema]
+
+  (data schema
+        $/quote-clojure))
 
 
 

@@ -16,13 +16,10 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.test                    :as t]
-            [clojure.test.check.properties   :as tc.prop]
             [clojure.test.check.clojure-test :as tc.ct]
-            [convex.lisp                     :as $]
             [convex.lisp.test.eval           :as $.test.eval]
             [convex.lisp.test.prop           :as $.test.prop]
-            [convex.lisp.test.schema         :as $.test.schema]
-            [convex.lisp.test.util           :as $.test.util]))
+            [convex.lisp.test.schema         :as $.test.schema]))
 
 
 ;;;;;;;;;; Defaults
@@ -31,156 +28,52 @@
 (def max-size-coll
      5)
 
-
-;;;;;;;;;; Helpers
-
-
-(defn cycle-quotable
-
-  "Cycles `x`, after quoting it, as described in the namespace description, and returns true
-   if the result equals `x`."
-
-  [x]
-
-  (let [x-str ($/clojure->source x)]
-    ($.test.util/eq x
-                    ($.test.eval/source x-str)
-                    ($.test.eval/source (str "'" x-str)))))
-
-
-
-(defn generator-E-notation
-
-  "Helps creating a generator for scientific notation."
-
-  [schema-exponent]
-
-  ($.test.schema/generator [:tuple
-                            {:gen/fmap (fn [[m-1 m-2 e x]]
-                                         (str m-1
-                                              \.
-                                              m-2
-                                              e
-                                              x))}
-                            :convex/long
-                            [:and
-                             :convex/long
-                             [:>= 0]]
-                            [:enum
-                             \e
-                             \E]
-                            schema-exponent]))
-
-
-;;;;;;;;;; Creating properties
-
-
-(defn property
-
-  "Returns a property that goes through the cycle described in the namespace description.
-  
-   `f` can be provided for mapping a generated result."
-
-  
-  ([k-schema]
-
-   (property k-schema
-             identity))
-
-
-  ([k-schema f]
-
-   (tc.prop/for-all* [($.test.schema/generator k-schema)]
-                     (fn [x]
-                       ($.test.util/eq x
-                                       (-> x
-                                           f
-                                           $/clojure->source
-                                           $.test.eval/source))))))
-
-
-
-(defn property-quotable
-
-  "Like [[property]] but ensures that quoting the generated value does not change anything in the result."
-
-  [k-schema]
-
-  (tc.prop/for-all* [($.test.schema/generator k-schema)]
-                    cycle-quotable))
-
-
-
-(defn property-quoted
-
-  "Like [[property]] but quotes the generated values.
-  
-   Useful for collections since they might contain symbol which, unquoted, are evaled."
-
-  [k-schema]
-
-  (property k-schema
-            $/quote-clojure))
-
-
-;;;;;;;;;; Generative tests
-;;;;;;;;;;
-;;;;;;;;;; Cycles of generating values, converting to source, reading, compiling, and comparing result
-
-
 ;;;;;;;;;; Generative tests - Scalar values
 
 
 (t/deftest nil--
 
-  (t/is (nil? ($.test.eval/source "nil"))))
+  (t/is (nil? ($.test.eval/form nil))))
  
 
 
 (tc.ct/defspec address
 
-  (property-quotable :convex/address))
+  ($.test.prop/data-quotable :convex/address))
 
 
 
 (tc.ct/defspec blob
 
-  (property-quotable :convex/blob))
+  ($.test.prop/data-quotable :convex/blob))
 
 
 
 (tc.ct/defspec boolean-
 
-  (property-quotable :convex/boolean))
+  ($.test.prop/data-quotable :convex/boolean))
 
 
 
 (tc.ct/defspec char-
 
-  (property-quotable :convex/char))
+  ($.test.prop/data-quotable :convex/char))
 
 
 
 (tc.ct/defspec double-
 
-  ($.test.prop/check :convex/double
-                     (fn [x]
-                       (if (Double/isNaN x)
-                         (Double/isNaN (-> x
-                                           $/clojure->source
-                                           $.test.eval/source))
-                         (cycle-quotable x)))))
+  ($.test.prop/data-quotable :convex/double))
 
 
 
 (tc.ct/defspec double-E-notation
 
-  ;; TODO. Also ensure failing (see #70).
-
-  (tc.prop/for-all* [(generator-E-notation :convex/long)]
-                    #(-> %
-                         $.test.eval/source
-                         double?)))
+  ($.test.prop/check ($.test.schema/E-notation :convex/long)
+                     (fn [x]
+                       (-> x
+                           $.test.eval/source
+                           double?))))
 
 
 
@@ -188,20 +81,20 @@
 
   ;; TODO. Must be fixed, see #70.
 
-  (tc.prop/for-all* [(generator-E-notation :double)]
-                    $.test.util/eval-exceptional-source))
+  ($.test.prop/check ($.test.schema/E-notation :convex/double)
+                     $.test.eval/source-exceptional))
 
 
 
 (tc.ct/defspec keyword-
 
-  (property-quotable :convex/keyword))
+  ($.test.prop/data-quotable :convex/keyword))
 
 
 
 (tc.ct/defspec long-
 
-  (property-quotable :convex/long))
+  ($.test.prop/data-quotable :convex/long))
 
 
 
@@ -209,7 +102,7 @@
 
   ;; TODO. Suffers from #66.
 
-  (property :convex/string))
+  ($.test.prop/data :convex/string))
 
 
 
@@ -217,7 +110,7 @@
 
   ;; TODO. Suffers from #65.
 
-  (property-quoted :convex/symbol))
+  ($.test.prop/data-quoted :convex/symbol))
 
 
 ;;;;;;;;;; Generative tests - Collections
@@ -227,7 +120,7 @@
 
   {:max-size max-size-coll}
 
-  (property-quoted :convex/list))
+  ($.test.prop/data-quoted :convex/list))
 
 
 
@@ -235,7 +128,7 @@
 
   {:max-size max-size-coll}
 
-  (property-quoted :convex/map))
+  ($.test.prop/data-quoted :convex/map))
 
 
 
@@ -243,7 +136,7 @@
 
   {:max-size max-size-coll}
 
-  (property-quoted :convex/set))
+  ($.test.prop/data-quoted :convex/set))
 
 
 
@@ -251,4 +144,4 @@
 
   {:max-size max-size-coll}
 
-  (property-quoted :convex/vector))
+  ($.test.prop/data-quoted :convex/vector))

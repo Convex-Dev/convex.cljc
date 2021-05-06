@@ -83,3 +83,30 @@
         (filter #(not (contains? schema+
                                  %)))
         (rest (registry :convex/data))))
+
+
+
+(defn E-notation
+
+  "Helps creating a generator for scientific notation, a tuple of items that
+   can be joined into a string.
+  
+   Argument is a schema describing the exponential part."
+
+  [schema-exponent]
+
+  [:tuple
+   {:gen/fmap (fn [[m-1 m-2 e x]]
+                (str m-1
+                     \.
+                     m-2
+                     e
+                     x))}
+   :convex/long
+   [:and
+    :convex/long
+    [:>= 0]]
+   [:enum
+    \e
+    \E]
+   schema-exponent])

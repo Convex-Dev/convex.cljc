@@ -493,11 +493,7 @@
                                                          arg))
                                             x))
                                x)
-                             (if (and (double? x)
-                                      (Double/isNaN x))
-                               (list 'unquote
-                                     'NaN)
-                               x)))
+                             x))
                          clojure-form))
 
 
