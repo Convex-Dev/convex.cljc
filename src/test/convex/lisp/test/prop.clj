@@ -4,16 +4,56 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.test.check.properties :as tc.prop]
-            [clojure.test.check.results    :as tc.result]
-            [convex.lisp                   :as $]
-            [convex.lisp.form              :as $.form]
-            [convex.lisp.test.eval         :as $.test.eval]
-            [convex.lisp.test.schema       :as $.test.schema]
-            [convex.lisp.test.util         :as $.test.util]))
+  (:require [clojure.test.check.clojure-test :as tc.ct]
+            [clojure.test.check.properties   :as tc.prop]
+            [clojure.test.check.results      :as tc.result]
+            [convex.lisp.form                :as $.form]
+            [convex.lisp.test.eval           :as $.test.eval]
+            [convex.lisp.test.schema         :as $.test.schema]
+            [convex.lisp.test.util           :as $.test.util]))
 
 
 (declare like-clojure)
+
+
+;;;;;;;;;; Defining generative tests
+
+
+(defmacro deftest
+
+  "Like `clojure.test.check.clojure-test/defspec`.
+
+   Difference is that the number of tests and maximum size can be easily configured
+   at the level of the whole test suite and also by providing metadata:
+
+   | Key | Effect |
+   |---|---|
+   | `:recur` | When involving recursive collections, reduces max size to 5 |
+
+   ```clojure
+   (defcheck some-test
+
+     (check :double
+            (fn [x]
+              (double? x))))
+   ```"
+
+  ([sym prop]
+
+   `(deftest ~sym
+             nil
+             ~prop))
+
+
+  ([sym option+ prop]
+
+   `(tc.ct/defspec ~sym
+                   ~(merge (when (get (meta sym)
+                                      :recur)
+                             {:max-size 5})
+                           {:num-tests 100}
+                           option+)
+                   ~prop)))
 
 
 ;;;;;;;;;; Helpers for writing properties

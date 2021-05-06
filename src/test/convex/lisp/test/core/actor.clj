@@ -4,39 +4,22 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.test.check.clojure-test :as tc.ct]
-            [convex.lisp.form                :as $.form]
-            [convex.lisp.test.eval           :as $.test.eval]
-            [convex.lisp.test.mult           :as $.test.mult]
-            [convex.lisp.test.prop           :as $.test.prop]))
-
-
-;;;;;;;;;; Default values
-
-
-(def max-size-coll
-
-  ""
-
-  5)
+  (:require [convex.lisp.form      :as $.form]
+            [convex.lisp.test.eval :as $.test.eval]
+            [convex.lisp.test.mult :as $.test.mult]
+            [convex.lisp.test.prop :as $.test.prop]))
 
 
 ;;;;;;;;;;
 
 
-(tc.ct/defspec deploy--
-
-  {:max-size max-size-coll}
+($.test.prop/deftest ^:recur deploy--
 
   ($.test.prop/check :convex/data
                      (fn [x]
-                       ($.test.prop/mult ($.test.mult/new-account []
-                                                                  ($.test.eval/form->context ($.form/templ {'?data x}
-                                                                                                           '(def addr
-                                                                                                                 (deploy (quote '?data)))))
-                                                                  true?)))))
-
-
-;;;;;;;;;; TODO
-
-;; `log`, about logging
+                       ($.test.prop/mult
+                         ($.test.mult/new-account []
+                                                  ($.test.eval/form->context ($.form/templ {'?data x}
+                                                                                           '(def addr
+                                                                                                 (deploy (quote '?data)))))
+                                                  true?)))))

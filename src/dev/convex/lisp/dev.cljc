@@ -73,12 +73,11 @@
   
 
 
-  (-> 
-     '(hash-map [] :vec '() :list)
+  (-> '(hash-map [] :vec '() :list)
       $/read-form
       $/eval
       $/result
-      $/to-clojure
+      $/datafy
       )
 
 
@@ -90,7 +89,7 @@
       $/expand-compile
       $/query
       $/result
-      ;$/to-clojure
+      $/datafy
       )
 
 

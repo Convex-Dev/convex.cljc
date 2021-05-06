@@ -14,25 +14,25 @@
 ;;;;;;;;;; Arithmetic operators
 
 
-(tc.ct/defspec *--
+($.test.prop/deftest *--
 
   ($.test.prop/arithmetic '*))
 
 
 
-(tc.ct/defspec +--
+($.test.prop/deftest +--
 
   ($.test.prop/arithmetic '+))
 
 
 
-(tc.ct/defspec ---
+($.test.prop/deftest ---
 
   ($.test.prop/arithmetic '-))
 
 
 
-(tc.ct/defspec div--
+($.test.prop/deftest div--
 
   ($.test.prop/check [:vector
                       {:min 1}
@@ -114,8 +114,21 @@
 
 
 
-(tc.ct/defspec pow--
+($.test.prop/deftest pow--
 
+  ($.test.prop/check [:tuple
+                      :convex/number
+                      :convex/number]
+                     (fn [[x y]]
+                       ($.test.util/eq (StrictMath/pow x
+                                                       y)
+                                       ($.test.eval/form (list 'pow
+                                                               x
+                                                               y))))))
+
+
+(tc.ct/defspec pow--
+  
   ($.test.prop/check [:tuple
                       :convex/number
                       :convex/number]

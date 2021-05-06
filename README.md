@@ -4,7 +4,7 @@
 
 [![Cljdoc](https://cljdoc.org/badge/helins/convex.lisp.cljc)](https://cljdoc.org/d/helins/convex.lisp.cljc)
 
-Wrking with Convex Lisp and testing the CVM (Convex Virtual Machine).
+Working with Convex Lisp and testing the CVM (Convex Virtual Machine).
 
 Toolset consist of:
 
@@ -78,7 +78,6 @@ $ ./bin/dev/clojure :nrepl
 Starting in CLJS mode using [Shadow-CLJS](https://github.com/thheller/shadow-cljs):
 ```bash
 $ ./bin/dev/cljs
-# Then open ./cljs/index.html
 ```
 
 
