@@ -142,20 +142,6 @@
 
 
 
-(t/deftest edn
-
-  (t/is (= [:a
-            (symbol "#51")
-            '(blob 255)]
-           (-> "[:a
-                 #51
-                 0xff]"
-               $/read
-               $/to-edn
-               $/read-edn))))
-
-
-
 (t/deftest execution
 
   (let [form ($/read "(if true 42 0)")]

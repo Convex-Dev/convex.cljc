@@ -6,6 +6,7 @@
 
   (:require [ajax.core                     :as http]
             [convex.lisp                   :as $]
+            [convex.lisp.edn               :as $.edn]
             [convex.lisp.hex               :as $.hex]
             [convex.lisp.schema            :as $.schema]
             [convex.lisp.test]
@@ -17,11 +18,12 @@
             [convex.lisp.test.core.math]
             [convex.lisp.test.core.pred]
             [convex.lisp.test.data]
+            [convex.lisp.test.edn]
             [convex.lisp.test.eval]
             [convex.lisp.test.mult]
             [convex.lisp.test.prop]
             [convex.lisp.test.schema]
-            [convex.lisp.test.util         :as $.test.util]
+            [convex.lisp.test.util]
 			[clojure.data]
             [clojure.pprint]
             #?(:clj [clojure.reflect])

@@ -7,7 +7,6 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.core.protocols]
-            [clojure.tools.reader.edn]
             [clojure.walk])
   (:import convex.core.Init
            (convex.core.data ABlob
@@ -407,65 +406,8 @@
     (datafy [this]
       (-> this
           .toString
-          read-string
-          clojure.core.protocols/datafy )))
-
-
-;;;;;;;;;; Dealing with EDN
-
-
-(defn read-edn
-
-  "Reads a string of Convex form expressed as EDN.
-  
-   Opposite of [[to-edn]]."
-
-  [string]
-
-  (clojure.tools.reader.edn/read-string {:readers {'account    (fn [account]
-                                                                 [:convex/account
-                                                                  account])
-                                                   'addr       (fn [address]
-                                                                 (symbol (str "#"
-                                                                              address)))
-                                                   'blob       (fn [blob]
-                                                                 ;;
-                                                                 ;; TODO. Cannot easily convert to hexstring, see #63.
-                                                                 ;;
-                                                                 (list 'blob
-                                                                       blob))
-                                                   'context    (fn [ctx]
-                                                                 [:convex/ctx
-                                                                  ctx])
-                                                   'expander   (fn [expander]
-                                                                 [:convex/expander
-                                                                  expander])
-                                                   'signeddata (fn [hash]
-                                                                 [:convex/signed-data
-                                                                  hash])
-                                                   'syntax     (fn [{:keys [datum]
-                                                                     mta   :meta}]
-                                                                 (if (and (seq mta)
-                                                                          (not (second mta))
-                                                                          (nil? (get mta
-                                                                                     :start)))
-                                                                   (list 'syntax
-                                                                         datum
-                                                                         mta)
-                                                                   datum))}}
-                                        string))
-
-
-
-(defn to-edn
-
-  "Translates a Convex form into an EDN string.
-  
-   Opposite of [[read-edn]]."
-  
-  [^ACell form]
-
-  (.ednString form))
+          read
+          clojure.core.protocols/datafy)))
 
 
 ;;;;;;;;;; Working with Clojure forms expressing Convex Lisp code
