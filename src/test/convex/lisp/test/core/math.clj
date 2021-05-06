@@ -1,11 +1,10 @@
 (ns convex.lisp.test.core.math
 
-  "Testing Convex Core math functions."
+  "Testing Convex core math functions."
 
   {:author "Adam Helinski"}
 
   (:require [clojure.test                    :as t]
-            [clojure.test.check.properties   :as tc.prop]
             [clojure.test.check.clojure-test :as tc.ct]
             [convex.lisp.test.eval           :as $.test.eval]
             [convex.lisp.test.prop           :as $.test.prop]

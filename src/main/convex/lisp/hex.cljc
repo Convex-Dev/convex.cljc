@@ -1,6 +1,6 @@
 (ns convex.lisp.hex
 
-  ""
+  "Working with hexstings."
 
   {:author "Adam Helinski"}
 

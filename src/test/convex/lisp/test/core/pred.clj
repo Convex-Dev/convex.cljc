@@ -1,6 +1,6 @@
 (ns convex.lisp.test.core.pred
 
-  "Tests Convex core coercions.
+  "Tests Convex core type predicate. 
   
    Specialized predicates such as `contains-key?` or `fn?` are located in relevant namespace."
 
