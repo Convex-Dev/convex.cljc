@@ -10,6 +10,7 @@
             [convex.lisp.schema            :as $.schema]
             [convex.lisp.test.core]
             [convex.lisp.test.core.coerce]
+            [convex.lisp.test.core.fn]
             [convex.lisp.test.core.math]
             [convex.lisp.test.core.pred]
             [convex.lisp.test.data]
