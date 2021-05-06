@@ -9,6 +9,7 @@
             [clojure.test.check.clojure-test :as tc.ct]
             [convex.lisp                     :as $]
             [convex.lisp.test.eval           :as $.test.eval]
+            [convex.lisp.test.prop           :as $.test.prop]
             [convex.lisp.test.util           :as $.test.util]))
 
 
@@ -31,7 +32,7 @@
                                              :int
                                              [:>= 50]])]
                       (fn [x]
-                        ($.test.util/prop+
+                        ($.test.prop/mult*
 
                           "Account does not exist"
                           (false? ($.test.eval/form (list 'account?
@@ -55,7 +56,7 @@
 
   [ctx actor?]
 
-  ($.test.util/prop+
+  ($.test.prop/mult*
 
     "Address is interned"
     ($.test.util/valid? :convex/address
@@ -154,18 +155,18 @@
 
   [form arg+ ret]
 
-  ($.test.util/result+ ($.test.eval/form ($/templ {'?call (list* 'f
-                                                                 arg+)
-                                                   '?fn   form
-                                                   '?ret  ret}
-                                                  '(do
-                                                     (def f
-                                                          ?fn)
-                                                     [(fn? f)
-                                                      (= ?ret
-                                                         ?call)])))
-                       ["Fn?"
-                        "Equal"]))
+  ($.test.prop/mult-result ($.test.eval/form ($/templ {'?call (list* 'f
+                                                                     arg+)
+                                                       '?fn   form
+                                                       '?ret  ret}
+                                                      '(do
+                                                         (def f
+                                                              ?fn)
+                                                         [(fn? f)
+                                                          (= ?ret
+                                                             ?call)])))
+                           ["Fn?"
+                            "Equal"]))
 
 
 
@@ -177,16 +178,16 @@
 
   [form arg+ ret]
 
-  ($.test.util/result+ ($.test.eval/form ($/templ {'?call (list* 'f
-                                                                 arg+)
-                                                   '?fn   form
-                                                   '?ret  ret}
-                                                  '(let [f ?fn]
-                                                     [(fn? f)
-                                                      (= ?ret
-                                                         ?call)])))
-                       ["Fn?"
-                        "Equal"]))
+  ($.test.prop/mult-result ($.test.eval/form ($/templ {'?call (list* 'f
+                                                                     arg+)
+                                                       '?fn   form
+                                                       '?ret  ret}
+                                                      '(let [f ?fn]
+                                                         [(fn? f)
+                                                          (= ?ret
+                                                             ?call)])))
+                           ["Fn?"
+                            "Equal"]))
 
 
 
@@ -207,7 +208,7 @@
                                       ($/templ {'?fn fn-form
                                                 '?x  x-2}
                                                form))]
-                        ($.test.util/prop+
+                        ($.test.prop/mult*
 
                           "Function?"
                           (-eval-fn? fn-form)
@@ -245,7 +246,7 @@
                             fn-form  (list 'fn
                                            binding+
                                            binding+)]
-                        ($.test.util/prop+
+                        ($.test.prop/mult*
 
                           "Function?"
                           (-eval-fn? fn-form)
@@ -292,7 +293,7 @@
                             ret        (update arg+
                                                pos-amper
                                                vector)]
-                        ($.test.util/prop+
+                        ($.test.prop/mult*
 
                           "Function?"
                           (-eval-fn? fn-form)
@@ -322,7 +323,7 @@
                                                            arg+)
                                                      (drop (inc pos-amper)
                                                            arg+)))]
-                            ($.test.util/prop+
+                            ($.test.prop/mult*
 
                               "Direct"
                               (-eval-fn fn-form
@@ -352,7 +353,7 @@
                                                      [42]
                                                      (drop pos-amper
                                                            arg+)))]
-                            ($.test.util/prop+
+                            ($.test.prop/mult*
 
                               "Direct"
                               (-eval-fn fn-form

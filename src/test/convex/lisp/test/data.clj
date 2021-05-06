@@ -15,7 +15,7 @@
 
   {:author "Adam Helinski"}
 
-  (:require[clojure.test                     :as t]
+  (:require [clojure.test                     :as t]
             [clojure.test.check.properties   :as tc.prop]
             [clojure.test.check.clojure-test :as tc.ct]
             [convex.lisp                     :as $]

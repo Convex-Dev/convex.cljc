@@ -139,27 +139,25 @@
                     (fn [x]
                       (let [x-2 ($.test.eval/form (list 'dec
                                                         x))]
-                        ($.test.util/prop+
+                        ($.test.prop/mult*
+                           
+                           "Result is always a long"
+                           (int? x-2)
 
-                          "Result is always a long"
-                          (int? x-2)
+                           "Decrement higher than maximum long"
+                           (if (>= x
+                                   Long/MAX_VALUE)
+                             (= x-2
+                                (dec Long/MAX_VALUE))
+                             true)
 
-                          "Decrement higher than maximum long"
-                          (if (>= x
-                                  Long/MAX_VALUE)
-                            (= x-2
-                               (dec Long/MAX_VALUE))
-                            true)
-
-                          "Decrement in long range"
-
-                          (if (< Long/MIN_VALUE
-                                 x
+                           "Decrement in long range"
+                           (if (< Long/MIN_VALUE
+                                  x
                                  Long/MAX_VALUE)
                             (= x-2
                                (dec (long x)))
                             true))))))
-
 
 
 
@@ -177,7 +175,7 @@
                     (fn [x]
                       (let [x-2 ($.test.eval/form (list 'dec
                                                         x))]
-                        ($.test.util/prop+
+                        ($.test.prop/mult*
 
                           "Result is always a long"
                           (int? x-2)
@@ -200,7 +198,7 @@
                     (fn [x]
                       (let [x-2 ($.test.eval/form (list 'inc
                                                         x))]
-                        ($.test.util/prop+
+                        ($.test.prop/mult*
 
                           "Result is always a long"
                           (int? x-2)
@@ -228,7 +226,7 @@
                     (fn [x]
                       (let [x-2 ($.test.eval/form (list 'inc
                                                         x))]
-                        ($.test.util/prop+
+                        ($.test.prop/mult*
 
                           "Result is always a long"
                           (int? x-2)
@@ -268,7 +266,7 @@
                     (fn [x]
                       (let [x-2 ($.test.eval/form (list 'abs
                                                         x))]
-                        ($.test.util/prop+
+                        ($.test.prop/mult*
 
                           "Must be positive"
                           (>= x-2
@@ -286,7 +284,7 @@
                     (fn [x]
                       (let [x-2 ($.test.eval/form (list 'signum
                                                         x))]
-                        ($.test.util/prop+
+                        ($.test.prop/mult*
 
                           "Negative"
                           (if (neg? x)

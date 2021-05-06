@@ -5,6 +5,7 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.test.check.properties :as tc.prop]
+            [clojure.test.check.results    :as tc.result]
             [convex.lisp                   :as $]
             [convex.lisp.test.eval         :as $.test.eval]
             [convex.lisp.test.util         :as $.test.util]))
@@ -13,7 +14,136 @@
 (declare like-clojure)
 
 
-;;;;;;;;;;
+;;;;;;;;;; Helpers for writing properties
+
+
+(defn fail
+
+  "Returns a `test.check` error with `checkpoint` conjed to `:convex.lisp/error`
+   of the `test.check` error data (see `clojure.test.check.results` namespace)."
+
+
+  ([checkpoint]
+
+   (reify tc.result/Result
+
+     (pass? [_]
+       false)
+
+     (result-data [_]
+       {:convex.lisp/error [checkpoint]})))
+
+
+  ([failure checkpoint]
+
+   (let [result (update (tc.result/result-data failure)
+                        :convex.lisp/error
+                        (partial into
+                                 [checkpoint]))]
+     (reify tc.result/Result
+
+       (pass? [_]
+         false)
+
+       (result-data [_]
+         result)))))
+
+
+
+(defn mult
+
+  "Meant to be used inside a `test.check` property in order to multiplex it while keeping
+   track of which \"sub-property\" failed.
+  
+   Tests each pair of checkpoint and function. Fails with [[faill]] and the message when
+   a predicate returns false.
+
+   A checkpoint could be anything. Most commonly a human readable string.
+
+   Composes with itself. A function could be another call to [[mult]] and in case of failure,
+   all checkpoints leading to it figure under `:convex.lisp/error` (see [[fail]]).
+
+   ```clojure
+   (mult [[\"3 must be greater than 4\"
+           #(< 3 4)]
+
+          [\"Result must be a double\"
+           #(double? ...)])
+   ```"
+
+  [prop-pair+]
+
+  (reduce (fn [_acc [checkpoint f]]
+            (try
+              (let [x (f)]
+                (cond
+                  (true? x)                    true
+                  (false? x)                   (reduced (fail checkpoint))
+                  (satisfies? tc.result/Result
+                              x)               (reduced (fail x
+                                                              checkpoint))
+                  :else                        (throw (ex-info "Property multiplexing does not understand returned value"
+                                                               {::result x}))))
+              (catch Throwable e
+                (reduced (ex-info (str "During: "
+                                       checkpoint)
+                                  {}
+                                  e)))))
+          true
+          prop-pair+))
+
+
+
+(defmacro mult*
+
+  "Macro akin to [[mult]] for a ligher syntax.
+  
+   ```clojure
+   (mult*
+  
+     \"3 must be greater than 4\"
+     (< 3 4)
+
+     \"Result must be a double\"
+     (double? ...))
+   ```"
+
+  [& prop-pair+]
+
+  `(mult ~(mapv (fn [[checkpoint form]]
+                  [checkpoint
+                   `(fn [] ~form)])
+                (partition 2
+                           prop-pair+))))
+
+
+
+(defn mult-result
+
+  "Working with collection of results obtained from evaling Convex Lisp code, returns a [[fail]] with the
+   corresponding checkpoint (position-wise) when a false result is encountered.
+
+   ```clojure
+   (mult-result [true
+                 false] ;; Vector of results
+                [\"3 must be greater than 4\"
+                 \"Result must be a double\"])
+   ```"
+
+  [result+ checkpoint+]
+
+  (assert (= (count checkpoint+)
+             (count result+)))
+  (or (some (fn [[result checkpoint+]]
+              (when-not result
+                (fail checkpoint+)))
+            (partition 2
+                       (interleave result+
+                                   checkpoint+)))
+      true))
+
+
+;;;;;;;;;; Building properties
 
 
 (defn arithmetic
@@ -31,7 +161,7 @@
                                              {:min 1}
                                              :convex/long])]
                     (fn [x]
-                      ($.test.util/prop+
+                      (mult*
 
                         "Numerical computation of longs must result in a long"
                         (int? ($.test.eval/form (list* form
@@ -72,7 +202,7 @@
 
    (tc.prop/for-all* [($.test.util/generator schema)]
                      (let [suite   (fn [_x x-2 cast?]
-                                     ($.test.util/prop+
+                                     (mult*
 
                                        "Consistent with Clojure"
                                        (clojure-pred x-2)
@@ -81,7 +211,7 @@
                                        cast?))
                            suite-2 (if clojure-cast
                                      (fn [x x-2 cast?]
-                                       ($.test.util/prop+
+                                       (mult*
 
                                          "Basic tests"
                                          (suite x
@@ -158,8 +288,7 @@
                        (fn [x]
                          (let [x-2 ($.test.eval/apply-one form
                                                           x)]
-                           (println :x-2 x-2)
-                           ($.test.util/prop+
+                           (mult*
 
                              "Always returns false"
                              (not x-2)
@@ -195,7 +324,7 @@
                        (fn [x]
                          (let [x-2 ($.test.eval/apply-one form
                                                           x)]
-                           ($.test.util/prop+
+                           (mult*
 
                              "Always returns true"
                              x-2

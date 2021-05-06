@@ -106,7 +106,7 @@
                                                                  [h
                                                                   (hash? h)
                                                                   (hash? (hash h))])))]
-                         ($.test.util/prop+
+                         ($.test.prop/mult*
 
                            "Result is a hash"
                            ($.test.util/valid? :convex/hash
