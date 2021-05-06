@@ -173,17 +173,15 @@
           {:min 1}
           :convex/long]
          (fn [x]
-           (mult*
+           (mult* "Numerical computation of longs must result in a long"
+                  (int? ($.test.eval/form (list* form
+                                                 x)))
 
-             "Numerical computation of longs must result in a long"
-             (int? ($.test.eval/form (list* form
-                                            x)))
-
-             "Numerical computation with at least one double must result in a double"
-             (double? ($.test.eval/form (list* form
-                                               (update x
-                                                       (rand-int (dec (count x)))
-                                                       double))))))))
+                  "Numerical computation with at least one double must result in a double"
+                  (double? ($.test.eval/form (list* form
+                                                    (update x
+                                                            (rand-int (dec (count x)))
+                                                            double))))))))
 
 
 
@@ -214,25 +212,19 @@
 
    (check schema
           (let [suite   (fn [_x x-2 cast?]
-                          (mult*
+                          [["Consistent with Clojure"
+                            #(clojure-pred x-2)]
 
-                            "Consistent with Clojure"
-                            (clojure-pred x-2)
-
-                            "Properly cast"
-                            cast?))
+                           ["Properly cast"
+                            #(identity cast?)]])
                 suite-2 (if clojure-cast
                           (fn [x x-2 cast?]
-                            (mult*
-
-                              "Basic tests"
-                              (suite x
-                                     x-2
-                                     cast?)
-
-                              "Comparing cast with Clojure's"
-                              (= x-2
-                                 (clojure-cast x))))
+                            (conj (suite x
+                                         x-2
+                                         cast?)
+                                  ["Comparing cast with Clojure's"
+                                   #(= x-2
+                                       (clojure-cast x))]))
                           suite)]
             (fn [x]
               (let [[x-2
@@ -242,9 +234,9 @@
                                                        '(let [x-2 (?sym-cast (quote ?x))]
                                                           [x-2
                                                            (?sym-pred x-2)])))]
-                (suite-2 x
-                         x-2
-                         cast?)))))))
+                (mult (suite-2 x
+                               x-2
+                               cast?))))))))
 
 
 
@@ -279,6 +271,42 @@
 
 
 
+(defn pred-data
+
+  "Used by [[pred-data-false]] and [[pred-data-true]]."
+
+
+  ([form result? schema]
+
+   (pred-data form
+              result?
+              nil
+              schema))
+
+
+  ([form result? f-clojure schema]
+
+   (check schema
+          (let [suite   (fn [_x x-2]
+                          [["Always returns false"
+                            #(result? x-2)]])
+                suite-2 (if f-clojure
+                          (fn [x x-2]
+                            (conj (suite x
+                                         x-2)
+                                  ["Consistent with Clojure"
+                                   #(= x-2
+                                       (f-clojure x))]))
+                          suite)]
+
+            (fn [x]
+              (mult (suite-2 x
+                             ($.test.eval/apply-one form
+                                                    x))))))))
+
+
+
+
 (defn pred-data-false
 
   "Like [[pred-data-true]] but tests for negative results.
@@ -295,22 +323,10 @@
 
   ([form f-clojure schema-without]
 
-   (check ($.test.schema/data-without schema-without)
-          (if f-clojure
-            (fn [x]
-              (let [x-2 ($.test.eval/apply-one form
-                                               x)]
-                (mult*
-
-                  "Always returns false"
-                  (not x-2)
-
-                  "Consistent with Clojure"
-                  (= x-2
-                     (f-clojure x)))))
-            (fn [x]
-              (not ($.test.eval/apply-one form
-                                          x)))))))
+   (pred-data form
+              false?
+              f-clojure
+              ($.test.schema/data-without schema-without))))
 
 
 
@@ -331,19 +347,7 @@
 
   ([form f-clojure schema]
 
-   (check schema
-          (if f-clojure
-            (fn [x]
-              (let [x-2 ($.test.eval/apply-one form
-                                               x)]
-                (mult*
-
-                  "Always returns true"
-                  x-2
-
-                  "Consistent with Clojure"
-                  (= x-2
-                     (f-clojure x)))))
-            (fn [x]
-              ($.test.eval/apply-one form
-                                     x))))))
+   (pred-data form
+              true?
+              f-clojure
+              schema)))
