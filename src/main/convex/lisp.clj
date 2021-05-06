@@ -7,7 +7,8 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.core.protocols]
-            [clojure.walk])
+            [clojure.walk]
+            [convex.lisp.form        :as $.form])
   (:import convex.core.Init
            (convex.core.data ABlob
                              ACell
@@ -38,8 +39,7 @@
       true)
 
 
-(declare run
-         str-clojure)
+(declare run)
 
 
 ;;;;;;;;;; Converting text to Convex Lisp
@@ -244,25 +244,25 @@
 ;;;;;;;;;; Converting Convex Lisp to Clojure
 
 
-(defn from-clojure
-
-  "Stringifies the given clojure form and applies the result to [[read]]."
-
-  [clojure-form]
-
-  (-> clojure-form
-      str-clojure
-      read))
-
-
-
-(defn to-clojure
+(defn datafy
 
   "Converts Convex data to Clojure data."
 
   [form]
 
   (clojure.core.protocols/datafy form))
+
+
+
+(defn read-form
+
+  "Stringifies the given clojure form and applies the result to [[read]]."
+
+  [form]
+
+  (-> form
+      $.form/source
+      read))
 
 
 
@@ -408,81 +408,3 @@
           .toString
           read
           clojure.core.protocols/datafy)))
-
-
-;;;;;;;;;; Working with Clojure forms expressing Convex Lisp code
-
-
-(defn prepare-clojure
-
-  "Prepares a Clojure form so that it can be later transformed into Convex Lisp source
-   using [[str-clojure]]."
-
-  [clojure-form]
-
-  (clojure.walk/postwalk (fn [x]
-                           (if (seq? x)
-                             (condp =
-                                    (first x)
-                               'address (let [arg (second x)]
-                                          (if (int? arg)
-                                            (symbol (str "#"
-                                                         (second x)))
-                                            x))
-                               'blob    (let [arg (second x)]
-                                          (if (string? arg)
-                                            (symbol (str "0x"
-                                                         arg))
-                                            x))
-                               x)
-                             x))
-                         clojure-form))
-
-
-
-(defn str-clojure
-
-  "Converts a Clojure form expressing Convex Lisp code into a source string.
-  
-   Should be used after [[prepare-clojure]]."
-
-  [clojure-form]
-
-  (pr-str clojure-form))
-
-
-
-(defn clojure->source
-
-  "Converts a Clojure form expressing Convex Lisp code into a source string by feeding it to
-   [[prepare-clojure]] and [[str-clojure]]."
-
-  [clojure-form]
-
-  (-> clojure-form
-      prepare-clojure
-      str-clojure))
-
-
-
-(defn quote-clojure
-
-  "Makes the given `clojure-form` quoted when converted into Convex Lisp source."
-
-  [clojure-form]
-
-  (list 'quote
-        clojure-form))
-
-
-;;;;;;;;;; Templating Convex Lisp code
-
-
-(defn templ
-
-  ""
-
-  [binding+ code]
-
-  (clojure.walk/postwalk-replace binding+
-                                 code))

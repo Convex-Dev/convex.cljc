@@ -7,6 +7,7 @@
   (:require [ajax.core                     :as http]
             [convex.lisp                   :as $]
             [convex.lisp.edn               :as $.edn]
+            [convex.lisp.form              :as $.form]
             [convex.lisp.hex               :as $.hex]
             [convex.lisp.schema            :as $.schema]
             [convex.lisp.test]
@@ -82,7 +83,7 @@
 
   (-> 
      '(hash-map [] :vec '() :list)
-      $/from-clojure
+      $/read-form
       $/eval
       $/result
       $/to-clojure

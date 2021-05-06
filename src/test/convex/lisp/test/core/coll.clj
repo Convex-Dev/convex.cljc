@@ -6,6 +6,7 @@
 
   (:require [clojure.test                    :as t]
             [clojure.test.check.clojure-test :as tc.ct]
+            [convex.lisp.form                :as $.form]
             [convex.lisp.test.eval           :as $.test.eval]
             [convex.lisp.test.prop           :as $.test.prop]))
 
@@ -33,8 +34,7 @@
                           :convex/data]]
                      (fn [x]
                        (map? ($.test.eval/form (list* 'hash-map
-                                                      (map #(list 'quote
-                                                                  %)
+                                                      (map $.form/quoted
                                                            x)))))))
 
 
@@ -57,8 +57,7 @@
                       :convex/data]
                      (fn [x]
                        (set? ($.test.eval/form (list* 'hash-set
-                                                      (map #(list 'quote
-                                                                  %)
+                                                      (map $.form/quoted
                                                            x)))))))
 
 
@@ -81,9 +80,8 @@
 		      	       (= (apply list
 		      	       	   	    x)
 		      	          ($.test.eval/form (list* 'list
- 		      	       							  (map #(list 'quote
-                                                               %)
-                                                        x)))))))
+ 		      	       							  (map $.form/quoted
+                                                       x)))))))
 
 
 
@@ -98,9 +96,8 @@
 		      	       (= (apply vector
                                  x)
 		      	          ($.test.eval/form (list* 'vector
- 		      	       							  (map #(list 'quote
-                                                                %)
-                                                        x)))))))
+ 		      	       							  (map $.form/quoted
+                                                       x)))))))
 
 
 ;;;;;;;;;;

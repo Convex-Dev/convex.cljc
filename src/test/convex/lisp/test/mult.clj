@@ -4,7 +4,7 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.lisp             :as $]
+  (:require [convex.lisp.form        :as $.form]
             [convex.lisp.test.eval   :as $.test.eval]
             [convex.lisp.test.prop   :as $.test.prop]
             [convex.lisp.test.schema :as $.test.schema]))
@@ -46,10 +46,10 @@
                                                (account addr)])]
             (= account
                ($.test.eval/form ctx
-                                 ($/templ {'?addr addr-long}
-                                          '(get-in *state*
-                                                   [:accounts
-                                                    ?addr])))))]))
+                                 ($.form/templ {'?addr addr-long}
+                                               '(get-in *state*
+                                                        [:accounts
+                                                         ?addr])))))]))
 
 (defn fn?-
 
@@ -77,26 +77,26 @@
                                   (list* form
                                          arg+)))]
         ["Calling after interning"
-         #($.test.prop/mult-result ($.test.eval/form ($/templ {'?call (list* 'f
-                                                                             arg+)
-                                                               '?fn   form
-                                                               '?ret  ret}
-                                                              '(do
-                                                                 (def f
-                                                                      ?fn)
-                                                                 [(fn? f)
-                                                                  (= ?ret
-                                                                     ?call)])))
+         #($.test.prop/mult-result ($.test.eval/form ($.form/templ {'?call (list* 'f
+                                                                                  arg+)
+                                                                    '?fn   form
+                                                                    '?ret  ret}
+                                                                   '(do
+                                                                      (def f
+                                                                           ?fn)
+                                                                      [(fn? f)
+                                                                       (= ?ret
+                                                                          ?call)])))
                                    ["Fn?"
                                     "Equal"])]
         ["Calling as local binding"
-         #($.test.prop/mult-result ($.test.eval/form ($/templ {'?call (list* 'f
-                                                                             arg+)
-                                                               '?fn   form
-                                                               '?ret  ret}
-                                                              '(let [f ?fn]
-                                                                 [(fn? f)
-                                                                  (= ?ret
-                                                                     ?call)])))
+         #($.test.prop/mult-result ($.test.eval/form ($.form/templ {'?call (list* 'f
+                                                                                  arg+)
+                                                                    '?fn   form
+                                                                    '?ret  ret}
+                                                                   '(let [f ?fn]
+                                                                      [(fn? f)
+                                                                       (= ?ret
+                                                                          ?call)])))
                                    ["Fn?"
                                     "Equal"])]))

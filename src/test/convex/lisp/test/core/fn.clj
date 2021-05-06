@@ -4,14 +4,11 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.test.check.properties   :as tc.prop]
-            [clojure.test.check.clojure-test :as tc.ct]
-            [convex.lisp                     :as $]
-            [convex.lisp.test.eval           :as $.test.eval]
+  (:require [clojure.test.check.clojure-test :as tc.ct]
+            [convex.lisp.form                :as $.form]
             [convex.lisp.test.mult           :as $.test.mult]
             [convex.lisp.test.prop           :as $.test.prop]
-            [convex.lisp.test.schema         :as $.test.schema]
-            [convex.lisp.test.util           :as $.test.util]))
+            [convex.lisp.test.schema         :as $.test.schema]))
 
 
 (def max-size-coll 5)
@@ -28,8 +25,7 @@
 
   ($.test.prop/check :convex/data
                      (fn [x]
-                       ($.test.prop/mult (let [x-2     (list 'quote
-                                                             x)
+                       ($.test.prop/mult (let [x-2     ($.form/quoted x)
                                                fn-form (list 'fn
                                                              []
                                                              x-2)]
@@ -51,8 +47,8 @@
 
   ($.test.prop/check ($.test.schema/binding+ 1)
                      (fn [x]
-                       ($.test.prop/mult (let [arg+     (mapv #(list 'quote
-                                                                     (second %))
+                       ($.test.prop/mult (let [arg+     (mapv (comp $.form/quoted
+                                                                    second)
                                                               x)
                                                binding+ (mapv first
                                                               x)
@@ -75,8 +71,8 @@
 
   ($.test.prop/check ($.test.schema/binding+ 1)
                      (fn [x]
-                       (let [arg+       (mapv #(list 'quote
-                                                     (second %))
+                       (let [arg+       (mapv (comp $.form/quoted
+                                                    second)
                                               x)
                              binding+   (mapv first
                                               x)

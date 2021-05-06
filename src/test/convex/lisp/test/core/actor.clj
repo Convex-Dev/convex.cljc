@@ -5,7 +5,7 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.test.check.clojure-test :as tc.ct]
-            [convex.lisp                     :as $]
+            [convex.lisp.form                :as $.form]
             [convex.lisp.test.eval           :as $.test.eval]
             [convex.lisp.test.mult           :as $.test.mult]
             [convex.lisp.test.prop           :as $.test.prop]))
@@ -31,9 +31,9 @@
   ($.test.prop/check :convex/data
                      (fn [x]
                        ($.test.prop/mult ($.test.mult/new-account []
-                                                                  ($.test.eval/form->context ($/templ {'?data x}
-                                                                                                      '(def addr
-                                                                                                            (deploy (quote '?data)))))
+                                                                  ($.test.eval/form->context ($.form/templ {'?data x}
+                                                                                                           '(def addr
+                                                                                                                 (deploy (quote '?data)))))
                                                                   true?)))))
 
 

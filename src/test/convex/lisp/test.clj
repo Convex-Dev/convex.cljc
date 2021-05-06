@@ -1,118 +1,117 @@
 (ns convex.lisp.test
 
-  "Testing core features."
+  "Testing core namespace."
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.test :as t]
-            [convex.lisp  :as $])
-  (:import convex.core.Init
-           convex.core.data.Syntax
-           (convex.core.data.prim CVMByte
-                                  CVMChar)))
+  (:require [clojure.test     :as t]
+            [convex.lisp      :as $]
+            [convex.lisp.form :as $.form])
+  (:import convex.core.data.Syntax
+           convex.core.data.prim.CVMByte))
 
 
 ;;;;;;;;;;
 
 
-(defn -to-clojure
+(defn -datafy
 
-  "Used by [[to-clojure]]."
+  "Used by [[datafy]]."
 
   [target-clojure target-convex message]
 
   (t/is (= target-clojure
-           ($/to-clojure (cond->
-                           target-convex
-                           (string? target-convex)
-                           $/read)))
+           ($/datafy (cond->
+                       target-convex
+                       (string? target-convex)
+                       $/read)))
         message))
 
 
 
-(t/deftest to-clojure
+(t/deftest datafy
 
-  (-to-clojure nil
-               "nil"
-               "Nil")
+  (-datafy nil
+           "nil"
+           "Nil")
 
-  (-to-clojure (symbol "0xffff")
-               "0xffff"
-               "Blob")
+  (-datafy (symbol "0xffff")
+                   "0xffff"
+                   "Blob")
 
-  (-to-clojure (symbol "#51")
-               "#51"
-               "Address")
+  (-datafy (symbol "#51")
+                   "#51"
+                   "Address")
 
-  (-to-clojure (list 1
-                     :two
-                     'three)
-               "(1 :two three)"
-               "List")
+  (-datafy (list 1
+                 :two
+                 'three)
+           "(1 :two three)"
+           "List")
 
-  (-to-clojure {:a  42
-                "b" 84}
-               "{:a    42
-                 \"b\" 84}"
-               "Map")
+  (-datafy {:a  42
+            "b" 84}
+           "{:a    42
+             \"b\" 84}"
+           "Map")
 
-  (-to-clojure #{:a 'b}
-               "#{:a b}"
-               "Set")
+  (-datafy #{:a 'b}
+           "#{:a b}"
+           "Set")
 
-  (-to-clojure "String"
-               "\"String\""
-               "String")
+  (-datafy "String"
+           "\"String\""
+           "String")
 
-  (-to-clojure '[42.42 ok]
-               "[42.42 ok]"
-               "Vector")
+  (-datafy '[42.42 ok]
+           "[42.42 ok]"
+           "Vector")
 
-  (-to-clojure :ok
-               ":ok"
-               "Keyword")
+  (-datafy :ok
+           ":ok"
+           "Keyword")
 
-  (-to-clojure :ok
-               ":ignored/ok"
-               "Namespaced keyword (unsupported in CLisp)")
+  (-datafy :ok
+           ":ignored/ok"
+           "Namespaced keyword (unsupported in CLisp)")
 
-  (-to-clojure 'ok
-               "ok"
-               "Symbol")
+  (-datafy 'ok
+           "ok"
+           "Symbol")
 
-  (-to-clojure 'ok/yes
-               "ok/yes"
-               "Namespaced symbol")
+  (-datafy 'ok/yes
+           "ok/yes"
+           "Namespaced symbol")
 
-  (-to-clojure "ok"
-               "\"ok\""
-               "String")
+  (-datafy "ok"
+           "\"ok\""
+           "String")
 
-  (-to-clojure '(syntax [:a 42]
-                        {:foo :bar})
-               (Syntax/create ($/read "[:a 42]")
-                              ($/read "{:foo :bar}"))
-               "Syntax")
+  (-datafy '(syntax [:a 42]
+                    {:foo :bar})
+           (Syntax/create ($/read "[:a 42]")
+                          ($/read "{:foo :bar}"))
+           "Syntax")
   
-  (-to-clojure true
-               "true"
-               "Boolean")
+  (-datafy true
+           "true"
+           "Boolean")
 
-  (-to-clojure 42
-               (CVMByte/create 42)
-               "Byte")
+  (-datafy 42
+           (CVMByte/create 42)
+           "Byte")
 
-  (-to-clojure \a
-               "\\a"
-               "Char")
+  (-datafy \a
+           "\\a"
+           "Char")
 
-  (-to-clojure 42.42
-               "42.42"
-               "Double")
+  (-datafy 42.42
+           "42.42"
+           "Double")
 
-  (-to-clojure 42
-               "42"
-               "Long")
+  (-datafy 42
+           "42"
+           "Long")
 
 
   (let [code [nil
@@ -135,9 +134,9 @@
                  (inc x))]]
     (t/is (= code
              (-> code
-                 str
+                 $.form/source
                  $/read
-                 $/to-clojure))
+                 $/datafy))
           "Stress test")))
 
 
@@ -162,23 +161,3 @@
                  $/expand-compile
                  $/query
                  $/result)))))
-
-
-
-(t/deftest prepare-clojure
-
-  (t/testing "Address"
-    (t/is (= (symbol "#42")
-             ($/prepare-clojure '(address 42))))
-    (let [form '(address "42")]
-      (t/is (= form
-               ($/prepare-clojure form)))))
-
-  (t/testing "Blob"
-    (let [blob (symbol "0x42")
-          form (list 'blob
-                     blob)]
-      (t/is (= blob
-               ($/prepare-clojure '(blob "42"))))
-      (t/is (= form
-               ($/prepare-clojure form))))))

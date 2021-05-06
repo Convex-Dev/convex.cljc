@@ -5,7 +5,7 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.test.check.clojure-test :as tc.ct]
-            [convex.lisp                     :as $]
+            [convex.lisp.form                :as $.form]
             [convex.lisp.test.eval           :as $.test.eval]
             [convex.lisp.test.mult           :as $.test.mult]
             [convex.lisp.test.prop           :as $.test.prop]))
@@ -46,8 +46,9 @@
 
   ($.test.prop/check :convex/hexstring-32
                      (fn [x]
-                       ($.test.prop/mult ($.test.mult/new-account []
-                                                                  ($.test.eval/form->context ($/templ {'?hexstring x}
-                                                                                             '(def addr
-                                                                                                   (create-account ?hexstring))))
-                                                                  false?)))))
+                       ($.test.prop/mult
+                         ($.test.mult/new-account []
+                                                  ($.test.eval/form->context ($.form/templ {'?hexstring x}
+                                                                                           '(def addr
+                                                                                                 (create-account ?hexstring))))
+                                                  false?)))))

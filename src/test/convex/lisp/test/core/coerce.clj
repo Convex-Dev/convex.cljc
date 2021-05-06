@@ -6,7 +6,7 @@
 
   (:require [clojure.test.check.properties   :as tc.prop]
             [clojure.test.check.clojure-test :as tc.ct]
-            [convex.lisp                     :as $]
+            [convex.lisp.form                :as $.form]
             [convex.lisp.schema              :as $.schema]
             [convex.lisp.test.eval           :as $.test.eval]
             [convex.lisp.test.prop           :as $.test.prop]
@@ -102,11 +102,11 @@
                      (fn [x]
                        (let [[h
                               h-1?
-                              h-2?] ($.test.eval/form ($/templ {'X x}
-                                                               '(let [h (hash X)]
-                                                                  [h
-                                                                   (hash? h)
-                                                                   (hash? (hash h))])))]
+                              h-2?] ($.test.eval/form ($.form/templ {'X x}
+                                                                    '(let [h (hash X)]
+                                                                       [h
+                                                                        (hash? h)
+                                                                        (hash? (hash h))])))]
                           ($.test.prop/mult*
 
                             "Result is a hash"

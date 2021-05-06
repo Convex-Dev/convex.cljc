@@ -7,6 +7,7 @@
   (:require [clojure.test.check.properties :as tc.prop]
             [clojure.test.check.results    :as tc.result]
             [convex.lisp                   :as $]
+            [convex.lisp.form              :as $.form]
             [convex.lisp.test.eval         :as $.test.eval]
             [convex.lisp.test.schema       :as $.test.schema]
             [convex.lisp.test.util         :as $.test.util]))
@@ -228,12 +229,12 @@
                           suite)]
             (fn [x]
               (let [[x-2
-                     cast?] ($.test.eval/form ($/templ {'?sym-cast form-cast
-                                                        '?sym-pred form-pred
-                                                        '?x        x}
-                                                       '(let [x-2 (?sym-cast (quote ?x))]
-                                                          [x-2
-                                                           (?sym-pred x-2)])))]
+                     cast?] ($.test.eval/form ($.form/templ {'?sym-cast form-cast
+                                                             '?sym-pred form-pred
+                                                             '?x        x}
+                                                            '(let [x-2 (?sym-cast (quote ?x))]
+                                                               [x-2
+                                                                (?sym-pred x-2)])))]
                 (mult (suite-2 x
                                x-2
                                cast?))))))))
@@ -289,7 +290,7 @@
          (fn [x]
            ($.test.util/eq x
                            ($.test.eval/form x)
-                           ($.test.eval/form ($/quote-clojure x))))))
+                           ($.test.eval/form ($.form/quoted x))))))
 
 
 
@@ -302,7 +303,7 @@
   [schema]
 
   (data schema
-        $/quote-clojure))
+        $.form/quoted))
 
 
 

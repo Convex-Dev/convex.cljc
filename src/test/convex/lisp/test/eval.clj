@@ -6,7 +6,8 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.lisp :as $]))
+  (:require [convex.lisp      :as $]
+            [convex.lisp.form :as $.form]))
 
 
 (declare form
@@ -33,9 +34,9 @@
   ([context form x]
 
    (convex.lisp.test.eval/form context
-                               ($/templ {'?form form
-                                         '?x    x}
-                                        '(?form (quote ?x))))))
+                               ($.form/templ {'?form form
+                                              '?x    x}
+                                             '(?form (quote ?x))))))
 
 
 
@@ -53,7 +54,7 @@
   ([context form]
 
    (source context
-           ($/clojure->source form))))
+           ($.form/source form))))
 
 
 
@@ -71,7 +72,7 @@
   ([context form]
 
    (->> form
-        $/clojure->source
+        $.form/source
         $/read
         ($/eval context))))
 
@@ -94,7 +95,7 @@
         $/read
         ($/eval context)
         $/result
-        $/to-clojure)))
+        $/datafy)))
 
 
 
