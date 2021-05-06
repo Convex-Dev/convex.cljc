@@ -83,15 +83,25 @@
 
 (tc.ct/defspec max--
 
+  ;; In case of equal inputs, Clojure favors the last argument whereas Convex favors the first one.
+  ;; 
+  ;; (max 1 1.0)  =>  1.0 in Clojure, 1 in Convex
+
   ($.test.prop/comparison 'max
-                          max))
+                          (fn [& arg+]
+                            (apply max
+                                   (reverse arg+)))))
 
 
 
 (tc.ct/defspec min--
 
+  ;; See comment for [[max--]].
+
   ($.test.prop/comparison 'min
-                          min))
+                          (fn [& arg+]
+                            (apply min
+                                   (reverse arg+)))))
 
 
 ;;;;;;;;;; Exponentiation
