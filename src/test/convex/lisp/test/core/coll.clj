@@ -70,10 +70,6 @@
 
 
 
-;; TODO. `log`, about logging
-
-
-
 (tc.ct/defspec list--
 
   {:max-size max-size-coll}
@@ -105,4 +101,73 @@
  		      	       							  (map #(list 'quote
                                                                 %)
                                                         x)))))))
+
+
+;;;;;;;;;;
+
+
+;; Creating collections
+
+; blob-map
+; hash-map
+; hash-set
+; list
+; vector
+
+
+
+;; Associative operations (with lists as well)
+
+; assoc
+; assoc-in
+; contains-key?
+; get
+; get-in
+; keys
+
+
+
+;; Map operations
+
+; merge
+; values
+
+
+
+;; Misc operations
+
+; conj
+; count
+; empty
+; empty?
+; first
+; into
+; last
+; next
+; nth
+; reduce
+; reduced
+; second
+
+
+;; Producing vectors
+
+; concat
+; map && mapv ???
+
+
+
+;; Producing lists
+
+; cons
+
+
+
+;; Set operations
+
+; difference
+; disj
+; intersection
+; subset
+; union
 
