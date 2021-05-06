@@ -8,6 +8,7 @@
             [clojure.test.check.results    :as tc.result]
             [convex.lisp                   :as $]
             [convex.lisp.test.eval         :as $.test.eval]
+            [convex.lisp.test.schema       :as $.test.schema]
             [convex.lisp.test.util         :as $.test.util]))
 
 
@@ -15,6 +16,17 @@
 
 
 ;;;;;;;;;; Helpers for writing properties
+
+
+(defn check
+
+  "Returns a property generating `schema` against `f`."
+
+  [schema f]
+
+  (tc.prop/for-all* [($.test.schema/generator schema)]
+                    f))
+
 
 
 (defn fail
@@ -157,21 +169,21 @@
 
   [form]
 
-  (tc.prop/for-all* [($.test.util/generator [:vector
-                                             {:min 1}
-                                             :convex/long])]
-                    (fn [x]
-                      (mult*
+  (check [:vector
+          {:min 1}
+          :convex/long]
+         (fn [x]
+           (mult*
 
-                        "Numerical computation of longs must result in a long"
-                        (int? ($.test.eval/form (list* form
-                                                       x)))
+             "Numerical computation of longs must result in a long"
+             (int? ($.test.eval/form (list* form
+                                            x)))
 
-                        "Numerical computation with at least one double must result in a double"
-                        (double? ($.test.eval/form (list* form
-                                                          (update x
-                                                                  (rand-int (dec (count x)))
-                                                                  double))))))))
+             "Numerical computation with at least one double must result in a double"
+             (double? ($.test.eval/form (list* form
+                                               (update x
+                                                       (rand-int (dec (count x)))
+                                                       double))))))))
 
 
 
@@ -200,39 +212,39 @@
 
   ([form-cast form-pred clojure-cast clojure-pred schema]
 
-   (tc.prop/for-all* [($.test.util/generator schema)]
-                     (let [suite   (fn [_x x-2 cast?]
-                                     (mult*
+   (check schema
+          (let [suite   (fn [_x x-2 cast?]
+                          (mult*
 
-                                       "Consistent with Clojure"
-                                       (clojure-pred x-2)
+                            "Consistent with Clojure"
+                            (clojure-pred x-2)
 
-                                       "Properly cast"
-                                       cast?))
-                           suite-2 (if clojure-cast
-                                     (fn [x x-2 cast?]
-                                       (mult*
+                            "Properly cast"
+                            cast?))
+                suite-2 (if clojure-cast
+                          (fn [x x-2 cast?]
+                            (mult*
 
-                                         "Basic tests"
-                                         (suite x
-                                                x-2
-                                                cast?)
+                              "Basic tests"
+                              (suite x
+                                     x-2
+                                     cast?)
 
-                                         "Comparing cast with Clojure's"
-                                         (= x-2
-                                            (clojure-cast x))))
-                                     suite)]
-                       (fn [x]
-                         (let [[x-2
-                                cast?] ($.test.eval/form ($/templ {'?sym-cast form-cast
-                                                                   '?sym-pred form-pred
-                                                                   '?x        x}
-                                                                  '(let [x-2 (?sym-cast (quote ?x))]
-                                                                     [x-2
-                                                                      (?sym-pred x-2)])))]
-                           (suite-2 x
-                                    x-2
-                                    cast?)))))))
+                              "Comparing cast with Clojure's"
+                              (= x-2
+                                 (clojure-cast x))))
+                          suite)]
+            (fn [x]
+              (let [[x-2
+                     cast?] ($.test.eval/form ($/templ {'?sym-cast form-cast
+                                                        '?sym-pred form-pred
+                                                        '?x        x}
+                                                       '(let [x-2 (?sym-cast (quote ?x))]
+                                                          [x-2
+                                                           (?sym-pred x-2)])))]
+                (suite-2 x
+                         x-2
+                         cast?)))))))
 
 
 
@@ -258,12 +270,12 @@
 
   [form f-clojure schema]
 
-  (tc.prop/for-all* [($.test.util/generator schema)]
-                    (fn [x]
-                      ($.test.util/eq (apply f-clojure
-                                             x)
-                                      ($.test.eval/form (list* form
-                                                               x))))))
+  (check schema
+         (fn [x]
+           ($.test.util/eq (apply f-clojure
+                                  x)
+                           ($.test.eval/form (list* form
+                                                    x))))))
 
 
 
@@ -283,22 +295,22 @@
 
   ([form f-clojure schema-without]
 
-   (tc.prop/for-all* [($.test.util/generator-data-without schema-without)]
-                     (if f-clojure
-                       (fn [x]
-                         (let [x-2 ($.test.eval/apply-one form
-                                                          x)]
-                           (mult*
+   (check ($.test.schema/data-without schema-without)
+          (if f-clojure
+            (fn [x]
+              (let [x-2 ($.test.eval/apply-one form
+                                               x)]
+                (mult*
 
-                             "Always returns false"
-                             (not x-2)
+                  "Always returns false"
+                  (not x-2)
 
-                             "Consistent with Clojure"
-                             (= x-2
-                                (f-clojure x)))))
-                       (fn [x]
-                         (not ($.test.eval/apply-one form
-                                                     x)))))))
+                  "Consistent with Clojure"
+                  (= x-2
+                     (f-clojure x)))))
+            (fn [x]
+              (not ($.test.eval/apply-one form
+                                          x)))))))
 
 
 
@@ -319,19 +331,19 @@
 
   ([form f-clojure schema]
 
-   (tc.prop/for-all* [($.test.util/generator schema)]
-                     (if f-clojure
-                       (fn [x]
-                         (let [x-2 ($.test.eval/apply-one form
-                                                          x)]
-                           (mult*
+   (check schema
+          (if f-clojure
+            (fn [x]
+              (let [x-2 ($.test.eval/apply-one form
+                                               x)]
+                (mult*
 
-                             "Always returns true"
-                             x-2
+                  "Always returns true"
+                  x-2
 
-                             "Consistent with Clojure"
-                             (= x-2
-                                (f-clojure x)))))
-                       (fn [x]
-                         ($.test.eval/apply-one form
-                                                x))))))
+                  "Consistent with Clojure"
+                  (= x-2
+                     (f-clojure x)))))
+            (fn [x]
+              ($.test.eval/apply-one form
+                                     x))))))

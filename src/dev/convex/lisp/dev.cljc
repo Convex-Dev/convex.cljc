@@ -15,6 +15,7 @@
             [convex.lisp.test.data]
             [convex.lisp.test.eval]
             [convex.lisp.test.prop]
+            [convex.lisp.test.schema]
             [convex.lisp.test.util         :as $.test.util]
 			[clojure.data]
             [clojure.pprint]

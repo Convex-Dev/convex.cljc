@@ -10,6 +10,7 @@
             [convex.lisp.schema              :as $.schema]
             [convex.lisp.test.eval           :as $.test.eval]
             [convex.lisp.test.prop           :as $.test.prop]
+            [convex.lisp.test.schema         :as $.test.schema]
             [convex.lisp.test.util           :as $.test.util]))
 
 
@@ -23,7 +24,7 @@
 
   ($.test.prop/coerce 'address
                       'address?
-                      (partial $.test.util/valid?
+                      (partial $.test.schema/valid?
                                :convex/address)
                       [:or
                        :convex/address
@@ -41,7 +42,7 @@
 
   ($.test.prop/coerce 'blob
                       'blob?
-                      (partial $.test.util/valid?
+                      (partial $.test.schema/valid?
                                :convex/blob)
                       [:or
                        :convex/address
@@ -95,28 +96,28 @@
 
   ;; Also tests `hash?`.
 
-  (tc.prop/for-all* [($.test.util/generator [:or
-                                             :convex/address
-                                             :convex/blob-32])]
-                    (fn [x]
-                      (let [[h
-                             h-1?
-                             h-2?] ($.test.eval/form ($/templ {'X x}
-                                                              '(let [h (hash X)]
-                                                                 [h
-                                                                  (hash? h)
-                                                                  (hash? (hash h))])))]
-                         ($.test.prop/mult*
+  ($.test.prop/check [:or
+                      :convex/address
+                      :convex/blob-32]
+                     (fn [x]
+                       (let [[h
+                              h-1?
+                              h-2?] ($.test.eval/form ($/templ {'X x}
+                                                               '(let [h (hash X)]
+                                                                  [h
+                                                                   (hash? h)
+                                                                   (hash? (hash h))])))]
+                          ($.test.prop/mult*
 
-                           "Result is a hash"
-                           ($.test.util/valid? :convex/hash
-                                               h)
+                            "Result is a hash"
+                            ($.test.schema/valid? :convex/hash
+                                                  h)
 
-                           "Hashing does produce a hash"
-                           h-1?
+                            "Hashing does produce a hash"
+                            h-1?
 
-                           "Hashing a hash produces a hash"
-                           h-2?)))))
+                            "Hashing a hash produces a hash"
+                            h-2?)))))
 
 
 

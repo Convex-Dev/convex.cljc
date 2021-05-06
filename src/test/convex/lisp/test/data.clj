@@ -11,15 +11,17 @@
    - Convert result to Clojure data
    - Result must be equal to generate value
   
-   Also test quoting when relevant. For instance, like in Clojure, quoting a number must result in this number."
+   Also test quoting when relevant. For instance, like in Clojure, quoting a number must result in this very same number."
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.test                     :as t]
+  (:require [clojure.test                    :as t]
             [clojure.test.check.properties   :as tc.prop]
             [clojure.test.check.clojure-test :as tc.ct]
             [convex.lisp                     :as $]
             [convex.lisp.test.eval           :as $.test.eval]
+            [convex.lisp.test.prop           :as $.test.prop]
+            [convex.lisp.test.schema         :as $.test.schema]
             [convex.lisp.test.util           :as $.test.util]))
 
 
@@ -53,21 +55,21 @@
 
   [schema-exponent]
 
-  ($.test.util/generator [:tuple
-                          {:gen/fmap (fn [[m-1 m-2 e x]]
-                                       (str m-1
-                                            \.
-                                            m-2
-                                            e
-                                            x))}
-                          :convex/long
-                          [:and
-                           :convex/long
-                           [:>= 0]]
-                          [:enum
-                           \e
-                           \E]
-                          schema-exponent]))
+  ($.test.schema/generator [:tuple
+                            {:gen/fmap (fn [[m-1 m-2 e x]]
+                                         (str m-1
+                                              \.
+                                              m-2
+                                              e
+                                              x))}
+                            :convex/long
+                            [:and
+                             :convex/long
+                             [:>= 0]]
+                            [:enum
+                             \e
+                             \E]
+                            schema-exponent]))
 
 
 ;;;;;;;;;; Creating properties
@@ -88,7 +90,7 @@
 
   ([k-schema f]
 
-   (tc.prop/for-all* [($.test.util/generator k-schema)]
+   (tc.prop/for-all* [($.test.schema/generator k-schema)]
                      (fn [x]
                        ($.test.util/eq x
                                        (-> x
@@ -104,7 +106,7 @@
 
   [k-schema]
 
-  (tc.prop/for-all* [($.test.util/generator k-schema)]
+  (tc.prop/for-all* [($.test.schema/generator k-schema)]
                     cycle-quotable))
 
 
@@ -161,13 +163,13 @@
 
 (tc.ct/defspec double-
 
-  (tc.prop/for-all* [($.test.util/generator :double)]
-                    (fn [x]
-                      (if (Double/isNaN x)
-                        (Double/isNaN (-> x
-                                          $/clojure->source
-                                          $.test.eval/source))
-                        (cycle-quotable x)))))
+  ($.test.prop/check :convex/double
+                     (fn [x]
+                       (if (Double/isNaN x)
+                         (Double/isNaN (-> x
+                                           $/clojure->source
+                                           $.test.eval/source))
+                         (cycle-quotable x)))))
 
 
 

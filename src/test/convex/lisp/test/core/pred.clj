@@ -12,6 +12,7 @@
             [convex.lisp                     :as $]
             [convex.lisp.test.eval           :as $.test.eval]
             [convex.lisp.test.prop           :as $.test.prop]
+            [convex.lisp.test.schema         :as $.test.schema]
             [convex.lisp.test.util           :as $.test.util]))
 
 
@@ -27,23 +28,21 @@
 
   {:max-size max-size-coll}
 
-  (tc.prop/for-all* [($.test.util/generator-data-without #{:convex/address
-                                                           :convex/boolean  ;; TODO. See #73
-                                                           :convex/char     ;; TODO. See #68
-                                                           :convex/double
-                                                           :convex/long})]
-                    (fn [x]
-                      (false? ($.test.eval/form ($/templ {'?x x}
-                                                         '(address? (quote ?x))))))))
+  ($.test.prop/pred-data-false 'address?
+                               #{:convex/address
+                                 :convex/boolean  ;; TODO. See #73
+                                 :convex/char     ;; TODO. See #68
+                                 :convex/double
+                                 :convex/long}))
 
 
 
 (tc.ct/defspec address?--true
 
-  (tc.prop/for-all* [($.test.util/generator :convex/address)]
-                    (fn [x]
-                      ($.test.eval/form (list 'address?
-                                              x)))))
+  ($.test.prop/check :convex/address
+                     (fn [x]
+                       ($.test.eval/form (list 'address?
+                                               x)))))
 
 
 
@@ -272,7 +271,7 @@
   {:max-size max-size-coll}
 
   ($.test.prop/pred-data-false 'symbol?
-                               (partial $.test.util/valid?
+                               (partial $.test.schema/valid?
                                         :convex/symbol)
                                #{:convex/symbol}))
 

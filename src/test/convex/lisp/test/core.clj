@@ -5,11 +5,11 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.test                    :as t]
-            [clojure.test.check.properties   :as tc.prop]
             [clojure.test.check.clojure-test :as tc.ct]
             [convex.lisp                     :as $]
             [convex.lisp.test.eval           :as $.test.eval]
             [convex.lisp.test.prop           :as $.test.prop]
+            [convex.lisp.test.schema         :as $.test.schema]
             [convex.lisp.test.util           :as $.test.util]))
 
 
@@ -28,19 +28,19 @@
 
 (tc.ct/defspec -account-inexistant
 
-  (tc.prop/for-all* [($.test.util/generator [:and
-                                             :int
-                                             [:>= 50]])]
-                      (fn [x]
-                        ($.test.prop/mult*
+  ($.test.prop/check [:and
+                      :int
+                      [:>= 50]]
+                     (fn [x]
+                       ($.test.prop/mult*
 
-                          "Account does not exist"
-                          (false? ($.test.eval/form (list 'account?
-                                                          x)))
+                         "Account does not exist"
+                         (false? ($.test.eval/form (list 'account?
+                                                         x)))
 
-                          "Actor does not exist"
-                          (false? ($.test.eval/form (list 'actor?
-                                                          x)))))))
+                         "Actor does not exist"
+                         (false? ($.test.eval/form (list 'actor?
+                                                         x)))))))
 
 
 
@@ -59,9 +59,9 @@
   ($.test.prop/mult*
 
     "Address is interned"
-    ($.test.util/valid? :convex/address
-                        ($.test.eval/form ctx
-                                          'addr))
+    ($.test.schema/valid? :convex/address
+                          ($.test.eval/form ctx
+                                            'addr))
 
     "(account?)"
     ($.test.eval/form ctx
@@ -99,13 +99,13 @@
 
 (tc.ct/defspec create-account--
 
-  (tc.prop/for-all* [($.test.util/generator :convex/hexstring-32)]
-                    (fn [x]
-                      (let [ctx ($.test.eval/form->context ($/templ {'?hexstring x}
-                                                                    '(def addr
-                                                                          (create-account ?hexstring))))]
-                        (-new-account ctx
-                                      false?)))))
+  ($.test.prop/check :convex/hexstring-32
+                     (fn [x]
+                       (let [ctx ($.test.eval/form->context ($/templ {'?hexstring x}
+                                                                     '(def addr
+                                                                           (create-account ?hexstring))))]
+                         (-new-account ctx
+                                       false?)))))
 
 
 
@@ -113,13 +113,13 @@
 
   {:max-size max-size-coll}
 
-  (tc.prop/for-all* [($.test.util/generator :convex/data)]
-                    (fn [x]
-                      (let [ctx ($.test.eval/form->context ($/templ {'?data x}
-                                                                    '(def addr
-                                                                          (deploy (quote '?data)))))]
-                        (-new-account ctx
-                                      true?)))))
+  ($.test.prop/check :convex/data
+                     (fn [x]
+                       (let [ctx ($.test.eval/form->context ($/templ {'?data x}
+                                                                     '(def addr
+                                                                           (deploy (quote '?data)))))]
+                         (-new-account ctx
+                                       true?)))))
 
 
 
@@ -197,36 +197,36 @@
 
   {:max-size max-size-coll}
 
-  (tc.prop/for-all* [($.test.util/generator :convex/data)]
-                    (fn [x]
-                      (let [x-2     (list 'quote
-                                          x)
-                            fn-form (list 'fn
-                                          []
-                                          x-2)
-                            templ   (fn [form]
-                                      ($/templ {'?fn fn-form
-                                                '?x  x-2}
-                                               form))]
-                        ($.test.prop/mult*
+  ($.test.prop/check :convex/data
+                     (fn [x]
+                       (let [x-2     (list 'quote
+                                           x)
+                             fn-form (list 'fn
+                                           []
+                                           x-2)
+                             templ   (fn [form]
+                                       ($/templ {'?fn fn-form
+                                                 '?x  x-2}
+                                                form))]
+                         ($.test.prop/mult*
 
-                          "Function?"
-                          (-eval-fn? fn-form)
+                           "Function?"
+                           (-eval-fn? fn-form)
 
-                          "Direct"
-                          (-eval-fn fn-form
-                                    nil
-                                    x-2)
+                           "Direct"
+                           (-eval-fn fn-form
+                                     nil
+                                     x-2)
   
-                          "Interned"
-                          (-eval-fn-def fn-form
-                                        nil
-                                        x-2)
+                           "Interned"
+                           (-eval-fn-def fn-form
+                                         nil
+                                         x-2)
   
-                          "Let"
-                          (-eval-fn-let fn-form
-                                        nil
-                                        x-2))))))
+                           "Let"
+                           (-eval-fn-let fn-form
+                                         nil
+                                         x-2))))))
 
 
 
@@ -236,35 +236,35 @@
 
   {:max-size max-size-coll}
 
-  (tc.prop/for-all* [($.test.util/generator-binding+ 1)]
-                    (fn [x]
-                      (let [arg+     (mapv #(list 'quote
-                                                  (second %))
-                                           x)
-                            binding+ (mapv first
-                                           x)
-                            fn-form  (list 'fn
-                                           binding+
-                                           binding+)]
-                        ($.test.prop/mult*
+  ($.test.prop/check ($.test.schema/binding+ 1)
+                     (fn [x]
+                       (let [arg+     (mapv #(list 'quote
+                                                   (second %))
+                                            x)
+                             binding+ (mapv first
+                                            x)
+                             fn-form  (list 'fn
+                                            binding+
+                                            binding+)]
+                         ($.test.prop/mult*
 
-                          "Function?"
-                          (-eval-fn? fn-form)
+                           "Function?"
+                           (-eval-fn? fn-form)
 
-                          "Direct"
-                          (-eval-fn fn-form
-                                    arg+
-                                    arg+)
+                           "Direct"
+                           (-eval-fn fn-form
+                                     arg+
+                                     arg+)
 
-                          "Interned"
-                          (-eval-fn-def fn-form
-                                        arg+
-                                        arg+)
+                           "Interned"
+                           (-eval-fn-def fn-form
+                                         arg+
+                                         arg+)
 
-                          "Let"
-                          (-eval-fn-let fn-form
-                                        arg+
-                                        arg+))))))
+                           "Let"
+                           (-eval-fn-let fn-form
+                                         arg+
+                                         arg+))))))
 
 
 
@@ -274,101 +274,101 @@
 
   {:max-size max-size-coll}
 
-  (tc.prop/for-all* [($.test.util/generator-binding+ 1)]
-                    (fn [x]
-                      (let [arg+       (mapv #(list 'quote
-                                                    (second %))
-                                             x)
-                            binding+   (mapv first
-                                             x)
-                            pos-amper  (rand-int (count binding+))
-                            binding-2+ (vec (concat (take pos-amper
-                                                          binding+)
-                                                    ['&]
-                                                    (drop pos-amper
-                                                          binding+)))
-                            fn-form    (list 'fn
-                                             binding-2+
-                                             binding+)
-                            ret        (update arg+
-                                               pos-amper
-                                               vector)]
-                        ($.test.prop/mult*
-
-                          "Function?"
-                          (-eval-fn? fn-form)
-
-                          "Direct"
-                          (-eval-fn fn-form
-                                    arg+
-                                    ret)
-
-                          "Interned"
-                          (-eval-fn-def fn-form
-                                        arg+
-                                        ret)
-
-
-                          "Let"
-                          (-eval-fn-let fn-form
-                                        arg+
-                                        ret)
-
-                          "1 argument less"
-                          (let [ret-1  (assoc arg+
-                                              pos-amper
-                                              [])
-                                arg-1+ (into []
-                                             (concat (take pos-amper
-                                                           arg+)
-                                                     (drop (inc pos-amper)
-                                                           arg+)))]
-                            ($.test.prop/mult*
-
-                              "Direct"
-                              (-eval-fn fn-form
-                                        arg-1+
-                                        ret-1)
-
-
-                              "Interned"
-                              (-eval-fn-def fn-form
-                                            arg-1+
-                                            ret-1)
-
-
-                              "Let"
-                              (-eval-fn-let fn-form
-                                            arg-1+
-                                            ret-1)))
-
-                          "Extra argument"
-                          (let [ret+1  (update arg+
-                                               pos-amper
-                                               #(vector 42
-                                                        %))
-                                arg+1+ (into []
-                                             (concat (take pos-amper
-                                                           arg+)
-                                                     [42]
+  ($.test.prop/check ($.test.schema/binding+ 1)
+                     (fn [x]
+                       (let [arg+       (mapv #(list 'quote
+                                                     (second %))
+                                              x)
+                             binding+   (mapv first
+                                              x)
+                             pos-amper  (rand-int (count binding+))
+                             binding-2+ (vec (concat (take pos-amper
+                                                           binding+)
+                                                     ['&]
                                                      (drop pos-amper
-                                                           arg+)))]
-                            ($.test.prop/mult*
+                                                           binding+)))
+                             fn-form    (list 'fn
+                                              binding-2+
+                                              binding+)
+                             ret        (update arg+
+                                                pos-amper
+                                                vector)]
+                         ($.test.prop/mult*
 
-                              "Direct"
-                              (-eval-fn fn-form
-                                        arg+1+
-                                        ret+1)
+                           "Function?"
+                           (-eval-fn? fn-form)
 
-                              "Interned"
-                              (-eval-fn-def fn-form
-                                            arg+1+
-                                            ret+1)
+                           "Direct"
+                           (-eval-fn fn-form
+                                     arg+
+                                     ret)
 
-                              "Let"
-                              (-eval-fn-let fn-form
-                                            arg+1+
-                                            ret+1))))))))
+                           "Interned"
+                           (-eval-fn-def fn-form
+                                         arg+
+                                         ret)
+
+
+                           "Let"
+                           (-eval-fn-let fn-form
+                                         arg+
+                                         ret)
+
+                           "1 argument less"
+                           (let [ret-1  (assoc arg+
+                                               pos-amper
+                                               [])
+                                 arg-1+ (into []
+                                              (concat (take pos-amper
+                                                            arg+)
+                                                      (drop (inc pos-amper)
+                                                            arg+)))]
+                             ($.test.prop/mult*
+
+                               "Direct"
+                               (-eval-fn fn-form
+                                         arg-1+
+                                         ret-1)
+
+
+                               "Interned"
+                               (-eval-fn-def fn-form
+                                             arg-1+
+                                             ret-1)
+
+
+                               "Let"
+                               (-eval-fn-let fn-form
+                                             arg-1+
+                                             ret-1)))
+
+                           "Extra argument"
+                           (let [ret+1  (update arg+
+                                                pos-amper
+                                                #(vector 42
+                                                         %))
+                                 arg+1+ (into []
+                                              (concat (take pos-amper
+                                                            arg+)
+                                                      [42]
+                                                      (drop pos-amper
+                                                            arg+)))]
+                             ($.test.prop/mult*
+
+                               "Direct"
+                               (-eval-fn fn-form
+                                         arg+1+
+                                         ret+1)
+
+                               "Interned"
+                               (-eval-fn-def fn-form
+                                             arg+1+
+                                             ret+1)
+
+                               "Let"
+                               (-eval-fn-let fn-form
+                                             arg+1+
+                                             ret+1))))))))
 
 
 
@@ -378,14 +378,14 @@
 
   {:max-size max-size-coll}
 
-  (tc.prop/for-all* [($.test.util/generator [:+ [:cat
-                                                 :convex/data
-                                                 :convex/data]])]
-                    (fn [x]
-                      (map? ($.test.eval/form (list* 'hash-map
-                                                     (map #(list 'quote
-                                                                 %)
-                                                          x)))))))
+  ($.test.prop/check [:+ [:cat
+                          :convex/data
+                          :convex/data]]
+                     (fn [x]
+                       (map? ($.test.eval/form (list* 'hash-map
+                                                      (map #(list 'quote
+                                                                  %)
+                                                           x)))))))
 
 
 
@@ -402,14 +402,14 @@
 
   {:max-size max-size-coll}
 
-  (tc.prop/for-all* [($.test.util/generator [:vector
-                                             {:min 1}
-                                             :convex/data])]
-                    (fn [x]
-                      (set? ($.test.eval/form (list* 'hash-set
-                                                     (map #(list 'quote
-                                                                 %)
-                                                          x)))))))
+  ($.test.prop/check [:vector
+                      {:min 1}
+                      :convex/data]
+                     (fn [x]
+                       (set? ($.test.eval/form (list* 'hash-set
+                                                      (map #(list 'quote
+                                                                  %)
+                                                           x)))))))
 
 
 
@@ -428,16 +428,16 @@
 
   {:max-size max-size-coll}
 
-  (tc.prop/for-all* [($.test.util/generator [:vector
-                                             {:min 1}
-		      							    :convex/data])]
-		      	    (fn [x]
-		      	      (= (apply list
-		      	      	   	    x)
-		      	         ($.test.eval/form (list* 'list
- 		      	      							  (map #(list 'quote
-                                                              %)
-                                                       x)))))))
+  ($.test.prop/check [:vector
+                      {:min 1}
+		      	      :convex/data]
+		      	     (fn [x]
+		      	       (= (apply list
+		      	       	   	    x)
+		      	          ($.test.eval/form (list* 'list
+ 		      	       							  (map #(list 'quote
+                                                               %)
+                                                        x)))))))
 
 
 
@@ -445,16 +445,20 @@
 
   {:max-size max-size-coll}
 
-  (tc.prop/for-all* [($.test.util/generator [:vector
-                                             {:min 1}
-		      							   :convex/data])]
-		      	    (fn [x]
-		      	      (= (apply vector
-                                x)
-		      	         ($.test.eval/form (list* 'vector
- 		      	      							  (map #(list 'quote
-                                                               %)
-                                                       x)))))))
+  ($.test.prop/check [:vector
+                      {:min 1}
+		      		  :convex/data]
+		      	     (fn [x]
+		      	       (= (apply vector
+                                 x)
+		      	          ($.test.eval/form (list* 'vector
+ 		      	       							  (map #(list 'quote
+                                                                %)
+                                                        x)))))))
+
+
+;;;;;;;;;;
+
 
 ;; Creating collections
 
