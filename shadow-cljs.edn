@@ -1,7 +1,7 @@
 {:builds
  {:dev
   {:asset-path "/js"
-   :modules    {:main {:entries [convex.clj.dev]}}
+   :modules    {:main {:entries [convex.lisp.dev]}}
    :output-dir "cljs/js"
    :target     :browser}
 

@@ -33,7 +33,7 @@
   {:extra-paths ["src/test"]}}
 
  :deps
- {cljs-ajax/cljs-ajax      {:mvn/version "0.8.3"}
+ {;cljs-ajax/cljs-ajax      {:mvn/version "0.8.3"}
   metosin/malli            {:mvn/version "0.5.1"}
   org.clojure/tools.reader {:mvn/version "1.3.4"}
   world.convex/convex      {:mvn/version "0.0.1-SNAPSHOT"}}

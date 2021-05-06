@@ -4,36 +4,35 @@
 
   {:author "Adam Helinski"}
 
-  (:require [ajax.core                     :as http]
-            [convex.lisp                   :as $]
-            [convex.lisp.edn               :as $.edn]
-            [convex.lisp.form              :as $.form]
-            [convex.lisp.hex               :as $.hex]
-            [convex.lisp.schema            :as $.schema]
-            [convex.lisp.test]
-            [convex.lisp.test.core.account]
-            [convex.lisp.test.core.actor]
-            [convex.lisp.test.core.coerce]
-            [convex.lisp.test.core.coll]
-            [convex.lisp.test.core.fn]
-            [convex.lisp.test.core.math]
-            [convex.lisp.test.core.pred]
-            [convex.lisp.test.data]
-            [convex.lisp.test.edn]
-            [convex.lisp.test.eval]
-            [convex.lisp.test.mult]
-            [convex.lisp.test.prop]
-            [convex.lisp.test.schema]
-            [convex.lisp.test.util]
-			[clojure.data]
+  (:require #?(:clj [convex.lisp                      :as $])
+            [convex.lisp.edn                          :as $.edn]
+            [convex.lisp.form                         :as $.form]
+            [convex.lisp.hex                          :as $.hex]
+            [convex.lisp.schema                       :as $.schema]
+            #?@(:clj [[convex.lisp.test]
+                      [convex.lisp.test.core.account]
+                      [convex.lisp.test.core.actor]
+                      [convex.lisp.test.core.coerce]
+                      [convex.lisp.test.core.coll]
+                      [convex.lisp.test.core.fn]
+                      [convex.lisp.test.core.math]
+                      [convex.lisp.test.core.pred]
+                      [convex.lisp.test.data]
+                      [convex.lisp.test.edn]
+                      [convex.lisp.test.eval]
+                      [convex.lisp.test.mult]
+                      [convex.lisp.test.prop]
+                      [convex.lisp.test.schema]
+                      [convex.lisp.test.util]
+			          [clojure.data]])
             [clojure.pprint]
             #?(:clj [clojure.reflect])
-            [clojure.test.check.generators :as tc.gen]
+            [clojure.test.check.generators            :as tc.gen]
             [clojure.walk]
-            [clojure.test.check.properties :as tc.prop]
-            [clojure.test.check.results    :as tc.result]
-            [malli.core                    :as malli]
-            [malli.generator               :as malli.gen])
+            [clojure.test.check.properties            :as tc.prop]
+            [clojure.test.check.results               :as tc.result]
+            [malli.core                               :as malli]
+            [malli.generator                          :as malli.gen])
   #?(:clj (:import clojure.lang.RT
                    (convex.core Init
                                 State))))
@@ -48,15 +47,15 @@
 #?(:clj (comment
 
 
+
   (-> State
       clojure.reflect/reflect
       clojure.pprint/pprint)
 
-  State/EMPTY
 
 
   (-> Init/STATE
-      $/to-clojure
+      $/datafy
       :accounts
       (->> (into []
                  (comp (map :environment)
@@ -64,22 +63,15 @@
       clojure.pprint/pprint)
 
 
-  (do
-    (-> Init/STATE
-        $/to-edn
-        ;(->> (spit "/tmp/convex.edn"))
-        $/read-edn
-        ;clojure.pprint/pprint
-        )
-    nil)
 
-
+  (-> Init/STATE
+      $.edn/write
+      ;(->> (spit "/tmp/convex.edn"))
+      $.edn/read
+      ;clojure.pprint/pprint
+      )
   
 
-
-  ; lang.expanders.Expander
-
-  
 
   (-> 
      '(hash-map [] :vec '() :list)
@@ -88,6 +80,7 @@
       $/result
       $/to-clojure
       )
+
 
 
   (-> 
@@ -113,10 +106,6 @@
                            :size     5
                            })
       nil))
-
-
-
-
 
 
   ))
