@@ -40,6 +40,27 @@
 
 
 
+(defn exceptional
+
+  "Evals the given form and returns a boolean indicating if the result is exceptional or not."
+
+
+  ([form]
+
+   (exceptional ($/context)
+                form))
+
+
+  ([context form]
+   
+   (->> form
+        $.form/source
+        $/read
+        ($/eval context)
+        $/exceptional)))
+
+
+
 (defn form
 
   "Evals the given `form` representing Convex Lisp code and returns the result as Clojure data."

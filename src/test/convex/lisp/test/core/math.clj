@@ -2,6 +2,12 @@
 
   "Testing Convex core math functions."
 
+  ;; TODO. Failing tests must be written when implicit cast of chars, booleans, and addresses is dealt with.
+  ;;
+  ;;       https://github.com/Convex-Dev/convex/issues/68
+  ;;	   https://github.com/Convex-Dev/convex/issues/73
+  ;;       https://github.com/Convex-Dev/convex/issues/89
+
   {:author "Adam Helinski"}
 
   (:require [clojure.test          :as t]
@@ -124,6 +130,26 @@
                                        ($.test.eval/form (list 'pow
                                                                x
                                                                y))))))
+
+
+
+#_($.test.prop/deftest ^:recur pow--fail
+
+  ;; TODO. Failing, see https://github.com/Convex-Dev/convex/issues/89.
+
+  ($.test.prop/check [:and
+                      [:vector
+                       {:max 2
+                        :min 2}
+                       :convex/data]
+                      [:fn
+                       #(not (every? number?
+                                     %))]]
+                     (fn [[x y]]
+                       ($.test.eval/exceptional (list 'pow
+                                                      x
+                                                      y)))))
+
 
 
 

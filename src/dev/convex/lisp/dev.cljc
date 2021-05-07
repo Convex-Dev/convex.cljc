@@ -22,7 +22,7 @@
                       [convex.lisp.test.eval]
                       [convex.lisp.test.mult]
                       [convex.lisp.test.prop]
-                      [convex.lisp.test.schema]
+                      [convex.lisp.test.schema        :as $.test.schema]
                       [convex.lisp.test.util]
 			          [clojure.data]])
             [clojure.pprint]
@@ -40,6 +40,14 @@
 
 #?(:clj (set! *warn-on-reflection*
               true))
+
+
+;;;;;;;;;;
+
+
+(def ppr
+     clojure.pprint/pprint)
+
 
 ;;;;;;;;;;
 
@@ -73,7 +81,23 @@
   
 
 
-  (-> '(hash-map [] :vec '() :list)
+  (def tx
+       ($.form/templ {'?amount (malli.gen/generate [:int
+                                                    {:min 10
+                                                     :max 1000}])
+                      '?key    (malli.gen/generate ($.test.schema/generator :convex/hexstring-32))}
+                     '(do
+                        (let [addr (create-account ?key)]
+                          (transfer addr
+                                    ?amount)
+                          [*balance*
+                           (balance addr)]))))
+                
+
+                
+
+
+  (-> '(+ 4 2)
       $/read-form
       $/eval
       $/result
@@ -84,7 +108,6 @@
 
   (-> 
       "'[(unquote)]"
-      str
       $/read
       $/expand-compile
       $/query
@@ -102,7 +125,7 @@
                           {:registry (-> (malli/default-schemas)
                                          $.schema/registry
                                          )
-                           :size     5
+                           :size     2
                            })
       nil))
 
