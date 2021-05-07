@@ -4,24 +4,18 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.test.check.clojure-test :as tc.ct]
-            [convex.lisp.form                :as $.form]
-            [convex.lisp.test.mult           :as $.test.mult]
-            [convex.lisp.test.prop           :as $.test.prop]
-            [convex.lisp.test.schema         :as $.test.schema]))
-
-
-(def max-size-coll 5)
+  (:require [convex.lisp.form        :as $.form]
+            [convex.lisp.test.mult   :as $.test.mult]
+            [convex.lisp.test.prop   :as $.test.prop]
+            [convex.lisp.test.schema :as $.test.schema]))
 
 
 ;;;;;;;;;;
 
 
-(tc.ct/defspec fn--arg-0
+($.test.prop/deftest ^:recur fn--arg-0
 
   ;; Calling no-arg functions.
-
-  {:max-size max-size-coll}
 
   ($.test.prop/check :convex/data
                      (fn [x]
@@ -39,11 +33,9 @@
 
 
 
-(tc.ct/defspec fn--arg-fixed
+($.test.prop/deftest ^:recur fn--arg-fixed
 
   ;; Calling functions with a fixed number of arguments.
-
-  {:max-size max-size-coll}
 
   ($.test.prop/check ($.test.schema/binding+ 1)
                      (fn [x]
@@ -63,11 +55,9 @@
 
 
 
-(tc.ct/defspec fn--variadic
+($.test.prop/deftest ^:recur fn--variadic
 
   ;; Calling functions with a variadic number of arguments.
-
-  {:max-size max-size-coll}
 
   ($.test.prop/check ($.test.schema/binding+ 1)
                      (fn [x]

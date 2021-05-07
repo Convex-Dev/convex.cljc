@@ -4,23 +4,17 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.test.check.properties   :as tc.prop]
-            [clojure.test.check.clojure-test :as tc.ct]
-            [convex.lisp.form                :as $.form]
-            [convex.lisp.schema              :as $.schema]
-            [convex.lisp.test.eval           :as $.test.eval]
-            [convex.lisp.test.prop           :as $.test.prop]
-            [convex.lisp.test.schema         :as $.test.schema]
-            [convex.lisp.test.util           :as $.test.util]))
-
-
-(def max-size-coll 5)
+  (:require [convex.lisp.form        :as $.form]
+            [convex.lisp.schema      :as $.schema]
+            [convex.lisp.test.eval   :as $.test.eval]
+            [convex.lisp.test.prop   :as $.test.prop]
+            [convex.lisp.test.schema :as $.test.schema]))
 
 
 ;;;;;;;;;;
 
 
-(tc.ct/defspec address--
+($.test.prop/deftest address--
 
   ($.test.prop/coerce 'address
                       'address?
@@ -36,7 +30,7 @@
 
 
 
-(tc.ct/defspec blob--
+($.test.prop/deftest blob--
 
   ;; TODO. Also test hashes, special type of blob that can be coerced to an actual blob.
 
@@ -51,9 +45,7 @@
 
 
 
-(tc.ct/defspec boolean--
-
-  {:max-size max-size-coll}
+($.test.prop/deftest ^:recur boolean--
 
   ($.test.prop/coerce 'boolean
                       'boolean?
@@ -65,7 +57,7 @@
 
 
 
-(tc.ct/defspec byte--
+($.test.prop/deftest byte--
 
   ($.test.prop/coerce 'byte
                       'number?
@@ -80,7 +72,7 @@
 
 
 
-(tc.ct/defspec char--
+($.test.prop/deftest char--
 
   ($.test.prop/coerce 'char
                       'number?               ;; TODO. Incorrect, see #68
@@ -92,7 +84,7 @@
 
 
 
-(tc.ct/defspec hash--
+($.test.prop/deftest hash--
 
   ;; Also tests `hash?`.
 
@@ -121,7 +113,7 @@
 
 
 
-(tc.ct/defspec keyword--
+($.test.prop/deftest keyword--
 
   ($.test.prop/coerce 'keyword
                       'keyword?
@@ -131,7 +123,7 @@
 
 
 
-(tc.ct/defspec long--
+($.test.prop/deftest long--
 
   ($.test.prop/coerce 'long
                       'long?
@@ -143,9 +135,7 @@
 
 ;; TODO. Currently failing, see #77
 ;;
-#_(tc.ct/defspec set--
-
-  {:max-size max-size-coll}
+#_($.test.prop/deftest ^:recur set--
 
   ($.test.prop/coerce 'set
                       'set?
@@ -155,9 +145,7 @@
 
 
 
-(tc.ct/defspec str--
-
-  {:max-size max-size-coll}
+($.test.prop/deftest ^:recur str--
 
   ($.test.prop/coerce 'str
                       'str?
@@ -168,7 +156,7 @@
 
 
 
-(tc.ct/defspec symbol--
+($.test.prop/deftest symbol--
 
   ($.test.prop/coerce 'symbol
                       'symbol?
@@ -178,9 +166,7 @@
 
 
 
-(tc.ct/defspec vec--
-
-  {:max-size max-size-coll}
+($.test.prop/deftest ^:recur vec--
 
   ($.test.prop/coerce 'vec
                       'vector?

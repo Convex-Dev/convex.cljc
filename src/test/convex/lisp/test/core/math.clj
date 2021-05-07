@@ -4,11 +4,10 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.test                    :as t]
-            [clojure.test.check.clojure-test :as tc.ct]
-            [convex.lisp.test.eval           :as $.test.eval]
-            [convex.lisp.test.prop           :as $.test.prop]
-            [convex.lisp.test.util           :as $.test.util]))
+  (:require [clojure.test          :as t]
+            [convex.lisp.test.eval :as $.test.eval]
+            [convex.lisp.test.prop :as $.test.prop]
+            [convex.lisp.test.util :as $.test.util]))
 
 
 ;;;;;;;;;; Arithmetic operators
@@ -45,42 +44,42 @@
 ;;;;;;;;;; Comparators
 
 
-(tc.ct/defspec <--
+($.test.prop/deftest <--
 
   ($.test.prop/comparison '<
                           <))
 
 
 
-(tc.ct/defspec <=--
+($.test.prop/deftest <=--
 
   ($.test.prop/comparison '<=
                           <=))
 
 
 
-(tc.ct/defspec =--
+($.test.prop/deftest =--
 
   ($.test.prop/comparison '=
                           =))
 
 
 
-(tc.ct/defspec >=--
+($.test.prop/deftest >=--
 
   ($.test.prop/comparison '>=
                           >=))
 
 
 
-(tc.ct/defspec >--
+($.test.prop/deftest >--
 
   ($.test.prop/comparison '>
                           >))
 
 
 
-(tc.ct/defspec max--
+($.test.prop/deftest max--
 
   ;; In case of equal inputs, Clojure favors the last argument whereas Convex favors the first one.
   ;; 
@@ -93,7 +92,7 @@
 
 
 
-(tc.ct/defspec min--
+($.test.prop/deftest min--
 
   ;; See comment for [[max--]].
 
@@ -106,7 +105,7 @@
 ;;;;;;;;;; Exponentiation
 
 
-(tc.ct/defspec exp--
+($.test.prop/deftest exp--
 
   ($.test.prop/like-clojure 'exp
                             #(StrictMath/exp %)
@@ -127,21 +126,8 @@
                                                                y))))))
 
 
-(tc.ct/defspec pow--
-  
-  ($.test.prop/check [:tuple
-                      :convex/number
-                      :convex/number]
-                     (fn [[x y]]
-                       ($.test.util/eq (StrictMath/pow x
-                                                       y)
-                                       ($.test.eval/form (list 'pow
-                                                               x
-                                                               y))))))
 
-
-
-(tc.ct/defspec sqrt--
+($.test.prop/deftest sqrt--
 
   ($.test.prop/like-clojure 'sqrt
                             #(StrictMath/sqrt %)
@@ -151,7 +137,7 @@
 ;;;;;;;;;; Increment / decrement
 
 
-(tc.ct/defspec dec--double
+($.test.prop/deftest dec--double
 
   ;; Unintuitive behavior. When sufficiently small double, is cast to 0.
   ;; Not small enough, get cast to `Long/MIN_VALUE` and underflows.
@@ -191,7 +177,7 @@
 
 
 
-(tc.ct/defspec dec--long
+($.test.prop/deftest dec--long
 
   ($.test.prop/check :convex/long
                      (fn [x]
@@ -211,7 +197,7 @@
 
 
 
-(tc.ct/defspec inc--double
+($.test.prop/deftest inc--double
 
   ;; See [[dec-double]].
 
@@ -242,7 +228,7 @@
 
 
 
-(tc.ct/defspec inc--long
+($.test.prop/deftest inc--long
 
   ($.test.prop/check :convex/long
                      (fn [x]
@@ -264,7 +250,7 @@
 ;;;;;;;;;; Rounding
 
 
-(tc.ct/defspec ceil--
+($.test.prop/deftest ceil--
 
   ($.test.prop/like-clojure 'ceil
                             #(StrictMath/ceil %)
@@ -272,7 +258,7 @@
 
 
 
-(tc.ct/defspec floor--
+($.test.prop/deftest floor--
 
   ($.test.prop/like-clojure 'floor
                             #(StrictMath/floor %)
@@ -282,7 +268,7 @@
 ;;;;;;;;;; Sign operations
 
 
-(tc.ct/defspec abs--
+($.test.prop/deftest abs--
 
   ($.test.prop/check :convex/number
                      (fn [x]
@@ -300,7 +286,7 @@
 
 
 
-(tc.ct/defspec signum--
+($.test.prop/deftest signum--
 
   ($.test.prop/check :convex/number
                      (fn [x]

@@ -6,27 +6,18 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.test                    :as t]
-            [clojure.test.check.properties   :as tc.prop]
-            [clojure.test.check.clojure-test :as tc.ct]
-            [convex.lisp                     :as $]
-            [convex.lisp.test.eval           :as $.test.eval]
-            [convex.lisp.test.prop           :as $.test.prop]
-            [convex.lisp.test.schema         :as $.test.schema]
-            [convex.lisp.test.util           :as $.test.util]))
-
-
-(def max-size-coll 5)
+  (:require [clojure.test            :as t]
+            [convex.lisp.test.eval   :as $.test.eval]
+            [convex.lisp.test.prop   :as $.test.prop]
+            [convex.lisp.test.schema :as $.test.schema]))
 
 
 ;;;;;;;;;;
 
 
-(tc.ct/defspec address?--false
+($.test.prop/deftest ^:recur address?--false
 
   ;; TODO. Also test `actor?`? See #74.
-
-  {:max-size max-size-coll}
 
   ($.test.prop/pred-data-false 'address?
                                #{:convex/address
@@ -37,7 +28,7 @@
 
 
 
-(tc.ct/defspec address?--true
+($.test.prop/deftest address?--true
 
   ($.test.prop/check :convex/address
                      (fn [x]
@@ -46,25 +37,21 @@
 
 
 
-(tc.ct/defspec blob?--false
-
-  {:max-size max-size-coll}
+($.test.prop/deftest ^:recur blob?--false
 
   ($.test.prop/pred-data-false 'blob?
                                #{:convex/blob}))
 
 
 
-(tc.ct/defspec blob?--true
+($.test.prop/deftest blob?--true
 
   ($.test.prop/pred-data-true 'blob?
                               :convex/blob))
 
 
 
-(tc.ct/defspec boolean?--false
-
-  {:max-size max-size-coll}
+($.test.prop/deftest ^:recur boolean?--false
 
   ($.test.prop/pred-data-false 'boolean?
                                boolean?
@@ -82,9 +69,7 @@
 
 
 
-(tc.ct/defspec coll?--false
-
-  {:max-size max-size-coll}
+($.test.prop/deftest ^:recur coll?--false
 
   ($.test.prop/pred-data-false 'coll?
                                coll?
@@ -95,9 +80,7 @@
 
 
 
-(tc.ct/defspec coll?--true
-
-  {:max-size max-size-coll}
+($.test.prop/deftest ^:recur coll?--true
 
   ($.test.prop/pred-data-true 'coll?
                               coll?
@@ -105,9 +88,7 @@
 
 
 
-(tc.ct/defspec keyword?--false
-
-  {:max-size max-size-coll}
+($.test.prop/deftest ^:recur keyword?--false
 
   ($.test.prop/pred-data-false 'keyword?
                                keyword?
@@ -115,7 +96,7 @@
 
 
 
-(tc.ct/defspec keyword?--true
+($.test.prop/deftest keyword?--true
 
   ($.test.prop/pred-data-true 'keyword?
                               keyword?
@@ -123,9 +104,7 @@
 
 
 
-(tc.ct/defspec list?--false
-
-  {:max-size max-size-coll}
+($.test.prop/deftest ^:recur list?--false
 
   ($.test.prop/pred-data-false 'list?
                                list?
@@ -133,9 +112,7 @@
 
 
 
-(tc.ct/defspec list?--true
-
-  {:max-size max-size-coll}
+($.test.prop/deftest ^:recur list?--true
 
   ($.test.prop/pred-data-true 'list?
                               list?
@@ -143,9 +120,7 @@
 
 
 
-(tc.ct/defspec long?--false
-
-  {:max-size max-size-coll}
+($.test.prop/deftest ^:recur long?--false
 
   ($.test.prop/pred-data-false 'long?
                                int?
@@ -153,7 +128,7 @@
 
 
 
-(tc.ct/defspec long?--true
+($.test.prop/deftest long?--true
 
   ($.test.prop/pred-data-true 'long?
                               int?
@@ -161,9 +136,7 @@
 
 
 
-(tc.ct/defspec map?--false
-
-  {:max-size max-size-coll}
+($.test.prop/deftest ^:recur map?--false
 
   ($.test.prop/pred-data-false 'map?
                                map?
@@ -171,9 +144,7 @@
 
 
 
-(tc.ct/defspec map?--true
-
-  {:max-size max-size-coll}
+($.test.prop/deftest ^:recur map?--true
 
   ($.test.prop/pred-data-true 'map?
                               map?
@@ -181,9 +152,7 @@
 
 
 
-(tc.ct/defspec nil?--false
-
-  {:max-size max-size-coll}
+($.test.prop/deftest ^:recur nil?--false
 
   ($.test.prop/pred-data-false 'nil?
                                nil?
@@ -199,9 +168,7 @@
 
 
 
-(tc.ct/defspec number?--false
-
-  {:max-size max-size-coll}
+($.test.prop/deftest ^:recur number?--false
 
   ($.test.prop/pred-data-false 'number?
                                number?
@@ -212,7 +179,7 @@
 
 
 
-(tc.ct/defspec number?--true
+($.test.prop/deftest number?--true
 
   ($.test.prop/pred-data-true 'number?
                               number?
@@ -220,9 +187,7 @@
 
 
 
-(tc.ct/defspec set?--false
-
-  {:max-size max-size-coll}
+($.test.prop/deftest ^:recur set?--false
 
   ($.test.prop/pred-data-false 'set?
                                set?
@@ -230,9 +195,7 @@
 
 
 
-(tc.ct/defspec set?--true
-
-  {:max-size max-size-coll}
+($.test.prop/deftest ^:recur set?--true
 
   ($.test.prop/pred-data-true 'set?
                               set?
@@ -240,9 +203,7 @@
 
 
 
-(tc.ct/defspec str?--false
-
-  {:max-size max-size-coll}
+($.test.prop/deftest ^:recur str?--false
 
   ($.test.prop/pred-data-false 'str?
                                string?
@@ -250,7 +211,7 @@
 
 
 
-(tc.ct/defspec str?--true
+($.test.prop/deftest str?--true
 
   ($.test.prop/pred-data-true 'str?
                               string?
@@ -258,7 +219,7 @@
 
 
 
-(tc.ct/defspec symbol?--true
+($.test.prop/deftest symbol?--true
 
   ($.test.prop/pred-data-true 'symbol?
                               symbol?
@@ -266,9 +227,7 @@
 
 
 
-(tc.ct/defspec symbol?--false
-
-  {:max-size max-size-coll}
+($.test.prop/deftest ^:recur symbol?--false
 
   ($.test.prop/pred-data-false 'symbol?
                                (partial $.test.schema/valid?
@@ -277,9 +236,7 @@
 
 
 
-(tc.ct/defspec vector?--false
-
-  {:max-size max-size-coll}
+($.test.prop/deftest ^:recur vector?--false
 
   ($.test.prop/pred-data-false 'vector?
                                vector?
@@ -287,9 +244,7 @@
 
 
 
-(tc.ct/defspec vector?--true
-
-  {:max-size max-size-coll}
+($.test.prop/deftest ^:recur vector?--true
 
   ($.test.prop/pred-data-true 'vector?
                               vector?

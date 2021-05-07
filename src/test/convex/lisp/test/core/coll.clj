@@ -4,14 +4,10 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.test                    :as t]
-            [clojure.test.check.clojure-test :as tc.ct]
-            [convex.lisp.form                :as $.form]
-            [convex.lisp.test.eval           :as $.test.eval]
-            [convex.lisp.test.prop           :as $.test.prop]))
-
-
-(def max-size-coll 5)
+  (:require [clojure.test          :as t]
+            [convex.lisp.form      :as $.form]
+            [convex.lisp.test.eval :as $.test.eval]
+            [convex.lisp.test.prop :as $.test.prop]))
 
 
 ;;;;;;;;;;
@@ -23,11 +19,9 @@
 
 
 
-(tc.ct/defspec hash-map--
+($.test.prop/deftest ^:recur hash-map--
 
   ;; Cannot compare with Clojure: https://github.com/Convex-Dev/convex-web/issues/66
-
-  {:max-size max-size-coll}
 
   ($.test.prop/check [:+ [:cat
                           :convex/data
@@ -46,11 +40,9 @@
 
 
 
-(tc.ct/defspec hash-set--
+($.test.prop/deftest ^:recur hash-set--
 
   ;; Cannot compare with Clojure: https://github.com/Convex-Dev/convex-web/issues/66
-
-  {:max-size max-size-coll}
 
   ($.test.prop/check [:vector
                       {:min 1}
@@ -69,9 +61,7 @@
 
 
 
-(tc.ct/defspec list--
-
-  {:max-size max-size-coll}
+($.test.prop/deftest ^:recur list--
 
   ($.test.prop/check [:vector
                       {:min 1}
@@ -85,9 +75,7 @@
 
 
 
-(tc.ct/defspec vector--
-
-  {:max-size max-size-coll}
+($.test.prop/deftest ^:recur vector--
 
   ($.test.prop/check [:vector
                       {:min 1}

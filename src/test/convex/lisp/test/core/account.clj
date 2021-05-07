@@ -4,27 +4,16 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.test.check.clojure-test :as tc.ct]
-            [convex.lisp.form                :as $.form]
+  (:require [convex.lisp.form                :as $.form]
             [convex.lisp.test.eval           :as $.test.eval]
             [convex.lisp.test.mult           :as $.test.mult]
             [convex.lisp.test.prop           :as $.test.prop]))
 
 
-;;;;;;;;;; Default values
-
-
-(def max-size-coll
-
-  ""
-
-  5)
-
-
 ;;;;;;;;;;
 
 
-(tc.ct/defspec account-inexistant
+($.test.prop/deftest account-inexistant
 
   ($.test.prop/check [:and
                       :int
@@ -42,7 +31,7 @@
 
 
 
-(tc.ct/defspec create-account--
+($.test.prop/deftest create-account--
 
   ($.test.prop/check :convex/hexstring-32
                      (fn [x]
