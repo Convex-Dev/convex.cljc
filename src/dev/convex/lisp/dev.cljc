@@ -98,7 +98,7 @@
                 
 
 
-  (-> '(account? 'ok)
+  (-> '(assoc [] '() 0)
       $/read-form
       $/eval
       $/result
@@ -122,7 +122,30 @@
     (do
       ;(malli/validate [:not [:enum 1 2]]
       ;                3
-      (malli.gen/generate :convex/vector
+      (malli.gen/generate [:and
+                           [:tuple
+                            {:registry {
+                                        ::boolean :boolean
+                                        ::data    [:or
+                                                   ::boolean
+                                                   ::int
+                                                   ::map
+                                                   ::vector]
+                                        ::int     :int
+                                        ::map     [:map-of
+                                                   [:ref ::data]
+                                                   [:ref ::data]]
+                                        ::vector  [:vector
+                                                   [:ref ::data]]
+                                        }}
+                            ::vector]
+                           [:fn
+                            (fn [x]
+                              (println :x x)
+                              true)]
+                           ]
+
+
                           {:registry (-> (malli/default-schemas)
                                          $.schema/registry
                                          )
