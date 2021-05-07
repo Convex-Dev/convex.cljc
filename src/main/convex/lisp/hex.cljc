@@ -4,8 +4,7 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.string]
-            [clojure.test.check.generators :as tc.gen]))
+  (:require [clojure.string]))
 
 
 ;;;;;;;;;;

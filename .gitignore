@@ -36,3 +36,9 @@ package.json
 // Wasmer
 
 ./wasmer/runtime/*
+
+
+// Misc
+bin/self
+/.clj-kondo/*
+!/.clj-kondo/config.edn
