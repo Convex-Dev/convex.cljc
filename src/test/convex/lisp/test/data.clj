@@ -108,8 +108,6 @@
 
 (tc.ct/defspec symbol-
 
-  ;; TODO. Suffers from #65.
-
   ($.test.prop/data-quoted :convex/symbol))
 
 

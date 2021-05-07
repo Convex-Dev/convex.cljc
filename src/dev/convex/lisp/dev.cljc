@@ -35,7 +35,8 @@
             [malli.generator                          :as malli.gen])
   #?(:clj (:import clojure.lang.RT
                    (convex.core Init
-                                State))))
+                                State)
+                   convex.core.data.Symbol)))
 
 
 #?(:clj (set! *warn-on-reflection*
@@ -97,7 +98,7 @@
                 
 
 
-  (-> '(+ 4 2)
+  (-> '(account? 'ok)
       $/read-form
       $/eval
       $/result
@@ -107,7 +108,7 @@
 
 
   (-> 
-      "'[(unquote)]"
+      "'#43/ok"
       $/read
       $/expand-compile
       $/query
@@ -125,7 +126,7 @@
                           {:registry (-> (malli/default-schemas)
                                          $.schema/registry
                                          )
-                           :size     2
+                           :size     5
                            })
       nil))
 

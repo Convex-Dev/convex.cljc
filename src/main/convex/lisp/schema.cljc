@@ -125,12 +125,9 @@
                                 :symbol
                                 [:not= '_]
                                 [:fn
-                                 ;; TODO. Checking for "." should not be necessary, see #65.
                                  (fn [x]
                                    (let [string (name x)]
-                                     (and (not (clojure.string/includes? string
-                                                                         "."))
-                                          (not (clojure.string/starts-with? string
+                                     (and (not (clojure.string/starts-with? string
                                                                             "#"))
                                           (not (clojure.string/starts-with? string
                                                                             "0x")))))]]

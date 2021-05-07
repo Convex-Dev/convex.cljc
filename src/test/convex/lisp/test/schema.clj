@@ -91,21 +91,26 @@
   "Helps creating a generator for scientific notation, a tuple of items that
    can be joined into a string.
   
-   Argument is a schema describing the exponential part."
+   Argument is a schema describing the exponential part.
+
+   Only for generation, not validation."
 
   [schema-exponent]
 
   [:tuple
    {:gen/fmap (fn [[m-1 m-2 e x]]
                 (str m-1
-                     \.
-                     m-2
+                     (when m-2
+                       (str \.
+                            m-2))
                      e
                      x))}
    :convex/long
-   [:and
-    :convex/long
-    [:>= 0]]
+   [:or
+    :nil
+	[:and
+	 :convex/long
+	 [:>= 0]]]
    [:enum
     \e
     \E]

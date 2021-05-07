@@ -348,12 +348,14 @@
   convex.core.data.Symbol
 
     (datafy [this]
-      (symbol (some-> (.getNamespace this)
-                      (-> .getName
-                          clojure.core.protocols/datafy))
-              (-> this
-                  .getName
-                  clojure.core.protocols/datafy)))
+      (let [name (.getName this)
+            path (some-> (.getPath this)
+                         .toString)]
+        (symbol (if path
+                  (str path
+                       \/
+                       name)
+                  (str name)))))
 
 
   convex.core.data.Syntax

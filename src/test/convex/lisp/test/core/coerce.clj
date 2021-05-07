@@ -75,7 +75,7 @@
 ($.test.prop/deftest char--
 
   ($.test.prop/coerce 'char
-                      'number?               ;; TODO. Incorrect, see #68
+                      '(fn [_] true)           ;; TODO. Incorrect, see #68, #92
                       unchecked-char
                       char?
                       [:and :convex/number

@@ -4,10 +4,10 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.lisp.form                :as $.form]
-            [convex.lisp.test.eval           :as $.test.eval]
-            [convex.lisp.test.mult           :as $.test.mult]
-            [convex.lisp.test.prop           :as $.test.prop]))
+  (:require [convex.lisp.form      :as $.form]
+            [convex.lisp.test.eval :as $.test.eval]
+            [convex.lisp.test.mult :as $.test.mult]
+            [convex.lisp.test.prop :as $.test.prop]))
 
 
 ;;;;;;;;;;
@@ -41,3 +41,31 @@
                                                                                            '(def addr
                                                                                                  (create-account ?hexstring))))
                                                   false?)))))
+
+
+
+($.test.prop/deftest transfer--
+
+  ($.test.prop/check [:tuple
+                      :convex/hexstring-32
+                      [:double
+                       {:max 1
+                        :min 0}]]
+                     (fn [[pubkey ratio]]
+                       ($.test.prop/mult-result ($.test.eval/form
+                                                  ($.form/templ {'?pubkey pubkey
+                                                                 '?ratio  ratio}
+                                                                '(do
+                                                                   (let [balance-original *balance*
+                                                                         addr             (create-account ?pubkey)
+                                                                         amount           (floor (* ?ratio
+                                                                                                    *balance*))]
+                                                                     (transfer addr
+                                                                               amount)
+                                                                     [(== balance-original
+                                                                          (+ *balance*
+                                                                             amount))
+                                                                      (== amount
+                                                                          (balance addr))]))))
+                                                ["Own balance has been correctly updated"
+                                                 "Balance of receiver has been correctly updated"]))))

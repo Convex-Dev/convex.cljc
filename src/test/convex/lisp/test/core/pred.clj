@@ -15,9 +15,20 @@
 ;;;;;;;;;;
 
 
-($.test.prop/deftest ^:recur address?--false
+#_($.test.prop/deftest ^:recur account?--false
 
-  ;; TODO. Also test `actor?`? See #74.
+  ;; TODO. Fails because of #90
+
+  ($.test.prop/pred-data-false 'account?
+                               #{:convex/address
+                                 :convex/boolean  ;; TODO. See #73
+                                 :convex/char     ;; TODO. See #68
+                                 :convex/double
+                                 :convex/long}))
+
+
+
+($.test.prop/deftest ^:recur address?--false
 
   ($.test.prop/pred-data-false 'address?
                                #{:convex/address
