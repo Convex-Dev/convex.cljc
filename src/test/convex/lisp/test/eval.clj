@@ -7,6 +7,7 @@
   {:author "Adam Helinski"}
 
   (:require [convex.lisp      :as $]
+            [convex.lisp.ctx  :as $.ctx]
             [convex.lisp.form :as $.form]))
 
 
@@ -26,14 +27,14 @@
   
   ([form x]
 
-   (apply-one ($/context)
+   (apply-one ($.ctx/create-fake)
               form
               x))
 
 
-  ([context form x]
+  ([ctx form x]
 
-   (convex.lisp.test.eval/form context
+   (convex.lisp.test.eval/form ctx
                                ($.form/templ {'?form form
                                               '?x    x}
                                              '(?form (quote ?x))))))
@@ -47,17 +48,17 @@
 
   ([form]
 
-   (exceptional ($/context)
+   (exceptional ($.ctx/create-fake)
                 form))
 
 
-  ([context form]
+  ([ctx form]
    
    (->> form
         $.form/source
         $/read
-        ($/eval context)
-        $/exceptional)))
+        ($/eval ctx)
+        $.ctx/exceptional)))
 
 
 
@@ -68,34 +69,34 @@
 
   ([form]
 
-   (convex.lisp.test.eval/form ($/context)
+   (convex.lisp.test.eval/form ($.ctx/create-fake)
                                form))
 
 
-  ([context form]
+  ([ctx form]
 
-   (source context
+   (source ctx
            ($.form/source form))))
 
 
 
-(defn form->context
+(defn form->ctx
 
-  "Like [[form]] but returns the context, not the result prepared as Clojure data."
+  "Like [[form]] but returns the ctx, not the result prepared as Clojure data."
 
 
   ([form]
 
-   (form->context ($/context)
-                  form))
+   (form->ctx ($.ctx/create-fake)
+              form))
 
 
-  ([context form]
+  ([ctx form]
 
    (->> form
         $.form/source
         $/read
-        ($/eval context))))
+        ($/eval ctx))))
 
 
 
@@ -106,16 +107,16 @@
 
   ([source]
 
-   (convex.lisp.test.eval/source ($/context)
+   (convex.lisp.test.eval/source ($.ctx/create-fake)
                                  source))
 
 
-  ([context source]
+  ([ctx source]
 
    (->> source
         $/read
-        ($/eval context)
-        $/result
+        ($/eval ctx)
+        $.ctx/result
         $/datafy)))
 
 
@@ -127,13 +128,13 @@
 
   ([source]
 
-   (source-exceptional ($/context)
+   (source-exceptional ($.ctx/create-fake)
                        source))
 
 
-  ([context source]
+  ([ctx source]
 
    (->> source
         $/read
-        ($/eval context)
-        $/exceptional)))
+        ($/eval ctx)
+        $.ctx/exceptional)))

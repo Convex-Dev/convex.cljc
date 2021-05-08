@@ -6,6 +6,7 @@
 
   (:require [clojure.test     :as t]
             [convex.lisp      :as $]
+            [convex.lisp.ctx  :as $.ctx]
             [convex.lisp.form :as $.form])
   (:import convex.core.data.Syntax
            convex.core.data.prim.CVMByte))
@@ -147,17 +148,17 @@
     (t/is (= ($/read "42")
              (-> form
                  $/eval
-                 $/result)
+                 $.ctx/result)
              (-> form
                  $/expand
                  $/compile
                  $/run
-                 $/result)
+                 $.ctx/result)
              (-> form
                  $/expand-compile
                  $/run
-                 $/result)
+                 $.ctx/result)
              (-> form
                  $/expand-compile
                  $/query
-                 $/result)))))
+                 $.ctx/result)))))

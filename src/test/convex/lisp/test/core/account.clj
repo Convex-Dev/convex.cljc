@@ -37,9 +37,9 @@
                      (fn [x]
                        ($.test.prop/mult
                          ($.test.mult/new-account []
-                                                  ($.test.eval/form->context ($.form/templ {'?hexstring x}
-                                                                                           '(def addr
-                                                                                                 (create-account ?hexstring))))
+                                                  ($.test.eval/form->ctx ($.form/templ {'?hexstring x}
+                                                                                        '(def addr
+                                                                                              (create-account ?hexstring))))
                                                   false?)))))
 
 

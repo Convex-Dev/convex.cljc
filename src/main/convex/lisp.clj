@@ -1,13 +1,16 @@
 (ns convex.lisp
 
   "Reading, compiling, and executing Convex Lisp source.
-  
-   The result of context operation can be retrieved using [[result]]."
+
+   Most operations of this namespace involve a \"context\". Relaties utilities
+   for creating a context and extracting related information are located in the
+   [[convex.lisp.ctx]] namespace while this namespace revolves around Convex Lisp code."
 
   {:author "Adam Helinski"}
 
   (:require [clojure.core.protocols]
             [clojure.walk]
+            [convex.lisp.ctx         :as $.ctx]
             [convex.lisp.form        :as $.form])
   (:import convex.core.Init
            (convex.core.data ABlob
@@ -42,7 +45,7 @@
 (declare run)
 
 
-;;;;;;;;;; Converting text to Convex Lisp
+;;;;;;;;;; Reading Convex Lisp source
 
 
 (defn read
@@ -60,53 +63,16 @@
       (first parsed))))
 
 
-;;;;;;;;;; Handling a Convex context
 
+(defn read-form
 
-(defn context
+  "Stringifies the given Clojure form to Convex Lisp source and applies the result to [[read]]."
 
-  "Creates a fake variant of `convex.core.Context` needed for compilation and execution."
+  [form]
 
-
-  (^Context []
-
-   (context Init/HERO))
-
-
-  (^Context [account]
-
-   (context Init/STATE
-            account))
-
-  
-  (^Context [state account]
-
-   (Context/createFake state
-                       account)))
-
-
-
-(defn exceptional
-
-  "Returns the current exceptional value attached to the given `context` if it is indeed
-   in an exceptional state, nil otherwise."
-
-  [^Context context]
-
-  (when (.isExceptional context)
-    (.getExceptional context)))
-
-
-
-(defn result
-
-  "Extracts the result (eg. after expansion, compilation, execution, ...) wrapped in a [[context]].
-  
-   Throws if the [[context]] is in an exceptional state. See [[exceptional]]."
-
-  [^Context context]
-
-  (.getResult context))
+  (-> form
+      $.form/source
+      read))
 
 
 ;;;;;;;;;; Compiling Convex data
@@ -114,25 +80,25 @@
 
 (defn compile
 
-  "Compiles an expanded Convex object using the given `context`.
+  "Compiles an expanded Convex object using the given `ctx`.
   
-   Object is extracted from context using [[result]] if none is given and must be canonical (all items are
-   fully expanded). See [[expand]].
+   Object is extracted from context using [[convex.lisp.ctx/result]] if none is given and
+   must be canonical (all items are fully expanded). See [[expand]].
   
    See [[run]] for execution after compilation.
 
-   Returns [[context]]. See [[result]]."
+   Returns `ctx`, result being the compiled object."
 
 
-  (^Context [context]
+  (^Context [ctx]
 
-   (compile context
-            (result context)))
+   (compile ctx
+            ($.ctx/result ctx)))
 
 
-  (^Context [^Context context canonical-object]
+  (^Context [^Context ctx canonical-object]
 
-   (.compile context
+   (.compile ctx
              canonical-object)))
 
 
@@ -143,21 +109,21 @@
 
    Usually run before [[compile]] with the result from [[read]].
   
-   Fake [[context]] is created if none is provided.
+   Fake `ctx` is created if none is provided.
   
-   Returns [[context]]. See [[result]]."
+   Returns `ctx`, result being the expanded object."
 
 
-  (^Context [form]
+  (^Context [object]
 
-   (expand (context)
-           form))
+   (expand ($.ctx/create-fake)
+           object))
 
 
-  ([^Context context form]
+  ([^Context ctx object]
 
-   (.expand context
-            form)))
+   (.expand ctx
+            object)))
 
 
 
@@ -167,19 +133,21 @@
   
    See [[run]] for execution after compilation.
 
-   Returns [[context]]. See [[result]]."
+   Fake `ctx` is created if none is provided.
+
+   Returns `ctx`, result being the compiled object."
 
 
-  (^Context [form]
+  (^Context [object]
 
-   (expand-compile (context)
-                   form))
+   (expand-compile ($.ctx/create-fake)
+                   object))
 
 
-  (^Context [^Context context form]
+  (^Context [^Context ctx object]
 
-   (.expandCompile context
-                   form)))
+   (.expandCompile ctx
+                   object)))
 
 
 ;;;;;;;;;; Execution
@@ -189,18 +157,20 @@
 
   "Evaluates the given form after fully expanding and compiling it.
   
-   Returns [[context]]. See [[result]]."
+   Fake `ctx` is created if none is provided.
+
+   Returns `ctx`, result being the evaluated object."
 
 
   (^Context [object]
 
-   (eval (context)
+   (eval ($.ctx/create-fake)
          object))
 
 
-  (^Context [context object]
+  (^Context [ctx object]
 
-   (-> context
+   (-> ctx
        (expand-compile object)
        run)))
 
@@ -209,19 +179,19 @@
 (defn query
 
   "Like [[run]] but the resulting state is discarded.
-  
-   Returns [[context]]. See [[result]]."
+
+   Returns `ctx`, result being the evaluated object in query mode."
 
 
-  (^Context [context]
+  (^Context [ctx]
 
-   (query context
-          (result context)))
+   (query ctx
+          ($.ctx/result ctx)))
 
 
-  (^Context [^Context context compiled]
+  (^Context [^Context ctx compiled]
 
-   (.query context
+   (.query ctx
            compiled)))
 
 
@@ -230,22 +200,22 @@
 
   "Runs compiled Convex code.
   
-   Fetches code using [[result]] when not explicitly provided.
+   Fetches code using [[convex.lisp.ctxresult]] when not explicitly provided.
   
    Usually run after [[compile]].
   
-   Returns [[context]]. See [[result]]."
+   Returns `ctx`, result being the evaluated object."
 
 
-  (^Context [context]
+  (^Context [ctx]
 
-   (run context
-        (result context)))
+   (run ctx
+        ($.ctx/result ctx)))
 
 
-  (^Context [^Context context compiled]
+  (^Context [^Context ctx compiled]
 
-   (.run context
+   (.run ctx
          compiled)))
 
 
@@ -259,18 +229,6 @@
   [object]
 
   (clojure.core.protocols/datafy object))
-
-
-
-(defn read-form
-
-  "Stringifies the given Clojure form and applies the result to [[read]]."
-
-  [form]
-
-  (-> form
-      $.form/source
-      read))
 
 
 

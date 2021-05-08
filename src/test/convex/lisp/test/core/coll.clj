@@ -282,20 +282,19 @@
                       :convex.test/seqpath
                       :convex/data]
                      (fn [[vect path v]]
-                       ($.test.eval/form ($.form/templ {'?path (into [(rand-int (count vect))]
-                                                                     path)
-                                                        '?v    v
-                                                        '?vect (if (seq path)
-                                                                 (let [k (first path)]
-                                                                   (mapv #(dissoc %
-                                                                                  k)
-                                                                         vect))
-                                                                 vect)}
-                                                       '(= '?v
-                                                           (get-in (assoc-in '?vect
-                                                                             '?path
-                                                                             '?v)
-                                                                   '?path)))))))
+                       (let [[path-2
+                              vect-2] (if (seq path)
+                                        [(into [(rand-int (count vect))]
+                                               path)
+                                         (let [k (first path)]
+                                           (mapv #(dissoc %
+                                                          k)
+                                                 vect))]
+                                        [path
+                                         vect])]
+                         (-eval-assoc-in vect-2
+                                         path-2
+                                         v)))))
 
 
 ;;;;;;;;;;

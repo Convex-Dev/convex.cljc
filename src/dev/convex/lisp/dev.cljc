@@ -5,6 +5,7 @@
   {:author "Adam Helinski"}
 
   (:require #?(:clj [convex.lisp                      :as $])
+            [convex.lisp.ctx                          :as $.ctx]
             [convex.lisp.edn                          :as $.edn]
             [convex.lisp.form                         :as $.form]
             [convex.lisp.hex                          :as $.hex]
@@ -95,15 +96,18 @@
                            (balance addr)]))))
                 
 
+
+  (def ctx
+       ($/context))
                 
 
 
-  (-> '(assoc-in #{} [:a] 42)
-      $/read-form
-      $/eval
-      $/result
-      $/datafy
-      )
+  (->> '(inc 42)
+       $/read-form
+       ($/eval ($/fork ctx))
+       $/result
+       $/datafy
+       )
 
 
 
