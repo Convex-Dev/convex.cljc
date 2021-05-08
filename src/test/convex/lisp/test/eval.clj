@@ -35,9 +35,8 @@
   ([ctx form x]
 
    (convex.lisp.test.eval/form ctx
-                               ($.form/templ {'?form form
-                                              '?x    x}
-                                             '(?form (quote ?x))))))
+                               (list form
+                                     ($.form/quoted x)))))
 
 
 
@@ -57,7 +56,7 @@
    (->> form
         $.form/source
         $/read
-        ($/eval ctx)
+        ($.ctx/eval ctx)
         $.ctx/exceptional)))
 
 
@@ -96,7 +95,7 @@
    (->> form
         $.form/source
         $/read
-        ($/eval ctx))))
+        ($.ctx/eval ctx))))
 
 
 
@@ -115,7 +114,7 @@
 
    (->> source
         $/read
-        ($/eval ctx)
+        ($.ctx/eval ctx)
         $.ctx/result
         $/datafy)))
 
@@ -136,5 +135,5 @@
 
    (->> source
         $/read
-        ($/eval ctx)
+        ($.ctx/eval ctx)
         $.ctx/exceptional)))

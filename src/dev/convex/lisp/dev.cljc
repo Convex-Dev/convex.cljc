@@ -104,26 +104,26 @@
 
   (->> '(inc 42)
        $/read-form
-       ($/eval ($.ctx/fork ctx))
+       ($.ctx/eval ($.ctx/fork ctx))
        $.ctx/result
        $/datafy
        )
 
 
 
-  (-> ($/expand-compile ($.ctx/create-fake)
-                        ($/read "(+ 1 1)"))
-      $/query
+  (-> ($.ctx/expand-compile ($.ctx/create-fake)
+                            ($/read "(+ 1 1)"))
+      $.ctx/query
       $.ctx/result
       $/datafy
       )
 
 
-  (->> '(defn bar [x] (inc x))
+  (->> '(log (defn bar [x] (inc x)))
        $/read-form
-       ($/eval ($.ctx/create-fake))
-       $.ctx/env
-       $/datafy
+       ($.ctx/eval ($.ctx/create-fake))
+       $.ctx/log
+       ;$/datafy
        )
 
   

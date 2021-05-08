@@ -6,7 +6,6 @@
 
   (:require [clojure.test     :as t]
             [convex.lisp      :as $]
-            [convex.lisp.ctx  :as $.ctx]
             [convex.lisp.form :as $.form])
   (:import convex.core.data.Syntax
            convex.core.data.prim.CVMByte))
@@ -139,29 +138,3 @@
                  $/read
                  $/datafy))
           "Stress test")))
-
-
-
-(t/deftest execution
-
-  (let [form ($/read "(if true 42 0)")]
-    (t/is (= ($/read "42")
-             (->> form
-                  ($/eval ($.ctx/create-fake))
-                  $.ctx/result)
-             (->> form
-                  ($/eval ($.ctx/create-fake))
-                  $.ctx/result)
-             (->> form
-                  ($/expand ($.ctx/create-fake))
-                  $/compile
-                  $/run
-                  $.ctx/result)
-             (->> form
-                  ($/expand-compile ($.ctx/create-fake))
-                  $/run
-                  $.ctx/result)
-             (->> form
-                  ($/expand-compile ($.ctx/create-fake))
-                  $/query
-                  $.ctx/result)))))

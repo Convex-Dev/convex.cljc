@@ -5,7 +5,12 @@
   {:author "Adam Helinski"}
 
   (:import convex.core.Init
-           convex.core.lang.Context))
+           convex.core.lang.Context)
+  (:refer-clojure :exclude [compile
+                            eval]))
+
+
+(declare run)
 
 
 ;;;;;;;;;; Creating a new context
@@ -107,3 +112,138 @@
   [^Context ctx]
 
   (.getState ctx))
+
+
+;;;;;;;;;; Compiling Convex objects
+
+
+(defn compile
+
+  "Compiles an expanded Convex object using the given `ctx`.
+
+   Object must be canonical (all items are fully expanded). See [[expand]].
+  
+   See [[run]] for execution after compilation.
+
+   Returns `ctx`, result being the compiled object."
+
+
+  (^Context [ctx]
+
+    (compile ctx
+             (result ctx)))
+
+
+  (^Context [^Context ctx canonical-object]
+
+   (.compile ctx
+             canonical-object)))
+
+
+
+(defn expand
+
+  "Expands a Convex object so that it is canonical (fully expanded and ready for compilation).
+
+   Usually run before [[compile]] with the result from [[read]].
+  
+   Returns `ctx`, result being the expanded object."
+
+
+  (^Context [ctx]
+
+   (expand ctx
+           (result ctx)))
+
+
+  (^Context [^Context ctx object]
+
+   (.expand ctx
+            object)))
+
+
+
+(defn expand-compile
+
+  "Chains [[expand]] and [[compile]] while being slightly more efficient than calling both separately.
+  
+   See [[run]] for execution after compilation.
+
+   Returns `ctx`, result being the compiled object."
+
+  
+  (^Context [ctx]
+
+   (expand-compile ctx
+                   (result ctx)))
+
+
+  (^Context [^Context ctx object]
+
+   (.expandCompile ctx
+                   object)))
+
+
+;;;;;;;;;; Executing Convex objects
+
+
+(defn eval
+
+  "Evaluates the given form after fully expanding and compiling it.
+  
+   Returns `ctx`, result being the evaluated object."
+
+
+  (^Context [ctx]
+
+   (eval ctx
+         (result ctx)))
+
+
+  (^Context [ctx object]
+
+   (run (expand-compile ctx
+                        object))))
+
+
+
+(defn query
+
+  "Like [[run]] but the resulting state is discarded.
+
+   Returns `ctx`, result being the evaluated object in query mode."
+
+
+  (^Context [ctx]
+
+   (query ctx
+          (result ctx)))
+
+
+  (^Context [^Context ctx compiled-object]
+
+   (.query ctx
+           compiled-object)))
+
+
+
+(defn run
+
+  "Runs compiled Convex code.
+  
+   Usually run after [[compile]].
+  
+   Returns `ctx`, result being the evaluated object."
+
+
+  (^Context [ctx]
+
+   (run ctx
+        (result ctx)))
+
+
+  (^Context [^Context ctx compiled]
+
+   (.run ctx
+         compiled)))
+

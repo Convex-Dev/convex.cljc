@@ -1,16 +1,11 @@
 (ns convex.lisp
 
-  "Reading, compiling, and executing Convex Lisp source.
-
-   Most operations of this namespace involve a \"context\". Related utilities
-   for creating a context and extracting related information are located in the
-   [[convex.lisp.ctx]] namespace while this namespace revolves around Convex Lisp code."
+  "Readind Convex source code + translating between Convex objects and Clojure data structures."
 
   {:author "Adam Helinski"}
 
   (:require [clojure.core.protocols]
             [clojure.walk]
-            [convex.lisp.ctx         :as $.ctx]
             [convex.lisp.form        :as $.form])
   (:import (convex.core.data ABlob
                              ACell
@@ -30,18 +25,12 @@
                                   CVMDouble
                                   CVMLong)
            convex.core.lang.impl.CoreFn
-           (convex.core.lang Context
-                             Reader))
-  (:refer-clojure :exclude [compile
-                            eval
-                            read]))
+           convex.core.lang.Reader)
+  (:refer-clojure :exclude [read]))
 
 
 (set! *warn-on-reflection*
       true)
-
-
-(declare run)
 
 
 ;;;;;;;;;; Reading Convex Lisp source
@@ -72,140 +61,6 @@
   (-> form
       $.form/source
       read))
-
-
-;;;;;;;;;; Compiling Convex data
-
-
-(defn compile
-
-  "Compiles an expanded Convex object using the given `ctx`.
-
-   Object must be canonical (all items are fully expanded). See [[expand]].
-  
-   See [[run]] for execution after compilation.
-
-   Returns `ctx`, result being the compiled object."
-
-
-  (^Context [ctx]
-
-    (compile ctx
-             ($.ctx/result ctx)))
-
-
-  (^Context [^Context ctx canonical-object]
-
-   (.compile ctx
-             canonical-object)))
-
-
-
-(defn expand
-
-  "Expands a Convex object so that it is canonical (fully expanded and ready for compilation).
-
-   Usually run before [[compile]] with the result from [[read]].
-  
-   Returns `ctx`, result being the expanded object."
-
-
-  (^Context [ctx]
-
-   (expand ctx
-           ($.ctx/result ctx)))
-
-
-  (^Context [^Context ctx object]
-
-   (.expand ctx
-            object)))
-
-
-
-(defn expand-compile
-
-  "Chains [[expand]] and [[compile]] while being slightly more efficient than calling both separately.
-  
-   See [[run]] for execution after compilation.
-
-   Returns `ctx`, result being the compiled object."
-
-  
-  (^Context [ctx]
-
-   (expand-compile ctx
-                   ($.ctx/result ctx)))
-
-
-  (^Context [^Context ctx object]
-
-   (.expandCompile ctx
-                   object)))
-
-
-;;;;;;;;;; Execution
-
-
-(defn eval
-
-  "Evaluates the given form after fully expanding and compiling it.
-  
-   Returns `ctx`, result being the evaluated object."
-
-
-  (^Context [ctx]
-
-   (eval ctx
-         ($.ctx/result ctx)))
-
-
-  (^Context [ctx object]
-
-   (run (expand-compile ctx
-                        object))))
-
-
-
-(defn query
-
-  "Like [[run]] but the resulting state is discarded.
-
-   Returns `ctx`, result being the evaluated object in query mode."
-
-
-  (^Context [ctx]
-
-   (query ctx
-          ($.ctx/result ctx)))
-
-
-  (^Context [^Context ctx compiled-object]
-
-   (.query ctx
-           compiled-object)))
-
-
-
-(defn run
-
-  "Runs compiled Convex code.
-  
-   Usually run after [[compile]].
-  
-   Returns `ctx`, result being the evaluated object."
-
-
-  (^Context [ctx]
-
-   (run ctx
-        ($.ctx/result ctx)))
-
-
-  (^Context [^Context ctx compiled]
-
-   (.run ctx
-         compiled)))
 
 
 ;;;;;;;;;; Converting Convex Lisp to Clojure
