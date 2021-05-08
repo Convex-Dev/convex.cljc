@@ -2,7 +2,7 @@
 
   "Reading, compiling, and executing Convex Lisp source.
 
-   Most operations of this namespace involve a \"context\". Relaties utilities
+   Most operations of this namespace involve a \"context\". Related utilities
    for creating a context and extracting related information are located in the
    [[convex.lisp.ctx]] namespace while this namespace revolves around Convex Lisp code."
 
@@ -12,8 +12,7 @@
             [clojure.walk]
             [convex.lisp.ctx         :as $.ctx]
             [convex.lisp.form        :as $.form])
-  (:import convex.core.Init
-           (convex.core.data ABlob
+  (:import (convex.core.data ABlob
                              ACell
                              Address
                              AList
@@ -81,9 +80,8 @@
 (defn compile
 
   "Compiles an expanded Convex object using the given `ctx`.
-  
-   Object is extracted from context using [[convex.lisp.ctx/result]] if none is given and
-   must be canonical (all items are fully expanded). See [[expand]].
+
+   Object must be canonical (all items are fully expanded). See [[expand]].
   
    See [[run]] for execution after compilation.
 
@@ -92,8 +90,8 @@
 
   (^Context [ctx]
 
-   (compile ctx
-            ($.ctx/result ctx)))
+    (compile ctx
+             ($.ctx/result ctx)))
 
 
   (^Context [^Context ctx canonical-object]
@@ -109,18 +107,16 @@
 
    Usually run before [[compile]] with the result from [[read]].
   
-   Fake `ctx` is created if none is provided.
-  
    Returns `ctx`, result being the expanded object."
 
 
-  (^Context [object]
+  (^Context [ctx]
 
-   (expand ($.ctx/create-fake)
-           object))
+   (expand ctx
+           ($.ctx/result ctx)))
 
 
-  ([^Context ctx object]
+  (^Context [^Context ctx object]
 
    (.expand ctx
             object)))
@@ -133,15 +129,13 @@
   
    See [[run]] for execution after compilation.
 
-   Fake `ctx` is created if none is provided.
-
    Returns `ctx`, result being the compiled object."
 
+  
+  (^Context [ctx]
 
-  (^Context [object]
-
-   (expand-compile ($.ctx/create-fake)
-                   object))
+   (expand-compile ctx
+                   ($.ctx/result ctx)))
 
 
   (^Context [^Context ctx object]
@@ -157,22 +151,19 @@
 
   "Evaluates the given form after fully expanding and compiling it.
   
-   Fake `ctx` is created if none is provided.
-
    Returns `ctx`, result being the evaluated object."
 
 
-  (^Context [object]
+  (^Context [ctx]
 
-   (eval ($.ctx/create-fake)
-         object))
+   (eval ctx
+         ($.ctx/result ctx)))
 
 
   (^Context [ctx object]
 
-   (-> ctx
-       (expand-compile object)
-       run)))
+   (run (expand-compile ctx
+                        object))))
 
 
 
@@ -189,18 +180,16 @@
           ($.ctx/result ctx)))
 
 
-  (^Context [^Context ctx compiled]
+  (^Context [^Context ctx compiled-object]
 
    (.query ctx
-           compiled)))
+           compiled-object)))
 
 
 
 (defn run
 
   "Runs compiled Convex code.
-  
-   Fetches code using [[convex.lisp.ctxresult]] when not explicitly provided.
   
    Usually run after [[compile]].
   

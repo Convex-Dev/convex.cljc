@@ -146,19 +146,22 @@
 
   (let [form ($/read "(if true 42 0)")]
     (t/is (= ($/read "42")
-             (-> form
-                 $/eval
-                 $.ctx/result)
-             (-> form
-                 $/expand
-                 $/compile
-                 $/run
-                 $.ctx/result)
-             (-> form
-                 $/expand-compile
-                 $/run
-                 $.ctx/result)
-             (-> form
-                 $/expand-compile
-                 $/query
-                 $.ctx/result)))))
+             (->> form
+                  ($/eval ($.ctx/create-fake))
+                  $.ctx/result)
+             (->> form
+                  ($/eval ($.ctx/create-fake))
+                  $.ctx/result)
+             (->> form
+                  ($/expand ($.ctx/create-fake))
+                  $/compile
+                  $/run
+                  $.ctx/result)
+             (->> form
+                  ($/expand-compile ($.ctx/create-fake))
+                  $/run
+                  $.ctx/result)
+             (->> form
+                  ($/expand-compile ($.ctx/create-fake))
+                  $/query
+                  $.ctx/result)))))

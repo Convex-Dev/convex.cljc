@@ -98,25 +98,23 @@
 
 
   (def ctx
-       ($/context))
+       ($.ctx/create-fake))
                 
 
 
   (->> '(inc 42)
        $/read-form
-       ($/eval ($/fork ctx))
-       $/result
+       ($/eval ($.ctx/fork ctx))
+       $.ctx/result
        $/datafy
        )
 
 
 
-  (-> 
-      "(+ 1 1)"
-      $/read
-      $/expand-compile
+  (-> ($/expand-compile ($.ctx/create-fake)
+                        ($/read "(+ 1 1)"))
       $/query
-      $/result
+      $.ctx/result
       $/datafy
       )
 
