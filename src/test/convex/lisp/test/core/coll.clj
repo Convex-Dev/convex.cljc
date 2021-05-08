@@ -66,29 +66,15 @@
 
 ($.test.prop/deftest ^:recur list--
 
-  ($.test.prop/check [:vector
-                      {:min 1}
-		      	      :convex/data]
-		      	     (fn [x]
-		      	       (= (apply list
-		      	       	   	    x)
-		      	          ($.test.eval/form (list* 'list
- 		      	       							  (map $.form/quoted
-                                                       x)))))))
+  ($.test.prop/create-data 'list
+                           list))
 
 
 
 ($.test.prop/deftest ^:recur vector--
 
-  ($.test.prop/check [:vector
-                      {:min 1}
-		      		  :convex/data]
-		      	     (fn [x]
-		      	       (= (apply vector
-                                 x)
-		      	          ($.test.eval/form (list* 'vector
- 		      	       							  (map $.form/quoted
-                                                       x)))))))
+  ($.test.prop/create-data 'vector
+                           vector))
 
 
 ;;;;;;;;;; `assoc`
@@ -227,7 +213,7 @@
                                                     :convex/map
                                                     :convex/nil
                                                     :convex/vector})
-                      :convex/collection
+                      :convex.test/seqpath
                       :convex/data]
                      (fn [[x path v]]
                        ($.test.eval/exceptional ($.form/templ {'?path path
@@ -236,6 +222,26 @@
                                                               '(assoc-in '?x
                                                                          '?path
                                                                          '?v))))))
+
+
+
+(defn- -eval-assoc-in
+
+  ;; Helper for writing and evaling the CVM code for passing `assoc-in` tests.
+
+  [item path value]
+
+  ($.test.eval/form ($.form/templ {'?item  item
+                                   '?path  path
+                                   '?value value}
+                                  '(= '?value
+                                      (let [item-2 (assoc-in '?item
+                                                             '?path
+                                                             '?value)]
+                                        (if (empty? '?path)
+                                          item-2
+                                          (get-in item-2
+                                                  '?path)))))))
 
 
 
@@ -249,46 +255,47 @@
                       [:or
                        :convex/map
                        :convex/nil]
-                      [:and
-                       :convex/collection
-                       [:fn not-empty]]
+                      :convex.test/seqpath
                       :convex/data]
                      (fn [[x path v]]
-                       ($.test.eval/form ($.form/templ {'?path path
-                                                        '?v    v
-                                                        '?x    (dissoc x
-                                                                       (first path))}
-                                                       '(= '?v
-                                                           (get-in (assoc-in '?x
-                                                                             '?path
-                                                                             '?v)
-                                                                   '?path)))))))
+                       (-eval-assoc-in (cond->
+                                         x
+                                         (seq path)
+                                         (dissoc (first path)))
+                                       path
+                                       v))))
 
 
 
-($.test.prop/deftest ^:recur assoc-in--sequential
+($.test.prop/deftest ^:recur assoc-in--vect
 
   ;; Tests `get-in` as well.
 
+  ;; TODO. Adapt for lists as well.
   ;; TODO. Should `(assoc [] 0 :ok)` be legal? See https://github.com/Convex-Dev/convex/issues/94
 
   ($.test.prop/check [:tuple
-                      [:and
+                      [:vector
                        [:or
-                        :convex/list
-                        :convex/vector]
-                       [:fn
-                        #(pos? (count %))]]
+                        :convex/nil
+                        :convex/map]]
+                      :convex.test/seqpath
                       :convex/data]
-                     (fn [[coll v]]
-                       ($.test.eval/form ($.form/templ {'?coll coll
-                                                        '?k    (rand-int (count coll))
-                                                        '?v    v}
+                     (fn [[vect path v]]
+                       ($.test.eval/form ($.form/templ {'?path (into [(rand-int (count vect))]
+                                                                     path)
+                                                        '?v    v
+                                                        '?vect (if (seq path)
+                                                                 (let [k (first path)]
+                                                                   (mapv #(dissoc %
+                                                                                  k)
+                                                                         vect))
+                                                                 vect)}
                                                        '(= '?v
-                                                           (get (assoc '?coll
-                                                                       ?k
-                                                                       '?v)
-                                                                ?k)))))))
+                                                           (get-in (assoc-in '?vect
+                                                                             '?path
+                                                                             '?v)
+                                                                   '?path)))))))
 
 
 ;;;;;;;;;;

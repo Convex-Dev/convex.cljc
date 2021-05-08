@@ -98,7 +98,7 @@
                 
 
 
-  (-> '(assoc [] '() 0)
+  (-> '(assoc-in #{} [:a] 42)
       $/read-form
       $/eval
       $/result
@@ -108,7 +108,7 @@
 
 
   (-> 
-      "'#43/ok"
+      "(+ 1 1)"
       $/read
       $/expand-compile
       $/query
@@ -129,11 +129,10 @@
                                        ::int     :int
                                        ::vector  [:vector
                                                   [:ref ::data]]}}
-                           [:or ::vector]
+                           [:or ::data]
                            [:fn
                             (fn [_]
                               false)]]
-                          {:size 5})
 
 
                           {:registry (-> (malli/default-schemas)

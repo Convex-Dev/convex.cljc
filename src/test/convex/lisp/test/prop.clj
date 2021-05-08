@@ -70,6 +70,24 @@
 
 
 
+(defn create-data
+
+  "Returns a property checking that creating data using `form` (a variadic CVM function) produces
+   the same result as in Clojure using `f-clojure`."
+
+  [form f-clojure]
+
+  (check [:vector
+          :convex/data]
+         (fn [x]
+           ($.test.util/eq (apply f-clojure
+           	                	  x)
+                           ($.test.eval/form (list* form
+                                                    (map $.form/quoted
+                                                         x)))))))
+
+
+
 (defn fail
 
   "Returns a `test.check` error with `checkpoint` conjed to `:convex.lisp/error`

@@ -83,10 +83,8 @@
                                 :convex/symbol
                                 :convex/vector]
           :convex/double       [:double
-                                ;; TODO. Currently, Convex does not support infinity and Malli does not generate NaN.
-						        ;; TODO. NaN is supported but buggy (see #67).
-                                {:gen/infinite? false
-                                 :gen/NaN?      false}]
+                                {:gen/infinite? true
+                                 :gen/NaN?      true}]
           :convex/hash         :convex/blob-32
           :convex/hexstring    [:re
                                 {:gen/fmap   $.hex/from-int

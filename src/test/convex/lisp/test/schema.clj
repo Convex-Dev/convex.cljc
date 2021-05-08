@@ -31,7 +31,10 @@
   "Malli registry for Convex."
 
   (-> (malli/default-schemas)
-      $.schema/registry))
+      $.schema/registry
+      (assoc :convex.test/seqpath [:or
+                                   :convex/list
+                                   :convex/vector])))
 
 
 

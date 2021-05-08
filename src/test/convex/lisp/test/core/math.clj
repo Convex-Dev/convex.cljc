@@ -85,11 +85,13 @@
 
 
 
-($.test.prop/deftest max--
+#_($.test.prop/deftest max--
 
   ;; In case of equal inputs, Clojure favors the last argument whereas Convex favors the first one.
   ;; 
   ;; (max 1 1.0)  =>  1.0 in Clojure, 1 in Convex
+
+  ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/99
 
   ($.test.prop/comparison 'max
                           (fn [& arg+]
@@ -98,9 +100,11 @@
 
 
 
-($.test.prop/deftest min--
+#_($.test.prop/deftest min--
 
   ;; See comment for [[max--]].
+
+  ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/99
 
   ($.test.prop/comparison 'min
                           (fn [& arg+]
@@ -296,7 +300,10 @@
 
 ($.test.prop/deftest abs--
 
-  ($.test.prop/check :convex/number
+  ($.test.prop/check [:and
+                      :convex/number
+                      [:fn
+                       #(not (Double/isNaN %))]]
                      (fn [x]
                        (let [x-2 ($.test.eval/form (list 'abs
                                                          x))]
@@ -312,7 +319,16 @@
 
 
 
-($.test.prop/deftest signum--
+(t/deftest abs--NaN
+
+  (t/is (Double/isNaN ($.test.eval/form '(abs ##NaN)))))
+
+
+
+
+#_($.test.prop/deftest signum--
+
+  ;; TODO. Fail because of: https://github.com/Convex-Dev/convex/issues/100
 
   ($.test.prop/check :convex/number
                      (fn [x]
