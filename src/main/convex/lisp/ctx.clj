@@ -1,6 +1,18 @@
 (ns convex.lisp.ctx
 
-  ""
+  "A context is needed for compiling and executing Convex code.
+
+   It can be created using [[create-fake]].
+  
+   This namespace provide all needed utilities for such endeavours as well few functions for
+   querying useful properties, such as [[juice]].
+  
+   When code is handled by a context (expansion, compilation, or any form of execution), a new context
+   is returned. This new context provides either a successful [[result]] or gracefully fails (see
+   [[exceptional]]). Also, optional arguments (such as compiled code) are fetched using [[result]] when
+   not explicitly provided.
+  
+   All objects can be datafied with [[convex.lisp/datafy]] for easy consumption from Clojure."
 
   {:author "Adam Helinski"}
 
@@ -18,7 +30,7 @@
 
 (defn create-fake
 
-  "Creates a fake variant of `convex.core.Context` needed for compilation and execution."
+  "Creates a \"fake\" context, ideal for testing and repl'ing around."
 
 
   (^Context []
@@ -41,7 +53,9 @@
 
 (defn fork
 
-  ""
+  "Duplicates the given context.
+
+   Any operation on the returned copy has no impact on the original context."
 
   ^Context [^Context ctx]
 
@@ -49,6 +63,16 @@
 
 
 ;;;;;;;;;; Querying context properties
+
+
+(defn env
+
+  "Returns the environment of the executing account attached to `ctx`."
+
+  [^Context ctx]
+
+  (.getEnvironment ctx))
+
 
 
 (defn exceptional
@@ -63,19 +87,9 @@
 
 
 
-(defn env
-
-  ""
-
-  [^Context ctx]
-
-  (.getEnvironment ctx))
-
-
-
 (defn juice
 
-  ""
+  "Returns the remaining amount of juice available for the executing account."
 
   [^Context ctx]
 
@@ -85,7 +99,7 @@
 
 (defn log
 
-  ""
+  "Returns the log of `ctx` (a map of `address` -> `vector of values)."
 
   [^Context ctx]
 
@@ -107,7 +121,7 @@
 
 (defn state
 
-  ""
+  "Returns the whole CVM state associated with `ctx`."
 
   [^Context ctx]
 
@@ -246,4 +260,3 @@
 
    (.run ctx
          compiled)))
-
