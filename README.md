@@ -23,6 +23,8 @@ The toolset already provides quite a lot of useful features for interacting with
 
 More examples will follow as the API stabilizes.
 
+Current examples are located in the [example directory](../main/src/example/convex/lisp/example).
+
 Requiring namespaces for current examples:
 
 ```clojure
@@ -36,7 +38,7 @@ Requiring namespaces for current examples:
 
 Convex Lisp source code goes through 4 steps: reading, expanding, compiling, and executing. A context is needed for handling such operations. The result of an operation is either a valid result or a handled error. There should never be an unhandled exception coming from the CVM.
 
-Going through the whole cycle:
+Going through the whole cycle (context could be reused for further execution):
 
 ```clojure
 (let [;; It is convenient writing Convex Lisp as Clojure data
@@ -57,8 +59,10 @@ Going through the whole cycle:
                  convex.lisp.ctx/compile
                  convex.lisp.ctx/run)]
                  
-  ;; Getting result from context
-  (convex.lisp.ctx/result ctx-2))
+  ;; Getting result and converting to Clojure data
+  (-> ctx-2
+      convex.lisp.ctx/result
+      convex.lisp/datafy))
 ```
 
 There are shortcuts and it is easy to write a helper function as needed. For instance, leveraging other utilities:
@@ -67,10 +71,11 @@ There are shortcuts and it is easy to write a helper function as needed. For ins
 (->> '(+ 2 2)
      convex.lisp/read-form
      (convex.lisp.ctx/eval (convex.lisp.ctx/create-fake))
-     convex.lisp.ctx/result)
+     convex.lisp.ctx/result
+     convex.lisp/datafy)
 ```
 
-## Templating Convex Lisp code
+### Templating Convex Lisp code
 
 It is particularly convenient writing Convex Lisp code as Clojure data since Clojure data is so easy to work with. The following function provides basic templating, replacing requested symbols with requested values.
 
@@ -85,15 +90,25 @@ It is particularly convenient writing Convex Lisp code as Clojure data since Clo
 ```
 
 
-## Validating and generating Convex Lisp
+### Validating and generating Convex Lisp
 
 The fact that Convex Lisp can be written as Clojure data means we can leverage the [Malli](https://github.com/metosin/malli) library for describing the language:
 
 ```clojure
-(require '[malli.core :as malli])
+(require '[malli.core      :as malli]
+         '[malli.generator :as malli.gen])
+
 
 (def registry
-     (convex.lisp.schema/registry (malli/default-schemas)))     
+
+  "Malli registry containing everything that is needed."
+
+  (convex.lisp.schema/registry (malli/default-schemas)))     
+
+
+(malli.gen/generate :convex/vector
+                    {:registry registry
+                     :size     5})
 ```
 
 Generative tests targeting the CVM extensively relies on such a registry.
