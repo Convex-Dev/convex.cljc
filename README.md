@@ -19,8 +19,84 @@ Toolset consist of:
 
 ## Usage
 
-Coming soon.
+The toolset already provides quite a lot of useful features for interacting with Convex Lisp. Currently, the API is unstable and unannounced breaking changes are to be expected.
 
+More examples will follow as the API stabilizes.
+
+Requiring namespaces for current examples:
+
+```clojure
+(require 'convex.lisp          ;; Reading source code and translate CVM objects to Clojure data
+         'convex.lisp.ctx      ;; Expanding, compiling, and executing code
+         'convex.lisp.form     ;; Writing Convex Lisp as Clojure data
+         'convex.lisp.schema)  ;; Malli schemas for Convex Lisp
+```
+
+### Handling Convex Lisp code
+
+Convex Lisp source code goes through 4 steps: reading, expanding, compiling, and executing. A context is needed for handling such operations. The result of an operation is either a valid result or a handled error. There should never be an unhandled exception coming from the CVM.
+
+Going through the whole cycle:
+
+```clojure
+(let [;; It is convenient writing Convex Lisp as Clojure data
+      form   '(+ 2 2)
+      
+      ;; Converting Clojure data to source code (a string)
+      source (convex.lisp.form/source form)
+      
+      ;; Reading source code as Convex object
+      code   (convex.lisp/read source)
+      
+      ;; Creating a test context
+      ctx    (convex.lisp.ctx/create-fake)
+      
+      ;; Using context for expanding, compiling, and running code
+      ctx-2  (-> (convex.lisp.ctx/expand ctx
+                                         code)
+                 convex.lisp.ctx/compile
+                 convex.lisp.ctx/run)]
+                 
+  ;; Getting result from context
+  (convex.lisp.ctx/result ctx-2))
+```
+
+There are shortcuts and it is easy to write a helper function as needed. For instance, leveraging other utilities:
+
+```clojure
+(->> '(+ 2 2)
+     convex.lisp/read-form
+     (convex.lisp.ctx/eval (convex.lisp.ctx/create-fake))
+     convex.lisp.ctx/result)
+```
+
+## Templating Convex Lisp code
+
+It is particularly convenient writing Convex Lisp code as Clojure data since Clojure data is so easy to work with. The following function provides basic templating, replacing requested symbols with requested values.
+
+```clojure
+(convex.lisp.form/templ {'?addr   42
+                         '?amount 1000}
+                        '(let [addr (address ?addr)]
+                           (transfer addr
+                                     ?amount)
+                           [*balance*
+                            (balance addr)]))
+```
+
+
+## Validating and generating Convex Lisp
+
+The fact that Convex Lisp can be written as Clojure data means we can leverage the [Malli](https://github.com/metosin/malli) library for describing the language:
+
+```clojure
+(require '[malli.core :as malli])
+
+(def registry
+     (convex.lisp.schema/registry (malli/default-schemas)))     
+```
+
+Generative tests targeting the CVM extensively relies on such a registry.
 
 ## Testing the CVM
 
