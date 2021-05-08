@@ -116,6 +116,16 @@
           :convex/number       [:or
                                 :convex/double
                                 :convex/long]
+          :convex/scalar       [:or
+                                :convex/address
+                                :convex/blob
+                                :convex/boolean
+                                :convex/char
+                                :convex/double
+                                :convex/keyword
+                                :convex/long
+                                :convex/string
+                                :convex/symbol]
           :convex/set          [:set
                                 [:ref :convex/data]]
           :convex/string       [:string

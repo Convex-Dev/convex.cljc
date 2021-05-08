@@ -123,27 +123,17 @@
       ;(malli/validate [:not [:enum 1 2]]
       ;                3
       (malli.gen/generate [:and
-                           [:tuple
-                            {:registry {
-                                        ::boolean :boolean
-                                        ::data    [:or
-                                                   ::boolean
-                                                   ::int
-                                                   ::map
-                                                   ::vector]
-                                        ::int     :int
-                                        ::map     [:map-of
-                                                   [:ref ::data]
-                                                   [:ref ::data]]
-                                        ::vector  [:vector
-                                                   [:ref ::data]]
-                                        }}
-                            ::vector]
+                           {:registry {::data    [:or
+                                                  ::int
+                                                  ::vector]
+                                       ::int     :int
+                                       ::vector  [:vector
+                                                  [:ref ::data]]}}
+                           [:or ::vector]
                            [:fn
-                            (fn [x]
-                              (println :x x)
-                              true)]
-                           ]
+                            (fn [_]
+                              false)]]
+                          {:size 5})
 
 
                           {:registry (-> (malli/default-schemas)
@@ -152,6 +142,8 @@
                            :size     5
                            })
       nil))
+
+
 
 
   ))

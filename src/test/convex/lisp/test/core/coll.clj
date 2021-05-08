@@ -22,6 +22,8 @@
 
 ($.test.prop/deftest ^:recur hash-map--
 
+  ;; TODO. Also test failing with odd number of items.
+  ;;
   ;; Cannot compare with Clojure: https://github.com/Convex-Dev/convex-web/issues/66
 
   ($.test.prop/check [:+ [:cat
@@ -89,7 +91,7 @@
                                                        x)))))))
 
 
-;;;;;;;;;; Adding elements
+;;;;;;;;;; `assoc`
 
 
 ($.test.prop/deftest ^:recur assoc--fail
@@ -121,12 +123,12 @@
                        :convex/nil]
                       :convex/data
                       :convex/data]
-                     (fn [[hmap k v]]
-                       ($.test.eval/form ($.form/templ {'?map hmap
-                                                        '?k   k
-                                                        '?v   v}
+                     (fn [[x k v]]
+                       ($.test.eval/form ($.form/templ {'?k k
+                                                        '?v v
+                                                        '?x x}
                                                        '(= '?v
-                                                           (get (assoc '?map
+                                                           (get (assoc '?x
                                                                        '?k
                                                                        '?v)
                                                                 '?k)))))))
@@ -186,7 +188,110 @@
                                                                       '?v))))))
 
 
+;;;;;;;;;; `assoc-in`
 
+
+($.test.prop/deftest ^:recur assoc-in--fail-path
+
+  ;; Trying to assoc using a path that is not a collection.
+  ;;
+  ;; TODO. Maybe update this: https://github.com/Convex-Dev/convex/issues/95
+
+  ($.test.prop/check [:tuple
+                      [:or
+                       :convex/list
+                       :convex/map
+                       :convex/nil
+                       :convex/vector]
+                      :convex/scalar
+                      :convex/data]
+                     (fn [[x path v]]
+                       ($.test.eval/exceptional ($.form/templ {'?path path
+                                                               '?v    v
+                                                               '?x    x}
+                                                              '(assoc-in '?x
+                                                                         '?path
+                                                                         '?v))))))
+
+
+
+#_($.test.prop/deftest ^:recur assoc-in--fail-type
+
+  ;; Trying to assoc on an illegal type.
+  ;;
+  ;; TODO. Failing, must fix https://github.com/Convex-Dev/convex/issues/96
+  ;;                         https://github.com/Convex-Dev/convex/issues/97
+
+  ($.test.prop/check [:tuple
+                      ($.test.schema/data-without #{:convex/list
+                                                    :convex/map
+                                                    :convex/nil
+                                                    :convex/vector})
+                      :convex/collection
+                      :convex/data]
+                     (fn [[x path v]]
+                       ($.test.eval/exceptional ($.form/templ {'?path path
+                                                               '?v    v
+                                                               '?x    x}
+                                                              '(assoc-in '?x
+                                                                         '?path
+                                                                         '?v))))))
+
+
+
+($.test.prop/deftest ^:recur assoc-in--map
+
+  ;; Tests `get-in` as well, and with nil besides maps.
+  ;;
+  ;; TODO. Currently, empty path returns the value. Keep an eye on: https://github.com/Convex-Dev/convex/issues/96
+
+  ($.test.prop/check [:tuple
+                      [:or
+                       :convex/map
+                       :convex/nil]
+                      [:and
+                       :convex/collection
+                       [:fn not-empty]]
+                      :convex/data]
+                     (fn [[x path v]]
+                       ($.test.eval/form ($.form/templ {'?path path
+                                                        '?v    v
+                                                        '?x    (dissoc x
+                                                                       (first path))}
+                                                       '(= '?v
+                                                           (get-in (assoc-in '?x
+                                                                             '?path
+                                                                             '?v)
+                                                                   '?path)))))))
+
+
+
+($.test.prop/deftest ^:recur assoc-in--sequential
+
+  ;; Tests `get-in` as well.
+
+  ;; TODO. Should `(assoc [] 0 :ok)` be legal? See https://github.com/Convex-Dev/convex/issues/94
+
+  ($.test.prop/check [:tuple
+                      [:and
+                       [:or
+                        :convex/list
+                        :convex/vector]
+                       [:fn
+                        #(pos? (count %))]]
+                      :convex/data]
+                     (fn [[coll v]]
+                       ($.test.eval/form ($.form/templ {'?coll coll
+                                                        '?k    (rand-int (count coll))
+                                                        '?v    v}
+                                                       '(= '?v
+                                                           (get (assoc '?coll
+                                                                       ?k
+                                                                       '?v)
+                                                                ?k)))))))
+
+
+;;;;;;;;;;
 
 
 ;; Creating collections
