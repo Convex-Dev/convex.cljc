@@ -119,6 +119,13 @@
       )
 
 
+  (->> '(defn bar [x] (inc x))
+       $/read-form
+       ($/eval ($.ctx/create-fake))
+       $.ctx/env
+       $/datafy
+       )
+
   
   (time
     (do

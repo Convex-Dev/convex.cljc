@@ -38,9 +38,9 @@
 
   ""
 
-  ^Context [^Context context]
+  ^Context [^Context ctx]
 
-  (.fork context))
+  (.fork ctx))
 
 
 ;;;;;;;;;; Querying context properties
@@ -48,22 +48,62 @@
 
 (defn exceptional
 
-  "Returns the current exceptional value attached to the given `context` if it is indeed
+  "Returns the current exceptional value attached to the given `ctx` if it is indeed
    in an exceptional state, nil otherwise."
 
-  [^Context context]
+  [^Context ctx]
 
-  (when (.isExceptional context)
-    (.getExceptional context)))
+  (when (.isExceptional ctx)
+    (.getExceptional ctx)))
+
+
+
+(defn env
+
+  ""
+
+  [^Context ctx]
+
+  (.getEnvironment ctx))
+
+
+
+(defn juice
+
+  ""
+
+  [^Context ctx]
+
+  (.getJuice ctx))
+
+
+
+(defn log
+
+  ""
+
+  [^Context ctx]
+
+  (.getLog ctx))
 
 
 
 (defn result
 
-  "Extracts the result (eg. after expansion, compilation, execution, ...) wrapped in a [[context]].
+  "Extracts the result (eg. after expansion, compilation, execution, ...) wrapped in a `ctx`.
   
-   Throws if the [[context]] is in an exceptional state. See [[exceptional]]."
+   Throws if the `ctx` is in an exceptional state. See [[exceptional]]."
 
-  [^Context context]
+  [^Context ctx]
 
-  (.getResult context))
+  (.getResult ctx))
+
+
+
+(defn state
+
+  ""
+
+  [^Context ctx]
+
+  (.getState ctx))
