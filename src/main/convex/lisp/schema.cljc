@@ -8,6 +8,7 @@
 
   (:require [clojure.string]
             [clojure.test.check.generators :as tc.gen]
+            [convex.lisp.form              :as $.form]
             [convex.lisp.hex               :as $.hex]))
 
 
@@ -28,8 +29,7 @@
 
    (assoc registry
           :convex/address      [:and
-                                {:gen/fmap   #(symbol (str "#"
-                                                           %))
+                                {:gen/fmap   $.form/address
                                  :gen/schema pos-int?}
                                 :symbol
                                 [:fn
@@ -37,7 +37,7 @@
                                    (boolean (re-matches #"#\d+"
                                                         (name sym))))]]
           :convex/blob         [:and
-                                {:gen/fmap   $.hex/to-blob-symbol
+                                {:gen/fmap   $.form/blob
                                  :gen/schema :convex/hexstring}
                                 :symbol
                                 [:fn
@@ -45,7 +45,7 @@
                                    (boolean (re-matches $.hex/regex
                                                         (name sym))))]]
 		  :convex/blob-8	   [:and
-								{:gen/fmap   $.hex/to-blob-symbol
+								{:gen/fmap   $.form/blob
                                  :gen/schema :convex/hexstring-8}
                                 :symbol
                                 [:fn
@@ -53,7 +53,7 @@
                                    (boolean (re-matches $.hex/regex-8
                                                         (name sym))))]]
 		  :convex/blob-32	   [:and
-								{:gen/fmap   $.hex/to-blob-symbol
+								{:gen/fmap   $.form/blob
                                  :gen/schema :convex/hexstring-32}
                                 :symbol
                                 [:fn
@@ -134,11 +134,8 @@
                                 [:not= '_]
                                 [:fn
                                  (fn [x]
-                                   (let [string (name x)]
-                                     (and (not (clojure.string/starts-with? string
-                                                                            "#"))
-                                          (not (clojure.string/starts-with? string
-                                                                            "0x")))))]]
+                                   (not (or ($.form/address? x)
+                                            ($.form/blob? x))))]]
           :convex/vector       [:vector [:ref :convex/data]])))
 
 

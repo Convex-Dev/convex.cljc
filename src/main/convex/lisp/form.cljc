@@ -4,17 +4,66 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.walk]))
+  (:require [clojure.string]
+            [clojure.walk]))
 
 
-;;;;;;;;;; Working with Clojure forms expressing Convex Lisp code
+;;;;;;;;;; Literal notations for Convex objects that do not map to Clojure but can be expressed as symbols
+
+
+(defn address
+
+  "Converts `number` into a symbol that ressembles a Convex address."
+
+  [number]
+
+  (symbol (str "#"
+               (long number))))
+
+
+
+(defn address?
+
+  "Is `x` a symbol that ressembles a Convex address?"
+
+  ;; TODO. Ensures is not a qualified symbol, if new scheme that allows addresses in symbols is kept.
+
+  [x]
+
+  (and (symbol? x)
+       (clojure.string/starts-with? (str x)
+                                    "#")))
+
+
+
+(defn blob
+
+  "Converts `hexstring` into a symbol that ressembles a Convex blob."
+
+  [hexstring]
+
+  (symbol (str "0x"
+               hexstring)))
+
+
+
+(defn blob?
+
+  "Is `x` a symbol that ressembles a Convex blob?"
+
+  [x]
+
+  (and (symbol? x)
+       (clojure.string/starts-with? (str x)
+                                    "0x")))
+
 
 
 (defn literal
 
   "Transforms some forms into their literal notation:
 
-   | Form | Literal symbol |
+   | Example form | Becomes |
    |---|---|
    | `(address #42)`| #42 |
    | `(blob \"11FF\")` | 0x11FF |"
@@ -26,17 +75,17 @@
            (first form)
       'address (let [arg (second form)]
                  (if (int? arg)
-                   (symbol (str "#"
-                                arg))
+                   (address arg)
                    form))
       'blob    (let [arg (second form)]
                  (if (string? arg)
-                   (symbol (str "0x"
-                                arg))
+                   (blob arg)
                    form))
       form)
     form))
 
+
+;;;;;;;;;; Miscellaneous
 
 
 (defn quoted

@@ -88,15 +88,13 @@
   convex.core.data.ABlob
 
     (datafy [this]
-      (symbol (str "0x"
-                   (.toHexString this))))
+      ($.form/blob (.toHexString this)))
 
   
   convex.core.data.Address
 
     (datafy [this]
-      (symbol (str "#"
-                   (.longValue this))))
+      ($.form/address (.longValue this)))
 
 
   convex.core.data.AList
