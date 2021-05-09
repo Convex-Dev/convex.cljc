@@ -1,18 +1,13 @@
 (ns convex.lisp.test.eval
 
-  "Evaling code in different ways, typically needed in generative tests.
-  
-   Unless specified otherwise, always returns a value as Clojure data."
+  "Bridge to [[convex.lisp.eval]] but uses [[ctx]] when no context is provided."
 
   {:author "Adam Helinski"}
 
   (:require [convex.lisp      :as $]
             [convex.lisp.ctx  :as $.ctx]
+            [convex.lisp.eval :as $.eval]
             [convex.lisp.form :as $.form]))
-
-
-(declare form
-         source)
 
 
 ;;;;;;;;;;
@@ -20,7 +15,7 @@
 
 (def ctx
 
-  ""
+  "Base context to use for testing."
 
   (->> '(def foo 42)
        $.form/source
@@ -31,32 +26,7 @@
 ;;;;;;;;;;
 
 
-(defn apply-one
-
-  "After quoting it, applies `x` to `form` on the CVM.
-  
-   Similar to [[form]]."
-
-  
-  ([form x]
-
-   (apply-one ctx
-              form
-              x))
-
-
-  ([ctx form x]
-
-   (convex.lisp.test.eval/form ($.ctx/fork ctx)
-                               (list form
-                                     ($.form/quoted x)))))
-
-
-
 (defn error?
-
-  "Evals the given form and returns true if an error occured and the context entered in an
-   exceptional state."
 
 
   ([form]
@@ -66,19 +36,13 @@
 
 
   ([ctx form]
-   
-   (->> form
-        $.form/source
-        $/read
-        ($.ctx/eval ($.ctx/fork ctx))
-        $.ctx/error
-        boolean)))
+
+   ($.eval/error? ctx
+                  form)))
 
 
 
 (defn form
-
-  "Evals the given `form` representing Convex Lisp code and returns the result as Clojure data."
 
 
   ([form]
@@ -89,14 +53,12 @@
 
   ([ctx form]
 
-   (source ($.ctx/fork ctx)
-           ($.form/source form))))
+   ($.eval/form ctx
+                form)))
 
 
 
 (defn form->ctx
-
-  "Like [[form]] but returns the ctx, not the result prepared as Clojure data."
 
 
   ([form]
@@ -107,16 +69,12 @@
 
   ([ctx form]
 
-   (->> form
-        $.form/source
-        $/read
-        ($.ctx/eval ($.ctx/fork ctx)))))
+   ($.eval/form->ctx ctx
+                     form)))
 
 
 
 (defn source
-
-  "Reads Convex Lisp source, evals it and converts the result to a Clojure value."
 
 
   ([source]
@@ -127,18 +85,12 @@
 
   ([ctx source]
 
-   (->> source
-        $/read
-        ($.ctx/eval ($.ctx/fork ctx))
-        $.ctx/result
-        $/datafy)))
+   ($.eval/source ctx
+                  source)))
 
 
 
 (defn source-error?
-
-  "Reads Convex Lisp source, evals it and returns true if an error occured and the context
-   entered in an exceptional state."
 
 
   ([source]
@@ -149,8 +101,5 @@
 
   ([ctx source]
 
-   (->> source
-        $/read
-        ($.ctx/eval ($.ctx/fork ctx))
-        $.ctx/error
-        boolean)))
+   ($.eval/source-error? ctx
+                         source)))

@@ -75,6 +75,9 @@ There are shortcuts and it is easy to write a helper function as needed. For ins
      convex.lisp/datafy)
 ```
 
+For development and testing, the [convex.lisp.eval](../main/src/main/convex/lisp/eval.clj) has convenient functions which remove that kind of boilerplate.
+
+
 ### Templating Convex Lisp code
 
 It is particularly convenient writing Convex Lisp code as Clojure data since Clojure data is so easy to work with. The following function provides basic templating, replacing requested symbols with requested values.

@@ -506,8 +506,8 @@
 
             (fn [x]
               (mult (suite-2 x
-                             ($.test.eval/apply-one form
-                                                    x))))))))
+                             ($.test.eval/form (list form
+                                                     ($.form/quoted x))))))))))
 
 
 

@@ -7,6 +7,7 @@
   (:require #?(:clj [convex.lisp                      :as $])
             [convex.lisp.ctx                          :as $.ctx]
             [convex.lisp.edn                          :as $.edn]
+            [convex.lisp.eval                         :as $.eval]
             [convex.lisp.form                         :as $.form]
             [convex.lisp.hex                          :as $.hex]
             [convex.lisp.schema                       :as $.schema]
