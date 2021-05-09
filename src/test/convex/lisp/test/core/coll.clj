@@ -1,6 +1,6 @@
 (ns convex.lisp.test.core.coll
 
-  ""
+  "Testing core functions operating on collections."
 
   {:author "Adam Helinski"}
 
@@ -80,22 +80,444 @@
 ;;;;;;;;;; `assoc`
 
 
+(defn- -assoc-fail
+
+  ;; Helper for evaling a failing call to `assoc`.
+
+
+  ([tuple]
+
+   (-assoc-fail $.form/quoted
+                tuple))
+
+
+  ([fmap-x [x k v]]
+
+   ($.test.eval/exceptional ($.form/templ {'?k k
+                                           '?v v
+                                           '?x (fmap-x x)}
+                                          '(assoc ?x
+                                                  '?k
+                                                  '?v)))))
+
+
+
+
+(defn mult-assoc
+
+  ""
+
+  [ctx]
+
+  ($.test.prop/checkpoint*
+
+    "Basic `assoc` properties common to all suported types"
+
+    ($.test.prop/mult*
+
+      "Contains key"
+      ($.test.eval/form ctx
+                        '(contains-key? x-2
+                                        k))
+
+      "Associating existing value does not change anything"
+      ($.test.eval/form ctx
+                        '(= x-2
+                            (assoc x-2
+                                   k
+                                   v)))
+
+      "Consistent with `assoc-in`"
+      ($.test.eval/form ctx
+                        '(= x-2
+                            (assoc-in x
+                                      [k]
+                                      v)))
+
+      "`get` returns the value"
+      ($.test.eval/form ctx
+                        '(= v
+                            (get x-2
+                                 k)))
+
+      "`get-in` returns the value"
+      ($.test.eval/form ctx
+                        '(= v
+                            (get-in x-2
+                                    [k])))
+      "Cannot be empty"
+      ($.test.eval/form ctx
+                        '(not (empty? x-2)))
+
+      "Count is at least 1"
+      ($.test.eval/form ctx
+                        '(>= (count x-2)
+                             1))
+
+      "`first` is not exceptional"
+      ($.test.eval/form ctx
+                        '(do
+                           (first x-2)
+                           true))
+
+      "`(nth 0)` is not exceptional"
+      ($.test.eval/form ctx
+                        '(do
+                           (nth x-2
+                                0)
+                           true))
+
+      "`last` is is not exceptional"
+      ($.test.eval/form ctx
+                        '(do
+                           (last x-2)
+                           true))
+
+      "`nth` to last item is not exceptional"
+      ($.test.eval/form ctx
+                        '(do
+                           (nth x-2
+                                (dec (count x-2)))
+                           true))
+
+      "`nth` is consistent with `first`"
+      ($.test.eval/form ctx
+                        '(= (first x-2)
+                            (nth x-2
+                                 0)))
+
+      "`nth` is consistent with `last`"
+      ($.test.eval/form ctx
+                        '(= (last x-2)
+                            (nth x-2
+                                 (dec (count x-2)))))
+
+      "`nth` is consistent with second"
+      ($.test.eval/form ctx
+                        '(if (>= (count x-2)
+                                 2)
+                           (= (second x-2)
+                              (nth x-2
+                                   1))
+                           true))
+      )))
+
+
+
+
+
+
+
+(defn mult-assoc-hashmap
+
+  ""
+
+  [ctx]
+
+  ($.test.prop/checkpoint*
+
+    "Using `hash-map` to rebuild map"
+    ($.test.eval/form ctx
+                      '(= x-2
+                          (apply hash-map
+                                 (reduce (fn [acc [k v]]
+                                           (conj acc
+                                                 k
+                                                 v))
+                                         []
+                                         x-2))))))
+
+
+
+(defn mult-assoc-kv+
+
+  ""
+
+  [ctx]
+
+  ($.test.prop/checkpoint*
+
+    "Using `keys` and various functions ensuring consistent order in maps (blob-map and hash-map)"
+    (let [ctx-2 ($.test.eval/form->ctx ctx
+                                      '(do
+                                         (def k+
+                                              (keys x-2))
+                                         (def kv+
+                                              (vec x-2))))]
+      ($.test.prop/mult*
+
+        "Keys contain new key"
+        ($.test.eval/form ctx-2
+                          '(contains-key? (set k+)
+                                          k))
+
+        "`vec` is consitent with `into`"
+        ($.test.eval/form ctx-2
+                          '(= kv+
+                              (into []
+                                    x-2)))
+
+        "Order of `keys` is consistent with `vec`"
+        ($.test.eval/form ctx-2
+                          '(= k+
+                              (map first
+                                   kv+)))
+
+        "Order of `values` is consistent with `vec`"
+        ($.test.eval/form ctx-2
+                          '(= (values x-2)
+                              (map second
+                                   kv+)))
+
+        "Order of `mapv` is consistent with `vec`"
+        ($.test.eval/form ctx-2
+                          '(= kv+
+                              (mapv identity
+                                    x-2)))
+        ))))
+
+
+
+(defn mult-assoc-dissoc
+
+  ""
+
+  [ctx]
+
+  ($.test.prop/checkpoint*
+
+    "Working with `dissoc` on a key that has been `assoc`iated (hence must exist)"
+    (let [ctx-2 ($.test.eval/form->ctx ctx
+                                       '(def x-3
+                                             (dissoc x-2
+                                                     k)))]
+      ($.test.prop/mult*
+
+        "Does not contain key anymore"
+        ($.test.eval/form ctx-2
+                          '(not (contains-key? x-3
+                                               k)))
+
+        "`get` returns nil"
+        ($.test.eval/form ctx-2
+                          '(nil? (get x-3
+                                      k)))
+
+        "`get` returns 'not-found' value"
+        ($.test.eval/form ctx-2
+                          '(= :convex-sentinel
+                              (get x-3
+                                   k
+                                   :convex-sentinel)))
+
+        "`get-in` returns nil"
+        ($.test.eval/form ctx-2
+                          '(nil? (get-in x-3
+                                         [k])))
+
+        ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/102
+        ;; "`get-in` returns 'not-found' value"
+        ;; ($.test.eval/form ctx-2
+        ;;                   '(= :convex-sentinel
+        ;;                       (get-in x-3
+        ;;                               [k]
+        ;;                               :convex-sentinel)))
+
+        "Keys do not removed key"
+        ($.test.eval/form ctx
+                          '(not (contains-key? (set (keys x-3))
+                                               k)))
+
+        "All other key-values are preserved"
+        ($.test.eval/form ctx
+                          '(reduce (fn [_acc k]
+                                     (or (= (get x-3
+                                                 k)
+                                            (get x-2
+                                                 k))
+                                         (reduced false)))
+                                   true
+                                   (keys x-3)))
+
+        "Equal to original or count updated as needed"
+        ($.test.eval/form ctx-2
+                          '(if (nil? x)
+                             (= {}
+                                x-3)
+                             (if (contains-key? x
+                                                k)
+                               (= (count x-3)
+                                  (dec (count x)))
+                               (= x
+                                  x-3))))
+
+        "Working with keys and key-values"
+        (mult-assoc-kv+ ctx)
+        ))))
+
+
+
+(defn mult-assoc-map-specific
+
+  ""
+
+  [ctx]
+
+  ($.test.prop/checkpoint*
+
+    "`assoc` properties for map-like types (blob-map, hash-map, and nil)"
+
+    ($.test.prop/mult*
+
+      "Count has been updated as needed"
+      ($.test.eval/form ctx
+                        '(= (count x-2)
+                            (+ (count x)
+                               (if (or (= x-2
+                                          x)
+                                       (contains-key? x
+                                                      k))
+                                 0
+                                 1))))
+
+      ;; TODO.Failing because of: https://github.com/Convex-Dev/convex/issues/103
+      ;;
+      ;; "Using `merge` to rebuild map"
+      ;; ($.test.eval/form ctx
+      ;;                   '(= x-2
+      ;;                       (merge (empty x-2)
+      ;;                              x-2)))
+      ;;
+      ;; "Merging original with new = new"
+      ;; ($.test.eval/form ctx
+      ;;                   '(= x-2
+      ;;                       (merge x
+      ;;                              x-2)))
+
+      "`conj` is consistent with `assoc`"
+      ($.test.eval/form ctx
+                        '(if (map? x)
+                           (= x-2
+                              (conj x
+                                    [k v]))
+                           true))
+
+      "`into` is consistent with `assoc`"
+      ($.test.eval/form ctx
+                        '(if (map? x)
+                           (= x-2
+                              (into x
+                                    [[k v]]))
+                           true))
+
+      "All other key-values are preserved"
+      ($.test.eval/form ctx
+                        '(reduce (fn [_acc k]
+                                   (or (= (get x
+                                               k)
+                                          (get x-2
+                                               k))
+                                       (reduced false)))
+                                 true
+                                 (keys (dissoc x
+                                               k))))
+
+      "Using `into` to rebuild map"
+      ($.test.eval/form ctx
+                        '(= x-2
+                            (into (empty x-2)
+                                  x-2)))
+      )))
+
+
+
+
+(defn mult-assoc-map
+
+  ""
+
+  [ctx]
+
+  ($.test.prop/and* (mult-assoc ctx)
+                    (mult-assoc-dissoc ctx)
+                    (mult-assoc-kv+ ctx)
+                    (mult-assoc-map-specific ctx)))
+
+
+
+
+
+(defn ctx-assoc
+
+  ;; Helper for evaling valid call to `assoc` followed by `get` with the same key.
+  ;;
+  ;; By default, `fmap-x` quotes `x`.
+
+
+  ([[x k v]]
+
+   (ctx-assoc x
+              k
+              v))
+
+
+  ([x k v]
+
+   (-> ($.form/templ {'?k k
+                      '?v v
+                      '?x x}
+                     '(do
+                        (def k
+                             '?k)
+                        (def v
+                             '?v)
+                        (def x
+                             ?x)
+                        (def x-2
+                             (assoc x
+                                    k
+                                    v))))
+       $.test.eval/form->ctx)))
+
+
+
+
 ($.test.prop/deftest ^:recur assoc--fail
 
   ($.test.prop/check [:tuple
-                      ($.test.schema/data-without #{:convex/list
+                      ($.test.schema/data-without #{:convex/blob-map
+                                                    :convex/list
                                                     :convex/map
                                                     :convex/nil
                                                     :convex/vector})
                       :convex/data
                       :convex/data]
-                     (fn [[x k v]]
-                       ($.test.eval/exceptional ($.form/templ {'?k k
-                                                               '?v v
-                                                               '?x x}
-                                                              '(assoc '?x
-                                                                      '?k
-                                                                      '?v))))))
+                     -assoc-fail))
+
+
+
+($.test.prop/deftest ^:recur assoc--blob-map
+
+  ($.test.prop/check [:tuple
+                      [:= '(blob-map)]
+                      :convex/blob
+                      :convex/data]
+                     (comp mult-assoc-map
+                           ctx-assoc)))
+
+
+
+#_($.test.prop/deftest ^:recor assoc--blob-map-fail
+
+  ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/101
+
+  ($.test.prop/check [:tuple
+                      [:= '(blob-map)]
+                      ($.test.schema/data-without #{:convex/address  ;; Specialized blob
+                                                    :convex/blob})
+                      :convex/data]
+                     (partial -assoc-fail
+                              identity)))
 
 
 
@@ -104,21 +526,28 @@
   ;; Tests `get` as well, and with nil besides maps.
 
   ($.test.prop/check [:tuple
-                      [:or
-                       :convex/map
-                       :convex/nil]
+                      :convex/map
                       :convex/data
                       :convex/data]
                      (fn [[x k v]]
-                       ($.test.eval/form ($.form/templ {'?k k
-                                                        '?v v
-                                                        '?x x}
-                                                       '(= '?v
-                                                           (get (assoc '?x
-                                                                       '?k
-                                                                       '?v)
-                                                                '?k)))))))
+                       (let [ctx (ctx-assoc ($.form/quoted x)
+                                            k
+                                            v)]
+                         ($.test.prop/and* (mult-assoc-map ctx)
+                                           (mult-assoc-hashmap ctx))))))
 
+
+
+($.test.prop/deftest ^:recur assoc--nil
+
+  ;; Tests `get` as well, and with nil besides maps.
+
+  ($.test.prop/check [:tuple
+                      :convex/nil
+                      :convex/data
+                      :convex/data]
+                     (comp mult-assoc-map
+                           ctx-assoc)))
 
 
 
@@ -137,14 +566,11 @@
                         #(pos? (count %))]]
                       :convex/data]
                      (fn [[coll v]]
-                       ($.test.eval/form ($.form/templ {'?coll coll
-                                                        '?k    (rand-int (count coll))
-                                                        '?v    v}
-                                                       '(= '?v
-                                                           (get (assoc '?coll
-                                                                       ?k
-                                                                       '?v)
-                                                                ?k)))))))
+                       (mult-assoc (ctx-assoc ($.form/quoted coll)
+                                              (rand-int (count coll))
+                                              v)))))
+
+
 
 
 
@@ -165,13 +591,7 @@
                                   (<= 0
                                       k
                                       (count coll)))))]]
-                     (fn [[coll k v]]
-                       ($.test.eval/exceptional ($.form/templ {'?coll coll
-                                                               '?k    k
-                                                               '?v    v}
-                                                              '(assoc '?coll
-                                                                      '?k
-                                                                      '?v))))))
+                     -assoc-fail))
 
 
 ;;;;;;;;;; `assoc-in`
@@ -317,14 +737,14 @@
 ; contains-key?
 ; get
 ; get-in
-; keys
-
-; dissoc
 
 
 
 ;; Map operations
 
+
+; dissoc
+; keys
 ; merge
 ; values
 
@@ -366,4 +786,3 @@
 ; intersection
 ; subset
 ; union
-

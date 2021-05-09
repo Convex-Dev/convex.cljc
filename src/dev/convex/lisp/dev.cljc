@@ -131,7 +131,8 @@
     (do
       ;(malli/validate [:not [:enum 1 2]]
       ;                3
-      (malli.gen/generate [:and
+      (malli.gen/generate [:cat [:+ [:repeat {:min 2 :max 2} :int]] :boolean]
+        #_[:and
                            {:registry {::data    [:or
                                                   ::int
                                                   ::vector]
