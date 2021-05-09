@@ -13,7 +13,8 @@
             [convex.lisp.test.util           :as $.test.util]))
 
 
-(declare like-clojure)
+(declare fail
+         like-clojure)
 
 
 ;;;;;;;;;; Defining generative tests
@@ -59,6 +60,44 @@
 ;;;;;;;;;; Helpers for writing properties
 
 
+(defn- -and*
+
+  ;; Helper for [[and*]]
+
+  [form+]
+
+  (let [[form
+         & form-2+] form+]
+    (if form-2+
+      `(let [x# ~form]
+         (if (true? x#)
+           ~(-and* form-2+)
+           x#))
+      form)))
+
+
+
+(defmacro and*
+
+  "Useful for testing different [[checkpoint]]s and failing fast.
+  
+   Behaves like Clojure's `and` but only `true` is a truthy value.
+  
+   ```clojure
+   (and* (checkpoint* \"Property a\"
+                      (prop-a ...))
+         (checkpoint* \"Property b\"
+                      (prop-b ...)))
+   ```"
+
+  [& form+]
+
+  (if (seq form+)
+    (-and* form+)
+    true))
+
+
+
 (defn check
 
   "Returns a property generating `schema` against `f`."
@@ -70,21 +109,71 @@
 
 
 
-(defn create-data
+(defn checkpoint
 
-  "Returns a property checking that creating data using `form` (a variadic CVM function) produces
-   the same result as in Clojure using `f-clojure`."
+  "Meant to be used inside a property.
 
-  [form f-clojure]
+   When `f` does not return `true`, this function use [[fail]] with the
+   given beacon.
 
-  (check [:vector
-          :convex/data]
-         (fn [x]
-           ($.test.util/eq (apply f-clojure
-           	                	  x)
-                           ($.test.eval/form (list* form
-                                                    (map $.form/quoted
-                                                         x)))))))
+   If `f` returns a failure, using [[fail]] allows beacons to be composed, allowing
+   to track exactly what failed in case of nested checkpoints.
+
+   Also catches and document exceptions using [[fail]].
+
+   Any result other than `true`, `false`, or a failure akin to what [[fail]] returns will
+   result in an exception.
+
+   ```clojure
+   (checkpoint \"Should be greather than threshold\"
+               (fn [] (> x threshold)))
+   ```
+
+   See macro variant [[checkpoint*]]."
+
+
+  ([[beacon f]]
+
+   (checkpoint beacon
+               f))
+
+
+  ([beacon f]
+
+   (try
+     (let [x (f)]
+       (cond
+         (true? x)                    true
+         (false? x)                   (fail beacon)
+         (satisfies? tc.result/Result
+                     x)               (fail x
+                                            beacon)
+         (instance? Throwable
+                    x)                x
+         :else                        (throw (ex-info "Property multiplexing does not understand returned value"
+                                                      {::result x}))))
+     (catch Throwable e
+       (fail [beacon
+              e])))))
+
+
+
+(defmacro checkpoint*
+
+  "See [[checkpoint]]
+  
+   ```clojure
+   (checkpoint*
+
+      \"Testing something\"
+
+      (something :a :b :c))
+   ```"
+
+  [beacon form]
+
+  `(checkpoint ~beacon
+               (fn [] ~form)))
 
 
 
@@ -144,22 +233,10 @@
 
   [prop-pair+]
 
-  (reduce (fn [_acc [checkpoint f]]
-            (try
-              (let [x (f)]
-                (cond
-                  (true? x)                    true
-                  (false? x)                   (reduced (fail checkpoint))
-                  (satisfies? tc.result/Result
-                              x)               (reduced (fail x
-                                                              checkpoint))
-                  :else                        (throw (ex-info "Property multiplexing does not understand returned value"
-                                                               {::result x}))))
-              (catch Throwable e
-                (reduced (ex-info (str "During: "
-                                       checkpoint)
-                                  {}
-                                  e)))))
+  (reduce (fn [_acc prop-pair]
+            (let [x (checkpoint prop-pair)]
+              (or (true? x)
+                  (reduced x))))
           true
           prop-pair+))
 
@@ -311,6 +388,24 @@
                 [:vector
                  {:min 1}
                  :convex/number]))
+
+
+
+(defn create-data
+
+  "Returns a property checking that creating data using `form` (a variadic CVM function) produces
+   the same result as in Clojure using `f-clojure`."
+
+  [form f-clojure]
+
+  (check [:vector
+          :convex/data]
+         (fn [x]
+           ($.test.util/eq (apply f-clojure
+           	                	  x)
+                           ($.test.eval/form (list* form
+                                                    (map $.form/quoted
+                                                         x)))))))
 
 
 
