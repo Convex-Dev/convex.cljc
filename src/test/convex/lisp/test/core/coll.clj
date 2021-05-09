@@ -93,12 +93,12 @@
 
   ([fmap-x [x k v]]
 
-   ($.test.eval/exceptional ($.form/templ {'?k k
-                                           '?v v
-                                           '?x (fmap-x x)}
-                                          '(assoc ?x
-                                                  '?k
-                                                  '?v)))))
+   ($.test.eval/error? ($.form/templ {'?k k
+                                      '?v v
+                                      '?x (fmap-x x)}
+                                     '(assoc ?x
+                                             '?k
+                                             '?v)))))
 
 
 
@@ -323,13 +323,13 @@
         ;;                               [k]
         ;;                               :convex-sentinel)))
 
-        "Keys do not removed key"
-        ($.test.eval/form ctx
+        "Keys do not contain key"
+        ($.test.eval/form ctx-2
                           '(not (contains-key? (set (keys x-3))
                                                k)))
 
         "All other key-values are preserved"
-        ($.test.eval/form ctx
+        ($.test.eval/form ctx-2
                           '(reduce (fn [_acc k]
                                      (or (= (get x-3
                                                  k)
@@ -612,12 +612,12 @@
                       :convex/scalar
                       :convex/data]
                      (fn [[x path v]]
-                       ($.test.eval/exceptional ($.form/templ {'?path path
-                                                               '?v    v
-                                                               '?x    x}
-                                                              '(assoc-in '?x
-                                                                         '?path
-                                                                         '?v))))))
+                       ($.test.eval/error? ($.form/templ {'?path path
+                                                          '?v    v
+                                                          '?x    x}
+                                                         '(assoc-in '?x
+                                                                    '?path
+                                                                    '?v))))))
 
 
 
@@ -636,12 +636,12 @@
                       :convex.test/seqpath
                       :convex/data]
                      (fn [[x path v]]
-                       ($.test.eval/exceptional ($.form/templ {'?path path
-                                                               '?v    v
-                                                               '?x    x}
-                                                              '(assoc-in '?x
-                                                                         '?path
-                                                                         '?v))))))
+                       ($.test.eval/error? ($.form/templ {'?path path
+                                                          '?v    v
+                                                          '?x    x}
+                                                         '(assoc-in '?x
+                                                                    '?path
+                                                                    '?v))))))
 
 
 

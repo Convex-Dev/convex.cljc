@@ -7,12 +7,16 @@
    This namespace provide all needed utilities for such endeavours as well few functions for
    querying useful properties, such as [[juice]].
   
-   When code is handled by a context (expansion, compilation, or any form of execution), a new context
-   is returned. This new context provides either a successful [[result]] or gracefully fails (see
-   [[exceptional]]). Also, optional arguments (such as compiled code) are fetched using [[result]] when
-   not explicitly provided.
-  
-   All objects can be datafied with [[convex.lisp/datafy]] for easy consumption from Clojure."
+   A context is mostly immutable, albeit some aspects such as juice tracking are mutable for performance
+   reason. Operations that modifies a context (expansion, compilation, or any form of execution) returns
+   a new instance and the old one should be discarded
+
+   Such operations consume juice and lead either to a successful [[result]] or to an [[error]]. Functions that
+   do not return a context (eg. [[env]], [[juice]]) do not consume juice.
+
+   Result objects (Convex objects) can be datafied with [[convex.lisp/datafy]] for easy consumption from Clojure.
+
+   Duplicating a context with [[fork]] is cheap."
 
   {:author "Adam Helinski"}
 
@@ -53,7 +57,7 @@
 
 (defn fork
 
-  "Duplicates the given context.
+  "Duplicates the given context (very cheap).
 
    Any operation on the returned copy has no impact on the original context."
 
@@ -75,9 +79,9 @@
 
 
 
-(defn exceptional
+(defn error
 
-  "Returns the current exceptional value attached to the given `ctx` if it is indeed
+  "Returns the current error value attached to the given `ctx` if it is indeed
    in an exceptional state, nil otherwise."
 
   [^Context ctx]
@@ -111,7 +115,7 @@
 
   "Extracts the result (eg. after expansion, compilation, execution, ...) wrapped in a `ctx`.
   
-   Throws if the `ctx` is in an exceptional state. See [[exceptional]]."
+   Throws if the `ctx` is in an exceptional state. See [[error]]."
 
   [^Context ctx]
 

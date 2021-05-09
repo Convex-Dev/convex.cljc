@@ -18,6 +18,19 @@
 ;;;;;;;;;;
 
 
+(def ctx
+
+  ""
+
+  (->> '(def foo 42)
+       $.form/source
+       $/read
+       ($.ctx/eval ($.ctx/create-fake))))
+
+
+;;;;;;;;;;
+
+
 (defn apply-one
 
   "After quoting it, applies `x` to `form` on the CVM.
@@ -27,28 +40,29 @@
   
   ([form x]
 
-   (apply-one ($.ctx/create-fake)
+   (apply-one ctx
               form
               x))
 
 
   ([ctx form x]
 
-   (convex.lisp.test.eval/form ctx
+   (convex.lisp.test.eval/form ($.ctx/fork ctx)
                                (list form
                                      ($.form/quoted x)))))
 
 
 
-(defn exceptional
+(defn error?
 
-  "Evals the given form and returns a boolean indicating if the result is exceptional or not."
+  "Evals the given form and returns true if an error occured and the context entered in an
+   exceptional state."
 
 
   ([form]
 
-   (exceptional ($.ctx/create-fake)
-                form))
+   (error? ctx
+           form))
 
 
   ([ctx form]
@@ -56,8 +70,9 @@
    (->> form
         $.form/source
         $/read
-        ($.ctx/eval ctx)
-        $.ctx/exceptional)))
+        ($.ctx/eval ($.ctx/fork ctx))
+        $.ctx/error
+        boolean)))
 
 
 
@@ -68,13 +83,13 @@
 
   ([form]
 
-   (convex.lisp.test.eval/form ($.ctx/create-fake)
+   (convex.lisp.test.eval/form ctx
                                form))
 
 
   ([ctx form]
 
-   (source ctx
+   (source ($.ctx/fork ctx)
            ($.form/source form))))
 
 
@@ -86,7 +101,7 @@
 
   ([form]
 
-   (form->ctx ($.ctx/create-fake)
+   (form->ctx ctx
               form))
 
 
@@ -95,7 +110,7 @@
    (->> form
         $.form/source
         $/read
-        ($.ctx/eval ctx))))
+        ($.ctx/eval ($.ctx/fork ctx)))))
 
 
 
@@ -106,7 +121,7 @@
 
   ([source]
 
-   (convex.lisp.test.eval/source ($.ctx/create-fake)
+   (convex.lisp.test.eval/source ctx
                                  source))
 
 
@@ -114,26 +129,28 @@
 
    (->> source
         $/read
-        ($.ctx/eval ctx)
+        ($.ctx/eval ($.ctx/fork ctx))
         $.ctx/result
         $/datafy)))
 
 
 
-(defn source-exceptional
+(defn source-error?
 
-  "Reads Convex Lisp source, evals it and returns the resulting exceptional object."
+  "Reads Convex Lisp source, evals it and returns true if an error occured and the context
+   entered in an exceptional state."
 
 
   ([source]
 
-   (source-exceptional ($.ctx/create-fake)
-                       source))
+   (source-error? ctx
+                  source))
 
 
   ([ctx source]
 
    (->> source
         $/read
-        ($.ctx/eval ctx)
-        $.ctx/exceptional)))
+        ($.ctx/eval ($.ctx/fork ctx))
+        $.ctx/error
+        boolean)))

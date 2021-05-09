@@ -82,7 +82,7 @@
   ;; TODO. Must be fixed, see #70.
 
   ($.test.prop/check ($.test.schema/E-notation :convex/double)
-                     $.test.eval/source-exceptional))
+                     $.test.eval/source-error?))
 
 
 
