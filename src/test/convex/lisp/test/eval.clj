@@ -4,23 +4,11 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.lisp      :as $]
-            [convex.lisp.ctx  :as $.ctx]
-            [convex.lisp.eval :as $.eval]
-            [convex.lisp.form :as $.form]))
+  (:require [convex.lisp.ctx  :as $.ctx]
+            [convex.lisp.eval :as $.eval]))
 
 
-;;;;;;;;;;
-
-
-(def ctx
-
-  "Base context to use for testing."
-
-  (->> '(def foo 42)
-       $.form/source
-       $/read
-       ($.ctx/eval ($.ctx/create-fake))))
+(declare ctx)
 
 
 ;;;;;;;;;;
@@ -103,3 +91,30 @@
 
    ($.eval/source-error? ctx
                          source)))
+
+
+;;;;;;;;;;
+
+
+(def ctx
+
+  "Base context to use for testing."
+
+  (-> ($.ctx/create-fake)
+      ($.eval/form->ctx
+        '(call *registry*
+               (cns-update '$
+                           (deploy
+                             '(do
+                                (defn every?
+
+                                  [f coll]
+
+                                  (boolean (reduce (fn [_acc x]
+                                                     (or (f x)
+                                                         (reduced false)))
+                                                   true
+                                                   coll)))
+                                )))))
+      ($.eval/form->ctx
+        '(import $ :as $))))

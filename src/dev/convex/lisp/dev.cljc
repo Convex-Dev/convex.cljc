@@ -19,6 +19,7 @@
                       [convex.lisp.test.core.fn]
                       [convex.lisp.test.core.math]
                       [convex.lisp.test.core.pred]
+                      [convex.lisp.test.core.set]
                       [convex.lisp.test.data]
                       [convex.lisp.test.edn]
                       [convex.lisp.test.eval]
