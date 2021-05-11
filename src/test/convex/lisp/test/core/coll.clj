@@ -231,6 +231,33 @@
                               (nth x-2
                                    1))
                            true))
+
+      "`next` is consistent with `first`, `second`, and `count`"
+      ($.test.eval/form ctx
+                        '(loop [x-3 x-2]
+                           (let [n-x-3 (count x-3)]
+                             (if (zero? n-x-3)
+                               true
+                               (let [x-3-next (next x-3)]
+                                 (if (> n-x-3
+                                        1)
+                                   (if (and (= (count x-3-next)
+                                               (dec n-x-3))
+                                            (= (second x-3)
+                                               (first x-3-next)))
+                                     (recur x-3-next)
+                                     false)
+                                   (if (nil? x-3-next)
+                                     (recur x-3-next)
+                                     false)))))))
+
+      "Using `concat` to rebuild collection as a vector"
+      ($.test.eval/form ctx
+                        '(let [as-vec (vec x-2)]
+                           (= as-vec
+                              (apply concat
+                                     (map vector
+                                          x-2)))))
       )))
 
 
