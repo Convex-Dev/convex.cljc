@@ -137,194 +137,6 @@
 ;;;;;;;;;; Main - Different suites targeting different collection capabilities
 
 
-(defn suite-main
-
-  "See checkpoint."
-
-  [ctx]
-
-  ($.test.prop/checkpoint*
-
-    "Suite that all collections must pass."
-
-    ($.test.prop/mult*
-
-      "Contains key"
-      ($.test.eval/form ctx
-                        '(contains-key? x-2
-                                        k))
-
-      "Associating existing value does not change anything"
-      ($.test.eval/form ctx
-                        '(= x-2
-                            (assoc x-2
-                                   k
-                                   v)))
-
-      "Consistent with `assoc-in`"
-      ($.test.eval/form ctx
-                        '(= x-2
-                            (assoc-in x
-                                      [k]
-                                      v)))
-
-      "`get` returns the value"
-      ($.test.eval/form ctx
-                        '(= v
-                            (get x-2
-                                 k)))
-
-      "`get-in` returns the value"
-      ($.test.eval/form ctx
-                        '(= v
-                            (get-in x-2
-                                    [k])))
-      "Cannot be empty"
-      ($.test.eval/form ctx
-                        '(not (empty? x-2)))
-
-      "Count is at least 1"
-      ($.test.eval/form ctx
-                        '(>= (count x-2)
-                             1))
-
-      "`first` is not exceptional"
-      ($.test.eval/form ctx
-                        '(do
-                           (first x-2)
-                           true))
-
-      "`(nth 0)` is not exceptional"
-      ($.test.eval/form ctx
-                        '(do
-                           (nth x-2
-                                0)
-                           true))
-
-      "`last` is is not exceptional"
-      ($.test.eval/form ctx
-                        '(do
-                           (last x-2)
-                           true))
-
-      "`nth` to last item is not exceptional"
-      ($.test.eval/form ctx
-                        '(do
-                           (nth x-2
-                                (dec (count x-2)))
-                           true))
-
-      "`nth` is consistent with `first`"
-      ($.test.eval/form ctx
-                        '(= (first x-2)
-                            (nth x-2
-                                 0)))
-
-      "`nth` is consistent with `last`"
-      ($.test.eval/form ctx
-                        '(= (last x-2)
-                            (nth x-2
-                                 (dec (count x-2)))))
-
-      "`nth` is consistent with second"
-      ($.test.eval/form ctx
-                        '(if (>= (count x-2)
-                                 2)
-                           (= (second x-2)
-                              (nth x-2
-                                   1))
-                           true))
-
-      "Using `concat` to rebuild collection as a vector"
-      ($.test.eval/form ctx
-                        '(let [as-vec (vec x-2)]
-                           (= as-vec
-                              (apply concat
-                                     (map vector
-                                          x-2)))))
-
-      "`cons`"
-      (let [ctx-2 ($.test.eval/form->ctx ctx
-                                         '(def -cons
-                                               (cons (first x-2)
-                                                     x-2)))]
-        ($.test.prop/mult*
-          
-          "Produces a list"
-          ($.test.eval/form ctx-2
-                            '(list? -cons))
-
-          "Count is coherent compared to the consed collection"
-          ($.test.eval/form ctx-2
-                            '(= (count -cons)
-                                (inc (count x-2))))
-
-          "First elements are consistent with setup"
-          ($.test.eval/form ctx-2
-                            '(= (first -cons)
-                                (second -cons)
-                                (first x-2)))
-
-          "Consistent with `next`"
-          ($.test.eval/form ctx-2
-                            '(= (vec (next -cons))
-                                (vec x-2)))))
-
-      "`cons` repeatedly reverse a collection"
-      ($.test.eval/form ctx
-                        '(= (into (list)
-                                  x-2)
-                            (reduce (fn [acc x]
-                                      (cons x
-                                            acc))
-                                    (empty x-2)
-                                    x-2)))
-
-      "`next` preserves types of lists, returns vectors for other collections"
-      ($.test.eval/form ctx
-                        '(let [-next (next x-2)]
-                           (if (nil? -next)
-                             true
-                             (if (list? x-2)
-                               (list? -next)
-                               (vector? -next)))))
-
-      "`next` is consistent with `first`, `second`, and `count`"
-      ($.test.eval/form ctx
-                        '(loop [x-3 x-2]
-                           (let [n-x-3 (count x-3)]
-                             (if (zero? n-x-3)
-                               true
-                               (let [x-3-next (next x-3)]
-                                 (if (> n-x-3
-                                        1)
-                                   (if (and (= (count x-3-next)
-                                               (dec n-x-3))
-                                            (= (second x-3)
-                                               (first x-3-next)))
-                                     (recur x-3-next)
-                                     false)
-                                   (if (nil? x-3-next)
-                                     (recur x-3-next)
-                                     false)))))))
-
-      "`empty?` is consistent with `count?`"
-      ($.test.eval/form ctx
-                        '(let [-count-pos? (> (count x-2)
-                                              0)
-                               -empty?     (empty? x-2)]
-                           (if -empty?
-                             (not -count-pos?)
-                             -count-pos?)))
-
-      "`empty?` is consistent with `empty`"
-      ($.test.eval/form ctx
-                        '(empty? (empty x-2)))
-
-      )))
-
-
-
 (defn suite-dissoc
 
   "See checkpoint.
@@ -552,6 +364,256 @@
                                         x-2
                                         arg+)))))
        ))))
+
+
+
+(defn suite-main-mono
+
+  "See checkpoint."
+
+  [ctx]
+
+  ($.test.prop/checkpoint*
+
+    "Suite that all collections must pass (having exactly 1 item)."
+
+    (let [ctx-2 ($.test.eval/form->ctx ctx
+                                       '(def x-3
+                                             (conj (empty x-2)
+                                                   (first x-2))))]
+      ($.test.prop/mult*
+
+        "`cons`"
+        ($.test.eval/form ctx-2
+                          '(= (list 42
+                                    (first x-3))
+                              (cons 42
+                                    x-3)))
+
+        "`count` returns 1"
+        ($.test.eval/form ctx-2
+                          '(= 1
+                              (count x-3)))
+
+        "Not empty"
+        ($.test.eval/form ctx-2
+                          '(not (empty? x-3)))
+
+        "`first` and `last` are equivalent, consistent with `nth`"
+        ($.test.eval/form ctx-2
+                          '(= (first x-3)
+                              (last x-3)
+                              (nth x-3
+                                   0)))
+
+        "`next` returns nil"
+        ($.test.eval/form ctx-2
+                          '(nil? (next x-3)))
+
+        "`second` is exceptional"
+        ($.test.eval/error? ctx-2
+                            '(second x-3))
+
+        ))))
+
+
+
+(defn suite-main-poly
+
+  "See checkpoint."
+
+  [ctx]
+
+  ($.test.prop/checkpoint*
+
+    "Suite that all collections must pass (having >= 1 item)."
+
+    ($.test.prop/mult*
+
+      "Contains key"
+      ($.test.eval/form ctx
+                        '(contains-key? x-2
+                                        k))
+
+      "Associating existing value does not change anything"
+      ($.test.eval/form ctx
+                        '(= x-2
+                            (assoc x-2
+                                   k
+                                   v)))
+
+      "Consistent with `assoc-in`"
+      ($.test.eval/form ctx
+                        '(= x-2
+                            (assoc-in x
+                                      [k]
+                                      v)))
+
+      "`get` returns the value"
+      ($.test.eval/form ctx
+                        '(= v
+                            (get x-2
+                                 k)))
+
+      "`get-in` returns the value"
+      ($.test.eval/form ctx
+                        '(= v
+                            (get-in x-2
+                                    [k])))
+      "Cannot be empty"
+      ($.test.eval/form ctx
+                        '(not (empty? x-2)))
+
+      "Count is at least 1"
+      ($.test.eval/form ctx
+                        '(>= (count x-2)
+                             1))
+
+      "`first` is not exceptional"
+      ($.test.eval/form ctx
+                        '(do
+                           (first x-2)
+                           true))
+
+      "`(nth 0)` is not exceptional"
+      ($.test.eval/form ctx
+                        '(do
+                           (nth x-2
+                                0)
+                           true))
+
+      "`last` is is not exceptional"
+      ($.test.eval/form ctx
+                        '(do
+                           (last x-2)
+                           true))
+
+      "`nth` to last item is not exceptional"
+      ($.test.eval/form ctx
+                        '(do
+                           (nth x-2
+                                (dec (count x-2)))
+                           true))
+
+      "`nth` is consistent with `first`"
+      ($.test.eval/form ctx
+                        '(= (first x-2)
+                            (nth x-2
+                                 0)))
+
+      "`nth` is consistent with `last`"
+      ($.test.eval/form ctx
+                        '(= (last x-2)
+                            (nth x-2
+                                 (dec (count x-2)))))
+
+      "`nth` is consistent with second"
+      ($.test.eval/form ctx
+                        '(if (>= (count x-2)
+                                 2)
+                           (= (second x-2)
+                              (nth x-2
+                                   1))
+                           true))
+
+      "Using `concat` to rebuild collection as a vector"
+      ($.test.eval/form ctx
+                        '(let [as-vec (vec x-2)]
+                           (= as-vec
+                              (apply concat
+                                     (map vector
+                                          x-2)))))
+
+      "`cons`"
+      (let [ctx-2 ($.test.eval/form->ctx ctx
+                                         '(def -cons
+                                               (cons (first x-2)
+                                                     x-2)))]
+        ($.test.prop/mult*
+          
+          "Produces a list"
+          ($.test.eval/form ctx-2
+                            '(list? -cons))
+
+          "Count is coherent compared to the consed collection"
+          ($.test.eval/form ctx-2
+                            '(= (count -cons)
+                                (inc (count x-2))))
+
+          "First elements are consistent with setup"
+          ($.test.eval/form ctx-2
+                            '(= (first -cons)
+                                (second -cons)
+                                (first x-2)))
+
+          "Consistent with `next`"
+          ($.test.eval/form ctx-2
+                            '(= (vec (next -cons))
+                                (vec x-2)))))
+
+      "`cons` repeatedly reverse a collection"
+      ($.test.eval/form ctx
+                        '(= (into (list)
+                                  x-2)
+                            (reduce (fn [acc x]
+                                      (cons x
+                                            acc))
+                                    (empty x-2)
+                                    x-2)))
+
+      "`next` preserves types of lists, returns vectors for other collections"
+      ($.test.eval/form ctx
+                        '(let [-next (next x-2)]
+                           (if (nil? -next)
+                             true
+                             (if (list? x-2)
+                               (list? -next)
+                               (vector? -next)))))
+
+      "`next` is consistent with `first`, `second`, and `count`"
+      ($.test.eval/form ctx
+                        '(loop [x-3 x-2]
+                           (let [n-x-3 (count x-3)]
+                             (if (zero? n-x-3)
+                               true
+                               (let [x-3-next (next x-3)]
+                                 (if (> n-x-3
+                                        1)
+                                   (if (and (= (count x-3-next)
+                                               (dec n-x-3))
+                                            (= (second x-3)
+                                               (first x-3-next)))
+                                     (recur x-3-next)
+                                     false)
+                                   (if (nil? x-3-next)
+                                     (recur x-3-next)
+                                     false)))))))
+
+      "`empty?` is consistent with `count?`"
+      ($.test.eval/form ctx
+                        '(let [-count-pos? (> (count x-2)
+                                              0)
+                               -empty?     (empty? x-2)]
+                           (if -empty?
+                             (not -count-pos?)
+                             -count-pos?)))
+
+      "`empty?` is consistent with `empty`"
+      ($.test.eval/form ctx
+                        '(empty? (empty x-2)))
+
+      )))
+
+
+
+(defn suite-main
+
+  "Gathering [[suite-main-mono]] and [[suite-main-poly]]."
+
+  [ctx]
+
+  ($.test.prop/and* (suite-main-poly ctx)
+                    (suite-main-mono ctx)))
 
 
 
