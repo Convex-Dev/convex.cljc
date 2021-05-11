@@ -5,8 +5,11 @@
    Articulates essentially 2 kind of tests:
 
    - Regular function calls
-   - Whole suites that some collections must pass, testing for consistency
-     between collection functions."
+   - \"Main\" suites that some collections must pass, testing for consistency
+     between collection functions.
+  
+   Main suites expect a context that has been previously prepared with `ctx-main` and derive an extensive series of related
+   and less related tests around `assoc`."
 
   {:author "Adam Helinski"}
 
@@ -240,6 +243,52 @@
                                      (map vector
                                           x-2)))))
 
+      "`cons`"
+      (let [ctx-2 ($.test.eval/form->ctx ctx
+                                         '(def -cons
+                                               (cons (first x-2)
+                                                     x-2)))]
+        ($.test.prop/mult*
+          
+          "Produces a list"
+          ($.test.eval/form ctx-2
+                            '(list? -cons))
+
+          "Count is coherent compared to the consed collection"
+          ($.test.eval/form ctx-2
+                            '(= (count -cons)
+                                (inc (count x-2))))
+
+          "First elements are consistent with setup"
+          ($.test.eval/form ctx-2
+                            '(= (first -cons)
+                                (second -cons)
+                                (first x-2)))
+
+          "Consistent with `next`"
+          ($.test.eval/form ctx-2
+                            '(= (vec (next -cons))
+                                (vec x-2)))))
+
+      "`cons` repeatedly reverse a collection"
+      ($.test.eval/form ctx
+                        '(= (into (list)
+                                  x-2)
+                            (reduce (fn [acc x]
+                                      (cons x
+                                            acc))
+                                    (empty x-2)
+                                    x-2)))
+
+      "`next` preserves types of lists, returns vectors for other collections"
+      ($.test.eval/form ctx
+                        '(let [-next (next x-2)]
+                           (if (nil? -next)
+                             true
+                             (if (list? x-2)
+                               (list? -next)
+                               (vector? -next)))))
+
       "`next` is consistent with `first`, `second`, and `count`"
       ($.test.eval/form ctx
                         '(loop [x-3 x-2]
@@ -271,6 +320,7 @@
       "`empty?` is consistent with `empty`"
       ($.test.eval/form ctx
                         '(empty? (empty x-2)))
+
       )))
 
 
@@ -613,7 +663,7 @@
 
 (defn suite-sequential
 
-  ""
+  "See checkpoint."
 
   [ctx]
 
@@ -636,6 +686,22 @@
                                               (nth x-2
                                                    i)))
                                          x-2))
+
+      "Rebuilding sequential using `assoc` and `apply`"
+      ($.test.eval/form ctx
+                        '(= x-2
+                            (apply assoc
+                                   x-2
+                                   (loop [acc []
+                                          idx (dec (count x-2))]
+                                     (if (< idx
+                                            0)
+                                       acc
+                                       (recur (conj acc
+                                                    idx
+                                                    (get x-2
+                                                         idx))
+                                              (dec idx)))))))
       )))
 
 
