@@ -232,6 +232,14 @@
                                    1))
                            true))
 
+      "Using `concat` to rebuild collection as a vector"
+      ($.test.eval/form ctx
+                        '(let [as-vec (vec x-2)]
+                           (= as-vec
+                              (apply concat
+                                     (map vector
+                                          x-2)))))
+
       "`next` is consistent with `first`, `second`, and `count`"
       ($.test.eval/form ctx
                         '(loop [x-3 x-2]
@@ -251,13 +259,18 @@
                                      (recur x-3-next)
                                      false)))))))
 
-      "Using `concat` to rebuild collection as a vector"
+      "`empty?` is consistent with `count?`"
       ($.test.eval/form ctx
-                        '(let [as-vec (vec x-2)]
-                           (= as-vec
-                              (apply concat
-                                     (map vector
-                                          x-2)))))
+                        '(let [-count-pos? (> (count x-2)
+                                              0)
+                               -empty?     (empty? x-2)]
+                           (if -empty?
+                             (not -count-pos?)
+                             -count-pos?)))
+
+      "`empty?` is consistent with `empty`"
+      ($.test.eval/form ctx
+                        '(empty? (empty x-2)))
       )))
 
 
