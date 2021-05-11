@@ -100,6 +100,8 @@
 
   "Base context to use for testing."
 
+  ;; TODO. Needs 2 transactions because of: https://github.com/Convex-Dev/convex/issues/107
+
   (-> ($.ctx/create-fake)
       ($.eval/form->ctx
         '(call *registry*
@@ -115,6 +117,19 @@
                                                          (reduced false)))
                                                    true
                                                    coll)))
+
+                                (defn every-index?
+
+                                  [f sequential]
+
+                                  (loop [i (dec (count sequential))]
+                                    (if (> i
+                                           0)
+                                      (if (f sequential
+                                             i)
+                                        (recur (dec i))
+                                        false)
+                                      true)))
                                 )))))
       ($.eval/form->ctx
         '(import $ :as $))))

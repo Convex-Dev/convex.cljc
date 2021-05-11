@@ -1,6 +1,12 @@
 (ns convex.lisp.test.core.coll
 
-  "Testing core functions operating on collections."
+  "Testing core functions operating on collections.
+  
+   Articulates essentially 2 kind of tests:
+
+   - Regular function calls
+   - Whole suites that some collections must pass, testing for consistency
+     between collection functions."
 
   {:author "Adam Helinski"}
 
@@ -11,7 +17,10 @@
             [convex.lisp.test.schema :as $.test.schema]))
 
 
-;;;;;;;;;;
+(declare suite-kv+)
+
+
+;;;;;;;;;; Creating collections from functions
 
 
 (t/deftest blob-map--
@@ -77,41 +86,63 @@
                            vector))
 
 
-;;;;;;;;;; `assoc`
+;;;;;;;;;; Main - Creating an initial context
 
 
-(defn- -assoc-fail
+(defn ctx-main
 
-  ;; Helper for evaling a failing call to `assoc`.
+  "Creating a base context for main test suites.
 
+   Interns in the environment:
 
-  ([tuple]
+   | Symbol | Meaning |
+   |---|---|
+   | `k` | Generated key |
+   | `v` | Generated value |
+   | `x` | Generated collection (sometimes nil) |
+   | `x-2` | `x` after `(assoc x k v)` |
 
-   (-assoc-fail $.form/quoted
-                tuple))
-
-
-  ([fmap-x [x k v]]
-
-   ($.test.eval/error? ($.form/templ {'?k k
-                                      '?v v
-                                      '?x (fmap-x x)}
-                                     '(assoc ?x
-                                             '?k
-                                             '?v)))))
+   By default, `fmap-x` quotes `x` to prevent unwanted evaluation."
 
 
+  ([[x k v]]
+
+   (ctx-main x
+             k
+             v))
 
 
-(defn mult-assoc
+  ([x k v]
 
-  ""
+   (-> ($.form/templ {'?k k
+                      '?v v
+                      '?x x}
+                     '(do
+                        (def k
+                             '?k)
+                        (def v
+                             '?v)
+                        (def x
+                             ?x)
+                        (def x-2
+                             (assoc x
+                                    k
+                                    v))))
+       $.test.eval/form->ctx)))
+
+
+;;;;;;;;;; Main - Different suites targeting different collection capabilities
+
+
+(defn suite-main
+
+  "See checkpoint."
 
   [ctx]
 
   ($.test.prop/checkpoint*
 
-    "Basic `assoc` properties common to all suported types"
+    "Suite that all collections must pass."
 
     ($.test.prop/mult*
 
@@ -204,89 +235,16 @@
 
 
 
+(defn suite-main-dissoc
 
-
-
-
-(defn mult-assoc-hashmap
-
-  ""
+  "See checkpoint."
 
   [ctx]
 
   ($.test.prop/checkpoint*
 
-    "Using `hash-map` to rebuild map"
-    ($.test.eval/form ctx
-                      '(= x-2
-                          (apply hash-map
-                                 (reduce (fn [acc [k v]]
-                                           (conj acc
-                                                 k
-                                                 v))
-                                         []
-                                         x-2))))))
+    "Suite revolving around `dissoc` and its consequences measurable via other functions."
 
-
-
-(defn mult-assoc-kv+
-
-  ""
-
-  [ctx]
-
-  ($.test.prop/checkpoint*
-
-    "Using `keys` and various functions ensuring consistent order in maps (blob-map and hash-map)"
-    (let [ctx-2 ($.test.eval/form->ctx ctx
-                                      '(do
-                                         (def k+
-                                              (keys x-2))
-                                         (def kv+
-                                              (vec x-2))))]
-      ($.test.prop/mult*
-
-        "Keys contain new key"
-        ($.test.eval/form ctx-2
-                          '(contains-key? (set k+)
-                                          k))
-
-        "`vec` is consitent with `into`"
-        ($.test.eval/form ctx-2
-                          '(= kv+
-                              (into []
-                                    x-2)))
-
-        "Order of `keys` is consistent with `vec`"
-        ($.test.eval/form ctx-2
-                          '(= k+
-                              (map first
-                                   kv+)))
-
-        "Order of `values` is consistent with `vec`"
-        ($.test.eval/form ctx-2
-                          '(= (values x-2)
-                              (map second
-                                   kv+)))
-
-        "Order of `mapv` is consistent with `vec`"
-        ($.test.eval/form ctx-2
-                          '(= kv+
-                              (mapv identity
-                                    x-2)))
-        ))))
-
-
-
-(defn mult-assoc-dissoc
-
-  ""
-
-  [ctx]
-
-  ($.test.prop/checkpoint*
-
-    "Working with `dissoc` on a key that has been `assoc`iated (hence must exist)"
     (let [ctx-2 ($.test.eval/form->ctx ctx
                                        '(def x-3
                                              (dissoc x-2
@@ -330,14 +288,12 @@
 
         "All other key-values are preserved"
         ($.test.eval/form ctx-2
-                          '(reduce (fn [_acc k]
-                                     (or (= (get x-3
-                                                 k)
-                                            (get x-2
-                                                 k))
-                                         (reduced false)))
-                                   true
-                                   (keys x-3)))
+                          '($/every? (fn [k]
+                                       (= (get x-3
+                                               k)
+                                          (get x-2
+                                               k)))
+                                     (keys x-3)))
 
         "Equal to original or count updated as needed"
         ($.test.eval/form ctx-2
@@ -352,20 +308,127 @@
                                   x-3))))
 
         "Working with keys and key-values"
-        (mult-assoc-kv+ ctx)
+        (suite-kv+ ctx)
         ))))
 
 
 
-(defn mult-assoc-map-specific
+(defn suite-hash-map
 
-  ""
+  "Suite containing miscellaneous tests for hash-maps."
 
   [ctx]
 
   ($.test.prop/checkpoint*
 
-    "`assoc` properties for map-like types (blob-map, hash-map, and nil)"
+    "Using `hash-map` to rebuild map"
+    ($.test.eval/form ctx
+                      '(= x-2
+                          (apply hash-map
+                                 (reduce (fn [acc [k v]]
+                                           (conj acc
+                                                 k
+                                                 v))
+                                         []
+                                         x-2))))))
+
+
+
+(defn suite-kv+
+
+  "See checkpoint."
+
+  [ctx]
+
+  ($.test.prop/checkpoint*
+
+    "Suite for collection that support `keys` and `values` (currently, only map-like types)."
+
+    (let [ctx-2 ($.test.eval/form->ctx ctx
+                                      '(do
+                                         (def k+
+                                              (keys x-2))
+                                         (def kv+
+                                              (vec x-2))
+                                         (def v+
+                                              (values x-2))))]
+      ($.test.prop/mult*
+
+        "Keys contain new key"
+        ($.test.eval/form ctx-2
+                          '(contains-key? (set k+)
+                                          k))
+
+        "Order of `keys` is consistent with order of `values`"
+        ($.test.eval/form ctx-2
+                          '($/every-index? (fn [k+ i]
+                                             (= (get x-2
+                                                     (get k+
+                                                          i))
+                                                (get v+
+                                                     i)))
+                                           k+))
+
+
+        "`vec` correctly maps key-values"
+        ($.test.eval/form ctx-2
+                          '($/every? (fn [[k v]]
+                                       (= v
+                                          (get x-2
+                                               k)))
+                                     kv+))
+
+        "`vec` is consitent with `into`"
+        ($.test.eval/form ctx-2
+                          '(= kv+
+                              (into []
+                                    x-2)))
+
+        "Order of `keys` is consistent with `vec`"
+        ($.test.eval/form ctx-2
+                          '(= k+
+                              (map first
+                                   kv+)))
+
+        "Order of `values` is consistent with `vec`"
+        ($.test.eval/form ctx-2
+                          '(= v+
+                              (map second
+                                   kv+)))
+
+        "Order of `mapv` is consistent with `vec`"
+        ($.test.eval/form ctx-2
+                          '(= kv+
+                              (mapv identity
+                                    x-2)))
+
+
+        "Contains all its keys"
+        ($.test.eval/form ctx-2
+                          '($/every? (fn [k]
+                                       (contains-key? x-2
+                                                      k))
+                                     k+))
+         
+       "Removing all keys result in empty map"
+       ($.test.eval/form ctx-2
+                         '(= (empty x-2)
+                             (reduce dissoc
+                                     x-2
+                                     k+)))
+       ))))
+
+
+
+(defn suite-map-like
+
+  "See checkpoint."
+
+  [ctx]
+
+  ($.test.prop/checkpoint*
+
+    "Suite for operations specific to map-like types (ie. blob-map, hash-map, and nil-."
 
     ($.test.prop/mult*
 
@@ -412,73 +475,173 @@
 
       "All other key-values are preserved"
       ($.test.eval/form ctx
-                        '(reduce (fn [_acc k]
-                                   (or (= (get x
-                                               k)
-                                          (get x-2
-                                               k))
-                                       (reduced false)))
-                                 true
-                                 (keys (dissoc x
-                                               k))))
+                        '($/every? (fn [k]
+                                     (= (get x
+                                             k)
+                                        (get x-2
+                                             k)))
+                                   (keys (dissoc x
+                                                 k))))
 
       "Using `into` to rebuild map"
-      ($.test.eval/form ctx
-                        '(= x-2
-                            (into (empty x-2)
-                                  x-2)))
+      (let [ctx-2 ($.test.eval/form->ctx ctx
+                                         '(do
+                                            (def -empty
+                                                 (empty x-2))
+                                            (def as-list
+                                                 (into (list)
+                                                       x-2))))]
+        ($.test.prop/mult*
+
+          "On empty map"
+          ($.test.eval/form ctx-2
+                            '(= x-2
+                                (into -empty
+                                      x-2)
+                                (into -empty
+                                      as-list)))
+
+
+          "Using `into` on map with this very same map does not change anything"
+          ($.test.eval/form ctx-2
+                            '(= x-2
+                                (into x-2
+                                      x-2)
+                                (into x-2
+                                      as-list)))))
       )))
 
 
 
+(defn suite-map
 
-(defn mult-assoc-map
+  "Combining all suites that a map-like type must pass, for ease of use."
+
+  [ctx]
+
+  ($.test.prop/and* (suite-main ctx)
+                    (suite-main-dissoc ctx)
+                    (suite-kv+ ctx)
+                    (suite-map-like ctx)))
+
+
+
+(defn suite-sequential
 
   ""
 
   [ctx]
 
-  ($.test.prop/and* (mult-assoc ctx)
-                    (mult-assoc-dissoc ctx)
-                    (mult-assoc-kv+ ctx)
-                    (mult-assoc-map-specific ctx)))
+  ($.test.prop/checkpoint*
+
+    "Specific to sequential collections"
+
+    ($.test.prop/mult*
+
+      "`contains-key?` with indices"
+      ($.test.eval/form ctx
+                        '($/every-index? contains-key?
+                                         x-2))
+
+      "`get` is consistent with `nth`"
+      ($.test.eval/form ctx
+                        '($/every-index? (fn [x-2 i]
+                                           (= (get x-2
+                                                   i)
+                                              (nth x-2
+                                                   i)))
+                                         x-2))
+      )))
+
+
+;;;;;;;;;; Generative tests for main suites
+
+
+($.test.prop/deftest ^:recur main-blob-map
+
+  ($.test.prop/check [:tuple
+                      [:= '(blob-map)]
+                      :convex/blob
+                      :convex/data]
+                     (comp suite-map
+                           ctx-main)))
 
 
 
+($.test.prop/deftest ^:recur main-map
+
+  ;; Tests `get` as well, and with nil besides maps.
+
+  ($.test.prop/check [:tuple
+                      :convex/map
+                      :convex/data
+                      :convex/data]
+                     (fn [[x k v]]
+                       (let [ctx (ctx-main ($.form/quoted x)
+                                           k
+                                           v)]
+                         ($.test.prop/and* (suite-map ctx)
+                                           (suite-hash-map ctx))))))
 
 
-(defn ctx-assoc
 
-  ;; Helper for evaling valid call to `assoc` followed by `get` with the same key.
-  ;;
-  ;; By default, `fmap-x` quotes `x`.
+($.test.prop/deftest ^:recur main-nil
+
+  ;; Tests `get` as well, and with nil besides maps.
+
+  ($.test.prop/check [:tuple
+                      :convex/nil
+                      :convex/data
+                      :convex/data]
+                     (comp suite-map
+                           ctx-main)))
 
 
-  ([[x k v]]
 
-   (ctx-assoc x
-              k
-              v))
+($.test.prop/deftest ^:recur main-sequential
+
+  ;; Tests `get` as well.
+
+  ;; TODO. Should `(assoc [] 0 :ok)` be legal? See https://github.com/Convex-Dev/convex/issues/94
+
+  ($.test.prop/check [:tuple
+                      [:and
+                       [:or
+                        :convex/list
+                        :convex/vector]
+                       [:fn
+                        #(pos? (count %))]]
+                      :convex/data]
+                     (fn [[coll v]]
+                       (let [ctx (ctx-main ($.form/quoted coll)
+                                           (rand-int (count coll))
+                                           v)]
+                         ($.test.prop/and* (suite-main ctx)
+                                           (suite-sequential ctx))))))
 
 
-  ([x k v]
+;;;;;;;;;; `assoc`
 
-   (-> ($.form/templ {'?k k
-                      '?v v
-                      '?x x}
-                     '(do
-                        (def k
-                             '?k)
-                        (def v
-                             '?v)
-                        (def x
-                             ?x)
-                        (def x-2
-                             (assoc x
-                                    k
-                                    v))))
-       $.test.eval/form->ctx)))
 
+(defn- -assoc-fail
+
+  ;; Helper for evaluating a failing call to `assoc`.
+
+
+  ([tuple]
+
+   (-assoc-fail $.form/quoted
+                tuple))
+
+
+  ([fmap-x [x k v]]
+
+   ($.test.eval/error? ($.form/templ {'?k k
+                                      '?v v
+                                      '?x (fmap-x x)}
+                                     '(assoc ?x
+                                             '?k
+                                             '?v)))))
 
 
 
@@ -496,17 +659,6 @@
 
 
 
-($.test.prop/deftest ^:recur assoc--blob-map
-
-  ($.test.prop/check [:tuple
-                      [:= '(blob-map)]
-                      :convex/blob
-                      :convex/data]
-                     (comp mult-assoc-map
-                           ctx-assoc)))
-
-
-
 #_($.test.prop/deftest ^:recor assoc--blob-map-fail
 
   ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/101
@@ -518,59 +670,6 @@
                       :convex/data]
                      (partial -assoc-fail
                               identity)))
-
-
-
-($.test.prop/deftest ^:recur assoc--map
-
-  ;; Tests `get` as well, and with nil besides maps.
-
-  ($.test.prop/check [:tuple
-                      :convex/map
-                      :convex/data
-                      :convex/data]
-                     (fn [[x k v]]
-                       (let [ctx (ctx-assoc ($.form/quoted x)
-                                            k
-                                            v)]
-                         ($.test.prop/and* (mult-assoc-map ctx)
-                                           (mult-assoc-hashmap ctx))))))
-
-
-
-($.test.prop/deftest ^:recur assoc--nil
-
-  ;; Tests `get` as well, and with nil besides maps.
-
-  ($.test.prop/check [:tuple
-                      :convex/nil
-                      :convex/data
-                      :convex/data]
-                     (comp mult-assoc-map
-                           ctx-assoc)))
-
-
-
-($.test.prop/deftest ^:recur assoc--sequential
-
-  ;; Tests `get` as well.
-
-  ;; TODO. Should `(assoc [] 0 :ok)` be legal? See https://github.com/Convex-Dev/convex/issues/94
-
-  ($.test.prop/check [:tuple
-                      [:and
-                       [:or
-                        :convex/list
-                        :convex/vector]
-                       [:fn
-                        #(pos? (count %))]]
-                      :convex/data]
-                     (fn [[coll v]]
-                       (mult-assoc (ctx-assoc ($.form/quoted coll)
-                                              (rand-int (count coll))
-                                              v)))))
-
-
 
 
 
@@ -776,13 +875,3 @@
 ;; Producing lists
 
 ; cons
-
-
-
-;; Set operations
-
-; difference
-; disj
-; intersection
-; subset
-; union
