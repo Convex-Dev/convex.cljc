@@ -275,9 +275,11 @@
 
 
 
-(defn suite-main-dissoc
+(defn suite-dissoc
 
-  "See checkpoint."
+  "See checkpoint.
+  
+   Other `dissoc` tests based around working repeatedly with key-values are in [[suite-kv+]]."
 
   [ctx]
 
@@ -346,9 +348,6 @@
                                   (dec (count x)))
                                (= x
                                   x-3))))
-
-        "Working with keys and key-values"
-        (suite-kv+ ctx)
         ))))
 
 
@@ -382,7 +381,7 @@
 
   ($.test.prop/checkpoint*
 
-    "Suite for collection that support `keys` and `values` (currently, only map-like types)."
+    "Suite for collections that support `keys` and `values` (currently, only map-like types)."
 
     (let [ctx-2 ($.test.eval/form->ctx ctx
                                       '(do
@@ -449,13 +448,59 @@
                                        (contains-key? x-2
                                                       k))
                                      k+))
-         
-       "Removing all keys result in empty map"
+
+        "`assoc` is consistent with `count`"
+        ($.test.eval/form ctx-2
+                          '(= x-2
+                              (reduce (fn [x-3 [k v]]
+                                        (let [x-4 (assoc x-3
+                                                         k
+                                                         v)]
+                                          (if (= (count x-4)
+                                                 (inc (count x-3)))
+                                            x-4
+                                            (reduced false))))
+                                      (empty x-2)
+                                      kv+)))
+
+
+       "Using `assoc` to rebuild map in a loop"
        ($.test.eval/form ctx-2
-                         '(= (empty x-2)
-                             (reduce dissoc
-                                     x-2
-                                     k+)))
+                         '(let [rebuild (fn [acc]
+                                          (reduce (fn [acc-2 [k v]]
+                                                    (assoc acc-2
+                                                           k
+                                                           v))
+                                                  acc
+                                                  x-2))]
+                            (= x-2
+                               (rebuild (empty x-2))
+                               (rebuild x-2))))
+
+       "Using `assoc` with `apply` to rebuild map"
+       (let [ctx-3 ($.test.eval/form->ctx ctx-2
+                                          '(def arg+
+                                                (reduce (fn [acc [k v]]
+                                                          (conj acc
+                                                                k
+                                                                v))
+                                                        []
+                                                        kv+)))]
+         ($.test.prop/mult*
+
+           "From an empty map"
+           ($.test.eval/form ctx-3
+                             '(= x-2
+                                 (apply assoc
+                                       (empty x-2)
+                                       arg+)))
+
+           "On the map itself"
+           ($.test.eval/form ctx-3
+                             '(= x-2
+                                 (apply assoc
+                                        x-2
+                                        arg+)))))
        ))))
 
 
@@ -560,7 +605,7 @@
   [ctx]
 
   ($.test.prop/and* (suite-main ctx)
-                    (suite-main-dissoc ctx)
+                    (suite-dissoc ctx)
                     (suite-kv+ ctx)
                     (suite-map-like ctx)))
 
