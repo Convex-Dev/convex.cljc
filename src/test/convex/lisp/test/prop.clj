@@ -310,14 +310,14 @@
           :convex/long]
          (fn [x]
            (mult* "Numerical computation of longs must result in a long"
-                  (int? ($.test.eval/form (list* form
-                                                 x)))
+                  (int? ($.test.eval/result (list* form
+                                                   x)))
 
                   "Numerical computation with at least one double must result in a double"
-                  (double? ($.test.eval/form (list* form
-                                                    (update x
-                                                            (rand-int (dec (count x)))
-                                                            double))))))))
+                  (double? ($.test.eval/result (list* form
+                                                      (update x
+                                                              (rand-int (dec (count x)))
+                                                              double))))))))
 
 
 
@@ -364,12 +364,12 @@
                           suite)]
             (fn [x]
               (let [[x-2
-                     cast?] ($.test.eval/form ($.form/templ {'?sym-cast form-cast
-                                                             '?sym-pred form-pred
-                                                             '?x        x}
-                                                            '(let [x-2 (?sym-cast (quote ?x))]
-                                                               [x-2
-                                                                (?sym-pred x-2)])))]
+                     cast?] ($.test.eval/result ($.form/templ {'?sym-cast form-cast
+                                                               '?sym-pred form-pred
+                                                               '?x        x}
+                                                              '(let [x-2 (?sym-cast (quote ?x))]
+                                                                 [x-2
+                                                                  (?sym-pred x-2)])))]
                 (mult (suite-2 x
                                x-2
                                cast?))))))))
@@ -403,9 +403,9 @@
          (fn [x]
            ($.test.util/eq (apply f-clojure
            	                	  x)
-                           ($.test.eval/form (list* form
-                                                    (map $.form/quoted
-                                                         x)))))))
+                           ($.test.eval/result (list* form
+                                                      (map $.form/quoted
+                                                           x)))))))
 
 
 
@@ -429,7 +429,7 @@
             ($.test.util/eq x
                             (-> x
                                 f
-                                $.test.eval/form))))))
+                                $.test.eval/result))))))
 
 
 
@@ -442,8 +442,8 @@
   (check schema
          (fn [x]
            ($.test.util/eq x
-                           ($.test.eval/form x)
-                           ($.test.eval/form ($.form/quoted x))))))
+                           ($.test.eval/result x)
+                           ($.test.eval/result ($.form/quoted x))))))
 
 
 
@@ -471,8 +471,8 @@
          (fn [x]
            ($.test.util/eq (apply f-clojure
                                   x)
-                           ($.test.eval/form (list* form
-                                                    x))))))
+                           ($.test.eval/result (list* form
+                                                      x))))))
 
 
 
@@ -506,8 +506,8 @@
 
             (fn [x]
               (mult (suite-2 x
-                             ($.test.eval/form (list form
-                                                     ($.form/quoted x))))))))))
+                             ($.test.eval/result (list form
+                                                       ($.form/quoted x))))))))))
 
 
 

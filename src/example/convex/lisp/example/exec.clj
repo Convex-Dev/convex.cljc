@@ -3,6 +3,8 @@
   "Executing some Convex Lisp code against a test CVM."
 
   (:require [convex.lisp]
+            [convex.lisp.eval]
+            [convex.lisp.eval.src]
             [convex.lisp.form]))
 
 
@@ -18,7 +20,7 @@
         form   '(+ 2 2)
         
         ;; Converting Clojure data to source code (a string)
-        source (convex.lisp.form/source form)
+        source (convex.lisp.form/src form)
         
         ;; Reading source code as Convex object
         code   (convex.lisp/read source)
@@ -39,11 +41,18 @@
 
 
 
-  ;; Simplified executing
+  ;; Simplified execution
   ;;
   (->> '(+ 2 2)
        convex.lisp/read-form
        (convex.lisp.ctx/eval (convex.lisp.ctx/create-fake))
        convex.lisp.ctx/result
        convex.lisp/datafy)
+
+  ;; Using helpers
+  (= 4
+     (convex.lisp.eval/result (convex.lisp.ctx/create-fake)
+                              '(+ 2 2))
+     (convex.lisp.eval.src/result (convex.lisp.ctx/create-fake)
+                                  "(+ 2 2)"))
   )

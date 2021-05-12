@@ -99,7 +99,7 @@
 
 
 
-(defn source
+(defn src
 
   "Converts a Clojure form expressing Convex Lisp code into a source string."
 

@@ -1,114 +1,68 @@
 (ns convex.lisp.eval
 
   "Shortcuts for evaluating Convex Lisp code, useful for development and testing.
+
+   Deals with form (ie. Clojure data expressing Convex Lisp code), whereas [[convex.lisp.eval.src]] deals
+   with source code (ie. strings).
   
-   Given context is always forked, meaning the argument is left intact.
-  
-   See [[convex.lisp.ctx/fork]]."
+   Given context is always forked, meaning the argument is left intact. See [[convex.lisp.ctx/fork]]."
 
   {:author "Adam Helinski"}
 
-  (:require [convex.lisp      :as $]
-            [convex.lisp.ctx  :as $.ctx]
-            [convex.lisp.form :as $.form]))
-
-
-(declare form
-         source
-         source->ctx
-         source-error?)
+  (:require [convex.lisp          :as $]
+            [convex.lisp.ctx      :as $.ctx]
+            [convex.lisp.form     :as $.form]
+            [convex.lisp.eval.src :as $.eval.src]))
 
 
 ;;;;;;;;;;
 
 
+(defn ctx
+
+  "Evaluates the given `form` and returns `ctx`."
+
+  [ctx form]
+
+  ($.eval.src/ctx ctx
+                  ($.form/src form)))
+
+
+
 (defn error?
 
-  "Evaluatess the given `form` and returns true if an error occured and the context entered in an
-   exceptional state."
+  "Like [[ctx]] but returns a boolean indicating if an error occured."
 
   [ctx form]
    
-  (source-error? ctx
-                 ($.form/source form)))
-
-
-
-(defn form
-
-  "Evaluates the given `form` representing Convex Lisp code and returns the result as Clojure data."
-
-  [ctx form]
-
-  (source ($.ctx/fork ctx)
-          ($.form/source form)))
-
-
-
-(defn form->ctx
-
-  "Like [[form]] but returns the `ctx` instead of the result prepared as Clojure data."
-
-  [ctx form]
-
-  (source->ctx ctx
-               ($.form/source form)))
+  ($.eval.src/error? ctx
+                     ($.form/src form)))
 
 
 
 (defn log
 
-  "Like `form` but returns the context log as Clojure data structure, where the last entry for the executing
+  "Like [[ctx]] but returns the context log as Clojure data structure, where the last entry for the executing
    address is a map containing the given `form` as well as its return value.
   
    Useful for debugging, akin to using `println` with Clojure."
 
   [ctx form]
 
-  (->> (list 'log
-             {:form   ($.form/quoted form)
-              :return form})
-       $.form/source
-       $/read
-       ($.ctx/eval ($.ctx/fork ctx))
-       $.ctx/log
-       $/datafy))
-
-
-
-(defn source
-
-  "Reads Convex Lisp source, evaluates it and converts the result to a Clojure value."
-
-  [ctx source]
-
-  (-> (source->ctx ctx
-                   source)
-      $.ctx/result
+  (-> ($.eval.src/ctx ctx
+                      ($.form/src ($.form/templ {'?form form}
+                                                 '(log {:form '?form
+                                                       :return ?form}))))
+      $.ctx/log
       $/datafy))
 
 
 
-(defn source->ctx
+(defn result
 
-  "Like [[source]] but returns the `ctx` instead of the result prepared as Clojure data."
+  "Like [[ctx]] but returns the result as Clojure data."
 
-  [ctx source]
+  [ctx form]
 
-  (->> source
-       $/read
-       ($.ctx/eval ($.ctx/fork ctx))))
-
-
-(defn source-error?
-
-  "Reads Convex Lisp source, evaluates it and returns true if an error occured and the context
-   entered in an exceptional state."
-
-  [ctx source]
-
-  (->> source
-       $/read
-       ($.ctx/eval ($.ctx/fork ctx))
-       $.ctx/error
-       boolean))
+  ($.eval.src/result ctx
+                     ($.form/src form)))

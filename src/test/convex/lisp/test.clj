@@ -134,7 +134,7 @@
                  (inc x))]]
     (t/is (= code
              (-> code
-                 $.form/source
+                 $.form/src
                  $/read
                  $/datafy))
           "Stress test")))

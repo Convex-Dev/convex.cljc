@@ -102,12 +102,12 @@
 
   [:tuple
    {:gen/fmap (fn [[m-1 m-2 e x]]
-                (str m-1
-                     (when m-2
-                       (str \.
-                            m-2))
-                     e
-                     x))}
+                (symbol (str m-1
+                          (when m-2
+                            (str \.
+                                 m-2))
+                          e
+                          x)))}
    :convex/long
    [:or
     :nil

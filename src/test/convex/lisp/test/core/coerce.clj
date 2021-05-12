@@ -94,11 +94,11 @@
                      (fn [x]
                        (let [[h
                               h-1?
-                              h-2?] ($.test.eval/form ($.form/templ {'X x}
-                                                                    '(let [h (hash X)]
-                                                                       [h
-                                                                        (hash? h)
-                                                                        (hash? (hash h))])))]
+                              h-2?] ($.test.eval/result ($.form/templ {'X x}
+                                                                      '(let [h (hash X)]
+                                                                         [h
+                                                                          (hash? h)
+                                                                          (hash? (hash h))])))]
                           ($.test.prop/mult*
 
                             "Result is a hash"

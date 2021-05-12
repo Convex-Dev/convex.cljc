@@ -28,7 +28,7 @@
 
 (t/deftest blob-map--
 
-  (t/is (map? ($.test.eval/form '(blob-map)))))
+  (t/is (map? ($.test.eval/result '(blob-map)))))
 
 
 
@@ -42,7 +42,7 @@
                           :convex/data
                           :convex/data]]
                      (fn [x]
-                       (map? ($.test.eval/form (list* 'hash-map
+                       (map? ($.test.eval/result (list* 'hash-map
                                                       (map $.form/quoted
                                                            x)))))))
 
@@ -51,7 +51,7 @@
 (t/deftest hash-map--no-arg
 
   (t/is (= {}
-           ($.test.eval/form '(hash-map)))))
+           ($.test.eval/result '(hash-map)))))
 
 
 
@@ -63,16 +63,16 @@
                       {:min 1}
                       :convex/data]
                      (fn [x]
-                       (set? ($.test.eval/form (list* 'hash-set
-                                                      (map $.form/quoted
-                                                           x)))))))
+                       (set? ($.test.eval/result (list* 'hash-set
+                                                        (map $.form/quoted
+                                                             x)))))))
 
 
 
 (t/deftest hash-set--no-arg
 
   (t/is (= #{}
-           ($.test.eval/form '(hash-set)))))
+           ($.test.eval/result '(hash-set)))))
 
 
 
@@ -139,7 +139,7 @@
                              ?x)
                         (def x-2
                              ?x-2)))
-       $.test.eval/form->ctx))
+       $.test.eval/ctx))
 
 
 ;;;;;;;;;; Main - Different suites targeting different collection capabilities
@@ -158,18 +158,18 @@
     ($.test.prop/mult*
   
       "Associating existing value does not change anything"
-      ($.test.eval/form ctx
-                        '(= x-2
-                            (assoc x-2
-                                   k
-                                   v)))
+      ($.test.eval/result ctx
+                          '(= x-2
+                              (assoc x-2
+                                     k
+                                     v)))
   
       "Consistent with `assoc-in`"
-      ($.test.eval/form ctx
-                        '(= x-2
-                            (assoc-in x
-                                      [k]
-                                      v))))))
+      ($.test.eval/result ctx
+                          '(= x-2
+                              (assoc-in x
+                                        [k]
+                                        v))))))
 
 
 
@@ -185,67 +185,67 @@
 
     "Suite revolving around `dissoc` and its consequences measurable via other functions."
 
-    (let [ctx-2 ($.test.eval/form->ctx ctx
-                                       '(def x-3
-                                             (dissoc x-2
-                                                     k)))]
+    (let [ctx-2 ($.test.eval/ctx ctx
+                                 '(def x-3
+                                       (dissoc x-2
+                                               k)))]
       ($.test.prop/mult*
 
         "Does not contain key anymore"
-        ($.test.eval/form ctx-2
-                          '(not (contains-key? x-3
-                                               k)))
+        ($.test.eval/result ctx-2
+                            '(not (contains-key? x-3
+                                                 k)))
 
         "`get` returns nil"
-        ($.test.eval/form ctx-2
-                          '(nil? (get x-3
-                                      k)))
+        ($.test.eval/result ctx-2
+                            '(nil? (get x-3
+                                        k)))
 
         "`get` returns 'not-found' value"
-        ($.test.eval/form ctx-2
-                          '(= :convex-sentinel
-                              (get x-3
-                                   k
-                                   :convex-sentinel)))
+        ($.test.eval/result ctx-2
+                            '(= :convex-sentinel
+                                (get x-3
+                                     k
+                                     :convex-sentinel)))
 
         "`get-in` returns nil"
-        ($.test.eval/form ctx-2
-                          '(nil? (get-in x-3
-                                         [k])))
+        ($.test.eval/result ctx-2
+                            '(nil? (get-in x-3
+                                           [k])))
 
         ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/102
         ;; "`get-in` returns 'not-found' value"
-        ;; ($.test.eval/form ctx-2
+        ;; ($.test.eval/result ctx-2
         ;;                   '(= :convex-sentinel
         ;;                       (get-in x-3
         ;;                               [k]
         ;;                               :convex-sentinel)))
 
         "Keys do not contain key"
-        ($.test.eval/form ctx-2
-                          '(not (contains-key? (set (keys x-3))
-                                               k)))
+        ($.test.eval/result ctx-2
+                            '(not (contains-key? (set (keys x-3))
+                                                 k)))
 
         "All other key-values are preserved"
-        ($.test.eval/form ctx-2
-                          '($/every? (fn [k]
-                                       (= (get x-3
-                                               k)
-                                          (get x-2
-                                               k)))
-                                     (keys x-3)))
+        ($.test.eval/result ctx-2
+                            '($/every? (fn [k]
+                                         (= (get x-3
+                                                 k)
+                                            (get x-2
+                                                 k)))
+                                       (keys x-3)))
 
         "Equal to original or count updated as needed"
-        ($.test.eval/form ctx-2
-                          '(if (nil? x)
-                             (= {}
-                                x-3)
-                             (if (contains-key? x
-                                                k)
-                               (= (count x-3)
-                                  (dec (count x)))
-                               (= x
-                                  x-3))))
+        ($.test.eval/result ctx-2
+                            '(if (nil? x)
+                               (= {}
+                                  x-3)
+                               (if (contains-key? x
+                                                  k)
+                                 (= (count x-3)
+                                    (dec (count x)))
+                                 (= x
+                                    x-3))))
         ))))
 
 
@@ -259,15 +259,15 @@
   ($.test.prop/checkpoint*
 
     "Using `hash-map` to rebuild map"
-    ($.test.eval/form ctx
-                      '(= x-2
-                          (apply hash-map
-                                 (reduce (fn [acc [k v]]
-                                           (conj acc
-                                                 k
-                                                 v))
-                                         []
-                                         x-2))))))
+    ($.test.eval/result ctx
+                        '(= x-2
+                            (apply hash-map
+                                   (reduce (fn [acc [k v]]
+                                             (conj acc
+                                                   k
+                                                   v))
+                                           []
+                                           x-2))))))
 
 
 
@@ -281,124 +281,124 @@
 
     "Suite for collections that support `keys` and `values` (currently, only map-like types)."
 
-    (let [ctx-2 ($.test.eval/form->ctx ctx
-                                      '(do
-                                         (def k+
-                                              (keys x-2))
-                                         (def kv+
-                                              (vec x-2))
-                                         (def v+
-                                              (values x-2))))]
+    (let [ctx-2 ($.test.eval/ctx ctx
+                                 '(do
+                                    (def k+
+                                         (keys x-2))
+                                    (def kv+
+                                         (vec x-2))
+                                    (def v+
+                                         (values x-2))))]
       ($.test.prop/mult*
 
         "Keys contain new key"
-        ($.test.eval/form ctx-2
-                          '(contains-key? (set k+)
-                                          k))
+        ($.test.eval/result ctx-2
+                            '(contains-key? (set k+)
+                                            k))
 
         "Order of `keys` is consistent with order of `values`"
-        ($.test.eval/form ctx-2
-                          '($/every-index? (fn [k+ i]
-                                             (= (get x-2
-                                                     (get k+
-                                                          i))
-                                                (get v+
-                                                     i)))
-                                           k+))
+        ($.test.eval/result ctx-2
+                            '($/every-index? (fn [k+ i]
+                                               (= (get x-2
+                                                       (get k+
+                                                            i))
+                                                  (get v+
+                                                       i)))
+                                             k+))
 
 
         "`vec` correctly maps key-values"
-        ($.test.eval/form ctx-2
-                          '($/every? (fn [[k v]]
-                                       (= v
-                                          (get x-2
-                                               k)))
-                                     kv+))
+        ($.test.eval/result ctx-2
+                            '($/every? (fn [[k v]]
+                                         (= v
+                                            (get x-2
+                                                 k)))
+                                       kv+))
 
         "`vec` is consitent with `into`"
-        ($.test.eval/form ctx-2
-                          '(= kv+
-                              (into []
-                                    x-2)))
+        ($.test.eval/result ctx-2
+                            '(= kv+
+                                (into []
+                                      x-2)))
 
         "Order of `keys` is consistent with `vec`"
-        ($.test.eval/form ctx-2
-                          '(= k+
-                              (map first
-                                   kv+)))
+        ($.test.eval/result ctx-2
+                            '(= k+
+                                (map first
+                                     kv+)))
 
         "Order of `values` is consistent with `vec`"
-        ($.test.eval/form ctx-2
-                          '(= v+
-                              (map second
-                                   kv+)))
+        ($.test.eval/result ctx-2
+                            '(= v+
+                                (map second
+                                     kv+)))
 
         "Order of `mapv` is consistent with `vec`"
-        ($.test.eval/form ctx-2
-                          '(= kv+
-                              (mapv identity
-                                    x-2)))
+        ($.test.eval/result ctx-2
+                            '(= kv+
+                                (mapv identity
+                                      x-2)))
 
 
         "Contains all its keys"
-        ($.test.eval/form ctx-2
-                          '($/every? (fn [k]
-                                       (contains-key? x-2
-                                                      k))
-                                     k+))
+        ($.test.eval/result ctx-2
+                            '($/every? (fn [k]
+                                         (contains-key? x-2
+                                                        k))
+                                       k+))
 
         "`assoc` is consistent with `count`"
-        ($.test.eval/form ctx-2
-                          '(= x-2
-                              (reduce (fn [x-3 [k v]]
-                                        (let [x-4 (assoc x-3
-                                                         k
-                                                         v)]
-                                          (if (= (count x-4)
-                                                 (inc (count x-3)))
-                                            x-4
-                                            (reduced false))))
-                                      (empty x-2)
-                                      kv+)))
+        ($.test.eval/result ctx-2
+                            '(= x-2
+                                (reduce (fn [x-3 [k v]]
+                                          (let [x-4 (assoc x-3
+                                                           k
+                                                           v)]
+                                            (if (= (count x-4)
+                                                   (inc (count x-3)))
+                                              x-4
+                                              (reduced false))))
+                                        (empty x-2)
+                                        kv+)))
 
 
        "Using `assoc` to rebuild map in a loop"
-       ($.test.eval/form ctx-2
-                         '(let [rebuild (fn [acc]
-                                          (reduce (fn [acc-2 [k v]]
-                                                    (assoc acc-2
-                                                           k
-                                                           v))
-                                                  acc
-                                                  x-2))]
-                            (= x-2
-                               (rebuild (empty x-2))
-                               (rebuild x-2))))
+       ($.test.eval/result ctx-2
+                           '(let [rebuild (fn [acc]
+                                            (reduce (fn [acc-2 [k v]]
+                                                      (assoc acc-2
+                                                             k
+                                                             v))
+                                                    acc
+                                                    x-2))]
+                              (= x-2
+                                 (rebuild (empty x-2))
+                                 (rebuild x-2))))
 
        "Using `assoc` with `apply` to rebuild map"
-       (let [ctx-3 ($.test.eval/form->ctx ctx-2
-                                          '(def arg+
-                                                (reduce (fn [acc [k v]]
-                                                          (conj acc
-                                                                k
-                                                                v))
-                                                        []
-                                                        kv+)))]
+       (let [ctx-3 ($.test.eval/ctx ctx-2
+                                    '(def arg+
+                                          (reduce (fn [acc [k v]]
+                                                    (conj acc
+                                                          k
+                                                          v))
+                                                  []
+                                                  kv+)))]
          ($.test.prop/mult*
 
            "From an empty map"
-           ($.test.eval/form ctx-3
-                             '(= x-2
-                                 (apply assoc
-                                       (empty x-2)
-                                       arg+)))
+           ($.test.eval/result ctx-3
+                               '(= x-2
+                                   (apply assoc
+                                         (empty x-2)
+                                         arg+)))
 
            "On the map itself"
-           ($.test.eval/form ctx-3
-                             '(= x-2
-                                 (apply assoc
-                                        x-2
-                                        arg+)))))
+           ($.test.eval/result ctx-3
+                               '(= x-2
+                                   (apply assoc
+                                          x-2
+                                          arg+)))))
        ))))
 
 
@@ -413,38 +413,38 @@
 
     "Suite that all collections must pass (having exactly 1 item)."
 
-    (let [ctx-2 ($.test.eval/form->ctx ctx
-                                       '(def x-3
-                                             (conj (empty x-2)
-                                                   (first x-2))))]
+    (let [ctx-2 ($.test.eval/ctx ctx
+                                 '(def x-3
+                                       (conj (empty x-2)
+                                             (first x-2))))]
       ($.test.prop/mult*
 
         "`cons`"
-        ($.test.eval/form ctx-2
-                          '(= (list 42
-                                    (first x-3))
-                              (cons 42
-                                    x-3)))
+        ($.test.eval/result ctx-2
+                            '(= (list 42
+                                      (first x-3))
+                                (cons 42
+                                      x-3)))
 
         "`count` returns 1"
-        ($.test.eval/form ctx-2
-                          '(= 1
-                              (count x-3)))
+        ($.test.eval/result ctx-2
+                            '(= 1
+                                (count x-3)))
 
         "Not empty"
-        ($.test.eval/form ctx-2
-                          '(not (empty? x-3)))
+        ($.test.eval/result ctx-2
+                            '(not (empty? x-3)))
 
         "`first` and `last` are equivalent, consistent with `nth`"
-        ($.test.eval/form ctx-2
-                          '(= (first x-3)
-                              (last x-3)
-                              (nth x-3
-                                   0)))
+        ($.test.eval/result ctx-2
+                            '(= (first x-3)
+                                (last x-3)
+                                (nth x-3
+                                     0)))
 
         "`next` returns nil"
-        ($.test.eval/form ctx-2
-                          '(nil? (next x-3)))
+        ($.test.eval/result ctx-2
+                            '(nil? (next x-3)))
 
         "`second` is exceptional"
         ($.test.eval/error? ctx-2
@@ -470,164 +470,163 @@
       ;;                                     https://github.com/Convex-Dev/convex/issues/110
       
       ;; "Contains key"
-      ;; ($.test.eval/form ctx
-      ;;                   '(contains-key? x-2
-      ;;                                   k))
+      ;; ($.test.eval/result ctx
+      ;;                     '(contains-key? x-2
+      ;;                                     k))
 
       ;; "`get` returns the value"
-      ;; ($.test.eval/form ctx
-      ;;                   '(= v
-      ;;                       (get x-2
-      ;;                            k)))
+      ;; ($.test.eval/result ctx
+      ;;                     '(= v
+      ;;                         (get x-2
+      ;;                              k)))
 
       ;; "`get-in` returns the value"
-      ;; ($.test.eval/form ctx
-      ;;                   '(= v
-      ;;                       (get-in x-2
-      ;;                               [k])))
+      ;; ($.test.eval/result ctx
+      ;;                     '(= v
+      ;;                         (get-in x-2
+      ;;                                 [k])))
 
       "Cannot be empty"
-      ($.test.eval/form ctx
-                        '(not (empty? x-2)))
+      ($.test.eval/result ctx
+                          '(not (empty? x-2)))
 
       "Count is at least 1"
-      ($.test.eval/form ctx
-                        '(>= (count x-2)
-                             1))
+      ($.test.eval/result ctx
+                          '(>= (count x-2)
+                               1))
 
       "`first` is not exceptional"
-      ($.test.eval/form ctx
-                        '(do
-                           (first x-2)
-                           true))
+      ($.test.eval/result ctx
+                          '(do
+                             (first x-2)
+                             true))
 
       "`(nth 0)` is not exceptional"
-      ($.test.eval/form ctx
-                        '(do
-                           (nth x-2
-                                0)
-                           true))
+      ($.test.eval/result ctx
+                          '(do
+                             (nth x-2
+                                  0)
+                             true))
 
       "`last` is is not exceptional"
-      ($.test.eval/form ctx
-                        '(do
-                           (last x-2)
-                           true))
+      ($.test.eval/result ctx
+                          '(do
+                             (last x-2)
+                             true))
 
       "`nth` to last item is not exceptional"
-      ($.test.eval/form ctx
-                        '(do
-                           (nth x-2
-                                (dec (count x-2)))
-                           true))
+      ($.test.eval/result ctx
+                          '(do
+                             (nth x-2
+                                  (dec (count x-2)))
+                             true))
 
       "`nth` is consistent with `first`"
-      ($.test.eval/form ctx
-                        '(= (first x-2)
-                            (nth x-2
-                                 0)))
+      ($.test.eval/result ctx
+                          '(= (first x-2)
+                              (nth x-2
+                                   0)))
 
       "`nth` is consistent with `last`"
-      ($.test.eval/form ctx
-                        '(= (last x-2)
-                            (nth x-2
-                                 (dec (count x-2)))))
+      ($.test.eval/result ctx
+                          '(= (last x-2)
+                              (nth x-2
+                                   (dec (count x-2)))))
 
       "`nth` is consistent with second"
-      ($.test.eval/form ctx
-                        '(if (>= (count x-2)
-                                 2)
-                           (= (second x-2)
-                              (nth x-2
-                                   1))
-                           true))
+      ($.test.eval/result ctx
+                          '(if (>= (count x-2)
+                                   2)
+                             (= (second x-2)
+                                (nth x-2
+                                     1))
+                             true))
 
       "Using `concat` to rebuild collection as a vector"
-      ($.test.eval/form ctx
-                        '(let [as-vec (vec x-2)]
-                           (= as-vec
-                              (apply concat
-                                     (map vector
-                                          x-2)))))
+      ($.test.eval/result ctx
+                          '(let [as-vec (vec x-2)]
+                             (= as-vec
+                                (apply concat
+                                       (map vector
+                                            x-2)))))
 
       "`cons`"
-      (let [ctx-2 ($.test.eval/form->ctx ctx
-                                         '(def -cons
-                                               (cons (first x-2)
-                                                     x-2)))]
+      (let [ctx-2 ($.test.eval/ctx ctx
+                                   '(def -cons
+                                         (cons (first x-2)
+                                               x-2)))]
         ($.test.prop/mult*
           
           "Produces a list"
-          ($.test.eval/form ctx-2
-                            '(list? -cons))
+          ($.test.eval/result ctx-2
+                              '(list? -cons))
 
           "Count is coherent compared to the consed collection"
-          ($.test.eval/form ctx-2
-                            '(= (count -cons)
-                                (inc (count x-2))))
+          ($.test.eval/result ctx-2
+                              '(= (count -cons)
+                                  (inc (count x-2))))
 
           "First elements are consistent with setup"
-          ($.test.eval/form ctx-2
-                            '(= (first -cons)
-                                (second -cons)
-                                (first x-2)))
+          ($.test.eval/result ctx-2
+                              '(= (first -cons)
+                                  (second -cons)
+                                  (first x-2)))
 
           "Consistent with `next`"
-          ($.test.eval/form ctx-2
-                            '(= (vec (next -cons))
-                                (vec x-2)))))
+          ($.test.eval/result ctx-2
+                              '(= (vec (next -cons))
+                                  (vec x-2)))))
 
       "`cons` repeatedly reverse a collection"
-      ($.test.eval/form ctx
-                        '(= (into (list)
-                                  x-2)
-                            (reduce (fn [acc x]
-                                      (cons x
-                                            acc))
-                                    (empty x-2)
-                                    x-2)))
+      ($.test.eval/result ctx
+                          '(= (into (list)
+                                    x-2)
+                              (reduce (fn [acc x]
+                                        (cons x
+                                              acc))
+                                      (empty x-2)
+                                      x-2)))
 
       "`next` preserves types of lists, returns vectors for other collections"
-      ($.test.eval/form ctx
-                        '(let [-next (next x-2)]
-                           (if (nil? -next)
-                             true
-                             (if (list? x-2)
-                               (list? -next)
-                               (vector? -next)))))
+      ($.test.eval/result ctx
+                          '(let [-next (next x-2)]
+                             (if (nil? -next)
+                               true
+                               (if (list? x-2)
+                                 (list? -next)
+                                 (vector? -next)))))
 
       "`next` is consistent with `first`, `second`, and `count`"
-      ($.test.eval/form ctx
-                        '(loop [x-3 x-2]
-                           (let [n-x-3 (count x-3)]
-                             (if (zero? n-x-3)
-                               true
-                               (let [x-3-next (next x-3)]
-                                 (if (> n-x-3
-                                        1)
-                                   (if (and (= (count x-3-next)
-                                               (dec n-x-3))
-                                            (= (second x-3)
-                                               (first x-3-next)))
-                                     (recur x-3-next)
-                                     false)
-                                   (if (nil? x-3-next)
-                                     (recur x-3-next)
-                                     false)))))))
+      ($.test.eval/result ctx
+                          '(loop [x-3 x-2]
+                             (let [n-x-3 (count x-3)]
+                               (if (zero? n-x-3)
+                                 true
+                                 (let [x-3-next (next x-3)]
+                                   (if (> n-x-3
+                                          1)
+                                     (if (and (= (count x-3-next)
+                                                 (dec n-x-3))
+                                              (= (second x-3)
+                                                 (first x-3-next)))
+                                       (recur x-3-next)
+                                       false)
+                                     (if (nil? x-3-next)
+                                       (recur x-3-next)
+                                       false)))))))
 
       "`empty?` is consistent with `count?`"
-      ($.test.eval/form ctx
-                        '(let [-count-pos? (> (count x-2)
-                                              0)
-                               -empty?     (empty? x-2)]
-                           (if -empty?
-                             (not -count-pos?)
-                             -count-pos?)))
+      ($.test.eval/result ctx
+                          '(let [-count-pos? (> (count x-2)
+                                                0)
+                                 -empty?     (empty? x-2)]
+                             (if -empty?
+                               (not -count-pos?)
+                               -count-pos?)))
 
       "`empty?` is consistent with `empty`"
-      ($.test.eval/form ctx
-                        '(empty? (empty x-2)))
-
+      ($.test.eval/result ctx
+                          '(empty? (empty x-2)))
       )))
 
 
@@ -656,82 +655,82 @@
     ($.test.prop/mult*
 
       "Count has been updated as needed"
-      ($.test.eval/form ctx
-                        '(= (count x-2)
-                            (+ (count x)
-                               (if (or (= x-2
-                                          x)
-                                       (contains-key? x
-                                                      k))
-                                 0
-                                 1))))
+      ($.test.eval/result ctx
+                          '(= (count x-2)
+                              (+ (count x)
+                                 (if (or (= x-2
+                                            x)
+                                         (contains-key? x
+                                                        k))
+                                   0
+                                   1))))
 
       ;; TODO.Failing because of: https://github.com/Convex-Dev/convex/issues/103
       ;;
       ;; "Using `merge` to rebuild map"
-      ;; ($.test.eval/form ctx
-      ;;                   '(= x-2
-      ;;                       (merge (empty x-2)
-      ;;                              x-2)))
+      ;; ($.test.eval/result ctx
+      ;;                     '(= x-2
+      ;;                         (merge (empty x-2)
+      ;;                                x-2)))
       ;;
       ;; "Merging original with new = new"
-      ;; ($.test.eval/form ctx
-      ;;                   '(= x-2
-      ;;                       (merge x
-      ;;                              x-2)))
+      ;; ($.test.eval/result ctx
+      ;;                     '(= x-2
+      ;;                         (merge x
+      ;;                                x-2)))
 
       "`conj` is consistent with `assoc`"
-      ($.test.eval/form ctx
-                        '(if (map? x)
-                           (= x-2
-                              (conj x
-                                    [k v]))
-                           true))
+      ($.test.eval/result ctx
+                          '(if (map? x)
+                             (= x-2
+                                (conj x
+                                      [k v]))
+                             true))
 
       "`into` is consistent with `assoc`"
-      ($.test.eval/form ctx
-                        '(if (map? x)
-                           (= x-2
-                              (into x
-                                    [[k v]]))
-                           true))
+      ($.test.eval/result ctx
+                          '(if (map? x)
+                             (= x-2
+                                (into x
+                                      [[k v]]))
+                             true))
 
       "All other key-values are preserved"
-      ($.test.eval/form ctx
-                        '($/every? (fn [k]
-                                     (= (get x
-                                             k)
-                                        (get x-2
-                                             k)))
-                                   (keys (dissoc x
-                                                 k))))
+      ($.test.eval/result ctx
+                          '($/every? (fn [k]
+                                       (= (get x
+                                               k)
+                                          (get x-2
+                                               k)))
+                                     (keys (dissoc x
+                                                   k))))
 
       "Using `into` to rebuild map"
-      (let [ctx-2 ($.test.eval/form->ctx ctx
-                                         '(do
-                                            (def -empty
-                                                 (empty x-2))
-                                            (def as-list
-                                                 (into (list)
-                                                       x-2))))]
+      (let [ctx-2 ($.test.eval/ctx ctx
+                                   '(do
+                                      (def -empty
+                                           (empty x-2))
+                                      (def as-list
+                                           (into (list)
+                                                 x-2))))]
         ($.test.prop/mult*
 
           "On empty map"
-          ($.test.eval/form ctx-2
-                            '(= x-2
-                                (into -empty
-                                      x-2)
-                                (into -empty
-                                      as-list)))
+          ($.test.eval/result ctx-2
+                              '(= x-2
+                                  (into -empty
+                                        x-2)
+                                  (into -empty
+                                        as-list)))
 
 
           "Using `into` on map with this very same map does not change anything"
-          ($.test.eval/form ctx-2
-                            '(= x-2
-                                (into x-2
-                                      x-2)
-                                (into x-2
-                                      as-list)))))
+          ($.test.eval/result ctx-2
+                              '(= x-2
+                                  (into x-2
+                                        x-2)
+                                  (into x-2
+                                        as-list)))))
       )))
 
 
@@ -763,34 +762,34 @@
     ($.test.prop/mult*
 
       "`contains-key?` with indices"
-      ($.test.eval/form ctx
-                        '($/every-index? contains-key?
-                                         x-2))
+      ($.test.eval/result ctx
+                          '($/every-index? contains-key?
+                                           x-2))
 
       "`get` is consistent with `nth`"
-      ($.test.eval/form ctx
-                        '($/every-index? (fn [x-2 i]
-                                           (= (get x-2
-                                                   i)
-                                              (nth x-2
-                                                   i)))
-                                         x-2))
+      ($.test.eval/result ctx
+                          '($/every-index? (fn [x-2 i]
+                                             (= (get x-2
+                                                     i)
+                                                (nth x-2
+                                                     i)))
+                                           x-2))
 
       "Rebuilding sequential using `assoc` and `apply`"
-      ($.test.eval/form ctx
-                        '(= x-2
-                            (apply assoc
-                                   x-2
-                                   (loop [acc []
-                                          idx (dec (count x-2))]
-                                     (if (< idx
-                                            0)
-                                       acc
-                                       (recur (conj acc
-                                                    idx
-                                                    (get x-2
-                                                         idx))
-                                              (dec idx)))))))
+      ($.test.eval/result ctx
+                          '(= x-2
+                              (apply assoc
+                                     x-2
+                                     (loop [acc []
+                                            idx (dec (count x-2))]
+                                       (if (< idx
+                                              0)
+                                         acc
+                                         (recur (conj acc
+                                                      idx
+                                                      (get x-2
+                                                           idx))
+                                                (dec idx)))))))
       )))
 
 
@@ -1003,7 +1002,7 @@
 
   [item path value]
 
-  ($.test.eval/form ($.form/templ {'?item  item
+  ($.test.eval/result ($.form/templ {'?item  item
                                    '?path  path
                                    '?value value}
                                   '(= '?value
@@ -1079,33 +1078,33 @@
                        :convex/map
                        :convex/nil]]
                      (fn [x]
-                       (let [ctx ($.test.eval/form->ctx ($.form/templ {'?x x}
-                                                                      '(do
-                                                                         (def arg+
-                                                                              '?x)
-                                                                         (def -merge
-                                                                              (apply merge
-                                                                                     arg+)))))]
+                       (let [ctx ($.test.eval/ctx ($.form/templ {'?x x}
+                                                                '(do
+                                                                   (def arg+
+                                                                        '?x)
+                                                                   (def -merge
+                                                                        (apply merge
+                                                                               arg+)))))]
                          ($.test.prop/mult*
 
                            "Count of merge cannot be bigger than all involved key-values"
-                           ($.test.eval/form ctx
-                                             '(<= (count -merge)
-                                                  (reduce (fn [acc arg]
-                                                            (+ acc
-                                                               (count arg)))
-                                                          0
-                                                          arg+)))
+                           ($.test.eval/result ctx
+                                               '(<= (count -merge)
+                                                    (reduce (fn [acc arg]
+                                                              (+ acc
+                                                                 (count arg)))
+                                                            0
+                                                            arg+)))
 
                            "All key-values in merged result must be in at least one input"
-                           ($.test.eval/form ctx
-                                             '($/every? (fn [[k v]]
-                                                          ($/some (fn [arg]
-                                                                    (= v
-                                                                       (get arg
-                                                                            k)))
-                                                                  arg+))
-                                                        -merge))
+                           ($.test.eval/result ctx
+                                               '($/every? (fn [[k v]]
+                                                            ($/some (fn [arg]
+                                                                      (= v
+                                                                         (get arg
+                                                                              k)))
+                                                                    arg+))
+                                                          -merge))
                            )))))
 
 
@@ -1116,19 +1115,19 @@
                       :convex/collection
                       [:fn #(pos? (count %))]]
                      (fn [x]
-                       ($.test.eval/form ($.form/templ {'?i (rand-int (count x))
-                                                        '?x x}
-                                                       '(let [x '?x
-                                                              v (nth x
-                                                                     ?i)]
-                                                          (= v
-                                                             (reduce (fn [acc item]
-                                                                       (if (= item
-                                                                              v)
-                                                                         (reduced item)
-                                                                         acc))
-                                                                     :convex-sentinel
-                                                                     x))))))))
+                       ($.test.eval/result ($.form/templ {'?i (rand-int (count x))
+                                                          '?x x}
+                                                         '(let [x '?x
+                                                                v (nth x
+                                                                       ?i)]
+                                                            (= v
+                                                               (reduce (fn [acc item]
+                                                                         (if (= item
+                                                                                v)
+                                                                           (reduced item)
+                                                                           acc))
+                                                                       :convex-sentinel
+                                                                       x))))))))
 
 
 ;;;;;;;;;;

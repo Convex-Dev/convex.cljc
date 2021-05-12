@@ -33,7 +33,7 @@
 
 (t/deftest nil--
 
-  (t/is (nil? ($.test.eval/form nil))))
+  (t/is (nil? ($.test.eval/result nil))))
  
 
 
@@ -70,10 +70,8 @@
 (tc.ct/defspec double-E-notation
 
   ($.test.prop/check ($.test.schema/E-notation :convex/long)
-                     (fn [x]
-                       (-> x
-                           $.test.eval/source
-                           double?))))
+                     (comp double?
+                           $.test.eval/result)))
 
 
 
@@ -82,7 +80,7 @@
   ;; TODO. Must be fixed, see #70.
 
   ($.test.prop/check ($.test.schema/E-notation :convex/double)
-                     $.test.eval/source-error?))
+                     $.test.eval/error?))
 
 
 

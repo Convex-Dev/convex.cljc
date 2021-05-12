@@ -19,7 +19,7 @@
                      (fn [x]
                        ($.test.prop/mult
                          ($.test.mult/new-account []
-                                                  ($.test.eval/form->ctx ($.form/templ {'?data x}
-                                                                                        '(def addr
-                                                                                              (deploy (quote '?data)))))
+                                                  ($.test.eval/ctx ($.form/templ {'?data x}
+                                                                                 '(def addr
+                                                                                       (deploy (quote '?data)))))
                                                   true?)))))

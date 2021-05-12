@@ -43,8 +43,8 @@
 
   ($.test.prop/check :convex/address
                      (fn [x]
-                       ($.test.eval/form (list 'address?
-                                               x)))))
+                       ($.test.eval/result (list 'address?
+                                                 x)))))
 
 
 
@@ -72,10 +72,10 @@
 
 (t/deftest boolean?--true
 
-  (t/is (true? ($.test.eval/form true))
+  (t/is (true? ($.test.eval/result true))
         "True")
 
-  (t/is (false? ($.test.eval/form false))
+  (t/is (false? ($.test.eval/result false))
         "False"))
 
 
@@ -173,9 +173,9 @@
 
 (t/deftest nil?--true
 
-  (t/is (true? (nil? ($.test.eval/form nil))))
+  (t/is (true? (nil? ($.test.eval/result nil))))
 
-  (t/is (true? (nil? ($.test.eval/form '(do nil))))))
+  (t/is (true? (nil? ($.test.eval/result '(do nil))))))
 
 
 

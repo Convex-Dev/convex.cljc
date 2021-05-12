@@ -22,12 +22,12 @@
                        ($.test.prop/mult*
 
                          "Account does not exist"
-                         (false? ($.test.eval/form (list 'account?
-                                                         x)))
+                         (false? ($.test.eval/result (list 'account?
+                                                           x)))
 
                          "Actor does not exist"
-                         (false? ($.test.eval/form (list 'actor?
-                                                         x)))))))
+                         (false? ($.test.eval/result (list 'actor?
+                                                           x)))))))
 
 
 
@@ -37,9 +37,9 @@
                      (fn [x]
                        ($.test.prop/mult
                          ($.test.mult/new-account []
-                                                  ($.test.eval/form->ctx ($.form/templ {'?hexstring x}
-                                                                                        '(def addr
-                                                                                              (create-account ?hexstring))))
+                                                  ($.test.eval/ctx ($.form/templ {'?hexstring x}
+                                                                                 '(def addr
+                                                                                       (create-account ?hexstring))))
                                                   false?)))))
 
 
@@ -52,7 +52,7 @@
                        {:max 1
                         :min 0}]]
                      (fn [[pubkey ratio]]
-                       ($.test.prop/mult-result ($.test.eval/form
+                       ($.test.prop/mult-result ($.test.eval/result
                                                   ($.form/templ {'?pubkey pubkey
                                                                  '?ratio  ratio}
                                                                 '(do

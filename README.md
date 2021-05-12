@@ -28,10 +28,12 @@ Current examples are located in the [example directory](../main/src/example/conv
 Requiring namespaces for current examples:
 
 ```clojure
-(require 'convex.lisp          ;; Reading source code and translate CVM objects to Clojure data
-         'convex.lisp.ctx      ;; Expanding, compiling, and executing code
-         'convex.lisp.form     ;; Writing Convex Lisp as Clojure data
-         'convex.lisp.schema)  ;; Malli schemas for Convex Lisp
+(require 'convex.lisp           ;; Reading source code and translate CVM objects to Clojure data
+         'convex.lisp.ctx       ;; Expanding, compiling, and executing code
+         'convex.lisp.eval      ;; Helpers for quickly evaluating forms (dev + tests)
+         'convex.lisp.eval.src  ;; Ditto, but when working with source strings
+         'convex.lisp.form      ;; Writing Convex Lisp as Clojure forms
+         'convex.lisp.schema)   ;; Malli schemas for Convex Lisp
 ```
 
 ### Handling Convex Lisp code
@@ -45,7 +47,7 @@ Going through the whole cycle (context could be reused for further execution):
       form   '(+ 2 2)
       
       ;; Converting Clojure data to source code (a string)
-      source (convex.lisp.form/source form)
+      source (convex.lisp.form/src form)
       
       ;; Reading source code as Convex object
       code   (convex.lisp/read source)
@@ -75,7 +77,15 @@ There are shortcuts and it is easy to write a helper function as needed. For ins
      convex.lisp/datafy)
 ```
 
-For development and testing, the [convex.lisp.eval](../main/src/main/convex/lisp/eval.clj) has convenient functions which remove that kind of boilerplate.
+For development and testing, the [convex.lisp.eval](../main/src/main/convex/lisp/eval.clj) as well as [convex.lisp.eval.src](../main/src/main/convex/lisp/eval/src.clj) have convenient functions which remove that kind of boilerplate:
+
+```clojure
+(= 4
+   (convex.lisp.eval/result (convex.lisp.ctx/create-fake)
+                            '(+ 2 2))
+   (convex.lisp.eval.src/result (convex.lisp.ctx/create-fake)
+                                "(+ 2 2)"))
+```
 
 
 ### Templating Convex Lisp code

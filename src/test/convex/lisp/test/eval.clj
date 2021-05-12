@@ -8,10 +8,26 @@
             [convex.lisp.eval :as $.eval]))
 
 
-(declare ctx)
+(declare ctx-base)
 
 
 ;;;;;;;;;;
+
+
+(defn ctx
+
+
+  ([form]
+
+   (convex.lisp.test.eval/ctx ctx-base
+                              form))
+
+
+  ([ctx form]
+
+   ($.eval/ctx ctx
+               form)))
+
 
 
 (defn error?
@@ -19,7 +35,7 @@
 
   ([form]
 
-   (error? ctx
+   (error? ctx-base
            form))
 
 
@@ -30,96 +46,48 @@
 
 
 
-(defn form
-
-
-  ([form]
-
-   (convex.lisp.test.eval/form ctx
-                               form))
-
-
-  ([ctx form]
-
-   ($.eval/form ctx
-                form)))
-
-
-
-(defn form->ctx
-
-
-  ([form]
-
-   (form->ctx ctx
-              form))
-
-
-  ([ctx form]
-
-   ($.eval/form->ctx ctx
-                     form)))
-
-
-
 (defn log
 
 
-  ([source]
+  ([form]
 
-   (log ctx
-        source))
+   (log ctx-base
+        form))
 
 
-  ([ctx source]
+  ([ctx form]
 
    ($.eval/log ctx
-               source)))
+               form)))
 
 
 
-(defn source
+(defn result
 
 
-  ([source]
+  ([form]
 
-   (convex.lisp.test.eval/source ctx
-                                 source))
-
-
-  ([ctx source]
-
-   ($.eval/source ctx
-                  source)))
+   (result ctx-base
+           form))
 
 
+  ([ctx form]
 
-(defn source-error?
-
-
-  ([source]
-
-   (source-error? ctx
-                  source))
-
-
-  ([ctx source]
-
-   ($.eval/source-error? ctx
-                         source)))
+   ($.eval/result ctx
+                  form)))
 
 
 ;;;;;;;;;;
 
 
-(def ctx
+(def ctx-base
 
   "Base context to use for testing."
 
   ;; TODO. Needs 2 transactions because of: https://github.com/Convex-Dev/convex/issues/107
 
   (-> ($.ctx/create-fake)
-      ($.eval/form->ctx
+      ($.eval/ctx
         '(call *registry*
                (cns-update '$
                            (deploy
@@ -159,5 +127,5 @@
                                                    true
                                                    coll)))
                                 )))))
-      ($.eval/form->ctx
+      ($.eval/ctx
         '(import $ :as $))))

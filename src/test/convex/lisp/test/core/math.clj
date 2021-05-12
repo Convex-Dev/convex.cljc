@@ -43,8 +43,8 @@
                       {:min 1}
                       :convex/number]
                      (fn [x]
-                       (double? ($.test.eval/form (list* '/
-                                                         x))))))
+                       (double? ($.test.eval/result (list* '/
+                                                           x))))))
 
 
 ;;;;;;;;;; Comparators
@@ -131,9 +131,9 @@
                      (fn [[x y]]
                        ($.test.util/eq (StrictMath/pow x
                                                        y)
-                                       ($.test.eval/form (list 'pow
-                                                               x
-                                                               y))))))
+                                       ($.test.eval/result (list 'pow
+                                                                 x
+                                                                 y))))))
 
 
 
@@ -175,8 +175,8 @@
   ($.test.prop/check [:double
                       {:min (double Long/MIN_VALUE)}]
                      (fn [x]
-                       (let [x-2 ($.test.eval/form (list 'dec
-                                                         x))]
+                       (let [x-2 ($.test.eval/result (list 'dec
+                                                           x))]
                          ($.test.prop/mult*
                             
                             "Result is always a long"
@@ -202,8 +202,8 @@
 (t/deftest dec--double-underflow
 
   (t/is (= Long/MAX_VALUE
-           ($.test.eval/form (list 'dec
-                                   (double Long/MIN_VALUE))))))
+           ($.test.eval/result (list 'dec
+                                     (double Long/MIN_VALUE))))))
 
 
 
@@ -211,8 +211,8 @@
 
   ($.test.prop/check :convex/long
                      (fn [x]
-                       (let [x-2 ($.test.eval/form (list 'dec
-                                                         x))]
+                       (let [x-2 ($.test.eval/result (list 'dec
+                                                           x))]
                          ($.test.prop/mult*
 
                            "Result is always a long"
@@ -234,8 +234,8 @@
   ($.test.prop/check [:double
                       {:min (double Long/MIN_VALUE)}]
                      (fn [x]
-                       (let [x-2 ($.test.eval/form (list 'inc
-                                                         x))]
+                       (let [x-2 ($.test.eval/result (list 'inc
+                                                           x))]
                          ($.test.prop/mult*
 
                            "Result is always a long"
@@ -262,8 +262,8 @@
 
   ($.test.prop/check :convex/long
                      (fn [x]
-                       (let [x-2 ($.test.eval/form (list 'inc
-                                                         x))]
+                       (let [x-2 ($.test.eval/result (list 'inc
+                                                           x))]
                          ($.test.prop/mult*
 
                            "Result is always a long"
@@ -305,8 +305,8 @@
                       [:fn
                        #(not (Double/isNaN %))]]
                      (fn [x]
-                       (let [x-2 ($.test.eval/form (list 'abs
-                                                         x))]
+                       (let [x-2 ($.test.eval/result (list 'abs
+                                                           x))]
                          ($.test.prop/mult*
 
                            "Must be positive"
@@ -321,7 +321,7 @@
 
 (t/deftest abs--NaN
 
-  (t/is (Double/isNaN ($.test.eval/form '(abs ##NaN)))))
+  (t/is (Double/isNaN ($.test.eval/result '(abs ##NaN)))))
 
 
 
@@ -332,8 +332,8 @@
 
   ($.test.prop/check :convex/number
                      (fn [x]
-                       (let [x-2 ($.test.eval/form (list 'signum
-                                                         x))]
+                       (let [x-2 ($.test.eval/result (list 'signum
+                                                           x))]
                          ($.test.prop/mult*
 
                            "Negative"

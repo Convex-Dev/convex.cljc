@@ -8,6 +8,7 @@
             [convex.lisp.ctx                          :as $.ctx]
             [convex.lisp.edn                          :as $.edn]
             [convex.lisp.eval                         :as $.eval]
+            [convex.lisp.eval.src                     :as $.eval.src]
             [convex.lisp.form                         :as $.form]
             [convex.lisp.hex                          :as $.hex]
             [convex.lisp.schema                       :as $.schema]
@@ -104,15 +105,15 @@
                 
 
 
-  (->> '(inc 42)
+  (->> '(lookup-syntax 'conj)
        $/read-form
        ($.ctx/eval ($.ctx/fork ctx))
        $.ctx/result
-       $/datafy
+       ;$/datafy
        )
 
-  (->> "(quote [:a 4])"
-       $/read
+  (->> '(meta (lookup-syntax 'conj))
+       $/read-form
        ($.ctx/eval ($.ctx/create-fake))
        $.ctx/result
        )
@@ -127,7 +128,7 @@
       )
 
 
-  (->> '(log (defn bar [x] (inc x)))
+  (->> '(log :foo)
        $/read-form
        ($.ctx/eval ($.ctx/create-fake))
        $.ctx/log
