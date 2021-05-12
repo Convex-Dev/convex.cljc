@@ -62,6 +62,22 @@
 
 
 
+(defn log
+
+
+  ([source]
+
+   (log ctx
+        source))
+
+
+  ([ctx source]
+
+   ($.eval/log ctx
+               source)))
+
+
+
 (defn source
 
 

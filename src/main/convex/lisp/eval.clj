@@ -56,6 +56,26 @@
 
 
 
+(defn log
+
+  "Like `form` but returns the context log as Clojure data structure, where the last entry for the executing
+   address is a map containing the given `form` as well as its return value.
+  
+   Useful for debugging, akin to using `println` with Clojure."
+
+  [ctx form]
+
+  (->> (list 'log
+             {:form   ($.form/quoted form)
+              :return form})
+       $.form/source
+       $/read
+       ($.ctx/eval ($.ctx/fork ctx))
+       $.ctx/log
+       $/datafy))
+
+
+
 (defn source
 
   "Reads Convex Lisp source, evaluates it and converts the result to a Clojure value."
