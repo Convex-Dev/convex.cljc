@@ -5,11 +5,10 @@
    Articulates essentially 2 kind of tests:
 
    - Regular function calls
-   - \"Main\" suites that some collections must pass, testing for consistency
-     between collection functions.
+   - Suites that some collections must pass, testing for consistency between collection functions.
   
-   Main suites expect a context that has been previously prepared with `ctx-main` and derive an extensive series of related
-   and less related tests around `assoc`."
+   Main suites must be passed by all types of collection, whereas other suites like [[suite-assoc]] are specialized
+   on collection type."
 
   {:author "Adam Helinski"}
 
@@ -20,7 +19,8 @@
             [convex.lisp.test.schema :as $.test.schema]))
 
 
-(declare suite-kv+)
+(declare ctx-main
+         suite-kv+)
 
 
 ;;;;;;;;;; Creating collections from functions
@@ -92,34 +92,44 @@
 ;;;;;;;;;; Main - Creating an initial context
 
 
-(defn ctx-main
+(defn ctx-assoc
 
-  "Creating a base context for main test suites.
+  "Creating a base context suitable for main suites and suites operating on types that support
+   `assoc`.
 
-   Interns in the environment:
-
-   | Symbol | Meaning |
-   |---|---|
-   | `k` | Generated key |
-   | `v` | Generated value |
-   | `x` | Generated collection (sometimes nil) |
-   | `x-2` | `x` after `(assoc x k v)` |
-
-   By default, `fmap-x` quotes `x` to prevent unwanted evaluation."
-
+   Relies on [[ctx-main]], where `x-2` becomes `x` with the added key-value."
 
   ([[x k v]]
 
-   (ctx-main x
-             k
-             v))
+   (ctx-assoc x
+              k
+              v))
 
 
   ([x k v]
 
-   (-> ($.form/templ {'?k k
-                      '?v v
-                      '?x x}
+   (ctx-main x
+             ($.form/templ {'?k k
+                            '?v v
+                            '?x x}
+                           '(assoc ?x
+                                   '?k
+                                   '?v))
+             k
+             v)))
+
+
+
+(defn ctx-main
+
+  "Creates a context by interning the given values (using same symbols as this signature)."
+
+  [x x-2 k v]
+
+  (-> ($.form/templ {'?k   k
+                     '?v   v
+                     '?x   x
+                     '?x-2 x-2}
                      '(do
                         (def k
                              '?k)
@@ -128,13 +138,39 @@
                         (def x
                              ?x)
                         (def x-2
-                             (assoc x
-                                    k
-                                    v))))
-       $.test.eval/form->ctx)))
+                             ?x-2)))
+       $.test.eval/form->ctx))
 
 
 ;;;;;;;;;; Main - Different suites targeting different collection capabilities
+
+
+(defn suite-assoc
+
+  "See checkpoint."
+
+  [ctx]
+
+  ($.test.prop/checkpoint*
+
+    "`assoc`"
+
+    ($.test.prop/mult*
+  
+      "Associating existing value does not change anything"
+      ($.test.eval/form ctx
+                        '(= x-2
+                            (assoc x-2
+                                   k
+                                   v)))
+  
+      "Consistent with `assoc-in`"
+      ($.test.eval/form ctx
+                        '(= x-2
+                            (assoc-in x
+                                      [k]
+                                      v))))))
+
 
 
 (defn suite-dissoc
@@ -430,36 +466,23 @@
 
     ($.test.prop/mult*
 
-      "Contains key"
-      ($.test.eval/form ctx
-                        '(contains-key? x-2
-                                        k))
+      ;; "Contains key"
+      ;; ($.test.eval/form ctx
+      ;;                   '(contains-key? x-2
+      ;;                                   k))
 
-      "Associating existing value does not change anything"
-      ($.test.eval/form ctx
-                        '(= x-2
-                            (assoc x-2
-                                   k
-                                   v)))
+      ;; "`get` returns the value"
+      ;; ($.test.eval/form ctx
+      ;;                   '(= v
+      ;;                       (get x-2
+      ;;                            k)))
 
-      "Consistent with `assoc-in`"
-      ($.test.eval/form ctx
-                        '(= x-2
-                            (assoc-in x
-                                      [k]
-                                      v)))
+      ;; "`get-in` returns the value"
+      ;; ($.test.eval/form ctx
+      ;;                   '(= v
+      ;;                       (get-in x-2
+      ;;                               [k])))
 
-      "`get` returns the value"
-      ($.test.eval/form ctx
-                        '(= v
-                            (get x-2
-                                 k)))
-
-      "`get-in` returns the value"
-      ($.test.eval/form ctx
-                        '(= v
-                            (get-in x-2
-                                    [k])))
       "Cannot be empty"
       ($.test.eval/form ctx
                         '(not (empty? x-2)))
@@ -716,7 +739,8 @@
 
   [ctx]
 
-  ($.test.prop/and* (suite-main ctx)
+  ($.test.prop/and* (suite-assoc ctx)
+                    (suite-main ctx)
                     (suite-dissoc ctx)
                     (suite-kv+ ctx)
                     (suite-map-like ctx)))
@@ -777,22 +801,20 @@
                       :convex/blob
                       :convex/data]
                      (comp suite-map
-                           ctx-main)))
+                           ctx-assoc)))
 
 
 
 ($.test.prop/deftest ^:recur main-map
-
-  ;; Tests `get` as well, and with nil besides maps.
 
   ($.test.prop/check [:tuple
                       :convex/map
                       :convex/data
                       :convex/data]
                      (fn [[x k v]]
-                       (let [ctx (ctx-main ($.form/quoted x)
-                                           k
-                                           v)]
+                       (let [ctx (ctx-assoc ($.form/quoted x)
+                                            k
+                                            v)]
                          ($.test.prop/and* (suite-map ctx)
                                            (suite-hash-map ctx))))))
 
@@ -800,20 +822,16 @@
 
 ($.test.prop/deftest ^:recur main-nil
 
-  ;; Tests `get` as well, and with nil besides maps.
-
   ($.test.prop/check [:tuple
                       :convex/nil
                       :convex/data
                       :convex/data]
                      (comp suite-map
-                           ctx-main)))
+                           ctx-assoc)))
 
 
 
 ($.test.prop/deftest ^:recur main-sequential
-
-  ;; Tests `get` as well.
 
   ;; TODO. Should `(assoc [] 0 :ok)` be legal? See https://github.com/Convex-Dev/convex/issues/94
 
@@ -826,11 +844,30 @@
                         #(pos? (count %))]]
                       :convex/data]
                      (fn [[coll v]]
-                       (let [ctx (ctx-main ($.form/quoted coll)
-                                           (rand-int (count coll))
-                                           v)]
-                         ($.test.prop/and* (suite-main ctx)
+                       (let [ctx (ctx-assoc ($.form/quoted coll)
+                                            (rand-int (count coll))
+                                            v)]
+                         ($.test.prop/and* (suite-assoc ctx)
+                                           (suite-main ctx)
                                            (suite-sequential ctx))))))
+
+
+
+($.test.prop/deftest ^:recur main-set
+
+  ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/109
+  ;;                         https://github.com/Convex-Dev/convex/issues/110
+
+  ($.test.prop/check [:and
+                      :convex/set
+                      [:fn
+                       #(pos? (count %))]]
+                     (fn [x]
+                       (suite-main (let [v (first x)]
+                                     (ctx-main x
+                                               ($.form/quoted x)
+                                               v
+                                               v))))))
 
 
 ;;;;;;;;;; `assoc`
