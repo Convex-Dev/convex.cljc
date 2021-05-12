@@ -22,16 +22,25 @@
 
 
 
+(defn error
+
+  "Like [[ctx]] but returns the error that has occured (or nil)."
+
+  [ctx src]
+
+  ($.ctx/error (convex.lisp.eval.src/ctx ctx
+                                         src)))
+
+
+
 (defn error?
 
   "Like [[ctx]] but returns a boolean indicating if an error occured."
 
   [ctx src]
 
-  (-> (convex.lisp.eval.src/ctx ctx
-                                src)
-      $.ctx/error
-      boolean))
+  (some? (error ctx
+                src)))
 
 
 

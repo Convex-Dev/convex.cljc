@@ -29,6 +29,17 @@
 
 
 
+(defn error
+
+  "Like [[ctx]] but returns the error that has occured (or nil)."
+
+  [ctx form]
+
+  ($.eval.src/error ctx
+                    ($.form/src form)))
+
+
+
 (defn error?
 
   "Like [[ctx]] but returns a boolean indicating if an error occured."
@@ -51,7 +62,7 @@
 
   (-> ($.eval.src/ctx ctx
                       ($.form/src ($.form/templ {'?form form}
-                                                 '(log {:form '?form
+                                                '(log {:form   '?form
                                                        :return ?form}))))
       $.ctx/log
       $/datafy))

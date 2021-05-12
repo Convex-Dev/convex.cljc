@@ -511,7 +511,6 @@
 
 
 
-
 (defn pred-data-false
 
   "Like [[pred-data-true]] but tests for negative results.
