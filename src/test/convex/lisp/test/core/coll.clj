@@ -466,6 +466,9 @@
 
     ($.test.prop/mult*
 
+      ;; <!> TODO. Fails on sets because of: https://github.com/Convex-Dev/convex/issues/109
+      ;;                                     https://github.com/Convex-Dev/convex/issues/110
+      
       ;; "Contains key"
       ;; ($.test.eval/form ctx
       ;;                   '(contains-key? x-2
@@ -864,7 +867,7 @@
                        #(pos? (count %))]]
                      (fn [x]
                        (suite-main (let [v (first x)]
-                                     (ctx-main x
+                                     (ctx-main ($.form/quoted x)
                                                ($.form/quoted x)
                                                v
                                                v))))))
@@ -1065,6 +1068,45 @@
                                          path-2
                                          v)))))
 
+
+;;;;;;;;;; Misc
+
+
+($.test.prop/deftest ^:recur merge--
+
+  ($.test.prop/check [:vector
+                      [:or
+                       :convex/map
+                       :convex/nil]]
+                     (fn [x]
+                       (let [ctx ($.test.eval/form->ctx ($.form/templ {'?x x}
+                                                                      '(do
+                                                                         (def arg+
+                                                                              '?x)
+                                                                         (def -merge
+                                                                              (apply merge
+                                                                                     arg+)))))]
+                         ($.test.prop/mult*
+
+                           "Count of merge cannot be bigger than all involved key-values"
+                           ($.test.eval/form ctx
+                                             '(<= (count -merge)
+                                                  (reduce (fn [acc arg]
+                                                            (+ acc
+                                                               (count arg)))
+                                                          0
+                                                          arg+)))
+
+                           "All key-values in merged result must be in at least one input"
+                           ($.test.eval/form ctx
+                                             '($/every? (fn [[k v]]
+                                                          ($/some (fn [arg]
+                                                                    (= v
+                                                                       (get arg
+                                                                            k)))
+                                                                  arg+))
+                                                        -merge))
+                           )))))
 
 ;;;;;;;;;;
 

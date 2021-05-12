@@ -130,6 +130,18 @@
                                         (recur (dec i))
                                         false)
                                       true)))
+
+                                (defn some
+
+                                  [f coll]
+
+                                  (boolean (reduce (fn [_acc x]
+                                                     (let [x-2 (f x)]
+                                                       (if x-2
+                                                         (reduced x-2)
+                                                         false)))
+                                                   true
+                                                   coll)))
                                 )))))
       ($.eval/form->ctx
         '(import $ :as $))))

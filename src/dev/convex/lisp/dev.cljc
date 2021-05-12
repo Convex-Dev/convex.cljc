@@ -111,6 +111,12 @@
        $/datafy
        )
 
+  (->> "(quote [:a 4])"
+       $/read
+       ($.ctx/eval ($.ctx/create-fake))
+       $.ctx/result
+       )
+
 
 
   (-> ($.ctx/expand-compile ($.ctx/create-fake)
