@@ -15,18 +15,11 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.test                    :as t]
-            [clojure.test.check.clojure-test :as tc.ct]
-            [convex.lisp.test.eval           :as $.test.eval]
-            [convex.lisp.test.prop           :as $.test.prop]
-            [convex.lisp.test.schema         :as $.test.schema]))
+  (:require [clojure.test            :as t]
+            [convex.lisp.test.eval   :as $.test.eval]
+            [convex.lisp.test.prop   :as $.test.prop]
+            [convex.lisp.test.schema :as $.test.schema]))
 
-
-;;;;;;;;;; Defaults
-
-
-(def max-size-coll
-     5)
 
 ;;;;;;;;;; Generative tests - Scalar values
 
@@ -37,37 +30,37 @@
  
 
 
-(tc.ct/defspec address
+($.test.prop/deftest address
 
   ($.test.prop/data-quotable :convex/address))
 
 
 
-(tc.ct/defspec blob
+($.test.prop/deftest blob
 
   ($.test.prop/data-quotable :convex/blob))
 
 
 
-(tc.ct/defspec boolean-
+($.test.prop/deftest boolean-
 
   ($.test.prop/data-quotable :convex/boolean))
 
 
 
-(tc.ct/defspec char-
+($.test.prop/deftest char-
 
   ($.test.prop/data-quotable :convex/char))
 
 
 
-(tc.ct/defspec double-
+($.test.prop/deftest double-
 
   ($.test.prop/data-quotable :convex/double))
 
 
 
-(tc.ct/defspec double-E-notation
+($.test.prop/deftest double-E-notation
 
   ($.test.prop/check ($.test.schema/E-notation :convex/long)
                      (comp double?
@@ -75,7 +68,7 @@
 
 
 
-#_(tc.ct/defspec double-E-notation--fail
+#_($.test.prop/deftest double-E-notation--fail
 
   ;; TODO. Must be fixed, see #70.
 
@@ -84,19 +77,19 @@
 
 
 
-(tc.ct/defspec keyword-
+($.test.prop/deftest keyword-
 
   ($.test.prop/data-quotable :convex/keyword))
 
 
 
-(tc.ct/defspec long-
+($.test.prop/deftest long-
 
   ($.test.prop/data-quotable :convex/long))
 
 
 
-(tc.ct/defspec string-
+($.test.prop/deftest string-
 
   ;; TODO. Suffers from #66.
 
@@ -104,7 +97,7 @@
 
 
 
-(tc.ct/defspec symbol-
+($.test.prop/deftest symbol-
 
   ($.test.prop/data-quoted :convex/symbol))
 
@@ -112,32 +105,24 @@
 ;;;;;;;;;; Generative tests - Collections
 
 
-(tc.ct/defspec list-
-
-  {:max-size max-size-coll}
+($.test.prop/deftest ^:recur list-
 
   ($.test.prop/data-quoted :convex/list))
 
 
 
-(tc.ct/defspec map-
-
-  {:max-size max-size-coll}
+($.test.prop/deftest ^:recur map-
 
   ($.test.prop/data-quoted :convex/map))
 
 
 
-(tc.ct/defspec set-
-
-  {:max-size max-size-coll}
+($.test.prop/deftest ^:recur set-
 
   ($.test.prop/data-quoted :convex/set))
 
 
 
-(tc.ct/defspec vector-
-
-  {:max-size max-size-coll}
+($.test.prop/deftest vector-
 
   ($.test.prop/data-quoted :convex/vector))
