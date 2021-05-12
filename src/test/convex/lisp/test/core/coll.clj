@@ -1108,6 +1108,29 @@
                                                         -merge))
                            )))))
 
+
+
+($.test.prop/deftest ^:recur reduce--
+
+  ($.test.prop/check [:and
+                      :convex/collection
+                      [:fn #(pos? (count %))]]
+                     (fn [x]
+                       ($.test.eval/form ($.form/templ {'?i (rand-int (count x))
+                                                        '?x x}
+                                                       '(let [x '?x
+                                                              v (nth x
+                                                                     ?i)]
+                                                          (= v
+                                                             (reduce (fn [acc item]
+                                                                       (if (= item
+                                                                              v)
+                                                                         (reduced item)
+                                                                         acc))
+                                                                     :convex-sentinel
+                                                                     x))))))))
+
+
 ;;;;;;;;;;
 
 
@@ -1119,8 +1142,6 @@
 ; list
 ; vector
 
-
-
 ;; Associative operations (with lists as well)
 
 ; assoc
@@ -1128,8 +1149,6 @@
 ; contains-key?
 ; get
 ; get-in
-
-
 
 ;; Map operations
 
@@ -1139,31 +1158,20 @@
 ; merge
 ; values
 
-
-
 ;; Misc operations
 
+; concat
 ; conj
+; cons
 ; count
 ; empty
 ; empty?
 ; first
 ; into
 ; last
+; map && mapv
 ; next
 ; nth
 ; reduce
 ; reduced
 ; second
-
-
-;; Producing vectors
-
-; concat
-; map && mapv ???
-
-
-
-;; Producing lists
-
-; cons
