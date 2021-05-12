@@ -214,7 +214,7 @@
    Tests each pair of checkpoint and function. Fails with [[faill]] and the message when
    a predicate returns false.
 
-   A checkpoint could be anything. Most commonly a human readable string.
+   A checkpoint could be anything. Most commonly a human readable string. See [[checkpoint]].
 
    Composes with itself. A function could be another call to [[mult]] and in case of failure,
    all checkpoints leading to it figure under `:convex.lisp/error` (see [[fail]]).

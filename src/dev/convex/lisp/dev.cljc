@@ -18,6 +18,7 @@
                       [convex.lisp.test.core.coerce]
                       [convex.lisp.test.core.coll]
                       [convex.lisp.test.core.fn]
+                      [convex.lisp.test.core.loop]
                       [convex.lisp.test.core.math]
                       [convex.lisp.test.core.pred]
                       [convex.lisp.test.core.set]
