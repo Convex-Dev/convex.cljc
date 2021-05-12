@@ -16,12 +16,67 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.test            :as t]
+            [convex.lisp.form        :as $.form]
             [convex.lisp.test.eval   :as $.test.eval]
             [convex.lisp.test.prop   :as $.test.prop]
-            [convex.lisp.test.schema :as $.test.schema]))
+            [convex.lisp.test.schema :as $.test.schema]
+            [convex.lisp.test.util   :as $.test.util])) 
 
 
-;;;;;;;;;; Generative tests - Scalar values
+;;;;;;;;;; Reusing properties
+
+
+(defn prop-eq
+
+  "Checks generating a value from `schema` and evaling it. Result must be equal to initial value.
+
+   `f` can be provided for mapping a generated value prior to evaling."
+
+  
+  ([schema]
+
+   (prop-eq schema
+              identity))
+
+
+  ([schema f]
+
+   ($.test.prop/check schema
+                      (fn [x]
+                        ($.test.util/eq x
+                                        (-> x
+                                            f
+                                            $.test.eval/result))))))
+
+
+
+(defn prop-quotable
+
+  "Like [[prop-eq]] but ensures that quoting the generated value does not change anything in the result."
+
+  [schema]
+
+  ($.test.prop/check schema
+                     (fn [x]
+                       ($.test.util/eq x
+                                       ($.test.eval/result x)
+                                       ($.test.eval/result ($.form/quoted x))))))
+
+
+
+(defn prop-quoted
+
+  "Like [[prop-eq]] but quotes the generated values.
+  
+   Useful for preventing any symbol from being evaled."
+
+  [schema]
+
+  (prop-eq schema
+           $.form/quoted))
+
+
+;;;;;;;;;; Scalar values
 
 
 (t/deftest nil--
@@ -32,31 +87,31 @@
 
 ($.test.prop/deftest address
 
-  ($.test.prop/data-quotable :convex/address))
+  (prop-quotable :convex/address))
 
 
 
 ($.test.prop/deftest blob
 
-  ($.test.prop/data-quotable :convex/blob))
+  (prop-quotable :convex/blob))
 
 
 
 ($.test.prop/deftest boolean-
 
-  ($.test.prop/data-quotable :convex/boolean))
+  (prop-quotable :convex/boolean))
 
 
 
 ($.test.prop/deftest char-
 
-  ($.test.prop/data-quotable :convex/char))
+  (prop-quotable :convex/char))
 
 
 
 ($.test.prop/deftest double-
 
-  ($.test.prop/data-quotable :convex/double))
+  (prop-quotable :convex/double))
 
 
 
@@ -79,13 +134,13 @@
 
 ($.test.prop/deftest keyword-
 
-  ($.test.prop/data-quotable :convex/keyword))
+  (prop-quotable :convex/keyword))
 
 
 
 ($.test.prop/deftest long-
 
-  ($.test.prop/data-quotable :convex/long))
+  (prop-quotable :convex/long))
 
 
 
@@ -93,13 +148,13 @@
 
   ;; TODO. Suffers from #66.
 
-  ($.test.prop/data :convex/string))
+  (prop-eq :convex/string))
 
 
 
 ($.test.prop/deftest symbol-
 
-  ($.test.prop/data-quoted :convex/symbol))
+  (prop-quoted :convex/symbol))
 
 
 ;;;;;;;;;; Generative tests - Collections
@@ -107,22 +162,22 @@
 
 ($.test.prop/deftest ^:recur list-
 
-  ($.test.prop/data-quoted :convex/list))
+  (prop-quoted :convex/list))
 
 
 
 ($.test.prop/deftest ^:recur map-
 
-  ($.test.prop/data-quoted :convex/map))
+  (prop-quoted :convex/map))
 
 
 
 ($.test.prop/deftest ^:recur set-
 
-  ($.test.prop/data-quoted :convex/set))
+  (prop-quoted :convex/set))
 
 
 
-($.test.prop/deftest vector-
+($.test.prop/deftest ^:recur vector-
 
-  ($.test.prop/data-quoted :convex/vector))
+  (prop-quoted :convex/vector))

@@ -1,14 +1,18 @@
 (ns convex.lisp.test.eval
 
-  "Bridge to [[convex.lisp.eval]] but uses [[ctx]] when no context is provided."
+  "Bridge to [[convex.lisp.eval]] but uses [[ctx]] when no context is provided.
+  
+   Undocumented symbols refer directly to the [[convex.lisp.eval]] namespace."
 
   {:author "Adam Helinski"}
 
-  (:require [convex.lisp.ctx  :as $.ctx]
-            [convex.lisp.eval :as $.eval]))
+  (:require [convex.lisp.ctx       :as $.ctx]
+            [convex.lisp.eval      :as $.eval]
+            [convex.lisp.test.util :as $.test.util]))
 
 
-(declare ctx-base)
+(declare ctx-base
+         result)
 
 
 ;;;;;;;;;;
@@ -43,6 +47,30 @@
 
    ($.eval/error? ctx
                   form)))
+
+
+
+(defn like-clojure?
+
+  "Returns true if applying `arg+` to `form` on the CVM produces the exact same result as
+   `(apply f arg+)`"
+
+
+  ([form f arg+]
+
+   (like-clojure? ctx-base
+                  form
+                  f
+                  arg+))
+
+
+  ([ctx form f arg+]
+
+   ($.test.util/eq (apply f
+                          arg+)
+                   ($.eval/result ctx
+                                  (list* form
+                                         arg+)))))
 
 
 

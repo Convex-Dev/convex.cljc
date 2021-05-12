@@ -16,11 +16,31 @@
             [convex.lisp.form        :as $.form]
             [convex.lisp.test.eval   :as $.test.eval]
             [convex.lisp.test.prop   :as $.test.prop]
-            [convex.lisp.test.schema :as $.test.schema]))
+            [convex.lisp.test.schema :as $.test.schema]
+            [convex.lisp.test.util   :as $.test.util]))
 
 
 (declare ctx-main
          suite-kv+)
+
+
+;;;;;;;;;; Reusing properties
+
+
+(defn prop-create-sequential
+
+  "Checks that creating data using `form` (a variadic CVM function) produces the same result as in Clojure using `f-clojure`."
+
+  [form f-clojure]
+
+  ($.test.prop/check [:vector
+                      :convex/data]
+                     (fn [x]
+                       ($.test.util/eq (apply f-clojure
+                       	                	  x)
+                                       ($.test.eval/result (list* form
+                                                                  (map $.form/quoted
+                                                                       x)))))))
 
 
 ;;;;;;;;;; Creating collections from functions
@@ -78,15 +98,15 @@
 
 ($.test.prop/deftest ^:recur list--
 
-  ($.test.prop/create-data 'list
+  (prop-create-sequential 'list
                            list))
 
 
 
 ($.test.prop/deftest ^:recur vector--
 
-  ($.test.prop/create-data 'vector
-                           vector))
+  (prop-create-sequential 'vector
+                          vector))
 
 
 ;;;;;;;;;; Main - Creating an initial context

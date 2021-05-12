@@ -16,24 +16,71 @@
             [convex.lisp.test.util :as $.test.util]))
 
 
+;;;;;;;;;; Reusing properties
+
+
+(defn prop-arithmetic
+
+  "Checks applying a vector of numbers to `form` on the CVM.
+  
+   Tests 2 properties:
+  
+   - Using only longs results in a long
+   - Using at least one double results in a double"
+
+  [form]
+
+  ($.test.prop/check [:vector
+                      {:min 1}
+                      :convex/long]
+                     (fn [x]
+                       ($.test.prop/mult*
+                         
+                         "Numerical computation of longs must result in a long"
+                         (int? ($.test.eval/result (list* form
+                                                          x)))
+
+                         "Numerical computation with at least one double must result in a double"
+                         (double? ($.test.eval/result (list* form
+                                                             (update x
+                                                                     (rand-int (dec (count x)))
+                                                                     double))))))))
+
+
+
+(defn prop-comparison
+
+  "Checks if applying numbers to `form` on the CVM produces the exact same result (a boolean)
+   as in Clojure."
+
+  [form f]
+
+  ($.test.prop/check [:vector
+                      {:min 1}
+                      :convex/number]
+                     (partial $.test.eval/like-clojure?
+                              form
+                              f)))
+
+
 ;;;;;;;;;; Arithmetic operators
 
 
 ($.test.prop/deftest *--
 
-  ($.test.prop/arithmetic '*))
+  (prop-arithmetic '*))
 
 
 
 ($.test.prop/deftest +--
 
-  ($.test.prop/arithmetic '+))
+  (prop-arithmetic '+))
 
 
 
 ($.test.prop/deftest ---
 
-  ($.test.prop/arithmetic '-))
+  (prop-arithmetic '-))
 
 
 
@@ -52,36 +99,36 @@
 
 ($.test.prop/deftest <--
 
-  ($.test.prop/comparison '<
-                          <))
+  (prop-comparison '<
+                   <))
 
 
 
 ($.test.prop/deftest <=--
 
-  ($.test.prop/comparison '<=
-                          <=))
+  (prop-comparison '<=
+                   <=))
 
 
 
 ($.test.prop/deftest =--
 
-  ($.test.prop/comparison '=
-                          =))
+  (prop-comparison '=
+                   =))
 
 
 
 ($.test.prop/deftest >=--
 
-  ($.test.prop/comparison '>=
-                          >=))
+  (prop-comparison '>=
+                   >=))
 
 
 
 ($.test.prop/deftest >--
 
-  ($.test.prop/comparison '>
-                          >))
+  (prop-comparison '>
+                   >))
 
 
 
@@ -93,10 +140,10 @@
 
   ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/99
 
-  ($.test.prop/comparison 'max
-                          (fn [& arg+]
-                            (apply max
-                                   (reverse arg+)))))
+  (prop-comparison 'max
+                   (fn [& arg+]
+                     (apply max
+                            (reverse arg+)))))
 
 
 
@@ -106,10 +153,10 @@
 
   ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/99
 
-  ($.test.prop/comparison 'min
-                          (fn [& arg+]
-                            (apply min
-                                   (reverse arg+)))))
+  (prop-comparison 'min
+                   (fn [& arg+]
+                     (apply min
+                            (reverse arg+)))))
 
 
 ;;;;;;;;;; Exponentiation
@@ -117,9 +164,10 @@
 
 ($.test.prop/deftest exp--
 
-  ($.test.prop/like-clojure 'exp
-                            #(StrictMath/exp %)
-                            [:tuple :convex/number]))
+  ($.test.prop/check [:tuple :convex/number]
+                     (partial $.test.eval/like-clojure?
+                              'exp
+                              #(StrictMath/exp %))))
 
 
 
@@ -156,12 +204,12 @@
 
 
 
-
 ($.test.prop/deftest sqrt--
 
-  ($.test.prop/like-clojure 'sqrt
-                            #(StrictMath/sqrt %)
-                            [:tuple :convex/number]))
+  ($.test.prop/check [:tuple :convex/number]
+                     (partial $.test.eval/like-clojure?
+                              'sqrt
+                              #(StrictMath/sqrt %))))
 
 
 ;;;;;;;;;; Increment / decrement
@@ -282,17 +330,19 @@
 
 ($.test.prop/deftest ceil--
 
-  ($.test.prop/like-clojure 'ceil
-                            #(StrictMath/ceil %)
-                            [:tuple :convex/number]))
+  ($.test.prop/check [:tuple :convex/number]
+                     (partial $.test.eval/like-clojure?
+                              'ceil
+                              #(StrictMath/ceil %))))
 
 
 
 ($.test.prop/deftest floor--
 
-  ($.test.prop/like-clojure 'floor
-                            #(StrictMath/floor %)
-                            [:tuple :convex/number]))
+  ($.test.prop/check [:tuple :convex/number]
+                     (partial $.test.eval/like-clojure?
+                              'floor
+                              #(StrictMath/floor %))))
 
 
 ;;;;;;;;;; Sign operations
