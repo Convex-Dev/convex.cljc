@@ -24,7 +24,6 @@
                       [convex.lisp.test.data]
                       [convex.lisp.test.edn]
                       [convex.lisp.test.eval]
-                      [convex.lisp.test.mult]
                       [convex.lisp.test.prop]
                       [convex.lisp.test.schema        :as $.test.schema]
                       [convex.lisp.test.util]

@@ -4,13 +4,63 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.lisp.form      :as $.form]
-            [convex.lisp.test.eval :as $.test.eval]
-            [convex.lisp.test.mult :as $.test.mult]
-            [convex.lisp.test.prop :as $.test.prop]))
+  (:require [convex.lisp.form        :as $.form]
+            [convex.lisp.test.eval   :as $.test.eval]
+            [convex.lisp.test.prop   :as $.test.prop]
+            [convex.lisp.test.schema :as $.test.schema]))
 
 
-;;;;;;;;;;
+;;;;;;;;;; Suites
+
+
+(defn suite-new
+
+  "Every new account, actor or user, must pass this suite.
+
+   Assumes address is interned as `addr`."
+
+  [ctx actor?]
+
+  ($.test.prop/checkpoint*
+
+    "Every new account must pass this suite"
+
+    ($.test.prop/mult*
+
+      "Address is interned"
+      ($.test.schema/valid? :convex/address
+                            ($.test.eval/result ctx
+                                                'addr))
+      "(account?)"
+      ($.test.eval/result ctx
+                          '(account? addr))
+      "(actor?)"
+      (actor? ($.test.eval/result ctx
+                                  '(actor? addr)))
+      "(address?)"
+      ($.test.eval/result ctx
+                          '(address? addr))
+      "(balance)"
+      (zero? ($.test.eval/result ctx
+                                 '(balance addr)))
+      "(get-holding)"
+      (nil? ($.test.eval/result ctx
+                                '(get-holding addr
+                                              )))
+      "(account) and comparing with *state*"
+      (let [[addr-long
+             account]  ($.test.eval/result ctx
+                                           '[(long addr)
+                                             (account addr)])]
+        (= account
+           ($.test.eval/result ctx
+                               ($.form/templ {'?addr addr-long}
+                                             '(get-in *state*
+                                                      [:accounts
+                                                       ?addr]))))))))
+
+
+;;;;;;;;;; Tests
 
 
 ($.test.prop/deftest account-inexistant
@@ -35,12 +85,10 @@
 
   ($.test.prop/check :convex/hexstring-32
                      (fn [x]
-                       ($.test.prop/mult
-                         ($.test.mult/new-account []
-                                                  ($.test.eval/ctx ($.form/templ {'?hexstring x}
-                                                                                 '(def addr
-                                                                                       (create-account ?hexstring))))
-                                                  false?)))))
+                       (suite-new ($.test.eval/ctx ($.form/templ {'?hexstring x}
+                                                                 '(def addr
+                                                                       (create-account ?hexstring))))
+                                  false?))))
 
 
 

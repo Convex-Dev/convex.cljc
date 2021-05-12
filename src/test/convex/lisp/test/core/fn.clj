@@ -1,16 +1,79 @@
 (ns convex.lisp.test.core.fn
 
-  ""
+  "Testing creating functions and calling them."
 
   {:author "Adam Helinski"}
 
   (:require [convex.lisp.form        :as $.form]
-            [convex.lisp.test.mult   :as $.test.mult]
+            [convex.lisp.test.eval   :as $.test.eval]
             [convex.lisp.test.prop   :as $.test.prop]
             [convex.lisp.test.schema :as $.test.schema]))
 
 
-;;;;;;;;;;
+;;;;;;;;;; Suites
+
+
+(defn suite-fn?
+
+  "Tests is `form` evaluates to a function."
+
+  [form]
+
+  ($.test.prop/checkpoint*
+
+    "`fn?`"
+    ($.test.eval/result (list 'fn?
+                              form))))
+
+
+
+(defn suite-fn-call
+
+  "Tests different ways of calling `form` as a function with `arg+` and ensuring it always
+   returns `ret`."
+
+  [form arg+ ret]
+
+  ($.test.prop/checkpoint*
+
+    "Calling a function"
+
+    ($.test.prop/mult*
+
+      "Direct call"
+      ($.test.eval/result (list '=
+                                ret
+                                (list* form
+                                       arg+)))
+
+      "Calling after interning"
+      ($.test.prop/mult-result ($.test.eval/result ($.form/templ {'?call (list* 'f
+                                                                                arg+)
+                                                                  '?fn   form
+                                                                  '?ret  ret}
+                                                                 '(do
+                                                                    (def f
+                                                                         ?fn)
+                                                                    [(fn? f)
+                                                                     (= ?ret
+                                                                        ?call)])))
+                               ["Fn?"
+                                "Equal"])
+
+      "Calling as local binding"
+      ($.test.prop/mult-result ($.test.eval/result ($.form/templ {'?call (list* 'f
+                                                                                arg+)
+                                                                  '?fn   form
+                                                                  '?ret  ret}
+                                                                 '(let [f ?fn]
+                                                                    [(fn? f)
+                                                                     (= ?ret
+                                                                        ?call)])))
+                               ["Fn?"
+                                "Equal"]))))
+
+
+;;;;;;;;;; Tests
 
 
 ($.test.prop/deftest ^:recur fn--arg-0
@@ -19,17 +82,14 @@
 
   ($.test.prop/check :convex/data
                      (fn [x]
-                       ($.test.prop/mult (let [x-2     ($.form/quoted x)
-                                               fn-form (list 'fn
-                                                             []
-                                                             x-2)]
-                                           (-> []
-                                               ($.test.mult/fn?- fn-form)
-                                               ($.test.mult/fn-call fn-form
-                                                                    nil
-                                                                    x-2)))))))
-                                               
-
+                      (let [x-2     ($.form/quoted x)
+                            fn-form (list 'fn
+                                           []
+                                           x-2)]
+                        ($.test.prop/and* (suite-fn? fn-form)
+                                          (suite-fn-call fn-form
+                                                         nil
+                                                         x-2))))))
 
 
 
@@ -39,19 +99,18 @@
 
   ($.test.prop/check ($.test.schema/binding+ 1)
                      (fn [x]
-                       ($.test.prop/mult (let [arg+     (mapv (comp $.form/quoted
-                                                                    second)
-                                                              x)
-                                               binding+ (mapv first
-                                                              x)
-                                               fn-form  (list 'fn
-                                                              binding+
-                                                              binding+)]
-                                           (-> []
-                                               ($.test.mult/fn?- fn-form)
-                                               ($.test.mult/fn-call fn-form
-                                                                    arg+
-                                                                    arg+)))))))
+                       (let [arg+     (mapv (comp $.form/quoted
+                                                  second)
+                                            x)
+                             binding+ (mapv first
+                                            x)
+                             fn-form  (list 'fn
+                                            binding+
+                                            binding+)]
+                         ($.test.prop/and* (suite-fn? fn-form)
+                                           (suite-fn-call fn-form
+                                                          arg+
+                                                          arg+))))))
 
 
 
@@ -78,34 +137,31 @@
                          ($.test.prop/mult*
                            
                            "Right number of arguments"
-                           ($.test.prop/mult (-> []
-                                                 ($.test.mult/fn?- fn-form)
-                                                 ($.test.mult/fn-call fn-form
-                                                                      arg+
-                                                                      (update arg+
-                                                                              pos-amper
-                                                                              vector))))
+                           ($.test.prop/and* (suite-fn? fn-form)
+                                             (suite-fn-call fn-form
+                                                            arg+
+                                                            (update arg+
+                                                                    pos-amper
+                                                                    vector)))
 
                            "1 argument less"
-                           ($.test.prop/mult ($.test.mult/fn-call []
-                                                                  fn-form
-                                                                  (vec (concat (take pos-amper
-                                                                                     arg+)
-                                                                               (drop (inc pos-amper)
-                                                                                     arg+)))
-                                                                  (assoc arg+
-                                                                         pos-amper
-                                                                         [])))
+                           (suite-fn-call fn-form
+                                          (vec (concat (take pos-amper
+                                                             arg+)
+                                                       (drop (inc pos-amper)
+                                                             arg+)))
+                                          (assoc arg+
+                                                 pos-amper
+                                                 []))
                             
                            "Extra argument"
-                           ($.test.prop/mult ($.test.mult/fn-call []
-                                                                  fn-form
-                                                                  (vec (concat (take pos-amper
-                                                                                     arg+)
-                                                                               [42]
-                                                                               (drop pos-amper
-                                                                                     arg+)))
-                                                                  (update arg+
-                                                                          pos-amper 
-                                                                          #(vector 42
-                                                                                   %)))))))))
+                           (suite-fn-call fn-form
+                                          (vec (concat (take pos-amper
+                                                             arg+)
+                                                       [42]
+                                                       (drop pos-amper
+                                                             arg+)))
+                                          (update arg+
+                                                  pos-amper 
+                                                  #(vector 42
+                                                           %))))))))
