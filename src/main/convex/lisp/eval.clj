@@ -77,3 +77,14 @@
 
   ($.eval.src/result ctx
                      ($.form/src form)))
+
+
+
+(defn value
+
+  "Like [[ctx]] but returns either an [[error]] or a [[result]]."
+  
+  [ctx form]
+
+  ($.eval.src/value ctx
+                    ($.form/src form)))

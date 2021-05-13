@@ -105,6 +105,22 @@
                   form)))
 
 
+
+(defn value
+
+
+  ([form]
+
+   (value ctx-base
+          form))
+
+
+  ([ctx form]
+
+   ($.eval/value ctx
+                 form)))
+
+
 ;;;;;;;;;;
 
 

@@ -54,3 +54,20 @@
                                 src)
       $.ctx/result
       $/datafy))
+
+
+
+(defn value
+
+  "Like [[ctx]] but returns either an [[error]] or a [[result]]."
+  
+  [ctx src]
+
+  (let [ctx-2 (convex.lisp.eval.src/ctx ctx
+                                        src)
+        error ($.ctx/error ctx-2)]
+    (if (nil? error)
+      (-> ctx-2
+          $.ctx/result
+          $/datafy)
+      error)))
