@@ -25,6 +25,7 @@
                       [convex.lisp.test.data]
                       [convex.lisp.test.edn]
                       [convex.lisp.test.eval]
+                      [convex.lisp.test.fuzzy]
                       [convex.lisp.test.prop]
                       [convex.lisp.test.schema        :as $.test.schema]
                       [convex.lisp.test.util]
@@ -36,6 +37,7 @@
             [clojure.test.check.properties            :as tc.prop]
             [clojure.test.check.results               :as tc.result]
             [malli.core                               :as malli]
+            [malli.error]
             [malli.generator                          :as malli.gen])
   #?(:clj (:import clojure.lang.RT
                    (convex.core Init
@@ -140,7 +142,7 @@
     (do
       ;(malli/validate [:not [:enum 1 2]]
       ;                3
-      (malli.gen/generate [:cat [:+ [:repeat {:min 2 :max 2} :int]] :boolean]
+      (malli.gen/generate :convex.core/call
         #_[:and
                            {:registry {::data    [:or
                                                   ::int

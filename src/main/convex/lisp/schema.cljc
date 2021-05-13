@@ -9,10 +9,60 @@
   (:require [clojure.string]
             [clojure.test.check.generators :as tc.gen]
             [convex.lisp.form              :as $.form]
-            [convex.lisp.hex               :as $.hex]))
+            [convex.lisp.hex               :as $.hex]
+            [malli.core                    :as malli]))
 
 
 ;;;;;;;;;; Schemas
+
+
+(defn call
+
+  ""
+
+  [sym schema-arg+]
+
+  [:and
+   [:cat
+    [:= sym]
+    schema-arg+]
+   seq?])
+
+
+
+(defn core
+
+  ""
+
+
+  ([]
+
+   (core nil))
+
+
+  ([registry]
+
+   (assoc registry
+          :convex.core/call   [:and
+                               [:cat
+                                :convex.core/symbol
+                                [:*
+                                 {:gen/fmap (partial map
+                                                     $.form/quoted)}
+                                 :convex/data]]
+                               seq?]
+          :convex.core/symbol [:enum
+                               '*
+                               '+
+                               '-
+                               '/
+                               ]
+          :convex.core.api/+  (call '+
+                                    [:* [:or
+                                         :convex/number
+                                         :convex/symbol]])
+          )))
+
 
 
 (defn data
@@ -28,6 +78,16 @@
   ([registry]
 
    (assoc registry
+          :list                (malli/-collection-schema (fn [prop+ [child]]
+                                                           {:empty           '()
+                                                            :pred            seq?
+                                                            :type            :list
+                                                            :type-properties {:error/message "should be a list"
+                                                                              :gen/fmap      #(or (list* %)
+                                                                                                  '())
+                                                                              :gen/schema    [:vector
+                                                                                              prop+
+                                                                                              child]}}))
           :convex/address      [:and
                                 {:gen/fmap   $.form/address
                                  :gen/schema pos-int?}
@@ -99,13 +159,7 @@
                                  :gen/schema :convex/hexstring}
                                 $.hex/regex-32]
           :convex/keyword      :keyword
-          :convex/list         [:and
-                                ;; TODO. Currently, Malli does not support something like `:list`.
-                                {:gen/fmap   (partial into
-                                                      '())
-                                 :gen/schema :convex/vector}
-                                seq?
-                                [:sequential [:ref :convex/data]]]
+          :convex/list         [:list [:ref :convex/data]]
           :convex/long         :int
           :convex/map          [:map-of
                                 [:ref :convex/data]
@@ -175,4 +229,5 @@
   ([registry]
 
    (-> registry
+       core
        data)))
