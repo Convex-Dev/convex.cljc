@@ -54,16 +54,17 @@
           :convex.core/symbol [:enum
                                '*
                                '+
-                               '-
-                               '/
+                               ;'-
+                               ;'/
                                ]
 
-          :convex.core/result [:or
-                               :convex.core.api/*
-                               :convex.core.api/+
-                               :convex.core.api/-
-                               :convex.core.api/div
-                                 ]
+          :convex.core/result [:multi
+                               {:dispatch first}
+                               ['* :convex.core.api/*]
+                               ['+ :convex.core.api/+]
+                               ;:convex.core.api/-
+                               ;:convex.core.api/div
+                               ]
 
           :convex.core.api/*   (call '*
                                      [:* :convex.core/number])
@@ -81,6 +82,7 @@
                                 ;[:ref :convex.core.api/-]
                                 ;[:ref :convex.core.api/div]
                                 ]
+
           )))
 
 

@@ -7,8 +7,10 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.lisp.test.eval :as $.test.eval]
-            [convex.lisp.test.prop :as $.test.prop]))
+  (:require [convex.lisp.form        :as $.form]
+            [convex.lisp.test.eval   :as $.test.eval]
+            [convex.lisp.test.prop   :as $.test.prop]
+            [convex.lisp.test.schema :as $.test.schema]))
 
 
 ;;;;;;;;;;
@@ -20,6 +22,22 @@
                      (fn [x]
                        ($.test.eval/value x)
                        true)))
+
+
+
+($.test.prop/deftest ^:recur error
+
+  ($.test.prop/check [:and
+                      [:cat
+                       :convex.core/symbol
+                       [:* :convex/data]]
+                      [:fn (fn [x]
+                             (not ($.test.schema/valid? :convex.core/result
+                                                        x)))]]
+                     (fn [x]
+                       ($.test.eval/error? (list* (first x)
+                                                  (map $.form/quoted
+                                                       (rest x)))))))
 
 
 
