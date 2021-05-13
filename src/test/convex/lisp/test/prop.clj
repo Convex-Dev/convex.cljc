@@ -45,10 +45,11 @@
   ([sym option+ prop]
 
    `(tc.ct/defspec ~sym
-                   ~(merge (when (get (meta sym)
-                                      :recur)
-                             {:max-size 5})
-                           {:num-tests 100}
+                   ~(merge (let [-meta (meta sym)]
+                             (when-some [x (cond
+                                             (:fuzz -meta)  2
+                                             (:recur -meta) 5)]
+                               {:max-size x}))
                            option+)
                    ~prop)))
 

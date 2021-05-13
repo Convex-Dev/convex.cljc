@@ -24,7 +24,7 @@
                       [convex.lisp.test.core.set]
                       [convex.lisp.test.data]
                       [convex.lisp.test.edn]
-                      [convex.lisp.test.eval]
+                      [convex.lisp.test.eval          :as $.test.eval]
                       [convex.lisp.test.fuzzy]
                       [convex.lisp.test.prop]
                       [convex.lisp.test.schema        :as $.test.schema]
@@ -138,30 +138,28 @@
        )
 
   
-  (time
-    (do
-      ;(malli/validate [:not [:enum 1 2]]
-      ;                3
-      (malli.gen/generate :convex.core/call
-        #_[:and
-                           {:registry {::data    [:or
-                                                  ::int
-                                                  ::vector]
-                                       ::int     :int
-                                       ::vector  [:vector
-                                                  [:ref ::data]]}}
-                           [:or ::data]
-                           [:fn
-                            (fn [_]
-                              false)]]
+  (ppr
+    ;(malli/validate [:not [:enum 1 2]]
+    ;                3
+    (malli.gen/generate :convex.core/result
+      #_[:and
+                         {:registry {::data    [:or
+                                                ::int
+                                                ::vector]
+                                     ::int     :int
+                                     ::vector  [:vector
+                                                [:ref ::data]]}}
+                         [:or ::data]
+                         [:fn
+                          (fn [_]
+                            false)]]
 
 
-                          {:registry (-> (malli/default-schemas)
-                                         $.schema/registry
-                                         )
-                           :size     5
-                           })
-      nil))
+                        {:registry (-> (malli/default-schemas)
+                                       $.schema/registry
+                                       )
+                         :size     2
+                         }))
 
 
 

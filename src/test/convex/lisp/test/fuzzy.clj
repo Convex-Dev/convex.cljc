@@ -20,3 +20,12 @@
                      (fn [x]
                        ($.test.eval/value x)
                        true)))
+
+
+
+($.test.prop/deftest ^:fuzz result
+
+  ($.test.prop/check :convex.core/result
+                     (fn [x]
+                       ($.test.eval/result x)
+                       true)))

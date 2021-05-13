@@ -57,10 +57,30 @@
                                '-
                                '/
                                ]
-          :convex.core.api/+  (call '+
-                                    [:* [:or
-                                         :convex/number
-                                         :convex/symbol]])
+
+          :convex.core/result [:or
+                               :convex.core.api/*
+                               :convex.core.api/+
+                               :convex.core.api/-
+                               :convex.core.api/div
+                                 ]
+
+          :convex.core.api/*   (call '*
+                                     [:* :convex.core/number])
+          :convex.core.api/+   (call '+
+                                     [:* :convex.core/number])
+          :convex.core.api/-   (call '-
+                                     [:+ :convex.core/number])
+          :convex.core.api/div (call '/
+                                     [:+ :convex.core/number])
+
+          :convex.core/number  [:or
+                                :convex/number
+                                [:ref :convex.core.api/*]
+                                [:ref :convex.core.api/+]
+                                ;[:ref :convex.core.api/-]
+                                ;[:ref :convex.core.api/div]
+                                ]
           )))
 
 
