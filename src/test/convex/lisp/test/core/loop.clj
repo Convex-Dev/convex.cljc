@@ -92,6 +92,37 @@
 ;;;;;;;;;; Tests
 
 
+;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/106#issuecomment-841406937
+;;
+#_($.test.prop/deftest dotimes--
+
+  ($.test.prop/check [:and
+                      [:tuple
+                       :convex/symbol
+                       :convex/symbol
+                       :convex/number]
+                      [:fn (fn [[bind counter n]]
+                             (and (not= bind
+                                        counter)
+                                  (>= n
+                                      0)))]]
+                     (fn [[bind counter n]]
+                       (println :form 
+                       ($.test.eval/log ($.form/templ {'?bind    bind
+                                                          '?counter counter
+                                                          '?n       n}
+                                                         '(let [?counter 0]
+                                                            (dotimes [?bind ?n]
+                                                              (set! ?counter
+                                                                    (+ ?counter
+                                                                       1)))
+                                                            (log :got ?counter (floor ?n))
+                                                            (== ?counter
+                                                                (floor ?n)))))))))
+                                                        
+
+
+
 ($.test.prop/deftest ^:recur recur--
 
   ($.test.prop/check [:vector

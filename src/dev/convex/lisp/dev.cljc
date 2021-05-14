@@ -114,10 +114,11 @@
        ;$/datafy
        )
 
-  (->> '(meta (lookup-syntax 'conj))
+  (->> '(assoc [] 42 :foo)
        $/read-form
        ($.ctx/eval ($.ctx/create-fake))
        $.ctx/result
+       $/datafy
        )
 
 
@@ -130,13 +131,17 @@
       )
 
 
-  (->> '(log :foo)
+  (->> '(dotimes [i -1] (log i))
        $/read-form
        ($.ctx/eval ($.ctx/create-fake))
        $.ctx/log
-       ;$/datafy
+       $/datafy
        )
 
+  (-> ($.ctx/eval ($.ctx/create-fake)
+                  ($/read "(= (quote #1) (let [item-2 (assoc-in (quote []) (quote ()) (quote #1))] (if (empty? (quote ())) item-2 (get-in item-2 (quote ())))))"))
+      $.ctx/result
+      )
 
 
   (ppr
