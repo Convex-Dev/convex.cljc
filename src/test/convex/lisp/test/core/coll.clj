@@ -29,14 +29,14 @@
 
 (defn prop-create-sequential
 
-  "Checks that creating data using `form` (a variadic CVM function) produces the same result as in Clojure using `f-clojure`."
+  "Checks that creating data using `form` (a variadic CVM function) produces the same result as in Clojure using `f`."
 
-  [form f-clojure]
+  [form f]
 
   ($.test.prop/check [:vector
                       :convex/data]
                      (fn [x]
-                       ($.test.util/eq (apply f-clojure
+                       ($.test.util/eq (apply f
                        	                	  x)
                                        ($.test.eval/result (list* form
                                                                   (map $.form/quoted
@@ -1112,6 +1112,80 @@
 
 
 ;;;;;;;;;; Misc
+
+
+($.test.prop/deftest ^:recur mapping
+
+  ($.test.prop/check :convex/collection
+                     (fn [coll]
+                       (let [ctx ($.test.eval/ctx ($.form/templ {'?coll coll}
+                                                                '(do
+                                                                   (def coll
+                                                                       '?coll)
+                                                                   (def vect
+                                                                        (vec coll))
+                                                                   (def modified
+                                                                        (mapv vector
+                                                                              coll)))))]
+                         ($.test.prop/mult*
+
+                           "`for` to recreate collection as vector"
+                           ($.test.eval/result ctx
+                                               '(= vect
+                                                   (for [x coll]
+                                                     x)))
+
+                           "`for` to modify collection"
+                           ($.test.eval/result ctx
+                                               '(= modified
+                                                   (for [x coll]
+                                                     [x])))
+
+                           "`mapv` with identity"
+                           ($.test.eval/result ctx
+                                               '(= vect
+                                                   (mapv identity
+                                                         coll)))
+
+                           "`mapv` to modify collection"
+                           ($.test.eval/result ctx
+                                               '(= modified
+                                                   (mapv vector
+                                                         coll)))
+
+                           "`mapcat`"
+                           ($.test.prop/and* ($.test.prop/checkpoint* "Modifies collection"
+                                                                      ($.test.eval/result ctx
+                                                                                          '(= modified
+                                                                                              (vec (mapcat (fn [x]
+                                                                                                             [[x]])
+                                                                                                           coll)))))
+                                             (let [ctx-2 ($.test.eval/ctx ctx
+                                                                          '(def -mapcat
+                                                                                (mapcat vector
+                                                                                        coll)))]
+
+                                               (if (seq? coll)
+                                                 ($.test.prop/mult*
+
+                                                   "Produces a list"
+                                                   ($.test.eval/result ctx-2
+                                                                       '(list? -mapcat))
+                                                   "List is recreated"
+                                                   ($.test.eval/result ctx-2
+                                                                       '(= coll
+                                                                           -mapcat)))
+                                                 ($.test.prop/mult*
+
+                                                   "Produces a vector"
+                                                   ($.test.eval/result ctx-2
+                                                                       '(vector? -mapcat))
+
+                                                   "Recreates collection as a vector"
+                                                   ($.test.eval/result ctx-2
+                                                                       '(= vect
+                                                                           -mapcat)))))))))))
+
 
 
 ($.test.prop/deftest ^:recur merge--

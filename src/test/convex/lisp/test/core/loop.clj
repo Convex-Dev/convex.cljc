@@ -119,7 +119,6 @@
                                                             (log :got ?counter (floor ?n))
                                                             (== ?counter
                                                                 (floor ?n)))))))))
-                                                        
 
 
 
