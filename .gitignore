@@ -2,6 +2,7 @@
 
 *.class
 *.jar
+!/cvm/*.jar
 .hg/
 .hgignore
 /.cpcache

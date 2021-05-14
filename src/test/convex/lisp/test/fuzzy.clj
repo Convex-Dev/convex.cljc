@@ -35,6 +35,9 @@
                              (not ($.test.schema/valid? :convex.core/result
                                                         x)))]]
                      (fn [x]
+                       (println :form (list* (first x)
+                                             (map $.form/quoted
+                                                  (rest x))))
                        ($.test.eval/error? (list* (first x)
                                                   (map $.form/quoted
                                                        (rest x)))))))

@@ -49,7 +49,8 @@
                                 [:*
                                  {:gen/fmap (partial map
                                                      $.form/quoted)}
-                                 :convex/data]]
+                                 :convex/data
+                                 ]]
                                seq?]
           :convex.core/symbol [:enum
                                '*
@@ -84,6 +85,63 @@
                                 ]
 
           )))
+
+
+
+;; Some attempt of creating more precise positive fuzzying by taking into account that a function can return different
+;; types of output depending on inputs.
+;;
+;; But fails because of: https://github.com/metosin/malli/issues/450
+;;
+;;
+;; (defn core
+;; 
+;;   ""
+;; 
+;; 
+;;   ([]
+;; 
+;;    (core nil))
+;; 
+;; 
+;;   ([registry]
+;; 
+;;    (assoc registry
+;;           :convex.core/result [:multi
+;;                                {:dispatch (partial take
+;;                                                    2)}
+;;                                ['(* :convex/double) '(* :convex/double)]
+;;                                ['(* :convex/long)   '(* :convex/long)]
+;;                                ]
+;; 
+;; 
+;; 
+;;           '(* :convex/double)  (call '*
+;;                                      [:and
+;;                                       [:* :convex.core/number]
+;;                                       [:fn #(some double?
+;;                                                   %)]])
+;;           '(* :convex/long)    (call '*
+;;                                      [:and
+;;                                       [:* :convex.core/number]
+;;                                       [:fn #(every? int?
+;;                                                     %)]])
+;; 
+;; 
+;;           :convex.core/double  [:or
+;;                                 [:ref '(* :convex/double)]
+;;                                 ]
+;; 
+;;           :convex.core/long    [:or
+;;                                 [:ref '(* :convex/long)]
+;;                                 ]
+;; 
+;;           :convex.core/number  [:or
+;;                                 :convex/number
+;;                                 :convex.core/double
+;;                                 :convex.core/long
+;;                                 ]
+;;           )))
 
 
 

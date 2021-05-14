@@ -77,7 +77,7 @@ There are shortcuts and it is easy to write a helper function as needed. For ins
      convex.lisp/datafy)
 ```
 
-For development and testing, the [convex.lisp.eval](../main/src/main/convex/lisp/eval.clj) as well as [convex.lisp.eval.src](../main/src/main/convex/lisp/eval/src.clj) have convenient functions which remove that kind of boilerplate:
+For development and testing, the [convex.lisp.eval](../main/src/main/convex/lisp/eval.clj) namespace as well as [convex.lisp.eval.src](../main/src/main/convex/lisp/eval/src.clj) have convenient functions which remove that kind of boilerplate:
 
 ```clojure
 (= 4
@@ -173,8 +173,8 @@ $ ./bin/test/node/advanced
 
 ## Development
 
-Starting in Clojure JVM mode, mentioning an additional Deps alias (here, a local
-setup of NREPL):
+Starting in Clojure JVM mode with NREPL on port `14563`:
+
 ```bash
 $ ./bin/dev/clojure :nrepl
 ```

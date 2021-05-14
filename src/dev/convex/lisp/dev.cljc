@@ -141,7 +141,8 @@
   (ppr
     ;(malli/validate [:not [:enum 1 2]]
     ;                3
-    (malli.gen/generate :convex.core/result
+    (malli.gen/generate :convex.core.api/api
+
       #_[:and
                          {:registry {::data    [:or
                                                 ::int
@@ -157,8 +158,9 @@
 
                         {:registry (-> (malli/default-schemas)
                                        $.schema/registry
+                                       (assoc [:foo :bar] :int)
                                        )
-                         :size     2
+                         :size     3
                          }))
 
 
