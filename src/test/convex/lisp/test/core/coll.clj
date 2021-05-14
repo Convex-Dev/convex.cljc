@@ -1022,6 +1022,29 @@
 
   [item path value]
 
+  
+  (when-not ($.test.eval/result ($.form/templ {'?item  item
+                                     '?path  path
+                                     '?value value}
+                                    '(= '?value
+                                        (let [item-2 (assoc-in '?item
+                                                               '?path
+                                                               '?value)]
+                                          (if (empty? '?path)
+                                            item-2
+                                            (get-in item-2
+                                                    '?path))))))
+(println :got ($.form/templ {'?item  item
+                                     '?path  path
+                                     '?value value}
+                                    '(= '?value
+                                        (let [item-2 (assoc-in '?item
+                                                               '?path
+                                                               '?value)]
+                                          (if (empty? '?path)
+                                            item-2
+                                            (get-in item-2
+                                                    '?path)))))))
   ($.test.eval/result ($.form/templ {'?item  item
                                      '?path  path
                                      '?value value}
@@ -1075,12 +1098,12 @@
                      (fn [[vect path v]]
                        (let [[path-2
                               vect-2] (if (seq path)
-                                        [(into [(rand-int (count vect))]
-                                               path)
-                                         (let [k (first path)]
-                                           (mapv #(dissoc %
-                                                          k)
-                                                 vect))]
+                                        (let [k (rand-int (count vect))]
+                                          [(into [k]
+                                                 path)
+                                           (assoc vect
+                                                  k
+                                                  nil)])
                                         [path
                                          vect])]
                          (-eval-assoc-in vect-2
