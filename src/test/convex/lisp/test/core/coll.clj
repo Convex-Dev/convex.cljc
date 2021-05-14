@@ -1114,6 +1114,54 @@
 ;;;;;;;;;; Misc
 
 
+($.test.prop/deftest ^:recur mapcat--
+
+  ($.test.prop/check :convex/collection
+                     (fn [coll]
+                       ($.test.prop/mult*
+
+                         "Duplicating items"
+                         ($.test.eval/result ($.form/templ {'?coll coll}
+                                                           '(let [coll '?coll]
+                                                              (= (vec (mapcat (fn [x]
+                                                                                [x x])
+                                                                              coll))
+                                                                 (reduce (fn [acc x]
+                                                                           (conj acc
+                                                                                 x
+                                                                                 x))
+                                                                         []
+                                                                         coll)))))
+
+                         "Keeping items at even positions"
+                         ($.test.eval/result ($.form/templ {'?coll coll}
+                                                           '(do
+                                                              (def n-mapcat
+                                                                   -1)
+                                                              (def n-reduce
+                                                                   -1)
+                                                              (defn even? [x]
+                                                                (zero? (mod x
+                                                                            2)))
+                                                              (let [coll '?coll]
+                                                                (= (vec (mapcat (fn [x]
+                                                                                  (def n-mapcat
+                                                                                       (inc n-mapcat))
+                                                                                  (when (even? n-mapcat)
+                                                                                    [x]))
+                                                                                coll))
+                                                                   (reduce (fn [acc x]
+                                                                             (def n-reduce
+                                                                                  (inc n-reduce))
+                                                                             (if (even? n-reduce)
+                                                                               (conj acc
+                                                                                     x)
+                                                                               acc))
+                                                                           []
+                                                                           coll))))))))))
+
+
+
 ($.test.prop/deftest ^:recur mapping
 
   ($.test.prop/check :convex/collection
@@ -1156,7 +1204,7 @@
                            "`mapcat`"
                            ($.test.prop/and* ($.test.prop/checkpoint* "Modifies collection"
                                                                       ($.test.eval/result ctx
-                                                                                          '(= modified
+                                                                                          '(not modified
                                                                                               (vec (mapcat (fn [x]
                                                                                                              [[x]])
                                                                                                            coll)))))
