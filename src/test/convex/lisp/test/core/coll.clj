@@ -1023,16 +1023,16 @@
   [item path value]
 
   ($.test.eval/result ($.form/templ {'?item  item
-                                   '?path  path
-                                   '?value value}
-                                  '(= '?value
-                                      (let [item-2 (assoc-in '?item
-                                                             '?path
-                                                             '?value)]
-                                        (if (empty? '?path)
-                                          item-2
-                                          (get-in item-2
-                                                  '?path)))))))
+                                     '?path  path
+                                     '?value value}
+                                    '(= '?value
+                                        (let [item-2 (assoc-in '?item
+                                                               '?path
+                                                               '?value)]
+                                          (if (empty? '?path)
+                                            item-2
+                                            (get-in item-2
+                                                    '?path)))))))
 
 
 

@@ -15,63 +15,78 @@
 
 (defn- -recur
 
-  "Used by [[recur--]] for generating nested `loop` forms which ensures that, in `recur`:
+  "Used by [[recur--]] for generating nested `loop` and `fn` forms which ensures that, in `recur`:
   
-   - A counter is properly incremented
+   - A counter is properly incremented, looping does occur
    - A fixed set of bindings do not mutate
+   - Possibly nested points of recurion are respected
 
-   Points of recursions must be respected. Sometimes, a loop is wrapped in an additional `fn`
-   for messing with those.
+   Sometimes, loops are wrapped in a no-arg function just for messing with the recursion point.
   
    Otherwise, execution stops by calling `fail`."
 
-  [[[sym limit fixed fn-wrap?] & limit+]]
+  [[{:keys [fixed+
+            fn-wrap?
+            n
+            recur-point
+            sym]}
+    & looping+]]
 
-  (let [ret ($.form/templ {'?binding+    (conj (reduce (fn [acc [sym x]]
-                                                         (conj acc
-                                                               sym
-                                                               ($.form/quoted x)))
-                                                       []
-                                                       fixed)
-                                               sym
-                                               0)
-                           '?fixed-sym+  (mapv first
-                                               fixed)
-                           '?fixed-x+    (mapv (comp $.form/quoted
-                                                     second)
-                                               fixed)
-                           '?limit       limit
-                           '?recur-case  (let [recur-form (list* 'recur
-                                                                 (conj (mapv first
-                                                                             fixed)
-                                                                       (list 'inc
-                                                                             sym)))]
-                                           (if limit+
-                                             ($.form/templ {'?limit-inner (-> limit+
-                                                                              first
-                                                                              second)
-                                                            '?loop-inner  (-recur limit+)
-                                                            '?recur-form  recur-form}
-                                                           '(if (= ?limit-inner
-                                                                   ?loop-inner)
-                                                              ?recur-form
-                                                              (fail :BAD-ITER
-                                                                    "Iteration count of inner loop is wrong")))
-                                             recur-form))
-                           '?sym         sym}
-                          '(loop ?binding+
-                             (if (= ?sym
-                                    ?limit)
-                               (if (= ?fixed-sym+
-                                      ?fixed-x+)
-                                 ?limit
-                                 (fail :NOT-FIXED
-                                       "Fixed bindings were wrongfully modified"))
-                               ?recur-case)))]
+  (let [fixed-sym+ (mapv first
+                         fixed+)
+        fixed-x+   (mapv (comp $.form/quoted
+                               second)
+                         fixed+)
+        body       ($.form/templ {'?fixed-sym+  fixed-sym+
+                                  '?fixed-x+    fixed-x+
+                                  '?n           n
+                                  '?recur-case  (let [recur-form (list* 'recur
+                                                                        (conj fixed-sym+
+                                                                              (list 'inc
+                                                                                    sym)))]
+                                                  (if looping+
+                                                    ($.form/templ {'?n-inner       (-> looping+
+                                                                                       first
+                                                                                       :n)
+                                                                   '?looping-inner (-recur looping+)
+                                                                   '?recur-form    recur-form}
+                                                                  '(if (= ?n-inner
+                                                                          ?looping-inner)
+                                                                     ?recur-form
+                                                                     (fail :BAD-ITER
+                                                                           "Iteration count of inner loop is wrong")))
+                                                    recur-form))
+                                  '?sym         sym}
+                                 '(if (= ?sym
+                                         ?n)
+                                    (if (= ?fixed-sym+
+                                           ?fixed-x+)
+                                      ?n
+                                      (fail :NOT-FIXED
+                                            "Fixed bindings were wrongfully modified"))
+                                    ?recur-case))
+        looping   (case recur-point
+                    :fn   (list* (list 'fn
+                                       (conj fixed-sym+
+                                             sym)
+                                       body)
+                                 (conj fixed-x+
+                                       0))
+                    :loop (list 'loop
+                                (conj (reduce (fn [acc [sym x]]
+                                                (conj acc
+                                                      sym
+                                                      ($.form/quoted x)))
+                                              []
+                                              fixed+)
+                                      sym
+                                      0)
+                                body))]
     (if fn-wrap?
-      ($.form/templ {'?loop ret}
-                    '((fn [] ?loop)))
-      ret)))
+      (list (list 'fn
+                  []
+                  looping))
+      looping)))
 
 
 ;;;;;;;;;; Tests
@@ -82,25 +97,28 @@
   ($.test.prop/check [:vector
                       {:max 5
                        :min 1}
-                      [:tuple
-                       [:and
-                        :convex/symbol
-                        [:not [:enum
-                               '+
-                               '=
-                               'fail
-                               'inc
-                               'recur]]]
-                       [:int
-                        {:max 5
-                         :min 0}]
-                       ($.test.schema/binding+ 0)
-                       :boolean]]
-                     (fn [limit+]
-                       (= (-> limit+
+                      [:map
+                       [:fixed+      ($.test.schema/binding+ 0)]
+                       [:fn-wrap?    :boolean]
+                       [:n           [:int
+                                      {:max 5
+                                       :min 0}]]
+                       [:recur-point [:enum
+                                      :fn
+                                      :loop]]
+                       [:sym         [:and
+                                      :convex/symbol
+                                      [:not [:enum
+                                             '+
+                                             '=
+                                             'fail
+                                             'inc
+                                             'recur]]]]]]
+                     (fn [looping+]
+                       (= (-> looping+
                               first
-                              second)
-                          ($.test.eval/result (-recur limit+))))))
+                              :n)
+                          ($.test.eval/result (-recur looping+))))))
 
 
 
