@@ -7,10 +7,29 @@
   (:require [clojure.string]
             [convex.lisp.form      :as $.form]
             [convex.lisp.test.eval :as $.test.eval]
-            [convex.lisp.test.prop :as $.test.prop]))
+            [convex.lisp.test.prop :as $.test.prop]
+            [convex.lisp.test.util :as $.test.util]))
 
 
-;;;;;;;;;; 
+;;;;;;;;;; Helpers
+
+
+(defn- -nested-fn
+
+  ;; Used by [[halting--]] for nesting functions that ultimately should `halt` or `return`.
+
+  [n form]
+
+  (if (<= n
+          0)
+    form
+    (list (list 'fn
+                []
+                (-nested-fn (dec n)
+                            form)))))
+
+
+;;;;;;;;;; Tests
 
 
 ($.test.prop/deftest ^:recur and-or
@@ -30,6 +49,61 @@
 
                            "`or` consistent with Clojure"
                            (assertion 'or))))))
+
+
+
+($.test.prop/deftest ^:recur cond--
+
+  ($.test.prop/check [:vector
+                      :convex/data]
+                     (fn [x]
+                       (let [x-quoted (map $.form/quoted
+                                           x)]
+                         ($.test.util/eq (eval (list* 'cond
+                                                      (if (even? (count x-quoted))
+                                                        x-quoted
+                                                        (concat (butlast x-quoted)
+                                                                [:else
+                                                                 (last x-quoted)]))))
+                                         ($.test.eval/result (list* 'cond
+                                                                    x-quoted)))))))
+
+
+
+($.test.prop/deftest ^:recur halting--
+
+  ($.test.prop/check [:tuple
+                      [:int
+                       {:max 16
+                        :min 1}]
+                      :convex/data
+                      :convex/data]
+                     (fn [[n return ploy]]
+                       (let [call (fn [sym]
+                                    (-nested-fn n
+                                                ($.form/templ {'?ploy   ploy
+                                                               '?return return
+                                                               '?sym    sym}
+                                                              '(do
+                                                                 (?sym '?return)
+                                                                 '?ploy))))]
+                         ($.test.prop/mult*
+
+                           "`halt`"
+                           ($.test.util/eq return
+                                           ($.test.eval/result ($.form/templ {'?call (call 'halt)
+                                                                              '?ploy ploy}
+                                                                             '(do
+                                                                                ?call
+                                                                                '?ploy))))
+
+                           "`return`"
+                           ($.test.util/eq [return
+                                            ploy]
+                                           ($.test.eval/result ($.form/templ {'?call (call 'return)
+                                                                              '?ploy ploy}
+                                                                             '[?call
+                                                                               '?ploy]))))))))
 
 
 
@@ -73,7 +147,6 @@
 
 
 ; assert
-; cond
 ; fail
 ; halt
 ; return
