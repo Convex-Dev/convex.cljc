@@ -225,6 +225,9 @@
           :convex/double       [:double
                                 {:gen/infinite? true
                                  :gen/NaN?      true}]
+          :convex/falsy        [:enum
+                                false
+                                nil]
           :convex/hash         :convex/blob-32
           :convex/hexstring    [:re
                                 {:gen/fmap   $.hex/from-int
@@ -270,6 +273,9 @@
                                  (fn [x]
                                    (not (or ($.form/address? x)
                                             ($.form/blob? x))))]]
+          :convex/truthy       [:and
+                                :convex/data
+                                [:not :convex/falsy]]
           :convex/vector       [:vector [:ref :convex/data]])))
 
 

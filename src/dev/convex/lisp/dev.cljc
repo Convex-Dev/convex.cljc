@@ -17,6 +17,8 @@
                       [convex.lisp.test.core.actor]
                       [convex.lisp.test.core.coerce]
                       [convex.lisp.test.core.coll]
+                      [convex.lisp.test.core.ctrl]
+                      [convex.lisp.test.core.def]
                       [convex.lisp.test.core.fn]
                       [convex.lisp.test.core.loop]
                       [convex.lisp.test.core.math]
@@ -147,7 +149,7 @@
   (ppr
     ;(malli/validate [:not [:enum 1 2]]
     ;                3
-    (malli.gen/generate 
+    (malli.gen/generate :convex/truthy
 
       #_[:and
                          {:registry {::data    [:or
