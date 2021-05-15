@@ -82,9 +82,7 @@
                                                        '(not (defined? sym)))
                                  ($.test.eval/error? ctx-2
                                                      sym)
-                                 true)
-                               ))
-                           )))))
+                                 true))))))))
 
 
 

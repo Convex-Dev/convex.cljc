@@ -329,15 +329,14 @@
 ;;;;;;;;;; Integer operations
 
 
-#_($.test.prop/deftest euclidian-div
+($.test.prop/deftest euclidian-div
 
   ;; Testing `mod` and `quot`.
 
-  ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/122
-  ;;                         https://github.com/Convex-Dev/convex/issues/120#issuecomment-841614210
+  ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/120#issuecomment-841614210
 
   ($.test.prop/check [:tuple
-                      :convex/number
+                      :convex/long
                       [:and
                        :convex/long
                        [:fn #(not (zero? %))]]]
@@ -354,45 +353,42 @@
                                                                              b))
                                                                    (def -quot
                                                                         (quot a
-                                                                              b)))))]
-                         #_(when-not  (= (mod a
-                                            b)
-                                       ($.test.eval/result ctx
-                                                           'result))
-                           (println :a a :b b :convex ($.test.eval/result ctx 'result) :clojure/mod (mod a b) :clojure/rem (rem a b)))
+                                                                              b))
+                                                                   (def -rem
+                                                                        (rem a
+                                                                             b)))))]
                          ($.test.prop/mult*
-
-                           ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/122
-                           ;;
-                           ;; "`mod` is consistent with Clojure"
-                           ;; (= (mod a
-                           ;;         b)
-                           ;;    ($.test.eval/result ctx
-                           ;;                        '-mod))
-                           ;;
-                           ;; "`mod` is consistent with `quot`"
-                           ;; ($.test.eval/result ctx
-                           ;;                     '(= a
-                           ;;                         (+ (* b
-                           ;;                               -quot)
-                           ;;                            -mod)))
 
                            "`mod` produces a long"
                            ($.test.eval/result ctx
                                                '(long? -mod))
 
-                           "`quot`produces a long"
+                           "`quot` produces a long"
                            ($.test.eval/result ctx
                                                '(long? -quot))
+
+                           "`rem` produces a long"
+                           ($.test.eval/result ctx
+                                               '(long? -rem))
 
                            "`quot` is consistent with Clojure"
                            (= (quot a
                                     b)
                               ($.test.eval/result ctx
                                                   '-quot))
-                           )))))
 
+                           "`rem` is consistent with Clojure"
+                           (= (rem a
+                                   b)
+                              ($.test.eval/result ctx
+                                                  '-rem))
 
+                           "`quot` and `rem` are consistent"
+                           ($.test.eval/result ctx
+                                               '(= a
+                                                   (+ -rem
+                                                      (* b
+                                                         -quot)))))))))
 
 
 ;;;;;;;;;; Rounding
