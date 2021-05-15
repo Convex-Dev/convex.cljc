@@ -80,8 +80,10 @@
                                "Undefined symbol must result in an error when used"
                                (if ($.test.eval/result ctx-2
                                                        '(not (defined? sym)))
-                                 ($.test.eval/error? ctx-2
-                                                     sym)
+                                 (identical? :UNDECLARED
+                                             (-> ($.test.eval/error? ctx-2
+                                                                     sym)
+                                                 :convex.error/code))
                                  true))))))))
 
 

@@ -31,19 +31,43 @@
                  (-nested-fn (dec n)
                              form)))))
 
+  ([n form x-ploy]
+
+   (-nested-fn n
+               (list 'do
+                     form
+                     (list 'quote
+                           x-ploy))))
+
 
   ([n sym x-ploy x-return]
 
    (-nested-fn n
-               ($.form/templ {'?sym      sym
-                              '?x-ploy   x-ploy
-                              '?x-return x-return}
-                             '(do
-                                (?sym '?x-return)
-                                '?x-ploy)))))
+               (list sym
+                     (list 'quote
+                           x-return))
+               x-ploy)))
 
 
 ;;;;;;;;;; Tests
+
+
+($.test.prop/deftest ^:recur assert--
+
+  ($.test.prop/check [:tuple
+                      [:int
+                       {:max 16
+                        :min 1}]
+                      :convex/data
+                      :convex/truthy]
+                     (fn [[n x-ploy x-return]]
+                       (identical? :ASSERT
+                                   (-> ($.test.eval/error (-nested-fn n
+                                                                      ($.form/templ {'?x-return x-return}
+                                                                                    '(assert (not '?x-return)))
+                                                                      x-ploy))
+                                       :convex.error/code)))))
+
 
 
 ($.test.prop/deftest ^:recur and-or

@@ -28,8 +28,10 @@
 
   [ctx src]
 
-  ($.ctx/error (convex.lisp.eval.src/ctx ctx
-                                         src)))
+  (-> (convex.lisp.eval.src/ctx ctx
+                                src)
+      $.ctx/error
+      $/datafy))
 
 
 
@@ -39,8 +41,10 @@
 
   [ctx src]
 
-  (some? (error ctx
-                src)))
+  (-> (convex.lisp.eval.src/ctx ctx
+                                src)
+      $.ctx/error
+      some?))
 
 
 

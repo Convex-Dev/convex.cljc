@@ -143,8 +143,9 @@
        )
 
   (-> ($.ctx/eval ($.ctx/create-fake)
-                  ($/read "foo"))
+                  ($/read "(assert (> 2 4))"))
       $.ctx/error
+      $/datafy
       )
 
 

@@ -34,6 +34,22 @@
 
 
 
+(defn error
+
+
+  ([form]
+
+   (error ctx-base
+          form))
+
+
+  ([ctx form]
+
+   ($.eval/error ctx
+                 form)))
+
+
+
 (defn error?
 
 
