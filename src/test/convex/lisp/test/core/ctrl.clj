@@ -108,6 +108,31 @@
 
 
 
+($.test.prop/deftest ^:recur fail--
+
+  ($.test.prop/check [:tuple
+                      [:int
+                       {:max 16
+                        :min 1}]
+                      [:and
+                       :convex/data
+                       [:not :convex/nil]]
+                      :convex/data
+                      :convex/data]
+                     (fn [[n code message x-ploy]]
+                       ($.test.util/eq {:convex.error/code    code
+                                        :convex.error/message message}
+                                       (select-keys ($.test.eval/error (-nested-fn n
+                                                                                   ($.form/templ {'?code    code
+                                                                                                  '?message message}
+                                                                                                 '(fail '?code
+                                                                                                        '?message))
+                                                                                   x-ploy))
+                                                    [:convex.error/code
+                                                     :convex.error/message])))))
+
+
+
 ($.test.prop/deftest ^:recur halting--
 
   ($.test.prop/check [:tuple
@@ -209,10 +234,3 @@
                              ($.test.util/eq ($.test.eval/result form)
                                              ($.test.eval/result ctx
                                                                  form))))))))
-
-
-;;;;;;;;;;
-
-
-; assert
-; fail
