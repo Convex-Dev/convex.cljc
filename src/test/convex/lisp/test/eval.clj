@@ -136,6 +136,16 @@
                (cns-update '$
                            (deploy
                              '(do
+                                (defn env
+
+                                  ([]
+
+                                   (env *address*))
+
+                                  ([address]
+
+                                   (:environment (account address))))
+
                                 (defn every?
 
                                   [f coll]

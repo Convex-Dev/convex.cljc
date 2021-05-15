@@ -114,7 +114,7 @@
        ;$/datafy
        )
 
-  (->> '(assoc [] 42 :foo)
+  (->> '(quot 13 5.0)
        $/read-form
        ($.ctx/eval ($.ctx/create-fake))
        $.ctx/result
@@ -139,7 +139,7 @@
        )
 
   (-> ($.ctx/eval ($.ctx/create-fake)
-                  ($/read "(= (quote #1) (let [item-2 (assoc-in (quote []) (quote ()) (quote #1))] (if (empty? (quote ())) item-2 (get-in item-2 (quote ())))))"))
+                  ($/read "(= (vec (mapcat (fn [x] [x x]) ())) (reduce (fn [acc x] (conj acc x x)) [] (quote ())))"))
       $.ctx/result
       )
 
