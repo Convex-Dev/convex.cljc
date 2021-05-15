@@ -56,6 +56,19 @@
    `(apply f arg+)`"
 
 
+  ([form]
+
+   (like-clojure? ctx-base
+                  form))
+
+
+  ([ctx form]
+
+   ($.test.util/eq (eval form)
+                   ($.eval/result ctx
+                                  form)))
+
+
   ([form f arg+]
 
    (like-clojure? ctx-base
