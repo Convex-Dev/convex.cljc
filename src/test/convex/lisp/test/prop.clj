@@ -176,7 +176,7 @@
 
 (defn fail
 
-  "Returns a `test.check` error with `checkpoint` conjed to `:convex.lisp/error`
+  "Returns a `test.check` error with `checkpoint` conjed to `:convex.test/error`
    of the `test.check` error data (see `clojure.test.check.results` namespace)."
 
 
@@ -188,13 +188,13 @@
        false)
 
      (result-data [_]
-       {:convex.lisp/error [checkpoint]})))
+       {:convex.test/error [checkpoint]})))
 
 
   ([failure checkpoint]
 
    (let [result (update (tc.result/result-data failure)
-                        :convex.lisp/error
+                        :convex.test/error
                         (partial into
                                  [checkpoint]))]
      (reify tc.result/Result
@@ -218,7 +218,7 @@
    A checkpoint could be anything. Most commonly a human readable string. See [[checkpoint]].
 
    Composes with itself. A function could be another call to [[mult]] and in case of failure,
-   all checkpoints leading to it figure under `:convex.lisp/error` (see [[fail]]).
+   all checkpoints leading to it figure under `:convex.test/error` (see [[fail]]).
 
    ```clojure
    (mult [[\"3 must be greater than 4\"

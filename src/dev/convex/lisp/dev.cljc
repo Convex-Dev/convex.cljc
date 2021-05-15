@@ -143,15 +143,16 @@
        )
 
   (-> ($.ctx/eval ($.ctx/create-fake)
-                  ($/read "(= (vec (mapcat (fn [x] [x x]) ())) (reduce (fn [acc x] (conj acc x x)) [] (quote ())))"))
-      $.ctx/result
+                  ($/read "foo"))
+      $.ctx/error
       )
 
 
   (ppr
     ;(malli/validate [:not [:enum 1 2]]
     ;                3
-    (malli.gen/generate :convex/truthy
+    (malli.gen/generate [:schema {:registry {::cons [:maybe [:vector [:tuple pos-int? [:ref ::cons]]]]}}
+   ::cons]
 
       #_[:and
                          {:registry {::data    [:or
@@ -169,10 +170,26 @@
                         {:registry (-> (malli/default-schemas)
                                        $.schema/registry
                                        )
-                         :size     2
+                         :size     30
                          }))
 
 
+  
+(count
+  (filter boolean?
+  (tc.gen/generate #_(tc.gen/vector tc.gen/boolean)
+    
+    (tc.gen/recursive-gen (fn [gen-inner]
+                                           (tc.gen/one-of [;(tc.gen/map gen-inner
+                                                           ;            gen-inner)
+                                                           ;(tc.gen/set gen-inner)
+                                                           ;(tc.gen/list gen-inner)
+                                                           (tc.gen/vector gen-inner)]))
+                                         (tc.gen/one-of [tc.gen/boolean
+                                                         ; tc.gen/keyword
+                                                         ; tc.gen/symbol
+                                                         ]))
+                   30)))
 
 
 

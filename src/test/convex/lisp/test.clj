@@ -8,7 +8,8 @@
             [convex.lisp      :as $]
             [convex.lisp.form :as $.form])
   (:import convex.core.data.Syntax
-           convex.core.data.prim.CVMByte))
+           convex.core.data.prim.CVMByte
+           convex.core.lang.impl.ErrorValue))
 
 
 ;;;;;;;;;;
@@ -112,6 +113,16 @@
   (-datafy 42
            "42"
            "Long")
+
+  (-datafy {:convex.error/code    {:a 42}
+            :convex.error/message [:foo]
+            :convex.error/trace   '("test-1"
+                                    "test-2")}
+           (doto (ErrorValue/createRaw ($/read "{:a 42}")
+                                       ($/read "[:foo]"))
+             (.addTrace "test-1")
+             (.addTrace "test-2"))
+           "Error")
 
 
   (let [code [nil

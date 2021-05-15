@@ -18,7 +18,7 @@
 
 (defn- -nested-fn
 
-  ;; Used by [[halting--]] for nesting functions that ultimately should end preemptively.
+  ;; Used by [[halting--]] and [[rollback--]] for nesting functions that ultimately should end preemptively.
 
 
   ([n form]

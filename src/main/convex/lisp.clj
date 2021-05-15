@@ -24,7 +24,8 @@
                                   CVMChar
                                   CVMDouble
                                   CVMLong)
-           convex.core.lang.impl.CoreFn
+           (convex.core.lang.impl CoreFn
+                                  ErrorValue)
            convex.core.lang.Reader)
   (:refer-clojure :exclude [read]))
 
@@ -207,6 +208,15 @@
 
     (datafy [this]
       (clojure.core.protocols/datafy (.getSymbol this)))
+
+
+  convex.core.lang.impl.ErrorValue
+
+    (datafy [this]
+      {:convex.error/code    (clojure.core.protocols/datafy (.getCode this))
+       :convex.error/message (clojure.core.protocols/datafy (.getMessage this))
+       :convex.error/trace   (clojure.core.protocols/datafy (mapv clojure.core.protocols/datafy
+                                                                  (.getTrace this)))})
 
 
   ;; TODO. Use EDN? Ops have protected fields meaning they cannot be readily translated.
