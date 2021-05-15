@@ -5,6 +5,8 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.string]
+            [convex.lisp           :as $]
+            [convex.lisp.ctx       :as $.ctx]
             [convex.lisp.form      :as $.form]
             [convex.lisp.test.eval :as $.test.eval]
             [convex.lisp.test.prop :as $.test.prop]
@@ -16,17 +18,29 @@
 
 (defn- -nested-fn
 
-  ;; Used by [[halting--]] for nesting functions that ultimately should `halt` or `return`.
+  ;; Used by [[halting--]] for nesting functions that ultimately should end preemptively.
 
-  [n form]
 
-  (if (<= n
-          0)
-    form
-    (list (list 'fn
-                []
-                (-nested-fn (dec n)
-                            form)))))
+  ([n form]
+
+   (if (<= n
+           0)
+     form
+     (list (list 'fn
+                 []
+                 (-nested-fn (dec n)
+                             form)))))
+
+
+  ([n sym x-ploy x-return]
+
+   (-nested-fn n
+               ($.form/templ {'?sym      sym
+                              '?x-ploy   x-ploy
+                              '?x-return x-return}
+                             '(do
+                                (?sym '?x-return)
+                                '?x-ploy)))))
 
 
 ;;;;;;;;;; Tests
@@ -78,32 +92,23 @@
                         :min 1}]
                       :convex/data
                       :convex/data]
-                     (fn [[n return ploy]]
-                       (let [call (fn [sym]
-                                    (-nested-fn n
-                                                ($.form/templ {'?ploy   ploy
-                                                               '?return return
-                                                               '?sym    sym}
-                                                              '(do
-                                                                 (?sym '?return)
-                                                                 '?ploy))))]
-                         ($.test.prop/mult*
+                     (fn [[n x-ploy x-return]]
+                       ($.test.prop/mult*
 
-                           "`halt`"
-                           ($.test.util/eq return
-                                           ($.test.eval/result ($.form/templ {'?call (call 'halt)
-                                                                              '?ploy ploy}
-                                                                             '(do
-                                                                                ?call
-                                                                                '?ploy))))
+                         "`halt`"
+                         ($.test.util/eq x-return
+                                         ($.test.eval/result (-nested-fn n
+                                                                         'halt
+                                                                         x-ploy
+                                                                         x-return)))
 
-                           "`return`"
-                           ($.test.util/eq [return
-                                            ploy]
-                                           ($.test.eval/result ($.form/templ {'?call (call 'return)
-                                                                              '?ploy ploy}
-                                                                             '[?call
-                                                                               '?ploy]))))))))
+                         "`return`"
+                         ($.test.util/eq [x-return
+                                          x-ploy]
+                                         ($.test.eval/result (-nested-fn n
+                                                                         'return
+                                                                         x-ploy
+                                                                         x-return)))))))
 
 
 
@@ -143,11 +148,47 @@
                                                                      :true)))))))
 
 
+
+($.test.prop/deftest ^:recur rollback--
+
+  ($.test.prop/check [:tuple
+                      [:int
+                       {:max 16
+                        :min 1}]
+                      :convex/symbol
+                      :convex/data
+                      :convex/data
+                      :convex/data]
+                     (fn [[n sym x-env x-return x-ploy]]
+                       (let [ctx ($.test.eval/ctx ($.form/templ {'?call   (-nested-fn n
+                                                                                      'rollback
+                                                                                      x-ploy
+                                                                                      x-return)
+                                                                 '?sym    sym
+                                                                 '?x-env  x-env
+                                                                 '?x-ploy x-ploy}
+                                                                '(do
+                                                                   (def ?sym
+                                                                        '?x-env)
+                                                                   ?call
+                                                                   '?x-ploy)))]
+                         ($.test.prop/mult*
+
+                           "Returned value is the rollback value"
+                           ($.test.util/eq x-return
+                                           (-> ctx
+                                               $.ctx/result
+                                               $/datafy))
+
+                           "State has been rolled back"
+                           (let [form '(hash (encoding *state*))]
+                             ($.test.util/eq ($.test.eval/result form)
+                                             ($.test.eval/result ctx
+                                                                 form))))))))
+
+
 ;;;;;;;;;;
 
 
 ; assert
 ; fail
-; halt
-; return
-; rollback
