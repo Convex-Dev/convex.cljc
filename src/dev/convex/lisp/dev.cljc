@@ -118,7 +118,10 @@
        ;$/datafy
        )
 
-  (->> '(quot 13 5.0)
+  (->> '(do
+          42
+          (= 42
+             *result*))
        $/read-form
        ($.ctx/eval ($.ctx/create-fake))
        $.ctx/result
@@ -128,7 +131,7 @@
 
 
   (-> ($.ctx/expand-compile ($.ctx/create-fake)
-                            ($/read "(+ 1 1)"))
+                            ($/read "*memory*"))
       $.ctx/query
       $.ctx/result
       $/datafy
@@ -143,7 +146,7 @@
        )
 
   (-> ($.ctx/eval ($.ctx/create-fake)
-                  ($/read "(assert (> 2 4))"))
+                  ($/read "(fail [:foo] [:a])"))
       $.ctx/error
       $/datafy
       )

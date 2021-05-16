@@ -63,8 +63,8 @@
                           :convex/data]]
                      (fn [x]
                        (map? ($.test.eval/result (list* 'hash-map
-                                                      (map $.form/quoted
-                                                           x)))))))
+                                                        (map $.form/quoted
+                                                             x)))))))
 
 
 

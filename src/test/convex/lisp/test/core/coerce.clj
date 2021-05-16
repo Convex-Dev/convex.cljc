@@ -148,24 +148,33 @@
                       :convex/address
                       :convex/blob-32]
                      (fn [x]
-                       (let [[h
-                              h-1?
-                              h-2?] ($.test.eval/result ($.form/templ {'X x}
-                                                                      '(let [h (hash X)]
-                                                                         [h
-                                                                          (hash? h)
-                                                                          (hash? (hash h))])))]
-                          ($.test.prop/mult*
+                       (let [ctx ($.test.eval/ctx ($.form/templ {'?x x}
+                                                                '(def -hash
+                                                                      (hash ?x))))]
+                         ($.test.prop/mult*
 
-                            "Result is a hash"
-                            ($.test.schema/valid? :convex/hash
-                                                  h)
+                           "Result looks like a hash"
+                           ($.test.schema/valid? :convex/hash
+                                                 ($.test.eval/result ctx
+                                                                     '-hash))
 
-                            "Hashing does produce a hash"
-                            h-1?
+                           "`hash?`"
+                           ($.test.eval/result ctx
+                                               '(hash? -hash))
 
-                            "Hashing a hash produces a hash"
-                            h-2?)))))
+                           "Hashing is deterministic"
+                           ($.test.eval/result ctx
+                                               ($.form/templ {'?x x}
+                                                             '(= -hash
+                                                                 (hash ?x))))
+
+                           "Hashes are not mere blobs"
+                           ($.test.eval/result ctx
+                                               '(not (blob? -hash)))
+
+                           "Hashing a hash produces a hash"
+                           ($.test.eval/result ctx
+                                               '(hash? (hash -hash))))))))
 
 
 
