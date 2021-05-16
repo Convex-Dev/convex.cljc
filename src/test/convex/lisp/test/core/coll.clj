@@ -221,6 +221,10 @@
                             '(nil? (get x-3
                                         k)))
 
+        "Using collection as function returns nil"
+        ($.test.eval/result ctx-2
+                            '(nil? (x-3 k)))
+
         "`get` returns 'not-found' value"
         ($.test.eval/result ctx-2
                             '(= :convex-sentinel
@@ -319,11 +323,13 @@
         "Order of `keys` is consistent with order of `values`"
         ($.test.eval/result ctx-2
                             '($/every-index? (fn [k+ i]
-                                               (= (get x-2
-                                                       (get k+
+                                               (and (= (get x-2
+                                                            (get k+
+                                                                 i))
+                                                       (get v+
                                                             i))
-                                                  (get v+
-                                                       i)))
+                                                    (= (x-2 (k+ i))
+                                                       (v+ i))))
                                              k+))
 
 
@@ -332,7 +338,8 @@
                             '($/every? (fn [[k v]]
                                          (= v
                                             (get x-2
-                                                 k)))
+                                                 k)
+                                            (x-2 k)))
                                        kv+))
 
         "`vec` is consitent with `into`"
@@ -499,6 +506,11 @@
       ;;                     '(= v
       ;;                         (get x-2
       ;;                              k)))
+
+      ;; "Using collection as function returns the value"
+      ;; ($.test.eval/result ctx
+      ;;                     '(= v
+      ;;                         (x-2 k)))
 
       ;; "`get-in` returns the value"
       ;; ($.test.eval/result ctx
@@ -721,7 +733,8 @@
                                        (= (get x
                                                k)
                                           (get x-2
-                                               k)))
+                                               k)
+                                          (x-2 k)))
                                      (keys (dissoc x
                                                    k))))
 
@@ -791,6 +804,7 @@
                           '($/every-index? (fn [x-2 i]
                                              (= (get x-2
                                                      i)
+                                                (x-2 i)
                                                 (nth x-2
                                                      i)))
                                            x-2))
@@ -1265,12 +1279,15 @@
                            ($.test.eval/result ctx
                                                '($/every? (fn [[k v]]
                                                             ($/some (fn [arg]
-                                                                      (= v
-                                                                         (get arg
-                                                                              k)))
+                                                                      (and (= v
+                                                                              (get arg
+                                                                                   k))
+                                                                           (if (nil? arg)
+                                                                             true
+                                                                             (= v
+                                                                                (arg k)))))
                                                                     arg+))
-                                                          -merge))
-                           )))))
+                                                          -merge)))))))
 
 
 
