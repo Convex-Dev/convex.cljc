@@ -44,9 +44,8 @@
    ($.test.prop/check schema
                       (fn [x]
                         ($.test.util/eq x
-                                        (-> x
-                                            f
-                                            $.test.eval/result))))))
+                                        ($.test.eval/result (list 'identity
+                                                                  (f x))))))))
 
 
 
@@ -59,7 +58,8 @@
   ($.test.prop/check schema
                      (fn [x]
                        ($.test.util/eq x
-                                       ($.test.eval/result x)
+                                       ($.test.eval/result (list 'identity
+                                                                 x))
                                        ($.test.eval/result ($.form/quoted x))))))
 
 

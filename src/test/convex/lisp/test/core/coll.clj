@@ -1204,7 +1204,7 @@
                            "`mapcat`"
                            ($.test.prop/and* ($.test.prop/checkpoint* "Modifies collection"
                                                                       ($.test.eval/result ctx
-                                                                                          '(not modified
+                                                                                          '(= modified
                                                                                               (vec (mapcat (fn [x]
                                                                                                              [[x]])
                                                                                                            coll)))))
