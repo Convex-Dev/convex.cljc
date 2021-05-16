@@ -247,6 +247,9 @@
           :convex/map          [:map-of
                                 [:ref :convex/data]
                                 [:ref :convex/data]]
+          :convex/meta         [:or
+                                :convex/map
+                                :convex/nil]
           :convex/nil          :nil
           :convex/number       [:or
                                 :convex/double
