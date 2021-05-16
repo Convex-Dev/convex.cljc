@@ -194,6 +194,11 @@
                          ($.test.eval/like-clojure? ($.form/templ {'?sym sym
                                                                    '?x   x}
                                                                   '(when-let [?sym '?x]
+                                                                     :true)))
+
+                         "`when-not` is consistent with Clojure"
+                         ($.test.eval/like-clojure? ($.form/templ {'?x x}
+                                                                  '(when-not '?x
                                                                      :true)))))))
 
 
