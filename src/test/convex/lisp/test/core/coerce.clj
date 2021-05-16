@@ -140,6 +140,29 @@
 
 
 
+($.test.prop/deftest ^:recur encoding--
+
+  ($.test.prop/check :convex/data
+                     (fn [x]
+                       (let [ctx ($.test.eval/ctx ($.form/templ {'?x x}
+                                                                '(do
+                                                                   (def x
+                                                                        '?x)
+                                                                   (def -encoding
+                                                                        (encoding x)))))]
+                         ($.test.prop/mult*
+
+                           "Result is a blob"
+                           ($.test.eval/result ctx
+                                               '(blob? -encoding))
+
+                           "Encoding is deterministic"
+                           ($.test.eval/result ctx
+                                               '(= -encoding
+                                                   (encoding x))))))))
+
+
+
 ($.test.prop/deftest hash--
 
   ;; Also tests `hash?`.
