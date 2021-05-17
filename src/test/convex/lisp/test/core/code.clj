@@ -30,7 +30,7 @@
                            "Data evaluates to itself"
                            ($.test.eval/result ctx
                                                '(= x
-                                                   (eval x)))
+                                                   (eval 'x)))
 
                            "Call evaluated function"
                            ($.test.eval/result ctx
@@ -52,7 +52,28 @@
                                                '(= eval-
                                                    (eval (compile (expand form))))))))))
 
-                                                                        
+
+
+
+($.test.prop/deftest ^:recur eval-as--
+
+  ($.test.prop/check [:tuple
+                      :convex/symbol
+                      :convex/data]
+                     (fn [[sym x]]
+                       ($.test.eval/result ($.form/templ {'?sym sym
+                                                          '?x   x}
+                                                         '(let [sym  '?sym
+                                                                x    '?x
+                                                                addr (deploy '(set-controller *caller*))]
+                                                            (eval-as addr
+                                                                     '(def (unquote sym)
+                                                                           '(unquote x)))
+                                                            (= x
+                                                               (lookup addr
+                                                                       sym))))))))
+
+
 
 ($.test.prop/deftest ^:recur expand--
 
