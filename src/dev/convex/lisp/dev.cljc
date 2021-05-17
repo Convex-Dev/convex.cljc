@@ -118,11 +118,13 @@
        ;$/datafy
        )
 
-  (->> '(lookup-syntax '*)
+  (->> '(let [x (address 1)]
+          (= x
+             (unsyntax (expand x))))
        $/read-form
        ($.ctx/eval ($.ctx/create-fake))
        $.ctx/result
-       $/datafy
+       ;$/datafy
        )
 
 
@@ -135,7 +137,7 @@
       )
 
 
-  (->> '(dotimes [i -1] (log i))
+  (->> '(expand 42)
        $/read-form
        ($.ctx/eval ($.ctx/create-fake))
        $.ctx/log
