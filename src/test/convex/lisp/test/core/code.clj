@@ -12,6 +12,48 @@
 ;;;;;;;;;;
 
 
+($.test.prop/deftest ^:recur eval--
+
+  ($.test.prop/check :convex/data
+                     (fn [x]
+                       (let [ctx ($.test.eval/ctx ($.form/templ {'?x x}
+                                                                '(do
+                                                                   (def x
+                                                                        '?x)
+                                                                   (def form
+                                                                        '(fn []
+                                                                           '(unquote x)))
+                                                                   (def eval-
+                                                                        (eval form)))))]
+                         ($.test.prop/mult*
+
+                           "Data evaluates to itself"
+                           ($.test.eval/result ctx
+                                               '(= x
+                                                   (eval x)))
+
+                           "Call evaluated function"
+                           ($.test.eval/result ctx
+                                               '(= x
+                                                   (eval-)))
+
+                           "Expanding form prior to `eval` has no impact"
+                           ($.test.eval/result ctx
+                                               '(= eval-
+                                                   (eval (expand form))))
+
+                           "Compiling form prior to `eval` has no impact"
+                           ($.test.eval/result ctx
+                                               '(= eval-
+                                                   (eval (compile form))))
+
+                           "Expanding and compiling form prior to `eval` has no impact"
+                           ($.test.eval/result ctx
+                                               '(= eval-
+                                                   (eval (compile (expand form))))))))))
+
+                                                                        
+
 ($.test.prop/deftest ^:recur expand--
 
   ($.test.prop/check :convex/data
@@ -67,6 +109,8 @@
 ;;;;;;;;;;
 
 
+; TODO. Do can we actually do with `compile` and `expand`? Results are not something that can be used in the sandbox.
+
 ; *initial-expander*
 ; compile
 ; defexpander
@@ -75,7 +119,6 @@
 ; eval-as
 ; expand
 ; expander
-; macro
 ; macro
 ; quote
 ; unquote

@@ -4,7 +4,8 @@
 
   {:author "Adam Helinski"}
 
-  (:require #?(:clj [convex.lisp                      :as $])
+  (:require #?(:clj [backtick])
+            #?(:clj [convex.lisp                      :as $])
             [convex.lisp.ctx                          :as $.ctx]
             [convex.lisp.edn                          :as $.edn]
             [convex.lisp.eval                         :as $.eval]
@@ -90,40 +91,16 @@
   
 
 
-  (def tx
-       ($.form/templ {'?amount (malli.gen/generate [:int
-                                                    {:min 10
-                                                     :max 1000}])
-                      '?key    (malli.gen/generate ($.test.schema/generator :convex/hexstring-32))}
-                     '(do
-                        (let [addr (create-account ?key)]
-                          (transfer addr
-                                    ?amount)
-                          [*balance*
-                           (balance addr)]))))
-                
 
 
-  (def ctx
-       ($.ctx/create-fake))
-                
-
-
-
-
-  (->> '(lookup-syntax 'conj)
-       $/read-form
-       ($.ctx/eval ($.ctx/fork ctx))
-       $.ctx/result
-       ;$/datafy
-       )
-
-  (->> '(let [x (address 1)]
-          (= x
-             (unsyntax (expand x))))
+  (->> '(do
+          (def a
+               (deploy '(set-controller *caller*)))
+          (account a))
        $/read-form
        ($.ctx/eval ($.ctx/create-fake))
        $.ctx/result
+       .getController
        ;$/datafy
        )
 
