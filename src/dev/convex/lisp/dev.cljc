@@ -118,10 +118,7 @@
        ;$/datafy
        )
 
-  (->> '(do
-          42
-          (= 42
-             *result*))
+  (->> '(lookup-syntax '*)
        $/read-form
        ($.ctx/eval ($.ctx/create-fake))
        $.ctx/result
@@ -155,19 +152,25 @@
   (ppr
     ;(malli/validate [:not [:enum 1 2]]
     ;                3
-    (malli.gen/generate [:schema {:registry {::cons [:maybe [:vector [:tuple pos-int? [:ref ::cons]]]]}}
+    (malli.gen/generate 
+
+     
+      #_[:schema {:registry {::cons [:maybe [:vector [:tuple pos-int? [:ref ::cons]]]]}}
    ::cons]
 
-      #_[:and
+
+
+      [:and
                          {:registry {::data    [:or
                                                 ::int
                                                 ::vector]
                                      ::int     :int
                                      ::vector  [:vector
                                                 [:ref ::data]]}}
-                         [:or ::data]
+                         ::data
                          [:fn
                           (fn [_]
+                            true
                             false)]]
 
 
@@ -194,6 +197,7 @@
                                                          ; tc.gen/symbol
                                                          ]))
                    30)))
+
 
 
 

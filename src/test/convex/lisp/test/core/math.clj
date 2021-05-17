@@ -391,6 +391,28 @@
                                                          -quot)))))))))
 
 
+;;;;;;;;;; Miscellaneous
+
+
+($.test.prop/deftest ^:recur zero?--false
+
+  ($.test.prop/check [:and
+                      :convex/data
+                      ; TODO. Cannot use `:fn` because of: https://github.com/metosin/malli/issues/442
+                      [:not [:= 0]]
+                      [:not [:= 0.0]]
+                      #_[:fn #(not (zero? %))]]
+                     (fn [x]
+                       ($.test.eval/result ($.form/templ {'?x x}
+                                                         '(not (zero? '?x)))))))
+
+
+
+(t/deftest zero?--true
+
+  (t/is ($.test.eval/result '(zero? 0))))
+
+
 ;;;;;;;;;; Rounding
 
 
