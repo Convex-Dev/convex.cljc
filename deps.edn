@@ -37,8 +37,7 @@
   {:extra-paths ["src/test"]}}
 
  :deps
- {backtick/backtick        {:mvn/version "0.3.4"}
-  ;cljs-ajax/cljs-ajax      {:mvn/version "0.8.3"}
+ {;cljs-ajax/cljs-ajax      {:mvn/version "0.8.3"}
   metosin/malli            {:mvn/version "0.5.1"}
   org.clojure/tools.reader {:mvn/version "1.3.4"}
   world.convex/convex      {:local/root "cvm/c28c9010665cbfdae95c57150577f1d03942e3d6.jar"}}

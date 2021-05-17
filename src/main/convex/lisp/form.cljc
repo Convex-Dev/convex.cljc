@@ -5,7 +5,11 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.string]
-            [clojure.walk]))
+            [clojure.walk])
+  #?(:cljs (:require-macros [convex.lisp.form :refer [templ*]])))
+
+
+(declare ^:no-doc -templ*)
 
 
 ;;;;;;;;;; Literal notations for Convex objects that do not map to Clojure but can be expressed as symbols
@@ -108,13 +112,102 @@
   (pr-str form))
 
 
+;;;;;;;;;; Templating Convex Lisp code
+
 
 (defn templ
 
   "Basic templating, walking through `code` and replacing items by following the `binding+`
-   map."
+   map.
+  
+   ```clojure
+   (templ {'?x [1 2 3}
+          '(conj ?x
+                 4))
+   ```"
 
   [binding+ code]
 
   (clojure.walk/postwalk-replace binding+
                                  code))
+
+
+
+(defn ^:no-doc -splice
+
+  ;; Helper for [[-templ]].
+
+  [x+]
+  
+  (list* 'concat
+         (map (fn [x]
+                (if (and (seq? x)
+                         (= (first x)
+                            'clojure.core/unquote-splicing))
+                  (second x)
+                  [(-templ* x)]))
+              x+)))
+
+
+
+(defn- -templ*
+
+  ;; Helper for [[templ*]].
+
+  [form]
+
+  (cond
+    (seq? form)    (condp =
+                          (first form)
+                     'clojure.core/unquote          (second form)
+                     'clojure.core/unquote-splicing (throw (ex-info "Can only splice inside of a collection"
+                                                                    {::form form}))
+                     (-splice form))
+    (map? form)    `(apply hash-map
+                           ~(-splice (mapcat identity
+                                             form)))
+    (set? form)    `(set ~(-splice form))
+    (vector? form) `(vec ~(-splice form))
+    :else          (if (symbol? form)
+                     `(quote ~form)
+                     form)))
+
+
+
+(defmacro templ*
+
+  "Macro for templating Convex Lisp Code.
+  
+   Ressembles Clojure's syntax quote but does not namespace anything.
+
+   Unquoting and unquote-splicing for inserting Clojure values are done through the literal notation (respectively
+   **~** and **~@**) whereas those same features as Convex are written via forms (respecively `(unquote x)` and
+   `(unquote-splicing x)`.
+  
+   For example:
+
+   ```clojure
+   (let [kw :foo
+         xs [2 3]
+         y  42]
+     (templ* [~kw 1 ~@xs 4 (unquote y)]))
+   ```
+
+   Produces the following vector:
+
+   ```clojure
+   [:foo 1 2 3 4 (unquote y)]
+   ```"
+
+  ;; Inspired by https://github.com/brandonbloom/backtick/
+
+  [& form+]
+
+  (when (seq form+)
+    (if (= (count form+)
+           1)
+      (-templ* (first form+))
+      (concat ['list
+               '(quote do)]
+              (map -templ*
+                   form+)))))

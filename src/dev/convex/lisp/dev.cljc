@@ -4,8 +4,7 @@
 
   {:author "Adam Helinski"}
 
-  (:require #?(:clj [backtick])
-            #?(:clj [convex.lisp                      :as $])
+  (:require #?(:clj [convex.lisp                      :as $])
             [convex.lisp.ctx                          :as $.ctx]
             [convex.lisp.edn                          :as $.edn]
             [convex.lisp.eval                         :as $.eval]
@@ -178,6 +177,6 @@
                    30)))
 
 
-
+  
 
   ))
