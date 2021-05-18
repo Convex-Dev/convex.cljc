@@ -9,32 +9,7 @@
             [convex.lisp.test.schema :as $.test.schema]))
 
 
-;;;;;;;;;; Preparing contextes
-
-
-(defn ctx-transfer
-
-  "Preparing the given `ctx` for [[suite-transfer]].
-   
-   Assumes address of the receiver is interned as `addr`.
-  
-   `percent` is the percentage of the current balance that should be transfered."
-
-  [ctx percent]
-
-  ($.test.eval/ctx* ctx
-                    (do
-                      (def balance-before
-                           *balance*)
-                      (def amount
-                           (long (floor (* ~percent
-                                           balance-before))))
-                      (def -transfer
-                           (transfer addr
-                                     amount)))))
-
-
-;;;;;;;;;; Suites
+;;;;;;;;;; Suites - Miscellaneous
 
 
 (defn suite-new
@@ -84,6 +59,31 @@
                                        (long addr)]))))))
 
 
+;;;;;;;;;; Suites - Transfering coins
+
+
+(defn ctx-transfer
+
+  "Preparing the given `ctx` for [[suite-transfer]].
+   
+   Assumes address of the receiver is interned as `addr`.
+  
+   `percent` is the percentage of the current balance that should be transfered."
+
+  [ctx percent]
+
+  ($.test.eval/ctx* ctx
+                    (do
+                      (def balance-before
+                           *balance*)
+                      (def amount
+                           (long (floor (* ~percent
+                                           balance-before))))
+                      (def -transfer
+                           (transfer addr
+                                     amount)))))
+
+
 
 (defn suite-transfer
 
@@ -96,6 +96,23 @@
   ([ctx]
 
    ($.test.prop/mult*
+
+      "Consistency between sender account information and `*balance*`, `balance` (before transfer)"
+      ($.test.eval/result '(= *balance*
+                              (balance *address*)
+                              (:balance (account *address*))))
+
+
+      "Consistency between sender account information and `*balance*`, `balance` (after transfer)"
+      ($.test.eval/result ctx
+                          '(= *balance*
+                              (balance *address*)
+                              (:balance (account *address*))))
+
+      "Consistency between receiver account information and `balance`"
+      ($.test.eval/result ctx
+                          '(= (balance addr)
+                              (:balance (account addr))))
 
       "`transfer` returns the sent amount"
       ($.test.eval/result ctx
