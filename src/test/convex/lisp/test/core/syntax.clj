@@ -21,17 +21,17 @@
                       :convex/meta
                       :convex/meta]
                      (fn [[sym x meta-1 meta-2]]
-                       (let [ctx ($.test.eval/ctx ($.form/templ* (do
-                                                                   (def meta-1
-                                                                        '~meta-1)
-                                                                   (def meta-2
-                                                                        '~meta-2)
-                                                                   (def sym
-                                                                        '~sym)
-                                                                   (def x
-                                                                        '~x)
-                                                                   (def ~sym
-                                                                        x))))]
+                       (let [ctx ($.test.eval/ctx* (do
+                                                     (def meta-1
+                                                          (quote ~meta-1))
+                                                     (def meta-2
+                                                          (quote ~meta-2))
+                                                     (def sym
+                                                          (quote ~sym))
+                                                     (def x
+                                                          (quote ~x))
+                                                     (def ~sym
+                                                          x)))]
                          ($.test.prop/and* ($.test.prop/checkpoint*
 
                                              "`lookup-syntax`"
@@ -62,20 +62,18 @@
                                                                        (meta (syntax x))))
 
                                                "No double wrapping"
-                                               ($.test.eval/result ctx
-                                                                   ($.form/templ {'?sym sym}
-                                                                                 '(let [?sym (syntax x)]
-                                                                                    (= ?sym
-                                                                                       (syntax ?sym)))))
+                                               ($.test.eval/result* ctx
+                                                                    (let [~sym (syntax x)]
+                                                                      (= ~sym
+                                                                         (syntax ~sym))))
 
                                                "Rewrapping with meta"
-                                               ($.test.eval/result ctx
-                                                                   ($.form/templ {'?sym sym}
-                                                                                 '(let [?sym (syntax x)]
-                                                                                    (= (syntax x
-                                                                                               meta-1)
-                                                                                       (syntax ?sym
-                                                                                               meta-1)))))
+                                               ($.test.eval/result* ctx
+                                                                    (let [~sym (syntax x)]
+                                                                      (= (syntax x
+                                                                                 meta-1)
+                                                                         (syntax ~sym
+                                                                                 meta-1))))
 
                                                "`syntax?`"
                                                ($.test.eval/result ctx
@@ -100,13 +98,12 @@
                                                                                      meta-1))))
 
                                                "No double wrapping"
-                                               ($.test.eval/result ctx
-                                                                   ($.form/templ {'?sym sym}
-                                                                                 '(let [?sym (syntax x
-                                                                                                     meta-1)]
-                                                                                    (= ?sym
-                                                                                       (syntax ?sym
-                                                                                               meta-1)))))
+                                               ($.test.eval/result* ctx
+                                                                    (let [~sym (syntax x
+                                                                                       meta-1)]
+                                                                      (= ~sym
+                                                                         (syntax ~sym
+                                                                                 meta-1))))
 
                                                "Rewrapping with new metadata merges all metadata"
                                                ($.test.eval/result ctx

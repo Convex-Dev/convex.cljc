@@ -92,7 +92,7 @@
 ;;;;;;;;;; Tests
 
 
-;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/106#issuecomment-841406937
+;; TODO. Fail, not core symbols
 ;;
 #_($.test.prop/deftest dotimes--
 
@@ -107,13 +107,15 @@
                                   (>= n
                                       0)))]]
                      (fn [[bind counter n]]
-                       ($.test.eval/result ($.form/templ* (let [~counter 0]
-                                                            (dotimes [~bind 0]
-                                                              (set! ~counter
-                                                                    (= ~counter
-                                                                       1)))
-                                                            (== ~counter
-                                                                (floor ~n))))))))
+                       ($.test.eval/result* (do
+                                              (def ~counter
+                                                   0)
+                                              (dotimes [~bind ~n]
+                                                (def ~counter
+                                                     (+ ~counter
+                                                        1)))
+                                              (== ~counter
+                                                  (floor ~n)))))))
 
 
 
@@ -155,14 +157,14 @@
                       :convex/vector
                       [:fn #(pos? (count %))]]
                      (fn [x]
-                       ($.test.eval/result ($.form/templ* (let [x '~x
-                                                                v (nth x
-                                                                       ~(rand-int (count x)))]
-                                                            (= v
-                                                               (reduce (fn [acc item]
-                                                                         (if (= item
-                                                                                v)
-                                                                           (reduced item)
-                                                                           acc))
-                                                                       :convex-sentinel
-                                                                       x))))))))
+                       ($.test.eval/result* (let [x '~x
+                                                  v (nth x
+                                                         ~(rand-int (count x)))]
+                                              (= v
+                                                 (reduce (fn [acc item]
+                                                           (if (= item
+                                                                  v)
+                                                             (reduced item)
+                                                             acc))
+                                                         :convex-sentinel
+                                                         x)))))))

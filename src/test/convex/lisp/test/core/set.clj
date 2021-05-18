@@ -4,8 +4,7 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.lisp.form      :as $.form]
-            [convex.lisp.test.eval :as $.test.eval]
+  (:require [convex.lisp.test.eval :as $.test.eval]
             [convex.lisp.test.prop :as $.test.prop]))
 
 
@@ -14,11 +13,12 @@
 
 ($.test.prop/deftest ^:recur mono
 
+  ;; Using only one set.
+
   ($.test.prop/check :convex/set
-                     (fn [x]
-                       (let [ctx ($.test.eval/ctx ($.form/templ {'?s x}
-                                                                '(def s
-                                                                      '?s)))]
+                     (fn [s]
+                       (let [ctx ($.test.eval/ctx* (def s
+                                                        (quote ~s)))]
                          ($.test.prop/mult*
 
                            "There is no difference between a set and itself"
@@ -108,34 +108,35 @@
 
 ($.test.prop/deftest ^:recur poly
 
+  ;; Using at least 2 sets.
+
   ($.test.prop/check [:vector
                       {:min 2}
                       [:or
                        :convex/nil
                        :convex/set]]
-                     (fn [x]
-                       (let [ctx ($.test.eval/ctx ($.form/templ {'?s+ x}
-                                                                '(do
-                                                                   (def s+
-                                                                        '?s+)
-                                                                   (def -difference
-                                                                        (apply difference
-                                                                               s+))
-                                                                   (def -intersection
-                                                                        (apply intersection
-                                                                               s+))
-                                                                   (def -union
-                                                                        (apply union
-                                                                               s+))
-                                                                   (def n-difference
-                                                                        (count -difference))
-                                                                   (def n-intersection
-                                                                        (count -intersection))
-                                                                   (def n-s+
-                                                                        (mapv count
-                                                                              s+))
-                                                                   (def n-union
-                                                                        (count -union)))))]
+                     (fn [s+]
+                       (let [ctx ($.test.eval/ctx* (do
+                                                     (def s+
+                                                          (quote ~s+))
+                                                     (def -difference
+                                                          (apply difference
+                                                                 s+))
+                                                     (def -intersection
+                                                          (apply intersection
+                                                                 s+))
+                                                     (def -union
+                                                          (apply union
+                                                                 s+))
+                                                     (def n-difference
+                                                          (count -difference))
+                                                     (def n-intersection
+                                                          (count -intersection))
+                                                     (def n-s+
+                                                          (mapv count
+                                                                s+))
+                                                     (def n-union
+                                                          (count -union))))]
                          ($.test.prop/mult*
 
                            "Difference is a set"

@@ -11,7 +11,6 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.test          :as t]
-            [convex.lisp.form      :as $.form]
             [convex.lisp.test.eval :as $.test.eval]
             [convex.lisp.test.prop :as $.test.prop]
             [convex.lisp.test.util :as $.test.util]))
@@ -343,22 +342,20 @@
                        :convex/long
                        [:fn #(not (zero? %))]]]
                      (fn [[a b]]
-                       (let [ctx ($.test.eval/ctx ($.form/templ {'?a a
-                                                                 '?b b}
-                                                                '(do
-                                                                   (def a
-                                                                        ?a)
-                                                                   (def b
-                                                                        ?b)
-                                                                   (def -mod
-                                                                        (mod a
-                                                                             b))
-                                                                   (def -quot
-                                                                        (quot a
-                                                                              b))
-                                                                   (def -rem
-                                                                        (rem a
-                                                                             b)))))]
+                       (let [ctx ($.test.eval/ctx* (do
+                                                     (def a
+                                                          ~a)
+                                                     (def b
+                                                          ~b)
+                                                     (def -mod
+                                                          (mod a
+                                                               b))
+                                                     (def -quot
+                                                          (quot a
+                                                                b))
+                                                     (def -rem
+                                                          (rem a
+                                                               b))))]
                          ($.test.prop/mult*
 
                            "`mod` produces a long"
@@ -405,8 +402,7 @@
                       [:not [:= 0.0]]
                       #_[:fn #(not (zero? %))]]
                      (fn [x]
-                       ($.test.eval/result ($.form/templ {'?x x}
-                                                         '(not (zero? '?x)))))))
+                       ($.test.eval/result* (not (zero? (quote ~x)))))))
 
 
 

@@ -7,7 +7,6 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.test            :as t]
-            [convex.lisp.form        :as $.form]
             [convex.lisp.test.eval   :as $.test.eval]
             [convex.lisp.test.prop   :as $.test.prop]
             [convex.lisp.test.schema :as $.test.schema]))
@@ -20,34 +19,22 @@
 
   ;; Used by [[pred-data-false]] and [[pred-data-true]].
 
+  [form result? f schema]
 
-  ([form result? schema]
+  ($.test.prop/check schema
+                     (fn [x]
+                       (let [result ($.test.eval/result* (~form (quote ~x)))]
 
-   (-prop form
-          result?
-          nil
-          schema))
+                         ($.test.prop/mult*
 
-
-  ([form result? f-clojure schema]
-
-   ($.test.prop/check schema
-                      (let [suite   (fn [_x x-2]
-                                      [["Always returns false"
-                                        #(result? x-2)]])
-                            suite-2 (if f-clojure
-                                      (fn [x x-2]
-                                        (conj (suite x
-                                                     x-2)
-                                              ["Consistent with Clojure"
-                                               #(= x-2
-                                                   (f-clojure x))]))
-                                      suite)]
-
-                        (fn [x]
-                          ($.test.prop/mult (suite-2 x
-                                                     ($.test.eval/result (list form
-                                                                               ($.form/quoted x))))))))))
+                           "Returns right boolean value"
+                           (result? result)
+                           
+                           "Consistent with Clojure"
+                           (if f
+                             (= result
+                                (f x))
+                             true))))))
 
 
 
@@ -65,11 +52,11 @@
                schema-without))
 
 
-  ([form f-clojure schema-without]
+  ([form f schema-without]
 
    (-prop form
           false?
-          f-clojure
+          f
           ($.test.schema/data-without schema-without))))
 
 
@@ -89,11 +76,11 @@
               schema))
 
 
-  ([form f-clojure schema]
+  ([form f schema]
 
    (-prop form
           true?
-          f-clojure
+          f
           schema)))
 
 
