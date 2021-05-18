@@ -133,30 +133,30 @@
     (malli.gen/generate 
 
      
-      #_[:schema {:registry {::cons [:maybe [:vector [:tuple pos-int? [:ref ::cons]]]]}}
-   ::cons]
+#_[:schema {:registry {::cons [:maybe [:vector [:tuple pos-int? [:ref ::cons]]]]}}
+  ::cons]
 
 
+[:and
+ {:registry {::data    [:or
+                        ::int
+                        ::vector]
+             ::int     :int
+             ::vector  [:vector
+                        [:ref ::data]]}}
+ ::data]
 
-      [:and
-                         {:registry {::data    [:or
-                                                ::int
-                                                ::vector]
-                                     ::int     :int
-                                     ::vector  [:vector
-                                                [:ref ::data]]}}
-                         ::data
-                         [:fn
-                          (fn [_]
-                            true
-                            false)]]
+;  [:fn
+;   (fn [_]
+;     true
+;     false)]]
 
 
-                        {:registry (-> (malli/default-schemas)
-                                       $.schema/registry
-                                       )
-                         :size     30
-                         }))
+{:registry (-> (malli/default-schemas)
+               $.schema/registry
+               )
+ :size     30
+ }))
 
 
   

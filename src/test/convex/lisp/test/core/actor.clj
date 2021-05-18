@@ -4,8 +4,7 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.lisp.form              :as $.form]
-            [convex.lisp.test.core.account :as $.test.core.account]
+  (:require [convex.lisp.test.core.account :as $.test.core.account]
             [convex.lisp.test.eval         :as $.test.eval]
             [convex.lisp.test.prop         :as $.test.prop]))
 
@@ -17,7 +16,6 @@
 
   ($.test.prop/check :convex/data
                      (fn [x]
-                       ($.test.core.account/suite-new ($.test.eval/ctx ($.form/templ {'?data x}
-                                                                                     '(def addr
-                                                                                           (deploy (quote '?data)))))
+                       ($.test.core.account/suite-new ($.test.eval/ctx* (def addr
+                                                                             (deploy (quote (quote ~x)))))
                                                       true?))))

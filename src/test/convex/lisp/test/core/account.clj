@@ -4,8 +4,7 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.lisp.form        :as $.form]
-            [convex.lisp.test.eval   :as $.test.eval]
+  (:require [convex.lisp.test.eval   :as $.test.eval]
             [convex.lisp.test.prop   :as $.test.prop]
             [convex.lisp.test.schema :as $.test.schema]))
 
@@ -31,33 +30,33 @@
       ($.test.schema/valid? :convex/address
                             ($.test.eval/result ctx
                                                 'addr))
-      "(account?)"
+
+      "`account?`"
       ($.test.eval/result ctx
                           '(account? addr))
-      "(actor?)"
+
+      "`actor?`"
       (actor? ($.test.eval/result ctx
                                   '(actor? addr)))
-      "(address?)"
+
+      "`address?`"
       ($.test.eval/result ctx
                           '(address? addr))
-      "(balance)"
-      (zero? ($.test.eval/result ctx
-                                 '(balance addr)))
-      "(get-holding)"
-      (nil? ($.test.eval/result ctx
-                                '(get-holding addr
-                                              )))
-      "(account) and comparing with *state*"
-      (let [[addr-long
-             account]  ($.test.eval/result ctx
-                                           '[(long addr)
-                                             (account addr)])]
-        (= account
-           ($.test.eval/result ctx
-                               ($.form/templ {'?addr addr-long}
-                                             '(get-in *state*
-                                                      [:accounts
-                                                       ?addr]))))))))
+
+      "Balance is 0"
+      ($.test.eval/result ctx
+                          '(zero? (balance addr)))
+
+      "`get-holding` returns nothing on a viring account"
+      ($.test.eval/result ctx
+                          '(nil? (get-holding addr)))
+
+      "Comparing `account` with *state*"
+      ($.test.eval/result ctx
+                          '(= (account addr)
+                              (get-in *state*
+                                      [:accounts
+                                       (long addr)]))))))
 
 
 ;;;;;;;;;; Tests
@@ -71,23 +70,26 @@
                      (fn [x]
                        ($.test.prop/mult*
 
-                         "Account does not exist"
-                         (false? ($.test.eval/result (list 'account?
-                                                           x)))
+                         "Account does not exist (long)"
+                         ($.test.eval/result* (not (account? ~x)))
 
-                         "Actor does not exist"
-                         (false? ($.test.eval/result (list 'actor?
-                                                           x)))))))
+                         "Account does not exist (address)"
+                         ($.test.eval/result* (not (account (address ~x))))
+
+                         "Actor does not exist (long)"
+                         ($.test.eval/result* (not (actor? ~x)))
+
+                         "Actor does not exist (address)"
+                         ($.test.eval/result* (not (actor? (address ~x))))))))
 
 
 
 ($.test.prop/deftest create-account--
 
   ($.test.prop/check :convex/hexstring-32
-                     (fn [x]
-                       (suite-new ($.test.eval/ctx ($.form/templ {'?hexstring x}
-                                                                 '(def addr
-                                                                       (create-account ?hexstring))))
+                     (fn [hexstring]
+                       (suite-new ($.test.eval/ctx* (def addr
+                                                         (create-account ~hexstring)))
                                   false?))))
 
 
@@ -100,20 +102,25 @@
                        {:max 1
                         :min 0}]]
                      (fn [[pubkey ratio]]
-                       ($.test.prop/mult-result ($.test.eval/result
-                                                  ($.form/templ {'?pubkey pubkey
-                                                                 '?ratio  ratio}
-                                                                '(do
-                                                                   (let [balance-original *balance*
-                                                                         addr             (create-account ?pubkey)
-                                                                         amount           (floor (* ?ratio
-                                                                                                    *balance*))]
-                                                                     (transfer addr
-                                                                               amount)
-                                                                     [(== balance-original
-                                                                          (+ *balance*
-                                                                             amount))
-                                                                      (== amount
-                                                                          (balance addr))]))))
-                                                ["Own balance has been correctly updated"
-                                                 "Balance of receiver has been correctly updated"]))))
+                       (let [ctx ($.test.eval/ctx* (do
+                                                     (def balance-original
+                                                          *balance*)
+                                                     (def addr
+                                                          (create-account ~pubkey))
+                                                     (def amount
+                                                          (long (floor (* ~ratio
+                                                                          balance-original))))
+                                                     (transfer addr
+                                                               amount)))]
+                         ($.test.prop/mult*
+
+                           "Own balance has been correctly update"
+                           ($.test.eval/result* ctx
+                                                (== balance-original
+                                                    (+ *balance*
+                                                       amount)))
+
+                           "Balance of receiver has been correctly updated"
+                           ($.test.eval/result* ctx
+                                                (== amount
+                                                    (balance addr))))))))

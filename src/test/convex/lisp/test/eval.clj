@@ -7,6 +7,7 @@
   {:author "Adam Helinski"}
 
   (:require [convex.lisp.ctx       :as $.ctx]
+            [convex.lisp.form      :as $.form]
             [convex.lisp.eval      :as $.eval]
             [convex.lisp.test.util :as $.test.util]))
 
@@ -31,6 +32,21 @@
 
    ($.eval/ctx ctx
                form)))
+
+
+
+(defmacro ctx*
+
+
+  ([form]
+
+   `(convex.lisp.test.eval/ctx ($.form/templ* ~form)))
+
+
+  ([ctx form]
+
+   `(convex.lisp.test.eval/ctx  ~ctx
+                                ($.form/templ* ~form))))
 
 
 
@@ -132,6 +148,21 @@
 
    ($.eval/result ctx
                   form)))
+
+
+
+(defmacro result*
+
+
+  ([form]
+
+   `(result ($.form/templ* ~form)))
+
+
+  ([ctx form]
+
+   `(result ~ctx
+            ($.form/templ* ~form))))
 
 
 

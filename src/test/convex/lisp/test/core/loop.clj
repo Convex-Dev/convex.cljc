@@ -107,18 +107,13 @@
                                   (>= n
                                       0)))]]
                      (fn [[bind counter n]]
-                       (println :form 
-                       ($.test.eval/log ($.form/templ {'?bind    bind
-                                                          '?counter counter
-                                                          '?n       n}
-                                                         '(let [?counter 0]
-                                                            (dotimes [?bind ?n]
-                                                              (set! ?counter
-                                                                    (+ ?counter
+                       ($.test.eval/result ($.form/templ* (let [~counter 0]
+                                                            (dotimes [~bind 0]
+                                                              (set! ~counter
+                                                                    (= ~counter
                                                                        1)))
-                                                            (log :got ?counter (floor ?n))
-                                                            (== ?counter
-                                                                (floor ?n)))))))))
+                                                            (== ~counter
+                                                                (floor ~n))))))))
 
 
 
@@ -160,11 +155,9 @@
                       :convex/vector
                       [:fn #(pos? (count %))]]
                      (fn [x]
-                       ($.test.eval/result ($.form/templ {'?i (rand-int (count x))
-                                                          '?x x}
-                                                         '(let [x '?x
+                       ($.test.eval/result ($.form/templ* (let [x '~x
                                                                 v (nth x
-                                                                       '?i)]
+                                                                       ~(rand-int (count x)))]
                                                             (= v
                                                                (reduce (fn [acc item]
                                                                          (if (= item

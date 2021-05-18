@@ -18,5 +18,4 @@
                       :convex/keyword
                       :convex/symbol]
                      (fn [x]
-                       ($.test.eval/like-clojure? (list 'name
-                                                        ($.form/quoted x))))))
+                       ($.test.eval/like-clojure? ($.form/templ* (name (quote x)))))))

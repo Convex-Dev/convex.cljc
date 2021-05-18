@@ -11,20 +11,26 @@
 
 ;;;;;;;;;;
 
+(defn foo
+
+  [x]
+
+  `(def foo ))
+
+
+
 
 ($.test.prop/deftest ^:recur eval--
 
   ($.test.prop/check :convex/data
                      (fn [x]
-                       (let [ctx ($.test.eval/ctx ($.form/templ {'?x x}
-                                                                '(do
-                                                                   (def x
-                                                                        '?x)
-                                                                   (def form
-                                                                        '(fn []
-                                                                           '(unquote x)))
-                                                                   (def eval-
-                                                                        (eval form)))))]
+                       (let [ctx ($.test.eval/ctx ($.form/templ* (def x
+                                                                      '~x)
+                                                                 (def form
+                                                                      '(fn []
+                                                                         '(unquote x)))
+                                                                 (def eval-
+                                                                      (eval form))))]
                          ($.test.prop/mult*
 
                            "Data evaluates to itself"
@@ -61,10 +67,8 @@
                       :convex/symbol
                       :convex/data]
                      (fn [[sym x]]
-                       ($.test.eval/result ($.form/templ {'?sym sym
-                                                          '?x   x}
-                                                         '(let [sym  '?sym
-                                                                x    '?x
+                       ($.test.eval/result ($.form/templ* (let [sym  '~sym
+                                                                x    '~x
                                                                 addr (deploy '(set-controller *caller*))]
                                                             (eval-as addr
                                                                      '(def (unquote sym)
@@ -79,9 +83,7 @@
 
   ($.test.prop/check :convex/data
                      (fn [x]
-                       (let [ctx ($.test.eval/ctx ($.form/templ {'?x x}
-                                                                '(def x
-                                                                      '?x)))]
+                       (let [ctx ($.test.eval/ctx ($.form/templ* (def x '~x)))]
                          ($.test.prop/and* ($.test.prop/checkpoint*
 
                                              "Expanding data"
@@ -143,4 +145,4 @@
 ; macro
 ; quote
 ; unquote
-; splice-unquote
+; unquote-splicing
