@@ -917,9 +917,9 @@
 
   ([fmap-x [x k v]]
 
-   ($.test.eval/error?* (assoc ~x
+   ($.test.eval/error?* (assoc ~(fmap-x x)
                                (quote ~k)
-                               (quote ~x)))))
+                               (quote ~v)))))
 
 
 

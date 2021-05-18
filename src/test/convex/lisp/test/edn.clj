@@ -4,7 +4,7 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.test    :as t]
+  #_(:require [clojure.test    :as t]
             [convex.lisp     :as $]
             [convex.lisp.edn :as $.edn]))
 

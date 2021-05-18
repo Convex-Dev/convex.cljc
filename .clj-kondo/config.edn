@@ -1,1 +1,7 @@
-{:lint-as {convex.lisp.test.prop/deftest clojure.test/deftest}}
+{:hooks   {:analyze-call {convex.lisp.form/templ*              hooks.convex/templ*
+                          convex.lisp.test.eval/ctx*           hooks.convex/templ*
+                          convex.lisp.test.eval/error*         hooks.convex/templ*
+                          convex.lisp.test.eval/error?*        hooks.convex/templ*
+                          convex.lisp.test.eval/like-clojure?* hooks.convex/templ*
+                          convex.lisp.test.eval/result*        hooks.convex/templ*}}
+ :lint-as {convex.lisp.test.prop/deftest clojure.test/deftest}}

@@ -21,16 +21,17 @@
                       :convex/meta
                       :convex/meta]
                      (fn [[sym x meta-1 meta-2]]
-                       (let [ctx ($.test.eval/ctx ($.form/templ*  (def meta-1
-                                                                       '~meta-1)
-                                                                  (def meta-2
-                                                                       '~meta-2)
-                                                                  (def sym
-                                                                       '~sym)
-                                                                  (def x
-                                                                       '~x)
-                                                                  (def ~sym
-                                                                       x)))]
+                       (let [ctx ($.test.eval/ctx ($.form/templ* (do
+                                                                   (def meta-1
+                                                                        '~meta-1)
+                                                                   (def meta-2
+                                                                        '~meta-2)
+                                                                   (def sym
+                                                                        '~sym)
+                                                                   (def x
+                                                                        '~x)
+                                                                   (def ~sym
+                                                                        x))))]
                          ($.test.prop/and* ($.test.prop/checkpoint*
 
                                              "`lookup-syntax`"

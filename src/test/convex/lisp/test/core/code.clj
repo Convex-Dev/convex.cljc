@@ -4,8 +4,7 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.lisp.form      :as $.form]
-            [convex.lisp.test.eval :as $.test.eval]
+  (:require [convex.lisp.test.eval :as $.test.eval]
             [convex.lisp.test.prop :as $.test.prop]))
 
 
