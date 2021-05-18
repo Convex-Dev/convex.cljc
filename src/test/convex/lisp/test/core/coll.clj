@@ -129,12 +129,9 @@
   ([x k v]
 
    (ctx-main x
-             ($.form/templ {'?k k
-                            '?v v
-                            '?x x}
-                           '(assoc ?x
-                                   '?k
-                                   '?v))
+             ($.form/templ* (assoc ~x
+                                   (quote ~k)
+                                   (quote ~v)))
              k
              v)))
 
@@ -142,23 +139,21 @@
 
 (defn ctx-main
 
-  "Creates a context by interning the given values (using same symbols as this signature)."
+  "Creates a context by interning the given values (using same symbols as this signature).
+
+   `k` and `v` are quoted."
 
   [x x-2 k v]
 
-  (-> ($.form/templ {'?k   k
-                     '?v   v
-                     '?x   x
-                     '?x-2 x-2}
-                     '(do
-                        (def k
-                             '?k)
-                        (def v
-                             '?v)
-                        (def x
-                             ?x)
-                        (def x-2
-                             ?x-2)))
+  (-> ($.form/templ* (do
+                       (def k
+                            (quote ~k))
+                       (def v
+                            (quote ~v))
+                       (def x
+                            ~x)
+                       (def x-2
+                            ~x-2)))
        $.test.eval/ctx))
 
 
@@ -922,12 +917,9 @@
 
   ([fmap-x [x k v]]
 
-   ($.test.eval/error? ($.form/templ {'?k k
-                                      '?v v
-                                      '?x (fmap-x x)}
-                                     '(assoc ?x
-                                             '?k
-                                             '?v)))))
+   ($.test.eval/error?* (assoc ~x
+                               (quote ~k)
+                               (quote ~x)))))
 
 
 
@@ -997,12 +989,9 @@
                       :convex/scalar
                       :convex/data]
                      (fn [[x path v]]
-                       ($.test.eval/error? ($.form/templ {'?path path
-                                                          '?v    v
-                                                          '?x    x}
-                                                         '(assoc-in '?x
-                                                                    '?path
-                                                                    '?v))))))
+                       ($.test.eval/error?* (assoc-in (quote ~x)
+                                                      (quote ~path)
+                                                      (quote ~v))))))
 
 
 
@@ -1021,12 +1010,9 @@
                       :convex.test/seqpath
                       :convex/data]
                      (fn [[x path v]]
-                       ($.test.eval/error? ($.form/templ {'?path path
-                                                          '?v    v
-                                                          '?x    x}
-                                                         '(assoc-in '?x
-                                                                    '?path
-                                                                    '?v))))))
+                       ($.test.eval/error? (assoc-in (quote ~x)
+                                                     (quote ~path)
+                                                     (quote ~v))))))
 
 
 
@@ -1036,40 +1022,14 @@
 
   [item path value]
 
-  
-  (when-not ($.test.eval/result ($.form/templ {'?item  item
-                                     '?path  path
-                                     '?value value}
-                                    '(= '?value
-                                        (let [item-2 (assoc-in '?item
-                                                               '?path
-                                                               '?value)]
-                                          (if (empty? '?path)
-                                            item-2
-                                            (get-in item-2
-                                                    '?path))))))
-(println :got ($.form/templ {'?item  item
-                                     '?path  path
-                                     '?value value}
-                                    '(= '?value
-                                        (let [item-2 (assoc-in '?item
-                                                               '?path
-                                                               '?value)]
-                                          (if (empty? '?path)
-                                            item-2
-                                            (get-in item-2
-                                                    '?path)))))))
-  ($.test.eval/result ($.form/templ {'?item  item
-                                     '?path  path
-                                     '?value value}
-                                    '(= '?value
-                                        (let [item-2 (assoc-in '?item
-                                                               '?path
-                                                               '?value)]
-                                          (if (empty? '?path)
-                                            item-2
-                                            (get-in item-2
-                                                    '?path)))))))
+  ($.test.eval/result* (= (quote ~value)
+                          (let [item-2 (assoc-in (quote ~item)
+                                                 (quote ~path)
+                                                 (quote ~value))]
+                            (if (empty? (quote ~path))
+                              item-2
+                              (get-in item-2
+                                      (quote ~path)))))))
 
 
 
@@ -1135,44 +1095,42 @@
                        ($.test.prop/mult*
 
                          "Duplicating items"
-                         ($.test.eval/result ($.form/templ {'?coll coll}
-                                                           '(let [coll '?coll]
-                                                              (= (vec (mapcat (fn [x]
-                                                                                [x x])
-                                                                              coll))
-                                                                 (reduce (fn [acc x]
-                                                                           (conj acc
-                                                                                 x
-                                                                                 x))
-                                                                         []
-                                                                         coll)))))
+                         ($.test.eval/result* (let [coll (quote ~coll)]
+                                                (= (vec (mapcat (fn [x]
+                                                                  [x x])
+                                                                coll))
+                                                   (reduce (fn [acc x]
+                                                             (conj acc
+                                                                   x
+                                                                   x))
+                                                           []
+                                                           coll)))))
 
                          "Keeping items at even positions"
-                         ($.test.eval/result ($.form/templ {'?coll coll}
-                                                           '(do
-                                                              (def n-mapcat
-                                                                   -1)
-                                                              (def n-reduce
-                                                                   -1)
-                                                              (defn even? [x]
-                                                                (zero? (mod x
-                                                                            2)))
-                                                              (let [coll '?coll]
-                                                                (= (vec (mapcat (fn [x]
-                                                                                  (def n-mapcat
-                                                                                       (inc n-mapcat))
-                                                                                  (when (even? n-mapcat)
-                                                                                    [x]))
-                                                                                coll))
-                                                                   (reduce (fn [acc x]
-                                                                             (def n-reduce
-                                                                                  (inc n-reduce))
-                                                                             (if (even? n-reduce)
-                                                                               (conj acc
-                                                                                     x)
-                                                                               acc))
-                                                                           []
-                                                                           coll))))))))))
+                         ($.test.eval/result* (do
+                                                (def n-mapcat
+                                                     -1)
+                                                (def n-reduce
+                                                     -1)
+                                                (defn even? [x]
+                                                  (zero? (mod x
+                                                              2)))
+                                                (let [coll (quote ~coll)]
+                                                  (= (vec (mapcat (fn [x]
+                                                                    (def n-mapcat
+                                                                         (inc n-mapcat))
+                                                                    (when (even? n-mapcat)
+                                                                      [x]))
+                                                                  coll))
+                                                     (reduce (fn [acc x]
+                                                               (def n-reduce
+                                                                    (inc n-reduce))
+                                                               (if (even? n-reduce)
+                                                                 (conj acc
+                                                                       x)
+                                                                 acc))
+                                                             []
+                                                             coll))))))))
 
 
 
@@ -1180,15 +1138,14 @@
 
   ($.test.prop/check :convex/collection
                      (fn [coll]
-                       (let [ctx ($.test.eval/ctx ($.form/templ {'?coll coll}
-                                                                '(do
-                                                                   (def coll
-                                                                       '?coll)
-                                                                   (def vect
-                                                                        (vec coll))
-                                                                   (def modified
-                                                                        (mapv vector
-                                                                              coll)))))]
+                       (let [ctx ($.test.eval/ctx* (do
+                                                     (def coll
+                                                          (quote ~coll))
+                                                     (def vect
+                                                          (vec coll))
+                                                     (def modified
+                                                          (mapv vector
+                                                                coll))))]
                          ($.test.prop/mult*
 
                            "`for` to recreate collection as vector"
@@ -1257,13 +1214,12 @@
                        :convex/map
                        :convex/nil]]
                      (fn [x]
-                       (let [ctx ($.test.eval/ctx ($.form/templ {'?x x}
-                                                                '(do
-                                                                   (def arg+
-                                                                        '?x)
-                                                                   (def -merge
-                                                                        (apply merge
-                                                                               arg+)))))]
+                       (let [ctx ($.test.eval/ctx* (do
+                                                     (def arg+
+                                                          (quote ~x))
+                                                     (def -merge
+                                                          (apply merge
+                                                                 arg+))))]
                          ($.test.prop/mult*
 
                            "Count of merge cannot be bigger than all involved key-values"
@@ -1297,20 +1253,18 @@
                       :convex/collection
                       [:fn #(pos? (count %))]]
                      (fn [x]
-                       ($.test.eval/result ($.form/templ {'?i (rand-int (count x))
-                                                          '?x x}
-                                                         '(let [x '?x
-                                                                v (nth x
-                                                                       ?i)]
-                                                            (= v
-                                                               (reduce (fn [acc item]
-                                                                         (if (= item
-                                                                                v)
-                                                                           (reduced item)
-                                                                           acc))
-                                                                       :convex-sentinel
-                                                                       x))))))))
-
+                       ($.test.eval/result* (let [x (quote ~x)
+                                                  v (nth x
+                                                         ~(rand-int (count x)))]
+                                              (= v
+                                                 (reduce (fn [acc item]
+                                                           (if (= item
+                                                                  v)
+                                                             (reduced item)
+                                                             acc))
+                                                         :convex-sentinel
+                                                         x)))))))
+                        
 
 ;;;;;;;;;;
 

@@ -211,7 +211,7 @@
 ($.test.prop/deftest ^:recur list?--true
 
   (prop-true 'list?
-             list?
+             seq?
              :convex/list))
 
 

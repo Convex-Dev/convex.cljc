@@ -2,7 +2,10 @@
 
   "Bridge to [[convex.lisp.eval]] but uses [[ctx]] when no context is provided.
   
-   Undocumented symbols refer directly to the [[convex.lisp.eval]] namespace."
+   Undocumented symbols refer directly to the [[convex.lisp.eval]] namespace.
+  
+   Symbols ending with '*' designate a macro equivalent of a related function ([[result*]] for [[result]]) which
+   template the given form using [[convex.lisp.form/templ*]]."
 
   {:author "Adam Helinski"}
 
@@ -82,6 +85,21 @@
 
 
 
+(defmacro error?*
+
+
+  ([form]
+
+   `(error? ($.form/templ* ~form)))
+
+
+  ([ctx form]
+
+   `(error? ~ctx
+            ($.form/templ* ~form))))
+
+
+
 (defn like-clojure?
 
   "Returns true if applying `arg+` to `form` on the CVM produces the exact same result as
@@ -116,6 +134,36 @@
                    ($.eval/result ctx
                                   (list* form
                                          arg+)))))
+
+
+
+(defmacro like-clojure?*
+
+  
+  ([form]
+
+   `(like-clojure? ($.form/templ* ~form)))
+
+
+  ([ctx form]
+
+   `(like-clojure? ~ctx
+                   ($.form/templ* ~form)))
+
+
+  ([form f arg+]
+
+   `(like-clojure? ($.form/templ* ~form)
+                   ~f
+                   ~arg+))
+
+
+  ([ctx form f arg+]
+
+   `(like-clojure? ~ctx
+                   ($.form/templ* ~form)
+                   ~f
+                   ~arg+)))
 
 
 

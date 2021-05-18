@@ -4,8 +4,7 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.lisp.form      :as $.form]
-            [convex.lisp.test.eval :as $.test.eval]
+  (:require [convex.lisp.test.eval :as $.test.eval]
             [convex.lisp.test.prop :as $.test.prop]
             [convex.lisp.test.util :as $.test.util]))
 
@@ -19,31 +18,26 @@
                       :convex/symbol
                       :convex/data]
                      (fn [[sym x]]
-                       (let [ctx ($.test.eval/ctx ($.form/templ {'?sym sym
-                                                                 '?x   x}
-                                                                '(do
-                                                                   (def -defined?
-                                                                        (defined? ?sym))
-                                                                   (def sym
-                                                                        '?sym)
-                                                                   (def x
-                                                                        '?x)
-                                                                   (def ?sym
-                                                                        x))))]
+                       (let [ctx ($.test.eval/ctx* (do
+                                                     (def -defined?
+                                                          (defined? ~sym))
+                                                     (def sym
+                                                          (quote ~sym))
+                                                     (def x
+                                                          (quote ~x))
+                                                     (def ~sym
+                                                          x)))]
                          ($.test.prop/mult*
 
                            "`defined?` on input symbol returns true"
-                           ($.test.eval/result ctx
-                                               ($.form/templ {'?sym sym}
-                                                             '(defined? ?sym)))
+                           ($.test.eval/result* ctx
+                                                (defined? ~sym))
 
                            "Interned value is the input value"
-                           ($.test.eval/result ctx
-                                               ($.form/templ {'?sym sym
-                                                              '?x   x}
-                                                             '(= '?x
-                                                                 x
-                                                                 ?sym)))
+                           ($.test.eval/result* ctx
+                                                (= (quote ~x)
+                                                   x
+                                                   ~sym))
 
                            "Value figures in environment"
                            ($.test.eval/result ctx
@@ -58,11 +52,10 @@
                              ($.test.prop/mult*
 
                                "`defined?` on input symbol returns false (unless it was a core function defined before)"
-                               ($.test.eval/result ctx-2
-                                                   ($.form/templ {'?sym sym}
-                                                                 '(if -defined?
-                                                                    true
-                                                                    (not (defined? ?sym)))))
+                               ($.test.eval/result* ctx-2
+                                                    (if -defined?
+                                                      true
+                                                      (not (defined? ~sym))))
 
                                "Environment does not contain symbol anymore"
                                ($.test.eval/result ctx-2

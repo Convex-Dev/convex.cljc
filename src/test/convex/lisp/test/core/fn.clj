@@ -22,8 +22,7 @@
   ($.test.prop/checkpoint*
 
     "`fn?`"
-    ($.test.eval/result (list 'fn?
-                              form))))
+    ($.test.eval/result* (fn? ~form))))
 
 
 
@@ -34,43 +33,44 @@
 
   [form arg+ ret]
 
-  ($.test.prop/checkpoint*
+  (let [ctx ($.test.eval/ctx* (def ret
+                                   ~ret))]
+    ($.test.prop/checkpoint*
 
-    "Calling a function"
+      "Calling a function"
 
-    ($.test.prop/mult*
+      ($.test.prop/mult*
 
-      "Direct call"
-      ($.test.eval/result (list '=
-                                ret
-                                (list* form
-                                       arg+)))
+        #_#_"Direct call"
+        ($.test.eval/result* ctx
+                             (= ret
+                                (~form ~@arg+)))
 
-      "Calling after interning"
-      ($.test.prop/mult-result ($.test.eval/result ($.form/templ {'?call (list* 'f
-                                                                                arg+)
-                                                                  '?fn   form
-                                                                  '?ret  ret}
-                                                                 '(do
-                                                                    (def f
-                                                                         ?fn)
-                                                                    [(fn? f)
-                                                                     (= ?ret
-                                                                        ?call)])))
-                               ["Fn?"
-                                "Equal"])
+        "After def"
+        (let [ctx-2 ($.test.eval/ctx* ctx
+                                      (def f
+                                           ~form))]
+          ($.test.prop/mult*
 
-      "Calling as local binding"
-      ($.test.prop/mult-result ($.test.eval/result ($.form/templ {'?call (list* 'f
-                                                                                arg+)
-                                                                  '?fn   form
-                                                                  '?ret  ret}
-                                                                 '(let [f ?fn]
-                                                                    [(fn? f)
-                                                                     (= ?ret
-                                                                        ?call)])))
-                               ["Fn?"
-                                "Equal"]))))
+            "`fn?`"
+            ($.test.eval/result ctx-2
+                                '(fn? f))
+
+            "Calling"
+            ($.test.eval/result* ctx-2
+                                 (= ret
+                                    (f ~@arg+)))))
+
+        "From `let`, `fn?`"
+        ($.test.eval/result* ctx
+                             (let [f ~form]
+                               (fn? f)))
+
+        "From `let`, calling"
+        ($.test.eval/result* ctx
+                             (let [f ~form]
+                               (= ret
+                                  (f ~@arg+))))))))
 
 
 ;;;;;;;;;; Tests

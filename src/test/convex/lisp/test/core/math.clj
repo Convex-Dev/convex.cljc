@@ -216,7 +216,9 @@
 ;;;;;;;;;; Increment / decrement
 
 
-($.test.prop/deftest dec--double
+#_($.test.prop/deftest dec--double
+
+  ;; TODO. Doubles are not valid argument? 
 
   ;; Unintuitive behavior. When sufficiently small double, is cast to 0.
   ;; Not small enough, get cast to `Long/MIN_VALUE` and underflows.
@@ -248,7 +250,7 @@
 
 
 
-(t/deftest dec--double-underflow
+#_(t/deftest dec--double-underflow
 
   (t/is (= Long/MAX_VALUE
            ($.test.eval/result (list 'dec
@@ -276,7 +278,7 @@
 
 
 
-($.test.prop/deftest inc--double
+#_($.test.prop/deftest inc--double
 
   ;; See [[dec-double]].
 

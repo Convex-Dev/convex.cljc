@@ -63,8 +63,7 @@
                      (fn [[n x-ploy x-return]]
                        (identical? :ASSERT
                                    (-> ($.test.eval/error (-nested-fn n
-                                                                      ($.form/templ {'?x-return x-return}
-                                                                                    '(assert (not '?x-return)))
+                                                                      ($.form/templ* (assert (not (quote ~x-return))))
                                                                       x-ploy))
                                        :convex.error/code)))))
 
@@ -123,17 +122,15 @@
                        ($.test.util/eq {:convex.error/code    code
                                         :convex.error/message message}
                                        (select-keys ($.test.eval/error (-nested-fn n
-                                                                                   ($.form/templ {'?code    code
-                                                                                                  '?message message}
-                                                                                                 '(fail '?code
-                                                                                                        '?message))
+                                                                                   ($.form/templ* (fail (quote ~code)
+                                                                                                        (quote ~message)))
                                                                                    x-ploy))
                                                     [:convex.error/code
                                                      :convex.error/message])))))
 
 
 
-($.test.prop/deftest ^:recur halting--
+($.test.prop/deftest ^:recur halting
 
   ($.test.prop/check [:tuple
                       [:int
@@ -154,10 +151,11 @@
                          "`return`"
                          ($.test.util/eq [x-return
                                           x-ploy]
-                                         ($.test.eval/result (-nested-fn n
-                                                                         'return
-                                                                         x-ploy
-                                                                         x-return)))))))
+                                         ($.test.eval/result* [~(-nested-fn n
+                                                                            'return
+                                                                            x-ploy
+                                                                            x-return)
+                                                               (quote ~x-ploy)]))))))
 
 
 
@@ -173,33 +171,26 @@
                        ($.test.prop/mult*
 
                          "`if` is consistent with Clojure"
-                         ($.test.eval/like-clojure? ($.form/templ {'?x x}
-                                                                  '(if '?x
-                                                                     :true
-                                                                     :false)))
+                         ($.test.eval/like-clojure?* (if (quote ~x)
+                                                       :true
+                                                       :false))
 
                          "`if-let` is consistent with Clojure"
-                         ($.test.eval/like-clojure? ($.form/templ {'?sym sym
-                                                                   '?x   x}
-                                                                  '(if-let [?sym '?x]
-                                                                     :true
-                                                                     :false)))
+                         ($.test.eval/like-clojure?* (if-let [~sym (quote ~x)]
+                                                       :true
+                                                       :false))
 
                          "`when` is consistent with Clojure"
-                         ($.test.eval/like-clojure? ($.form/templ {'?x x}
-                                                                  '(when '?x
-                                                                     :true)))
+                         ($.test.eval/like-clojure?* (when (quote ~x)
+                                                       :true))
 
                          "`when-let` is consistent with Clojure"
-                         ($.test.eval/like-clojure? ($.form/templ {'?sym sym
-                                                                   '?x   x}
-                                                                  '(when-let [?sym '?x]
-                                                                     :true)))
+                         ($.test.eval/like-clojure?* (when-let [~sym (quote ~x)]
+                                                       :true))
 
                          "`when-not` is consistent with Clojure"
-                         ($.test.eval/like-clojure? ($.form/templ {'?x x}
-                                                                  '(when-not '?x
-                                                                     :true)))))))
+                         ($.test.eval/like-clojure?* (when-not (quote ~x)
+                                                       :true))))))
 
 
 
@@ -214,18 +205,14 @@
                       :convex/data
                       :convex/data]
                      (fn [[n sym x-env x-return x-ploy]]
-                       (let [ctx ($.test.eval/ctx ($.form/templ {'?call   (-nested-fn n
-                                                                                      'rollback
-                                                                                      x-ploy
-                                                                                      x-return)
-                                                                 '?sym    sym
-                                                                 '?x-env  x-env
-                                                                 '?x-ploy x-ploy}
-                                                                '(do
-                                                                   (def ?sym
-                                                                        '?x-env)
-                                                                   ?call
-                                                                   '?x-ploy)))]
+                       (let [ctx ($.test.eval/ctx* (do
+                                                     (def ~sym
+                                                          (quote ~x-env))
+                                                     ~(-nested-fn n
+                                                                  'rollback
+                                                                  x-ploy
+                                                                  x-return)
+                                                     (quote ~x-ploy)))]
                          ($.test.prop/mult*
 
                            "Returned value is the rollback value"

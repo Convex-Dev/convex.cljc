@@ -4,8 +4,7 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.lisp.form        :as $.form]
-            [convex.lisp.schema      :as $.schema]
+  (:require [convex.lisp.schema      :as $.schema]
             [convex.lisp.test.eval   :as $.test.eval]
             [convex.lisp.test.prop   :as $.test.prop]
             [convex.lisp.test.schema :as $.test.schema]))
@@ -57,12 +56,9 @@
                                       suite)]
                         (fn [x]
                           (let [[x-2
-                                 cast?] ($.test.eval/result ($.form/templ {'?sym-cast form-cast
-                                                                           '?sym-pred form-pred
-                                                                           '?x        x}
-                                                                          '(let [x-2 (?sym-cast (quote ?x))]
-                                                                             [x-2
-                                                                              (?sym-pred x-2)])))]
+                                 cast?] ($.test.eval/result* (let [x-2 (~form-cast (quote ~x))]
+                                                               [x-2
+                                                                (~form-pred x-2)]))]
                             ($.test.prop/mult (suite-2 x
                                                        x-2
                                                        cast?))))))))
@@ -144,12 +140,11 @@
 
   ($.test.prop/check :convex/data
                      (fn [x]
-                       (let [ctx ($.test.eval/ctx ($.form/templ {'?x x}
-                                                                '(do
-                                                                   (def x
-                                                                        '?x)
-                                                                   (def -encoding
-                                                                        (encoding x)))))]
+                       (let [ctx ($.test.eval/ctx* (do
+                                                     (def x
+                                                          (quote ~x))
+                                                     (def -encoding
+                                                          (encoding x))))]
                          ($.test.prop/mult*
 
                            "Result is a blob"
@@ -170,10 +165,9 @@
   ($.test.prop/check [:or
                       :convex/address
                       :convex/blob-32]
-                     (fn [x]
-                       (let [ctx ($.test.eval/ctx ($.form/templ {'?x x}
-                                                                '(def -hash
-                                                                      (hash ?x))))]
+                     (fn [hash-]
+                       (let [ctx ($.test.eval/ctx* (def -hash
+                                                        (hash ~hash-)))]
                          ($.test.prop/mult*
 
                            "Result looks like a hash"
@@ -186,10 +180,9 @@
                                                '(hash? -hash))
 
                            "Hashing is deterministic"
-                           ($.test.eval/result ctx
-                                               ($.form/templ {'?x x}
-                                                             '(= -hash
-                                                                 (hash ?x))))
+                           ($.test.eval/result* ctx
+                                                (= -hash
+                                                   (hash ~hash-)))
 
                            "Hashes are not mere blobs"
                            ($.test.eval/result ctx
