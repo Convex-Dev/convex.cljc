@@ -201,13 +201,6 @@
 
   ;; Inspired by https://github.com/brandonbloom/backtick/
 
-  [& form+]
+  [form]
 
-  (when (seq form+)
-    (if (= (count form+)
-           1)
-      (-templ* (first form+))
-      (concat ['list
-               '(quote do)]
-              (map -templ*
-                   form+)))))
+  (-templ* form))
