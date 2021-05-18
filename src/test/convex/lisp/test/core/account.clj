@@ -59,6 +59,48 @@
                                        (long addr)]))))))
 
 
+
+(defn suite-transfer
+
+  "Suite where some amount of coin is sent to another account and both accounts must balance
+   as expected.
+
+   Assumes address is interned as `addr`."
+
+  [ctx ratio]
+
+  (let [ctx-2 ($.test.eval/ctx* ctx
+                                (do
+                                  (def balance-before
+                                       *balance*)
+                                  (def amount
+                                       (long (floor (* ~ratio
+                                                       balance-before))))
+                                  (def -transfer
+                                       (transfer addr
+                                                 amount))))]
+    ($.test.prop/mult*
+
+      "`transfer` returns the sent amount"
+      ($.test.eval/result ctx-2
+                          '(= amount
+                              -transfer))
+
+      "Own balance has been correctly updated"
+      ($.test.eval/result ctx-2
+                          '(and (= balance-before
+                                   (+ *balance*
+                                      amount))
+                                (= *balance*
+                                   (- balance-before
+                                      amount))))
+
+      "Balance of receiver has been correctly updated"
+      ($.test.eval/result ctx-2
+                          '(= amount
+                              (balance addr))))))
+
+
 ;;;;;;;;;; Tests
 
 
@@ -84,43 +126,37 @@
 
 
 
-($.test.prop/deftest create-account--
-
-  ($.test.prop/check :convex/hexstring-32
-                     (fn [hexstring]
-                       (suite-new ($.test.eval/ctx* (def addr
-                                                         (create-account ~hexstring)))
-                                  false?))))
-
-
-
-($.test.prop/deftest transfer--
+($.test.prop/deftest main
 
   ($.test.prop/check [:tuple
                       :convex/hexstring-32
                       [:double
                        {:max 1
                         :min 0}]]
-                     (fn [[pubkey ratio]]
-                       (let [ctx ($.test.eval/ctx* (do
-                                                     (def balance-original
-                                                          *balance*)
-                                                     (def addr
-                                                          (create-account ~pubkey))
-                                                     (def amount
-                                                          (long (floor (* ~ratio
-                                                                          balance-original))))
-                                                     (transfer addr
-                                                               amount)))]
-                         ($.test.prop/mult*
+                     (fn [[pubkey ratio-coin]]
+                       (let [ctx ($.test.eval/ctx* (def addr
+                                                        (create-account ~pubkey)))]
+                         ($.test.prop/and* (suite-new ctx
+                                                      false?)
+                                           (suite-transfer ctx
+                                                           ratio-coin))))))
 
-                           "Own balance has been correctly update"
-                           ($.test.eval/result* ctx
-                                                (== balance-original
-                                                    (+ *balance*
-                                                       amount)))
 
-                           "Balance of receiver has been correctly updated"
-                           ($.test.eval/result* ctx
-                                                (== amount
-                                                    (balance addr))))))))
+;;;;;;;;;;
+
+
+; *balance*
+; *exports*
+; *holdings*
+; *memory*
+; account
+; balance
+; create-account
+; export
+; exports?
+; get-holding
+; set-controller
+; set-holding
+; set-key
+; transfer
+; transfer-memory
