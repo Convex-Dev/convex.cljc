@@ -59,6 +59,34 @@
                                        (long addr)]))))))
 
 
+
+(defn suite-set-key
+
+  ""
+
+  ;; TODO. Keep an eye on: https://github.com/Convex-Dev/convex/issues/129
+
+  [ctx pubkey]
+
+  (let [ctx-2 ($.test.eval/ctx* ctx
+                                (do
+                                  (def key-
+                                       ~pubkey)
+                                  (def ret-
+                                       (set-key key-))))]
+    ($.test.prop/mult*
+
+      "New key is set in `*key*`"
+      ($.test.eval/result ctx-2
+                          '(= (blob key-)
+                              (blob *key*)))
+
+      "`*key*` is consistent with `account`"
+      ($.test.eval/result ctx-2
+                          '(= *key*
+                              (:key (account *address*)))))))
+
+
 ;;;;;;;;;; Suites - Transfering coins
 
 
@@ -175,6 +203,8 @@
                                                         (create-account ~pubkey)))]
                          ($.test.prop/and* (suite-new ctx
                                                       false?)
+                                           (suite-set-key ctx
+                                                          pubkey)
                                            (suite-transfer ctx
                                                            percent-coin))))))
 
@@ -183,17 +213,22 @@
 
 
 ; *balance*
+; *key*
+; balance
+; create-account
+; set-key
+; transfer
+
+; account
+
+; *caller*
 ; *exports*
 ; *holdings*
 ; *memory*
-; account
-; balance
-; create-account
+; *origin*
 ; export
 ; exports?
 ; get-holding
 ; set-controller
 ; set-holding
-; set-key
-; transfer
 ; transfer-memory
