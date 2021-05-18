@@ -28,11 +28,14 @@
 
 (def registry
 
-  "Malli registry for Convex."
+  "Malli registry."
 
   (-> (malli/default-schemas)
       $.schema/registry
-      (assoc :convex.test/seqpath [:or
+      (assoc :convex.test/percent [:double
+                                   {:max 1
+                                    :min 0}]
+             :convex.test/seqpath [:or
                                    :convex/list
                                    :convex/vector])))
 

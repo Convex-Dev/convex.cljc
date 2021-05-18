@@ -9,6 +9,31 @@
             [convex.lisp.test.schema :as $.test.schema]))
 
 
+;;;;;;;;;; Preparing contextes
+
+
+(defn ctx-transfer
+
+  "Preparing the given `ctx` for [[suite-transfer]].
+   
+   Assumes address of the receiver is interned as `addr`.
+  
+   `percent` is the percentage of the current balance that should be transfered."
+
+  [ctx percent]
+
+  ($.test.eval/ctx* ctx
+                    (do
+                      (def balance-before
+                           *balance*)
+                      (def amount
+                           (long (floor (* ~percent
+                                           balance-before))))
+                      (def -transfer
+                           (transfer addr
+                                     amount)))))
+
+
 ;;;;;;;;;; Suites
 
 
@@ -62,32 +87,23 @@
 
 (defn suite-transfer
 
-  "Suite where some amount of coin is sent to another account and both accounts must balance
-   as expected.
+  "Suite where some percentage of current balance is sent to another account and both accounts must balance
+   out as expected.
 
-   Assumes address is interned as `addr`."
+   If `percent` is given, `ctx` is prepared with [[ctx-transfer]]. If not, it must be prepared beforehand."
 
-  [ctx ratio]
 
-  (let [ctx-2 ($.test.eval/ctx* ctx
-                                (do
-                                  (def balance-before
-                                       *balance*)
-                                  (def amount
-                                       (long (floor (* ~ratio
-                                                       balance-before))))
-                                  (def -transfer
-                                       (transfer addr
-                                                 amount))))]
-    ($.test.prop/mult*
+  ([ctx]
+
+   ($.test.prop/mult*
 
       "`transfer` returns the sent amount"
-      ($.test.eval/result ctx-2
+      ($.test.eval/result ctx
                           '(= amount
                               -transfer))
 
       "Own balance has been correctly updated"
-      ($.test.eval/result ctx-2
+      ($.test.eval/result ctx
                           '(and (= balance-before
                                    (+ *balance*
                                       amount))
@@ -96,9 +112,15 @@
                                       amount))))
 
       "Balance of receiver has been correctly updated"
-      ($.test.eval/result ctx-2
+      ($.test.eval/result ctx
                           '(= amount
-                              (balance addr))))))
+                              (balance addr)))))
+
+
+  ([ctx percent]
+
+   (suite-transfer (ctx-transfer ctx
+                                 percent))))
 
 
 ;;;;;;;;;; Tests
@@ -107,8 +129,8 @@
 ($.test.prop/deftest account-inexistant
 
   ($.test.prop/check [:and
-                      :int
-                      [:>= 50]]
+                      [:int
+                       {:min 50}]]
                      (fn [x]
                        ($.test.prop/mult*
 
@@ -130,16 +152,14 @@
 
   ($.test.prop/check [:tuple
                       :convex/hexstring-32
-                      [:double
-                       {:max 1
-                        :min 0}]]
-                     (fn [[pubkey ratio-coin]]
+                      :convex.test/percent]
+                     (fn [[pubkey percent-coin]]
                        (let [ctx ($.test.eval/ctx* (def addr
                                                         (create-account ~pubkey)))]
                          ($.test.prop/and* (suite-new ctx
                                                       false?)
                                            (suite-transfer ctx
-                                                           ratio-coin))))))
+                                                           percent-coin))))))
 
 
 ;;;;;;;;;;
