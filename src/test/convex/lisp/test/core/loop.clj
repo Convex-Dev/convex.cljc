@@ -32,60 +32,51 @@
             sym]}
     & looping+]]
 
-  (let [fixed-sym+ (mapv first
+  (let [;; Symbols for binding that do not change during recursion
+        fixed-sym+ (mapv first
                          fixed+)
+        ;; And associated values
         fixed-x+   (mapv (comp $.form/quoted
                                second)
                          fixed+)
-        body       ($.form/templ {'?fixed-sym+  fixed-sym+
-                                  '?fixed-x+    fixed-x+
-                                  '?n           n
-                                  '?recur-case  (let [recur-form (list* 'recur
-                                                                        (conj fixed-sym+
-                                                                              (list 'inc
-                                                                                    sym)))]
-                                                  (if looping+
-                                                    ($.form/templ {'?n-inner       (-> looping+
-                                                                                       first
-                                                                                       :n)
-                                                                   '?looping-inner (-recur looping+)
-                                                                   '?recur-form    recur-form}
-                                                                  '(if (= ?n-inner
-                                                                          ?looping-inner)
-                                                                     ?recur-form
-                                                                     (fail :BAD-ITER
-                                                                           "Iteration count of inner loop is wrong")))
-                                                    recur-form))
-                                  '?sym         sym}
-                                 '(if (= ?sym
-                                         ?n)
-                                    (if (= ?fixed-sym+
-                                           ?fixed-x+)
-                                      ?n
+        ;; Code that will be in the (loop [] ...) or ((fn [] ...)) form
+        body       ($.form/templ* (if (= ~sym
+                                         ~n)
+                                    (if (= ~fixed-sym+
+                                           ~fixed-x+)
+                                      ~n
                                       (fail :NOT-FIXED
                                             "Fixed bindings were wrongfully modified"))
-                                    ?recur-case))
+                                    ~(let [recur-form ($.form/templ* (recur ~@fixed-sym+
+                                                                            (inc ~sym)))]
+                                       (if looping+
+                                         ($.form/templ* (if (= ~(-> looping+
+                                                                    first
+                                                                    :n)
+                                                               ~(-recur looping+))
+                                                          ~recur-form
+                                                          (fail :BAD-ITER
+                                                                "Iteration count of inner loop is wrong")))
+                                         recur-form))))
+        ;; Wrapping body in a loop or a fn form
         looping   (case recur-point
-                    :fn   (list* (list 'fn
-                                       (conj fixed-sym+
-                                             sym)
-                                       body)
-                                 (conj fixed-x+
-                                       0))
-                    :loop (list 'loop
-                                (conj (reduce (fn [acc [sym x]]
-                                                (conj acc
+                    :fn   ($.form/templ* ((fn ~(conj fixed-sym+
+                                                     sym)
+                                              ~body)
+                                          ~@(conj fixed-x+
+                                                  0)))
+                    :loop ($.form/templ* (loop ~(conj (reduce (fn [acc [sym x]]
+                                                                (conj acc
+                                                                      sym
+                                                                      ($.form/quoted x)))
+                                                              []
+                                                              fixed+)
                                                       sym
-                                                      ($.form/quoted x)))
-                                              []
-                                              fixed+)
-                                      sym
-                                      0)
-                                body))]
+                                                      0)
+                                           ~body)))]
+    ;; Messing with point of recursion by wrapping in a fn that is immedialy called
     (if fn-wrap?
-      (list (list 'fn
-                  []
-                  looping))
+      ($.form/templ* ((fn [] ~looping)))
       looping)))
 
 
