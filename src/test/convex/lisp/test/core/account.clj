@@ -47,7 +47,11 @@
       ($.test.eval/result ctx
                           '(zero? (balance addr)))
 
-      "`get-holding` returns nothing on a viring account"
+      "Memory allowance is 0"
+      ($.test.eval/result ctx
+                          '(zero? ($/allowance addr)))
+
+      "`get-holding` returns nothing on a virgin account"
       ($.test.eval/result ctx
                           '(nil? (get-holding addr)))
 
@@ -62,7 +66,7 @@
 
 (defn suite-set-key
 
-  ""
+  "Suite testing setting a new public key."
 
   ;; TODO. Keep an eye on: https://github.com/Convex-Dev/convex/issues/129
 
@@ -87,12 +91,63 @@
                               (:key (account *address*)))))))
 
 
+
+(defn suite-transfer-memory
+
+  "Suite testing memory tranfers."
+
+  [ctx percent]
+
+  (let [ctx-2 ($.test.eval/ctx* ctx
+                                (do
+                                  (def memory-before
+                                       *memory*)
+                                  (def amount
+                                       (long (floor (* ~percent
+                                                       *memory*))))
+                                  (def -transfer-memory
+                                       (transfer-memory addr
+                                                        amount))))]
+    ($.test.prop/mult*
+
+      ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/134
+      ;;
+      ;; "Returns the given amount"
+      ;; ($.test.eval/result ctx-2
+      ;;                     '(= amount
+      ;;                         -transfer-memory))
+
+      "Consistenty between sender account information and `*memory*` (before transfer)"
+      ($.test.eval/result ctx
+                          '(= *memory*
+                              ($/allowance)))
+
+      "Consistency between sender account information and `*memory*` (after transfer)"
+      ($.test.eval/result ctx-2
+                          '(= *memory*
+                              ($/allowance)))
+
+      "Allowance of sender account has diminished as expected"
+      ($.test.eval/result ctx-2
+                          '(and (= memory-before
+                                   (+ ($/allowance)
+                                      amount))
+                                (= ($/allowance)
+                                   (- memory-before
+                                      amount))))
+
+      "Allowance of receiver account has increased as needed"
+      ($.test.eval/result ctx-2
+                          '(= amount
+                              ($/allowance addr))))))
+
+
 ;;;;;;;;;; Suites - Holdings
 
 
 (defn ctx-holding
 
-  ""
+  "Prepares `ctx` for [[suite-*holdings*]] and [[suite-holding]]."
 
   [ctx sym-addr holding]
 
@@ -211,7 +266,7 @@
                            *balance*)
                       (def amount
                            (long (floor (* ~percent
-                                           balance-before))))
+                                           *balance*))))
                       (def -transfer
                            (transfer addr
                                      amount)))))
@@ -230,6 +285,11 @@
 
    ($.test.prop/mult*
 
+      "`transfer` returns the sent amount"
+      ($.test.eval/result ctx
+                          '(= amount
+                              -transfer))
+
       "Consistency between sender account information and `*balance*`, `balance` (before transfer)"
       ($.test.eval/result '(= *balance*
                               (balance *address*)
@@ -246,11 +306,6 @@
       ($.test.eval/result ctx
                           '(= (balance addr)
                               (:balance (account addr))))
-
-      "`transfer` returns the sent amount"
-      ($.test.eval/result ctx
-                          '(= amount
-                              -transfer))
 
       "Own balance has been correctly updated"
       ($.test.eval/result ctx
@@ -304,7 +359,7 @@
                       :convex/data
                       :convex/hexstring-32
                       :convex.test/percent]
-                     (fn [[holding pubkey percent-coin]]
+                     (fn [[holding pubkey percent]]
                        (let [ctx            ($.test.eval/ctx* (def addr
                                                                    (create-account ~pubkey)))
                              ctx-*holdings* (ctx-holding ctx
@@ -320,7 +375,13 @@
                                            (suite-set-key ctx
                                                           pubkey)
                                            (suite-transfer ctx
-                                                           percent-coin))))))
+                                                           percent)
+                                           (suite-transfer-memory ctx
+                                                                  percent)
+                                           )))))
+
+
+;; TODO. `set-controller`, already a bit tested by `eval-as`, also see: https://github.com/Convex-Dev/convex/issues/133
 
 
 ;;;;;;;;;;
@@ -332,6 +393,7 @@
 ; balance
 ; create-account
 ; get-holding
+; set-controller
 ; set-holding
 ; set-key
 ; transfer
@@ -344,5 +406,4 @@
 ; *origin*
 ; export
 ; exports?
-; set-controller
 ; transfer-memory

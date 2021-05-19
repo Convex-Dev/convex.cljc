@@ -244,15 +244,26 @@
                (cns-update '$
                            (deploy
                              '(do
+
+                                (defn allowance
+
+                                  ([]
+
+                                   (allowance *address*))
+
+                                  ([addr]
+
+                                   (:allowance (account addr))))
+
                                 (defn env
 
                                   ([]
 
                                    (env *address*))
 
-                                  ([address]
+                                  ([addr]
 
-                                   (:environment (account address))))
+                                   (:environment (account addr))))
 
                                 (defn every?
 

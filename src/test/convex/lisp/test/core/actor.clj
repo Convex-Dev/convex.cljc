@@ -17,7 +17,7 @@
   ($.test.prop/check [:tuple
                       :convex/data
                       :convex.test/percent]
-                     (fn [[x percent-coin]]
+                     (fn [[x percent]]
                        (let [ctx ($.test.eval/ctx* (def addr
                                                         (deploy '(do
 
@@ -40,13 +40,19 @@
 
                                                                    (export receive-coin)))))]
 
-                         ($.test.prop/and* ($.test.core.account/suite-new ctx
+                         ($.test.prop/and* (-> ($.test.core.account/ctx-holding ctx
+                                                                                'addr
+                                                                                x)
+                                               $.test.core.account/suite-holding)
+                                           ($.test.core.account/suite-new ctx
                                                                           true?)
+                                           ($.test.core.account/suite-transfer-memory ctx
+                                                                                      percent)
                                            ($.test.prop/checkpoint*
 
                                              "Transfering coin to actor"
                                              (let [ctx-2 ($.test.core.account/ctx-transfer ctx
-                                                                                           percent-coin)]
+                                                                                           percent)]
                                                ($.test.prop/and* (-> ($.test.core.account/ctx-holding ctx-2
                                                                                                       'addr
                                                                                                       x)
