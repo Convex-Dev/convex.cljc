@@ -9,15 +9,62 @@
             [convex.lisp.test.prop         :as $.test.prop]))
 
 
-;;;;;;;;;;
+;;;;;;;;;; Suites
+
+
+(defn suite-transfer
+
+  ""
+
+  [ctx percent x]
+
+  ($.test.prop/checkpoint*
+
+    "Transfering coins"
+
+    (let [ctx-2 ($.test.core.account/ctx-transfer ctx
+                                                  percent)]
+      ($.test.prop/and* (-> ($.test.core.account/ctx-holding ctx-2
+                                                             'addr
+                                                             x)
+                            $.test.core.account/suite-holding)
+                        ($.test.core.account/suite-transfer ctx-2
+                                                            "Transfering coins to an actor")
+                        ($.test.prop/checkpoint*
+
+                          "`accept` and `receive-coin`"
+                          ($.test.prop/mult*
+
+                            "`accept` returns the accepted amount"
+                            ($.test.eval/result ctx-2
+                                                '(lookup addr
+                                                         '-accept))
+
+                            "Caller argument"
+                            ($.test.eval/result ctx-2
+                                                '(lookup addr
+                                                         '-caller))
+
+                            "Offer argument"
+                            ($.test.eval/result ctx-2
+                                                '(lookup addr
+                                                         '-offer))
+
+                            "Third argument is nil"
+                            ($.test.eval/result ctx-2
+                                                '(lookup addr
+                                                         '-nil-arg-2))))))))
+
+
+;;;;;;;;;; Tests
 
 
 ($.test.prop/deftest ^:recur main
 
   ($.test.prop/check [:tuple
-                      :convex/data
-                      :convex.test/percent]
-                     (fn [[x percent]]
+                      :convex.test/percent
+                      :convex/data]
+                     (fn [[percent x]]
                        (let [ctx ($.test.eval/ctx* (def addr
                                                         (deploy '(do
 
@@ -46,40 +93,8 @@
                                                $.test.core.account/suite-holding)
                                            ($.test.core.account/suite-new ctx
                                                                           true?)
+                                           (suite-transfer ctx
+                                                           percent
+                                                           x)
                                            ($.test.core.account/suite-transfer-memory ctx
-                                                                                      percent)
-                                           ($.test.prop/checkpoint*
-
-                                             "Transfering coin to actor"
-                                             (let [ctx-2 ($.test.core.account/ctx-transfer ctx
-                                                                                           percent)]
-                                               ($.test.prop/and* (-> ($.test.core.account/ctx-holding ctx-2
-                                                                                                      'addr
-                                                                                                      x)
-                                                                     $.test.core.account/suite-holding)
-                                                                 ($.test.core.account/suite-transfer ctx-2)
-                                                                 ($.test.prop/checkpoint*
-
-                                                                   "`accept` and `receive-coin`"
-                                                                   ($.test.prop/mult*
-
-                                                                     "`accept` returns the accepted amount"
-                                                                     ($.test.eval/result ctx-2
-                                                                                         '(lookup addr
-                                                                                                  '-accept))
-
-                                                                     "Caller argument"
-                                                                     ($.test.eval/result ctx-2
-                                                                                         '(lookup addr
-                                                                                                  '-caller))
-
-                                                                     "Offer argument"
-                                                                     ($.test.eval/result ctx-2
-                                                                                         '(lookup addr
-                                                                                                  '-offer))
-
-                                                                     "Third argument is nil"
-                                                                     ($.test.eval/result ctx-2
-                                                                                         '(lookup addr
-                                                                                                  '-nil-arg-2)))))))
-                                           )))))
+                                                                                      percent))))))

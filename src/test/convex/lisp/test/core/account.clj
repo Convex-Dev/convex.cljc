@@ -22,35 +22,39 @@
 
   [ctx sym+]
 
-  (let [ctx-2 ($.test.eval/ctx* ctx
-                                (do
-                                  (def -export+
-                                       ~(into #{}
-                                              (map $.form/quoted)
-                                              sym+))
-                                  (def -result-export
-                                       (export ~@sym+))))]
-    ($.test.prop/mult*
+  ($.test.prop/checkpoint*
+    
+    "Exporting symbols in user account"
 
-      "`export` returns `*exports*`"
-      ($.test.eval/result ctx-2
-                          '(= -result-export
-                              *exports*))
+    (let [ctx-2 ($.test.eval/ctx* ctx
+                                  (do
+                                    (def -export+
+                                         ~(into #{}
+                                                (map $.form/quoted)
+                                                sym+))
+                                    (def -result-export
+                                         (export ~@sym+))))]
+      ($.test.prop/mult*
 
-      "`*export*` has been updated"
-      ($.test.eval/result ctx-2
-                          '(= -export+
-                              *exports*))
+        "`export` returns `*exports*`"
+        ($.test.eval/result ctx-2
+                            '(= -result-export
+                                *exports*))
 
-      ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/136
-      ;;
-      ;; "`exports?`"
-      ;; ($.test.eval/result ctx-2
-      ;;                     '($/every? (fn [sym]
-      ;;                                  (exports? *address*
-      ;;                                            sym))
-      ;;                                -export+))
-      )))
+        "`*export*` has been updated"
+        ($.test.eval/result ctx-2
+                            '(= -export+
+                                *exports*))
+
+        ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/136
+        ;;
+        ;; "`exports?`"
+        ;; ($.test.eval/result ctx-2
+        ;;                     '($/every? (fn [sym]
+        ;;                                  (exports? *address*
+        ;;                                            sym))
+        ;;                                -export+))
+        ))))
 
 
 
@@ -114,23 +118,27 @@
 
   [ctx pubkey]
 
-  (let [ctx-2 ($.test.eval/ctx* ctx
-                                (do
-                                  (def key-
-                                       ~pubkey)
-                                  (def ret-
-                                       (set-key key-))))]
-    ($.test.prop/mult*
+  ($.test.prop/checkpoint*
 
-      "New key is set in `*key*`"
-      ($.test.eval/result ctx-2
-                          '(= (blob key-)
-                              (blob *key*)))
+    "Setting a new public key"
 
-      "`*key*` is consistent with `account`"
-      ($.test.eval/result ctx-2
-                          '(= *key*
-                              (:key (account *address*)))))))
+    (let [ctx-2 ($.test.eval/ctx* ctx
+                                  (do
+                                    (def key-
+                                         ~pubkey)
+                                    (def ret-
+                                         (set-key key-))))]
+      ($.test.prop/mult*
+
+        "New key is set in `*key*`"
+        ($.test.eval/result ctx-2
+                            '(= (blob key-)
+                                (blob *key*)))
+
+        "`*key*` is consistent with `account`"
+        ($.test.eval/result ctx-2
+                            '(= *key*
+                                (:key (account *address*))))))))
 
 
 
@@ -140,48 +148,52 @@
 
   [ctx percent]
 
-  (let [ctx-2 ($.test.eval/ctx* ctx
-                                (do
-                                  (def memory-before
-                                       *memory*)
-                                  (def amount
-                                       (long (floor (* ~percent
-                                                       *memory*))))
-                                  (def -transfer-memory
-                                       (transfer-memory addr
-                                                        amount))))]
-    ($.test.prop/mult*
+  ($.test.prop/checkpoint*
 
-      ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/134
-      ;;
-      ;; "Returns the given amount"
-      ;; ($.test.eval/result ctx-2
-      ;;                     '(= amount
-      ;;                         -transfer-memory))
+    "Transfering memory"
 
-      "Consistenty between sender account information and `*memory*` (before transfer)"
-      ($.test.eval/result ctx
-                          '(= *memory*
-                              ($/allowance)))
+    (let [ctx-2 ($.test.eval/ctx* ctx
+                                  (do
+                                    (def memory-before
+                                         *memory*)
+                                    (def amount
+                                         (long (floor (* ~percent
+                                                         *memory*))))
+                                    (def -transfer-memory
+                                         (transfer-memory addr
+                                                          amount))))]
+      ($.test.prop/mult*
 
-      "Consistency between sender account information and `*memory*` (after transfer)"
-      ($.test.eval/result ctx-2
-                          '(= *memory*
-                              ($/allowance)))
+        ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/134
+        ;;
+        ;; "Returns the given amount"
+        ;; ($.test.eval/result ctx-2
+        ;;                     '(= amount
+        ;;                         -transfer-memory))
 
-      "Allowance of sender account has diminished as expected"
-      ($.test.eval/result ctx-2
-                          '(and (= memory-before
-                                   (+ ($/allowance)
-                                      amount))
-                                (= ($/allowance)
-                                   (- memory-before
-                                      amount))))
+        "Consistenty between sender account information and `*memory*` (before transfer)"
+        ($.test.eval/result ctx
+                            '(= *memory*
+                                ($/allowance)))
 
-      "Allowance of receiver account has increased as needed"
-      ($.test.eval/result ctx-2
-                          '(= amount
-                              ($/allowance addr))))))
+        "Consistency between sender account information and `*memory*` (after transfer)"
+        ($.test.eval/result ctx-2
+                            '(= *memory*
+                                ($/allowance)))
+
+        "Allowance of sender account has diminished as expected"
+        ($.test.eval/result ctx-2
+                            '(and (= memory-before
+                                     (+ ($/allowance)
+                                        amount))
+                                  (= ($/allowance)
+                                     (- memory-before
+                                        amount))))
+
+        "Allowance of receiver account has increased as needed"
+        ($.test.eval/result ctx-2
+                            '(= amount
+                                ($/allowance addr)))))))
 
 
 ;;;;;;;;;; Suites - Holdings
@@ -211,33 +223,37 @@
 
   [ctx]
 
-  ($.test.prop/mult*
+  ($.test.prop/checkpoint*
 
-    "`*holdings*` has one element"
-    ($.test.eval/result ctx
-                        '(= *holdings*
-                            (if (nil? holding)
-                              (blob-map)
-                              (assoc (blob-map)
-                                     *address*
-                                     holding))))
+    "Using `*holdings*` in user accounts"
 
-    ;; TODO. Keep an eye on: https://github.com/Convex-Dev/convex/issues/131
-    ;;
-    "`*holdings* is consistent with `account`"
-    ($.test.eval/result ctx
-                        '(if (nil? holding)
-                           true
-                           (= *holdings*
-                              (:holdings (account *address*)))))
+    ($.test.prop/mult*
 
-    "Removing only holding from `*holdings*`"
-    ($.test.eval/result ctx
-                        '(do
-                           (set-holding *address*
-                                        nil)
-                           (= (blob-map)
-                              *holdings*)))))
+      "`*holdings*` has one element"
+      ($.test.eval/result ctx
+                          '(= *holdings*
+                              (if (nil? holding)
+                                (blob-map)
+                                (assoc (blob-map)
+                                       *address*
+                                       holding))))
+
+      ;; TODO. Keep an eye on: https://github.com/Convex-Dev/convex/issues/131
+      ;;
+      "`*holdings* is consistent with `account`"
+      ($.test.eval/result ctx
+                          '(if (nil? holding)
+                             true
+                             (= *holdings*
+                                (:holdings (account *address*)))))
+
+      "Removing only holding from `*holdings*`"
+      ($.test.eval/result ctx
+                          '(do
+                             (set-holding *address*
+                                          nil)
+                             (= (blob-map)
+                                *holdings*))))))
 
 
 
@@ -247,46 +263,50 @@
 
   [ctx]
 
-  ($.test.prop/mult*
- 
-    "`set-holding` returns the given holding"
-    ($.test.eval/result ctx
-                        '(= holding
-                            -set-holding))
- 
-    "`get-holding` returns the given holding"
-    ($.test.eval/result ctx
-                        '(= holding
-                            (get-holding addr)))
- 
-    ;; TODO. Keep an eye on: https://github.com/Convex-Dev/convex/issues/131
-    ;;
-    "`set-holding` is consistent with `account`"
-    ($.test.eval/result ctx
-                        '(= (if (nil? holding)
-                              nil
-                              (assoc (blob-map)
-                                     *address*
-                                     holding))
-                            (:holdings (account addr))))
- 
-    "Removing holding"
-    (let [ctx-2 ($.test.eval/ctx* ctx
-                                  (do
-                                    (def -set-holding-2
-                                         (set-holding addr
-                                                      nil))))]
-      ($.test.prop/mult*
- 
-        "`set-holding` with nil returns nil"
-        ($.test.eval/result ctx-2
-                            '(nil? -set-holding-2))
- 
-        "`account` shows nil in :holdings"
-        ($.test.eval/result ctx-2
-                            '(nil? (get (account addr)
-                                        :holdings
-                                        :convex-sentinel)))))))
+  ($.test.prop/checkpoint*
+
+    "Setting and getting holdings"
+
+    ($.test.prop/mult*
+   
+      "`set-holding` returns the given holding"
+      ($.test.eval/result ctx
+                          '(= holding
+                              -set-holding))
+   
+      "`get-holding` returns the given holding"
+      ($.test.eval/result ctx
+                          '(= holding
+                              (get-holding addr)))
+   
+      ;; TODO. Keep an eye on: https://github.com/Convex-Dev/convex/issues/131
+      ;;
+      "`set-holding` is consistent with `account`"
+      ($.test.eval/result ctx
+                          '(= (if (nil? holding)
+                                nil
+                                (assoc (blob-map)
+                                       *address*
+                                       holding))
+                              (:holdings (account addr))))
+   
+      "Removing holding"
+      (let [ctx-2 ($.test.eval/ctx* ctx
+                                    (do
+                                      (def -set-holding-2
+                                           (set-holding addr
+                                                        nil))))]
+        ($.test.prop/mult*
+   
+          "`set-holding` with nil returns nil"
+          ($.test.eval/result ctx-2
+                              '(nil? -set-holding-2))
+   
+          "`account` shows nil in :holdings"
+          ($.test.eval/result ctx-2
+                              '(nil? (get (account addr)
+                                          :holdings
+                                          :convex-sentinel))))))))
 
 
 ;;;;;;;;;; Suites - Transfering coins
@@ -323,51 +343,49 @@
    If `percent` is given, `ctx` is prepared with [[ctx-transfer]]. If not, it must be prepared beforehand."
 
 
-  ([ctx]
+  [ctx checkpoint]
 
-   ($.test.prop/mult*
+  ($.test.prop/checkpoint*
 
-      "`transfer` returns the sent amount"
-      ($.test.eval/result ctx
-                          '(= amount
-                              -transfer))
+    checkpoint
 
-      "Consistency between sender account information and `*balance*`, `balance` (before transfer)"
-      ($.test.eval/result '(= *balance*
-                              (balance *address*)
-                              (:balance (account *address*))))
+    ($.test.prop/mult*
 
+       "`transfer` returns the sent amount"
+       ($.test.eval/result ctx
+                           '(= amount
+                               -transfer))
 
-      "Consistency between sender account information and `*balance*`, `balance` (after transfer)"
-      ($.test.eval/result ctx
-                          '(= *balance*
-                              (balance *address*)
-                              (:balance (account *address*))))
-
-      "Consistency between receiver account information and `balance`"
-      ($.test.eval/result ctx
-                          '(= (balance addr)
-                              (:balance (account addr))))
-
-      "Own balance has been correctly updated"
-      ($.test.eval/result ctx
-                          '(and (= balance-before
-                                   (+ *balance*
-                                      amount))
-                                (= *balance*
-                                   (- balance-before
-                                      amount))))
-
-      "Balance of receiver has been correctly updated"
-      ($.test.eval/result ctx
-                          '(= amount
-                              (balance addr)))))
+       "Consistency between sender account information and `*balance*`, `balance` (before transfer)"
+       ($.test.eval/result '(= *balance*
+                               (balance *address*)
+                               (:balance (account *address*))))
 
 
-  ([ctx percent]
+       "Consistency between sender account information and `*balance*`, `balance` (after transfer)"
+       ($.test.eval/result ctx
+                           '(= *balance*
+                               (balance *address*)
+                               (:balance (account *address*))))
 
-   (suite-transfer (ctx-transfer ctx
-                                 percent))))
+       "Consistency between receiver account information and `balance`"
+       ($.test.eval/result ctx
+                           '(= (balance addr)
+                               (:balance (account addr))))
+
+       "Own balance has been correctly updated"
+       ($.test.eval/result ctx
+                           '(and (= balance-before
+                                    (+ *balance*
+                                       amount))
+                                 (= *balance*
+                                    (- balance-before
+                                       amount))))
+
+       "Balance of receiver has been correctly updated"
+       ($.test.eval/result ctx
+                           '(= amount
+                               (balance addr))))))
 
 
 ;;;;;;;;;; Tests
@@ -420,8 +438,9 @@
                                                       false?)
                                            (suite-set-key ctx
                                                           pubkey)
-                                           (suite-transfer ctx
-                                                           percent)
+                                           (suite-transfer (ctx-transfer ctx
+                                                                         percent)
+                                                           "Transfering coins to a user account")
                                            (suite-transfer-memory ctx
                                                                   percent))))))
 
@@ -435,6 +454,7 @@
 ; *balance*
 ; *holdings*
 ; *key*
+; *memory*
 ; balance
 ; create-account
 ; get-holding
@@ -448,7 +468,6 @@
 
 ; *caller*
 ; *exports*
-; *memory*
 ; *origin*
 ; export
 ; exports?
