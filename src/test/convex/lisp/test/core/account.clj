@@ -12,63 +12,6 @@
 ;;;;;;;;;; Suites - Miscellaneous
 
 
-(defn suite-holding
-
-  ""
-
-  [ctx sym-addr holding]
-
-  (let [ctx-2 ($.test.eval/ctx* ctx
-                                (do
-                                  (def addr
-                                       ~sym-addr)
-                                  (def holding
-                                       (quote ~holding))
-                                  (def -set-holding
-                                       (set-holding addr
-                                                    holding))))]
-    ;(println :got holding ($.test.eval/result ctx-2 '(account addr)))
-    ($.test.prop/mult*
-
-      "`set-holding` returns the given holding"
-      ($.test.eval/result ctx-2
-                          '(= holding
-                              -set-holding))
-
-      "`get-holding` returns the given holding"
-      ($.test.eval/result ctx-2
-                          '(= holding
-                              (get-holding addr)))
-
-      "`set-holding` is consistent with `account`"
-      ($.test.eval/result ctx-2
-                          '(= (if (nil? holding)
-                                nil
-                                (assoc (blob-map)
-                                       *address*
-                                       holding))
-                              (:holdings (account addr))))
-
-      "Removing holding"
-      (let [ctx-3 ($.test.eval/ctx* ctx-2
-                                    (do
-                                      (def -set-holding-2
-                                           (set-holding addr
-                                                        nil))))]
-        ($.test.prop/mult*
-
-          "`set-holding` with nil returns nil"
-          ($.test.eval/result ctx-3
-                              '(nil? -set-holding-2))
-
-          "`account` shows nil in :holdings"
-          ($.test.eval/result ctx-3
-                              '(nil? (get (account addr)
-                                          :holdings
-                                          :convex-sentinel))))))))
-
-
-
 (defn suite-new
 
   "Every new account, actor or user, must pass this suite.
@@ -142,6 +85,111 @@
       ($.test.eval/result ctx-2
                           '(= *key*
                               (:key (account *address*)))))))
+
+
+;;;;;;;;;; Suites - Holdings
+
+
+(defn ctx-holding
+
+  ""
+
+  [ctx sym-addr holding]
+
+  ($.test.eval/ctx* ctx
+                    (do
+                      (def addr
+                           ~sym-addr)
+                      (def holding
+                           (quote ~holding))
+                      (def -set-holding
+                           (set-holding addr
+                                        holding)))))
+
+
+
+(defn suite-*holdings*
+
+  "Complement for [[suite-holding]] which focuses on `*holdings*`."
+
+  [ctx]
+
+  ($.test.prop/mult*
+
+    "`*holdings*` has one element"
+    ($.test.eval/result ctx
+                        '(= *holdings*
+                            (if (nil? holding)
+                              (blob-map)
+                              (assoc (blob-map)
+                                     *address*
+                                     holding))))
+
+    ;; TODO. Keep an eye on: https://github.com/Convex-Dev/convex/issues/131
+    ;;
+    "`*holdings* is consistent with `account`"
+    ($.test.eval/result ctx
+                        '(if (nil? holding)
+                           true
+                           (= *holdings*
+                              (:holdings (account *address*)))))
+
+    "Removing only holding from `*holdings*`"
+    ($.test.eval/result ctx
+                        '(do
+                           (set-holding *address*
+                                        nil)
+                           (= (blob-map)
+                              *holdings*)))))
+
+
+
+(defn suite-holding
+
+  "Testing properties related to setting some holding on any account."
+
+  [ctx]
+
+  ($.test.prop/mult*
+ 
+    "`set-holding` returns the given holding"
+    ($.test.eval/result ctx
+                        '(= holding
+                            -set-holding))
+ 
+    "`get-holding` returns the given holding"
+    ($.test.eval/result ctx
+                        '(= holding
+                            (get-holding addr)))
+ 
+    ;; TODO. Keep an eye on: https://github.com/Convex-Dev/convex/issues/131
+    ;;
+    "`set-holding` is consistent with `account`"
+    ($.test.eval/result ctx
+                        '(= (if (nil? holding)
+                              nil
+                              (assoc (blob-map)
+                                     *address*
+                                     holding))
+                            (:holdings (account addr))))
+ 
+    "Removing holding"
+    (let [ctx-2 ($.test.eval/ctx* ctx
+                                  (do
+                                    (def -set-holding-2
+                                         (set-holding addr
+                                                      nil))))]
+      ($.test.prop/mult*
+ 
+        "`set-holding` with nil returns nil"
+        ($.test.eval/result ctx-2
+                            '(nil? -set-holding-2))
+ 
+        "`account` shows nil in :holdings"
+        ($.test.eval/result ctx-2
+                            '(nil? (get (account addr)
+                                        :holdings
+                                        :convex-sentinel)))))))
 
 
 ;;;;;;;;;; Suites - Transfering coins
@@ -257,14 +305,16 @@
                       :convex/hexstring-32
                       :convex.test/percent]
                      (fn [[holding pubkey percent-coin]]
-                       (let [ctx ($.test.eval/ctx* (def addr
-                                                        (create-account ~pubkey)))]
-                         ($.test.prop/and* (suite-holding ctx
-                                                          '*address*
-                                                          holding)
-                                           (suite-holding ctx
-                                                          'addr
-                                                          holding)
+                       (let [ctx            ($.test.eval/ctx* (def addr
+                                                                   (create-account ~pubkey)))
+                             ctx-*holdings* (ctx-holding ctx
+                                                         '*address*
+                                                         holding)]
+                         ($.test.prop/and* (suite-*holdings* ctx-*holdings*)
+                                           (suite-holding ctx-*holdings*)
+                                           (suite-holding (ctx-holding ctx
+                                                                       'addr
+                                                                       holding))
                                            (suite-new ctx
                                                       false?)
                                            (suite-set-key ctx
@@ -277,9 +327,12 @@
 
 
 ; *balance*
+; *holdings*
 ; *key*
 ; balance
 ; create-account
+; get-holding
+; set-holding
 ; set-key
 ; transfer
 
@@ -287,12 +340,9 @@
 
 ; *caller*
 ; *exports*
-; *holdings*
 ; *memory*
 ; *origin*
 ; export
 ; exports?
-; get-holding
 ; set-controller
-; set-holding
 ; transfer-memory

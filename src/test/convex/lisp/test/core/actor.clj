@@ -47,9 +47,10 @@
                                              "Transfering coin to actor"
                                              (let [ctx-2 ($.test.core.account/ctx-transfer ctx
                                                                                            percent-coin)]
-                                               ($.test.prop/and* ($.test.core.account/suite-holding ctx-2
-                                                                                                    'addr
-                                                                                                    x)
+                                               ($.test.prop/and* (-> ($.test.core.account/ctx-holding ctx-2
+                                                                                                      'addr
+                                                                                                      x)
+                                                                     $.test.core.account/suite-holding)
                                                                  ($.test.core.account/suite-transfer ctx-2)
                                                                  ($.test.prop/checkpoint*
 
