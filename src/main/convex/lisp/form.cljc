@@ -190,13 +190,13 @@
    (let [kw :foo
          xs [2 3]
          y  42]
-     (templ* [~kw 1 ~@xs 4 (unquote y)]))
+     (templ* [~kw 1 ~@xs 4 ~y y (unquote y) (unquote-splicing vs)]))
    ```
 
    Produces the following vector:
 
    ```clojure
-   [:foo 1 2 3 4 (unquote y)]
+   [:foo 1 2 3 4 42 y (unquote y) (unquote-splicing y)]
    ```"
 
   ;; Inspired by https://github.com/brandonbloom/backtick/

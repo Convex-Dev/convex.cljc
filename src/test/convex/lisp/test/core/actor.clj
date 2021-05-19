@@ -14,7 +14,7 @@
 
 (defn suite-transfer
 
-  ""
+  "Tests transfering coins to an actor which is more complex than to a regular account."
 
   [ctx percent x]
 
@@ -34,6 +34,11 @@
 
                           "`accept` and `receive-coin`"
                           ($.test.prop/mult*
+
+                            "`receive-coin` is exported"
+                            ($.test.eval/result ctx-2
+                                                '(exports? addr
+                                                           'receive-coin))
 
                             "`accept` returns the accepted amount"
                             ($.test.eval/result ctx-2
