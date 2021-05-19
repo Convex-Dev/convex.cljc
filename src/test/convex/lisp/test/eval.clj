@@ -9,9 +9,11 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.lisp.ctx       :as $.ctx]
+  (:require [convex.lisp           :as $]
+            [convex.lisp.ctx       :as $.ctx]
             [convex.lisp.form      :as $.form]
             [convex.lisp.eval      :as $.eval]
+            [convex.lisp.test.prop :as $.test.prop]
             [convex.lisp.test.util :as $.test.util]))
 
 
@@ -211,6 +213,31 @@
 
    `(result ~ctx
             ($.form/templ* ~form))))
+
+
+
+(defn result-log
+
+  ""
+
+
+  ([form]
+
+   (result ctx-base
+           form))
+
+
+  ([ctx form]
+
+   (let [ctx-2 ($.eval/ctx ctx
+                           form)
+         res   (-> ctx-2
+                   $.ctx/result
+                   $/datafy)]
+     (or res
+         ($.test.prop/fail {:convex.test/log (-> ctx-2
+                                                 $.ctx/log
+                                                 $/datafy)})))))
 
 
 

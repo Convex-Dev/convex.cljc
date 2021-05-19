@@ -4,12 +4,54 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.lisp.test.eval   :as $.test.eval]
+  (:require [convex.lisp.form        :as $.form]
+            [convex.lisp.test.eval   :as $.test.eval]
             [convex.lisp.test.prop   :as $.test.prop]
             [convex.lisp.test.schema :as $.test.schema]))
 
 
 ;;;;;;;;;; Suites - Miscellaneous
+
+
+(defn suite-export
+
+  "Tests exportings symbols in user accounts only.
+  
+   See [[convex.lisp.test.core.actor]] namespace for more thorough tests involving
+   actors."
+
+  [ctx sym+]
+
+  (let [ctx-2 ($.test.eval/ctx* ctx
+                                (do
+                                  (def -export+
+                                       ~(into #{}
+                                              (map $.form/quoted)
+                                              sym+))
+                                  (def -result-export
+                                       (export ~@sym+))))]
+    ($.test.prop/mult*
+
+      "`export` returns `*exports*`"
+      ($.test.eval/result ctx-2
+                          '(= -result-export
+                              *exports*))
+
+      "`*export*` has been updated"
+      ($.test.eval/result ctx-2
+                          '(= -export+
+                              *exports*))
+
+      ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/136
+      ;;
+      ;; "`exports?`"
+      ;; ($.test.eval/result ctx-2
+      ;;                     '($/every? (fn [sym]
+      ;;                                  (exports? *address*
+      ;;                                            sym))
+      ;;                                -export+))
+      )))
+
 
 
 (defn suite-new
@@ -356,16 +398,20 @@
 ($.test.prop/deftest ^:recur main
 
   ($.test.prop/check [:tuple
+                      [:vector
+                       :convex/symbol]
                       :convex/data
                       :convex/hexstring-32
                       :convex.test/percent]
-                     (fn [[holding pubkey percent]]
+                     (fn [[export-sym+ holding pubkey percent]]
                        (let [ctx            ($.test.eval/ctx* (def addr
                                                                    (create-account ~pubkey)))
                              ctx-*holdings* (ctx-holding ctx
                                                          '*address*
                                                          holding)]
-                         ($.test.prop/and* (suite-*holdings* ctx-*holdings*)
+                         ($.test.prop/and* (suite-export ctx
+                                                         export-sym+)
+                                           (suite-*holdings* ctx-*holdings*)
                                            (suite-holding ctx-*holdings*)
                                            (suite-holding (ctx-holding ctx
                                                                        'addr
@@ -377,8 +423,7 @@
                                            (suite-transfer ctx
                                                            percent)
                                            (suite-transfer-memory ctx
-                                                                  percent)
-                                           )))))
+                                                                  percent))))))
 
 
 ;; TODO. `set-controller`, already a bit tested by `eval-as`, also see: https://github.com/Convex-Dev/convex/issues/133
@@ -397,6 +442,7 @@
 ; set-holding
 ; set-key
 ; transfer
+; transfer-memory
 
 ; account
 
@@ -406,4 +452,3 @@
 ; *origin*
 ; export
 ; exports?
-; transfer-memory
