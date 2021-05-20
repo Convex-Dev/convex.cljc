@@ -91,6 +91,16 @@
 
 
 
+(defn error?
+
+  "Is the given `ctx` in an exceptional state?"
+
+  [^Context ctx]
+
+  (.isExceptional ctx))
+
+
+
 (defn juice
 
   "Returns the remaining amount of juice available for the executing account."
@@ -234,8 +244,10 @@
 
   (^Context [ctx]
 
-   (query ctx
-          (result ctx)))
+   (if (error? ctx)
+     ctx
+     (query ctx
+            (result ctx))))
 
 
   (^Context [^Context ctx compiled-object]
@@ -256,8 +268,10 @@
 
   (^Context [ctx]
 
-   (run ctx
-        (result ctx)))
+   (if (error? ctx)
+     ctx
+     (run ctx
+          (result ctx))))
 
 
   (^Context [^Context ctx compiled]

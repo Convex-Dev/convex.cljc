@@ -99,10 +99,25 @@
        $/read-form
        ($.ctx/eval ($.ctx/create-fake))
        $.ctx/result
-       .getController
        ;$/datafy
        )
 
+
+
+
+  (->> '(undef)
+       $/read-form
+       ($.ctx/expand-compile ($.ctx/create-fake))
+       $.ctx/error
+       ;$.ctx/run
+       )
+
+
+
+
+  ($.eval/ctx ($.ctx/create-fake)
+                '(undef)
+                )
 
 
   (-> ($.ctx/expand-compile ($.ctx/create-fake)
@@ -122,22 +137,22 @@
 
   (-> ($.ctx/eval ($.ctx/create-fake)
                   ($/read "(fail [:foo] [:a])"))
-      $.ctx/error
-      $/datafy
+      ;$.ctx/error
+      ;$/datafy
       )
 
 
   (ppr
     ;(malli/validate [:not [:enum 1 2]]
     ;                3
-    (malli.gen/generate 
+    (malli.gen/generate :convex.core/call
 
      
 #_[:schema {:registry {::cons [:maybe [:vector [:tuple pos-int? [:ref ::cons]]]]}}
   ::cons]
 
 
-[:and
+#_[:and
  {:registry {::data    [:or
                         ::int
                         ::vector]
@@ -155,7 +170,7 @@
 {:registry (-> (malli/default-schemas)
                $.schema/registry
                )
- :size     30
+ :size     2
  }))
 
 
@@ -175,6 +190,8 @@
                                                          ; tc.gen/symbol
                                                          ]))
                    30)))
+
+
 
 
 
