@@ -7,22 +7,14 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.lisp.form        :as $.form]
+  (:require [convex.lisp.ctx         :as $.ctx]
+            [convex.lisp.form        :as $.form]
             [convex.lisp.test.eval   :as $.test.eval]
             [convex.lisp.test.prop   :as $.test.prop]
             [convex.lisp.test.schema :as $.test.schema]))
 
 
 ;;;;;;;;;;
-
-
-($.test.prop/deftest ^:recur resiliency
-
-  ($.test.prop/check :convex.core/call
-                     (fn [x]
-                       ($.test.eval/value x)
-                       true)))
-
 
 
 ($.test.prop/deftest ^:recur error
@@ -50,3 +42,18 @@
                      (fn [x]
                        ($.test.eval/result x)
                        true)))
+
+
+
+($.test.prop/deftest ^:recur robustness
+
+  ($.test.prop/check :convex.core/call
+                     (fn [x]
+                       (let [ctx   ($.test.eval/ctx x)
+                             error ($.ctx/error ctx)]
+                         (if (identical? (:convex.error/code error)
+                                         :UNDECLARED)
+                           ($.test.prop/fail (assoc error
+                                                    :convex.test.error/form
+                                                    x))
+                           true)))))
