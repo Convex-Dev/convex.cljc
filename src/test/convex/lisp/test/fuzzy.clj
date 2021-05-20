@@ -16,7 +16,7 @@
 ;;;;;;;;;;
 
 
-($.test.prop/deftest ^:recur resiliciency
+($.test.prop/deftest ^:recur resiliency
 
   ($.test.prop/check :convex.core/call
                      (fn [x]
@@ -35,7 +35,7 @@
                              (not ($.test.schema/valid? :convex.core/result
                                                         x)))]]
                      (fn [x]
-                       (println :form (list* (first x)
+                       #_(println :form (list* (first x)
                                              (map $.form/quoted
                                                   (rest x))))
                        ($.test.eval/error? (list* (first x)

@@ -90,11 +90,11 @@ For development and testing, the [convex.lisp.eval](../main/src/main/convex/lisp
 
 ### Templating Convex Lisp code
 
-It is particularly convenient writing Convex Lisp code as Clojure data since Clojure data is so easy handle.
+It is particularly convenient writing Convex Lisp code as Clojure data since Clojure data is so easy to handle.
 
 The following macro provides a templating experience close to Clojure's syntax quote by leveraging `~` and `~@`, unquoting and unquote-splicing.
 
-Convex Lisp also uses those symbols. For avoiding confusing, symbols are used to inject values from Clojure whereas the form notation (`(unquote x)` and `(unquote-splicing x)`) is left as such for Convex Lisp. Unlike the syntax quote, symbols are not qualified automatically since this is about templating Convex Lisp code.
+Convex Lisp also uses those symbols. For avoiding confusing, symbols are used for injecting values from Clojure whereas the form notation (`(unquote x)` and `(unquote-splicing x)`) is left as such for Convex Lisp. Unlike the syntax quote, symbols are not qualified automatically since this is about templating Convex Lisp code.
 
 For example:
 

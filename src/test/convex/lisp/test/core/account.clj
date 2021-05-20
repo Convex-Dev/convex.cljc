@@ -446,28 +446,3 @@
 
 
 ;; TODO. `set-controller`, already a bit tested by `eval-as`, also see: https://github.com/Convex-Dev/convex/issues/133
-
-
-;;;;;;;;;;
-
-
-; *balance*
-; *holdings*
-; *key*
-; *memory*
-; balance
-; create-account
-; get-holding
-; set-controller
-; set-holding
-; set-key
-; transfer
-; transfer-memory
-
-; account
-
-; *caller*
-; *exports*
-; *origin*
-; export
-; exports?
