@@ -1,4 +1,4 @@
-(ns convex.lisp.test.fuzzy
+(ns convex.lisp.test.fuzz
 
   "Fuzzing testing random forms.
   
@@ -7,8 +7,7 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.lisp.ctx         :as $.ctx]
-            [convex.lisp.form        :as $.form]
+  (:require [convex.lisp.form        :as $.form]
             [convex.lisp.test.eval   :as $.test.eval]
             [convex.lisp.test.prop   :as $.test.prop]
             [convex.lisp.test.schema :as $.test.schema]))
@@ -18,6 +17,8 @@
 
 
 ($.test.prop/deftest ^:recur error
+
+  ;; Generating forms that are known to result in a CVM error.
 
   ($.test.prop/check [:and
                       [:cat
@@ -36,18 +37,23 @@
 
 
 
-($.test.prop/deftest ^:fuzz result
+($.test.prop/deftest ^:recur random
 
-  ($.test.prop/check :convex.core/result
-                     (fn [x]
-                       ($.test.eval/result x)
-                       true)))
-
-
-
-($.test.prop/deftest ^:recur robustness
+  ;; Generating randorm forms that should either fail or succeed on the CVM, but no
+  ;; JVM exception should be thrown without being handled.
 
   ($.test.prop/check :convex.core/call
                      (fn [x]
                        ($.test.eval/value x)
+                       true)))
+
+
+
+($.test.prop/deftest ^:fuzz result
+
+  ;; Generating forms that are known to lead to a successful result.
+
+  ($.test.prop/check :convex.core/result
+                     (fn [x]
+                       ($.test.eval/result x)
                        true)))

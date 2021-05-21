@@ -20,9 +20,9 @@
 ;;;;;;;;;;
 
 
-(defn robustness
+(defn random
 
-  "Tests robustness in an infinite loop.
+  "Tests robustness in an infinite loop by generating random Convex Lisp forms calling the core library.
   
    A map of options may be provided:
   
@@ -46,7 +46,8 @@
                                          ($.eval/value ctx
                                                        x)
                                          true))]
-    (println (format "Starting robustness fuzzy tester, saving errors to '%s'"
+    (println \newline
+             (format "Starting robustness fuzzy tester, saving errors to '%s'"
                      root))
     (while true
       (let [result (tc/quick-check 1e6

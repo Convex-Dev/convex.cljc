@@ -15,6 +15,12 @@
                  "src/run"
                  "src/test"]}
 
+  :fuzz-random
+  {:exec-args   {:max-size 5
+                 :root     "report/fuzz"}
+   :exec-fn     convex.lisp.run.fuzz/random
+   :extra-paths ["src/run"]}
+
   :jar
   {:exec-args    {:jar      "compiled/jvm/release.jar"
                   :sync-pom true}
@@ -33,12 +39,6 @@
   :nrepl
   {:extra-deps {nrepl/nrepl {:mvn/version "RELEASE"}}
    :main-opts  ["-m" "nrepl.cmdline" "--port" "14563"]}
-
-  :run-robustness
-  {:exec-args   {}
-   :exec-fn     convex.lisp.run.fuzz/robustness
-   :extra-paths ["src/run"
-                 "src/test"]}
 
   :test
   {:extra-paths ["src/test"]}}

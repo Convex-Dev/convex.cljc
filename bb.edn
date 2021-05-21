@@ -1,0 +1,40 @@
+{:tasks {deploy             {:depends [jar]
+                             :doc     "Deploy this project to Clojars"
+                             :task    (clojure "-X:deploy")}
+         
+         dev:clojure        {:doc  "Start Clojure JVM dev environment (NREPL on port 14563)"
+                             :task (clojure "-M:dev:test:nrepl")}
+
+         dev:cljs           {:doc  "Start CLJS dev environment (NREPL on port 14563, server on port 8000)"
+                             :task (clojure "-M:cljs:dev watch dev")}
+
+         fuzz:random        {:doc  "Run base fuzzy tester with random forms, in an infinite loop"
+                             :task (clojure "-X:fuzz-random")}
+
+         install            {:depends [jar]
+                             :doc     "Install jar to local Maven repo"
+                             :task    (clojure "-X:install")}
+
+         jar                {:doc  "Build a jar for this project"
+                             :task (clojure "-X:jar")}
+
+         pom                {:doc  "Sync POM file with deps.edn"
+                             :task (clojure "-Spom")}
+
+         test:jvm           {:doc  "Run tests on the JVM once"
+                             :task (clojure "-M:kaocha:test -m kaocha.runner --config-file kaocha.edn :jvm")}
+
+         test:jvm:watch     {:doc "Run tests on the JVM everytime a file is changed"
+                             :task (clojure "-M:kaocha:test -m kaocha.runner --config-file kaocha.edn --watch :jvm")}
+
+         test:node          {:doc  "Run tests on NodeJS after unoptimized compilation"
+                             :task (do
+                                     (clojure "-M:cljs:test compile test-node")
+                                     (shell "node ./compiled/node/test.js"))}
+
+         test:node:optimize {:doc  "Run tests on NodeJS after advanced compilation"
+                             :task (do
+                                     (clojure "-M:cljs:test release test-node")
+                                     (shell "node ./compiled/node/test.js"))}
+
+         }}
