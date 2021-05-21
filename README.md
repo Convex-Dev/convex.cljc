@@ -8,9 +8,9 @@ Working with Convex Lisp and testing the CVM (Convex Virtual Machine).
 
 Toolset consist of:
 
-- Reading, expanding, compiling, and executing Convex Lisp code
+- Reading, expanding, compiling, and executing Convex Lisp code from the JVM
 - Translating between Convex object and Clojure data structures
-- Describing Convex Lisp code as Clojure forms
+- Templating Convex Lisp code from Clojure
 - Specyfing Convex Lisp using Malli, providing:
     - Some basic level of validation
     - Generation of random forms
@@ -87,10 +87,29 @@ For development and testing, the [convex.lisp.eval](../main/src/main/convex/lisp
                                 "(+ 2 2)"))
 ```
 
+It is often convenient preparing a context. For instance, adding utilities functions and then reusing that context in different situations. When ready, a context can be
+cheaply copied and anything done with a copy as no impact on the original:
+
+```clojure
+;; Creating a new context, modifying it by adding a couple of functions in the environment
+;;
+(def base-ctx
+     (convex.lisp.eval/ctx (convex.lisp.ctx/create-fake)
+                           '(do
+                              (defn my-inc [x] (+ x 1))
+                              (defn my-dec [x] (- x 1)))))
+
+;; Later, forking and reusing it ad libidum
+;;
+(convex.lisp.eval/result base-ctx
+                         '(= 42
+                             (my-dec (my-inc 42))))
+```
+
 
 ### Templating Convex Lisp code
 
-It is particularly convenient writing Convex Lisp code as Clojure data since Clojure data is so easy to handle.
+It is particularly convenient writing Convex Lisp code as Clojure data which is easily manipulated.
 
 The following macro provides a templating experience close to Clojure's syntax quote by leveraging `~` and `~@`, unquoting and unquote-splicing.
 
@@ -117,15 +136,14 @@ Produces the following vector:
 The fact that Convex Lisp can be written as Clojure data means we can leverage the [Malli](https://github.com/metosin/malli) library for describing the language:
 
 ```clojure
-(require '[malli.core      :as malli]
-         '[malli.generator :as malli.gen])
+(require '[malli.generator :as malli.gen])
 
 
 (def registry
 
   "Malli registry containing everything that is needed."
 
-  (convex.lisp.schema/registry (malli/default-schemas)))     
+  (convex.lisp.schema/registry))
 
 
 (malli.gen/generate :convex/vector
@@ -135,62 +153,28 @@ The fact that Convex Lisp can be written as Clojure data means we can leverage t
 
 Generative tests targeting the CVM extensively relies on such a registry.
 
+Currently, Malli struggles with recursive data definitions. This is why the size in this example is very slow. It is in the process of being fixed.
+
 ## Testing the CVM
 
-Current strategy consists of ensuring first that the very basic building blocks
-of transactions and smart contracts work perfectly. It entails using generative
-testing for proving that the core namespace and core language utilities work as
-intended and fail as intended.
+For the time being, this repository bundles both general-purpose utilities for Convex Lisp
+as well as an advanced test suite for the CVM. In the future, both will be split.
 
-Second step will be about reusing what has been previously built for generating
-common types of multi-form transactions. The purpose is to prove that the core
-utilities interact with each other as intended. A simple example would be a
-transaction where an account is created, some random amount of coin is sent to
-that account, and balance as well as *balance* are used to reflected that all
-involved accounts were indeed balanced out. Another simple example would be the
-fact that get-holding should reflect set-holding. Once again, proving graceful
-failure is just as important.
-
-Third step will happen when the CVM has been proven resilient and robust. Only
-then network tests can be envisioned. Loosely, the purpose will be to setup a
-test network of peers and some number of automated client generating random
-transactions. Never should peers diverge. If they do, it means that something
-is wrong at the consensus/protocol level probably since the execution itself
-has been proven flawless. Generating those transaction will leverage previous
-work while the network part could possibly leverage [Jepsen](https://github.com/jepsen-io/jepsen),
-a notorious Clojure tool used for analyzing and breaking distributed systems.
+This suite consists of generative tests which are routinely being added and improved, all contributions welcome.
 
 
-## Running tests
+## Delopment and testings
 
-Depending on hardware, tests usually takes a few minutes to run.
-
-On the JVM, using [Kaocha](https://github.com/lambdaisland/kaocha):
+All useful tasks for development and testing are accessible via [Babashka](https://github.com/babashka/babashka). After a quick and easy installation, tasks can be listed with:
 
 ```bash
-$ ./bin/test/jvm/run
-```
-On NodeJS, using [Shadow-CLJS](https://github.com/thheller/shadow-cljs):
-
-```bash
-$ ./bin/test/node/run
-
-# Or testing an advanced build:
-$ ./bin/test/node/advanced
+$ bb tasks
 ```
 
-
-## Development
-
-Starting in Clojure JVM mode with NREPL on port `14563`:
+Launching a task such as starting NREPL for development on the JVM:
 
 ```bash
-$ ./bin/dev/clojure :nrepl
-```
-
-Starting in CLJS mode using [Shadow-CLJS](https://github.com/thheller/shadow-cljs):
-```bash
-$ ./bin/dev/cljs
+bb dev:clojure
 ```
 
 

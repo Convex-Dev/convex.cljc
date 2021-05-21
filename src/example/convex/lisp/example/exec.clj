@@ -50,9 +50,27 @@
        convex.lisp/datafy)
 
   ;; Using helpers
+  ;;
   (= 4
      (convex.lisp.eval/result (convex.lisp.ctx/create-fake)
                               '(+ 2 2))
      (convex.lisp.eval.src/result (convex.lisp.ctx/create-fake)
                                   "(+ 2 2)"))
+
+
+
+  ;; Creating a new context, modifying it by adding a couple of functions in the environment
+  ;;
+  (def base-ctx
+       (convex.lisp.eval/ctx (convex.lisp.ctx/create-fake)
+                             '(do
+                                (defn my-inc [x] (+ x 1))
+                                (defn my-dec [x] (- x 1)))))
+  
+  ;; Later, forking and reusing it ad libidum
+  ;;
+  (convex.lisp.eval/result base-ctx
+                           '(= 42
+                               (my-dec (my-inc 42))))
+  
   )

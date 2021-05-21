@@ -3,7 +3,6 @@
   "Using Malli for validating and generating Convex Lisp."
 
   (:require [convex.lisp.schema]
-            [malli.core          :as malli]
             [malli.generator     :as malli.gen]))
 
 
@@ -14,7 +13,7 @@
 
   "Malli registry containing everything that is needed."
 
-  (convex.lisp.schema/registry (malli/default-schemas)))
+  (convex.lisp.schema/registry))
 
 
 
