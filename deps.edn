@@ -12,6 +12,7 @@
   :dev
   {:extra-paths ["src/dev"
                  "src/example"
+                 "src/run"
                  "src/test"]}
 
   :jar
@@ -33,6 +34,12 @@
   {:extra-deps {nrepl/nrepl {:mvn/version "RELEASE"}}
    :main-opts  ["-m" "nrepl.cmdline" "--port" "14563"]}
 
+  :run-robustness
+  {:exec-args   {}
+   :exec-fn     convex.lisp.run.fuzz/robustness
+   :extra-paths ["src/run"
+                 "src/test"]}
+
   :test
   {:extra-paths ["src/test"]}}
 
@@ -40,7 +47,7 @@
  {;cljs-ajax/cljs-ajax      {:mvn/version "0.8.3"}
   metosin/malli            {:mvn/version "0.5.1"}
   org.clojure/tools.reader {:mvn/version "1.3.4"}
-  world.convex/convex      {:local/root "cvm/1eb25304ef6e86d839fee8b331b2c3298ee5599b.jar"}}
+  world.convex/convex      {:local/root "cvm/7551a9be07b34ffde8d45b3afd3f55f5f132952c.jar"}}
 
  :paths
  ["src/main"]}

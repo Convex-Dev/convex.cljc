@@ -49,11 +49,5 @@
 
   ($.test.prop/check :convex.core/call
                      (fn [x]
-                       (let [ctx   ($.test.eval/ctx x)
-                             error ($.ctx/error ctx)]
-                         (if (identical? (:convex.error/code error)
-                                         :UNDECLARED)
-                           ($.test.prop/fail (assoc error
-                                                    :convex.test.error/form
-                                                    x))
-                           true)))))
+                       ($.test.eval/value x)
+                       true)))

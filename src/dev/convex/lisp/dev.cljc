@@ -11,6 +11,7 @@
             [convex.lisp.eval.src                     :as $.eval.src]
             [convex.lisp.form                         :as $.form]
             [convex.lisp.hex                          :as $.hex]
+            #?(:clj [convex.lisp.run.fuzz])
             [convex.lisp.schema                       :as $.schema]
             #?@(:clj [[convex.lisp.test]
                       [convex.lisp.test.core.account]
@@ -92,14 +93,8 @@
 
 
 
-  (->> '(do
-          (def a
-               (deploy '(set-controller *caller*)))
-          (account a))
-       $/read-form
-       ($.ctx/eval ($.ctx/create-fake))
-       $.ctx/result
-       ;$/datafy
+  (->> '(+ 42 a)
+       ($.eval/error ($.ctx/create-fake))
        )
 
 
@@ -115,9 +110,9 @@
 
 
 
-  ($.eval/ctx ($.ctx/create-fake)
-                '(undef)
-                )
+($.eval/result ($.ctx/create-fake)
+               '(expand [1 2] (fn [f e] (e f e)))
+               )
 
 
   (-> ($.ctx/expand-compile ($.ctx/create-fake)

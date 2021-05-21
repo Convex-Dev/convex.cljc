@@ -43,3 +43,4 @@ package.json
 bin/self
 /.clj-kondo/*
 !/.clj-kondo/config.edn
+/report

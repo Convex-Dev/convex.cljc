@@ -60,7 +60,7 @@
                                '*caller*
                                '*depth*
                                '*exports*
-                               '*holdings
+                               '*holdings*
                                '*initial-expander*
                                '*juice*
                                '*key*
@@ -132,7 +132,7 @@
                                'empty
                                'empty?
                                'encoding
-                               'eval
+                               ;'eval
                                'eval-as
                                'exp
                                'expand
@@ -144,7 +144,7 @@
                                'floor
                                'fn
                                'fn?
-                               'for?
+                               'for
                                'get
                                'get-holding
                                'get-in
@@ -482,13 +482,14 @@
 (defn registry
 
   "Adds to the given `registry` all relevant schemas from this namespace for working with Convex.
-  
-   When used as a standalone registry, requires the core Malli registry."
+
+   If not `registry` is given, then the Malli default one is used. Otherwise, users must ensure that
+   the given one is at least a subset."
 
   
   ([]
 
-   (registry nil))
+   (registry (malli/default-schemas)))
 
 
   ([registry]
