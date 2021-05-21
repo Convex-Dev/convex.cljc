@@ -45,20 +45,27 @@
                                        (fn [x]
                                          ($.eval/value ctx
                                                        x)
-                                         true))]
+                                         true))
+        a*print      (agent nil)
+        n-core       (.availableProcessors (Runtime/getRuntime))]
     (println \newline
-             (format "Starting robustness fuzzy tester, saving errors to '%s'"
+             (format "Starting robustness fuzzy tester on %d core(s), saving errors to '%s'"
+                     n-core
                      root))
-    (while true
-      (let [result (tc/quick-check 1e6
-                                   prop
-                                   :max-size max-size)]
-        (when-not (result :pass)
-          (let [path (format "%s/%s.edn"
-                             root
-                             (System/currentTimeMillis))]
-            (println (format "Saving error to '%s'"
-                             path))
-            @d*ensure-dir
-            (clojure.pprint/pprint result
-                                   (clojure.java.io/writer path))))))))
+    (dotimes [_ n-core]
+      (future
+        (while true
+          (let [result (tc/quick-check 1e6
+                                       prop
+                                       :max-size max-size)]
+            (when-not (result :pass)
+              (let [path (format "%s/%s.edn"
+                                 root
+                                 (System/currentTimeMillis))]
+                (send a*print
+                      (fn [_]
+                        (println (format "Saving error to '%s'"
+                                         path))))
+                @d*ensure-dir
+                (clojure.pprint/pprint result
+                                       (clojure.java.io/writer path))))))))))

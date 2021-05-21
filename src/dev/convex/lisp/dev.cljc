@@ -140,7 +140,7 @@
   (ppr
     ;(malli/validate [:not [:enum 1 2]]
     ;                3
-    (malli.gen/generate :convex.core/call
+    (malli.gen/generate list?
 
      
 #_[:schema {:registry {::cons [:maybe [:vector [:tuple pos-int? [:ref ::cons]]]]}}
@@ -186,6 +186,26 @@
                                                          ]))
                    30)))
 
+
+
+
+(def RecurData
+     (reify malli/IntoSchema
+
+       (-type [_] :recur-data)
+
+       (-into-schema [_ prop+ [container+ leaf+] option+]
+         (let []
+           (reify malli/Schema
+
+             (-validator [_]
+               (-validator [:or
+
+                            ?
+                            leaf+]
+                           option+))
+             )))))
+                            
 
 
 
