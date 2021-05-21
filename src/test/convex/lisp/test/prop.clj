@@ -260,29 +260,3 @@
                    `(fn [] ~form)])
                 (partition 2
                            prop-pair+))))
-
-
-
-(defn mult-result
-
-  "Working with collection of results obtained from evaling Convex Lisp code, returns a [[fail]] with the
-   corresponding checkpoint (position-wise) when a false result is encountered.
-
-   ```clojure
-   (mult-result [true
-                 false] ;; Vector of results
-                [\"3 must be greater than 4\"
-                 \"Result must be a double\"])
-   ```"
-
-  [result+ checkpoint+]
-
-  (assert (= (count checkpoint+)
-             (count result+)))
-  (or (some (fn [[result checkpoint+]]
-              (when-not result
-                (fail checkpoint+)))
-            (partition 2
-                       (interleave result+
-                                   checkpoint+)))
-      true))

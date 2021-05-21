@@ -163,7 +163,7 @@ as well as an advanced test suite for the CVM. In the future, both will be split
 This suite consists of generative tests which are routinely being added and improved, all contributions welcome.
 
 
-## Delopment and testings
+## Tasks and development
 
 All useful tasks for development and testing are accessible via [Babashka](https://github.com/babashka/babashka). After a quick and easy installation, tasks can be listed with:
 
