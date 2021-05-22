@@ -10,6 +10,7 @@
             [convex.lisp.eval                         :as $.eval]
             [convex.lisp.eval.src                     :as $.eval.src]
             [convex.lisp.form                         :as $.form]
+            [convex.lisp.gen                          :as $.gen]
             [convex.lisp.hex                          :as $.hex]
             #?(:clj [convex.lisp.run.fuzz])
             [convex.lisp.schema                       :as $.schema]
