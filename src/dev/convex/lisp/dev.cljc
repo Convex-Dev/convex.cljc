@@ -35,6 +35,8 @@
 			          [clojure.data]])
             [clojure.pprint]
             #?(:clj [clojure.reflect])
+            [clojure.spec.alpha                       :as s]
+            [clojure.spec.gen.alpha                   :as sgen]
             [clojure.test.check.generators            :as tc.gen]
             [clojure.walk]
             [clojure.test.check.properties            :as tc.prop]
@@ -45,7 +47,8 @@
   #?(:clj (:import clojure.lang.RT
                    (convex.core Init
                                 State)
-                   convex.core.data.Symbol)))
+                   convex.core.data.Symbol
+                   convex.core.lang.Reader)))
 
 
 #?(:clj (set! *warn-on-reflection*
@@ -138,9 +141,14 @@
 
 
   (ppr
-    ;(malli/validate [:not [:enum 1 2]]
-    ;                3
-    (malli.gen/generate list?
+    (malli/validate [:cat
+                          [:= 'cond]
+                          [:* :convex/data]]
+                    42
+    ;(malli.gen/generate 
+    ;                     [:cat
+    ;                      [:= 'cond]
+    ;                      [:* :convex/data]]
 
      
 #_[:schema {:registry {::cons [:maybe [:vector [:tuple pos-int? [:ref ::cons]]]]}}
@@ -162,9 +170,7 @@
 ;     false)]]
 
 
-{:registry (-> (malli/default-schemas)
-               $.schema/registry
-               )
+{:registry ($.schema/registry)
  :size     2
  }))
 
@@ -172,8 +178,7 @@
   
 (count
   (filter boolean?
-  (tc.gen/generate #_(tc.gen/vector tc.gen/boolean)
-    
+  (tc.gen/generate 
     (tc.gen/recursive-gen (fn [gen-inner]
                                            (tc.gen/one-of [;(tc.gen/map gen-inner
                                                            ;            gen-inner)
@@ -187,6 +192,47 @@
                    30)))
 
 
+; (ppr
+; ($/datafy (.getMeta (Reader/readSyntax "[:a {24 42}]")
+;           ))
+
+
+
+(s/def ::bool
+  boolean?)
+
+
+(s/def ::vec
+  (s/coll-of ::data))
+
+
+(s/def ::data
+  (s/or :bool ::bool
+        :vec ::vec))
+
+
+(let [x #_(tc.gen/generate 
+    (tc.gen/recursive-gen (fn [gen-inner]
+                                           (tc.gen/one-of [;(tc.gen/map gen-inner
+                                                           ;            gen-inner)
+                                                           ;(tc.gen/set gen-inner)
+                                                           ;(tc.gen/list gen-inner)
+                                                           (tc.gen/vector gen-inner)]))
+                                         (tc.gen/one-of [tc.gen/boolean
+                                                         ; tc.gen/keyword
+                                                         ; tc.gen/symbol
+                                                         ]))
+                   30)
+      
+      (tc.gen/generate (s/gen ::data)
+                         30)]
+  (if (coll? x)
+    (count (flatten x))
+    -1))
+
+
+(tc.gen/generate (s/gen map?)
+                 30)
 
 
 (def RecurData

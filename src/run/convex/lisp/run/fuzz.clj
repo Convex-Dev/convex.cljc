@@ -58,7 +58,7 @@
           (let [result (tc/quick-check 1e6
                                        prop
                                        :max-size max-size)]
-            (when-not (result :pass)
+            (when-not (result :pass?)
               (let [path (format "%s/%s.edn"
                                  root
                                  (System/currentTimeMillis))]

@@ -16,7 +16,7 @@
 ;;;;;;;;;;
 
 
-($.test.prop/deftest ^:recur error
+#_($.test.prop/deftest ^:recur error
 
   ;; Generating forms that are known to result in a CVM error.
 
@@ -37,7 +37,7 @@
 
 
 
-($.test.prop/deftest ^:recur random
+#_($.test.prop/deftest ^:recur random
 
   ;; Generating randorm forms that should either fail or succeed on the CVM, but no
   ;; JVM exception should be thrown without being handled.
@@ -49,7 +49,7 @@
 
 
 
-($.test.prop/deftest ^:fuzz result
+#_($.test.prop/deftest ^:fuzz result
 
   ;; Generating forms that are known to lead to a successful result.
 
