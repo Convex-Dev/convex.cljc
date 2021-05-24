@@ -5,12 +5,15 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.string]
-            [convex.lisp           :as $]
-            [convex.lisp.ctx       :as $.ctx]
-            [convex.lisp.form      :as $.form]
-            [convex.lisp.test.eval :as $.test.eval]
-            [convex.lisp.test.prop :as $.test.prop]
-            [convex.lisp.test.util :as $.test.util]))
+            [clojure.test.check.generators :as TC.gen]
+            [clojure.test.check.properties :as TC.prop]
+            [convex.lisp                   :as $]
+            [convex.lisp.ctx               :as $.ctx]
+            [convex.lisp.form              :as $.form]
+            [convex.lisp.gen               :as $.gen]
+            [convex.lisp.test.eval         :as $.test.eval]
+            [convex.lisp.test.prop         :as $.test.prop]
+            [convex.lisp.test.util         :as $.test.util]))
 
 
 ;;;;;;;;;; Helpers
@@ -26,70 +29,90 @@
    (if (<= n
            0)
      form
-     (list (list 'fn
-                 []
-                 (-nested-fn (dec n)
-                             form)))))
+     ($.form/templ* ((fn []
+                       ~(-nested-fn (dec n)
+                                    form))))))
 
   ([n form x-ploy]
 
    (-nested-fn n
-               (list 'do
-                     form
-                     (list 'quote
-                           x-ploy))))
+               ($.form/templ* (do
+                                ~form
+                                ~x-ploy))))
 
 
   ([n sym x-ploy x-return]
 
    (-nested-fn n
-               (list sym
-                     (list 'quote
-                           x-return))
+               ($.form/templ* (~sym ~x-return))
                x-ploy)))
 
 
 ;;;;;;;;;; Tests
 
 
-($.test.prop/deftest ^:recur assert--
+($.test.prop/deftest assert--
 
-  ($.test.prop/check [:tuple
-                      [:int
-                       {:max 16
-                        :min 1}]
-                      :convex/data
-                      :convex/truthy]
-                     (fn [[n x-ploy x-return]]
-                       (identical? :ASSERT
-                                   (-> ($.test.eval/error (-nested-fn n
-                                                                      ($.form/templ* (assert (not (quote ~x-return))))
-                                                                      x-ploy))
-                                       :convex.error/code)))))
+  (TC.prop/for-all [n        (TC.gen/choose 1
+                                            16)
+                    x-ploy   $.gen/any
+                    x-return $.gen/truthy]
+    (identical? :ASSERT
+                (-> ($.test.eval/error (-nested-fn n
+                                                   ($.form/templ* (assert (not ~x-return)))
+                                                   x-ploy))
+                    :convex.error/code))))
 
 
 
-($.test.prop/deftest ^:recur and-or
+($.test.prop/deftest logic
 
-  ($.test.prop/check [:vector
-                      :convex/data]
-                     (fn [x]
-                       (let [x-quoted  (map $.form/quoted
-                                            x)
-                             assertion (fn [sym]
-                                         ($.test.eval/like-clojure? (list* sym
-                                                                           x-quoted)))]
-                         ($.test.prop/mult*
+  (TC.prop/for-all [[falsy+
+                     mix+
+                     truthy+] (TC.gen/bind (TC.gen/tuple (TC.gen/vector $.gen/falsy
+                                                                        1
+                                                                        16)
+                                                         (TC.gen/vector $.gen/truthy
+                                                                        1
+                                                                        16))
+                                           (fn [[falsy+ truthy+]]
+                                             (TC.gen/tuple (TC.gen/return falsy+)
+                                                           (TC.gen/shuffle (concat falsy+
+                                                                                   truthy+))
+                                                           (TC.gen/return truthy+))))]
+    ($.test.prop/mult*
 
-                           "`and` consistent with Clojure"
-                           (assertion 'and)
+      "`and` on falsy"
+      ($.test.eval/result* (= ~(first falsy+)
+                              (and ~@falsy+)))
 
-                           "`or` consistent with Clojure"
-                           (assertion 'or))))))
+      "`and` on mixed"
+      ($.test.eval/result* (= ~(first (filter (comp not
+                                                    boolean)
+                                              mix+))
+                              (and ~@mix+)))
+
+      "`and` on truthy"
+      ($.test.eval/result* (= ~(last truthy+)
+                              (and ~@truthy+)))
+
+
+      "`or` on falsy"
+      ($.test.eval/result* (= ~(last falsy+)
+                              (or ~@falsy+)))
+      
+      "`or` on mixed"
+      ($.test.eval/result* (= ~(first (filter boolean
+                                              mix+))
+                              (or ~@mix+)))
+
+      "`or` on truthy"
+      ($.test.eval/result* (= ~(first truthy+)
+                              (or ~@truthy+))))))
 
 
 
-($.test.prop/deftest ^:recur cond--
+($.test.prop/deftest cond--
 
   ($.test.prop/check [:vector
                       :convex/data]
@@ -107,7 +130,7 @@
 
 
 
-($.test.prop/deftest ^:recur fail--
+($.test.prop/deftest fail--
 
   ($.test.prop/check [:tuple
                       [:int
@@ -130,7 +153,7 @@
 
 
 
-($.test.prop/deftest ^:recur halting
+($.test.prop/deftest halting
 
   ($.test.prop/check [:tuple
                       [:int
@@ -159,7 +182,7 @@
 
 
 
-($.test.prop/deftest ^:recur if-like
+($.test.prop/deftest if-like
 
   ($.test.prop/check [:tuple
                       [:and
@@ -194,7 +217,7 @@
 
 
 
-($.test.prop/deftest ^:recur rollback--
+($.test.prop/deftest rollback--
 
   ($.test.prop/check [:tuple
                       [:int
