@@ -1,124 +1,111 @@
 (ns convex.lisp.test.core.code
 
-  ""
+  "Testing code related utilities, such as expansion, evaluation, ..."
 
   {:author "Adam Helinski"}
 
-  (:require [convex.lisp.test.eval :as $.test.eval]
-            [convex.lisp.test.prop :as $.test.prop]))
+  (:require [clojure.test.check.properties :as TC.prop]
+            [convex.lisp.gen               :as $.gen]
+            [convex.lisp.test.eval         :as $.test.eval]
+            [convex.lisp.test.prop         :as $.test.prop]))
 
 
 ;;;;;;;;;;
 
 
-($.test.prop/deftest ^:recur eval--
+($.test.prop/deftest eval--
 
-  ($.test.prop/check :convex/data
-                     (fn [x]
-                       (let [ctx ($.test.eval/ctx* (do
-                                                     (def x
-                                                          '~x)
-                                                     (def form
-                                                          '(fn []
-                                                             '(unquote x)))
-                                                     (def eval-
-                                                          (eval form))))]
-                         ($.test.prop/mult*
+  (TC.prop/for-all [x $.gen/any]
+    (let [ctx ($.test.eval/ctx* (do
+                                  (def x
+                                       ~x)
+                                  (def form
+                                       (quasiquote (fn []
+                                                     (quote (unquote x)))))
+                                  (def eval-
+                                       (eval form))))]
+      ($.test.prop/mult*
 
-                           "Data evaluates to itself"
-                           ($.test.eval/result ctx
-                                               '(= x
-                                                   (eval 'x)))
+        "Data evaluates to itself"
+        ($.test.eval/result ctx
+                            '(= x
+                                (eval 'x)))
 
-                           "Call evaluated function"
-                           ($.test.eval/result ctx
-                                               '(= x
-                                                   (eval-)))
+        "Call evaluated function"
+        ($.test.eval/result ctx
+                            '(= x
+                                (eval-)))
 
-                           "Expanding form prior to `eval` has no impact"
-                           ($.test.eval/result ctx
-                                               '(= eval-
-                                                   (eval (expand form))))
+        "Expanding form prior to `eval` has no impact"
+        ($.test.eval/result ctx
+                            '(= eval-
+                                (eval (expand form))))
 
-                           "Compiling form prior to `eval` has no impact"
-                           ($.test.eval/result ctx
-                                               '(= eval-
-                                                   (eval (compile form))))
+        "Compiling form prior to `eval` has no impact"
+        ($.test.eval/result ctx
+                            '(= eval-
+                                (eval (compile form))))
 
-                           "Expanding and compiling form prior to `eval` has no impact"
-                           ($.test.eval/result ctx
-                                               '(= eval-
-                                                   (eval (compile (expand form))))))))))
-
+        "Expanding and compiling form prior to `eval` has no impact"
+        ($.test.eval/result ctx
+                            '(= eval-
+                                (eval (compile (expand form)))))))))
 
 
 
-($.test.prop/deftest ^:recur eval-as--
 
-  ($.test.prop/check [:tuple
-                      :convex/symbol
-                      :convex/data]
-                     (fn [[sym x]]
-                       ($.test.eval/result* (let [sym  (quote ~sym)
-                                                  x    (quote ~x)
-                                                  addr (deploy '(set-controller *caller*))]
-                                              (eval-as addr
-                                                       '(def (unquote sym)
-                                                             '(unquote x)))
-                                              (= x
-                                                 (lookup addr
-                                                         sym)))))))
+($.test.prop/deftest eval-as--
+
+  (TC.prop/for-all [sym $.gen/symbol
+                    x   $.gen/any]
+    ($.test.eval/result* (let [addr (deploy '(set-controller *caller*))]
+                           (eval-as addr
+                                    '(def ~sym
+                                          ~x))
+                           (= ~x
+                              (lookup addr
+                                      (quote ~sym)))))))
 
 
 
-($.test.prop/deftest ^:recur expand--
+($.test.prop/deftest expand--
 
-  ($.test.prop/check :convex/data
-                     (fn [x]
-                       (let [ctx ($.test.eval/ctx* (def x '~x))]
-                         ($.test.prop/and* ($.test.prop/checkpoint*
+  (TC.prop/for-all [x $.gen/any]
+    (let [ctx ($.test.eval/ctx* (def x ~x))]
+      ($.test.prop/and* ($.test.prop/checkpoint*
 
-                                             "Expanding data"
-                                             ($.test.prop/mult*
+                          "Expanding data"
+                          ($.test.prop/mult*
 
-                                               "Expands to syntax"
-                                               ($.test.eval/result ctx
-                                                                   '(syntax? (expand x)))
+                            "Expands to syntax"
+                            ($.test.eval/result ctx
+                                                '(syntax? (expand x)))
 
-                                               ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/109
-											   ;;
-                                               ;; "Data is unchanged when expanded"
-                                               ;; ($.test.eval/result ctx
-                                               ;;                     '(= x
-                                               ;;                         (unsyntax (expand x))))
+                            "No metadata is created during expansion"
+                            ($.test.eval/result ctx
+                                                '(= {}
+                                                    (meta (expand x))))))
 
-                                               "No metadata is created during expansion"
-                                               ($.test.eval/result ctx
-                                                                   '(= {}
-                                                                       (meta (expand x))))))
+                        ($.test.prop/checkpoint*
 
-                                           ($.test.prop/checkpoint*
+                          "Expanding a macro"
+                          (let [ctx-2 ($.test.eval/ctx ctx
+                                                       '(defmacro macro-twice [x] [x x]))]
+                            ($.test.prop/mult*
 
-                                             "Expanding a macro"
-                                             (let [ctx-2 ($.test.eval/ctx ctx
-                                                                          '(defmacro macro-twice [x] [x x]))]
-                                               ($.test.prop/mult*
+                              "Expands to syntax"
+                              ($.test.eval/result ctx-2
+                                                  '(syntax? (expand '(macro-twice x))))
 
-                                                 "Expands to syntax"
-                                                 ($.test.eval/result ctx-2
-                                                                     '(syntax? (expand '(macro-twice x))))
+                              "Data is expanded as needed"
+                              ($.test.eval/result ctx-2
+                                                  '(= [x x]
+                                                      (eval (expand '(macro-twice x)))))
 
-                                                 ;; TODO. Actually, quoted macros are still expanded. Asked on Discord.
-                                                 ;;
-                                                 ;; "Data is expanded as needed"
-                                                 ;; ($.test.eval/result ctx-2
-                                                 ;;                     '(= [x x]
-                                                 ;;                         (unsyntax (expand '(macro-twice ~x)))))
-
-                                                 "No metadata is created during expansion"
-                                                 ($.test.eval/result ctx-2
-                                                                     '(= {}
-                                                                         (meta (expand '(macro-write x)))))))))))))
+                              "No metadata is created during expansion"
+                              ($.test.eval/result ctx-2
+                                                  '(= {}
+                                                      (meta (expand '(macro-write x))))))))))))
 
 
 ;;;;;;;;;;
