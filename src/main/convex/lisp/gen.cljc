@@ -73,6 +73,18 @@
                   long]))
 
 
+
+(defn number-bounded
+
+  ""
+
+  [option+]
+
+  (TC.gen/one-of [(TC.gen/double* option+)
+                  (TC.gen/large-integer* option+)]))
+
+
+
 (def nothing
 
   ""
@@ -87,7 +99,7 @@
 
   ;; TODO. Case insensitive.
 
-  (TC.gen/elements ["0" "1" "2" "3" "4" "5" "6" "7" "8" "9" "A" "B" "C" "D" "E" "F"]))
+  (TC.gen/elements [\0 \1 \2 \3 \4 \5 \6 \7 \8 \9 \A \B \C \D \E \F]))
 
 
 
@@ -108,11 +120,14 @@
 
 (def hex-string-8
 
-  ""
+  "Compatible with addresses."
 
-  (TC.gen/fmap clojure.string/join
-               (TC.gen/vector hex-digit
-                              16)))
+  (TC.gen/fmap (fn [[x x+]]
+                 (clojure.string/join (cons x
+                                            x+)))
+               (TC.gen/tuple (TC.gen/elements [\0 \1 \2 \3 \4 \5 \6 \7])
+                             (TC.gen/vector hex-digit
+                                            15))))
 
 
 
@@ -419,7 +434,7 @@
      
 (comment
 
-  (TC.gen/generate list
+  (TC.gen/generate hex-string-8
                    200)
 
 

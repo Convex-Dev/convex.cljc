@@ -4,10 +4,12 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.lisp.schema      :as $.schema]
-            [convex.lisp.test.eval   :as $.test.eval]
-            [convex.lisp.test.prop   :as $.test.prop]
-            [convex.lisp.test.schema :as $.test.schema]))
+  (:require [clojure.test.check.generators :as TC.gen]
+            [clojure.test.check.properties :as TC.prop]
+            [convex.lisp.form              :as $.form]
+            [convex.lisp.gen               :as $.gen]
+            [convex.lisp.test.eval         :as $.test.eval]
+            [convex.lisp.test.prop         :as $.test.prop]))
 
 
 ;;;;;;;;;;
@@ -27,41 +29,40 @@
    - Does casting in Clojure provide the exact same result?"
 
 
-  ([form-cast form-pred clojure-pred schema]
+  ([form-cast form-pred clojure-pred gen]
 
    (prop-coerce form-cast
                 form-pred
                 nil
                 clojure-pred
-                schema))
+                gen))
 
 
-  ([form-cast form-pred clojure-cast clojure-pred schema]
+  ([form-cast form-pred clojure-cast clojure-pred gen]
 
-   ($.test.prop/check schema
-                      (let [suite   (fn [_x x-2 cast?]
-                                      [["Consistent with Clojure"
-                                        #(clojure-pred x-2)]
+   (let [suite   (fn [_x x-2 cast?]
+                   [["Consistent with Clojure"
+                     #(clojure-pred x-2)]
 
-                                       ["Properly cast"
-                                        #(identity cast?)]])
-                            suite-2 (if clojure-cast
-                                      (fn [x x-2 cast?]
-                                        (conj (suite x
-                                                     x-2
-                                                     cast?)
-                                              ["Comparing cast with Clojure's"
-                                               #(= x-2
-                                                   (clojure-cast x))]))
-                                      suite)]
-                        (fn [x]
-                          (let [[x-2
-                                 cast?] ($.test.eval/result* (let [x-2 (~form-cast (quote ~x))]
-                                                               [x-2
-                                                                (~form-pred x-2)]))]
-                            ($.test.prop/mult (suite-2 x
-                                                       x-2
-                                                       cast?))))))))
+                    ["Properly cast"
+                     #(identity cast?)]])
+         suite-2 (if clojure-cast
+                   (fn [x x-2 cast?]
+                     (conj (suite x
+                                  x-2
+                                  cast?)
+                           ["Comparing cast with Clojure's"
+                            #(= x-2
+                                (clojure-cast x))]))
+                   suite)]
+     (TC.prop/for-all [x gen]
+       (let [[x-2
+              cast?] ($.test.eval/result* (let [x-2 (~form-cast ~x)]
+                                            [x-2
+                                             (~form-pred x-2)]))]
+         ($.test.prop/mult (suite-2 x
+                                    x-2
+                                    cast?)))))))
 
 ;;;;;;;;;;
 
@@ -70,15 +71,11 @@
 
   (prop-coerce 'address
                'address?
-               (partial $.test.schema/valid?
-                        :convex/address)
-               [:or
-                :convex/address
-                :convex/blob-8
-                :convex/hexstring-8
-                [:and
-                 :convex/long
-                 [:>= 0]]]))
+               $.form/address?
+               (TC.gen/one-of [$.gen/address
+                               $.gen/blob-8
+                               $.gen/hex-string-8
+                               (TC.gen/large-integer* {:min 0})])))
 
 
 
@@ -88,24 +85,21 @@
 
   (prop-coerce 'blob
                'blob?
-               (partial $.test.schema/valid?
-                        :convex/blob)
-               [:or
-                :convex/address
-                :convex/blob
-                :convex/hexstring]))
+               $.form/blob?
+               (TC.gen/one-of [$.gen/address
+                               $.gen/blob
+                               $.gen/hex-string])))
 
 
 
-($.test.prop/deftest ^:recur boolean--
+($.test.prop/deftest boolean--
 
   (prop-coerce 'boolean
                'boolean?
                true?
-               [:and
-                :convex/data
-                [:not [:enum false
-                             nil]]]))
+               (TC.gen/such-that #(and (some? %)
+                                       (not (false? %)))
+                                 $.gen/any)))
 
 
 
@@ -114,13 +108,11 @@
   (prop-coerce 'byte
                'number?
                unchecked-byte
-               (fn clojure-pred [x-2]
-                 (<= Byte/MIN_VALUE
-                     x-2
-                     Byte/MAX_VALUE))
-               [:and :convex/number
-                [:>= -1e6]
-                [:<= 1e6]]))
+               #(<= Byte/MIN_VALUE
+                    %
+                    Byte/MAX_VALUE)
+               ($.gen/number-bounded {:max 1e6
+                                      :min -1e6})))
 
 
 
@@ -130,31 +122,29 @@
                '(fn [_] true)           ;; TODO. Incorrect, see #68, #92
                unchecked-char
                char?
-               [:and :convex/number
-                [:>= -1e6]
-                [:<= 1e6]]))
+               ($.gen/number-bounded {:max 1e6
+                                      :min -1e6})))
 
 
 
-($.test.prop/deftest ^:recur encoding--
+($.test.prop/deftest encoding--
 
-  ($.test.prop/check :convex/data
-                     (fn [x]
-                       (let [ctx ($.test.eval/ctx* (do
-                                                     (def x
-                                                          (quote ~x))
-                                                     (def -encoding
-                                                          (encoding x))))]
-                         ($.test.prop/mult*
+  (TC.prop/for-all [x $.gen/any]
+    (let [ctx ($.test.eval/ctx* (do
+                                  (def x
+                                       (quote ~x))
+                                  (def -encoding
+                                       (encoding x))))]
+      ($.test.prop/mult*
 
-                           "Result is a blob"
-                           ($.test.eval/result ctx
-                                               '(blob? -encoding))
+        "Result is a blob"
+        ($.test.eval/result ctx
+                            '(blob? -encoding))
 
-                           "Encoding is deterministic"
-                           ($.test.eval/result ctx
-                                               '(= -encoding
-                                                   (encoding x))))))))
+        "Encoding is deterministic"
+        ($.test.eval/result ctx
+                            '(= -encoding
+                                (encoding x)))))))
 
 
 
@@ -162,35 +152,28 @@
 
   ;; Also tests `hash?`.
 
-  ($.test.prop/check [:or
-                      :convex/address
-                      :convex/blob-32]
-                     (fn [hash-]
-                       (let [ctx ($.test.eval/ctx* (def -hash
-                                                        (hash ~hash-)))]
-                         ($.test.prop/mult*
+  (TC.prop/for-all [x (TC.gen/one-of [$.gen/address
+                                      $.gen/blob])]
+    (let [ctx ($.test.eval/ctx* (def -hash
+                                     (hash ~x)))]
+      ($.test.prop/mult*
 
-                           "Result looks like a hash"
-                           ($.test.schema/valid? :convex/hash
-                                                 ($.test.eval/result ctx
-                                                                     '-hash))
+        "`hash?`"
+        ($.test.eval/result ctx
+                            '(hash? -hash))
 
-                           "`hash?`"
-                           ($.test.eval/result ctx
-                                               '(hash? -hash))
+        "Hashing is deterministic"
+        ($.test.eval/result* ctx
+                             (= -hash
+                                (hash ~x)))
 
-                           "Hashing is deterministic"
-                           ($.test.eval/result* ctx
-                                                (= -hash
-                                                   (hash ~hash-)))
+        "Hashes are not mere blobs"
+        ($.test.eval/result ctx
+                            '(not (blob? -hash)))
 
-                           "Hashes are not mere blobs"
-                           ($.test.eval/result ctx
-                                               '(not (blob? -hash)))
-
-                           "Hashing a hash produces a hash"
-                           ($.test.eval/result ctx
-                                               '(hash? (hash -hash))))))))
+        "Hashing a hash produces a hash"
+        ($.test.eval/result ctx
+                            '(hash? (hash -hash)))))))
 
 
 
@@ -198,9 +181,11 @@
 
   (prop-coerce 'keyword
                'keyword?
-               keyword
                keyword?
-               ($.schema/sym-coercible)))
+               (TC.gen/one-of [$.gen/keyword
+                               $.gen/string-symbolic
+                               $.gen/symbol-quoted
+                               $.gen/symbol-ns-quoted])))
 
 
 
@@ -222,18 +207,19 @@
                'set?
                set
                set?
-               :convex/collection))
+               $.gen/collection))
 
 
 
-($.test.prop/deftest ^:recur str--
+($.test.prop/deftest str--
+
+  ;; TODO. Improve to be variadic.
 
   (prop-coerce 'str
                'str?
-               ;; No comparable Clojure coercion, Convex prints vectors with "," instead of spaces, unlike Clojure
+               ;; str ;; No comparable Clojure coercion, Convex prints vectors with "," instead of spaces, unlike Clojure
                string?
-               [:vector
-                :convex/data]))
+               $.gen/any))
 
 
 
@@ -241,16 +227,18 @@
 
   (prop-coerce 'symbol
                'symbol?
-               symbol
                symbol?
-               ($.schema/sym-coercible)))
+               (TC.gen/one-of [$.gen/keyword
+                               $.gen/string-symbolic
+                               $.gen/symbol-quoted
+                               $.gen/symbol-ns-quoted])))
 
 
 
-($.test.prop/deftest ^:recur vec--
+($.test.prop/deftest vec--
 
   (prop-coerce 'vec
                'vector?
                ;; `vec` cannot be used because Convex implements order differently in maps and sets
                vector?
-               :convex/collection))
+               $.gen/collection))
