@@ -47,7 +47,7 @@
  {;cljs-ajax/cljs-ajax      {:mvn/version "0.8.3"}
   metosin/malli            {:mvn/version "0.5.1"}
   org.clojure/tools.reader {:mvn/version "1.3.4"}
-  world.convex/convex      {:local/root "cvm/7551a9be07b34ffde8d45b3afd3f55f5f132952c.jar"}}
+  world.convex/convex      {:local/root "cvm/33170609c99222c0f7c74a8262bf253b31605737.jar"}}
 
  :paths
  ["src/main"]}

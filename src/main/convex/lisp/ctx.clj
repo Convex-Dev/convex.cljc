@@ -44,7 +44,7 @@
 
   (^Context [account]
 
-   (create-fake Init/STATE
+   (create-fake (Init/createState)
                 account))
 
   
