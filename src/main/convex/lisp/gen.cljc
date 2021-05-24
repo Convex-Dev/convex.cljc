@@ -483,12 +483,40 @@
                           (not (false? %)))
                     any))
 
+
+
+(defn binding+
+
+  ""
+
+
+  ([n-min n-max]
+
+   (binding+ n-min
+             n-max
+             any))
+
+
+  ([n-min n-max gen-value]
+
+   (TC.gen/let [sym+ (TC.gen/vector-distinct symbol
+                                             {:max-elements n-max
+                                              :min-elements n-min})
+                x+   (TC.gen/vector gen-value
+                                    (count sym+))]
+     (mapv vec
+           (partition 2
+                      (interleave sym+
+                                  x+))))))
+
+
 ;;;;;;;;;;
 
      
 (comment
 
-  (TC.gen/generate truthy
+  (TC.gen/generate (binding+ 1
+                             5)
                    30)
 
 
