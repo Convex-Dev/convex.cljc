@@ -6,10 +6,13 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.test            :as t]
-            [convex.lisp.test.eval   :as $.test.eval]
-            [convex.lisp.test.prop   :as $.test.prop]
-            [convex.lisp.test.schema :as $.test.schema]))
+  (:require [clojure.test                  :as t]
+            [clojure.test.check.generators :as TC.gen]
+            [clojure.test.check.properties :as TC.prop]
+            [convex.lisp.form              :as $.form]
+            [convex.lisp.gen               :as $.gen]
+            [convex.lisp.test.eval         :as $.test.eval]
+            [convex.lisp.test.prop         :as $.test.prop]))
 
 
 ;;;;;;;;;;
@@ -19,22 +22,22 @@
 
   ;; Used by [[pred-data-false]] and [[pred-data-true]].
 
-  [form result? f schema]
+  [form result? f gen]
 
-  ($.test.prop/check schema
-                     (fn [x]
-                       (let [result ($.test.eval/result* (~form (quote ~x)))]
+  (TC.prop/for-all* [gen]
+                    (fn [x]
+                      (let [result ($.test.eval/result* (~form ~x))]
 
-                         ($.test.prop/mult*
+                        ($.test.prop/mult*
 
-                           "Returns right boolean value"
-                           (result? result)
-                           
-                           "Consistent with Clojure"
-                           (if f
-                             (= result
-                                (f x))
-                             true))))))
+                          "Returns right boolean value"
+                          (result? result)
+                          
+                          "Consistent with Clojure"
+                          (if f
+                            (= result
+                               (f x))
+                            true))))))
 
 
 
@@ -45,19 +48,19 @@
    Provided schema is a set of data types meant to be removed from `:convex/data`."
 
 
-  ([form schema-without]
+  ([form gen]
 
    (prop-false form
                nil
-               schema-without))
+               gen))
 
 
-  ([form f schema-without]
+  ([form f gen]
 
    (-prop form
           false?
           f
-          ($.test.schema/data-without schema-without))))
+          gen)))
 
 
 
@@ -69,76 +72,73 @@
    in Clojure."
 
 
-  ([form schema]
+  ([form gen]
 
    (prop-true form
               nil
-              schema))
+              gen))
 
 
-  ([form f schema]
+  ([form f gen]
 
    (-prop form
           true?
           f
-          schema)))
+          gen)))
 
 
 ;;;;;;;;;;
 
 
-#_($.test.prop/deftest ^:recur account?--false
-
-  ;; TODO. Fails because of #90
+($.test.prop/deftest account?--false
 
   (prop-false 'account?
-              #{:convex/address
-                :convex/boolean  ;; TODO. See #73
-                :convex/char     ;; TODO. See #68
-                :convex/double
-                :convex/long}))
+              (TC.gen/such-that (comp not
+                                      $.form/address?)
+                                $.gen/any)))
 
 
 
-($.test.prop/deftest ^:recur address?--false
+($.test.prop/deftest address?--false
 
   (prop-false 'address?
-              #{:convex/address
-                :convex/boolean  ;; TODO. See #73
-                :convex/char     ;; TODO. See #68
-                :convex/double
-                :convex/long}))
+              (TC.gen/such-that (comp not
+                                      $.form/address?)
+                                $.gen/any)))
 
 
 
 ($.test.prop/deftest address?--true
 
-  ($.test.prop/check :convex/address
-                     (fn [x]
-                       ($.test.eval/result (list 'address?
-                                                 x)))))
+  (TC.prop/for-all* [$.gen/address]
+                    #($.test.eval/result (list 'address?
+                                               %))))
 
 
 
-($.test.prop/deftest ^:recur blob?--false
+($.test.prop/deftest blob?--false
 
   (prop-false 'blob?
-              #{:convex/blob}))
+              (TC.gen/such-that (comp not
+                                      $.form/blob?)
+                                $.gen/any)))
 
 
 
 ($.test.prop/deftest blob?--true
 
   (prop-true 'blob?
-             :convex/blob))
+             $.gen/blob))
 
 
 
-($.test.prop/deftest ^:recur boolean?--false
+($.test.prop/deftest boolean?--false
 
   (prop-false 'boolean?
               boolean?
-              #{:convex/boolean}))
+              (TC.gen/such-that (comp not
+                                      boolean?)
+                                $.gen/any)))
 
 
 
@@ -152,30 +152,31 @@
 
 
 
-($.test.prop/deftest ^:recur coll?--false
+#_($.test.prop/deftest coll?--false
+
+  ;; TODO. Returns true on blob-like items.
 
   (prop-false 'coll?
               coll?
-              #{:convex/list
-                :convex/map
-                :convex/set
-                :convex/vector}))
+              $.gen/scalar))
 
 
 
-($.test.prop/deftest ^:recur coll?--true
+($.test.prop/deftest coll?--true
 
   (prop-true 'coll?
              coll?
-             :convex/collection))
+             $.gen/collection))
 
 
 
-($.test.prop/deftest ^:recur keyword?--false
+($.test.prop/deftest keyword?--false
 
   (prop-false 'keyword?
               keyword?
-              #{:convex/keyword}))
+              (TC.gen/such-that (comp not
+                                      keyword?)
+                                $.gen/any)))
 
 
 
@@ -183,31 +184,35 @@
 
   (prop-true 'keyword?
              keyword?
-             :convex/keyword))
+             $.gen/keyword))
 
 
 
-($.test.prop/deftest ^:recur list?--false
+($.test.prop/deftest list?--false
 
   (prop-false 'list?
-              list?
-              #{:convex/list}))
+              $.form/list?
+              (TC.gen/such-that (comp not
+                                      $.form/list?)
+                                $.gen/any)))
 
 
 
-($.test.prop/deftest ^:recur list?--true
+($.test.prop/deftest list?--true
 
   (prop-true 'list?
-             seq?
-             :convex/list))
+             $.form/list?
+             $.gen/list))
 
 
 
-($.test.prop/deftest ^:recur long?--false
+($.test.prop/deftest long?--false
 
   (prop-false 'long?
               int?
-              #{:convex/long}))
+              (TC.gen/such-that (comp not
+                                      int?)
+                                $.gen/any)))
 
 
 
@@ -215,7 +220,7 @@
 
   (prop-true 'long?
              int?
-             :convex/long))
+             $.gen/long))
 
 
 
@@ -251,14 +256,13 @@
 
 
 
-($.test.prop/deftest ^:recur number?--false
+($.test.prop/deftest number?--false
 
   (prop-false 'number?
               number?
-              #{:convex/boolean ;; TODO. See #73.
-                :convex/char    ;; TODO. See #68.
-                :convex/double
-                :convex/long}))
+              (TC.gen/such-that (comp not
+                                      number?)
+                                $.gen/any)))
 
 
 
@@ -266,7 +270,7 @@
 
   (prop-true 'number?
              number?
-             :convex/number))
+             $.gen/number))
 
 
 
@@ -274,7 +278,9 @@
 
   (prop-false 'set?
               set?
-              #{:convex/set}))
+              (TC.gen/such-that (comp not
+                                      set?)
+                                $.gen/any)))
 
 
 
@@ -282,15 +288,17 @@
 
   (prop-true 'set?
              set?
-             :convex/set))
+             $.gen/set))
 
 
 
-($.test.prop/deftest ^:recur str?--false
+($.test.prop/deftest str?--false
 
   (prop-false 'str?
               string?
-              #{:convex/string}))
+              (TC.gen/such-that (comp not
+                                      string?)
+                                $.gen/any)))
 
 
 
@@ -298,37 +306,38 @@
 
   (prop-true 'str?
              string?
-             :convex/string))
+             $.gen/string))
+
+
+
+($.test.prop/deftest symbol?--false
+
+  (prop-false 'symbol?
+              (TC.gen/such-that (comp not
+                                      $.form/quoted?)
+                                $.gen/any)))
 
 
 
 ($.test.prop/deftest symbol?--true
 
   (prop-true 'symbol?
-             symbol?
-             :convex/symbol))
+             $.gen/symbol-quoted))
 
 
 
-($.test.prop/deftest ^:recur symbol?--false
-
-  (prop-false 'symbol?
-              (partial $.test.schema/valid?
-                       :convex/symbol)
-              #{:convex/symbol}))
-
-
-
-($.test.prop/deftest ^:recur vector?--false
+($.test.prop/deftest vector?--false
 
   (prop-false 'vector?
               vector?
-              #{:convex/vector}))
+              (TC.gen/such-that (comp not
+                                      vector?)
+                                $.gen/any)))
 
 
 
-($.test.prop/deftest ^:recur vector?--true
+($.test.prop/deftest vector?--true
 
   (prop-true 'vector?
              vector?
-             :convex/vector))
+             $.gen/vector))

@@ -65,6 +65,14 @@
 
 
 
+(def number
+
+  ""
+
+  (TC.gen/one-of [double
+                  long]))
+
+
 (def nothing
 
   ""
@@ -255,7 +263,8 @@
 
   (TC.gen/recursive-gen (fn [gen-inner]
                           (let [gen-vector (TC.gen/vector gen-inner)]
-                            (TC.gen/one-of [(TC.gen/fmap list*
+                            (TC.gen/one-of [(TC.gen/fmap #(cons 'list
+                                                                %)
                                                          gen-vector)
                                             (TC.gen/scale #(quot %
                                                                  2)
@@ -290,10 +299,9 @@
                  (if (coll? x)
                    (if (seq? x)
                      (if (= (first x)
-                            'quote)
-                       (-wrap-in-coll x)
-                       (cons 'list
-                             x))
+                            'list)
+                       x
+                       (-wrap-in-coll x))
                      x)
                    (-wrap-in-coll x)))
                recursive))
@@ -398,12 +406,21 @@
 
 
 
+(def any
+
+  ""
+
+  (TC.gen/frequency [[10 recursive]
+                     [9  scalar]]))
+
+
 ;;;;;;;;;;
 
      
 (comment
 
-  (TC.gen/generate map
-                   30)
+  (TC.gen/generate list
+                   200)
+
 
   )

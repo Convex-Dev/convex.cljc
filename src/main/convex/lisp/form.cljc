@@ -4,6 +4,7 @@
 
   {:author "Adam Helinski"}
 
+  (:refer-clojure :exclude [list?])
   (:require [clojure.string]
             [clojure.walk])
   #?(:cljs (:require-macros [convex.lisp.form :refer [templ*]])))
@@ -26,20 +27,6 @@
 
 
 
-(defn address?
-
-  "Is `x` a symbol that ressembles a Convex address?"
-
-  ;; TODO. Ensures is not a qualified symbol, if new scheme that allows addresses in symbols is kept.
-
-  [x]
-
-  (and (symbol? x)
-       (clojure.string/starts-with? (str x)
-                                    "#")))
-
-
-
 (defn blob
 
   "Converts `hexstring` into a symbol that ressembles a Convex blob."
@@ -48,18 +35,6 @@
 
   (symbol (str "0x"
                hexstring)))
-
-
-
-(defn blob?
-
-  "Is `x` a symbol that ressembles a Convex blob?"
-
-  [x]
-
-  (and (symbol? x)
-       (clojure.string/starts-with? (str x)
-                                    "0x")))
 
 
 
@@ -110,6 +85,74 @@
   [form]
 
   (pr-str form))
+
+
+;;;;;;;;;; Predicates
+
+
+
+(defn address?
+
+  "Is `x` a symbol that ressembles a Convex address?"
+
+  ;; TODO. Ensures is not a qualified symbol, if new scheme that allows addresses in symbols is kept.
+
+  [x]
+
+  (and (symbol? x)
+       (clojure.string/starts-with? (str x)
+                                    "#")))
+
+
+
+(defn blob?
+
+  "Is `x` a symbol that ressembles a Convex blob?"
+
+  [x]
+
+  (and (symbol? x)
+       (clojure.string/starts-with? (str x)
+                                    "0x")))
+
+
+
+(defn call?
+
+  "Is `x` a form calling `sym`?
+  
+   ```clojure
+   (call? 'double
+          '(quot 2 3))  ;; False
+   ```"
+
+  [sym x]
+
+  (and (seq? x)
+       (= (first x)
+          sym)))
+
+
+
+(defn list?
+
+  "Is `x` a `(list ...)` form?"
+
+  [x]
+
+  (call? 'list
+         x))
+
+
+
+(defn quoted?
+
+  "Is `x` a `(quote ...)` form?"
+
+  [x]
+
+  (call? 'quote
+         x))
 
 
 ;;;;;;;;;; Templating Convex Lisp code

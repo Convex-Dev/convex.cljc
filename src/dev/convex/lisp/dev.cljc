@@ -115,7 +115,7 @@
 
 
 ($.eval/result ($.ctx/create-fake)
-               '(expand [1 2] (fn [f e] (e f e)))
+               '(long? -1)
                )
 
 
@@ -127,15 +127,15 @@
       )
 
 
-  (->> '(expand 42)
+  (->> '(long? -1)
        $/read-form
        ($.ctx/eval ($.ctx/create-fake))
        $.ctx/log
        $/datafy
        )
 
-  (-> ($.ctx/eval ($.ctx/create-fake)
-                  ($/read "(fail [:foo] [:a])"))
+  (-> ($.eval.src/result ($.ctx/create-fake)
+                         "(coll? \"ok\")")
       ;$.ctx/error
       ;$/datafy
       )
