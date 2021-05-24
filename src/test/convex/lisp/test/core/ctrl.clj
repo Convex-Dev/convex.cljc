@@ -144,24 +144,45 @@
 
 ($.test.prop/deftest fail--
 
-  ($.test.prop/check [:tuple
-                      [:int
-                       {:max 16
-                        :min 1}]
-                      [:and
-                       :convex/data
-                       [:not :convex/nil]]
-                      :convex/data
-                      :convex/data]
-                     (fn [[n code message x-ploy]]
-                       ($.test.util/eq {:convex.error/code    code
-                                        :convex.error/message message}
-                                       (select-keys ($.test.eval/error (-nested-fn n
-                                                                                   ($.form/templ* (fail (quote ~code)
-                                                                                                        (quote ~message)))
-                                                                                   x-ploy))
-                                                    [:convex.error/code
-                                                     :convex.error/message])))))
+  (TC.prop/for-all [n       (TC.gen/choose 1
+                                           16)
+                    code    $.gen/keyword
+                    message $.gen/any
+                    x-ploy  $.gen/any]
+    (let [exec (fn [form]
+                 ($.test.eval/error (-nested-fn n
+                                                form
+                                                x-ploy)))]
+      ($.test.prop/and* ($.test.prop/checkpoint*
+  
+                          "Without code"
+
+                          (let [ret (exec ($.form/templ* (fail ~message)))]
+                            ($.test.prop/mult*
+
+                              "No code"
+                              (= :ASSERT
+                                 (ret :convex.error/code))
+
+                              "Message"
+                              ($.test.util/eq ($.test.eval/result message)
+                                              (ret :convex.error/message)))))
+
+                        ($.test.prop/checkpoint*
+
+                          "With code"
+
+                          (let [ret (exec ($.form/templ* (fail ~code
+                                                               ~message)))]
+                            ($.test.prop/mult*
+
+                              "Code"
+                              (= code
+                                 (ret :convex.error/code))
+
+                              "Message"
+                              ($.test.util/eq ($.test.eval/result message)
+                                              (ret :convex.error/message)))))))))
 
 
 
