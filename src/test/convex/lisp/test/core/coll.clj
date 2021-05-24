@@ -12,12 +12,15 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.test            :as t]
-            [convex.lisp.form        :as $.form]
-            [convex.lisp.test.eval   :as $.test.eval]
-            [convex.lisp.test.prop   :as $.test.prop]
-            [convex.lisp.test.schema :as $.test.schema]
-            [convex.lisp.test.util   :as $.test.util]))
+  (:require [clojure.test                  :as t]
+            [clojure.test.check.generators :as TC.gen]
+            [clojure.test.check.properties :as TC.prop]
+            [convex.lisp.form              :as $.form]
+            [convex.lisp.gen               :as $.gen]
+            [convex.lisp.test.eval         :as $.test.eval]
+            [convex.lisp.test.gen          :as $.test.gen]
+            [convex.lisp.test.prop         :as $.test.prop]
+            [convex.lisp.test.schema       :as $.test.schema]))
 
 
 (declare ctx-main
@@ -27,86 +30,111 @@
 ;;;;;;;;;; Reusing properties
 
 
-(defn prop-create-sequential
+(defn suite-new
 
-  "Checks that creating data using `form` (a variadic CVM function) produces the same result as in Clojure using `f`."
+  ""
 
-  [form f]
+  [ctx form-type?]
 
-  ($.test.prop/check [:vector
-                      :convex/data]
-                     (fn [x]
-                       ($.test.util/eq (apply f
-                       	                	  x)
-                                       ($.test.eval/result (list* form
-                                                                  (map $.form/quoted
-                                                                       x)))))))
+  ($.test.prop/mult*
+
+    "Type is correct"
+    ($.test.eval/result* ctx
+                         (~form-type? x))
+
+    "Same number of key-values"
+    ($.test.eval/result ctx
+                        '(= (count kv+)
+                            (count x)))
+
+    "All key-values can be retrieved"
+    ($.test.eval/result ctx
+                        '($/every? (fn [[k v]]
+                                     (= v
+                                        (get x
+                                             k)
+                                        ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/145
+                                        ; (x k)
+                                        ))
+                                   kv+))))
 
 
 ;;;;;;;;;; Creating collections from functions
 
 
-(t/deftest blob-map--
+($.test.prop/deftest blob-map--
 
-  (t/is (map? ($.test.eval/result '(blob-map)))))
+  (TC.prop/for-all [kv+ ($.test.gen/kv+ $.gen/blob
+                                        $.gen/any)]
+    (suite-new ($.test.eval/ctx* (do
+                                   (def kv+
+                                        ~kv+)
+                                   (def x
+                                        (blob-map ~@(mapcat identity
+                                                            kv+)))))
+               '(fn [_] true))))
 
 
 
-($.test.prop/deftest ^:recur hash-map--
+($.test.prop/deftest hash-map--
 
   ;; TODO. Also test failing with odd number of items.
   ;;
   ;; Cannot compare with Clojure: https://github.com/Convex-Dev/convex-web/issues/66
 
-  ($.test.prop/check [:+ [:cat
-                          :convex/data
-                          :convex/data]]
-                     (fn [x]
-                       (map? ($.test.eval/result (list* 'hash-map
-                                                        (map $.form/quoted
-                                                             x)))))))
+  (TC.prop/for-all [kv+ ($.test.gen/kv+ $.gen/any
+                                        $.gen/any)]
+    (suite-new ($.test.eval/ctx* (do
+                                   (def kv+
+                                        ~kv+)
+                                   (def x
+                                        (hash-map ~@(mapcat identity
+                                                            kv+)))))
+               'map?)))
 
 
 
-(t/deftest hash-map--no-arg
-
-  (t/is (= {}
-           ($.test.eval/result '(hash-map)))))
-
-
-
-($.test.prop/deftest ^:recur hash-set--
+($.test.prop/deftest hash-set--
 
   ;; Cannot compare with Clojure: https://github.com/Convex-Dev/convex-web/issues/66
 
-  ($.test.prop/check [:vector
-                      {:min 1}
-                      :convex/data]
-                     (fn [x]
-                       (set? ($.test.eval/result (list* 'hash-set
-                                                        (map $.form/quoted
-                                                             x)))))))
+  (TC.prop/for-all [x+ (TC.gen/vector-distinct $.gen/any)]
+    (suite-new ($.test.eval/ctx* (do
+                                   (def kv+
+                                        ~(mapv #(vector %
+                                                        %)
+                                               x+))
+                                   (def x
+                                        (hash-set ~@x+))))
+               'set?)))
 
 
 
-(t/deftest hash-set--no-arg
+($.test.prop/deftest list--
 
-  (t/is (= #{}
-           ($.test.eval/result '(hash-set)))))
+  (TC.prop/for-all [x+ (TC.gen/vector $.gen/any)]
+    (suite-new ($.test.eval/ctx* (do
+                                   (def kv+
+                                        ~(mapv vector
+                                               (range)
+                                               x+))
+                                   (def x
+                                        (list ~@x+))))
+               'list?)))
 
 
 
-($.test.prop/deftest ^:recur list--
+($.test.prop/deftest vector--
 
-  (prop-create-sequential 'list
-                           list))
-
-
-
-($.test.prop/deftest ^:recur vector--
-
-  (prop-create-sequential 'vector
-                          vector))
+  (TC.prop/for-all [x+ (TC.gen/vector $.gen/any)]
+    (suite-new ($.test.eval/ctx* (do
+                                   (def kv+
+                                        ~(mapv vector
+                                               (range)
+                                               x+))
+                                   (def x
+                                        (vector ~@x+))))
+               'vector?)))
 
 
 ;;;;;;;;;; Main - Creating an initial context
