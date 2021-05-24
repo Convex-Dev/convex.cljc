@@ -220,36 +220,75 @@
 
 ($.test.prop/deftest if-like
 
-  ($.test.prop/check [:tuple
-                      [:and
-                       :convex/symbol
-                       [:fn #(not (clojure.string/includes? (str %)
-                                                            "."))]]
-                      :convex/data]
-                     (fn [[sym x]]
-                       ($.test.prop/mult*
+  (TC.prop/for-all [sym    $.gen/symbol
+                    falsy  $.gen/falsy
+                    truthy $.gen/truthy]
+    (let [ctx ($.test.eval/ctx* (do
+                                  (def tag-false
+                                       [:tag ~falsy])
+                                  (def tag-true
+                                       [:tag ~truthy])))]
+     ($.test.prop/mult*
 
-                         "`if` is consistent with Clojure"
-                         ($.test.eval/like-clojure?* (if (quote ~x)
-                                                       :true
-                                                       :false))
+       "`if` false"
+       ($.test.eval/result* ctx
+                            (= tag-false
+                               (if ~falsy
+                                 tag-true
+                                 tag-false)))
 
-                         "`if-let` is consistent with Clojure"
-                         ($.test.eval/like-clojure?* (if-let [~sym (quote ~x)]
-                                                       :true
-                                                       :false))
+       "`if` true"
+       ($.test.eval/result* ctx
+                            (= tag-true
+                               (if ~truthy
+                                 tag-true
+                                 tag-false)))
 
-                         "`when` is consistent with Clojure"
-                         ($.test.eval/like-clojure?* (when (quote ~x)
-                                                       :true))
+       "`if-let` false"
+       ($.test.eval/result* ctx
+                            (= tag-false
+                               (if-let [~sym ~falsy]
+                                 tag-true
+                                 tag-false)))
 
-                         "`when-let` is consistent with Clojure"
-                         ($.test.eval/like-clojure?* (when-let [~sym (quote ~x)]
-                                                       :true))
+       "`if-let` true"
+       ($.test.eval/result* ctx
+                            (= tag-true
+                               (if-let [~sym ~truthy]
+                                 tag-true
+                                 tag-false)))
 
-                         "`when-not` is consistent with Clojure"
-                         ($.test.eval/like-clojure?* (when-not (quote ~x)
-                                                       :true))))))
+       "`when` false"
+       ($.test.eval/result* ctx
+                            (nil? (when ~falsy
+                                    tag-true)))
+
+       "`when` true"
+       ($.test.eval/result* ctx
+                            (= tag-true
+                               (when ~truthy
+                                 tag-true)))
+
+       "`when-let` false"
+       ($.test.eval/result* ctx
+                            (nil? (when-let [~sym ~falsy]
+                                    tag-true)))
+
+       "`when-let` true"
+       ($.test.eval/result* ctx
+                            (= tag-true
+                               (when-let [~sym ~truthy]
+                                 tag-true)))
+
+       "`when-not` false"
+       ($.test.eval/result* ctx
+                            (= tag-false
+                               (when-not ~falsy
+                                 tag-false)))
+       "`when-not` true"
+       ($.test.eval/result* ctx
+                            (nil? (when-not ~truthy
+                                    tag-true)))))))
 
 
 
