@@ -112,21 +112,33 @@
 
 
 
+
 ($.test.prop/deftest cond--
 
-  ($.test.prop/check [:vector
-                      :convex/data]
-                     (fn [x]
-                       (let [x-quoted (map $.form/quoted
-                                           x)]
-                         ($.test.util/eq (eval (list* 'cond
-                                                      (if (even? (count x-quoted))
-                                                        x-quoted
-                                                        (concat (butlast x-quoted)
-                                                                [:else
-                                                                 (last x-quoted)]))))
-                                         ($.test.eval/result (list* 'cond
-                                                                    x-quoted)))))))
+  (TC.prop/for-all [else? $.gen/boolean
+                    x+    (TC.gen/vector (TC.gen/tuple $.gen/boolean
+                                                       (TC.gen/one-of [$.gen/falsy
+                                                                       $.gen/truthy]))
+                                         1
+                                         16)]
+    ($.test.eval/result* (= ~(or (first (into []
+                                              (comp (map second)
+                                                    (filter boolean)
+                                                    (take 1))
+                                              x+))
+                                 (when else?
+                                   (second (peek x+))))
+                            (cond
+                              ~@(cond->
+                                  (mapcat (fn [[identity? x]]
+                                            [(if identity?
+                                               (list 'identity
+                                                     x)
+                                               x)
+                                             x])
+                                          x+)
+                                  else?
+                                  butlast))))))
 
 
 
