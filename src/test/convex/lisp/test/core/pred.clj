@@ -24,20 +24,19 @@
 
   [form result? f gen]
 
-  (TC.prop/for-all* [gen]
-                    (fn [x]
-                      (let [result ($.test.eval/result* (~form ~x))]
+  (TC.prop/for-all [x gen]
+    (let [result ($.test.eval/result* (~form ~x))]
 
-                        ($.test.prop/mult*
+      ($.test.prop/mult*
 
-                          "Returns right boolean value"
-                          (result? result)
-                          
-                          "Consistent with Clojure"
-                          (if f
-                            (= result
-                               (f x))
-                            true))))))
+        "Returns right boolean value"
+        (result? result)
+        
+        "Consistent with Clojure"
+        (if f
+          (= result
+             (f x))
+          true)))))
 
 
 
@@ -274,7 +273,7 @@
 
 
 
-($.test.prop/deftest ^:recur set?--false
+($.test.prop/deftest set?--false
 
   (prop-false 'set?
               set?
@@ -284,7 +283,7 @@
 
 
 
-($.test.prop/deftest ^:recur set?--true
+($.test.prop/deftest set?--true
 
   (prop-true 'set?
              set?

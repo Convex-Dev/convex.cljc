@@ -30,6 +30,7 @@
                       [convex.lisp.test.edn]
                       [convex.lisp.test.eval          :as $.test.eval]
                       [convex.lisp.test.fuzz]
+                      [convex.lisp.test.gen]
                       [convex.lisp.test.prop]
                       [convex.lisp.test.schema        :as $.test.schema]
                       [convex.lisp.test.util]

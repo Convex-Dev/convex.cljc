@@ -4,10 +4,13 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.lisp.form        :as $.form]
-            [convex.lisp.test.eval   :as $.test.eval]
-            [convex.lisp.test.prop   :as $.test.prop]
-            [convex.lisp.test.schema :as $.test.schema]))
+  (:require [clojure.test.check.generators :as TC.gen]
+            [clojure.test.check.properties :as TC.prop]
+            [convex.lisp.gen               :as $.gen]
+            [convex.lisp.form              :as $.form]
+            [convex.lisp.test.eval         :as $.test.eval]
+            [convex.lisp.test.gen          :as $.test.gen]
+            [convex.lisp.test.prop         :as $.test.prop]))
 
 
 ;;;;;;;;;; Suites - Miscellaneous
@@ -72,10 +75,9 @@
 
     ($.test.prop/mult*
 
-      "Address is interned"
-      ($.test.schema/valid? :convex/address
-                            ($.test.eval/result ctx
-                                                'addr))
+      "Address is interned" 
+      ($.form/address? ($.test.eval/result ctx
+                                           'addr))
 
       "`account?`"
       ($.test.eval/result ctx
@@ -283,11 +285,9 @@
       ;;
       "`set-holding` is consistent with `account`"
       ($.test.eval/result ctx
-                          '(= (if (nil? holding)
-                                nil
-                                (assoc (blob-map)
-                                       *address*
-                                       holding))
+                          '(= (assoc (blob-map)
+                                     *address*
+                                     holding)
                               (:holdings (account addr))))
    
       "Removing holding"
@@ -304,9 +304,10 @@
    
           "`account` shows nil in :holdings"
           ($.test.eval/result ctx-2
-                              '(nil? (get (account addr)
-                                          :holdings
-                                          :convex-sentinel))))))))
+                              '(= (blob-map)
+                                  (get (account addr)
+                                       :holdings
+                                       :convex-sentinel))))))))
 
 
 ;;;;;;;;;; Suites - Transfering coins
@@ -393,56 +394,51 @@
 
 ($.test.prop/deftest account-inexistant
 
-  ($.test.prop/check [:and
-                      [:int
-                       {:min 50}]]
-                     (fn [x]
-                       ($.test.prop/mult*
+  (TC.prop/for-all* [(TC.gen/large-integer* {:min 50})]
+                    (fn [x]
+                      ($.test.prop/mult*
 
-                         "Account does not exist (long)"
-                         ($.test.eval/result* (not (account? ~x)))
+                        "Account does not exist (long)"
+                        ($.test.eval/result* (not (account? ~x)))
 
-                         "Account does not exist (address)"
-                         ($.test.eval/result* (not (account (address ~x))))
+                        "Account does not exist (address)"
+                        ($.test.eval/result* (not (account (address ~x))))
 
-                         "Actor does not exist (long)"
-                         ($.test.eval/result* (not (actor? ~x)))
+                        "Actor does not exist (long)"
+                        ($.test.eval/result* (not (actor? ~x)))
 
-                         "Actor does not exist (address)"
-                         ($.test.eval/result* (not (actor? (address ~x))))))))
+                        "Actor does not exist (address)"
+                        ($.test.eval/result* (not (actor? (address ~x))))))))
 
 
 
-($.test.prop/deftest ^:recur main
+($.test.prop/deftest main
 
-  ($.test.prop/check [:tuple
-                      [:vector
-                       :convex/symbol]
-                      :convex/data
-                      :convex/hexstring-32
-                      :convex.test/percent]
-                     (fn [[export-sym+ holding pubkey percent]]
-                       (let [ctx            ($.test.eval/ctx* (def addr
-                                                                   (create-account ~pubkey)))
-                             ctx-*holdings* (ctx-holding ctx
-                                                         '*address*
-                                                         holding)]
-                         ($.test.prop/and* (suite-export ctx
-                                                         export-sym+)
-                                           (suite-*holdings* ctx-*holdings*)
-                                           (suite-holding ctx-*holdings*)
-                                           (suite-holding (ctx-holding ctx
-                                                                       'addr
-                                                                       holding))
-                                           (suite-new ctx
-                                                      false?)
-                                           (suite-set-key ctx
-                                                          pubkey)
-                                           (suite-transfer (ctx-transfer ctx
-                                                                         percent)
-                                                           "Transfering coins to a user account")
-                                           (suite-transfer-memory ctx
-                                                                  percent))))))
+  (TC.prop/for-all [export-sym+ (TC.gen/vector $.gen/symbol)
+                    holding     $.gen/any
+                    pubkey      $.gen/hex-string-32
+                    percent     $.test.gen/percent]
+    (let [ctx            ($.test.eval/ctx* (def addr
+                                                (create-account ~pubkey)))
+          ctx-*holdings* (ctx-holding ctx
+                                      '*address*
+                                      holding)]
+      ($.test.prop/and* (suite-export ctx
+                                      export-sym+)
+                        (suite-*holdings* ctx-*holdings*)
+                        (suite-holding ctx-*holdings*)
+                        (suite-holding (ctx-holding ctx
+                                                    'addr
+                                                    holding))
+                        (suite-new ctx
+                                   false?)
+                        (suite-set-key ctx
+                                       pubkey)
+                        (suite-transfer (ctx-transfer ctx
+                                                      percent)
+                                        "Transfering coins to a user account")
+                        (suite-transfer-memory ctx
+                                               percent)))))
 
 
 ;; TODO. `set-controller`, already a bit tested by `eval-as`, also see: https://github.com/Convex-Dev/convex/issues/133
