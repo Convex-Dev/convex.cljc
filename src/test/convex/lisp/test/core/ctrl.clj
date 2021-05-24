@@ -21,7 +21,7 @@
 
 (defn- -nested-fn
 
-  ;; Used by [[halting--]] and [[rollback--]] for nesting functions that ultimately should end preemptively.
+  ;; Used for nesting functions that ultimately should end preemptively.
 
 
   ([n form]
@@ -48,13 +48,21 @@
                x-ploy)))
 
 
+
+(def gen-nest
+
+  "Generating `n` value for [[-nested-fn]]."
+
+  (TC.gen/choose 1
+                 16))
+
+
 ;;;;;;;;;; Tests
 
 
 ($.test.prop/deftest assert--
 
-  (TC.prop/for-all [n        (TC.gen/choose 1
-                                            16)
+  (TC.prop/for-all [n        gen-nest
                     x-ploy   $.gen/any
                     x-return $.gen/truthy]
     (identical? :ASSERT
@@ -144,8 +152,7 @@
 
 ($.test.prop/deftest fail--
 
-  (TC.prop/for-all [n       (TC.gen/choose 1
-                                           16)
+  (TC.prop/for-all [n       gen-nest
                     code    $.gen/keyword
                     message $.gen/any
                     x-ploy  $.gen/any]
@@ -188,30 +195,26 @@
 
 ($.test.prop/deftest halting
 
-  ($.test.prop/check [:tuple
-                      [:int
-                       {:max 16
-                        :min 1}]
-                      :convex/data
-                      :convex/data]
-                     (fn [[n x-ploy x-return]]
-                       ($.test.prop/mult*
+  (TC.prop/for-all [n        gen-nest
+                    x-ploy   $.gen/any
+                    x-return $.gen/any]
+    ($.test.prop/mult*
 
-                         "`halt`"
-                         ($.test.util/eq x-return
-                                         ($.test.eval/result (-nested-fn n
-                                                                         'halt
-                                                                         x-ploy
-                                                                         x-return)))
+      "`halt`"
+      ($.test.util/eq ($.test.eval/result x-return)
+                      ($.test.eval/result (-nested-fn n
+                                                      'halt
+                                                      x-ploy
+                                                      x-return)))
 
-                         "`return`"
-                         ($.test.util/eq [x-return
-                                          x-ploy]
-                                         ($.test.eval/result* [~(-nested-fn n
-                                                                            'return
-                                                                            x-ploy
-                                                                            x-return)
-                                                               (quote ~x-ploy)]))))))
+      "`return`"
+      ($.test.util/eq ($.test.eval/result* [~x-return
+                                            ~x-ploy])
+                      ($.test.eval/result* [~(-nested-fn n
+                                                         'return
+                                                         x-ploy
+                                                         x-return)
+                                            ~x-ploy])))))
 
 
 
@@ -252,33 +255,29 @@
 
 ($.test.prop/deftest rollback--
 
-  ($.test.prop/check [:tuple
-                      [:int
-                       {:max 16
-                        :min 1}]
-                      :convex/symbol
-                      :convex/data
-                      :convex/data
-                      :convex/data]
-                     (fn [[n sym x-env x-return x-ploy]]
-                       (let [ctx ($.test.eval/ctx* (do
-                                                     (def ~sym
-                                                          (quote ~x-env))
-                                                     ~(-nested-fn n
-                                                                  'rollback
-                                                                  x-ploy
-                                                                  x-return)
-                                                     (quote ~x-ploy)))]
-                         ($.test.prop/mult*
+  (TC.prop/for-all [n        gen-nest
+                    sym      $.gen/symbol
+                    x-env    $.gen/any
+                    x-return $.gen/any
+                    x-ploy   $.gen/any]
+    (let [ctx ($.test.eval/ctx* (do
+                                  (def ~sym
+                                       ~x-env)
+                                  ~(-nested-fn n
+                                               'rollback
+                                               x-ploy
+                                               x-return)
+                                  ~x-ploy))]
+      ($.test.prop/mult*
 
-                           "Returned value is the rollback value"
-                           ($.test.util/eq x-return
-                                           (-> ctx
-                                               $.ctx/result
-                                               $/datafy))
+        "Returned value is the rollback value"
+        ($.test.util/eq ($.test.eval/result x-return)
+                        (-> ctx
+                            $.ctx/result
+                            $/datafy))
 
-                           "State has been rolled back"
-                           (let [form '(hash (encoding *state*))]
-                             ($.test.util/eq ($.test.eval/result form)
-                                             ($.test.eval/result ctx
-                                                                 form))))))))
+        "State has been rolled back"
+        (let [form '(hash (encoding *state*))]
+          ($.test.util/eq ($.test.eval/result form)
+                          ($.test.eval/result ctx
+                                              form)))))))

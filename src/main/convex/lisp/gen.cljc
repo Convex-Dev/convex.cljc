@@ -465,13 +465,31 @@
                                               exclusion-set))))
 
 
+
+(def falsy
+
+  ""
+
+  (TC.gen/elements [false
+                    nil]))
+
+
+
+(def truthy
+
+  ""
+
+  (TC.gen/such-that #(and (some? %)
+                          (not (false? %)))
+                    any))
+
 ;;;;;;;;;;
 
      
 (comment
 
-  (TC.gen/generate (any-but #{vector})
-                   200)
+  (TC.gen/generate truthy
+                   30)
 
 
   )
