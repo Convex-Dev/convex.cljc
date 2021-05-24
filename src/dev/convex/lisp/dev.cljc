@@ -116,7 +116,7 @@
 
 
 ($.eval/result ($.ctx/create-fake)
-               '(long? -1)
+               '(syntax? (first (quote #{42})))
                )
 
 

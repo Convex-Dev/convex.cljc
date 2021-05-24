@@ -4,8 +4,10 @@
 
   {:author "Adam Helinski"}
 
-  (:refer-clojure :exclude [list?])
-  (:require [clojure.string]
+  (:refer-clojure :exclude [empty?
+                            list?])
+  (:require [clojure.core]
+            [clojure.string]
             [clojure.walk])
   #?(:cljs (:require-macros [convex.lisp.form :refer [templ*]])))
 
@@ -131,6 +133,21 @@
   (and (seq? x)
        (= (first x)
           sym)))
+
+
+
+(defn empty?
+
+  "Is `x` an empty collection?
+
+   Takes care of the fact that some types are calls to their constructor function (eg. `(list :a :b :c)`)."
+
+  [x]
+
+  (clojure.core/empty? (cond->
+                         x
+                         (seq? x)
+                         rest)))
 
 
 

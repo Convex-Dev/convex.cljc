@@ -13,9 +13,9 @@
                             map
                             set
                             symbol
-                            vector
-                            ])
+                            vector])
   (:require [clojure.core]
+            [clojure.set]
             [clojure.string]
             [clojure.test.check.generators :as TC.gen]
             [convex.lisp.form              :as $.form]))
@@ -266,6 +266,7 @@
                   double
                   keyword
                   long
+                  nothing
                   string
                   symbol-quoted
                   symbol-ns-quoted]))
@@ -421,6 +422,16 @@
 
 
 
+(def sequential
+
+
+  ""
+
+  (TC.gen/one-of [list
+                  vector]))
+
+
+
 (def any
 
   ""
@@ -429,12 +440,37 @@
                      [9  scalar]]))
 
 
+
+(defn any-but
+
+  ""
+
+  [exclusion-set]
+
+  (TC.gen/one-of (vec (clojure.set/difference #{address
+                                                blob
+                                                boolean
+                                                char
+                                                double
+                                                keyword
+                                                list
+                                                long
+                                                nothing
+                                                map
+                                                set
+                                                string
+                                                symbol-quoted
+                                                symbol-ns-quoted
+                                                vector}
+                                              exclusion-set))))
+
+
 ;;;;;;;;;;
 
      
 (comment
 
-  (TC.gen/generate hex-string-8
+  (TC.gen/generate (any-but #{vector})
                    200)
 
 

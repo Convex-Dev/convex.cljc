@@ -12,15 +12,13 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.test                  :as t]
-            [clojure.test.check.generators :as TC.gen]
+  (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
             [convex.lisp.form              :as $.form]
             [convex.lisp.gen               :as $.gen]
             [convex.lisp.test.eval         :as $.test.eval]
             [convex.lisp.test.gen          :as $.test.gen]
-            [convex.lisp.test.prop         :as $.test.prop]
-            [convex.lisp.test.schema       :as $.test.schema]))
+            [convex.lisp.test.prop         :as $.test.prop]))
 
 
 (declare ctx-main
@@ -32,7 +30,7 @@
 
 (defn suite-new
 
-  ""
+  "Suite that all new collections created with constructor functions (eg. `list`). must pass."
 
   [ctx form-type?]
 
@@ -158,8 +156,8 @@
 
    (ctx-main x
              ($.form/templ* (assoc ~x
-                                   (quote ~k)
-                                   (quote ~v)))
+                                   ~k
+                                   ~v))
              k
              v)))
 
@@ -175,9 +173,9 @@
 
   (-> ($.form/templ* (do
                        (def k
-                            (quote ~k))
+                            ~k)
                        (def v
-                            (quote ~v))
+                            ~v)
                        (def x
                             ~x)
                        (def x-2
@@ -853,80 +851,70 @@
 ;;;;;;;;;; Generative tests for main suites
 
 
-($.test.prop/deftest ^:recur main-blob-map
+($.test.prop/deftest main-blob-map
 
-  ($.test.prop/check [:tuple
-                      [:= '(blob-map)]
-                      :convex/blob
-                      :convex/data]
-                     (comp suite-map
-                           ctx-assoc)))
+  ;; TODO. Add proper blob-map generation.
 
-
-
-($.test.prop/deftest ^:recur main-map
-
-  ($.test.prop/check [:tuple
-                      :convex/map
-                      :convex/data
-                      :convex/data]
-                     (fn [[x k v]]
-                       (let [ctx (ctx-assoc ($.form/quoted x)
-                                            k
-                                            v)]
-                         ($.test.prop/and* (suite-map ctx)
-                                           (suite-hash-map ctx))))))
+  (TC.prop/for-all* [$.gen/blob
+                     $.gen/any]
+                    (comp suite-map
+                          (partial ctx-assoc
+                                   '(blob-map)))))
 
 
 
-($.test.prop/deftest ^:recur main-nil
+($.test.prop/deftest main-map
 
-  ($.test.prop/check [:tuple
-                      :convex/nil
-                      :convex/data
-                      :convex/data]
-                     (comp suite-map
-                           ctx-assoc)))
-
-
-
-($.test.prop/deftest ^:recur main-sequential
-
-  ;; TODO. Should `(assoc [] 0 :ok)` be legal? See https://github.com/Convex-Dev/convex/issues/94
-
-  ($.test.prop/check [:tuple
-                      [:and
-                       [:or
-                        :convex/list
-                        :convex/vector]
-                       [:fn
-                        #(pos? (count %))]]
-                      :convex/data]
-                     (fn [[coll v]]
-                       (let [ctx (ctx-assoc ($.form/quoted coll)
-                                            (rand-int (count coll))
-                                            v)]
-                         ($.test.prop/and* (suite-assoc ctx)
-                                           (suite-main ctx)
-                                           (suite-sequential ctx))))))
+  (TC.prop/for-all [m $.gen/map
+                    k $.gen/any
+                    v $.gen/any]
+    (let [ctx (ctx-assoc m
+                         k
+                         v)]
+      ($.test.prop/and* (suite-map ctx)
+                        (suite-hash-map ctx)))))
 
 
 
-($.test.prop/deftest ^:recur main-set
+($.test.prop/deftest main-nil
 
-  ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/109
-  ;;                         https://github.com/Convex-Dev/convex/issues/110
+  (TC.prop/for-all* [$.gen/nothing
+                     $.gen/any
+                     $.gen/any]
+                    (comp suite-map
+                          ctx-assoc)))
 
-  ($.test.prop/check [:and
-                      :convex/set
-                      [:fn
-                       #(pos? (count %))]]
-                     (fn [x]
-                       (suite-main (let [v (first x)]
-                                     (ctx-main ($.form/quoted x)
-                                               ($.form/quoted x)
-                                               v
-                                               v))))))
+
+
+($.test.prop/deftest main-sequential
+
+  (TC.prop/for-all [coll (TC.gen/such-that #(seq (cond->
+                                                   %
+                                                   (seq? %)
+                                                   rest))
+                                           $.gen/sequential)
+                    v    $.gen/any]
+    (let [ctx (ctx-assoc coll
+                         (rand-int (count (cond->
+                                            coll
+                                            (seq? coll)
+                                            rest)))
+
+                         v)]
+      ($.test.prop/and* (suite-assoc ctx)
+                        (suite-main ctx)
+                        (suite-sequential ctx)))))
+
+
+
+($.test.prop/deftest main-set
+
+  (TC.prop/for-all [s (TC.gen/not-empty $.gen/set)]
+    (suite-main (let [v (first s)]
+                  (ctx-main s
+                            s
+                            v
+                            v)))))
 
 
 ;;;;;;;;;; `assoc`
@@ -936,111 +924,86 @@
 
   ;; Helper for evaluating a failing call to `assoc`.
 
+  [x k v]
 
-  ([tuple]
-
-   (-assoc-fail $.form/quoted
-                tuple))
-
-
-  ([fmap-x [x k v]]
-
-   ($.test.eval/error?* (assoc ~(fmap-x x)
-                               (quote ~k)
-                               (quote ~v)))))
+  ($.test.eval/error?* (assoc ~x
+                              ~k
+                              ~v)))
 
 
 
-($.test.prop/deftest ^:recur assoc--fail
+($.test.prop/deftest assoc--fail
 
-  ($.test.prop/check [:tuple
-                      ($.test.schema/data-without #{:convex/blob-map
-                                                    :convex/list
-                                                    :convex/map
-                                                    :convex/nil
-                                                    :convex/vector})
-                      :convex/data
-                      :convex/data]
-                     -assoc-fail))
+  (TC.prop/for-all* [($.gen/any-but #{$.gen/list
+                                      $.gen/map
+                                      $.gen/nothing
+                                      $.gen/vector})
+                     $.gen/any
+                     $.gen/any]
+                    -assoc-fail))
 
 
 
-#_($.test.prop/deftest ^:recor assoc--blob-map-fail
+($.test.prop/deftest assoc--blob-map-fail
 
-  ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/101
-
-  ($.test.prop/check [:tuple
-                      [:= '(blob-map)]
-                      ($.test.schema/data-without #{:convex/address  ;; Specialized blob
-                                                    :convex/blob})
-                      :convex/data]
-                     (partial -assoc-fail
-                              identity)))
+  (TC.prop/for-all [k ($.gen/any-but #{$.gen/address
+                                       $.gen/blob})
+                    v $.gen/any]
+    (-assoc-fail '(blob-map)
+                 k
+                 v)))
 
 
 
-#_($.test.prop/deftest ^:recur assoc--sequential-fail
+($.test.prop/deftest assoc--sequential-fail
 
-  ;; TODO. Infinite loop because of a Malli bug, see https://github.com/metosin/malli/issues/442
-
-  ($.test.prop/check [:and
-                      [:tuple
-                       [:or
-                        :convex/list
-                        :convex/vector]
-                       :convex/data
-                       :convex/data]
-                      [:fn
-                       (fn [[coll k _v]]
-                         (not (or (number? k)
-                                  (<= 0
-                                      k
-                                      (count coll)))))]]
-                     -assoc-fail))
+  (TC.prop/for-all [[x
+                     k] (TC.gen/let [x $.gen/sequential
+                                     k (TC.gen/such-that #(not (and (number? %)
+                                                                    (not (<= 0
+                                                                             %
+                                                                             (count x)))))
+                                                         $.gen/any)]
+                          [x k])
+                    v   $.gen/any]
+    (-assoc-fail x
+                 k
+                 v)))
 
 
 ;;;;;;;;;; `assoc-in`
 
 
-($.test.prop/deftest ^:recur assoc-in--fail-path
+($.test.prop/deftest assoc-in--fail-path
 
   ;; Trying to assoc using a path that is not a collection.
-  ;;
-  ;; TODO. Maybe update this: https://github.com/Convex-Dev/convex/issues/95
 
-  ($.test.prop/check [:tuple
-                      [:or
-                       :convex/list
-                       :convex/map
-                       :convex/nil
-                       :convex/vector]
-                      :convex/scalar
-                      :convex/data]
-                     (fn [[x path v]]
-                       ($.test.eval/error?* (assoc-in (quote ~x)
-                                                      (quote ~path)
-                                                      (quote ~v))))))
+  (TC.prop/for-all [x    (TC.gen/one-of [$.gen/list
+                                         $.gen/map
+                                         $.gen/nothing
+                                         $.gen/vector])
+                    path ($.gen/any-but #{$.gen/list
+                                          $.gen/nothing
+                                          $.gen/vector})
+                    v    $.gen/any]
+    ($.test.eval/error?* (assoc-in ~x
+                                   ~path
+                                   ~v))))
 
 
 
-#_($.test.prop/deftest ^:recur assoc-in--fail-type
+($.test.prop/deftest assoc-in--fail-type
 
-  ;; Trying to assoc on an illegal type.
-  ;;
-  ;; TODO. Failing, must fix https://github.com/Convex-Dev/convex/issues/96
-  ;;                         https://github.com/Convex-Dev/convex/issues/97
-
-  ($.test.prop/check [:tuple
-                      ($.test.schema/data-without #{:convex/list
-                                                    :convex/map
-                                                    :convex/nil
-                                                    :convex/vector})
-                      :convex.test/seqpath
-                      :convex/data]
-                     (fn [[x path v]]
-                       ($.test.eval/error? (assoc-in (quote ~x)
-                                                     (quote ~path)
-                                                     (quote ~v))))))
+  (TC.prop/for-all [x    ($.gen/any-but #{$.gen/list
+                                          $.gen/map
+                                          $.gen/nothing
+                                          $.gen/vector})
+                    path (TC.gen/such-that #(not ($.form/empty? %))
+                                           $.gen/sequential)
+                    v    $.gen/any]
+    ($.test.eval/error?* (assoc-in ~x
+                                   ~path
+                                   ~v))))
 
 
 
@@ -1048,293 +1011,210 @@
 
   ;; Helper for writing and evaling the CVM code for passing `assoc-in` tests.
 
-  [item path value]
+  [x path v]
 
-  ($.test.eval/result* (= (quote ~value)
-                          (let [item-2 (assoc-in (quote ~item)
-                                                 (quote ~path)
-                                                 (quote ~value))]
-                            (if (empty? (quote ~path))
-                              item-2
-                              (get-in item-2
-                                      (quote ~path)))))))
+  ($.test.eval/result* (= ~v
+                          (let [x-2 (assoc-in ~x
+                                              ~path
+                                              ~v)]
+                            (if (empty? ~path)
+                              x-2
+                              (get-in x-2
+                                      ~path))))))
 
 
 
-($.test.prop/deftest ^:recur assoc-in--map
+($.test.prop/deftest assoc-in--map
 
-  ;; Tests `get-in` as well, and with nil besides maps.
-  ;;
   ;; TODO. Currently, empty path returns the value. Keep an eye on: https://github.com/Convex-Dev/convex/issues/96
 
-  ($.test.prop/check [:tuple
-                      [:or
-                       :convex/map
-                       :convex/nil]
-                      :convex.test/seqpath
-                      :convex/data]
-                     (fn [[x path v]]
-                       (-eval-assoc-in (cond->
-                                         x
-                                         (seq path)
-                                         (dissoc (first path)))
-                                       path
-                                       v))))
-
-
-
-($.test.prop/deftest ^:recur assoc-in--vect
-
-  ;; Tests `get-in` as well.
-
-  ;; TODO. Adapt for lists as well.
-  ;; TODO. Should `(assoc [] 0 :ok)` be legal? See https://github.com/Convex-Dev/convex/issues/94
-
-  ($.test.prop/check [:tuple
-                      [:vector
-                       [:or
-                        :convex/nil
-                        :convex/map]]
-                      :convex.test/seqpath
-                      :convex/data]
-                     (fn [[vect path v]]
-                       (let [[path-2
-                              vect-2] (if (seq path)
-                                        (let [k (rand-int (count vect))]
-                                          [(into [k]
-                                                 path)
-                                           (assoc vect
-                                                  k
-                                                  nil)])
-                                        [path
-                                         vect])]
-                         (-eval-assoc-in vect-2
-                                         path-2
-                                         v)))))
+  (TC.prop/for-all [x    (TC.gen/one-of [$.gen/map
+                                         $.gen/nothing])
+                    path $.gen/sequential
+                    v    $.gen/any]
+    (-eval-assoc-in (cond->
+                      x
+                      (seq path)
+                      (dissoc ((if (seq? path)
+                                 second
+                                 first)
+                               path)))
+                    path
+                    v)))
 
 
 ;;;;;;;;;; Misc
 
 
-($.test.prop/deftest ^:recur mapcat--
+($.test.prop/deftest mapcat--
 
-  ($.test.prop/check :convex/collection
-                     (fn [coll]
-                       ($.test.prop/mult*
+  (TC.prop/for-all [coll $.gen/collection]
+    ($.test.prop/mult*
 
-                         "Duplicating items"
-                         ($.test.eval/result* (let [coll (quote ~coll)]
-                                                (= (vec (mapcat (fn [x]
-                                                                  [x x])
-                                                                coll))
-                                                   (reduce (fn [acc x]
-                                                             (conj acc
-                                                                   x
-                                                                   x))
-                                                           []
-                                                           coll)))))
+      "Duplicating items"
+      ($.test.eval/result* (let [coll ~coll]
+                             (= (vec (mapcat (fn [x]
+                                               [x x])
+                                             coll))
+                                (reduce (fn [acc x]
+                                          (conj acc
+                                                x
+                                                x))
+                                        []
+                                        coll))))
 
-                         "Keeping items at even positions"
-                         ($.test.eval/result* (do
-                                                (def n-mapcat
-                                                     -1)
-                                                (def n-reduce
-                                                     -1)
-                                                (defn even? [x]
-                                                  (zero? (mod x
-                                                              2)))
-                                                (let [coll (quote ~coll)]
-                                                  (= (vec (mapcat (fn [x]
-                                                                    (def n-mapcat
-                                                                         (inc n-mapcat))
-                                                                    (when (even? n-mapcat)
-                                                                      [x]))
-                                                                  coll))
-                                                     (reduce (fn [acc x]
-                                                               (def n-reduce
-                                                                    (inc n-reduce))
-                                                               (if (even? n-reduce)
-                                                                 (conj acc
-                                                                       x)
-                                                                 acc))
-                                                             []
-                                                             coll))))))))
-
-
-
-($.test.prop/deftest ^:recur mapping
-
-  ($.test.prop/check :convex/collection
-                     (fn [coll]
-                       (let [ctx ($.test.eval/ctx* (do
-                                                     (def coll
-                                                          (quote ~coll))
-                                                     (def vect
-                                                          (vec coll))
-                                                     (def modified
-                                                          (mapv vector
-                                                                coll))))]
-                         ($.test.prop/mult*
-
-                           "`for` to recreate collection as vector"
-                           ($.test.eval/result ctx
-                                               '(= vect
-                                                   (for [x coll]
-                                                     x)))
-
-                           "`for` to modify collection"
-                           ($.test.eval/result ctx
-                                               '(= modified
-                                                   (for [x coll]
-                                                     [x])))
-
-                           "`mapv` with identity"
-                           ($.test.eval/result ctx
-                                               '(= vect
-                                                   (mapv identity
-                                                         coll)))
-
-                           "`mapv` to modify collection"
-                           ($.test.eval/result ctx
-                                               '(= modified
-                                                   (mapv vector
-                                                         coll)))
-
-                           "`mapcat`"
-                           ($.test.prop/and* ($.test.prop/checkpoint* "Modifies collection"
-                                                                      ($.test.eval/result ctx
-                                                                                          '(= modified
-                                                                                              (vec (mapcat (fn [x]
-                                                                                                             [[x]])
-                                                                                                           coll)))))
-                                             (let [ctx-2 ($.test.eval/ctx ctx
-                                                                          '(def -mapcat
-                                                                                (mapcat vector
-                                                                                        coll)))]
-
-                                               (if (seq? coll)
-                                                 ($.test.prop/mult*
-
-                                                   "Produces a list"
-                                                   ($.test.eval/result ctx-2
-                                                                       '(list? -mapcat))
-                                                   "List is recreated"
-                                                   ($.test.eval/result ctx-2
-                                                                       '(= coll
-                                                                           -mapcat)))
-                                                 ($.test.prop/mult*
-
-                                                   "Produces a vector"
-                                                   ($.test.eval/result ctx-2
-                                                                       '(vector? -mapcat))
-
-                                                   "Recreates collection as a vector"
-                                                   ($.test.eval/result ctx-2
-                                                                       '(= vect
-                                                                           -mapcat)))))))))))
+      "Keeping items at even positions"
+      ($.test.eval/result* (do
+                             (def n-mapcat
+                                  -1)
+                             (def n-reduce
+                                  -1)
+                             (defn even? [x]
+                               (zero? (mod x
+                                           2)))
+                             (let [coll ~coll]
+                               (= (vec (mapcat (fn [x]
+                                                 (def n-mapcat
+                                                      (inc n-mapcat))
+                                                 (when (even? n-mapcat)
+                                                   [x]))
+                                               coll))
+                                  (reduce (fn [acc x]
+                                            (def n-reduce
+                                                 (inc n-reduce))
+                                            (if (even? n-reduce)
+                                              (conj acc
+                                                    x)
+                                              acc))
+                                          []
+                                          coll))))))))
 
 
 
-($.test.prop/deftest ^:recur merge--
+($.test.prop/deftest mapping
 
-  ($.test.prop/check [:vector
-                      [:or
-                       :convex/map
-                       :convex/nil]]
-                     (fn [x]
-                       (let [ctx ($.test.eval/ctx* (do
-                                                     (def arg+
-                                                          (quote ~x))
-                                                     (def -merge
-                                                          (apply merge
-                                                                 arg+))))]
-                         ($.test.prop/mult*
+  (TC.prop/for-all [coll $.gen/collection]
+    (let [ctx ($.test.eval/ctx* (do
+                                  (def coll
+                                       ~coll)
+                                  (def vect
+                                       (vec coll))
+                                  (def modified
+                                       (mapv vector
+                                             coll))))]
+      ($.test.prop/mult*
 
-                           "Count of merge cannot be bigger than all involved key-values"
-                           ($.test.eval/result ctx
-                                               '(<= (count -merge)
-                                                    (reduce (fn [acc arg]
-                                                              (+ acc
-                                                                 (count arg)))
-                                                            0
-                                                            arg+)))
+        "`for` to recreate collection as vector"
+        ($.test.eval/result ctx
+                            '(= vect
+                                (for [x coll]
+                                  x)))
 
-                           "All key-values in merged result must be in at least one input"
-                           ($.test.eval/result ctx
-                                               '($/every? (fn [[k v]]
-                                                            ($/some (fn [arg]
-                                                                      (and (= v
-                                                                              (get arg
-                                                                                   k))
-                                                                           (if (nil? arg)
-                                                                             true
-                                                                             (= v
-                                                                                (arg k)))))
-                                                                    arg+))
-                                                          -merge)))))))
+        "`for` to modify collection"
+        ($.test.eval/result ctx
+                            '(= modified
+                                (for [x coll]
+                                  [x])))
 
+        "`mapv` with identity"
+        ($.test.eval/result ctx
+                            '(= vect
+                                (mapv identity
+                                      coll)))
 
+        "`mapv` to modify collection"
+        ($.test.eval/result ctx
+                            '(= modified
+                                (mapv vector
+                                      coll)))
 
-($.test.prop/deftest ^:recur reduce--
+        "`mapcat`"
+        ($.test.prop/and* ($.test.prop/checkpoint* "Modifies collection"
+                                                   ($.test.eval/result ctx
+                                                                       '(= modified
+                                                                           (vec (mapcat (fn [x]
+                                                                                          [[x]])
+                                                                                        coll)))))
+                          (let [ctx-2 ($.test.eval/ctx ctx
+                                                       '(def -mapcat
+                                                             (mapcat vector
+                                                                     coll)))]
 
-  ($.test.prop/check [:and
-                      :convex/collection
-                      [:fn #(pos? (count %))]]
-                     (fn [x]
-                       ($.test.eval/result* (let [x (quote ~x)
-                                                  v (nth x
-                                                         ~(rand-int (count x)))]
-                                              (= v
-                                                 (reduce (fn [acc item]
-                                                           (if (= item
-                                                                  v)
-                                                             (reduced item)
-                                                             acc))
-                                                         :convex-sentinel
-                                                         x)))))))
-                        
+                            (if (seq? coll)
+                              ($.test.prop/mult*
 
-;;;;;;;;;;
+                                "Produces a list"
+                                ($.test.eval/result ctx-2
+                                                    '(list? -mapcat))
+                                "List is recreated"
+                                ($.test.eval/result ctx-2
+                                                    '(= coll
+                                                        -mapcat)))
+                              ($.test.prop/mult*
 
+                                "Produces a vector"
+                                ($.test.eval/result ctx-2
+                                                    '(vector? -mapcat))
 
-;; Creating collections
-
-; blob-map
-; hash-map
-; hash-set
-; list
-; vector
-
-;; Associative operations (with lists as well)
-
-; assoc
-; assoc-in
-; contains-key?
-; get
-; get-in
-
-;; Map operations
+                                "Recreates collection as a vector"
+                                ($.test.eval/result ctx-2
+                                                    '(= vect
+                                                        -mapcat))))))))))
 
 
-; dissoc
-; keys
-; merge
-; values
 
-;; Misc operations
+($.test.prop/deftest merge--
 
-; concat
-; conj
-; cons
-; count
-; empty
-; empty?
-; first
-; into
-; last
-; map && mapv
-; next
-; nth
-; reduce
-; reduced
-; second
+  (TC.prop/for-all [x+ (TC.gen/vector (TC.gen/one-of [$.gen/map
+                                                      $.gen/nothing])
+                                      0
+                                      16)]
+    (let [ctx ($.test.eval/ctx* (do
+                                  (def arg+
+                                       ~x+)
+                                  (def merge-
+                                       (merge ~@x+))))]
+      ($.test.prop/mult*
+
+        "Count of merge cannot be bigger than all involved key-values"
+        ($.test.eval/result ctx
+                            '(<= (count merge-)
+                                 (reduce (fn [acc arg]
+                                           (+ acc
+                                              (count arg)))
+                                         0
+                                         arg+)))
+
+        "All key-values in merged result must be in at least one input"
+        ($.test.eval/result ctx
+                            '($/every? (fn [[k v]]
+                                         ($/some (fn [arg]
+                                                   (and (= v
+                                                           (get arg
+                                                                k))
+                                                        (if (nil? arg)
+                                                          true
+                                                          (= v
+                                                             (arg k)))))
+                                                 arg+))
+                                       merge-))))))
+
+
+
+($.test.prop/deftest reduce--
+
+  (TC.prop/for-all [percent $.test.gen/percent
+                    x       (TC.gen/such-that #(not ($.form/empty? %))
+                                              $.gen/collection)]
+    ($.test.eval/result* (let [x ~x
+                               v (nth x
+                                      (long (floor (* ~percent
+                                                      (dec (count x))))))]
+                           (= v
+                              (reduce (fn [acc item]
+                                        (if (= item
+                                               v)
+                                          (reduced item)
+                                          acc))
+                                      :convex-sentinel
+                                      x))))))
