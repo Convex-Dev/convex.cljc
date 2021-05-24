@@ -4,10 +4,12 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.lisp.form        :as $.form]
-            [convex.lisp.test.eval   :as $.test.eval]
-            [convex.lisp.test.prop   :as $.test.prop]
-            [convex.lisp.test.schema :as $.test.schema]))
+  (:require [clojure.test.check.generators :as TC.gen]
+            [clojure.test.check.properties :as TC.prop]
+            [convex.lisp.form              :as $.form]
+            [convex.lisp.gen               :as $.gen]
+            [convex.lisp.test.eval         :as $.test.eval]
+            [convex.lisp.test.prop         :as $.test.prop]))
 
 
 ;;;;;;;;;; Helpers
@@ -83,79 +85,68 @@
 ;;;;;;;;;; Tests
 
 
-;; TODO. Fail, not core symbols
-;;
-#_($.test.prop/deftest dotimes--
+($.test.prop/deftest dotimes--
 
-  ($.test.prop/check [:and
-                      [:tuple
-                       :convex/symbol
-                       :convex/symbol
-                       :convex/number]
-                      [:fn (fn [[bind counter n]]
-                             (and (not= bind
-                                        counter)
-                                  (>= n
-                                      0)))]]
-                     (fn [[bind counter n]]
-                       ($.test.eval/result* (do
-                                              (def ~counter
-                                                   0)
-                                              (dotimes [~bind ~n]
-                                                (def ~counter
-                                                     (+ ~counter
-                                                        1)))
-                                              (== ~counter
-                                                  (floor ~n)))))))
+  (TC.prop/for-all [n             (TC.gen/double* {:infinite? false
+                                                   :max       1e3
+                                                   :min       0
+                                                   :NaN?      false})
+                    [sym-bind
+                     sym-counter] (TC.gen/vector-distinct $.gen/symbol
+                                                          {:num-elements 2})]
+    ($.test.eval/result* (do
+                           (def ~sym-counter
+                                0)
+                           (dotimes [~sym-bind ~n]
+                             (def ~sym-counter
+                                  (+ ~sym-counter
+                                     1)))
+                           (== ~sym-counter
+                               (floor ~n))))))
 
 
 
-($.test.prop/deftest ^:recur recur--
+($.test.prop/deftest recur--
 
-  ($.test.prop/check [:vector
-                      {:max 5
-                       :min 1}
-                      [:map
-                       [:fixed+      ($.test.schema/binding+ 0)]
-                       [:fn-wrap?    :boolean]
-                       [:n           [:int
-                                      {:max 5
-                                       :min 0}]]
-                       [:recur-point [:enum
-                                      :fn
-                                      :loop]]
-                       [:sym         [:and
-                                      :convex/symbol
-                                      [:not [:enum
-                                             '+
-                                             '=
-                                             'fail
-                                             'inc
-                                             'recur]]]]]]
-                     (fn [looping+]
-                       (= (-> looping+
-                              first
-                              :n)
-                          ($.test.eval/result (-recur looping+))))))
+  (TC.prop/for-all [looping+ (TC.gen/vector (TC.gen/hash-map :fixed+      ($.gen/binding+ 0
+                                                                                          16)
+                                                             :fn-wrap?    $.gen/boolean
+                                                             :n           (TC.gen/choose 0
+                                                                                         5)
+                                                             :recur-point (TC.gen/elements [:fn
+                                                                                            :loop])
+                                                             :sym         (TC.gen/such-that #(not (#{'+
+                                                                                                     '=
+                                                                                                     'fail
+                                                                                                     'inc
+                                                                                                     'recur}
+                                                                                                    %))
+                                                                                            $.gen/symbol))
+                                            1
+                                            5)]
+    (= (-> looping+
+           first
+           :n)
+       ($.test.eval/result (-recur looping+)))))
 
 
 
-($.test.prop/deftest ^:recur reduce--
+($.test.prop/deftest reduce--
 
-  ($.test.prop/check [:and
-                      ;; TODO. Should be all collections but fails because of sets: https://github.com/Convex-Dev/convex/issues/109
-                      ;:convex/collection
-                      :convex/vector
-                      [:fn #(pos? (count %))]]
-                     (fn [x]
-                       ($.test.eval/result* (let [x '~x
-                                                  v (nth x
-                                                         ~(rand-int (count x)))]
-                                              (= v
-                                                 (reduce (fn [acc item]
-                                                           (if (= item
-                                                                  v)
-                                                             (reduced item)
-                                                             acc))
-                                                         :convex-sentinel
-                                                         x)))))))
+  (TC.prop/for-all [x (TC.gen/such-that #(not-empty (cond->
+                                                      %
+                                                      (seq? %)
+                                                      rest))
+                                        $.gen/collection)]
+
+    ($.test.eval/result* (let [x '~x
+                               v (nth x
+                                      ~(rand-int (count x)))]
+                           (= v
+                              (reduce (fn [acc item]
+                                        (if (= item
+                                               v)
+                                          (reduced item)
+                                          acc))
+                                      :convex-sentinel
+                                      x))))))
