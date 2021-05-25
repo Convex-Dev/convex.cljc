@@ -30,11 +30,11 @@
    | `:max-size` | Maximum size used by `test.check` | 5 |
    | `:root` | Path where error files will be stored as EDN | `\"report/fuzz\" |"
 
-  [opt+]
+  [option+]
 
-  (let [max-size     (or (opt+ :max-size)
+  (let [max-size     (or (:max-size option+)
                          5)
-        root         (or (opt+ :root)
+        root         (or (:root option+)
                          "report/fuzz")
         d*ensure-dir (delay
                        (.mkdirs (File. root)))
@@ -43,7 +43,7 @@
                        ($.eval/value ctx
                                      form)
                        true)
-        a*print      (agent nil)
+        a*print      (agent 0)
         n-core       (.availableProcessors (Runtime/getRuntime))]
     (println \newline
              (format "Starting robustness fuzzy tester on %d core(s), saving errors to '%s'"
@@ -52,17 +52,25 @@
     (dotimes [_ n-core]
       (future
         (while true
-          (let [result (tc/quick-check 1e6
+          (let [result (tc/quick-check 1e4
                                        prop
                                        :max-size max-size)]
+            (send a*print
+                  (fn [n-test]
+                    (let [n-test-2 (+ n-test
+                                      (long (result :num-tests)))]
+                      (println (format "Total number of tests: %d"
+                                       n-test-2))
+                      n-test-2)))
             (when-not (result :pass?)
               (let [path (format "%s/%s.edn"
                                  root
                                  (System/currentTimeMillis))]
                 (send a*print
-                      (fn [_]
+                      (fn [n-test]
                         (println (format "Saving error to '%s'"
-                                         path))))
+                                         path))
+                        n-test))
                 @d*ensure-dir
                 (clojure.pprint/pprint result
                                        (clojure.java.io/writer path))))))))))
