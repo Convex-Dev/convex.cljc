@@ -3,6 +3,7 @@
   "Executing some Convex Lisp code against a test CVM."
 
   (:require [convex.lisp]
+            [convex.lisp.ctx]
             [convex.lisp.eval]
             [convex.lisp.eval.src]
             [convex.lisp.form]))

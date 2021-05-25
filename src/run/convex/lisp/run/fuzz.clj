@@ -12,8 +12,7 @@
             [clojure.test.check.properties :as tc.prop]
             [convex.lisp.ctx               :as $.ctx]
             [convex.lisp.eval              :as $.eval]
-            [convex.lisp.schema            :as $.schema]
-            [malli.generator               :as malli.gen])
+            [convex.lisp.gen               :as $.gen])
   (:import java.io.File))
 
 
@@ -40,12 +39,10 @@
         d*ensure-dir (delay
                        (.mkdirs (File. root)))
         ctx          ($.ctx/create-fake)
-        prop         (tc.prop/for-all* [(malli.gen/generator :convex.core/call
-                                                             {:registry ($.schema/registry)})]
-                                       (fn [x]
-                                         ($.eval/value ctx
-                                                       x)
-                                         true))
+        prop         (tc.prop/for-all [form ($.gen/random-call)]
+                       ($.eval/value ctx
+                                     form)
+                       true)
         a*print      (agent nil)
         n-core       (.availableProcessors (Runtime/getRuntime))]
     (println \newline

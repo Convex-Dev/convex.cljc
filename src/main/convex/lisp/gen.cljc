@@ -523,7 +523,7 @@
                     '*depth*
                     '*exports*
                     '*holdings*
-                    '*initial-expander*
+                    ;'*initial-expander* ;; TODO. https://github.com/Convex-Dev/convex/issues/150
                     '*juice*
                     '*key*
                     '*memory*
@@ -547,7 +547,7 @@
                     'accept
                     'account
                     'account?
-                    'actor
+                    ;'actor
                     'actor?
                     'address
                     'address?
@@ -594,16 +594,16 @@
                     'empty
                     'empty?
                     'encoding
-                    ;'eval
+                    'eval
                     'eval-as
                     'exp
-                    'expand
+                    ;'expand ;; TODO. https://github.com/Convex-Dev/convex/issues/149
                     'export
                     'exports?
                     'fail
                     'first
                     'floor
-                    'fn
+                    ;'fn
                     'fn?
                     'for
                     'get
@@ -620,7 +620,7 @@
                     'import
                     'inc
                     'intersection
-                    'into
+                    ;'into
                     'keys
                     'keyword
                     'keyword?
