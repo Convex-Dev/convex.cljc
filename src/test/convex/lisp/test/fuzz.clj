@@ -7,10 +7,12 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.lisp.form        :as $.form]
-            [convex.lisp.test.eval   :as $.test.eval]
-            [convex.lisp.test.prop   :as $.test.prop]
-            [convex.lisp.test.schema :as $.test.schema]))
+  (:require [clojure.test.check.properties :as TC.prop]
+            [convex.lisp.form              :as $.form]
+            [convex.lisp.gen               :as $.gen]
+            [convex.lisp.test.eval         :as $.test.eval]
+            [convex.lisp.test.prop         :as $.test.prop]
+            [convex.lisp.test.schema       :as $.test.schema]))
 
 
 ;;;;;;;;;;
@@ -37,15 +39,14 @@
 
 
 
-#_($.test.prop/deftest ^:recur random
+($.test.prop/deftest random
 
   ;; Generating randorm forms that should either fail or succeed on the CVM, but no
   ;; JVM exception should be thrown without being handled.
 
-  ($.test.prop/check :convex.core/call
-                     (fn [x]
-                       ($.test.eval/value x)
-                       true)))
+  (TC.prop/for-all [form ($.gen/random-call)]
+    ($.test.eval/value form)
+    true))
 
 
 
