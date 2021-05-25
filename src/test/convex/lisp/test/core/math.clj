@@ -10,10 +10,13 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.test          :as t]
-            [convex.lisp.test.eval :as $.test.eval]
-            [convex.lisp.test.prop :as $.test.prop]
-            [convex.lisp.test.util :as $.test.util]))
+  (:require [clojure.test                  :as t]
+            [clojure.test.check.generators :as TC.gen]
+            [clojure.test.check.properties :as TC.prop]
+            [convex.lisp.gen               :as $.gen]
+            [convex.lisp.test.eval         :as $.test.eval]
+            [convex.lisp.test.prop         :as $.test.prop]
+            [convex.lisp.test.util         :as $.test.util]))
 
 
 ;;;;;;;;;; Reusing properties
@@ -30,21 +33,18 @@
 
   [form]
 
-  ($.test.prop/check [:vector
-                      {:min 1}
-                      :convex/long]
-                     (fn [x]
-                       ($.test.prop/mult*
-                         
-                         "Numerical computation of longs must result in a long"
-                         (int? ($.test.eval/result (list* form
-                                                          x)))
+  (TC.prop/for-all [x+ (TC.gen/vector $.gen/long
+                                      1
+                                      16)]
+    ($.test.prop/mult*
+      
+      "Numerical computation of longs must result in a long"
+      ($.test.eval/result* (long? (~form ~@x+)))
 
-                         "Numerical computation with at least one double must result in a double"
-                         (double? ($.test.eval/result (list* form
-                                                             (update x
-                                                                     (rand-int (dec (count x)))
-                                                                     double))))))))
+      "Numerical computation with at least one double must result in a double"
+      (double? ($.test.eval/result* (~form ~@(update x+
+                                                     (rand-int (dec (count x+)))
+                                                     double)))))))
 
 
 
@@ -55,12 +55,12 @@
 
   [form f]
 
-  ($.test.prop/check [:vector
-                      {:min 1}
-                      :convex/number]
-                     (partial $.test.eval/like-clojure?
-                              form
-                              f)))
+  (TC.prop/for-all [x+ (TC.gen/vector $.gen/number
+                                      1
+                                      16)]
+    ($.test.eval/like-clojure? form
+                               f
+                               x+)))
 
 
 ;;;;;;;;;; Arithmetic operators
@@ -86,12 +86,10 @@
 
 ($.test.prop/deftest div--
 
-  ($.test.prop/check [:vector
-                      {:min 1}
-                      :convex/number]
-                     (fn [x]
-                       (double? ($.test.eval/result (list* '/
-                                                           x))))))
+  (TC.prop/for-all [x+ (TC.gen/vector $.gen/number
+                                      1
+                                      16)]
+    (double? ($.test.eval/result* (/ ~@x+)))))
 
 
 ;;;;;;;;;; Comparators
@@ -164,167 +162,99 @@
 
 ($.test.prop/deftest exp--
 
-  ($.test.prop/check [:tuple :convex/number]
-                     (partial $.test.eval/like-clojure?
-                              'exp
-                              #(StrictMath/exp %))))
+  (TC.prop/for-all [x $.gen/number]
+    ($.test.eval/like-clojure? 'exp
+                               #(StrictMath/exp %)
+                               [x])))
 
 
 
 ($.test.prop/deftest pow--
 
-  ($.test.prop/check [:tuple
-                      :convex/number
-                      :convex/number]
-                     (fn [[x y]]
-                       ($.test.util/eq (StrictMath/pow x
-                                                       y)
-                                       ($.test.eval/result (list 'pow
-                                                                 x
-                                                                 y))))))
-
-
-
-#_($.test.prop/deftest ^:recur pow--fail
-
-  ;; TODO. Failing, see https://github.com/Convex-Dev/convex/issues/89.
-
-  ($.test.prop/check [:and
-                      [:vector
-                       {:max 2
-                        :min 2}
-                       :convex/data]
-                      [:fn
-                       #(not (every? number?
-                                     %))]]
-                     (fn [[x y]]
-                       ($.test.eval/exceptional (list 'pow
-                                                      x
-                                                      y)))))
+  (TC.prop/for-all [x $.gen/number
+                    y $.gen/number]
+    ($.test.eval/like-clojure? 'pow
+                               #(StrictMath/pow %1
+                                                %2)
+                               [x
+                                y])))
 
 
 
 ($.test.prop/deftest sqrt--
 
-  ($.test.prop/check [:tuple :convex/number]
-                     (partial $.test.eval/like-clojure?
-                              'sqrt
-                              #(StrictMath/sqrt %))))
+  (TC.prop/for-all [x $.gen/number]
+    ($.test.eval/like-clojure? 'sqrt
+                               #(StrictMath/sqrt %)
+                               [x])))
 
 
 ;;;;;;;;;; Increment / decrement
 
 
-#_($.test.prop/deftest dec--double
+($.test.prop/deftest dec--
 
-  ;; TODO. Doubles are not valid argument? 
+  (TC.prop/for-all [x $.gen/long]
+    (let [ctx ($.test.eval/ctx* (def dec-
+                                     (dec ~x)))]
+      ($.test.prop/mult*
 
-  ;; Unintuitive behavior. When sufficiently small double, is cast to 0.
-  ;; Not small enough, get cast to `Long/MIN_VALUE` and underflows.
+        "Returns a long"
+        ($.test.eval/result ctx
+                            '(long? dec-))
 
-  ($.test.prop/check [:double
-                      {:min (double Long/MIN_VALUE)}]
-                     (fn [x]
-                       (let [x-2 ($.test.eval/result (list 'dec
-                                                           x))]
-                         ($.test.prop/mult*
-                            
-                            "Result is always a long"
-                            (int? x-2)
+        "Consistent with `-`"
+        ($.test.eval/result* ctx
+                             (= dec-
+                                (- ~x
+                                   1)))
 
-                            "Decrement higher than maximum long"
-                            (if (>= x
-                                    Long/MAX_VALUE)
-                              (= x-2
-                                 (dec Long/MAX_VALUE))
-                              true)
+        "Consisent with `+`"
+        ($.test.eval/result* ctx
+                             (= dec-
+                                (+ ~x
+                                   -1)))
 
-                            "Decrement in long range"
-                            (if (< Long/MIN_VALUE
-                                   x
-                                  Long/MAX_VALUE)
-                             (= x-2
-                                (dec (long x)))
-                             true))))))
-
-
-
-#_(t/deftest dec--double-underflow
-
-  (t/is (= Long/MAX_VALUE
-           ($.test.eval/result (list 'dec
-                                     (double Long/MIN_VALUE))))))
+        "Decrement or underflow"
+        (= ($.test.eval/result ctx
+                               'dec-)
+           (if (= x
+                  Long/MIN_VALUE)
+             Long/MAX_VALUE
+             (dec x)))))))
 
 
 
-($.test.prop/deftest dec--long
+($.test.prop/deftest inc--
 
-  ($.test.prop/check :convex/long
-                     (fn [x]
-                       (let [x-2 ($.test.eval/result (list 'dec
-                                                           x))]
-                         ($.test.prop/mult*
+  (TC.prop/for-all [x $.gen/long]
+    (let [ctx ($.test.eval/ctx* (def inc-
+                                     (inc ~x)))]
+      ($.test.prop/mult*
 
-                           "Result is always a long"
-                           (int? x-2)
+        "Returns a long"
+        ($.test.eval/result ctx
+                            '(long? inc-))
 
-                           "Decrement or underflow"
-                           (= x-2
-                              (if (= x
-                                     Long/MIN_VALUE)
-                                Long/MAX_VALUE
-                                (dec x))))))))
+        "Consistent with `-`"
+        ($.test.eval/result* ctx
+                             (= inc-
+                                (- ~x
+                                   -1)))
+        
+        "Consistent with `+`"
+        ($.test.eval/result* ctx
+                             (= inc-
+                                (+ ~x
+                                   1)))
 
-
-
-#_($.test.prop/deftest inc--double
-
-  ;; See [[dec-double]].
-
-  ($.test.prop/check [:double
-                      {:min (double Long/MIN_VALUE)}]
-                     (fn [x]
-                       (let [x-2 ($.test.eval/result (list 'inc
-                                                           x))]
-                         ($.test.prop/mult*
-
-                           "Result is always a long"
-                           (int? x-2)
-
-                           "Overflow"
-                           (if (>= x
-                                   Long/MAX_VALUE)
-                             (= x-2
-                                Long/MIN_VALUE)
-                             true)
-
-                           "Increment in long range"
-                           (if (< Long/MIN_VALUE
-                                  x
-                                  Long/MAX_VALUE)
-                             (= x-2
-                                (inc (long x)))
-                             true))))))
-
-
-
-($.test.prop/deftest inc--long
-
-  ($.test.prop/check :convex/long
-                     (fn [x]
-                       (let [x-2 ($.test.eval/result (list 'inc
-                                                           x))]
-                         ($.test.prop/mult*
-
-                           "Result is always a long"
-                           (int? x-2)
-
-                           "Increment or overflow"
-                           (= x-2
-                              (if (= x
-                                     Long/MAX_VALUE)
-                                Long/MIN_VALUE
-                                (inc x))))))))
+        "Increment or overflow"
+        (= ($.test.eval/result ctx
+                               'inc-)
+           (if (= x
+                  Long/MAX_VALUE)
+             Long/MIN_VALUE
+             (inc x)))))))
 
 
 ;;;;;;;;;; Integer operations
@@ -334,75 +264,66 @@
 
   ;; Testing `mod` and `quot`.
 
-  ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/120#issuecomment-841614210
+  (TC.prop/for-all [a $.gen/long
+                    b (TC.gen/such-that #(not (zero? %))
+                                        $.gen/long)]
+    (let [ctx ($.test.eval/ctx* (do
+                                  (def a
+                                       ~a)
+                                  (def b
+                                       ~b)
+                                  (def -mod
+                                       (mod a
+                                            b))
+                                  (def -quot
+                                       (quot a
+                                             b))
+                                  (def -rem
+                                       (rem a
+                                            b))))]
+      ($.test.prop/mult*
 
-  ($.test.prop/check [:tuple
-                      :convex/long
-                      [:and
-                       :convex/long
-                       [:fn #(not (zero? %))]]]
-                     (fn [[a b]]
-                       (let [ctx ($.test.eval/ctx* (do
-                                                     (def a
-                                                          ~a)
-                                                     (def b
-                                                          ~b)
-                                                     (def -mod
-                                                          (mod a
-                                                               b))
-                                                     (def -quot
-                                                          (quot a
-                                                                b))
-                                                     (def -rem
-                                                          (rem a
-                                                               b))))]
-                         ($.test.prop/mult*
+        "`mod` produces a long"
+        ($.test.eval/result ctx
+                            '(long? -mod))
 
-                           "`mod` produces a long"
-                           ($.test.eval/result ctx
-                                               '(long? -mod))
+        "`quot` produces a long"
+        ($.test.eval/result ctx
+                            '(long? -quot))
 
-                           "`quot` produces a long"
-                           ($.test.eval/result ctx
-                                               '(long? -quot))
+        "`rem` produces a long"
+        ($.test.eval/result ctx
+                            '(long? -rem))
 
-                           "`rem` produces a long"
-                           ($.test.eval/result ctx
-                                               '(long? -rem))
+        "`quot` is consistent with Clojure"
+        (= (quot a
+                 b)
+           ($.test.eval/result ctx
+                               '-quot))
 
-                           "`quot` is consistent with Clojure"
-                           (= (quot a
-                                    b)
-                              ($.test.eval/result ctx
-                                                  '-quot))
+        "`rem` is consistent with Clojure"
+        (= (rem a
+                b)
+           ($.test.eval/result ctx
+                               '-rem))
 
-                           "`rem` is consistent with Clojure"
-                           (= (rem a
-                                   b)
-                              ($.test.eval/result ctx
-                                                  '-rem))
-
-                           "`quot` and `rem` are consistent"
-                           ($.test.eval/result ctx
-                                               '(= a
-                                                   (+ -rem
-                                                      (* b
-                                                         -quot)))))))))
+        "`quot` and `rem` are consistent"
+        ($.test.eval/result ctx
+                            '(= a
+                                (+ -rem
+                                   (* b
+                                      -quot))))))))
 
 
 ;;;;;;;;;; Miscellaneous
 
 
-($.test.prop/deftest ^:recur zero?--false
+($.test.prop/deftest zero?--false
 
-  ($.test.prop/check [:and
-                      :convex/data
-                      ; TODO. Cannot use `:fn` because of: https://github.com/metosin/malli/issues/442
-                      [:not [:= 0]]
-                      [:not [:= 0.0]]
-                      #_[:fn #(not (zero? %))]]
-                     (fn [x]
-                       ($.test.eval/result* (not (zero? (quote ~x)))))))
+  (TC.prop/for-all [x (TC.gen/such-that #(not (and (number? %)
+                                                   (zero? %)))
+                                        $.gen/any)]
+    ($.test.eval/result* (not (zero? ~x)))))
 
 
 
@@ -416,19 +337,19 @@
 
 ($.test.prop/deftest ceil--
 
-  ($.test.prop/check [:tuple :convex/number]
-                     (partial $.test.eval/like-clojure?
-                              'ceil
-                              #(StrictMath/ceil %))))
+  (TC.prop/for-all [x $.gen/number]
+    ($.test.eval/like-clojure? 'ceil
+                               #(StrictMath/ceil %)
+                               [x])))
 
 
 
 ($.test.prop/deftest floor--
 
-  ($.test.prop/check [:tuple :convex/number]
-                     (partial $.test.eval/like-clojure?
-                              'floor
-                              #(StrictMath/floor %))))
+  (TC.prop/for-all [x $.gen/number]
+    ($.test.eval/like-clojure? 'floor
+                               #(StrictMath/floor %)
+                               [x])))
 
 
 ;;;;;;;;;; Sign operations
@@ -436,22 +357,21 @@
 
 ($.test.prop/deftest abs--
 
-  ($.test.prop/check [:and
-                      :convex/number
-                      [:fn
-                       #(not (Double/isNaN %))]]
-                     (fn [x]
-                       (let [x-2 ($.test.eval/result (list 'abs
-                                                           x))]
-                         ($.test.prop/mult*
+  (TC.prop/for-all [x (TC.gen/such-that #(not (Double/isNaN %))
+                                        $.gen/number)]
+    (let [ctx ($.test.eval/ctx* (def abs-
+                                     (abs ~x)))]
+      ($.test.prop/mult*
 
-                           "Must be positive"
-                           (>= x-2
-                               0)
+        "Must be positive"
+        ($.test.eval/result* ctx
+                             (>= abs-
+                                 0))
 
-                           "Type is preserved"
-                           (= (type x-2)
-                              (type x)))))))
+        "Type is preserved"
+        (= (type ($.test.eval/result ctx
+                                     'abs-))
+           (type x))))))
 
 
 
@@ -464,27 +384,9 @@
 
 #_($.test.prop/deftest signum--
 
-  ;; TODO. Fail because of: https://github.com/Convex-Dev/convex/issues/100
+  ;; TODO. Fail because of: https://github.com/Convex-Dev/convex/issues/147
 
-  ($.test.prop/check :convex/number
-                     (fn [x]
-                       (let [x-2 ($.test.eval/result (list 'signum
-                                                           x))]
-                         ($.test.prop/mult*
-
-                           "Negative"
-                           (if (neg? x)
-                             (= -1
-                                x-2)
-                             true)
-
-                           "Positive"
-                           (if (pos? x)
-                             (= 1
-                                x-2)
-                             true)
-
-                           "Zero"
-                           (if (zero? x)
-                             (zero? x-2)
-                             true))))))
+  (TC.prop/for-all [x $.gen/number]
+    ($.test.eval/result* (= ~x
+                            (* (abs ~x)
+                               (signum ~x))))))
