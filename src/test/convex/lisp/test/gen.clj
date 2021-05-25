@@ -54,6 +54,24 @@
                                                            (count k+)))))))
 
 
+
+(def maybe-map
+
+  "Either a map or nil."
+
+  (TC.gen/one-of [$.gen/map
+                  $.gen/nothing]))
+
+
+
+(def maybe-set
+
+  "Either a set or nil."
+
+  (TC.gen/one-of [$.gen/nothing
+                  $.gen/set]))
+
+
 (def percent
 
   "Value between 0 and 1 (inclusive)."

@@ -1028,8 +1028,7 @@
 
   ;; TODO. Currently, empty path returns the value. Keep an eye on: https://github.com/Convex-Dev/convex/issues/96
 
-  (TC.prop/for-all [x    (TC.gen/one-of [$.gen/map
-                                         $.gen/nothing])
+  (TC.prop/for-all [x    $.test.gen/maybe-map
                     path $.gen/sequential
                     v    $.gen/any]
     (-eval-assoc-in (cond->
