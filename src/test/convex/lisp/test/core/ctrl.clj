@@ -153,13 +153,15 @@
 ($.test.prop/deftest fail--
 
   (TC.prop/for-all [n       gen-nest
-                    code    $.gen/keyword
+                    code    (TC.gen/such-that some?
+                                              $.gen/any)
                     message $.gen/any
                     x-ploy  $.gen/any]
-    (let [exec (fn [form]
-                 ($.test.eval/error (-nested-fn n
-                                                form
-                                                x-ploy)))]
+    (let [exec      (fn [form]
+                      ($.test.eval/error (-nested-fn n
+                                                     form
+                                                     x-ploy)))
+          message-2 ($.test.eval/result message)]
       ($.test.prop/and* ($.test.prop/checkpoint*
   
                           "Without code"
@@ -172,7 +174,7 @@
                                  (ret :convex.error/code))
 
                               "Message"
-                              ($.test.util/eq ($.test.eval/result message)
+                              ($.test.util/eq message-2
                                               (ret :convex.error/message)))))
 
                         ($.test.prop/checkpoint*
@@ -184,11 +186,11 @@
                             ($.test.prop/mult*
 
                               "Code"
-                              (= code
-                                 (ret :convex.error/code))
+                              ($.test.util/eq ($.test.eval/result code)
+                                              (ret :convex.error/code))
 
                               "Message"
-                              ($.test.util/eq ($.test.eval/result message)
+                              ($.test.util/eq message-2
                                               (ret :convex.error/message)))))))))
 
 
