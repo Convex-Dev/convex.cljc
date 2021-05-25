@@ -32,7 +32,6 @@
                       [convex.lisp.test.fuzz]
                       [convex.lisp.test.gen]
                       [convex.lisp.test.prop]
-                      [convex.lisp.test.schema        :as $.test.schema]
                       [convex.lisp.test.util]
 			          [clojure.data]])
             [clojure.pprint]
@@ -93,9 +92,5 @@
   ($.eval/result ($.ctx/create-fake)
                  '(syntax? (first (quote #{42})))
                  )
-
-
-
-  ($/read ($.form/src ($.form/templ* (fn [] [] #{} -1 [] ~($.form/blob "") {} "" [] {} \ñ ~($.form/blob "") ~($.form/address 0)))))
 
   ))

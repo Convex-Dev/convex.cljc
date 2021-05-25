@@ -281,13 +281,13 @@
                           '(= holding
                               (get-holding addr)))
    
-      ;; TODO. Keep an eye on: https://github.com/Convex-Dev/convex/issues/131
-      ;;
       "`set-holding` is consistent with `account`"
       ($.test.eval/result ctx
-                          '(= (assoc (blob-map)
-                                     *address*
-                                     holding)
+                          '(= (if (nil? holding)
+                                (blob-map)
+                                (assoc (blob-map)
+                                       *address*
+                                       holding))
                               (:holdings (account addr))))
    
       "Removing holding"

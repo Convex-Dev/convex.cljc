@@ -193,15 +193,19 @@
 
   (prop-coerce 'long
                'long?
-               unchecked-long
                int?
-               :convex/number))
+               (TC.gen/one-of [$.gen/address
+                               $.gen/boolean
+                               $.gen/byte
+                               $.gen/char
+                               $.gen/double
+                               $.gen/long])))
 
 
 
 ;; TODO. Currently failing, see #77
 ;;
-#_($.test.prop/deftest ^:recur set--
+#_($.test.prop/deftest set--
 
   (prop-coerce 'set
                'set?

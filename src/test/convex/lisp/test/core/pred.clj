@@ -221,27 +221,29 @@
 
 
 
-($.test.prop/deftest ^:recur map?--false
+($.test.prop/deftest map?--false
 
   (prop-false 'map?
               map?
-              #{:convex/map}))
+              (TC.gen/such-that #(not (map? %))
+                                $.gen/any)))
 
 
 
-($.test.prop/deftest ^:recur map?--true
+($.test.prop/deftest map?--true
 
   (prop-true 'map?
              map?
-             :convex/map))
+             $.gen/map))
 
 
 
-($.test.prop/deftest ^:recur nil?--false
+($.test.prop/deftest nil?--false
 
   (prop-false 'nil?
               nil?
-              #{:convex/nil}))
+              (TC.gen/such-that some?
+                                $.gen/any)))
 
 
 

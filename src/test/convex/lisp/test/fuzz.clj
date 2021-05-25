@@ -8,11 +8,9 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.test.check.properties :as TC.prop]
-            [convex.lisp.form              :as $.form]
             [convex.lisp.gen               :as $.gen]
             [convex.lisp.test.eval         :as $.test.eval]
-            [convex.lisp.test.prop         :as $.test.prop]
-            [convex.lisp.test.schema       :as $.test.schema]))
+            [convex.lisp.test.prop         :as $.test.prop]))
 
 
 ;;;;;;;;;;

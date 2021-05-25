@@ -5,6 +5,7 @@
   {:author "Adam Helinski"}
 
   (:refer-clojure :exclude [boolean
+                            byte
                             char
                             double
                             keyword
@@ -38,6 +39,15 @@
   ""
 
   TC.gen/boolean)
+
+
+
+(def byte
+
+  ""
+
+  (TC.gen/choose -128
+                 127))
 
 
 
@@ -547,7 +557,7 @@
                     'accept
                     'account
                     'account?
-                    ;'actor
+                    ; 'actor ;; TODO. https://github.com/Convex-Dev/convex/issues/152
                     'actor?
                     'address
                     'address?
@@ -603,7 +613,7 @@
                     'fail
                     'first
                     'floor
-                    ;'fn
+                    ; 'fn ;; TODO. https://github.com/Convex-Dev/convex/issues/152
                     'fn?
                     'for
                     'get

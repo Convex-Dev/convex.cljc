@@ -960,9 +960,11 @@
   (TC.prop/for-all [[x
                      k] (TC.gen/let [x $.gen/sequential
                                      k (TC.gen/such-that #(not (and (number? %)
-                                                                    (not (<= 0
-                                                                             %
-                                                                             (count x)))))
+                                                                    (<= 0
+                                                                        %
+                                                                        (dec (count (if (vector? x)
+                                                                                      x
+                                                                                      (rest x)))))))
                                                          $.gen/any)]
                           [x k])
                     v   $.gen/any]

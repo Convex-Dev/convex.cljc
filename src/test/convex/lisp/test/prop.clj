@@ -5,9 +5,7 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.test.check.clojure-test :as tc.ct]
-            [clojure.test.check.properties   :as tc.prop]
-            [clojure.test.check.results      :as tc.result]
-            [convex.lisp.test.schema         :as $.test.schema]))
+            [clojure.test.check.results      :as tc.result]))
 
 
 (declare fail)
@@ -92,17 +90,6 @@
   (if (seq form+)
     (-and* form+)
     true))
-
-
-
-(defn check
-
-  "Returns a property generating `schema` against `f`."
-
-  [schema f]
-
-  (tc.prop/for-all* [($.test.schema/generator schema)]
-                    f))
 
 
 

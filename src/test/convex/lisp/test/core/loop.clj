@@ -109,7 +109,7 @@
 ($.test.prop/deftest recur--
 
   (TC.prop/for-all [looping+ (TC.gen/vector (TC.gen/hash-map :fixed+      ($.gen/binding+ 0
-                                                                                          16)
+                                                                                          4)
                                                              :fn-wrap?    $.gen/boolean
                                                              :n           (TC.gen/choose 0
                                                                                          5)
