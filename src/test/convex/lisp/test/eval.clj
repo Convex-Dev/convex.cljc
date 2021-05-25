@@ -328,4 +328,5 @@
                                                    coll)))
                                 )))))
       ($.eval/ctx
-        '(import $ :as $))))
+        '(import $ :as $))
+      ($.ctx/set-juice 1e7)))

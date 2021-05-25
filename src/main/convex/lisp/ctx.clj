@@ -103,7 +103,9 @@
 
 (defn juice
 
-  "Returns the remaining amount of juice available for the executing account."
+  "Returns the remaining amount of juice available for the executing account.
+  
+   See [[set-juice]]."
 
   [^Context ctx]
 
@@ -140,6 +142,19 @@
   [^Context ctx]
 
   (.getState ctx))
+
+
+;;;;;;;;;; Modifying context properties after fork
+
+
+(defn set-juice
+
+  "Forks and sets the juice of the copied context to the requested amount"
+
+  [^Context ctx juice]
+
+  (.withJuice (fork ctx)
+              juice))
 
 
 ;;;;;;;;;; Compiling Convex objects
