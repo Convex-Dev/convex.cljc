@@ -4,10 +4,36 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.test.check.generators :as TC.gen]))
+  (:require [clojure.test.check.generators :as TC.gen]
+            [convex.lisp.gen               :as $.gen]))
 
 
 ;;;;;;;;;;
+
+
+(defn E-notation
+
+  "Helps creating a generator for scientific notation, a tuple of items that
+   can be joined into a string.
+  
+   Argument is a schema describing the exponential part.
+
+   Only for generation, not validation."
+
+  [gen-exponent]
+
+  (TC.gen/let [m-1 $.gen/long
+               m-2 (TC.gen/one-of [$.gen/nothing
+                                   (TC.gen/large-integer* {:min 0})])
+               e   (TC.gen/elements [\e \E])
+               x   gen-exponent]
+    (symbol (str m-1
+              (when m-2
+                (str \.
+                     m-2))
+              e
+              x))))
+
 
 
 (defn kv+
@@ -41,6 +67,5 @@
 
 (comment
 
-  (TC.gen/generate (kv+ TC.gen/large-integer
-                        TC.gen/boolean))
+  (TC.gen/generate (E-notation $.gen/double))
   )

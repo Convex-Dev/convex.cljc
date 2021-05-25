@@ -15,65 +15,30 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.test            :as t]
-            [convex.lisp.form        :as $.form]
-            [convex.lisp.test.eval   :as $.test.eval]
-            [convex.lisp.test.prop   :as $.test.prop]
-            [convex.lisp.test.schema :as $.test.schema]
-            [convex.lisp.test.util   :as $.test.util])) 
+  (:require [clojure.test                  :as t]
+            [clojure.test.check.generators :as TC.gen]
+            [clojure.test.check.properties :as TC.prop]
+            [convex.lisp.form              :as $.form]
+            [convex.lisp.gen               :as $.gen]
+            [convex.lisp.test.eval         :as $.test.eval]
+            [convex.lisp.test.gen          :as $.test.gen]
+            [convex.lisp.test.prop         :as $.test.prop]
+            [convex.lisp.test.util         :as $.test.util])) 
 
 
-;;;;;;;;;; Reusing properties
-
-
-(defn prop-eq
-
-  "Checks generating a value from `schema` and evaling it. Result must be equal to initial value.
-
-   `f` can be provided for mapping a generated value prior to evaling."
-
-  
-  ([schema]
-
-   (prop-eq schema
-              identity))
-
-
-  ([schema f]
-
-   ($.test.prop/check schema
-                      (fn [x]
-                        ($.test.util/eq x
-                                        ($.test.eval/result (list 'identity
-                                                                  (f x))))))))
-
+;;;;;;;;;; Proeperties
 
 
 (defn prop-quotable
 
-  "Like [[prop-eq]] but ensures that quoting the generated value does not change anything in the result."
+  "Property checking that going through the CVM returns the given generated value and that quoting it has no impact." 
 
-  [schema]
+  [gen]
 
-  ($.test.prop/check schema
-                     (fn [x]
-                       ($.test.util/eq x
-                                       ($.test.eval/result (list 'identity
-                                                                 x))
-                                       ($.test.eval/result ($.form/quoted x))))))
-
-
-
-(defn prop-quoted
-
-  "Like [[prop-eq]] but quotes the generated values.
-  
-   Useful for preventing any symbol from being evaled."
-
-  [schema]
-
-  (prop-eq schema
-           $.form/quoted))
+  (TC.prop/for-all [x gen]
+    ($.test.util/eq x
+                    ($.test.eval/result* (identity ~x))
+                    ($.test.eval/result ($.form/quoted x)))))
 
 
 ;;;;;;;;;; Scalar values
@@ -87,60 +52,60 @@
 
 ($.test.prop/deftest address
 
-  (prop-quotable :convex/address))
+  (prop-quotable $.gen/address))
 
 
 
 ($.test.prop/deftest blob
 
-  (prop-quotable :convex/blob))
+  (prop-quotable $.gen/blob))
 
 
 
 ($.test.prop/deftest boolean-
 
-  (prop-quotable :convex/boolean))
+  (prop-quotable $.gen/boolean))
 
 
 
 ($.test.prop/deftest char-
 
-  (prop-quotable :convex/char))
+  (prop-quotable $.gen/char))
 
 
 
 ($.test.prop/deftest double-
 
-  (prop-quotable :convex/double))
+  (prop-quotable $.gen/double))
 
 
 
 ($.test.prop/deftest double-E-notation
 
-  ($.test.prop/check ($.test.schema/E-notation :convex/long)
-                     (comp double?
-                           $.test.eval/result)))
+  (TC.prop/for-all [x ($.test.gen/E-notation $.gen/long)]
+    (= (Double/parseDouble (str x))
+       ($.test.eval/result x))))
 
 
 
 #_($.test.prop/deftest double-E-notation--fail
 
-  ;; TODO. Must be fixed, see #70.
+  ;; TODO. Must catch a Reader error, it is not at the CVM level.
 
-  ($.test.prop/check ($.test.schema/E-notation :convex/double)
-                     $.test.eval/error?))
+  (TC.prop/for-all [x ($.test.gen/E-notation $.gen/double)]
+    ($.test.eval/error? x)))
 
 
 
 ($.test.prop/deftest keyword-
 
-  (prop-quotable :convex/keyword))
+  (prop-quotable $.gen/keyword))
 
 
 
 ($.test.prop/deftest long-
 
-  (prop-quotable :convex/long))
+  (prop-quotable $.gen/long))
 
 
 
@@ -148,36 +113,58 @@
 
   ;; TODO. Suffers from #66.
 
-  (prop-eq :convex/string))
+  (prop-quotable $.gen/string))
 
 
 
 ($.test.prop/deftest symbol-
 
-  (prop-quoted :convex/symbol))
+  (TC.prop/for-all [x (TC.gen/one-of [$.gen/symbol
+                                      $.gen/symbol-ns])]
+    ($.test.util/eq x
+                    ($.test.eval/result* (identity (quote ~x))))))
 
 
-;;;;;;;;;; Generative tests - Collections
+;;;;;;;;;; Collections
 
 
-($.test.prop/deftest ^:recur list-
+($.test.prop/deftest list-
 
-  (prop-quoted :convex/list))
+  ;; Quoting mess with some data values, that is why a subset of scalar generators is used.
+
+  (TC.prop/for-all [x+ (TC.gen/vector (TC.gen/one-of [$.gen/address
+                                                      $.gen/blob
+                                                      $.gen/boolean
+                                                      $.gen/char
+                                                      $.gen/double
+                                                      $.gen/keyword
+                                                      $.gen/long
+                                                      $.gen/nothing
+                                                      $.gen/string]))]
+    ($.test.eval/result* (= (list ~@x+)
+                            (quote (~@x+))))))
 
 
 
-($.test.prop/deftest ^:recur map-
+($.test.prop/deftest map-
 
-  (prop-quoted :convex/map))
-
-
-
-($.test.prop/deftest ^:recur set-
-
-  (prop-quoted :convex/set))
+  (TC.prop/for-all [x $.gen/map]
+    ($.test.eval/result* (= (hash-map ~@(mapcat identity
+                                                x))
+                            ~x))))
 
 
 
-($.test.prop/deftest ^:recur vector-
+($.test.prop/deftest set-
 
-  (prop-quoted :convex/vector))
+  (TC.prop/for-all [x $.gen/set]
+    ($.test.eval/result* (= (hash-set ~@x)
+                            ~x))))
+
+
+
+($.test.prop/deftest vector-
+
+  (TC.prop/for-all [x $.gen/vector]
+    ($.test.eval/result* (= (vector ~@x)
+                            ~x))))
