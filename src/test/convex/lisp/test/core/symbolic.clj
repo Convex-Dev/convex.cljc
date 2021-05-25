@@ -4,9 +4,11 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.lisp.form      :as $.form]
-            [convex.lisp.test.eval :as $.test.eval]
-            [convex.lisp.test.prop :as $.test.prop]))
+  (:require [clojure.test.check.generators :as TC.gen]
+            [clojure.test.check.properties :as TC.prop]
+            [convex.lisp.gen               :as $.gen]
+            [convex.lisp.test.eval         :as $.test.eval]
+            [convex.lisp.test.prop         :as $.test.prop]))
 
 
 ;;;;;;;;;;
@@ -14,8 +16,7 @@
 
 ($.test.prop/deftest name--
 
-  ($.test.prop/check [:or
-                      :convex/keyword
-                      :convex/symbol]
-                     (fn [x]
-                       ($.test.eval/like-clojure?* (name (quote ~x))))))
+  (TC.prop/for-all [x (TC.gen/one-of [$.gen/keyword
+                                      $.gen/symbol-quoted
+                                      $.gen/symbol-ns-quoted])]
+    ($.test.eval/like-clojure?* (name ~x))))
