@@ -21,9 +21,6 @@
    Difference is that the number of tests and maximum size can be easily configured
    at the level of the whole test suite and also by providing metadata:
 
-   | Key | Effect |
-   |---|---|
-   | `:recur` | When involving recursive collections, reduces max size to 5 |
 
    ```clojure
    (defcheck some-test
@@ -43,12 +40,10 @@
   ([sym option+ prop]
 
    `(tc.ct/defspec ~sym
-                   ~(merge (let [-meta (meta sym)]
-                             (when-some [x (cond
-                                             (:fuzz -meta)  2
-                                             (:recur -meta) 5)]
-                               {:max-size x}))
-                           option+)
+                   ~(merge-with *
+                                {:max-size  200
+                                 :num-tests 1000}
+                                option+)
                    ~prop)))
 
 

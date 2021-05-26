@@ -15,6 +15,7 @@
             [clojure.test.check.properties :as TC.prop]
             [convex.lisp.gen               :as $.gen]
             [convex.lisp.test.eval         :as $.test.eval]
+            [convex.lisp.test.gen          :as $.test.gen]
             [convex.lisp.test.prop         :as $.test.prop]
             [convex.lisp.test.util         :as $.test.util]))
 
@@ -390,3 +391,32 @@
     ($.test.eval/result* (= ~x
                             (* (abs ~x)
                                (signum ~x))))))
+
+
+;;;;;;;;;;
+
+
+($.test.prop/deftest error-cast
+
+  ;;
+
+  (TC.prop/for-all [x $.test.gen/not-number]
+    ($.test.prop/mult*
+
+      ;"`abs`"
+      ;($.test.eval/error-cast?* (abs ~x))
+
+      "`ceil`"
+      ($.test.eval/error-cast?* (ceil ~x))
+
+      "`exp`"
+      ($.test.eval/error-cast?* (exp ~x))
+
+      "`floor`"
+      ($.test.eval/error-cast?* (floor ~x))
+
+      ; pow
+
+      "`sqrt`"
+      ($.test.eval/error-cast?* (sqrt ~x))
+      )))

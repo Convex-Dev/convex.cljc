@@ -72,6 +72,16 @@
                   $.gen/set]))
 
 
+
+(def not-number
+
+  "Anything but a number (double or long)."
+
+  (TC.gen/such-that #(not (number? %))
+                    $.gen/any))
+
+
+
 (def percent
 
   "Value between 0 and 1 (inclusive)."
@@ -85,5 +95,6 @@
 
 (comment
 
-  (TC.gen/generate (E-notation $.gen/double))
+  (TC.gen/generate not-number
+                   30)
   )

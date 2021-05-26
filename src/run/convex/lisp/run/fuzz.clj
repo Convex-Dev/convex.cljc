@@ -33,7 +33,7 @@
   [option+]
 
   (let [max-size     (or (:max-size option+)
-                         5)
+                         200)
         root         (or (:root option+)
                          "report/fuzz")
         d*ensure-dir (delay

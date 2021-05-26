@@ -71,6 +71,21 @@
 
 
 
+(defmacro error*
+
+
+  ([form]
+
+   `(error ($.form/templ* ~form)))
+
+
+  ([ctx form]
+
+   `(error ~ctx
+           ($.form/templ* ~form))))
+
+
+
 (defn error?
 
 
@@ -99,6 +114,40 @@
 
    `(error? ~ctx
             ($.form/templ* ~form))))
+
+
+
+(defn error-cast?
+
+  "Returns true if the given form is evaluated to a `:CAST` error."
+
+
+  ([form]
+
+   (error-cast? ctx-base
+                form))
+
+
+  ([ctx form]
+
+   (= :CAST
+      (:convex.error/code (error ctx
+                                 form)))))
+
+
+
+(defmacro error-cast?*
+
+
+  ([form]
+
+   `(error-cast? ($.form/templ* ~form)))
+
+
+  ([ctx form]
+
+   `(error-cast? ~ctx
+                 ($.form/templ* ~form))))
 
 
 

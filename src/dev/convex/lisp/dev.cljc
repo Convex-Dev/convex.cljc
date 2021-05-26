@@ -90,7 +90,10 @@
 
 
   ($.eval/result ($.ctx/create-fake)
-                 '(syntax? (first (quote #{42})))
+                 '(mapv (fn [[k v]]
+                          [(unsyntax v)
+                           (meta v)])
+                        (:environment (account (address 8))))
                  )
 
   
