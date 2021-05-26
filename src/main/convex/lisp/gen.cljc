@@ -289,8 +289,7 @@
 
   (TC.gen/recursive-gen (fn [gen-inner]
                           (let [gen-vector (TC.gen/vector gen-inner)]
-                            (TC.gen/one-of [(TC.gen/fmap #(cons 'list
-                                                                %)
+                            (TC.gen/one-of [(TC.gen/fmap $.form/list
                                                          gen-vector)
                                             (TC.gen/scale #(quot %
                                                                  2)
@@ -309,8 +308,7 @@
   [x]
 
   (case (rand-int 4)
-    0 (clojure.core/list 'list
-                         x)
+    0 ($.form/list [x])
     1 {x x}
     2 #{x}
     3 [x]))
@@ -324,8 +322,7 @@
   (TC.gen/fmap (fn [x]
                  (if (coll? x)
                    (if (seq? x)
-                     (if (= (first x)
-                            'list)
+                     (if ($.form/list? x)
                        x
                        (-wrap-in-coll x))
                      x)
@@ -340,21 +337,15 @@
   
   (TC.gen/fmap (fn [x]
                  (cond
-                   (map? x)    (cons 'list
-                                     (reduce-kv conj
-                                                []
-                                                x))
-                   (set? x)    (cons 'list
-                                     x)
-                   (seq? x)    (if (= (first x)
-                                      'list)
+                   (map? x)    ($.form/list (reduce-kv conj
+                                                       []
+                                                       x))
+                   (set? x)    ($.form/list x)
+                   (seq? x)    (if ($.form/list? x)
                                  x
-                                 (clojure.core/list 'list
-                                                    x))
-                   (vector? x) (cons 'list
-                                     x)
-                   :else       (clojure.core/list 'list
-                                                  x)))
+                                 ($.form/list [x]))
+                   (vector? x) ($.form/list x)
+                   :else       ($.form/list? x)))
                collection))
 
 
@@ -382,8 +373,7 @@
                  (cond
                    (map? x)    x
                    (set? x)    (-to-map x)
-                   (seq? x)    (if (= (first x)
-                                      'list)
+                   (seq? x)    (if ($.form/list? x)
                                  (-to-map (rest x))
                                  {x x})
                    (vector? x) (-to-map x)
@@ -402,8 +392,7 @@
                                           #{}
                                           x)
                    (set? x)    x
-                   (seq? x)    (if (= (first x)
-                                      'list)
+                   (seq? x)    (if ($.form/list? x)
                                  (clojure.core/set (rest x))
                                  #{x})
                    (vector? x) (clojure.core/set x)
@@ -422,8 +411,7 @@
                                           []
                                           x)
                    (set? x)    (vec x)
-                   (seq? x)    (if (= (first x)
-                                      'list)
+                   (seq? x)    (if ($.form/list? x)
                                  (vec (rest x))
                                  [x])
                    (vector? x) x
@@ -742,8 +730,8 @@
 (comment
 
 
-  (TC.gen/sample number
-                   200)
+  (TC.gen/generate list
+                   30)
 
 
   )

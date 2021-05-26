@@ -42,7 +42,7 @@
    `(tc.ct/defspec ~sym
                    ~(merge-with *
                                 {:max-size  200
-                                 :num-tests 1000}
+                                 :num-tests 10}
                                 option+)
                    ~prop)))
 

@@ -478,3 +478,9 @@
       "`transfer-memory`"
       ($.test.eval/error-cast?* (transfer-memory ~x
                                                  1)))))
+
+
+
+;($.test.prop/deftest error-cast-key
+;
+;  ""

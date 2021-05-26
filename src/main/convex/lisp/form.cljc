@@ -1,10 +1,21 @@
 (ns convex.lisp.form
 
-  "Working with Clojure data representing Convex Lisp code."
+  "Working with Clojure data representing Convex Lisp code.
+  
+   Types that cannot be represented directly in Clojure can be created as symbol that look like the related
+   Convex type when printed. Those symbols store the following metadata:
+
+   | Key | Value |
+   |---|---|
+   | `:convex/raw` | Value that has been used for creating the symbol |
+   | `:convex/type` | Convex type |
+
+   For instance, `(address 42)` produces a symbol `#42` with metadata `{:convex/raw 42, :convex/type :address}`"
 
   {:author "Adam Helinski"}
 
   (:refer-clojure :exclude [empty?
+                            list
                             list?])
   (:require [clojure.core]
             [clojure.string]
@@ -24,8 +35,10 @@
 
   [number]
 
-  (symbol (str "#"
-               (long number))))
+  (with-meta (symbol (str "#"
+                          (long number)))
+             {:convex/raw  number
+              :convex/type :address}))
 
 
 
@@ -33,10 +46,27 @@
 
   "Converts `hexstring` into a symbol that ressembles a Convex blob."
 
-  [hexstring]
+  [hex-string]
 
-  (symbol (str "0x"
-               hexstring)))
+  (with-meta (symbol (str "0x"
+                          hex-string))
+             {:convex/raw  hex-string
+              :convex/type :blob}))
+
+
+
+(defn list
+
+  "Turns the given collection into a `(list ...)` and store information in metadata
+   like typed symbols."
+
+  [x+]
+
+  (let [x-2+ (vec x+)]
+    (with-meta (cons 'list
+                     x-2+)
+               {:convex/raw  x-2+
+                :convex/type :list})))
 
 
 
@@ -69,14 +99,38 @@
 ;;;;;;;;;; Miscellaneous
 
 
+(defn meta-raw
+
+  "Extracts the value stored in `:convex/raw` in the metadata of `x`."
+
+  [x]
+
+  (-> x
+      meta
+      :convex/raw))
+
+
+
+(defn meta-type
+
+  "Extracts the type keyword stored in `:convex/type` in the metadata of `x`."
+
+  [sym]
+
+  (-> sym
+      meta
+      :convex/type))
+
+
+
 (defn quoted
 
   "Quote the given `form` as that it will not be evaled when running as Convex Lisp."
 
   [form]
 
-  (list 'quote
-        form))
+  (clojure.core/list 'quote
+                     form))
 
 
 
@@ -92,18 +146,14 @@
 ;;;;;;;;;; Predicates
 
 
-
 (defn address?
 
-  "Is `x` a symbol that ressembles a Convex address?"
-
-  ;; TODO. Ensures is not a qualified symbol, if new scheme that allows addresses in symbols is kept.
+  "Is `x` a symbol produced by [[symbol]]?"
 
   [x]
 
-  (and (symbol? x)
-       (clojure.string/starts-with? (str x)
-                                    "#")))
+  (= (meta-type x)
+     :address))
 
 
 
@@ -113,9 +163,8 @@
 
   [x]
 
-  (and (symbol? x)
-       (clojure.string/starts-with? (str x)
-                                    "0x")))
+  (= (meta-type x)
+     :blob))
 
 
 
@@ -153,12 +202,12 @@
 
 (defn list?
 
-  "Is `x` a `(list ...)` form?"
+  "Is `x` a `(list ...)` form produced by [[list]]?"
 
   [x]
 
-  (call? 'list
-         x))
+  (= (meta-type x)
+     :list))
 
 
 

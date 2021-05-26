@@ -42,5 +42,6 @@ package.json
 // Misc
 /.clj-kondo/*
 !/.clj-kondo/config.edn
+!/.clj-kondo/hooks
 /report
 /private
