@@ -742,7 +742,7 @@
 (comment
 
 
-  (TC.gen/generate (random-call)
+  (TC.gen/sample number
                    200)
 
 

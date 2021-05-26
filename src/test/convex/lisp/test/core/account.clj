@@ -394,21 +394,20 @@
 
 ($.test.prop/deftest account-inexistant
 
-  (TC.prop/for-all* [(TC.gen/large-integer* {:min 50})]
-                    (fn [x]
-                      ($.test.prop/mult*
+  (TC.prop/for-all [x (TC.gen/large-integer* {:min 50})]
+    ($.test.prop/mult*
 
-                        "Account does not exist (long)"
-                        ($.test.eval/result* (not (account? ~x)))
+      "Account does not exist (long)"
+      ($.test.eval/result* (not (account? ~x)))
 
-                        "Account does not exist (address)"
-                        ($.test.eval/result* (not (account (address ~x))))
+      "Account does not exist (address)"
+      ($.test.eval/result* (not (account (address ~x))))
 
-                        "Actor does not exist (long)"
-                        ($.test.eval/result* (not (actor? ~x)))
+      "Actor does not exist (long)"
+      ($.test.eval/result* (not (actor? ~x)))
 
-                        "Actor does not exist (address)"
-                        ($.test.eval/result* (not (actor? (address ~x))))))))
+      "Actor does not exist (address)"
+      ($.test.eval/result* (not (actor? (address ~x)))))))
 
 
 
@@ -442,3 +441,40 @@
 
 
 ;; TODO. `set-controller`, already a bit tested by `eval-as`, also see: https://github.com/Convex-Dev/convex/issues/133
+
+
+;;;;;;;;;; Negative tests
+
+
+($.test.prop/deftest error-cast-address
+
+
+  (TC.prop/for-all [x $.test.gen/not-address]
+    ($.test.prop/mult*
+
+      ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/158
+      ;;
+      ;; "`account`"
+      ;; ($.test.eval/error-cast?* (account ~x))
+
+      "`balance`"
+      ($.test.eval/error-cast?* (balance ~x))
+
+      "`exports?`"
+      ($.test.eval/error-cast?* (exports? ~x
+                                          'foo))
+
+      "`get-holding`"
+      ($.test.eval/error-cast?* (get-holding ~x))
+
+      "`set-holding`"
+      ($.test.eval/error-cast?* (set-holding ~x
+                                             ~x))
+
+      "`transfer`"
+      ($.test.eval/error-cast?* (transfer ~x
+                                          1))
+
+      "`transfer-memory`"
+      ($.test.eval/error-cast?* (transfer-memory ~x
+                                                 1)))))
