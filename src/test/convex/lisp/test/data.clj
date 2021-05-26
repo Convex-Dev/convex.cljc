@@ -26,7 +26,23 @@
             [convex.lisp.test.util         :as $.test.util])) 
 
 
-;;;;;;;;;; Proeperties
+;;;;;;;;;; Suites
+
+
+(defn suite-equal
+
+  ""
+
+  [x]
+
+  ($.test.prop/checkpoint*
+
+    "`=` returns true when an item is compared with itself"
+    ($.test.eval/result* (= ~x
+                            ~x))))
+
+
+;;;;;;;;;; Properties
 
 
 (defn prop-quotable
@@ -36,9 +52,14 @@
   [gen]
 
   (TC.prop/for-all [x gen]
-    ($.test.util/eq x
-                    ($.test.eval/result* (identity ~x))
-                    ($.test.eval/result ($.form/quoted x)))))
+    ($.test.prop/and* (suite-equal x)
+                      ($.test.prop/checkpoint*
+
+                        "Round-trip through the CVM"
+
+                        ($.test.util/eq x
+                                        ($.test.eval/result* (identity ~x))
+                                        ($.test.eval/result* (quote ~x)))))))
 
 
 ;;;;;;;;;; Scalar values
@@ -168,3 +189,14 @@
   (TC.prop/for-all [x $.gen/vector]
     ($.test.eval/result* (= (vector ~@x)
                             ~x))))
+
+
+;;;;;;;;;; Negative tests
+
+
+($.test.prop/deftest ==--fail
+
+  (TC.prop/for-all [x+ (TC.gen/vector-distinct $.gen/any
+                                               {:max-elements 6
+                                                :min-elements 2})]
+    ($.test.eval/result* (not (= ~@x+)))))
