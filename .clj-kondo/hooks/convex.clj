@@ -59,7 +59,7 @@
 
   "For [[convex.lisp.form/templ*]].
 
-   Suitable for other macros. Amongt arguments, considers that the template is either:
+   Suitable for other macros. Among arguments, considers that the template is either:
 
    - First argument if argument count is odd
    - Second argument if argument count is even"

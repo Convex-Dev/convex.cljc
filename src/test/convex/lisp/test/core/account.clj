@@ -481,6 +481,16 @@
 
 
 
-;($.test.prop/deftest error-cast-key
-;
-;  ""
+($.test.prop/deftest error-cast-key
+
+  ;;
+
+  (TC.prop/for-all [x (TC.gen/such-that (fn [x]
+                                          (if-some [x-2 (cond
+                                                          (string? x)      x
+                                                          ($.form/blob? x) ($.form/meta-raw x))]
+                                            (= (count x-2)
+                                               64)
+                                            (some? x)))
+                                        $.gen/any)]
+    ($.test.eval/error-cast?* (set-key ~x))))
