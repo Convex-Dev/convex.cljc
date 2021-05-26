@@ -69,8 +69,10 @@
 
 ($.test.prop/deftest main
 
-  (TC.prop/for-all [percent $.test.gen/percent
-                    x       $.gen/any]
+  (TC.prop/for-all [faulty-amount  $.test.gen/not-long
+                    percent        $.test.gen/percent
+                    unused-address $.test.gen/unused-address
+                    x              $.gen/any]
     (let [ctx ($.test.eval/ctx* (def addr
                                      (deploy '(do
 
@@ -103,4 +105,6 @@
                                         percent
                                         x)
                         ($.test.core.account/suite-transfer-memory ctx
-                                                                   percent)))))
+                                                                   faulty-amount
+                                                                   percent
+                                                                   unused-address)))))

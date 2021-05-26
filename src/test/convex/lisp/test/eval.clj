@@ -117,6 +117,40 @@
 
 
 
+(defn error-arg?
+
+  "Returns true if the given form is evaluated to an `:ARGUMENT` error."
+
+
+  ([form]
+
+   (error-arg? ctx-base
+               form))
+
+
+  ([ctx form]
+
+   (= :ARGUMENT
+      (:convex.error/code (error ctx
+                                 form)))))
+
+
+
+(defmacro error-arg?*
+
+
+  ([form]
+
+   `(error-arg? ($.form/templ* ~form)))
+
+
+  ([ctx form]
+
+   `(error-arg? ~ctx
+                ($.form/templ* ~form))))
+
+
+
 (defn error-cast?
 
   "Returns true if the given form is evaluated to a `:CAST` error."
@@ -148,6 +182,74 @@
 
    `(error-cast? ~ctx
                  ($.form/templ* ~form))))
+
+
+
+(defn error-memory?
+
+  "Returns true if the given form is evaluated to an `:MEMORY` error."
+
+
+  ([form]
+
+   (error-arg? ctx-base
+               form))
+
+
+  ([ctx form]
+
+   (= :MEMORY
+      (:convex.error/code (error ctx
+                                 form)))))
+
+
+
+(defmacro error-memory?*
+
+
+  ([form]
+
+   `(error-memory? ($.form/templ* ~form)))
+
+
+  ([ctx form]
+
+   `(error-memory? ~ctx
+                   ($.form/templ* ~form))))
+
+
+
+(defn error-nobody?
+
+  "Returns true if the given form is evaluated to an `:NOBODY` error."
+
+
+  ([form]
+
+   (error-arg? ctx-base
+               form))
+
+
+  ([ctx form]
+
+   (= :NOBODY
+      (:convex.error/code (error ctx
+                                 form)))))
+
+
+
+(defmacro error-nobody?*
+
+
+  ([form]
+
+   `(error-nobody? ($.form/templ* ~form)))
+
+
+  ([ctx form]
+
+   `(error-nobody? ~ctx
+                   ($.form/templ* ~form))))
 
 
 

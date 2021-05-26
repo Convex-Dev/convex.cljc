@@ -4,6 +4,7 @@
 
   {:author "Adam Helinski"}
 
+  (:import convex.core.Constants)
   (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
             [convex.lisp.gen               :as $.gen]
@@ -148,8 +149,8 @@
 
   "Suite testing memory tranfers."
 
-  [ctx percent]
-
+  [ctx faulty-amount percent unused-address]
+ 
   ($.test.prop/checkpoint*
 
     "Transfering memory"
@@ -166,12 +167,10 @@
                                                           amount))))]
       ($.test.prop/mult*
 
-        ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/134
-        ;;
-        ;; "Returns the given amount"
-        ;; ($.test.eval/result ctx-2
-        ;;                     '(= amount
-        ;;                         -transfer-memory))
+        "Returns the given amount"
+        ($.test.eval/result ctx-2
+                            '(= amount
+                                -transfer-memory))
 
         "Consistenty between sender account information and `*memory*` (before transfer)"
         ($.test.eval/result ctx
@@ -195,7 +194,42 @@
         "Allowance of receiver account has increased as needed"
         ($.test.eval/result ctx-2
                             '(= amount
-                                ($/allowance addr)))))))
+                                ($/allowance addr)))
+
+        "Transfering negative allowance"
+        ($.test.eval/error-arg?* ctx-2
+                                 (transfer-memory addr
+                                                  ~(min -1
+                                                        (long (* percent
+                                                                 Long/MIN_VALUE)))))
+
+        "Transfering too much allowance, insufficient amount"
+        ($.test.eval/error-memory?* ctx-2
+                                    (transfer-memory addr
+                                                     (let [allowance ($/allowance)]
+                                                       (+ allowance
+                                                          (max 1
+                                                               (long (* ~percent
+                                                                        (- ~Constants/MAX_SUPPLY
+                                                                           allowance))))))))
+
+        "Transfering allowance beyond authorized limit"
+        ($.test.eval/error-arg?* ctx-2
+                                 (transfer-memory addr
+                                                  (+ amount
+                                                     ~Constants/MAX_SUPPLY)))
+
+        ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/159
+        ;;
+        ;; "Transfering allowance to unused address"
+        ;; ($.test.eval/error-nobody?* ctx-2
+        ;;                             (transfer-memory ~unused-address
+        ;;                                              amount))
+
+        "Transfering garbage instead of memory"
+        ($.test.eval/error-cast?* ctx-2
+                                  (transfer-memory addr
+                                                   ~faulty-amount))))))
 
 
 ;;;;;;;;;; Suites - Holdings
@@ -413,10 +447,12 @@
 
 ($.test.prop/deftest main
 
-  (TC.prop/for-all [export-sym+ (TC.gen/vector $.gen/symbol)
-                    holding     $.gen/any
-                    pubkey      $.gen/hex-string-32
-                    percent     $.test.gen/percent]
+  (TC.prop/for-all [export-sym+    (TC.gen/vector $.gen/symbol)
+                    faulty-amount  $.test.gen/not-long
+                    holding        $.gen/any
+                    pubkey         $.gen/hex-string-32
+                    percent        $.test.gen/percent
+                    unused-address $.test.gen/unused-address]
     (let [ctx            ($.test.eval/ctx* (def addr
                                                 (create-account ~pubkey)))
           ctx-*holdings* (ctx-holding ctx
@@ -437,7 +473,9 @@
                                                       percent)
                                         "Transfering coins to a user account")
                         (suite-transfer-memory ctx
-                                               percent)))))
+                                               faulty-amount
+                                               percent
+                                               unused-address)))))
 
 
 ;; TODO. `set-controller`, already a bit tested by `eval-as`, also see: https://github.com/Convex-Dev/convex/issues/133
@@ -483,7 +521,7 @@
 
 ($.test.prop/deftest error-cast-key
 
-  ;;
+  ;; Providing something that cannot be used as a key should fail.
 
   (TC.prop/for-all [x (TC.gen/such-that (fn [x]
                                           (if-some [x-2 (cond

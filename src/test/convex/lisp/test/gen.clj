@@ -6,7 +6,8 @@
 
   (:require [clojure.test.check.generators :as TC.gen]
             [convex.lisp.form              :as $.form]
-            [convex.lisp.gen               :as $.gen]))
+            [convex.lisp.gen               :as $.gen]
+            [convex.lisp.test.eval         :as $.test.eval]))
 
 
 ;;;;;;;;;;
@@ -105,8 +106,20 @@
 
   "Value between 0 and 1 (inclusive)."
 
-  (TC.gen/double* {:max 1
-                   :min 1}))
+  (TC.gen/double* {:infinite? false
+                   :max       1
+                   :min       1
+                   :NaN?      false}))
+
+
+
+(def unused-address
+
+  "Address that is not being used yet."
+
+  (TC.gen/such-that #($.test.eval/result* (nil? (account ~%)))
+                    $.gen/address
+                    100))
 
 
 ;;;;;;;;;;
@@ -114,6 +127,6 @@
 
 (comment
 
-  (TC.gen/generate not-number
+  (TC.gen/generate unused-address
                    30)
   )

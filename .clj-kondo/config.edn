@@ -2,7 +2,10 @@
                           convex.lisp.test.eval/ctx*           hooks.convex/templ*
                           convex.lisp.test.eval/error*         hooks.convex/templ*
                           convex.lisp.test.eval/error?*        hooks.convex/templ*
+                          convex.lisp.test.eval/error-arg?*    hooks.convex/templ*
                           convex.lisp.test.eval/error-cast?*   hooks.convex/templ*
+                          convex.lisp.test.eval/error-memory?* hooks.convex/templ*
+                          convex.lisp.test.eval/error-nobody?* hooks.convex/templ*
                           convex.lisp.test.eval/like-clojure?* hooks.convex/templ*
                           convex.lisp.test.eval/result*        hooks.convex/templ*}}
  :lint-as {clojure.test.check.properties/for-all clojure.core/let
