@@ -110,10 +110,10 @@
 
 
 
-($.test.prop/deftest =--
+($.test.prop/deftest ==--
 
-  (prop-comparison '=
-                   =))
+  (prop-comparison '==
+                   ==))
 
 
 
@@ -413,16 +413,26 @@
 
 ($.test.prop/deftest error-cast-long-2
 
-  ;;
+  ;; Functions that should accept only two long arguments.
   
-  (TC.prop/for-all [x $.test.gen/not-long]
+  (TC.prop/for-all [[a
+                     b] (TC.gen/let [a $.test.gen/not-long
+                                     b (TC.gen/one-of [$.gen/any
+                                                       $.gen/long])]
+                          (TC.gen/shuffle [a b]))]
     ($.test.prop/mult*
 
-      "`dec`"
-      ($.test.eval/error-cast?* (dec ~x))
+      "`mod`"
+      ($.test.eval/error-cast?* (mod ~a
+                                     ~b))
 
-      "`inc`"
-      ($.test.eval/error-cast?* (inc ~x)))))
+      "`rem`"
+      ($.test.eval/error-cast?* (rem ~a
+                                     ~b))
+
+      "`quot`"
+      ($.test.eval/error-cast?* (quot ~a
+                                      ~b)))))
 
 
 
@@ -452,3 +462,85 @@
 
       "`sqrt`"
       ($.test.eval/error-cast?* (sqrt ~x)))))
+
+
+
+($.test.prop/deftest error-cast-number-2
+
+  ;; Functions that should accept only two number arguments
+  ;;
+  ;; Comparison functions are variadic but they test arguments 2 by 2.
+
+  (TC.prop/for-all [[a
+                     b] (TC.gen/let [a $.test.gen/not-number
+                                     b (TC.gen/one-of [$.gen/any
+                                                       $.gen/number])]
+                          (TC.gen/shuffle [a b]))]
+    ($.test.prop/mult*
+
+      "`pow`"
+      ($.test.eval/error-cast?* (pow ~a
+                                     ~b)))))
+
+
+
+($.test.prop/deftest error-cast-variadic
+
+  ;; Functions that accepts a variadic number of number arguments only.
+  ;;
+  ;; Comparison functions are variadic but are tested in [[error-cast-number-2]] since
+  ;; they test argument 2 by 2 (which would even succeed in these negative tests).
+
+  (TC.prop/for-all [x+ (TC.gen/let [a  $.test.gen/not-number
+                                    b+ (TC.gen/vector (TC.gen/one-of [$.gen/any
+                                                                      $.gen/number])
+                                                      0
+                                                      7)]
+                         (TC.gen/shuffle (cons a
+                                               b+)))]
+    ($.test.prop/mult*
+
+      "`*`"
+      ($.test.eval/error-cast?* (* ~@x+))
+
+      "`+`"
+      ($.test.eval/error-cast?* (+ ~@x+))
+
+      "`-`"
+      ($.test.eval/error-cast?* (- ~@x+))
+
+      ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/154
+      ;;
+      ;; "`/`"
+      ;; ($.test.eval/error-cast?* (/ ~@x+))
+
+      ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/157
+      ;;
+      ;; "`==`"
+      ;; ($.test.eval/error-cast?* (== ~@x+)))
+
+      "`max`"
+      ($.test.eval/error-cast?* (max ~@x+))
+
+      "`min`"
+      ($.test.eval/error-cast?* (min ~@x+))
+
+      ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/157
+      ;;
+      ;; "Relative comparators"
+      ;; (let [x-2+ (sort-by number?
+      ;;                     x+)]
+      ;;   ($.test.prop/mult*
+
+      ;;     "`<`"
+      ;;     ($.test.eval/error-cast?* (< ~@x-2+))
+    
+      ;;     "`<=`"
+      ;;     ($.test.eval/error-cast?* (<= ~@x-2+))
+    
+      ;;     "`>=`"
+      ;;     ($.test.eval/error-cast?* (>= ~@x-2+))
+    
+      ;;     "`>`"
+      ;;     ($.test.eval/error-cast?* (> ~@x-2+))))
+      )))
