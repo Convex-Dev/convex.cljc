@@ -393,18 +393,50 @@
                                (signum ~x))))))
 
 
-;;;;;;;;;;
+;;;;;;;;;; Failing cases
 
 
-($.test.prop/deftest error-cast
+($.test.prop/deftest error-cast-long-1
+
+  ;; Functions that should accept only one long argument.
+  
+  (TC.prop/for-all [x $.test.gen/not-long]
+    ($.test.prop/mult*
+
+      "`dec`"
+      ($.test.eval/error-cast?* (dec ~x))
+
+      "`inc`"
+      ($.test.eval/error-cast?* (inc ~x)))))
+
+
+
+($.test.prop/deftest error-cast-long-2
 
   ;;
+  
+  (TC.prop/for-all [x $.test.gen/not-long]
+    ($.test.prop/mult*
+
+      "`dec`"
+      ($.test.eval/error-cast?* (dec ~x))
+
+      "`inc`"
+      ($.test.eval/error-cast?* (inc ~x)))))
+
+
+
+($.test.prop/deftest error-cast-number-1
+
+  ;; Functions with one argument that should accept a number only.
+
+  ;; TODO. Follow: https://github.com/Convex-Dev/convex/issues/154
 
   (TC.prop/for-all [x $.test.gen/not-number]
     ($.test.prop/mult*
 
-      ;"`abs`"
-      ;($.test.eval/error-cast?* (abs ~x))
+      ;; "`abs`"
+      ;; ($.test.eval/error-cast?* (abs ~x))
 
       "`ceil`"
       ($.test.eval/error-cast?* (ceil ~x))
@@ -415,8 +447,8 @@
       "`floor`"
       ($.test.eval/error-cast?* (floor ~x))
 
-      ; pow
+      ;; "`signum`"
+      ;; ($.test.eval/error-cast?* (signum ~x))
 
       "`sqrt`"
-      ($.test.eval/error-cast?* (sqrt ~x))
-      )))
+      ($.test.eval/error-cast?* (sqrt ~x)))))

@@ -73,6 +73,15 @@
 
 
 
+(def not-long
+
+  "Anything but a long."
+
+  (TC.gen/such-that #(not (int? %))
+                    $.gen/any))
+
+
+
 (def not-number
 
   "Anything but a number (double or long)."
