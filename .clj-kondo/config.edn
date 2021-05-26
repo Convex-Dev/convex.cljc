@@ -4,6 +4,7 @@
                           convex.lisp.test.eval/error?*        hooks.convex/templ*
                           convex.lisp.test.eval/error-arg?*    hooks.convex/templ*
                           convex.lisp.test.eval/error-cast?*   hooks.convex/templ*
+                          convex.lisp.test.eval/error-fund?*   hooks.convex/templ*
                           convex.lisp.test.eval/error-memory?* hooks.convex/templ*
                           convex.lisp.test.eval/error-nobody?* hooks.convex/templ*
                           convex.lisp.test.eval/like-clojure?* hooks.convex/templ*

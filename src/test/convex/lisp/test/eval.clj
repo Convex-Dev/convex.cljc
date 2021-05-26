@@ -185,6 +185,40 @@
 
 
 
+(defn error-fund?
+
+  "Returns true if the given form is evaluated to a `:FUNDS` error."
+
+
+  ([form]
+
+   (error-fund? ctx-base
+                form))
+
+
+  ([ctx form]
+
+   (= :FUNDS
+      (:convex.error/code (error ctx
+                                 form)))))
+
+
+
+(defmacro error-fund?*
+
+
+  ([form]
+
+   `(error-fund? ($.form/templ* ~form)))
+
+
+  ([ctx form]
+
+   `(error-fund? ~ctx
+                 ($.form/templ* ~form))))
+
+
+
 (defn error-memory?
 
   "Returns true if the given form is evaluated to an `:MEMORY` error."
@@ -477,6 +511,14 @@
                                                          false)))
                                                    true
                                                    coll)))
+
+                                (defn unused-address
+
+                                  [addr]
+
+                                  (if (account address)
+                                    (recur (address (inc (long addr))))
+                                    addr))
                                 )))))
       ($.eval/ctx
         '(import $ :as $))

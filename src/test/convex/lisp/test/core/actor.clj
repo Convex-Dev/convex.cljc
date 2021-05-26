@@ -19,14 +19,16 @@
 
   "Tests transfering coins to an actor which is more complex than to a regular account."
 
-  [ctx percent x]
+  [ctx faulty-amount percent unused-address x]
 
   ($.test.prop/checkpoint*
 
     "Transfering coins"
 
     (let [ctx-2 ($.test.core.account/ctx-transfer ctx
-                                                  percent)]
+                                                  faulty-amount
+                                                  percent
+                                                  unused-address)]
       ($.test.prop/and* (-> ($.test.core.account/ctx-holding ctx-2
                                                              'addr
                                                              x)
@@ -102,7 +104,9 @@
                         ($.test.core.account/suite-new ctx
                                                        true?)
                         (suite-transfer ctx
+                                        faulty-amount
                                         percent
+                                        unused-address
                                         x)
                         ($.test.core.account/suite-transfer-memory ctx
                                                                    faulty-amount

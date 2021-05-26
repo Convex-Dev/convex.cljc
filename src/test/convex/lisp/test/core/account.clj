@@ -223,7 +223,7 @@
         ;;
         ;; "Transfering allowance to unused address"
         ;; ($.test.eval/error-nobody?* ctx-2
-        ;;                             (transfer-memory ~unused-address
+        ;;                             (transfer-memory ($/unused-address ~unused-address)
         ;;                                              amount))
 
         "Transfering garbage instead of memory"
@@ -355,15 +355,23 @@
   
    `percent` is the percentage of the current balance that should be transfered."
 
-  [ctx percent]
+  [ctx faulty-amount percent unused-address]
 
   ($.test.eval/ctx* ctx
                     (do
                       (def balance-before
                            *balance*)
+                      (defn compute-amount []
+                        (long (floor (* ~percent
+                                        *balance*))))
                       (def amount
-                           (long (floor (* ~percent
-                                           *balance*))))
+                           (compute-amount))
+                      (def faulty-amount
+                           ~faulty-amount)
+                      (def percent
+                           ~percent)
+                      (def unused-address
+                           ($/unused-address ~unused-address))
                       (def -transfer
                            (transfer addr
                                      amount)))))
@@ -420,7 +428,40 @@
        "Balance of receiver has been correctly updated"
        ($.test.eval/result ctx
                            '(= amount
-                               (balance addr))))))
+                               (balance addr)))
+
+       "Transfering negative amount"
+       ($.test.eval/error-arg?* ctx
+                                (transfer addr
+                                          (min -1
+                                               (long (* percent
+                                                        ~Long/MIN_VALUE)))))
+
+       "Transfering too much funds, insufficient amount"
+       ($.test.eval/error-fund?* ctx
+                                 (transfer addr
+                                           (let [balance *balance*]
+                                             (+ balance
+                                                (max 1
+                                                     (long (* percent
+                                                              (- ~Constants/MAX_SUPPLY
+                                                                 balance))))))))
+
+       "Transfering funds beyond authorized limit"
+       ($.test.eval/error-arg?* ctx
+                                (transfer addr
+                                          (+ amount
+                                             ~Constants/MAX_SUPPLY)))
+
+       "Transfering funds to unused address"
+       ($.test.eval/error-nobody? ctx
+                                  '(transfer unused-address
+                                             (compute-amount)))
+
+       "Transfering garbage instead of funds"
+       ($.test.eval/error-cast? ctx
+                                '(transfer addr
+                                           faulty-amount)))))
 
 
 ;;;;;;;;;; Tests
@@ -428,20 +469,20 @@
 
 ($.test.prop/deftest account-inexistant
 
-  (TC.prop/for-all [x (TC.gen/large-integer* {:min 50})]
+  (TC.prop/for-all [unused-address $.test.gen/unused-address]
     ($.test.prop/mult*
 
       "Account does not exist (long)"
-      ($.test.eval/result* (not (account? ~x)))
+      ($.test.eval/result* (not (account? ~unused-address)))
 
       "Account does not exist (address)"
-      ($.test.eval/result* (not (account (address ~x))))
+      ($.test.eval/result* (not (account (address ~unused-address))))
 
       "Actor does not exist (long)"
-      ($.test.eval/result* (not (actor? ~x)))
+      ($.test.eval/result* (not (actor? ~unused-address)))
 
       "Actor does not exist (address)"
-      ($.test.eval/result* (not (actor? (address ~x)))))))
+      ($.test.eval/result* (not (actor? (address ~unused-address)))))))
 
 
 
@@ -470,7 +511,9 @@
                         (suite-set-key ctx
                                        pubkey)
                         (suite-transfer (ctx-transfer ctx
-                                                      percent)
+                                                      faulty-amount
+                                                      percent
+                                                      unused-address)
                                         "Transfering coins to a user account")
                         (suite-transfer-memory ctx
                                                faulty-amount
