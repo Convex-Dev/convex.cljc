@@ -151,6 +151,41 @@
 
 
 
+
+(defn error-arity?
+
+  "Returns true if the given form is evaluated to an `:ARITY` error."
+
+
+  ([form]
+
+   (error-arity? ctx-base
+                 form))
+
+
+  ([ctx form]
+
+   (= :ARITY
+      (:convex.error/code (error ctx
+                                 form)))))
+
+
+
+(defmacro error-arity?*
+
+
+  ([form]
+
+   `(error-arity? ($.form/templ* ~form)))
+
+
+  ([ctx form]
+
+   `(error-arity? ~ctx
+                  ($.form/templ* ~form))))
+
+
+
 (defn error-cast?
 
   "Returns true if the given form is evaluated to a `:CAST` error."

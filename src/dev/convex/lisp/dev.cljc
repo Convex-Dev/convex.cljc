@@ -90,8 +90,7 @@
 
 
   ($.eval/error ($.ctx/create-fake)
-                 '(transfer-memory (address 9999999999)
-                                   10)
+                '(into [] (blob "4545"))
                  )
 
   

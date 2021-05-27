@@ -322,3 +322,36 @@
           ($.test.util/eq ($.test.eval/result form)
                           ($.test.eval/result ctx
                                               form)))))))
+
+
+;;;;;;;;;; Negative tests
+
+
+;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/163
+;;
+;; ($.test.prop/deftest x-let--error-cast
+;; 
+;;   ;; Any binding form that is not a vector should be rejected.
+;; 
+;;   (TC.prop/for-all [bindvec ($.gen/any-but #{$.gen/vector})
+;;                     sym     (TC.gen/elements ['if-let
+;;                                               'when-let])]
+;;     ($.test.eval/error-cast?* (~sym ~bindvec
+;;                                     42))))
+
+
+
+($.test.prop/deftest x-let--error-arity
+
+  ;; `if-let` and `when-let` should only accept one binding.
+
+  (TC.prop/for-all [binding+ ($.gen/binding+ 2
+                                             8)
+                    sym      (TC.gen/elements ['if-let
+                                               'when-let])]
+    ($.test.eval/error-arity?* (~sym ~(into []
+                                            (mapcat identity)
+                                            binding+)
+                                     42))))
+  
+

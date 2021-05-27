@@ -480,8 +480,7 @@
                     faulty-amount  $.test.gen/not-long
                     holding        $.gen/any
                     pubkey         $.gen/hex-string-32
-                    percent        $.test.gen/percent
-                    unused-address $.test.gen/unused-address]
+                    percent        $.test.gen/percent]
     (let [ctx            ($.test.eval/ctx* (do
                                              (def addr
                                                   (create-account ~pubkey))))

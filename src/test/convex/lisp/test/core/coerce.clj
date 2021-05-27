@@ -64,6 +64,20 @@
                                     x-2
                                     cast?)))))))
 
+
+
+;; TODO. Tests failing cases when the following is resolved: https://github.com/Convex-Dev/convex/issues/162
+;;
+(defn prop-error-cast
+
+  "Checks that trying to cast an item that should not be cast fails indeed with a `:CAST` error."
+
+  [form-cast gen]
+
+  (TC.prop/for-all [x gen]
+    ($.test.eval/error-cast?* (~form-cast ~x))))
+
+
 ;;;;;;;;;;
 
 
@@ -79,6 +93,17 @@
 
 
 
+;; ($.test.prop/deftest address--fail
+;; 
+;;   (prop-error-cast 'address
+;;                    (TC.gen/such-that #(if (int? %)
+;;                                         (neg? %)
+;;                                         %)
+;;                                      ($.gen/any-but #{$.gen/blob-8
+;;                                                       $.gen/hex-string-8}))))
+
+
+
 ($.test.prop/deftest blob--
 
   ;; TODO. Also test hashes, special type of blob that can be coerced to an actual blob.
@@ -91,6 +116,12 @@
                                $.gen/hex-string])))
 
 
+
+;($.test.prop/deftest blob--fail
+;
+;  (prop-error-cast 'blob
+;                   ($.gen/any-but #{$.gen/
+;
 
 ($.test.prop/deftest boolean--
 

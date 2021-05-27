@@ -3,6 +3,7 @@
                           convex.lisp.test.eval/error*         hooks.convex/templ*
                           convex.lisp.test.eval/error?*        hooks.convex/templ*
                           convex.lisp.test.eval/error-arg?*    hooks.convex/templ*
+                          convex.lisp.test.eval/error-arity?*  hooks.convex/templ*
                           convex.lisp.test.eval/error-cast?*   hooks.convex/templ*
                           convex.lisp.test.eval/error-fund?*   hooks.convex/templ*
                           convex.lisp.test.eval/error-memory?* hooks.convex/templ*
