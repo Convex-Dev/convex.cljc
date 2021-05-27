@@ -287,6 +287,40 @@
 
 
 
+(defn error-state?
+
+  "Returns true if the given form is evaluated to an `:NOBODY` error."
+
+
+  ([form]
+
+   (error-state? ctx-base
+                  form))
+
+
+  ([ctx form]
+
+   (= :STATE
+      (:convex.error/code (error ctx
+                                 form)))))
+
+
+
+(defmacro error-state?*
+
+
+  ([form]
+
+   `(error-state? ($.form/templ* ~form)))
+
+
+  ([ctx form]
+
+   `(error-state? ~ctx
+                  ($.form/templ* ~form))))
+
+
+
 (defn like-clojure?
 
   "Returns true if applying `arg+` to `form` on the CVM produces the exact same result as
@@ -499,6 +533,13 @@
                                         (recur (dec i))
                                         false)
                                       true)))
+
+                                (defn long-percentage
+
+                                  [percent n]
+
+                                  (long (floor (* percent
+                                                  n))))
 
                                 (defn some
 

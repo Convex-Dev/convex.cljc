@@ -160,8 +160,8 @@
                                     (def memory-before
                                          *memory*)
                                     (def amount
-                                         (long (floor (* ~percent
-                                                         *memory*))))
+                                         ($/long-percentage ~percent
+                                                            *memory*))
                                     (def -transfer-memory
                                          (transfer-memory addr
                                                           amount))))]
@@ -356,8 +356,8 @@
                       (def balance-before
                            *balance*)
                       (defn compute-amount []
-                        (long (floor (* ~percent
-                                        *balance*))))
+                        ($/long-percentage ~percent
+                                           *balance*))
                       (def amount
                            (compute-amount))
                       (def faulty-amount

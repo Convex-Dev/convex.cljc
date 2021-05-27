@@ -39,6 +39,13 @@
                           "`accept` and `receive-coin`"
                           ($.test.prop/mult*
 
+                            "Cannot send coin to actor without an exported `receive-coin` function"
+                            ($.test.eval/error-state?* ctx-2
+                                                       (transfer (deploy
+                                                                   '(defn receive-coin [origin offer no-arg]))
+                                                                 ($/long-percentage ~percent
+                                                                                    *balance*)))
+
                             "`receive-coin` is exported"
                             ($.test.eval/result ctx-2
                                                 '(exports? addr
@@ -73,28 +80,30 @@
   (TC.prop/for-all [faulty-amount  $.test.gen/not-long
                     percent        $.test.gen/percent
                     x              $.gen/any]
-    (let [ctx ($.test.eval/ctx* (def addr
-                                     (deploy '(do
+    (let [ctx ($.test.eval/ctx* (do
+                                  (def addr
+                                       (deploy '(do
 
-                                                (def x
-                                                     ~x)
+                                                  (def x
+                                                       ~x)
 
-                                                (defn receive-coin
-                                                  [origin offer no-arg]
-                                                  (def -caller
-                                                       (= origin
-                                                          *caller*))
-                                                  (def -offer
-                                                       (= offer
-                                                          *offer*))
-                                                  (def -nil-arg-2
-                                                        (nil? no-arg))
-                                                  (def -accept
-                                                       (= offer
-                                                          (accept offer))))
+                                                  (defn receive-coin
+                                                    [origin offer no-arg]
+                                                    (def -caller
+                                                         (= origin
+                                                            *caller*))
+                                                    (def -offer
+                                                         (= offer
+                                                            *offer*))
+                                                    (def -nil-arg-2
+                                                          (nil? no-arg))
+                                                    (def -accept
+                                                         (= offer
+                                                            (accept offer))))
 
-                                                (export receive-coin)))))]
-
+                                                  (export receive-coin))))
+                                  (def addr-empty
+                                       (deploy nil))))]
       ($.test.prop/and* (-> ($.test.core.account/ctx-holding ctx
                                                              'addr
                                                              x)
