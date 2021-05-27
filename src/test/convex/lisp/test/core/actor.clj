@@ -19,7 +19,7 @@
 
   "Tests transfering coins to an actor which is more complex than to a regular account."
 
-  [ctx faulty-amount percent unused-address x]
+  [ctx faulty-amount percent x]
 
   ($.test.prop/checkpoint*
 
@@ -27,8 +27,7 @@
 
     (let [ctx-2 ($.test.core.account/ctx-transfer ctx
                                                   faulty-amount
-                                                  percent
-                                                  unused-address)]
+                                                  percent)]
       ($.test.prop/and* (-> ($.test.core.account/ctx-holding ctx-2
                                                              'addr
                                                              x)
@@ -73,13 +72,12 @@
 
   (TC.prop/for-all [faulty-amount  $.test.gen/not-long
                     percent        $.test.gen/percent
-                    unused-address $.test.gen/unused-address
                     x              $.gen/any]
     (let [ctx ($.test.eval/ctx* (def addr
                                      (deploy '(do
 
                                                 (def x
-                                                     (quote ~x))
+                                                     ~x)
 
                                                 (defn receive-coin
                                                   [origin offer no-arg]
@@ -106,9 +104,7 @@
                         (suite-transfer ctx
                                         faulty-amount
                                         percent
-                                        unused-address
                                         x)
                         ($.test.core.account/suite-transfer-memory ctx
                                                                    faulty-amount
-                                                                   percent
-                                                                   unused-address)))))
+                                                                   percent)))))

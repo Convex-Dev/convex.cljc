@@ -89,11 +89,9 @@
   
 
 
-  ($.eval/result ($.ctx/create-fake)
-                 '(mapv (fn [[k v]]
-                          [(unsyntax v)
-                           (meta v)])
-                        (:environment (account (address 8))))
+  ($.eval/error ($.ctx/create-fake)
+                 '(transfer-memory (address 9999999999)
+                                   10)
                  )
 
   

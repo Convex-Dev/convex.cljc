@@ -149,7 +149,7 @@
 
   "Suite testing memory tranfers."
 
-  [ctx faulty-amount percent unused-address]
+  [ctx faulty-amount percent]
  
   ($.test.prop/checkpoint*
 
@@ -219,13 +219,6 @@
                                                   (+ amount
                                                      ~Constants/MAX_SUPPLY)))
 
-        ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/159
-        ;;
-        ;; "Transfering allowance to unused address"
-        ;; ($.test.eval/error-nobody?* ctx-2
-        ;;                             (transfer-memory ($/unused-address ~unused-address)
-        ;;                                              amount))
-
         "Transfering garbage instead of memory"
         ($.test.eval/error-cast?* ctx-2
                                   (transfer-memory addr
@@ -246,7 +239,7 @@
                       (def addr
                            ~sym-addr)
                       (def holding
-                           (quote ~holding))
+                           ~holding)
                       (def -set-holding
                            (set-holding addr
                                         holding)))))
@@ -355,7 +348,7 @@
   
    `percent` is the percentage of the current balance that should be transfered."
 
-  [ctx faulty-amount percent unused-address]
+  [ctx faulty-amount percent]
 
   ($.test.eval/ctx* ctx
                     (do
@@ -370,8 +363,6 @@
                            ~faulty-amount)
                       (def percent
                            ~percent)
-                      (def unused-address
-                           ($/unused-address ~unused-address))
                       (def -transfer
                            (transfer addr
                                      amount)))))
@@ -453,11 +444,6 @@
                                           (+ amount
                                              ~Constants/MAX_SUPPLY)))
 
-       "Transfering funds to unused address"
-       ($.test.eval/error-nobody? ctx
-                                  '(transfer unused-address
-                                             (compute-amount)))
-
        "Transfering garbage instead of funds"
        ($.test.eval/error-cast? ctx
                                 '(transfer addr
@@ -494,8 +480,9 @@
                     pubkey         $.gen/hex-string-32
                     percent        $.test.gen/percent
                     unused-address $.test.gen/unused-address]
-    (let [ctx            ($.test.eval/ctx* (def addr
-                                                (create-account ~pubkey)))
+    (let [ctx            ($.test.eval/ctx* (do
+                                             (def addr
+                                                  (create-account ~pubkey))))
           ctx-*holdings* (ctx-holding ctx
                                       '*address*
                                       holding)]
@@ -512,13 +499,11 @@
                                        pubkey)
                         (suite-transfer (ctx-transfer ctx
                                                       faulty-amount
-                                                      percent
-                                                      unused-address)
+                                                      percent)
                                         "Transfering coins to a user account")
                         (suite-transfer-memory ctx
                                                faulty-amount
-                                               percent
-                                               unused-address)))))
+                                               percent)))))
 
 
 ;; TODO. `set-controller`, already a bit tested by `eval-as`, also see: https://github.com/Convex-Dev/convex/issues/133
@@ -529,6 +514,7 @@
 
 ($.test.prop/deftest error-cast-address
 
+  ;; Functions that should throw a CAST error when not operating over an address.
 
   (TC.prop/for-all [x $.test.gen/not-address]
     ($.test.prop/mult*
@@ -547,6 +533,11 @@
 
       "`get-holding`"
       ($.test.eval/error-cast?* (get-holding ~x))
+
+      "`set-controller`"
+      (if (nil? x)
+        true
+        ($.test.eval/error-cast?* (set-controller ~x)))
 
       "`set-holding`"
       ($.test.eval/error-cast?* (set-holding ~x
@@ -575,3 +566,31 @@
                                             (some? x)))
                                         $.gen/any)]
     ($.test.eval/error-cast?* (set-key ~x))))
+
+
+
+($.test.prop/deftest error-nobody
+
+  ;; Side-effects on adresses that should fail if the target address does not exist.
+
+  (TC.prop/for-all [addr $.test.gen/unused-address]
+    ($.test.prop/mult*
+
+      "`set-controller`"
+      ($.test.eval/error-nobody?* (set-controller ~addr))
+
+      "`set-holding`"
+      ($.test.eval/error-nobody?* (set-holding ~addr
+                                               42))
+
+
+       "`transfer`"
+       ($.test.eval/error-nobody?* (transfer ~addr
+                                             42))
+
+      ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/159
+      ;;
+      ;; "Transfering allowance to unused address"
+      ;; ($.test.eval/error-nobody?* (transfer-memory ~addr
+      ;;                                              42))
+      )))

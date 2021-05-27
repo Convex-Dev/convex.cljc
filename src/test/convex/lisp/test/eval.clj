@@ -260,8 +260,8 @@
 
   ([form]
 
-   (error-arg? ctx-base
-               form))
+   (error-nobody? ctx-base
+                  form))
 
 
   ([ctx form]
@@ -290,7 +290,7 @@
 (defn like-clojure?
 
   "Returns true if applying `arg+` to `form` on the CVM produces the exact same result as
-   `(apply f arg+)`"
+  `(apply f arg+)`"
 
 
   ([form]
@@ -326,7 +326,7 @@
 
 (defmacro like-clojure?*
 
-  
+
   ([form]
 
    `(like-clojure? ($.form/templ* ~form)))
@@ -516,7 +516,7 @@
 
                                   [addr]
 
-                                  (if (account address)
+                                  (if (account addr)
                                     (recur (address (inc (long addr))))
                                     addr))
                                 )))))
