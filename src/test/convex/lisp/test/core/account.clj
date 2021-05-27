@@ -209,14 +209,15 @@
                                                      (let [allowance ($/allowance)]
                                                        (+ allowance
                                                           (max 1
-                                                               (long (* ~percent
-                                                                        (- ~Constants/MAX_SUPPLY
-                                                                           allowance))))))))
+                                                               (long (floor (* ~percent
+                                                                              (- ~Constants/MAX_SUPPLY
+                                                                                 allowance)))))))))
 
         "Transfering allowance beyond authorized limit"
         ($.test.eval/error-arg?* ctx-2
                                  (transfer-memory addr
-                                                  (+ amount
+                                                  (+ (max 1
+                                                          amount)
                                                      ~Constants/MAX_SUPPLY)))
 
         "Transfering garbage instead of memory"
@@ -434,14 +435,15 @@
                                            (let [balance *balance*]
                                              (+ balance
                                                 (max 1
-                                                     (long (* percent
-                                                              (- ~Constants/MAX_SUPPLY
-                                                                 balance))))))))
+                                                     (long (floor (* percent
+                                                                    (- ~Constants/MAX_SUPPLY
+                                                                       balance)))))))))
 
        "Transfering funds beyond authorized limit"
        ($.test.eval/error-arg?* ctx
                                 (transfer addr
-                                          (+ amount
+                                          (+ (max 1
+                                                  amount)
                                              ~Constants/MAX_SUPPLY)))
 
        "Transfering garbage instead of funds"

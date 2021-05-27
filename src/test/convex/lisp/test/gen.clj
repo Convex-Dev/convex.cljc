@@ -108,7 +108,7 @@
 
   (TC.gen/double* {:infinite? false
                    :max       1
-                   :min       1
+                   :min       0
                    :NaN?      false}))
 
 
