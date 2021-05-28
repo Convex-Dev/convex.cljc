@@ -1,6 +1,6 @@
 (ns convex.lisp.gen
 
-  ""
+  "Generators for Convex Lisp types and constructs."
 
   {:author "Adam Helinski"}
 
@@ -22,12 +22,25 @@
             [convex.lisp.form              :as $.form]))
 
 
-;;;;;;;;;;
+;;;;;;;;;; Miscellaneous helpers
+
+
+(defn quoted
+
+  "Quotes the value produced by `gen` such as `(quote x)`."
+
+  [gen]
+
+  (TC.gen/fmap $.form/quoted
+               gen))
+
+
+;;;;;;;;;; Miscellaneous scalar types
 
 
 (def address
 
-  ""
+  "Any address."
 
   (TC.gen/fmap $.form/address
                (TC.gen/large-integer* {:min 0})))
@@ -36,7 +49,7 @@
 
 (def boolean
 
-  ""
+  "True or false."
 
   TC.gen/boolean)
 
@@ -44,24 +57,16 @@
 
 (def byte
 
-  ""
+  "Value between -128 and 127."
 
   (TC.gen/choose -128
                  127))
 
 
 
-(def char
-
-  ""
-
-  TC.gen/char)
-
-
-
 (def double
 
-  ""
+  "Any double, including +/- Infinity and NaN."
 
   TC.gen/double)
 
@@ -69,7 +74,7 @@
 
 (def long
 
-  ""
+  "Any long."
 
   TC.gen/large-integer)
 
@@ -77,7 +82,7 @@
 
 (def number
 
-  ""
+  "Either [[double]] or [[long]]"
 
   (TC.gen/one-of [double
                   long]))
@@ -86,7 +91,9 @@
 
 (defn number-bounded
 
-  ""
+  "Like [[number]] but accept a map with `:min` and `:max` for setting boundaries.
+  
+   Both are optional."
 
   [option+]
 
@@ -97,15 +104,17 @@
 
 (def nothing
 
-  ""
+  "Always generated nil."
 
   (TC.gen/return nil))
 
 
+;;;;;;;;;; Hex-strings
+
 
 (def hex-digit
 
-  ""
+  "Any valid character for hexadecimal notation, from `\0` to  `\f`."
 
   ;; TODO. Case insensitive, but CVM outputs as lowercase.
 
@@ -115,7 +124,7 @@
 
 (def hex-string
 
-  ""
+  "A valid hex-string where each byte is written as two [[hex-digit]]."
 
   (TC.gen/fmap (fn [digit+]
                  (let [n (count digit+)]
@@ -130,7 +139,9 @@
 
 (def hex-string-8
 
-  "Compatible with addresses."
+  "Like [[hex-string]] but fixed size representing 8 bytes.
+  
+   Compatible with addresses."
 
   (TC.gen/fmap (fn [[x x+]]
                  (clojure.string/join (cons x
@@ -143,17 +154,19 @@
 
 (def hex-string-32
 
-  ""
+  "Like [[hex-string]] but fixed size representing 32 bytes."
 
   (TC.gen/fmap clojure.string/join
                (TC.gen/vector hex-digit
                               64)))
 
 
+;;;;;;;;;; Blobs
+
 
 (def blob
 
-  ""
+  "Any blob."
 
   (TC.gen/fmap $.form/blob
                hex-string))
@@ -162,7 +175,9 @@
 
 (def blob-8
 
-  ""
+  "Like [[blob]] but fixed size representing 8 bytes.
+  
+   Compatible with addresses."
 
   (TC.gen/fmap $.form/blob
                hex-string-8))
@@ -171,29 +186,42 @@
 
 (def blob-32
 
-  ""
+  "Like [[blob]] but fixed size representing 32 bytes."
 
   (TC.gen/fmap $.form/blob
                hex-string-32))
 
 
+;;;;;;;;;; Characters and strings
+
+
+(def char
+
+  "Any character"
+
+  TC.gen/char)
+
 
 
 (def string
   
-  ""
+  "Any string."
 
-  ;; TOOD. Not only alphanumeric, but Convex does not escape all special chars yet.
+  ;; TOOD. Should not be alphanum only but Convex does not escape all special chars yet.
 
   TC.gen/string-alphanumeric)
 
 
+;;;;;;;;;; Symbolic
+
 
 (def string-symbolic
 
-  ""
+  "Like [[string]] but can be used for building keywords and symbols.
+  
+   Size is between 1 and 64 characters and the first character is compatible with symbolic types."
 
-  ;; TODO. Not only alphanumeric.
+  ;; TODO. Not only alphanumeric, see [[string]].
 
   (TC.gen/fmap (fn [[ch-1 ch+]]
                  (clojure.string/join (cons ch-1
@@ -207,28 +235,16 @@
 
 (def keyword
 
-  ""
+  "Any keyword."
 
   (TC.gen/fmap clojure.core/keyword
                string-symbolic))
 
 
 
-(defn quoted
-
-  ""
-
-  [gen]
-
-  (TC.gen/fmap #(clojure.core/list 'quote
-                                   %)
-               gen))
-
-
-
 (def symbol
 
-  ""
+  "Any unqualified symbol."
 
   (TC.gen/fmap clojure.core/symbol
                string-symbolic))
@@ -237,7 +253,7 @@
 
 (def symbol-ns
 
-  ""
+  "Any qualified symbol where namespace can be either an address or an unqualified symbol."
 
   (TC.gen/fmap (fn [[namespace- name-]]
                  (clojure.core/symbol namespace-
@@ -251,7 +267,7 @@
 
 (def symbol-quoted
 
-  ""
+  "Like [[symbol]] but the output is quoted."
 
   (quoted symbol))
 
@@ -259,15 +275,29 @@
 
 (def symbol-ns-quoted
 
-  ""
+  "Like [[symbol-ns]] but the output is quoted."
 
   (quoted symbol-ns))
 
 
+;;;;;;;;;; Recursive definition of Convex types
+
 
 (def scalar
 
-  ""
+  "Any of:
+  
+   - [[address]]
+   - [[blob]]
+   - [[boolean]]
+   - [[char]]
+   - [[double]]
+   - [[keyword]]
+   - [[long]]
+   - [[nothing]]
+   - [[string]]
+   - [[symbol-quoted]]
+   - [[symbol-ns-quoted]]"
 
   (TC.gen/one-of [address
                   blob
@@ -278,14 +308,18 @@
                   long
                   nothing
                   string
-                  symbol-quoted
-                  symbol-ns-quoted]))
+                  (TC.gen/one-of [symbol-quoted
+                                  symbol-ns-quoted])]))
 
 
 
 (def recursive
 
-  ""
+  "Base generators for recursive Convex types where an item of a collection can be a collection as well.
+  
+   Leaves are [[scalar]] while containes can be lists, maps, sets, and vectors.
+  
+   Produces a scalar in roughly 10% of outputs."
 
   (TC.gen/recursive-gen (fn [gen-inner]
                           (let [gen-vector (TC.gen/vector gen-inner)]
@@ -300,40 +334,12 @@
                         scalar))
 
 
-
-(defn ^:no-doc -wrap-in-coll
-
-  ;;
-
-  [x]
-
-  (case (rand-int 4)
-    0 ($.form/list [x])
-    1 {x x}
-    2 #{x}
-    3 [x]))
-
-
-
-(def collection
-
-  ""
-
-  (TC.gen/fmap (fn [x]
-                 (if (coll? x)
-                   (if (seq? x)
-                     (if ($.form/list? x)
-                       x
-                       (-wrap-in-coll x))
-                     x)
-                   (-wrap-in-coll x)))
-               recursive))
-
+;;;;;;;;;; Collections
 
 
 (def list
 
-  ""
+  "Any list."
   
   (TC.gen/fmap (fn [x]
                  (cond
@@ -345,46 +351,38 @@
                                  x
                                  ($.form/list [x]))
                    (vector? x) ($.form/list x)
-                   :else       ($.form/list? x)))
-               collection))
+                   :else       ($.form/list [x])))
+               recursive))
 
 
 
-(defn ^:no-doc -to-map
+(let [-to-map (fn [sq]
+                (into {}
+                      (clojure.core/map vec)
+                      (partition 2
+                                 2
+                                 sq
+                                 sq)))]
+  (def map
 
-  ;;
-
-  [sq]
-
-  (into {}
-        (clojure.core/map vec)
-        (partition 2
-                   2
-                   sq
-                   sq)))
-
-
-
-(def map
-
-  ""
-  
-  (TC.gen/fmap (fn [x]
-                 (cond
-                   (map? x)    x
-                   (set? x)    (-to-map x)
-                   (seq? x)    (if ($.form/list? x)
-                                 (-to-map (rest x))
-                                 {x x})
-                   (vector? x) (-to-map x)
-                   :else       {x x}))
-               collection))
+    "Any hash-map (not blob-maps)."
+    
+    (TC.gen/fmap (fn [x]
+                   (cond
+                     (map? x)    x
+                     (set? x)    (-to-map x)
+                     (seq? x)    (if ($.form/list? x)
+                                   (-to-map (rest x))
+                                   {x x})
+                     (vector? x) (-to-map x)
+                     :else       {x x}))
+                 recursive)))
 
 
 
 (def set
 
-  ""
+  "Any set."
   
   (TC.gen/fmap (fn [x]
                  (cond
@@ -397,13 +395,13 @@
                                  #{x})
                    (vector? x) (clojure.core/set x)
                    :else       #{x}))
-               collection))
+               recursive))
 
 
 
 (def vector
 
-  ""
+  "Any vector."
   
   (TC.gen/fmap (fn [x]
                  (cond
@@ -416,23 +414,15 @@
                                  [x])
                    (vector? x) x
                    :else       [x]))
-               collection))
+               recursive))
 
 
-
-(def sequential
-
-
-  ""
-
-  (TC.gen/one-of [list
-                  vector]))
-
+;;;;;;;;;; Grouping types
 
 
 (def any
 
-  ""
+  "Any type from this namespace."
 
   (TC.gen/frequency [[10 recursive]
                      [9  scalar]]))
@@ -441,7 +431,7 @@
 
 (defn any-but
 
-  ""
+  "Any type but from the given `exclusion-set`."
 
   [exclusion-set]
 
@@ -464,9 +454,31 @@
 
 
 
+(def collection
+
+  "Any collection."
+
+  (TC.gen/one-of [list
+                  map
+                  set
+                  vector]))
+
+
+
+(def sequential
+
+  "Either a list of a vector."
+
+  (TC.gen/one-of [list
+                  vector]))
+
+
+;;;;;;;;;; Pseudo booleans
+
+
 (def falsy
 
-  ""
+  "Either false or nil."
 
   (TC.gen/elements [false
                     nil]))
@@ -475,17 +487,21 @@
 
 (def truthy
 
-  ""
+  "Any but [[falsy]]."
 
   (TC.gen/such-that #(and (some? %)
                           (not (false? %)))
                     any))
 
 
+;;;;;;;;;; Miscellaneous utilities
+
 
 (defn binding+
 
-  ""
+  "Vector of `[ [[symbol]] [[any]] ]` where symbols are garanteed to be unique.
+  
+   Useful for generating `let`-like bindings."
 
 
   ([n-min n-max]
@@ -507,6 +523,8 @@
                       (interleave sym+
                                   x+))))))
 
+
+;;;;;;;;;; Core
 
 
 (def core-symbol
@@ -695,8 +713,6 @@
                     'when-let
                     'when-not
                     'zero?]))
-
-
 
 
 

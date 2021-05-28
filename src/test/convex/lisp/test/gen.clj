@@ -44,7 +44,7 @@
 
 (defn kv+
 
-  "Vector of key-values."
+  "Vector of `[Key Value]`."
 
   [gen-k gen-v]
 
