@@ -10,6 +10,10 @@
             [convex.lisp.test.eval         :as $.test.eval]))
 
 
+(declare kv+
+         mix-one-in)
+
+
 ;;;;;;;;;;
 
 
@@ -75,12 +79,34 @@
 
 
 
+(defn mix-one-in
+
+  "Ensures that an item from `gen-one` is present and shuffled in `gen-coll`."
+
+  [gen-one gen-coll]
+
+  (TC.gen/let [x  gen-one
+               x+ gen-coll]
+    (TC.gen/shuffle (conj x+
+                          x))))
+
+
+
 (def not-address
 
   "Anything but an address."
 
   (TC.gen/such-that #(not ($.form/address? %))
                     $.gen/any))
+
+
+
+(def not-collection
+
+  "Anything but a proper collection."
+
+  (TC.gen/such-that some?
+                    $.gen/scalar))
 
 
 
@@ -99,6 +125,30 @@
 
   (TC.gen/such-that #(not (number? %))
                     $.gen/any))
+
+
+
+(defn outlier
+
+  "Produces a vector of items where each item is either a good item or anything.
+  
+   Ensures that at least one wrong item is produced.
+  
+   Both kind can be given explicitly or a set of good generators can be given from which
+   a \"bad\" generator can be deduced."
+
+
+  ([set-gen-good]
+
+   (outlier (TC.gen/one-of (vec set-gen-good))
+            ($.gen/any-but set-gen-good)))
+
+
+  ([gen-good gen-wrong]
+
+   (mix-one-in gen-wrong
+               (TC.gen/vector (TC.gen/one-of [gen-good
+                                              $.gen/any])))))
 
 
 

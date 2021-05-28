@@ -1219,3 +1219,89 @@
                                           acc))
                                       :convex-sentinel
                                       x))))))
+
+
+;;;;;;;;;; Negative tests
+
+
+($.test.prop/deftest blob-map--err-cast
+
+  (TC.prop/for-all [arg+ (let [set-gen-good #{$.gen/address
+                                              $.gen/blob}]
+                           ($.test.gen/mix-one-in (TC.gen/tuple ($.gen/any-but set-gen-good)
+                                                                $.gen/any)
+                                                  ($.test.gen/kv+ (TC.gen/one-of [(TC.gen/one-of (vec set-gen-good))
+                                                                                  $.gen/any])
+                                                                  $.gen/any)))]
+    ($.test.eval/error-cast?* (blob-map ~@(mapcat identity
+                                                  arg+)))))
+
+
+
+($.test.prop/deftest concat--err-cast
+
+  (TC.prop/for-all [arg+ ($.test.gen/outlier #{$.gen/list
+                                               $.gen/map
+                                               $.gen/set
+                                               $.gen/vector})]
+    ($.test.eval/error-cast?* (concat ~@arg+))))
+
+
+
+($.test.prop/deftest conj--err-cast
+
+  ;; TODO. Blob-maps with non-blob keys.
+
+  (TC.prop/for-all [x    $.test.gen/not-collection
+                    arg+ (TC.gen/vector $.gen/any
+                                        0
+                                        6)]
+    ($.test.eval/error-cast?* (conj ~x
+                                    ~@arg+))))
+
+
+
+($.test.prop/deftest cons--err-cast
+
+  (TC.prop/for-all [x        $.gen/any
+                    not-coll $.test.gen/not-collection]
+    ($.test.eval/error-cast?* (cons ~x
+                                    ~not-coll))))
+
+
+
+($.test.prop/deftest contains-key?--err-cast
+
+  (TC.prop/for-all [x $.test.gen/not-collection
+                    k $.gen/any]
+    ($.test.eval/error-cast?* (contains-key? ~x
+                                             ~k))))
+
+
+;;;;;;;;;;
+
+
+; assoc
+; assoc-in
+; blob-map
+; concat
+; conj
+; cons
+; contains-key?
+; count
+; dissoc
+; empty
+; empty?
+; first
+; get
+; get-in
+; into
+; keys
+; last
+; list
+; map && mapv ???
+; merge
+; next
+; nth
+; second
+; values

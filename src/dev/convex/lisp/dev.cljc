@@ -89,9 +89,9 @@
   
 
 
-  ($.eval/error ($.ctx/create-fake)
-                '(into [] (blob "4545"))
-                 )
+  ($.eval/result ($.ctx/create-fake)
+                ($.form/templ* (account ~($.form/address 30)))
+                )
 
   
 
