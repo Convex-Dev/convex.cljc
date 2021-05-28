@@ -79,10 +79,13 @@
 
 
 
-(defn error
+(defn exception
 
-  "Returns the current error value attached to the given `ctx` if it is indeed
-   in an exceptional state, nil otherwise."
+  "The CVM enters in exceptional state in case of error or particular patterns such as
+   halting or doing a rollback.
+
+   Returns the current exception or nil if `ctx` is not in such a state meaning that [[result]]
+   can be safely used."
 
   [^Context ctx]
 
@@ -91,9 +94,11 @@
 
 
 
-(defn error?
+(defn exception?
 
-  "Is the given `ctx` in an exceptional state?"
+  "Returns true if the given `ctx` is in an exceptional state.
+
+   See [[exception]]."
 
   [^Context ctx]
 
@@ -127,7 +132,7 @@
 
   "Extracts the result (eg. after expansion, compilation, execution, ...) wrapped in a `ctx`.
   
-   Throws if the `ctx` is in an exceptional state. See [[error]]."
+   Throws if the `ctx` is in an exceptional state. See [[exception]]."
 
   [^Context ctx]
 
@@ -259,7 +264,7 @@
 
   (^Context [ctx]
 
-   (if (error? ctx)
+   (if (exception? ctx)
      ctx
      (query ctx
             (result ctx))))
@@ -283,7 +288,7 @@
 
   (^Context [ctx]
 
-   (if (error? ctx)
+   (if (exception? ctx)
      ctx
      (run ctx
           (result ctx))))

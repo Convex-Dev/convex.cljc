@@ -73,8 +73,8 @@
             (if ($.test.eval/result ctx-2
                                     '(not (defined? sym)))
               (identical? :UNDECLARED
-                          (-> ($.test.eval/error? ctx-2
-                                                  sym)
+                          (-> ($.test.eval/exception? ctx-2
+                                                      sym)
                               :convex.error/code))
               true)))))))
 

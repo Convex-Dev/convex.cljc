@@ -31,9 +31,9 @@
                        #_(println :form (list* (first x)
                                              (map $.form/quoted
                                                   (rest x))))
-                       ($.test.eval/error? (list* (first x)
-                                                  (map $.form/quoted
-                                                       (rest x)))))))
+                       ($.test.eval/exception? (list* (first x)
+                                                      (map $.form/quoted
+                                                           (rest x)))))))
 
 
 

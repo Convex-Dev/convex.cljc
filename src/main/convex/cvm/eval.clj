@@ -29,25 +29,25 @@
 
 
 
-(defn error
+(defn exception
 
-  "Like [[ctx]] but returns the error that has occured (or nil)."
+  "Like [[ctx]] but returns the current exception or nil if there is none."
 
   [ctx form]
 
-  ($.cvm.eval.src/error ctx
-                        ($.form/src form)))
+  ($.cvm.eval.src/exception ctx
+                            ($.form/src form)))
 
 
 
-(defn error?
+(defn exception?
 
-  "Like [[ctx]] but returns a boolean indicating if an error occured."
+  "Like [[ctx]] but returns a boolean indicating if an exception occured."
 
   [ctx form]
    
-  ($.cvm.eval.src/error? ctx
-                         ($.form/src form)))
+  ($.cvm.eval.src/exception? ctx
+                             ($.form/src form)))
 
 
 
@@ -82,7 +82,7 @@
 
 (defn value
 
-  "Like [[ctx]] but returns either an [[error]] or a [[result]]."
+  "Like [[ctx]] but returns either an [[exception]] or a [[result]]."
   
   [ctx form]
 

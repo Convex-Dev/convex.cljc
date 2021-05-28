@@ -114,7 +114,7 @@
   ;; TODO. Must catch a Reader error, it is not at the CVM level.
 
   (TC.prop/for-all [x ($.test.gen/E-notation $.gen/double)]
-    ($.test.eval/error? x)))
+    ($.test.eval/exception? x)))
 
 
 

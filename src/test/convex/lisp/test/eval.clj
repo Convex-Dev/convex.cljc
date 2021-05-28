@@ -54,65 +54,65 @@
 
 
 
-(defn error
+(defn exception
 
 
   ([form]
 
-   (error ctx-base
-          form))
+   (exception ctx-base
+              form))
 
 
   ([ctx form]
 
-   ($.cvm.eval/error ctx
-                     form)))
+   ($.cvm.eval/exception ctx
+                         form)))
 
 
 
-(defmacro error*
+(defmacro exception*
 
 
   ([form]
 
-   `(error ($.form/templ* ~form)))
+   `(exception ($.form/templ* ~form)))
 
 
   ([ctx form]
 
-   `(error ~ctx
-           ($.form/templ* ~form))))
+   `(exception ~ctx
+               ($.form/templ* ~form))))
 
 
 
-(defn error?
+(defn exception?
 
 
   ([form]
 
-   (error? ctx-base
+   (exception? ctx-base
            form))
 
 
   ([ctx form]
 
-   ($.cvm.eval/error? ctx
-                      form)))
+   ($.cvm.eval/exception? ctx
+                          form)))
 
 
 
-(defmacro error?*
+(defmacro exception?*
 
 
   ([form]
 
-   `(error? ($.form/templ* ~form)))
+   `(exception? ($.form/templ* ~form)))
 
 
   ([ctx form]
 
-   `(error? ~ctx
-            ($.form/templ* ~form))))
+   `(exception? ~ctx
+                ($.form/templ* ~form))))
 
 
 
@@ -130,8 +130,8 @@
   ([ctx form]
 
    (= :ARGUMENT
-      (:convex.error/code (error ctx
-                                 form)))))
+      (:convex.error/code (exception ctx
+                                     form)))))
 
 
 
@@ -165,8 +165,8 @@
   ([ctx form]
 
    (= :ARITY
-      (:convex.error/code (error ctx
-                                 form)))))
+      (:convex.error/code (exception ctx
+                                     form)))))
 
 
 
@@ -199,8 +199,8 @@
   ([ctx form]
 
    (= :CAST
-      (:convex.error/code (error ctx
-                                 form)))))
+      (:convex.error/code (exception ctx
+                                     form)))))
 
 
 
@@ -233,8 +233,8 @@
   ([ctx form]
 
    (= :FUNDS
-      (:convex.error/code (error ctx
-                                 form)))))
+      (:convex.error/code (exception ctx
+                                     form)))))
 
 
 
@@ -267,8 +267,8 @@
   ([ctx form]
 
    (= :MEMORY
-      (:convex.error/code (error ctx
-                                 form)))))
+      (:convex.error/code (exception ctx
+                                     form)))))
 
 
 
@@ -301,8 +301,8 @@
   ([ctx form]
 
    (= :NOBODY
-      (:convex.error/code (error ctx
-                                 form)))))
+      (:convex.error/code (exception ctx
+                                     form)))))
 
 
 
@@ -335,8 +335,8 @@
   ([ctx form]
 
    (= :STATE
-      (:convex.error/code (error ctx
-                                 form)))))
+      (:convex.error/code (exception ctx
+                                     form)))))
 
 
 

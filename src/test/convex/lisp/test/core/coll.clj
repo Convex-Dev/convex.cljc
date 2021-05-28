@@ -495,8 +495,8 @@
                             '(nil? (next x-3)))
 
         "`second` is exceptional"
-        ($.test.eval/error? ctx-2
-                            '(second x-3))
+        ($.test.eval/exception? ctx-2
+                                '(second x-3))
 
         ))))
 
@@ -926,9 +926,9 @@
 
   [x k v]
 
-  ($.test.eval/error?* (assoc ~x
-                              ~k
-                              ~v)))
+  ($.test.eval/exception?* (assoc ~x
+                                  ~k
+                                  ~v)))
 
 
 
@@ -988,9 +988,9 @@
                                           $.gen/nothing
                                           $.gen/vector})
                     v    $.gen/any]
-    ($.test.eval/error?* (assoc-in ~x
-                                   ~path
-                                   ~v))))
+    ($.test.eval/exception?* (assoc-in ~x
+                                       ~path
+                                       ~v))))
 
 
 
@@ -1003,9 +1003,9 @@
                     path (TC.gen/such-that #(not ($.form/empty? %))
                                            $.gen/sequential)
                     v    $.gen/any]
-    ($.test.eval/error?* (assoc-in ~x
-                                   ~path
-                                   ~v))))
+    ($.test.eval/exception?* (assoc-in ~x
+                                       ~path
+                                       ~v))))
 
 
 

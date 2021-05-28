@@ -65,9 +65,9 @@
                     x-ploy   $.gen/any
                     x-return $.gen/truthy]
     (identical? :ASSERT
-                (-> ($.test.eval/error (-nested-fn n
-                                                   ($.form/templ* (assert (not ~x-return)))
-                                                   x-ploy))
+                (-> ($.test.eval/exception (-nested-fn n
+                                                       ($.form/templ* (assert (not ~x-return)))
+                                                       x-ploy))
                     :convex.error/code))))
 
 
@@ -157,9 +157,9 @@
                     message $.gen/any
                     x-ploy  $.gen/any]
     (let [exec      (fn [form]
-                      ($.test.eval/error (-nested-fn n
-                                                     form
-                                                     x-ploy)))
+                      ($.test.eval/exception (-nested-fn n
+                                                         form
+                                                         x-ploy)))
           message-2 ($.test.eval/result message)]
       ($.test.prop/and* ($.test.prop/checkpoint*
   

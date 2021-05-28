@@ -22,29 +22,28 @@
 
 
 
-(defn error
+(defn exception
 
-  "Like [[ctx]] but returns the error that has occured (or nil)."
+  "Like [[ctx]] but returns the current exception or nil if there is none."
 
   [ctx src]
 
   (-> (convex.cvm.eval.src/ctx ctx
                                src)
-      $.cvm/error
+      $.cvm/exception
       $.cvm/as-clojure))
 
 
 
-(defn error?
+(defn exception?
 
-  "Like [[ctx]] but returns a boolean indicating if an error occured."
+  "Like [[ctx]] but returns a boolean indicating if an exception occured."
 
   [ctx src]
 
   (-> (convex.cvm.eval.src/ctx ctx
                                src)
-      $.cvm/error
-      some?))
+      $.cvm/exception?))
 
 
 
@@ -63,15 +62,14 @@
 
 (defn value
 
-  "Like [[ctx]] but returns either an [[error]] or a [[result]]."
+  "Like [[ctx]] but returns either an [[exception]] or a [[result]]."
   
   [ctx src]
 
-  (let [ctx-2 (convex.cvm.eval.src/ctx ctx
-                                       src)
-        error ($.cvm/error ctx-2)]
-    (if (nil? error)
-      (-> ctx-2
-          $.cvm/result
-          $.cvm/as-clojure)
-      error)))
+  (let [ctx-2     (convex.cvm.eval.src/ctx ctx
+                                           src)
+        exception ($.cvm/exception ctx-2)]
+    (-> (if (nil? exception)
+          ($.cvm/result ctx-2)
+          exception)
+        $.cvm/as-clojure)))
