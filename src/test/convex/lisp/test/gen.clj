@@ -5,6 +5,7 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.test.check.generators :as TC.gen]
+            [convex.cvm                    :as $.cvm]
             [convex.lisp                   :as $.lisp]
             [convex.lisp.gen               :as $.gen]
             [convex.lisp.test.eval         :as $.test.eval]))
@@ -172,11 +173,29 @@
                     100))
 
 
+;;;;;;;;;; Core
+
+
+(def core-symbol
+
+  "Any of the core symbols."
+
+  (TC.gen/elements (into []
+                         (comp (map (comp $.cvm/as-clojure
+                                          first))
+                               (filter #(not (contains? #{'actor  ;; TODO. https://github.com/Convex-Dev/convex/issues/152
+                                                          'expand ;; TODO. https://github.com/Convex-Dev/convex/issues/149
+                                                          'fn     ;; TODO. https://github.com/Convex-Dev/convex/issues/152
+                                                          }
+                                                        %))))
+                         ($.cvm/env $.test.eval/ctx-base
+                                    8))))
+
 ;;;;;;;;;;
 
 
 (comment
 
-  (TC.gen/generate unused-address
+  (TC.gen/generate core-symbol
                    30)
   )

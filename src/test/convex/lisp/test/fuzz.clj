@@ -7,9 +7,11 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.test.check.properties :as TC.prop]
+  (:require [clojure.test.check.generators :as TC.gen]
+            [clojure.test.check.properties :as TC.prop]
             [convex.lisp.gen               :as $.gen]
             [convex.lisp.test.eval         :as $.test.eval]
+            [convex.lisp.test.gen          :as $.test.gen]
             [convex.lisp.test.prop         :as $.test.prop]))
 
 
@@ -42,7 +44,10 @@
   ;; Generating randorm forms that should either fail or succeed on the CVM, but no
   ;; JVM exception should be thrown without being handled.
 
-  (TC.prop/for-all [form ($.gen/random-call)]
+  (TC.prop/for-all [form ($.gen/call $.test.gen/core-symbol
+                                     (TC.gen/vector $.gen/any
+                                                    1
+                                                    8))]
     ($.test.eval/value form)
     true))
 

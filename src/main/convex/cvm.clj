@@ -19,14 +19,22 @@
   {:author "Adam Helinski"}
 
   (:import convex.core.Init
-           convex.core.data.Symbol
+           (convex.core.data AccountStatus
+                             Address
+                             AHashMap
+                             Symbol)
            (convex.core.lang Context
                              Reader))
   (:refer-clojure :exclude [compile
                             eval
                             read])
   (:require [clojure.core.protocols]
+            [convex.cvm.type         :as $.cvm.type]
             [convex.lisp             :as $.lisp]))
+
+
+(set! *warn-on-reflection*
+      true)
 
 
 (declare run)
@@ -72,13 +80,52 @@
 ;;;;;;;;;; Querying context properties
 
 
+(defn account
+
+  "Returns the account for the given `address` (or the return value of [[address]] if none is provided)."
+
+  
+  (^AccountStatus [^Context ctx]
+
+   (.getAccountStatus ctx))
+
+
+  (^AccountStatus [^Context ctx address]
+
+    (.getAccountStatus ctx
+                       (cond->
+                         address
+                         (number? address)
+                         $.cvm.type/address))))
+
+
+
+(defn address
+  
+  "Returns the executing address of the given `ctx`."
+
+  ^Address
+
+  [^Context ctx]
+
+  (.getAddress ctx))
+
+
+
 (defn env
 
   "Returns the environment of the executing account attached to `ctx`."
 
-  [^Context ctx]
 
-  (.getEnvironment ctx))
+  (^AHashMap [^Context ctx]
+
+   (.getEnvironment ctx))
+
+
+  (^AHashMap [ctx address]
+
+   (.getEnvironment (account ctx
+                             address))))
 
 
 

@@ -497,6 +497,19 @@
 ;;;;;;;;;; Miscellaneous utilities
 
 
+(defn call 
+
+  "Random call to a `(~sym ~@arg+)` form."
+
+  [gen-sym gen-arg+]
+
+  (TC.gen/let [sym  gen-sym
+               arg+ gen-arg+]
+    (list* sym
+           arg+)))
+
+
+
 (defn binding+
 
   "Vector of `[ [[symbol]] [[any]] ]` where symbols are garanteed to be unique.
@@ -522,222 +535,6 @@
            (partition 2
                       (interleave sym+
                                   x+))))))
-
-
-;;;;;;;;;; Core
-
-
-(def core-symbol
-
-  ""
-
-  (TC.gen/elements ['*
-                    '*address*
-                    '*aliases*
-                    '*balance*
-                    '*caller*
-                    '*depth*
-                    '*exports*
-                    '*holdings*
-                    ;'*initial-expander* ;; TODO. https://github.com/Convex-Dev/convex/issues/150
-                    '*juice*
-                    '*key*
-                    '*memory*
-                    '*offer*
-                    '*origin*
-                    '*registry*
-                    '*result*
-                    '*sequence*
-                    '*state*
-                    '*timestamp*
-                    '+
-                    '-
-                    '/
-                    '<
-                    '<=
-                    '=
-                    '==
-                    '>
-                    '>=
-                    'abs
-                    'accept
-                    'account
-                    'account?
-                    ; 'actor ;; TODO. https://github.com/Convex-Dev/convex/issues/152
-                    'actor?
-                    'address
-                    'address?
-                    'and
-                    'apply
-                    'assert
-                    'assoc
-                    'assoc-in
-                    'balance
-                    'blob
-                    'blob-map
-                    'blob?
-                    'boolean
-                    'boolean?
-                    'byte
-                    'call
-                    'call*
-                    'ceil
-                    'char
-                    'coll?
-                    'compile
-                    'concat
-                    'cond
-                    'conj
-                    'cons
-                    'contains-key?
-                    'count
-                    'create-account
-                    'dec
-                    'def
-                    'defactor
-                    'defexpander
-                    'defined?
-                    'defmacro
-                    'defn
-                    'deploy
-                    'difference
-                    'disj
-                    'dissoc
-                    'do
-                    'doc
-                    'dotimes
-                    'double
-                    'empty
-                    'empty?
-                    'encoding
-                    'eval
-                    'eval-as
-                    'exp
-                    ;'expand ;; TODO. https://github.com/Convex-Dev/convex/issues/149
-                    'export
-                    'exports?
-                    'fail
-                    'first
-                    'floor
-                    ; 'fn ;; TODO. https://github.com/Convex-Dev/convex/issues/152
-                    'fn?
-                    'for
-                    'get
-                    'get-holding
-                    'get-in
-                    'halt
-                    'hash
-                    'hash-map
-                    'hash-set
-                    'hash?
-                    'identity
-                    'if
-                    'if-let
-                    'import
-                    'inc
-                    'intersection
-                    ;'into
-                    'keys
-                    'keyword
-                    'keyword?
-                    'last
-                    'let
-                    'list
-                    'list?
-                    'log
-                    'long
-                    'long?
-                    'lookup
-                    'lookup-syntax
-                    'loop
-                    'macro
-                    'map
-                    'map?
-                    'mapcat
-                    'mapv
-                    'max
-                    'merge
-                    'meta
-                    'min
-                    'mod
-                    'name
-                    'next
-                    'nil?
-                    'not
-                    'nth
-                    'number?
-                    'or
-                    'pow
-                    'quasiquote
-                    'query
-                    'quot
-                    'quote
-                    'recur
-                    'reduce
-                    'reduced
-                    'rem
-                    'return
-                    'rollback
-                    'schedule
-                    'schedule*
-                    'second
-                    'set
-                    'set!
-                    'set*
-                    'set-controller
-                    'set-holding
-                    'set-key
-                    'set-memory
-                    'set?
-                    'signum
-                    'sqrt
-                    'stake
-                    'str
-                    'str?
-                    'subset?
-                    'symbol
-                    'symbol?
-                    'syntax
-                    'syntax?
-                    'transfer
-                    'transfer-memory
-                    'undef
-                    'undef*
-                    'union
-                    'unsyntax
-                    'values
-                    'vec
-                    'vector
-                    'vector?
-                    'when
-                    'when-let
-                    'when-not
-                    'zero?]))
-
-
-
-(defn random-call
-
-  ""
-
-  
-  ([]
-
-   (random-call nil))
-
-
-  ([option+]
-
-   (TC.gen/let [sym  (or (:gen-sym option+)
-                         core-symbol)
-                arg+ (TC.gen/vector (or (:gen-arg option+)
-                                        any)
-                                    (or (:min option+)
-                                        0)
-                                    (or (:max option+)
-                                        16))]
-     (list* sym
-            arg+))))
 
 
 ;;;;;;;;;;

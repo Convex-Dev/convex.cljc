@@ -65,11 +65,12 @@
                      )
 
 
-  (-> ($.cvm/ctx)
-      $.cvm/state
-      .getAccounts
-      (.get 8)
-      )
+  (reduce (fn [a b]
+            a)
+          []
+          ($.cvm.type/map {}))
+  
 
+  ($.cvm/account ($.cvm/ctx))
 
   ))

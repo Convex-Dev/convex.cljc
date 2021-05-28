@@ -8,11 +8,13 @@
 
   (:require [clojure.java.io]
             [clojure.pprint]
-            [clojure.test.check            :as tc]
-            [clojure.test.check.properties :as tc.prop]
+            [clojure.test.check            :as TC]
+            [clojure.test.check.generators :as TC.gen]
+            [clojure.test.check.properties :as TC.prop]
             [convex.cvm                    :as $.cvm]
             [convex.cvm.eval               :as $.cvm.eval]
-            [convex.lisp.gen               :as $.gen])
+            [convex.lisp.gen               :as $.gen]
+            [convex.lisp.test.gen          :as $.test.gen])
   (:import java.io.File))
 
 
@@ -37,9 +39,12 @@
         root         (or (:root option+)
                          "report/fuzz")
         d*ensure-dir (delay
-                       (.mkdirs (File. root)))
+                       (.mkdirs (File. ^String root)))
         ctx          ($.cvm/ctx)
-        prop         (tc.prop/for-all [form ($.gen/random-call)]
+        prop         (TC.prop/for-all [form ($.gen/call $.test.gen/core-symbol
+                                                        (TC.gen/vector $.gen/any
+                                                                       0
+                                                                       8))]
                        ($.cvm.eval/value ctx
                                          form)
                        true)
@@ -52,7 +57,7 @@
     (dotimes [_ n-core]
       (future
         (while true
-          (let [result (tc/quick-check 1e4
+          (let [result (TC/quick-check 1e4
                                        prop
                                        :max-size max-size)]
             (send a*print
