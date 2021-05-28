@@ -19,9 +19,12 @@
   {:author "Adam Helinski"}
 
   (:import convex.core.Init
-           convex.core.lang.Context)
+           convex.core.data.Symbol
+           (convex.core.lang Context
+                             Reader))
   (:refer-clojure :exclude [compile
-                            eval])
+                            eval
+                            read])
   (:require [clojure.core.protocols]
             [convex.lisp             :as $.lisp]))
 
@@ -162,7 +165,38 @@
               juice))
 
 
-;;;;;;;;;; Compiling Convex objects
+;;;;;;;;;; Phase 1 - Reading Convex Lisp 
+
+
+(defn read
+
+  "Converts Convex Lisp source to a Convex object.
+
+   Such an object can be used as is, using its Java API. More often, is it converted to Clojure or
+   compiled and executed on the CVM. See the [[convex.cvm]] namespace."
+
+  [string]
+
+  (let [parsed (Reader/readAll string)]
+    (if (second parsed)
+      (.cons parsed
+             (Symbol/create "do"))
+      (first parsed))))
+
+
+
+(defn read-form
+
+  "Stringifies the given Clojure form to Convex Lisp source and applies the result to [[read]]."
+
+  [form]
+
+  (-> form
+      $.lisp/src
+      read))
+
+
+;;;;;;;;;; Phase 2 & 3 - Expanding Convex objects and compiling into operations
 
 
 (defn compile
@@ -232,7 +266,7 @@
                    object)))
 
 
-;;;;;;;;;; Executing Convex objects
+;;;;;;;;;; Pahse 4 - Executing compiled code
 
 
 (defn eval

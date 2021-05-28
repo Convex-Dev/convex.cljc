@@ -23,7 +23,7 @@
            ($.cvm/as-clojure (cond->
                                target-convex
                                (string? target-convex)
-                               $.lisp/read)))
+                               $.cvm/read)))
         message))
 
 
@@ -88,8 +88,8 @@
 
   (-as-clojure '(syntax [:a 42]
                         {:foo :bar})
-               (Syntax/create ($.lisp/read "[:a 42]")
-                              ($.lisp/read "{:foo :bar}"))
+               (Syntax/create ($.cvm/read "[:a 42]")
+                              ($.cvm/read "{:foo :bar}"))
                "Syntax")
   
   (-as-clojure true
@@ -116,8 +116,8 @@
                 :convex.error/message [:foo]
                 :convex.error/trace   '("test-1"
                                         "test-2")}
-               (doto (ErrorValue/createRaw ($.lisp/read "{:a 42}")
-                                           ($.lisp/read "[:foo]"))
+               (doto (ErrorValue/createRaw ($.cvm/read "{:a 42}")
+                                           ($.cvm/read "[:foo]"))
                  (.addTrace "test-1")
                  (.addTrace "test-2"))
                "Error")
@@ -144,6 +144,6 @@
     (t/is (= code
              (-> code
                  $.lisp/src
-                 $.lisp/read
+                 $.cvm/read
                  $.cvm/as-clojure))
           "Stress test")))

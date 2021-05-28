@@ -4,8 +4,7 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.cvm  :as $.cvm]
-            [convex.lisp :as $.lisp]))
+  (:require [convex.cvm :as $.cvm]))
 
 
 ;;;;;;;;;;
@@ -18,7 +17,7 @@
   [ctx src]
 
   ($.cvm/eval ($.cvm/fork ctx)
-              ($.lisp/read src)))
+              ($.cvm/read src)))
 
 
 

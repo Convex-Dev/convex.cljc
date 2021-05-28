@@ -5,8 +5,7 @@
   (:require [convex.cvm]
             [convex.cvm.eval]
             [convex.cvm.eval.src]
-            [convex.lisp]
-            [convex.lisp.form]))
+            [convex.lisp]))
 
 
 ;;;;;;;;;;
@@ -21,10 +20,10 @@
         form   '(+ 2 2)
         
         ;; Converting Clojure data to source code (a string)
-        source (convex.lisp.form/src form)
+        source (convex.lisp/src form)
         
         ;; Reading source code as Convex object
-        code   (convex.lisp/read source)
+        code   (convex.cvm/read source)
         
         ;; Creating a test context
         ctx    (convex.cvm/ctx)
@@ -45,7 +44,7 @@
   ;; Simplified execution
   ;;
   (-> (convex.cvm/eval (convex.cvm/ctx)
-                       (convex.lisp/read-form '(+ 2 2)))
+                       (convex.cvm/read-form '(+ 2 2)))
       convex.cvm/result
       convex.cvm/as-clojure)
 
@@ -64,8 +63,8 @@
   ;; Later, forking and reusing it ad libidum
   ;;
   (-> (convex.cvm/eval (convex.cvm/fork base-ctx)
-                       (convex.lisp/read-form '(= 42
-                                                  (my-dec (my-inc 42)))))
+                       (convex.cvm/read-form '(= 42
+                                                 (my-dec (my-inc 42)))))
       convex.cvm/result
       convex.cvm/as-clojure)
 
