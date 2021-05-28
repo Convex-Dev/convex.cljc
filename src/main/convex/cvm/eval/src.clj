@@ -31,7 +31,7 @@
   (-> (convex.cvm.eval.src/ctx ctx
                                src)
       $.cvm/error
-      $.lisp/datafy))
+      $.cvm/as-clojure))
 
 
 
@@ -57,7 +57,7 @@
   (-> (convex.cvm.eval.src/ctx ctx
                                src)
       $.cvm/result
-      $.lisp/datafy))
+      $.cvm/as-clojure))
 
 
 
@@ -73,5 +73,5 @@
     (if (nil? error)
       (-> ctx-2
           $.cvm/result
-          $.lisp/datafy)
+          $.cvm/as-clojure)
       error)))

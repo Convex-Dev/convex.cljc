@@ -16,7 +16,7 @@
             [convex.lisp.hex                          :as $.hex]
             #?(:clj [convex.lisp.run.fuzz])
             [convex.lisp.schema                       :as $.schema]
-            #?@(:clj [[convex.lisp.test]
+            #?@(:clj [[convex.cvm.test]
                       [convex.lisp.test.core.account]
                       [convex.lisp.test.core.actor]
                       [convex.lisp.test.core.coerce]

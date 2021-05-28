@@ -38,7 +38,7 @@
     ;; Getting result and converting to Clojure data
     (-> ctx-2
         convex.cvm/result
-        convex.lisp/datafy))
+        convex.cvm/as-clojure))
 
 
 
@@ -47,7 +47,7 @@
   (-> (convex.cvm/eval (convex.cvm/ctx)
                        (convex.lisp/read-form '(+ 2 2)))
       convex.cvm/result
-      convex.lisp/datafy)
+      convex.cvm/as-clojure)
 
 
 
@@ -67,17 +67,17 @@
                        (convex.lisp/read-form '(= 42
                                                   (my-dec (my-inc 42)))))
       convex.cvm/result
-      convex.lisp/datafy)
+      convex.cvm/as-clojure)
 
 
 
-  ;; Using helpers (takes care of forking and datafying)
+  ;; Using helpers (takes care of forking and translating into Clojure)
   ;;
   (= 4
-     (convex.cvm.eval/result (convex.cvm/ctx)
-                             '(+ 2 2))
-     (convex.cvm.eval.src/result (convex.cvm/ctx)
-                                 "(+ 2 2)"))
+     (convex.cvm.eval/result base-ctx
+                             '(my-dec (my-inc 42)))
+     (convex.cvm.eval.src/result base-ctx
+                                 "(my-dec (my-inc 42))"))
 
   
   )

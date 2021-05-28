@@ -65,7 +65,7 @@
                                                     '(log {:form   '?form
                                                            :return ?form}))))
       $.cvm/log
-      $.lisp/datafy))
+      $.cvm/as-clojure))
 
 
 

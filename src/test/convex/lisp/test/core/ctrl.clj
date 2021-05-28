@@ -8,7 +8,6 @@
             [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
             [convex.cvm                    :as $.cvm]
-            [convex.lisp                   :as $]
             [convex.lisp.form              :as $.form]
             [convex.lisp.gen               :as $.gen]
             [convex.lisp.test.eval         :as $.test.eval]
@@ -315,7 +314,7 @@
         ($.test.util/eq ($.test.eval/result x-return)
                         (-> ctx
                             $.cvm/result
-                            $/datafy))
+                            $.cvm/as-clojure))
 
         "State has been rolled back"
         (let [form '(hash (encoding *state*))]

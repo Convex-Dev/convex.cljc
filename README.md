@@ -64,7 +64,7 @@ Going through the whole cycle (context could be reused for further execution):
   ;; Getting result and converting to Clojure data
   (-> ctx-2
       convex.cvm/result
-      convex.lisp/datafy))
+      convex.cvm/as-clojure))
 ```
 
 There are shortcuts and it is easy writing a helper function as needed. For instance, leveraging other utilities:
@@ -73,7 +73,7 @@ There are shortcuts and it is easy writing a helper function as needed. For inst
 (-> (convex.cvm/eval (convex.cvm/ctx)
                      (convex.lisp/read-form '(+ 2 2)))
     convex.cvm/result
-    convex.lisp/datafy)
+    convex.cvm/as-clojure)
 
 ```
 
@@ -94,7 +94,7 @@ Often, a CVM context needs some preparation such as adding utility functions. It
                      (convex.lisp/read-form '(= 42
                                                 (my-dec (my-inc 42)))))
     convex.cvm/result
-    convex.lisp/datafy)
+    convex.cvm/as-clojure)
 ```
 
 This pattern of forking and getting some value translated in Clojure data is so common that there are 2 namespaces providing shotcuts:

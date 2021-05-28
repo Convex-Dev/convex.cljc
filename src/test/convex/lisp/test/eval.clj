@@ -11,7 +11,6 @@
 
   (:require [convex.cvm            :as $.cvm]
             [convex.cvm.eval       :as $.cvm.eval]
-            [convex.lisp           :as $]
             [convex.lisp.form      :as $.form]
             [convex.lisp.test.prop :as $.test.prop]
             [convex.lisp.test.util :as $.test.util]))
@@ -487,11 +486,11 @@
                                form)
          res   (-> ctx-2
                    $.cvm/result
-                   $/datafy)]
+                   $.cvm/as-clojure)]
      (or res
          ($.test.prop/fail {:convex.test/log (-> ctx-2
                                                  $.cvm/log
-                                                 $/datafy)})))))
+                                                 $.cvm/as-clojure)})))))
 
 
 
