@@ -23,7 +23,7 @@ The toolset already provides quite a lot of useful features for interacting with
 
 More examples will follow as the API stabilizes.
 
-Current examples are located in the [example directory](../main/src/example/convex/lisp/example).
+Current examples are located in the [example directory](../main/src/example/convex/example).
 
 Requiring namespaces for current examples:
 
@@ -31,8 +31,7 @@ Requiring namespaces for current examples:
 (require 'convex.cvm           ;; Expanding, compiling, and executing code on the CVM
          'convex.cvm.eval      ;; Helpers for quickly evaluating forms (dev + tests)
          'convex.cvm.eval.src  ;; Ditto, but when working with source strings
-         'convex.lisp          ;; Reading source code and translate CVM objects to Clojure data
-         'convex.lisp.form     ;; Writing Convex Lisp as Clojure forms
+         'convex.lisp          ;; Using Clojure for writing Convex Lisp
          'convex.lisp.schema)  ;; Malli schemas for Convex Lisp
 ```
 
@@ -47,10 +46,10 @@ Going through the whole cycle (context could be reused for further execution):
       form   '(+ 2 2)
       
       ;; Converting Clojure data to source code (a string)
-      source (convex.lisp.form/src form)
+      source (convex.lisp/src form)
       
       ;; Reading source code as Convex object
-      code   (convex.lisp/read source)
+      code   (convex.cvm/read source)
       
       ;; Creating a test context
       ctx    (convex.cvm/ctx)
@@ -67,14 +66,13 @@ Going through the whole cycle (context could be reused for further execution):
       convex.cvm/as-clojure))
 ```
 
-There are shortcuts and it is easy writing a helper function as needed. For instance, leveraging other utilities:
+There are shortcuts and it is easy writing a helper function as needed. For instance, leveraging `eval`:
 
 ```clojure
 (-> (convex.cvm/eval (convex.cvm/ctx)
-                     (convex.lisp/read-form '(+ 2 2)))
+                     (convex.cvm/read-form '(+ 2 2)))
     convex.cvm/result
     convex.cvm/as-clojure)
-
 ```
 
 Often, a CVM context needs some preparation such as adding utility functions. It is a good idea forking the context when used so that any work is done on cheap copies, leaving the original context intact in order to be reused at will.
@@ -83,16 +81,18 @@ Often, a CVM context needs some preparation such as adding utility functions. It
 ;; Creating a new context, modifying it by adding a couple of functions in the environment
 ;;
 (def base-ctx
-     (convex.lisp.eval/ctx (convex.lisp.ctx/create-fake)
-                           '(do
-                              (defn my-inc [x] (+ x 1))
-                              (defn my-dec [x] (- x 1)))))
+     (convex.cvm.eval/ctx (convex.cvm/ctx)
+                          '(do
+                             (defn my-inc [x] (+ x 1))
+                             (defn my-dec [x] (- x 1)))))
 
-;; Later, forking and reusing it
+
+
+;; Later, forking and reusing it ad libidum
 ;;
 (-> (convex.cvm/eval (convex.cvm/fork base-ctx)
-                     (convex.lisp/read-form '(= 42
-                                                (my-dec (my-inc 42)))))
+                     (convex.cvm/read-form '(= 42
+                                               (my-dec (my-inc 42)))))
     convex.cvm/result
     convex.cvm/as-clojure)
 ```
@@ -122,7 +122,7 @@ For example:
 (let [kw :foo
       xs [2 3]
       y  42]
-  (convex.lisp.form/templ* [~kw 1 ~@xs 4 ~y y (unquote y) (unquote-splicing xs)]))
+  (convex.lisp/templ* [~kw 1 ~@xs 4 ~y y (unquote y) (unquote-splicing xs)]))
 ```
 
 Produces the following vector:

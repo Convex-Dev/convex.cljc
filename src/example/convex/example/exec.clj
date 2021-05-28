@@ -1,4 +1,4 @@
-(ns convex.lisp.example.exec
+(ns convex.example.exec
 
   "Executing some Convex Lisp code against a test CVM."
 

@@ -1,4 +1,4 @@
-(ns convex.lisp.example.schema
+(ns convex.example.schema
 
   "Using Malli for validating and generating Convex Lisp."
 

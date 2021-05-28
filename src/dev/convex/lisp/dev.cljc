@@ -35,6 +35,8 @@
                       [convex.lisp.test.gen]
                       [convex.lisp.test.prop]
                       [convex.lisp.test.util]
+                      [convex.example.exec]
+                      [convex.example.templ]
 			          [clojure.data]])
             [clojure.pprint]
             #?(:clj [clojure.reflect])

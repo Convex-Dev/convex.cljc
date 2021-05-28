@@ -1,8 +1,8 @@
-(ns convex.lisp.example.templ
+(ns convex.example.templ
 
   "Templating Convex Lisp in Clojure."
 
-  (:require [convex.lisp.form]))
+  (:require [convex.lisp]))
 
 
 ;;;;;;;;;;
@@ -15,10 +15,10 @@
   ;;
   (let [addr   42
         amount 1000]
-    (convex.lisp.form/templ* (let [addr (address ~addr)]
-                               (transfer addr
-                                         ~amount)
-                               (balance addr))))
+    (convex.lisp/templ* (let [addr (address ~addr)]
+                          (transfer addr
+                                    ~amount)
+                          (balance addr))))
 
 
   ;; Producing a vector
@@ -31,7 +31,7 @@
   (let [kw :foo
         xs [2 3]
         y  42]
-    (convex.lisp.form/templ* [~kw 1 ~@xs 4 ~y y (unquote y) (unquote-splicing xs)]))
+    (convex.lisp/templ* [~kw 1 ~@xs 4 ~y y (unquote y) (unquote-splicing xs)]))
 
   ;; => [:foo 1 2 3 4 42 y (unquote y) (unquote-splicing xs)]
   )
