@@ -12,6 +12,7 @@
             [convex.lisp.form                         :as $.form]
             [convex.lisp.gen                          :as $.gen]
             [convex.lisp.hex                          :as $.hex]
+            [convex.lisp.type                         :as $.type]
             #?(:clj [convex.lisp.run.fuzz])
             [convex.lisp.schema                       :as $.schema]
             #?@(:clj [[convex.lisp.test]
@@ -90,9 +91,15 @@
 
 
   ($.eval/result ($.ctx/create-fake)
-                ($.form/templ* (account ~($.form/address 30)))
+                ($.form/templ* (nth ~($.form/blob "ff") 0))
                 )
 
-  
+
+  (-> ($.ctx/create-fake)
+      $.ctx/state
+      (get-in [($.ctor/keyword :accounts)
+               ])
+      )
+
 
   ))
