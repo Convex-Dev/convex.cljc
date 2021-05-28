@@ -52,7 +52,7 @@
 
 (defn address
 
-  ""
+  "Creates a CVM address from a long."
 
   ^Address
 
@@ -64,7 +64,7 @@
 
 (defn blob
 
-  ""
+  "Creates a CVM blob from a byte array."
 
   ^Blob
 
@@ -76,7 +76,7 @@
 
 (defn boolean
 
-  ""
+  "Creates a CVM boolean given a falsy or truthy value."
 
   ^CVMBool
   
@@ -88,7 +88,7 @@
 
 (defn byte
 
-  ""
+  "Creates a CVM byte from a value between 0 and 255 inclusive."
 
   ^CVMByte
 
@@ -100,7 +100,7 @@
 
 (defn char
 
-  ""
+  "Creates a CVM character from a regular characer."
 
   ^CVMChar
 
@@ -112,7 +112,7 @@
 
 (defn double
 
-  ""
+  "Creates a CVM double."
 
   ^CVMDouble
 
@@ -124,7 +124,7 @@
 
 (defn keyword
 
-  ""
+  "Creates a CVM keyword from a Clojure keyword."
 
   ^Keyword
 
@@ -136,7 +136,7 @@
 
 (defn list
 
-  ""
+  "Creates a CVM list from a collection of CVM items."
 
   ^AList
 
@@ -148,7 +148,7 @@
 
 (defn long
 
-  ""
+  "Creates a CVM long."
 
   ^CVMLong
 
@@ -159,7 +159,7 @@
 
 (defn map
 
-  ""
+  "Creates a CVM map from a collection of `[key value]`."
 
   ^AMap
 
@@ -174,7 +174,7 @@
 
 (defn set
 
-  ""
+  "Creates a CVM set from a collection of CVM items."
 
   ^ASet
 
@@ -186,7 +186,7 @@
 
 (defn string
 
-  ""
+  "Creates a CVM string from a regular string."
 
   ^AString
 
@@ -198,7 +198,11 @@
 
 (defn symbol
 
-  ""
+  "Creates a CVM symbol either from:
+  
+   - Clojure symbol where namespace and name matters
+   - Namespace (either long representing an address or a Clojure symbol) and name (Clojure symbol)
+     given separately"
 
 
   (^Symbol [sym]
@@ -223,7 +227,7 @@
 
 (defn vector
 
-  ""
+  "Creates a CVM vector from a collection of CVM items."
 
   ^AVector
 
