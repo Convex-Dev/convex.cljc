@@ -10,8 +10,8 @@
             [clojure.pprint]
             [clojure.test.check            :as tc]
             [clojure.test.check.properties :as tc.prop]
-            [convex.lisp.ctx               :as $.ctx]
-            [convex.lisp.eval              :as $.eval]
+            [convex.cvm                    :as $.cvm]
+            [convex.cvm.eval               :as $.cvm.eval]
             [convex.lisp.gen               :as $.gen])
   (:import java.io.File))
 
@@ -38,10 +38,10 @@
                          "report/fuzz")
         d*ensure-dir (delay
                        (.mkdirs (File. root)))
-        ctx          ($.ctx/create-fake)
+        ctx          ($.cvm/ctx)
         prop         (tc.prop/for-all [form ($.gen/random-call)]
-                       ($.eval/value ctx
-                                     form)
+                       ($.cvm.eval/value ctx
+                                         form)
                        true)
         a*print      (agent 0)
         n-core       (.availableProcessors (Runtime/getRuntime))]

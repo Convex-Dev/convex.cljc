@@ -4,8 +4,8 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.lisp     :as $]
-            [convex.lisp.ctx :as $.ctx]))
+  (:require [convex.cvm  :as $.cvm]
+            [convex.lisp :as $.lisp]))
 
 
 ;;;;;;;;;;
@@ -17,8 +17,8 @@
 
   [ctx src]
 
-  ($.ctx/eval ($.ctx/fork ctx)
-              ($/read src)))
+  ($.cvm/eval ($.cvm/fork ctx)
+              ($.lisp/read src)))
 
 
 
@@ -28,10 +28,10 @@
 
   [ctx src]
 
-  (-> (convex.lisp.eval.src/ctx ctx
-                                src)
-      $.ctx/error
-      $/datafy))
+  (-> (convex.cvm.eval.src/ctx ctx
+                               src)
+      $.cvm/error
+      $.lisp/datafy))
 
 
 
@@ -41,9 +41,9 @@
 
   [ctx src]
 
-  (-> (convex.lisp.eval.src/ctx ctx
-                                src)
-      $.ctx/error
+  (-> (convex.cvm.eval.src/ctx ctx
+                               src)
+      $.cvm/error
       some?))
 
 
@@ -54,10 +54,10 @@
 
   [ctx src]
 
-  (-> (convex.lisp.eval.src/ctx ctx
-                                src)
-      $.ctx/result
-      $/datafy))
+  (-> (convex.cvm.eval.src/ctx ctx
+                               src)
+      $.cvm/result
+      $.lisp/datafy))
 
 
 
@@ -67,11 +67,11 @@
   
   [ctx src]
 
-  (let [ctx-2 (convex.lisp.eval.src/ctx ctx
-                                        src)
-        error ($.ctx/error ctx-2)]
+  (let [ctx-2 (convex.cvm.eval.src/ctx ctx
+                                       src)
+        error ($.cvm/error ctx-2)]
     (if (nil? error)
       (-> ctx-2
-          $.ctx/result
-          $/datafy)
+          $.cvm/result
+          $.lisp/datafy)
       error)))

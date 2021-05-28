@@ -4,15 +4,16 @@
 
   {:author "Adam Helinski"}
 
-  (:require #?(:clj [convex.lisp                      :as $])
-            [convex.lisp.ctx                          :as $.ctx]
+  #?(:clj (:import convex.core.lang.Reader))
+  (:require [convex.cvm                               :as $.cvm]
+            [convex.cvm.eval                          :as $.cvm.eval]
+            [convex.cvm.eval.src                      :as $.cvm.src]
+            [convex.cvm.type                          :as $.cvm.type]
+            #?(:clj [convex.lisp                      :as $.lisp])
             [convex.lisp.edn                          :as $.edn]
-            [convex.lisp.eval                         :as $.eval]
-            [convex.lisp.eval.src                     :as $.eval.src]
             [convex.lisp.form                         :as $.form]
             [convex.lisp.gen                          :as $.gen]
             [convex.lisp.hex                          :as $.hex]
-            [convex.lisp.type                         :as $.type]
             #?(:clj [convex.lisp.run.fuzz])
             [convex.lisp.schema                       :as $.schema]
             #?@(:clj [[convex.lisp.test]
@@ -37,20 +38,7 @@
 			          [clojure.data]])
             [clojure.pprint]
             #?(:clj [clojure.reflect])
-            [clojure.spec.alpha                       :as s]
-            [clojure.spec.gen.alpha                   :as sgen]
-            [clojure.test.check.generators            :as tc.gen]
-            [clojure.walk]
-            [clojure.test.check.properties            :as tc.prop]
-            [clojure.test.check.results               :as tc.result]
-            [malli.core                               :as malli]
-            [malli.error]
-            [malli.generator                          :as malli.gen])
-  #?(:clj (:import clojure.lang.RT
-                   (convex.core Init
-                                State)
-                   convex.core.data.Symbol
-                   convex.core.lang.Reader)))
+            [clojure.test.check.properties            :as tc.prop]))
 
 
 #?(:clj (set! *warn-on-reflection*
@@ -70,35 +58,15 @@
 #?(:clj (comment
 
 
-
-  (-> Init/STATE
-      $/datafy
-      :accounts
-      (->> (into []
-                 (comp (map :environment)
-                       (filter some?))))
-      clojure.pprint/pprint)
+  ($.cvm.eval/result ($.cvm/ctx)
+                     ($.form/templ* (nth ~($.form/blob "ff") 0))
+                     )
 
 
-
-  (-> Init/STATE
-      $.edn/write
-      ;(->> (spit "/tmp/convex.edn"))
-      $.edn/read
-      ;clojure.pprint/pprint
-      )
-  
-
-
-  ($.eval/result ($.ctx/create-fake)
-                ($.form/templ* (nth ~($.form/blob "ff") 0))
-                )
-
-
-  (-> ($.ctx/create-fake)
-      $.ctx/state
-      (get-in [($.ctor/keyword :accounts)
-               ])
+  (-> ($.cvm/ctx)
+      $.cvm/state
+      .getAccounts
+      (.get 8)
       )
 
 

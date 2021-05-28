@@ -1,4 +1,4 @@
-(ns convex.lisp.type
+(ns convex.cvm.type
 
   "Constructing CVM objects."
 

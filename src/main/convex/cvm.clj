@@ -1,4 +1,4 @@
-(ns convex.lisp.ctx
+(ns convex.cvm
 
   "A context is needed for compiling and executing Convex code.
 
@@ -32,20 +32,20 @@
 ;;;;;;;;;; Creating a new context
 
 
-(defn create-fake
+(defn ctx
 
   "Creates a \"fake\" context, ideal for testing and repl'ing around."
 
 
   (^Context []
 
-   (create-fake Init/HERO))
+   (ctx Init/HERO))
 
 
   (^Context [account]
 
-   (create-fake (Init/createState)
-                account))
+   (ctx (Init/createState)
+        account))
 
   
   (^Context [state account]

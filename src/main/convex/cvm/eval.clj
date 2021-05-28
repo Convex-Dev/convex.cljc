@@ -1,4 +1,4 @@
-(ns convex.lisp.eval
+(ns convex.cvm.eval
 
   "Shortcuts for evaluating Convex Lisp code, useful for development and testing.
 
@@ -9,10 +9,10 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.lisp          :as $]
-            [convex.lisp.ctx      :as $.ctx]
-            [convex.lisp.form     :as $.form]
-            [convex.lisp.eval.src :as $.eval.src]))
+  (:require [convex.cvm          :as $.cvm]
+            [convex.cvm.eval.src :as $.cvm.eval.src]
+            [convex.lisp         :as $.lisp]
+            [convex.lisp.form    :as $.form]))
 
 
 ;;;;;;;;;;
@@ -24,8 +24,8 @@
 
   [ctx form]
 
-  ($.eval.src/ctx ctx
-                  ($.form/src form)))
+  ($.cvm.eval.src/ctx ctx
+                      ($.form/src form)))
 
 
 
@@ -35,8 +35,8 @@
 
   [ctx form]
 
-  ($.eval.src/error ctx
-                    ($.form/src form)))
+  ($.cvm.eval.src/error ctx
+                        ($.form/src form)))
 
 
 
@@ -46,8 +46,8 @@
 
   [ctx form]
    
-  ($.eval.src/error? ctx
-                     ($.form/src form)))
+  ($.cvm.eval.src/error? ctx
+                         ($.form/src form)))
 
 
 
@@ -60,12 +60,12 @@
 
   [ctx form]
 
-  (-> ($.eval.src/ctx ctx
-                      ($.form/src ($.form/templ {'?form form}
-                                                '(log {:form   '?form
-                                                       :return ?form}))))
-      $.ctx/log
-      $/datafy))
+  (-> ($.cvm.eval.src/ctx ctx
+                          ($.form/src ($.form/templ {'?form form}
+                                                    '(log {:form   '?form
+                                                           :return ?form}))))
+      $.cvm/log
+      $.lisp/datafy))
 
 
 
@@ -75,8 +75,8 @@
 
   [ctx form]
 
-  ($.eval.src/result ctx
-                     ($.form/src form)))
+  ($.cvm.eval.src/result ctx
+                         ($.form/src form)))
 
 
 
@@ -86,5 +86,5 @@
   
   [ctx form]
 
-  ($.eval.src/value ctx
-                    ($.form/src form)))
+  ($.cvm.eval.src/value ctx
+                        ($.form/src form)))

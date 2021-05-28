@@ -9,10 +9,10 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.lisp           :as $]
-            [convex.lisp.ctx       :as $.ctx]
+  (:require [convex.cvm            :as $.cvm]
+            [convex.cvm.eval       :as $.cvm.eval]
+            [convex.lisp           :as $]
             [convex.lisp.form      :as $.form]
-            [convex.lisp.eval      :as $.eval]
             [convex.lisp.test.prop :as $.test.prop]
             [convex.lisp.test.util :as $.test.util]))
 
@@ -35,8 +35,8 @@
 
   ([ctx form]
 
-   ($.eval/ctx ctx
-               form)))
+   ($.cvm.eval/ctx ctx
+                   form)))
 
 
 
@@ -66,8 +66,8 @@
 
   ([ctx form]
 
-   ($.eval/error ctx
-                 form)))
+   ($.cvm.eval/error ctx
+                     form)))
 
 
 
@@ -97,8 +97,8 @@
 
   ([ctx form]
 
-   ($.eval/error? ctx
-                  form)))
+   ($.cvm.eval/error? ctx
+                      form)))
 
 
 
@@ -371,8 +371,8 @@
   ([ctx form]
 
    ($.test.util/eq (eval form)
-                   ($.eval/result ctx
-                                  form)))
+                   ($.cvm.eval/result ctx
+                                      form)))
 
 
   ([form f arg+]
@@ -387,9 +387,9 @@
 
    ($.test.util/eq (apply f
                           arg+)
-                   ($.eval/result ctx
-                                  (list* form
-                                         arg+)))))
+                   ($.cvm.eval/result ctx
+                                      (list* form
+                                             arg+)))))
 
 
 
@@ -434,8 +434,8 @@
 
   ([ctx form]
 
-   ($.eval/log ctx
-               form)))
+   ($.cvm.eval/log ctx
+                   form)))
 
 
 
@@ -450,8 +450,8 @@
 
   ([ctx form]
 
-   ($.eval/result ctx
-                  form)))
+   ($.cvm.eval/result ctx
+                      form)))
 
 
 
@@ -483,14 +483,14 @@
 
   ([ctx form]
 
-   (let [ctx-2 ($.eval/ctx ctx
-                           form)
+   (let [ctx-2 ($.cvm.eval/ctx ctx
+                               form)
          res   (-> ctx-2
-                   $.ctx/result
+                   $.cvm/result
                    $/datafy)]
      (or res
          ($.test.prop/fail {:convex.test/log (-> ctx-2
-                                                 $.ctx/log
+                                                 $.cvm/log
                                                  $/datafy)})))))
 
 
@@ -506,8 +506,8 @@
 
   ([ctx form]
 
-   ($.eval/value ctx
-                 form)))
+   ($.cvm.eval/value ctx
+                     form)))
 
 
 ;;;;;;;;;;
@@ -519,8 +519,8 @@
 
   ;; TODO. Needs 2 transactions because of: https://github.com/Convex-Dev/convex/issues/107
 
-  (-> ($.ctx/create-fake)
-      ($.eval/ctx
+  (-> ($.cvm/ctx)
+      ($.cvm.eval/ctx
         '(call *registry*
                (cns-update '$
                            (deploy
@@ -596,6 +596,6 @@
                                     (recur (address (inc (long addr))))
                                     addr))
                                 )))))
-      ($.eval/ctx
+      ($.cvm.eval/ctx
         '(import $ :as $))
-      ($.ctx/set-juice 1e7)))
+      ($.cvm/set-juice 1e7)))
