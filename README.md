@@ -4,7 +4,7 @@
 
 [![Cljdoc](https://cljdoc.org/badge/helins/convex.lisp.cljc)](https://cljdoc.org/d/helins/convex.lisp.cljc)
 
-Working with Convex Lisp and testing the CVM (Convex Virtual Machine).
+Working with Convex Lisp and the CVM (Convex Virtual Machine).
 
 Toolset consist of:
 
@@ -28,17 +28,17 @@ Current examples are located in the [example directory](../main/src/example/conv
 Requiring namespaces for current examples:
 
 ```clojure
-(require 'convex.lisp           ;; Reading source code and translate CVM objects to Clojure data
-         'convex.lisp.ctx       ;; Expanding, compiling, and executing code
-         'convex.lisp.eval      ;; Helpers for quickly evaluating forms (dev + tests)
-         'convex.lisp.eval.src  ;; Ditto, but when working with source strings
-         'convex.lisp.form      ;; Writing Convex Lisp as Clojure forms
-         'convex.lisp.schema)   ;; Malli schemas for Convex Lisp
+(require 'convex.cvm           ;; Expanding, compiling, and executing code on the CVM
+         'convex.cvm.eval      ;; Helpers for quickly evaluating forms (dev + tests)
+         'convex.cvm.eval.src  ;; Ditto, but when working with source strings
+         'convex.lisp          ;; Reading source code and translate CVM objects to Clojure data
+         'convex.lisp.form     ;; Writing Convex Lisp as Clojure forms
+         'convex.lisp.schema)  ;; Malli schemas for Convex Lisp
 ```
 
 ### Handling Convex Lisp code
 
-Convex Lisp source code goes through 4 steps: reading, expanding, compiling, and executing. A context is needed for handling such operations. The result of an operation is either a valid result or a handled error. There should never be an unhandled exception coming from the CVM.
+Convex Lisp source code goes through 4 steps: reading, expanding, compiling, and executing. A CVM context is needed for handling such operations. The result of an operation is either a valid result or a handled error. There should never be an unhandled exception coming from the CVM.
 
 Going through the whole cycle (context could be reused for further execution):
 
@@ -53,42 +53,31 @@ Going through the whole cycle (context could be reused for further execution):
       code   (convex.lisp/read source)
       
       ;; Creating a test context
-      ctx    (convex.lisp.ctx/create-fake)
+      ctx    (convex.cvm/ctx)
       
       ;; Using context for expanding, compiling, and running code
-      ctx-2  (-> (convex.lisp.ctx/expand ctx
-                                         code)
-                 convex.lisp.ctx/compile
-                 convex.lisp.ctx/run)]
-                 
+      ctx-2  (-> (convex.cvm/expand ctx
+                                    code)
+                 convex.cvm/compile
+                 convex.cvm/run)]
+
   ;; Getting result and converting to Clojure data
   (-> ctx-2
-      convex.lisp.ctx/result
+      convex.cvm/result
       convex.lisp/datafy))
 ```
 
-There are shortcuts and it is easy to write a helper function as needed. For instance, leveraging other utilities:
+There are shortcuts and it is easy writing a helper function as needed. For instance, leveraging other utilities:
 
 ```clojure
-(->> '(+ 2 2)
-     convex.lisp/read-form
-     (convex.lisp.ctx/eval (convex.lisp.ctx/create-fake))
-     convex.lisp.ctx/result
-     convex.lisp/datafy)
+(-> (convex.cvm/eval (convex.cvm/ctx)
+                     (convex.lisp/read-form '(+ 2 2)))
+    convex.cvm/result
+    convex.lisp/datafy)
+
 ```
 
-For development and testing, the [convex.lisp.eval](../main/src/main/convex/lisp/eval.clj) namespace as well as [convex.lisp.eval.src](../main/src/main/convex/lisp/eval/src.clj) have convenient functions which remove that kind of boilerplate:
-
-```clojure
-(= 4
-   (convex.lisp.eval/result (convex.lisp.ctx/create-fake)
-                            '(+ 2 2))
-   (convex.lisp.eval.src/result (convex.lisp.ctx/create-fake)
-                                "(+ 2 2)"))
-```
-
-It is often convenient preparing a context. For instance, adding utilities functions and then reusing that context in different situations. When ready, a context can be
-cheaply copied and anything done with a copy as no impact on the original:
+Often, a CVM context needs some preparation such as adding utility functions. It is a good idea forking the context when used so that any work is done on cheap copies, leaving the original context intact in order to be reused at will.
 
 ```clojure
 ;; Creating a new context, modifying it by adding a couple of functions in the environment
@@ -99,11 +88,23 @@ cheaply copied and anything done with a copy as no impact on the original:
                               (defn my-inc [x] (+ x 1))
                               (defn my-dec [x] (- x 1)))))
 
-;; Later, forking and reusing it ad libidum
+;; Later, forking and reusing it
 ;;
-(convex.lisp.eval/result base-ctx
-                         '(= 42
-                             (my-dec (my-inc 42))))
+(-> (convex.cvm/eval (convex.cvm/fork base-ctx)
+                     (convex.lisp/read-form '(= 42
+                                                (my-dec (my-inc 42)))))
+    convex.cvm/result
+    convex.lisp/datafy)
+```
+
+This pattern of forking and getting some value translated in Clojure data is so common that there are 2 namespaces providing shotcuts:
+
+```clojure
+(= 4
+   (convex.cvm.eval/result base-ctx
+                           '(my-dec (my-inc 42)))
+   (convex.cvm.eval.src/result base-ctx
+                               "(my-dec (my-inc 42))"))
 ```
 
 

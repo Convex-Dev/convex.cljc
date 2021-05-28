@@ -1,6 +1,6 @@
 (ns convex.cvm.eval.src
 
-  "Mimicks [[convex.lisp.eval]] but for evaling Convex Lisp source, strings of code."
+  "Mimicks [[convex.cvm.eval]] but for evaling Convex Lisp source, strings of code."
 
   {:author "Adam Helinski"}
 

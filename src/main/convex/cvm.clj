@@ -1,8 +1,8 @@
 (ns convex.cvm
 
-  "A context is needed for compiling and executing Convex code.
+  "A CVM context is needed for compiling and executing Convex code.
 
-   It can be created using [[create-fake]].
+   It can be created using [[ctx]].
   
    This namespace provide all needed utilities for such endeavours as well few functions for
    querying useful properties, such as [[juice]].
@@ -14,9 +14,7 @@
    Such operations consume juice and lead either to a successful [[result]] or to an [[error]]. Functions that
    do not return a context (eg. [[env]], [[juice]]) do not consume juice.
 
-   Result objects (Convex objects) can be datafied with [[convex.lisp/datafy]] for easy consumption from Clojure.
-
-   Duplicating a context with [[fork]] is cheap."
+   Result objects (Convex objects) can be datafied with [[convex.lisp/datafy]] for easy consumption from Clojure."
 
   {:author "Adam Helinski"}
 

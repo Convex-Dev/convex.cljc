@@ -2,10 +2,10 @@
 
   "Shortcuts for evaluating Convex Lisp code, useful for development and testing.
 
-   Deals with form (ie. Clojure data expressing Convex Lisp code), whereas [[convex.lisp.eval.src]] deals
+   Deals with form (ie. Clojure data expressing Convex Lisp code), whereas [[convex.cvm.eval.src]] deals
    with source code (ie. strings).
   
-   Given context is always forked, meaning the argument is left intact. See [[convex.lisp.ctx/fork]]."
+   Given context is always forked, meaning the argument is left intact. See [[convex.cvm/fork]]."
 
   {:author "Adam Helinski"}
 
