@@ -11,8 +11,7 @@
 
   (:require [convex.cvm          :as $.cvm]
             [convex.cvm.eval.src :as $.cvm.eval.src]
-            [convex.lisp         :as $.lisp]
-            [convex.lisp.form    :as $.form]))
+            [convex.lisp         :as $.lisp]))
 
 
 ;;;;;;;;;;
@@ -25,7 +24,7 @@
   [ctx form]
 
   ($.cvm.eval.src/ctx ctx
-                      ($.form/src form)))
+                      ($.lisp/src form)))
 
 
 
@@ -36,7 +35,7 @@
   [ctx form]
 
   ($.cvm.eval.src/exception ctx
-                            ($.form/src form)))
+                            ($.lisp/src form)))
 
 
 
@@ -47,7 +46,7 @@
   [ctx form]
    
   ($.cvm.eval.src/exception? ctx
-                             ($.form/src form)))
+                             ($.lisp/src form)))
 
 
 
@@ -61,9 +60,8 @@
   [ctx form]
 
   (-> ($.cvm.eval.src/ctx ctx
-                          ($.form/src ($.form/templ {'?form form}
-                                                    '(log {:form   '?form
-                                                           :return ?form}))))
+                          ($.lisp/src ($.lisp/templ* (log {:form   (quote ~form)
+                                                           :return ~form}))))
       $.cvm/log
       $.cvm/as-clojure))
 
@@ -76,7 +74,7 @@
   [ctx form]
 
   ($.cvm.eval.src/result ctx
-                         ($.form/src form)))
+                         ($.lisp/src form)))
 
 
 
@@ -87,4 +85,4 @@
   [ctx form]
 
   ($.cvm.eval.src/value ctx
-                        ($.form/src form)))
+                        ($.lisp/src form)))

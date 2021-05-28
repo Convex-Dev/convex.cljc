@@ -6,7 +6,7 @@
 
   (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
-            [convex.lisp.form              :as $.form]
+            [convex.lisp                   :as $.lisp]
             [convex.lisp.gen               :as $.gen]
             [convex.lisp.test.eval         :as $.test.eval]
             [convex.lisp.test.prop         :as $.test.prop]))
@@ -85,7 +85,7 @@
 
   (prop-coerce 'address
                'address?
-               $.form/address?
+               $.lisp/address?
                (TC.gen/one-of [$.gen/address
                                $.gen/blob-8
                                $.gen/hex-string-8
@@ -110,7 +110,7 @@
 
   (prop-coerce 'blob
                'blob?
-               $.form/blob?
+               $.lisp/blob?
                (TC.gen/one-of [$.gen/address
                                $.gen/blob
                                $.gen/hex-string])))

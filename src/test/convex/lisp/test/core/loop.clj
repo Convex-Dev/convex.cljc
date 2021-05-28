@@ -6,7 +6,7 @@
 
   (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
-            [convex.lisp.form              :as $.form]
+            [convex.lisp                   :as $.lisp]
             [convex.lisp.gen               :as $.gen]
             [convex.lisp.test.eval         :as $.test.eval]
             [convex.lisp.test.prop         :as $.test.prop]))
@@ -38,21 +38,21 @@
         fixed-sym+ (mapv first
                          fixed+)
         ;; And associated values
-        fixed-x+   (mapv (comp $.form/quoted
+        fixed-x+   (mapv (comp $.lisp/quoted
                                second)
                          fixed+)
         ;; Code that will be in the (loop [] ...) or ((fn [] ...)) form
-        body       ($.form/templ* (if (= ~sym
+        body       ($.lisp/templ* (if (= ~sym
                                          ~n)
                                     (if (= ~fixed-sym+
                                            ~fixed-x+)
                                       ~n
                                       (fail :NOT-FIXED
                                             "Fixed bindings were wrongfully modified"))
-                                    ~(let [recur-form ($.form/templ* (recur ~@fixed-sym+
+                                    ~(let [recur-form ($.lisp/templ* (recur ~@fixed-sym+
                                                                             (inc ~sym)))]
                                        (if looping+
-                                         ($.form/templ* (if (= ~(-> looping+
+                                         ($.lisp/templ* (if (= ~(-> looping+
                                                                     first
                                                                     :n)
                                                                ~(-recur looping+))
@@ -62,15 +62,15 @@
                                          recur-form))))
         ;; Wrapping body in a loop or a fn form
         looping   (case recur-point
-                    :fn   ($.form/templ* ((fn ~(conj fixed-sym+
+                    :fn   ($.lisp/templ* ((fn ~(conj fixed-sym+
                                                      sym)
                                               ~body)
                                           ~@(conj fixed-x+
                                                   0)))
-                    :loop ($.form/templ* (loop ~(conj (reduce (fn [acc [sym x]]
+                    :loop ($.lisp/templ* (loop ~(conj (reduce (fn [acc [sym x]]
                                                                 (conj acc
                                                                       sym
-                                                                      ($.form/quoted x)))
+                                                                      ($.lisp/quoted x)))
                                                               []
                                                               fixed+)
                                                       sym
@@ -78,7 +78,7 @@
                                            ~body)))]
     ;; Messing with point of recursion by wrapping in a fn that is immedialy called
     (if fn-wrap?
-      ($.form/templ* ((fn [] ~looping)))
+      ($.lisp/templ* ((fn [] ~looping)))
       looping)))
 
 

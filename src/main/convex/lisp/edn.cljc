@@ -5,7 +5,7 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.tools.reader.edn]
-            [convex.lisp.form          :as $.form])
+            [convex.lisp               :as $.lisp])
   #?(:clj (:import convex.core.data.ACell))
   #?(:clj (:refer-clojure :exclude [read])))
 
@@ -24,7 +24,7 @@
   (clojure.tools.reader.edn/read-string {:readers {'account    (fn [account]
                                                                  [:convex/account
                                                                   account])
-                                                   'addr       $.form/address
+                                                   'addr       $.lisp/address
                                                    'blob       (fn [blob]
                                                                  ;;
                                                                  ;; TODO. Cannot easily convert to hexstring, see #63.

@@ -29,10 +29,10 @@
                                                         x)))]]
                      (fn [x]
                        #_(println :form (list* (first x)
-                                             (map $.form/quoted
+                                             (map $.lisp/quoted
                                                   (rest x))))
                        ($.test.eval/exception? (list* (first x)
-                                                      (map $.form/quoted
+                                                      (map $.lisp/quoted
                                                            (rest x)))))))
 
 

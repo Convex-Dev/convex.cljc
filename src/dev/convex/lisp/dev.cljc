@@ -11,12 +11,12 @@
             [convex.cvm.type                          :as $.cvm.type]
             #?(:clj [convex.lisp                      :as $.lisp])
             [convex.lisp.edn                          :as $.edn]
-            [convex.lisp.form                         :as $.form]
             [convex.lisp.gen                          :as $.gen]
             [convex.lisp.hex                          :as $.hex]
             #?(:clj [convex.lisp.run.fuzz])
             [convex.lisp.schema                       :as $.schema]
             #?@(:clj [[convex.cvm.test]
+                      [convex.lisp.test]
                       [convex.lisp.test.core.account]
                       [convex.lisp.test.core.actor]
                       [convex.lisp.test.core.coerce]
@@ -59,7 +59,7 @@
 
 
   ($.cvm.eval/result ($.cvm/ctx)
-                     ($.form/templ* (nth ~($.form/blob "ff") 0))
+                     ($.lisp/templ* (nth ~($.lisp/blob "ff") 0))
                      )
 
 

@@ -7,8 +7,8 @@
   (:import convex.core.Constants)
   (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
+            [convex.lisp                   :as $.lisp]
             [convex.lisp.gen               :as $.gen]
-            [convex.lisp.form              :as $.form]
             [convex.lisp.test.eval         :as $.test.eval]
             [convex.lisp.test.gen          :as $.test.gen]
             [convex.lisp.test.prop         :as $.test.prop]))
@@ -34,7 +34,7 @@
                                   (do
                                     (def -export+
                                          ~(into #{}
-                                                (map $.form/quoted)
+                                                (map $.lisp/quoted)
                                                 sym+))
                                     (def -result-export
                                          (export ~@sym+))))]
@@ -77,7 +77,7 @@
     ($.test.prop/mult*
 
       "Address is interned" 
-      ($.form/address? ($.test.eval/result ctx
+      ($.lisp/address? ($.test.eval/result ctx
                                            'addr))
 
       "`account?`"
@@ -561,7 +561,7 @@
   (TC.prop/for-all [x (TC.gen/such-that (fn [x]
                                           (if-some [x-2 (cond
                                                           (string? x)      x
-                                                          ($.form/blob? x) ($.form/meta-raw x))]
+                                                          ($.lisp/blob? x) ($.lisp/meta-raw x))]
                                             (= (count x-2)
                                                64)
                                             (some? x)))

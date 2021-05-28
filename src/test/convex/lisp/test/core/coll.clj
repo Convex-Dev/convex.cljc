@@ -14,7 +14,7 @@
 
   (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
-            [convex.lisp.form              :as $.form]
+            [convex.lisp                   :as $.lisp]
             [convex.lisp.gen               :as $.gen]
             [convex.lisp.test.eval         :as $.test.eval]
             [convex.lisp.test.gen          :as $.test.gen]
@@ -155,7 +155,7 @@
   ([x k v]
 
    (ctx-main x
-             ($.form/templ* (assoc ~x
+             ($.lisp/templ* (assoc ~x
                                    ~k
                                    ~v))
              k
@@ -171,7 +171,7 @@
 
   [x x-2 k v]
 
-  (-> ($.form/templ* (do
+  (-> ($.lisp/templ* (do
                        (def k
                             ~k)
                        (def v
@@ -1000,7 +1000,9 @@
                                           $.gen/map
                                           $.gen/nothing
                                           $.gen/vector})
-                    path (TC.gen/such-that #(not ($.form/empty? %))
+                    path (TC.gen/such-that #(seq (if (vector? %)
+                                                   %
+                                                   ($.lisp/meta-raw %)))
                                            $.gen/sequential)
                     v    $.gen/any]
     ($.test.eval/exception?* (assoc-in ~x
@@ -1205,7 +1207,9 @@
 ($.test.prop/deftest reduce--
 
   (TC.prop/for-all [percent $.test.gen/percent
-                    x       (TC.gen/such-that #(not ($.form/empty? %))
+                    x       (TC.gen/such-that #(seq (if (seq? %)
+                                                      ($.lisp/meta-raw %)
+                                                      %))
                                               $.gen/collection)]
     ($.test.eval/result* (let [x ~x
                                v (nth x

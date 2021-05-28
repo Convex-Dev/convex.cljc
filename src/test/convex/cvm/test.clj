@@ -4,8 +4,7 @@
 
   (:require [clojure.test     :as t]
             [convex.cvm       :as $.cvm]
-            [convex.lisp      :as $.lisp]
-            [convex.lisp.form :as $.form])
+            [convex.lisp      :as $.lisp])
   (:import convex.core.data.Syntax
            convex.core.data.prim.CVMByte
            convex.core.lang.impl.ErrorValue))
@@ -144,7 +143,7 @@
                  (inc x))]]
     (t/is (= code
              (-> code
-                 $.form/src
+                 $.lisp/src
                  $.lisp/read
                  $.cvm/as-clojure))
           "Stress test")))

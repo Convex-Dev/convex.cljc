@@ -23,7 +23,7 @@
   (:refer-clojure :exclude [compile
                             eval])
   (:require [clojure.core.protocols]
-            [convex.lisp.form :as $.form]))
+            [convex.lisp             :as $.lisp]))
 
 
 (declare run)
@@ -325,13 +325,13 @@
   convex.core.data.ABlob
 
     (datafy [this]
-      ($.form/blob (.toHexString this)))
+      ($.lisp/blob (.toHexString this)))
 
   
   convex.core.data.Address
 
     (datafy [this]
-      ($.form/address (.longValue this)))
+      ($.lisp/address (.longValue this)))
 
 
   convex.core.data.AList

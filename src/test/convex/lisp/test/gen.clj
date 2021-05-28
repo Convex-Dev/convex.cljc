@@ -5,7 +5,7 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.test.check.generators :as TC.gen]
-            [convex.lisp.form              :as $.form]
+            [convex.lisp                   :as $.lisp]
             [convex.lisp.gen               :as $.gen]
             [convex.lisp.test.eval         :as $.test.eval]))
 
@@ -96,7 +96,7 @@
 
   "Anything but an address."
 
-  (TC.gen/such-that #(not ($.form/address? %))
+  (TC.gen/such-that #(not ($.lisp/address? %))
                     $.gen/any))
 
 

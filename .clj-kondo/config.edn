@@ -1,4 +1,4 @@
-{:hooks   {:analyze-call {convex.lisp.form/templ*              hooks.convex/templ*
+{:hooks   {:analyze-call {convex.lisp/templ*                   hooks.convex/templ*
                           convex.lisp.test.eval/ctx*           hooks.convex/templ*
                           convex.lisp.test.eval/error*         hooks.convex/templ*
                           convex.lisp.test.eval/error?*        hooks.convex/templ*

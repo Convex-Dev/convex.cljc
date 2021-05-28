@@ -1,4 +1,4 @@
-(ns convex.lisp.form
+(ns convex.lisp
 
   "Working with Clojure data representing Convex Lisp code.
   
@@ -14,16 +14,15 @@
 
   {:author "Adam Helinski"}
 
-  (:refer-clojure :exclude [empty?
-                            list
-                            list?])
+  #?(:clj (:import convex.core.data.Symbol
+                   convex.core.lang.Reader))
+  (:refer-clojure :exclude [list
+                            list?
+                            read])
   (:require [clojure.core]
-            [clojure.string]
-            [clojure.walk])
-  #?(:cljs (:require-macros [convex.lisp.form :refer [templ*]])))
-
-
-(declare ^:no-doc -templ*)
+            [clojure.core.protocols]
+            [clojure.string])
+  #?(:cljs (:require-macros [convex.lisp :refer [templ*]])))
 
 
 ;;;;;;;;;; Literal notations for Convex objects that do not map to Clojure but can be expressed as symbols
@@ -185,21 +184,6 @@
 
 
 
-(defn empty?
-
-  "Is `x` an empty collection?
-
-   Takes care of the fact that some types are calls to their constructor function (eg. `(list :a :b :c)`)."
-
-  [x]
-
-  (clojure.core/empty? (cond->
-                         x
-                         (seq? x)
-                         rest)))
-
-
-
 (defn list?
 
   "Is `x` a `(list ...)` form produced by [[list]]?"
@@ -224,21 +208,7 @@
 ;;;;;;;;;; Templating Convex Lisp code
 
 
-(defn templ
-
-  "Basic templating, walking through `code` and replacing items by following the `binding+`
-   map.
-  
-   ```clojure
-   (templ {'?x [1 2 3}
-          '(conj ?x
-                 4))
-   ```"
-
-  [binding+ code]
-
-  (clojure.walk/postwalk-replace binding+
-                                 code))
+(declare ^:no-doc -templ*)
 
 
 
@@ -259,7 +229,7 @@
 
 
 
-(defn- -templ*
+(defn- ^:no-doc -templ*
 
   ;; Helper for [[templ*]].
 
@@ -313,3 +283,37 @@
   [form]
 
   (-templ* form))
+
+
+;;;;;;;;;; Reading Convex Lisp source
+
+
+(defn read
+
+  "Converts Convex Lisp source to a Convex object.
+
+   Such an object can be used as is, using its Java API. More often, is it converted to Clojure or
+   compiled and executed on the CVM. See the [[convex.cvm]] namespace."
+
+  [string]
+
+  (let [parsed (Reader/readAll string)]
+    (if (second parsed)
+      (.cons parsed
+             (Symbol/create "do"))
+      (first parsed))))
+
+
+
+(defn read-form
+
+  "Stringifies the given Clojure form to Convex Lisp source and applies the result to [[read]]."
+
+  [form]
+
+  (-> form
+      src
+      read))
+
+
+

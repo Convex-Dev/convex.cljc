@@ -8,7 +8,7 @@
 
   (:require [clojure.string]
             [clojure.test.check.generators :as tc.gen]
-            [convex.lisp.form              :as $.form]
+            [convex.lisp                   :as $.lisp]
             [convex.lisp.hex               :as $.hex]
             [malli.core                    :as malli]))
 
@@ -1002,7 +1002,7 @@
           ;                                                                                      prop+
           ;                                                                                      child]}}))
           :convex/address      [:and
-                                {:gen/fmap   $.form/address
+                                {:gen/fmap   $.lisp/address
                                  :gen/schema pos-int?}
                                 :symbol
                                 [:fn
@@ -1011,7 +1011,7 @@
                                                         (name sym))))]]
           :convex/arg+         [:vector :convex/symbol]
           :convex/blob         [:and
-                                {:gen/fmap   $.form/blob
+                                {:gen/fmap   $.lisp/blob
                                  :gen/schema :convex/hexstring}
                                 :symbol
                                 [:fn
@@ -1019,7 +1019,7 @@
                                    (boolean (re-matches $.hex/regex
                                                         (name sym))))]]
 		  :convex/blob-8	   [:and
-								{:gen/fmap   $.form/blob
+								{:gen/fmap   $.lisp/blob
                                  :gen/schema :convex/hexstring-8}
                                 :symbol
                                 [:fn
@@ -1027,7 +1027,7 @@
                                    (boolean (re-matches $.hex/regex-8
                                                         (name sym))))]]
 		  :convex/blob-32	   [:and
-								{:gen/fmap   $.form/blob
+								{:gen/fmap   $.lisp/blob
                                  :gen/schema :convex/hexstring-32}
                                 :symbol
                                 [:fn
@@ -1111,8 +1111,8 @@
                                 [:not= '_]
                                 [:fn
                                  (fn [x]
-                                   (not (or ($.form/address? x)
-                                            ($.form/blob? x))))]]
+                                   (not (or ($.lisp/address? x)
+                                            ($.lisp/blob? x))))]]
           :convex/truthy       [:and
                                 :convex/data
                                 [:not :convex/falsy]]

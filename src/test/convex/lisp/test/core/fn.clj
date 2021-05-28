@@ -5,7 +5,7 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.test.check.properties :as TC.prop]
-            [convex.lisp.form              :as $.form]
+            [convex.lisp                   :as $.lisp]
             [convex.lisp.gen               :as $.gen]
             [convex.lisp.test.eval         :as $.test.eval]
             [convex.lisp.test.prop         :as $.test.prop]))
@@ -82,7 +82,7 @@
   ;; Calling no-arg functions.
 
   (TC.prop/for-all [x $.gen/any]
-    (let [fn-form ($.form/templ* (fn [] ~x))]
+    (let [fn-form ($.lisp/templ* (fn [] ~x))]
       ($.test.prop/and* (suite-fn? fn-form)
                         (suite-fn-call fn-form
                                        nil
@@ -100,7 +100,7 @@
                         binding+)
           sym+    (mapv first
                         binding+)
-          fn-form ($.form/templ* (fn ~sym+
+          fn-form ($.lisp/templ* (fn ~sym+
                                      ~sym+))]
       ($.test.prop/and* (suite-fn? fn-form)
                         (suite-fn-call fn-form
@@ -126,7 +126,7 @@
                                   ['&]
                                   (drop pos-amper
                                         binding+)))
-          fn-form    ($.form/templ* (fn ~binding-2+
+          fn-form    ($.lisp/templ* (fn ~binding-2+
                                         ~binding+))]
       ($.test.prop/mult*
         

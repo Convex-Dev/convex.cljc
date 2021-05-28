@@ -9,7 +9,7 @@
   (:require [clojure.test                  :as t]
             [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
-            [convex.lisp.form              :as $.form]
+            [convex.lisp                   :as $.lisp]
             [convex.lisp.gen               :as $.gen]
             [convex.lisp.test.eval         :as $.test.eval]
             [convex.lisp.test.prop         :as $.test.prop]))
@@ -91,7 +91,7 @@
 
   (prop-false 'account?
               (TC.gen/such-that (comp not
-                                      $.form/address?)
+                                      $.lisp/address?)
                                 $.gen/any)))
 
 
@@ -100,7 +100,7 @@
 
   (prop-false 'address?
               (TC.gen/such-that (comp not
-                                      $.form/address?)
+                                      $.lisp/address?)
                                 $.gen/any)))
 
 
@@ -117,7 +117,7 @@
 
   (prop-false 'blob?
               (TC.gen/such-that (comp not
-                                      $.form/blob?)
+                                      $.lisp/blob?)
                                 $.gen/any)))
 
 
@@ -188,9 +188,9 @@
 ($.test.prop/deftest list?--false
 
   (prop-false 'list?
-              $.form/list?
+              $.lisp/list?
               (TC.gen/such-that (comp not
-                                      $.form/list?)
+                                      $.lisp/list?)
                                 $.gen/any)))
 
 
@@ -198,7 +198,7 @@
 ($.test.prop/deftest list?--true
 
   (prop-true 'list?
-             $.form/list?
+             $.lisp/list?
              $.gen/list))
 
 
@@ -313,7 +313,7 @@
 
   (prop-false 'symbol?
               (TC.gen/such-that (comp not
-                                      $.form/quoted?)
+                                      $.lisp/quoted?)
                                 $.gen/any)))
 
 

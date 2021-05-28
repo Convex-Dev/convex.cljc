@@ -19,7 +19,7 @@
             [clojure.set]
             [clojure.string]
             [clojure.test.check.generators :as TC.gen]
-            [convex.lisp.form              :as $.form]))
+            [convex.lisp                   :as $.lisp]))
 
 
 ;;;;;;;;;; Miscellaneous helpers
@@ -31,7 +31,7 @@
 
   [gen]
 
-  (TC.gen/fmap $.form/quoted
+  (TC.gen/fmap $.lisp/quoted
                gen))
 
 
@@ -42,7 +42,7 @@
 
   "Any address."
 
-  (TC.gen/fmap $.form/address
+  (TC.gen/fmap $.lisp/address
                (TC.gen/large-integer* {:min 0})))
 
 
@@ -168,7 +168,7 @@
 
   "Any blob."
 
-  (TC.gen/fmap $.form/blob
+  (TC.gen/fmap $.lisp/blob
                hex-string))
 
 
@@ -179,7 +179,7 @@
   
    Compatible with addresses."
 
-  (TC.gen/fmap $.form/blob
+  (TC.gen/fmap $.lisp/blob
                hex-string-8))
 
 
@@ -188,7 +188,7 @@
 
   "Like [[blob]] but fixed size representing 32 bytes."
 
-  (TC.gen/fmap $.form/blob
+  (TC.gen/fmap $.lisp/blob
                hex-string-32))
 
 
@@ -323,7 +323,7 @@
 
   (TC.gen/recursive-gen (fn [gen-inner]
                           (let [gen-vector (TC.gen/vector gen-inner)]
-                            (TC.gen/one-of [(TC.gen/fmap $.form/list
+                            (TC.gen/one-of [(TC.gen/fmap $.lisp/list
                                                          gen-vector)
                                             (TC.gen/scale #(quot %
                                                                  2)
@@ -343,15 +343,15 @@
   
   (TC.gen/fmap (fn [x]
                  (cond
-                   (map? x)    ($.form/list (reduce-kv conj
+                   (map? x)    ($.lisp/list (reduce-kv conj
                                                        []
                                                        x))
-                   (set? x)    ($.form/list x)
-                   (seq? x)    (if ($.form/list? x)
+                   (set? x)    ($.lisp/list x)
+                   (seq? x)    (if ($.lisp/list? x)
                                  x
-                                 ($.form/list [x]))
-                   (vector? x) ($.form/list x)
-                   :else       ($.form/list [x])))
+                                 ($.lisp/list [x]))
+                   (vector? x) ($.lisp/list x)
+                   :else       ($.lisp/list [x])))
                recursive))
 
 
@@ -371,7 +371,7 @@
                    (cond
                      (map? x)    x
                      (set? x)    (-to-map x)
-                     (seq? x)    (if ($.form/list? x)
+                     (seq? x)    (if ($.lisp/list? x)
                                    (-to-map (rest x))
                                    {x x})
                      (vector? x) (-to-map x)
@@ -390,7 +390,7 @@
                                           #{}
                                           x)
                    (set? x)    x
-                   (seq? x)    (if ($.form/list? x)
+                   (seq? x)    (if ($.lisp/list? x)
                                  (clojure.core/set (rest x))
                                  #{x})
                    (vector? x) (clojure.core/set x)
@@ -409,7 +409,7 @@
                                           []
                                           x)
                    (set? x)    (vec x)
-                   (seq? x)    (if ($.form/list? x)
+                   (seq? x)    (if ($.lisp/list? x)
                                  (vec (rest x))
                                  [x])
                    (vector? x) x

@@ -11,7 +11,7 @@
 
   (:require [convex.cvm            :as $.cvm]
             [convex.cvm.eval       :as $.cvm.eval]
-            [convex.lisp.form      :as $.form]
+            [convex.lisp           :as $.lisp]
             [convex.lisp.test.prop :as $.test.prop]
             [convex.lisp.test.util :as $.test.util]))
 
@@ -44,13 +44,13 @@
 
   ([form]
 
-   `(convex.lisp.test.eval/ctx ($.form/templ* ~form)))
+   `(convex.lisp.test.eval/ctx ($.lisp/templ* ~form)))
 
 
   ([ctx form]
 
    `(convex.lisp.test.eval/ctx  ~ctx
-                                ($.form/templ* ~form))))
+                                ($.lisp/templ* ~form))))
 
 
 
@@ -75,13 +75,13 @@
 
   ([form]
 
-   `(exception ($.form/templ* ~form)))
+   `(exception ($.lisp/templ* ~form)))
 
 
   ([ctx form]
 
    `(exception ~ctx
-               ($.form/templ* ~form))))
+               ($.lisp/templ* ~form))))
 
 
 
@@ -106,13 +106,13 @@
 
   ([form]
 
-   `(exception? ($.form/templ* ~form)))
+   `(exception? ($.lisp/templ* ~form)))
 
 
   ([ctx form]
 
    `(exception? ~ctx
-                ($.form/templ* ~form))))
+                ($.lisp/templ* ~form))))
 
 
 
@@ -140,13 +140,13 @@
 
   ([form]
 
-   `(error-arg? ($.form/templ* ~form)))
+   `(error-arg? ($.lisp/templ* ~form)))
 
 
   ([ctx form]
 
    `(error-arg? ~ctx
-                ($.form/templ* ~form))))
+                ($.lisp/templ* ~form))))
 
 
 
@@ -175,13 +175,13 @@
 
   ([form]
 
-   `(error-arity? ($.form/templ* ~form)))
+   `(error-arity? ($.lisp/templ* ~form)))
 
 
   ([ctx form]
 
    `(error-arity? ~ctx
-                  ($.form/templ* ~form))))
+                  ($.lisp/templ* ~form))))
 
 
 
@@ -209,13 +209,13 @@
 
   ([form]
 
-   `(error-cast? ($.form/templ* ~form)))
+   `(error-cast? ($.lisp/templ* ~form)))
 
 
   ([ctx form]
 
    `(error-cast? ~ctx
-                 ($.form/templ* ~form))))
+                 ($.lisp/templ* ~form))))
 
 
 
@@ -243,13 +243,13 @@
 
   ([form]
 
-   `(error-fund? ($.form/templ* ~form)))
+   `(error-fund? ($.lisp/templ* ~form)))
 
 
   ([ctx form]
 
    `(error-fund? ~ctx
-                 ($.form/templ* ~form))))
+                 ($.lisp/templ* ~form))))
 
 
 
@@ -277,13 +277,13 @@
 
   ([form]
 
-   `(error-memory? ($.form/templ* ~form)))
+   `(error-memory? ($.lisp/templ* ~form)))
 
 
   ([ctx form]
 
    `(error-memory? ~ctx
-                   ($.form/templ* ~form))))
+                   ($.lisp/templ* ~form))))
 
 
 
@@ -311,13 +311,13 @@
 
   ([form]
 
-   `(error-nobody? ($.form/templ* ~form)))
+   `(error-nobody? ($.lisp/templ* ~form)))
 
 
   ([ctx form]
 
    `(error-nobody? ~ctx
-                   ($.form/templ* ~form))))
+                   ($.lisp/templ* ~form))))
 
 
 
@@ -345,13 +345,13 @@
 
   ([form]
 
-   `(error-state? ($.form/templ* ~form)))
+   `(error-state? ($.lisp/templ* ~form)))
 
 
   ([ctx form]
 
    `(error-state? ~ctx
-                  ($.form/templ* ~form))))
+                  ($.lisp/templ* ~form))))
 
 
 
@@ -397,18 +397,18 @@
 
   ([form]
 
-   `(like-clojure? ($.form/templ* ~form)))
+   `(like-clojure? ($.lisp/templ* ~form)))
 
 
   ([ctx form]
 
    `(like-clojure? ~ctx
-                   ($.form/templ* ~form)))
+                   ($.lisp/templ* ~form)))
 
 
   ([form f arg+]
 
-   `(like-clojure? ($.form/templ* ~form)
+   `(like-clojure? ($.lisp/templ* ~form)
                    ~f
                    ~arg+))
 
@@ -416,7 +416,7 @@
   ([ctx form f arg+]
 
    `(like-clojure? ~ctx
-                   ($.form/templ* ~form)
+                   ($.lisp/templ* ~form)
                    ~f
                    ~arg+)))
 
@@ -459,13 +459,13 @@
 
   ([form]
 
-   `(result ($.form/templ* ~form)))
+   `(result ($.lisp/templ* ~form)))
 
 
   ([ctx form]
 
    `(result ~ctx
-            ($.form/templ* ~form))))
+            ($.lisp/templ* ~form))))
 
 
 

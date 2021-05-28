@@ -18,7 +18,6 @@
   (:require [clojure.test                  :as t]
             [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
-            [convex.lisp.form              :as $.form]
             [convex.lisp.gen               :as $.gen]
             [convex.lisp.test.eval         :as $.test.eval]
             [convex.lisp.test.gen          :as $.test.gen]

@@ -8,7 +8,7 @@
             [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
             [convex.cvm                    :as $.cvm]
-            [convex.lisp.form              :as $.form]
+            [convex.lisp                   :as $.lisp]
             [convex.lisp.gen               :as $.gen]
             [convex.lisp.test.eval         :as $.test.eval]
             [convex.lisp.test.prop         :as $.test.prop]
@@ -28,14 +28,14 @@
    (if (<= n
            0)
      form
-     ($.form/templ* ((fn []
+     ($.lisp/templ* ((fn []
                        ~(-nested-fn (dec n)
                                     form))))))
 
   ([n form x-ploy]
 
    (-nested-fn n
-               ($.form/templ* (do
+               ($.lisp/templ* (do
                                 ~form
                                 ~x-ploy))))
 
@@ -43,7 +43,7 @@
   ([n sym x-ploy x-return]
 
    (-nested-fn n
-               ($.form/templ* (~sym ~x-return))
+               ($.lisp/templ* (~sym ~x-return))
                x-ploy)))
 
 
@@ -66,7 +66,7 @@
                     x-return $.gen/truthy]
     (identical? :ASSERT
                 (-> ($.test.eval/exception (-nested-fn n
-                                                       ($.form/templ* (assert (not ~x-return)))
+                                                       ($.lisp/templ* (assert (not ~x-return)))
                                                        x-ploy))
                     :convex.error/code))))
 
@@ -165,7 +165,7 @@
   
                           "Without code"
 
-                          (let [ret (exec ($.form/templ* (fail ~message)))]
+                          (let [ret (exec ($.lisp/templ* (fail ~message)))]
                             ($.test.prop/mult*
 
                               "No code"
@@ -180,7 +180,7 @@
 
                           "With code"
 
-                          (let [ret (exec ($.form/templ* (fail ~code
+                          (let [ret (exec ($.lisp/templ* (fail ~code
                                                                ~message)))]
                             ($.test.prop/mult*
 

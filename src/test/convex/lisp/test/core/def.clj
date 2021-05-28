@@ -5,6 +5,7 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.test.check.properties :as TC.prop]
+            [convex.lisp                   :as $.lisp]
             [convex.lisp.gen               :as $.gen]
             [convex.lisp.test.eval         :as $.test.eval]
             [convex.lisp.test.prop         :as $.test.prop]

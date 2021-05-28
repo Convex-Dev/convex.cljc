@@ -16,8 +16,7 @@
             [convex.lisp.gen               :as $.gen]
             [convex.lisp.test.eval         :as $.test.eval]
             [convex.lisp.test.gen          :as $.test.gen]
-            [convex.lisp.test.prop         :as $.test.prop]
-            [convex.lisp.test.util         :as $.test.util]))
+            [convex.lisp.test.prop         :as $.test.prop]))
 
 
 ;;;;;;;;;; Reusing properties
