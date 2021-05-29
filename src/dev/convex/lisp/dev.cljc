@@ -10,7 +10,6 @@
             [convex.cvm.eval.src                      :as $.cvm.src]
             [convex.cvm.type                          :as $.cvm.type]
             #?(:clj [convex.lisp                      :as $.lisp])
-            [convex.lisp.edn                          :as $.edn]
             [convex.lisp.gen                          :as $.gen]
             [convex.lisp.hex                          :as $.hex]
             #?(:clj [convex.lisp.run.fuzz])
@@ -30,7 +29,7 @@
                       [convex.lisp.test.core.set]
                       [convex.lisp.test.data]
                       [convex.lisp.test.edn]
-                      [convex.lisp.test.eval          :as $.test.eval]
+                      [convex.lisp.test.eval]
                       [convex.lisp.test.fuzz]
                       [convex.lisp.test.gen]
                       [convex.lisp.test.prop]
@@ -65,12 +64,8 @@
                      )
 
 
-  (reduce (fn [a b]
-            a)
-          []
-          ($.cvm.type/map {}))
-  
 
   ($.cvm/account ($.cvm/ctx))
+
 
   ))

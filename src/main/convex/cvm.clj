@@ -20,6 +20,7 @@
 
   (:import convex.core.Init
            (convex.core.data AccountStatus
+                             ACell
                              Address
                              AHashMap
                              Symbol)
@@ -68,7 +69,7 @@
 
 (defn fork
 
-  "Duplicates the given context (very cheap).
+  "Duplicates the given [[ctx]] (very cheap).
 
    Any operation on the returned copy has no impact on the original context."
 
@@ -545,3 +546,15 @@
           .toString
           read
           clojure.core.protocols/datafy)))
+
+
+;;;;;;;;;; Converting Convex -> EDN
+
+
+(defn as-edn
+
+  "Translates a Convex object into an EDN string."
+  
+  [^ACell form]
+
+  (.ednString form))
