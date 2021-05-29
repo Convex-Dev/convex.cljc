@@ -132,30 +132,6 @@ Produces the following vector:
 ```
 
 
-### Validating and generating Convex Lisp
-
-The fact that Convex Lisp can be written as Clojure data means we can leverage the [Malli](https://github.com/metosin/malli) library for describing the language:
-
-```clojure
-(require '[malli.generator :as malli.gen])
-
-
-(def registry
-
-  "Malli registry containing everything that is needed."
-
-  (convex.lisp.schema/registry))
-
-
-(malli.gen/generate :convex/vector
-                    {:registry registry
-                     :size     5})
-```
-
-Generative tests targeting the CVM extensively relies on such a registry.
-
-Currently, Malli struggles with recursive data definitions. This is why the size in this example is very slow. It is in the process of being fixed.
-
 ## Testing the CVM
 
 For the time being, this repository bundles both general-purpose utilities for Convex Lisp

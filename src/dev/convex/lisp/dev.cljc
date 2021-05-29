@@ -13,7 +13,6 @@
             [convex.lisp.gen                          :as $.gen]
             [convex.lisp.hex                          :as $.hex]
             #?(:clj [convex.lisp.run.fuzz])
-            [convex.lisp.schema                       :as $.schema]
             #?@(:clj [[convex.cvm.test]
                       [convex.lisp.test]
                       [convex.lisp.test.core.account]

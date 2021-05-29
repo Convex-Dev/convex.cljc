@@ -10,7 +10,8 @@
             [clojure.test.check.generators :as tc.gen]
             [convex.lisp                   :as $.lisp]
             [convex.lisp.hex               :as $.hex]
-            [malli.core                    :as malli]))
+            [malli.core                    :as malli]
+            [malli.generator               :as malli.gen]))
 
 
 ;;;;;;;;;; Schemas
@@ -1194,3 +1195,17 @@
        castable
        core
        data)))
+
+
+;;;;;;;;;;
+
+
+(comment
+  
+
+  (malli/validate :convex.core.api/concat
+                  'call
+                  {:registry (registry)})
+
+
+  )
