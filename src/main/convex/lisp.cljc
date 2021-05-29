@@ -203,6 +203,36 @@
          x))
 
 
+;;;;;;;;;; Hex-strings
+
+
+(def regex-hex-string
+
+  "Regular expression for a hexstring of any (even) length."
+
+  #"(?i)(?:(?:\d|A|B|C|D|E|F){2})*")
+
+
+
+(defn hex-string?
+
+  "Is the given string a hex-string?"
+
+
+  ([string]
+
+   (boolean (re-matches regex-hex-string
+                        string)))
+
+
+  ([n-byte string]
+
+   (and (= (count string)
+           (* 2
+              n-byte))
+        (hex-string? string))))
+
+
 ;;;;;;;;;; Templating Convex Lisp code
 
 

@@ -11,7 +11,6 @@
             [convex.cvm.type                          :as $.cvm.type]
             #?(:clj [convex.lisp                      :as $.lisp])
             [convex.lisp.gen                          :as $.gen]
-            [convex.lisp.hex                          :as $.hex]
             #?(:clj [convex.lisp.run.fuzz])
             #?@(:clj [[convex.cvm.test]
                       [convex.lisp.test]
