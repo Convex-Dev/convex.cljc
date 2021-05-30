@@ -29,6 +29,7 @@
            java.io.File)
   (:refer-clojure :exclude [compile
                             eval
+                            import
                             read])
   (:require [clojure.core.protocols]
             [convex.cvm.type         :as $.cvm.type]
@@ -562,6 +563,49 @@
   (.ednString form))
 
 
+;;;;;;;;;; Importing Convex Lisp files as libraries
+
+
+(defn ^:no-doc -form-import
+
+  ;;
+
+
+  ([[path alias]]
+
+   (-form-import path
+                 alias))
+
+
+  ([path alias]
+
+   ($.lisp/templ* (let [addr (deploy (quote ~($.lisp/literal (slurp path))))]
+                    (def *aliases*
+                         (assoc *aliases*
+                                (quote ~alias)
+                                addr))))))
+
+
+
+(defn import
+
+  ""
+
+
+  ([path->alias]
+
+   (import (ctx)
+           path->alias))
+
+
+  ([ctx path->alias]
+
+   (eval ctx
+         (read-form ($.lisp/templ* (do
+                                     ~@(map -form-import
+                                            path->alias)))))))
+
+
 ;;;;;;;;;; Watching Convex Lisp files and syncing with a context
 
 
@@ -578,20 +622,6 @@
 
 
 
-(defn ^:no-doc -read-code
-
-  ;;
-
-  [path alias]
-
-  ($.lisp/templ* (let [addr (deploy (quote ~($.lisp/literal (slurp path))))]
-                   (def *aliases*
-                        (assoc *aliases*
-                               (quote ~alias)
-                               addr)))))
-
-
-
 (defn watch
 
   ""
@@ -600,50 +630,52 @@
   ([path->alias]
 
    (watch path->alias
-          identity))
+          nil))
 
 
-  ([path->alias f]
+  ([path->alias option+]
 
-   (let [import+ (reduce-kv (fn [import+ ^String path alias]
-                              (let [path-2 (.getCanonicalPath (File. path))]
-                                (assoc import+
-                                       path-2
-                                       {:alias alias
-                                        :code  (-read-code path-2
-                                                           alias)})))
-                            {}
-                            path->alias)
-         *state  (atom {:ctx     (-ctx-watch f
-                                             import+)
-                        :import+ import+})
-         watcher (watcher/watch! [{:handler (fn [_ctx {:keys [^File file
-                                                              kind]}]
-                                              (swap! *state
-                                                     (fn [{:as   state
-                                                           :keys [import+]}]
-                                                       (let [path      (.getCanonicalPath file)
-                                                             import-2+ (if (= kind
-                                                                              :delete)
-                                                                         (update import+
-                                                                                 path
-                                                                                 dissoc
-                                                                                 :code)
-                                                                         (update import+
-                                                                                 path
-                                                                                 (fn [{:as   import-
-                                                                                       :keys [alias]}]
+   (let [after-import (or (:after-import option+)
+                          identity)
+         import+      (reduce-kv (fn [import+ ^String path alias]
+                                   (let [path-2 (.getCanonicalPath (File. path))]
+                                     (assoc import+
+                                            path-2
+                                            {:alias alias
+                                             :code  (-form-import path-2
+                                                                  alias)})))
+                                 {}
+                                 path->alias)
+         *state       (atom {:ctx     (-ctx-watch after-import
+                                                  import+)
+                             :import+ import+})
+         watcher      (watcher/watch! [{:handler (fn [_ {:keys [^File file
+                                                                kind]}]
+                                                   (swap! *state
+                                                          (fn [{:as   state
+                                                                :keys [import+]}]
+                                                            (let [path      (.getCanonicalPath file)
+                                                                  import-2+ (if (= kind
+                                                                                   :delete)
+                                                                              (update import+
+                                                                                      path
+                                                                                      dissoc
+                                                                                      :code)
+                                                                              (update import+
+                                                                                      path
+                                                                                      (fn [{:as   import-
+                                                                                            :keys [alias]}]
 
-                                                                                   (assoc import-
-                                                                                          :code
-                                                                                          (-read-code path
-                                                                                                      alias)))))]
-                                                         (assoc state
-                                                                :ctx     (-ctx-watch f
-                                                                                     import-2+)
-                                                                :import+ import-2+))))
-                                              nil)
-                                   :paths   (keys import+)}])]
+                                                                                        (assoc import-
+                                                                                               :code
+                                                                                               (-form-import path
+                                                                                                             alias)))))]
+                                                              (assoc state
+                                                                     :ctx     (-ctx-watch after-import
+                                                                                          import-2+)
+                                                                     :import+ import-2+))))
+                                                   nil)
+                                        :paths   (keys import+)}])]
      (reify
 
 
