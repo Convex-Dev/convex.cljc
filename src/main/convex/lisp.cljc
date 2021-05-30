@@ -70,28 +70,26 @@
 
 (defn literal
 
-  "Transforms some forms into their literal notation:
+  "Produces a symbol from the given string with an optional type (see [[meta-type]]).
+  
+   A symbol prints exactly as it lookes. Hence, this is useful for [[templ*]] for including expression
+   that might not be possible to write in Clojure.
 
-   | Example form | Becomes |
-   |---|---|
-   | `(address #42)`| #42 |
-   | `(blob \"11FF\")` | 0x11FF |"
+   ```clojure
+   (templ* (get ~(literal \"{[1] :vec, '(1) :list}\")
+                [1]))
+   ```"
 
-  [form]
 
-  (if (seq? form)
-    (condp clojure.core/=
-           (first form)
-      'address (let [arg (second form)]
-                 (if (int? arg)
-                   (address arg)
-                   form))
-      'blob    (let [arg (second form)]
-                 (if (string? arg)
-                   (blob arg)
-                   form))
-      form)
-    form))
+  ([string]
+
+   (symbol string))
+
+
+  ([type string]
+
+   (with-meta (literal string)
+              {:convex/type type})))
 
 
 ;;;;;;;;;; Miscellaneous
