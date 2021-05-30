@@ -14,7 +14,8 @@
 
   {:author "Adam Helinski"}
 
-  (:refer-clojure :exclude [list
+  (:refer-clojure :exclude [=
+                            list
                             list?
                             read])
   (:require [clojure.core]
@@ -79,7 +80,7 @@
   [form]
 
   (if (seq? form)
-    (condp =
+    (condp clojure.core/=
            (first form)
       'address (let [arg (second form)]
                  (if (int? arg)
@@ -95,6 +96,16 @@
 
 ;;;;;;;;;; Miscellaneous
 
+
+(defn =
+
+  "Substitute for `=` so that NaN equals NaN."
+
+  [& arg+]
+
+  (apply clojure.core/=
+         (map hash
+              arg+)))
 
 (defn meta-raw
 
@@ -117,6 +128,17 @@
   (-> sym
       meta
       :convex/type))
+
+
+
+(defn meta-type?
+
+  ""
+
+  [type x]
+
+  (clojure.core/= (meta-type x)
+                  type))
 
 
 
@@ -149,8 +171,8 @@
 
   [x]
 
-  (= (meta-type x)
-     :address))
+  (meta-type? :address
+              x))
 
 
 
@@ -160,8 +182,8 @@
 
   [x]
 
-  (= (meta-type x)
-     :blob))
+  (meta-type? :blob
+              x))
 
 
 
@@ -177,8 +199,8 @@
   [sym x]
 
   (and (seq? x)
-       (= (first x)
-          sym)))
+       (clojure.core/= (first x)
+                       sym)))
 
 
 
@@ -188,8 +210,8 @@
 
   [x]
 
-  (= (meta-type x)
-     :list))
+  (meta-type? :list
+              x))
 
 
 
@@ -227,9 +249,9 @@
 
   ([n-byte string]
 
-   (and (= (count string)
-           (* 2
-              n-byte))
+   (and (clojure.core/= (count string)
+                        (* 2
+                           n-byte))
         (hex-string? string))))
 
 
@@ -249,8 +271,8 @@
   (list* 'concat
          (map (fn [x]
                 (if (and (seq? x)
-                         (= (first x)
-                            'clojure.core/unquote-splicing))
+                         (clojure.core/= (first x)
+                                         'clojure.core/unquote-splicing))
                   (second x)
                   [(-templ* x)]))
               x+)))
@@ -264,7 +286,7 @@
   [form]
 
   (cond
-    (seq? form)    (condp =
+    (seq? form)    (condp clojure.core/=
                           (first form)
                      'clojure.core/unquote          (second form)
                      'clojure.core/unquote-splicing (throw (ex-info "Can only splice inside of a collection"

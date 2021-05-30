@@ -7,7 +7,6 @@
   (:require [clojure.test.check.properties :as TC.prop]
             [convex.break.eval             :as $.break.eval]
             [convex.break.prop             :as $.break.prop]
-            [convex.break.util             :as $.break.util]
             [convex.lisp                   :as $.lisp]
             [convex.lisp.gen               :as $.lisp.gen]))
 
@@ -63,12 +62,12 @@
                                                       sym)))
 
             "Environment produced by `undef*` is the same as produced by `undef`"
-            ($.break.util/eq ($.break.eval/result ctx-2
-                                                  '($/env))
-                              ($.break.eval/result ctx
-                                                  '(do
-                                                     (undef* sym)
-                                                     ($/env))))
+            ($.lisp/= ($.break.eval/result ctx-2
+                                          '($/env))
+                      ($.break.eval/result ctx
+                                          '(do
+                                             (undef* sym)
+                                             ($/env))))
 
             "Undefined symbol must result in an error when used"
             (if ($.break.eval/result ctx-2

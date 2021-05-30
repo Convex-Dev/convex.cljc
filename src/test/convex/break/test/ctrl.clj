@@ -9,7 +9,6 @@
             [clojure.test.check.properties :as TC.prop]
             [convex.break.eval             :as $.break.eval]
             [convex.break.prop             :as $.break.prop]
-            [convex.break.util             :as $.break.util]
             [convex.cvm                    :as $.cvm]
             [convex.lisp                   :as $.lisp]
             [convex.lisp.gen               :as $.lisp.gen]))
@@ -173,8 +172,8 @@
                                   (ret :convex.error/code))
 
                                "Message"
-                               ($.break.util/eq message-2
-                                                (ret :convex.error/message)))))
+                               ($.lisp/= message-2
+                                         (ret :convex.error/message)))))
 
                          ($.break.prop/checkpoint*
 
@@ -185,12 +184,12 @@
                              ($.break.prop/mult*
 
                                "Code"
-                               ($.break.util/eq ($.break.eval/result code)
-                                                (ret :convex.error/code))
+                               ($.lisp/= ($.break.eval/result code)
+                                         (ret :convex.error/code))
 
                                "Message"
-                               ($.break.util/eq message-2
-                                                (ret :convex.error/message)))))))))
+                               ($.lisp/= message-2
+                                         (ret :convex.error/message)))))))))
 
 
 
@@ -202,20 +201,20 @@
     ($.break.prop/mult*
 
       "`halt`"
-      ($.break.util/eq ($.break.eval/result x-return)
-                       ($.break.eval/result (-nested-fn n
-                                                        'halt
-                                                        x-ploy
-                                                        x-return)))
+      ($.lisp/= ($.break.eval/result x-return)
+                ($.break.eval/result (-nested-fn n
+                                                 'halt
+                                                 x-ploy
+                                                 x-return)))
 
       "`return`"
-      ($.break.util/eq ($.break.eval/result* [~x-return
-                                              ~x-ploy])
-                       ($.break.eval/result* [~(-nested-fn n
-                                                           'return
-                                                           x-ploy
-                                                           x-return)
-                                              ~x-ploy])))))
+      ($.lisp/= ($.break.eval/result* [~x-return
+                                       ~x-ploy])
+                ($.break.eval/result* [~(-nested-fn n
+                                                    'return
+                                                    x-ploy
+                                                    x-return)
+                                       ~x-ploy])))))
 
 
 
@@ -311,16 +310,16 @@
       ($.break.prop/mult*
 
         "Returned value is the rollback value"
-        ($.break.util/eq ($.break.eval/result x-return)
-                         (-> ctx
-                             $.cvm/result
-                             $.cvm/as-clojure))
+        ($.lisp/= ($.break.eval/result x-return)
+                  (-> ctx
+                      $.cvm/result
+                      $.cvm/as-clojure))
 
         "State has been rolled back"
         (let [form '(hash (encoding *state*))]
-          ($.break.util/eq ($.break.eval/result form)
-                           ($.break.eval/result ctx
-                                                form)))))))
+          ($.lisp/= ($.break.eval/result form)
+                    ($.break.eval/result ctx
+                                         form)))))))
 
 
 ;;;;;;;;;; Negative tests

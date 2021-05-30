@@ -8,11 +8,10 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.break.prop     :as $.break.prop]
-            [convex.break.util     :as $.break.util]
-            [convex.cvm            :as $.cvm]
-            [convex.cvm.eval       :as $.cvm.eval]
-            [convex.lisp           :as $.lisp]))
+  (:require [convex.break.prop :as $.break.prop]
+            [convex.cvm        :as $.cvm]
+            [convex.cvm.eval   :as $.cvm.eval]
+            [convex.lisp       :as $.lisp]))
 
 
 (declare ctx-base
@@ -368,9 +367,9 @@
 
   ([ctx form]
 
-   ($.break.util/eq (eval form)
-                    ($.cvm.eval/result ctx
-                                       form)))
+   ($.lisp/= (eval form)
+             ($.cvm.eval/result ctx
+                                form)))
 
 
   ([form f arg+]
@@ -383,11 +382,11 @@
 
   ([ctx form f arg+]
 
-   ($.break.util/eq (apply f
-                           arg+)
-                    ($.cvm.eval/result ctx
-                                       (list* form
-                                              arg+)))))
+   ($.lisp/= (apply f
+                    arg+)
+             ($.cvm.eval/result ctx
+                                (list* form
+                                       arg+)))))
 
 
 

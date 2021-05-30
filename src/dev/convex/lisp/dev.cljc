@@ -28,7 +28,6 @@
                       [convex.break.test.math]
                       [convex.break.test.pred]
                       [convex.break.test.set]
-                      [convex.break.util]
                       [convex.cvm.test]
                       [convex.example.exec]
                       [convex.example.templ]

@@ -21,7 +21,7 @@
             [convex.break.eval             :as $.break.eval]
             [convex.break.prop             :as $.break.prop]
             [convex.break.gen              :as $.break.gen]
-            [convex.break.util             :as $.break.util]
+            [convex.lisp                   :as $.lisp]
             [convex.lisp.gen               :as $.lisp.gen]))
 
 
@@ -56,9 +56,9 @@
 
                         "Round-trip through the CVM"
 
-                        ($.break.util/eq x
-                                         ($.break.eval/result* (identity ~x))
-                                         ($.break.eval/result* (quote ~x)))))))
+                        ($.lisp/= x
+                                  ($.break.eval/result* (identity ~x))
+                                  ($.break.eval/result* (quote ~x)))))))
 
 
 ;;;;;;;;;; Scalar values
@@ -141,8 +141,8 @@
 
   (TC.prop/for-all [x (TC.gen/one-of [$.lisp.gen/symbol
                                       $.lisp.gen/symbol-ns])]
-    ($.break.util/eq x
-                     ($.break.eval/result* (identity (quote ~x))))))
+    ($.lisp/= x
+              ($.break.eval/result* (identity (quote ~x))))))
 
 
 ;;;;;;;;;; Collections
