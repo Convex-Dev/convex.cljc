@@ -9,7 +9,6 @@
             [convex.cvm.eval                          :as $.cvm.eval]
             [convex.cvm.eval.src                      :as $.cvm.src]
             [convex.cvm.type                          :as $.cvm.type]
-            [convex.cvm.watch                         :as $.cvm.watch]
             #?(:clj [convex.lisp                      :as $.lisp])
             [convex.lisp.gen                          :as $.lisp.gen]
             #?@(:clj [[convex.break.eval]
@@ -68,12 +67,10 @@
 
 
   (def ctx
-       ($.cvm.watch/start {"src/convex/util.cvx" '$}))
-
-  ($.cvm/exception @ctx)
+       ($.cvm/watch {"src/convex/util.cvx" '$}))
 
   ($.cvm.eval/result @ctx
-                     '$/foo)
+                     '$/every?)
 
   (.close ctx)
 

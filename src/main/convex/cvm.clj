@@ -25,13 +25,15 @@
                              AHashMap
                              Symbol)
            (convex.core.lang Context
-                             Reader))
+                             Reader)
+           java.io.File)
   (:refer-clojure :exclude [compile
                             eval
                             read])
   (:require [clojure.core.protocols]
             [convex.cvm.type         :as $.cvm.type]
-            [convex.lisp             :as $.lisp]))
+            [convex.lisp             :as $.lisp]
+            [hawk.core               :as watcher]))
 
 
 (set! *warn-on-reflection*
@@ -558,3 +560,103 @@
   [^ACell form]
 
   (.ednString form))
+
+
+;;;;;;;;;; Watching Convex Lisp files and syncing with a context
+
+
+(defn ^:no-doc -ctx-watch
+
+  ;;
+
+  [f import+]
+
+  (f (eval (ctx)
+           (read-form ($.lisp/templ* (do
+                                       ~@(map :code
+                                              (vals import+))))))))
+
+
+
+(defn ^:no-doc -read-code
+
+  ;;
+
+  [path alias]
+
+  ($.lisp/templ* (let [addr (deploy (quote ~($.lisp/literal (slurp path))))]
+                   (def *aliases*
+                        (assoc *aliases*
+                               (quote ~alias)
+                               addr)))))
+
+
+
+(defn watch
+
+  ""
+
+
+  ([path->alias]
+
+   (watch path->alias
+          identity))
+
+
+  ([path->alias f]
+
+   (let [import+ (reduce-kv (fn [import+ ^String path alias]
+                              (let [path-2 (.getCanonicalPath (File. path))]
+                                (assoc import+
+                                       path-2
+                                       {:alias alias
+                                        :code  (-read-code path-2
+                                                           alias)})))
+                            {}
+                            path->alias)
+         *state  (atom {:ctx     (-ctx-watch f
+                                             import+)
+                        :import+ import+})
+         watcher (watcher/watch! [{:handler (fn [_ctx {:keys [^File file
+                                                              kind]}]
+                                              (swap! *state
+                                                     (fn [{:as   state
+                                                           :keys [import+]}]
+                                                       (let [path      (.getCanonicalPath file)
+                                                             import-2+ (if (= kind
+                                                                              :delete)
+                                                                         (update import+
+                                                                                 path
+                                                                                 dissoc
+                                                                                 :code)
+                                                                         (update import+
+                                                                                 path
+                                                                                 (fn [{:as   import-
+                                                                                       :keys [alias]}]
+
+                                                                                   (assoc import-
+                                                                                          :code
+                                                                                          (-read-code path
+                                                                                                      alias)))))]
+                                                         (assoc state
+                                                                :ctx     (-ctx-watch f
+                                                                                     import-2+)
+                                                                :import+ import-2+))))
+                                              nil)
+                                   :paths   (keys import+)}])]
+     (reify
+
+
+       clojure.lang.IDeref
+
+         (deref [_]
+           (let [ctx (@*state :ctx)]
+             (if (exception? ctx)
+               ctx
+               (fork ctx))))
+       
+
+       java.lang.AutoCloseable
+
+         (close [_]
+           (watcher/stop! watcher))))))
