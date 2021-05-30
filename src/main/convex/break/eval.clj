@@ -1,19 +1,18 @@
-(ns convex.lisp.test.eval
+(ns convex.break.eval
 
-  "Bridge to [[convex.lisp.eval]] but uses [[ctx]] when no context is provided.
-  
-   Undocumented symbols refer directly to the [[convex.lisp.eval]] namespace.
+  "Mimicks directly `convex.lisp.eval`, hence the absence of docstrings. Those functions rely on [[ctx-base]]
+   when no context is provided/
   
    Symbols ending with '*' designate a macro equivalent of a related function ([[result*]] for [[result]]) which
-   template the given form using [[convex.lisp.form/templ*]]."
+   template the given form using `convex.lisp.form/templ*`."
 
   {:author "Adam Helinski"}
 
-  (:require [convex.cvm            :as $.cvm]
+  (:require [convex.break.prop     :as $.break.prop]
+            [convex.break.util     :as $.break.util]
+            [convex.cvm            :as $.cvm]
             [convex.cvm.eval       :as $.cvm.eval]
-            [convex.lisp           :as $.lisp]
-            [convex.lisp.test.prop :as $.test.prop]
-            [convex.lisp.test.util :as $.test.util]))
+            [convex.lisp           :as $.lisp]))
 
 
 (declare ctx-base
@@ -28,8 +27,8 @@
 
   ([form]
 
-   (convex.lisp.test.eval/ctx ctx-base
-                              form))
+   (convex.break.eval/ctx ctx-base
+                          form))
 
 
   ([ctx form]
@@ -44,13 +43,13 @@
 
   ([form]
 
-   `(convex.lisp.test.eval/ctx ($.lisp/templ* ~form)))
+   `(convex.break.eval/ctx ($.lisp/templ* ~form)))
 
 
   ([ctx form]
 
-   `(convex.lisp.test.eval/ctx  ~ctx
-                                ($.lisp/templ* ~form))))
+   `(convex.break.eval/ctx  ~ctx
+                            ($.lisp/templ* ~form))))
 
 
 
@@ -369,9 +368,9 @@
 
   ([ctx form]
 
-   ($.test.util/eq (eval form)
-                   ($.cvm.eval/result ctx
-                                      form)))
+   ($.break.util/eq (eval form)
+                    ($.cvm.eval/result ctx
+                                       form)))
 
 
   ([form f arg+]
@@ -384,11 +383,11 @@
 
   ([ctx form f arg+]
 
-   ($.test.util/eq (apply f
-                          arg+)
-                   ($.cvm.eval/result ctx
-                                      (list* form
-                                             arg+)))))
+   ($.break.util/eq (apply f
+                           arg+)
+                    ($.cvm.eval/result ctx
+                                       (list* form
+                                              arg+)))))
 
 
 
@@ -488,9 +487,9 @@
                    $.cvm/result
                    $.cvm/as-clojure)]
      (or res
-         ($.test.prop/fail {:convex.test/log (-> ctx-2
-                                                 $.cvm/log
-                                                 $.cvm/as-clojure)})))))
+         ($.break.prop/fail {:convex.test/log (-> ctx-2
+                                                  $.cvm/log
+                                                  $.cvm/as-clojure)})))))
 
 
 

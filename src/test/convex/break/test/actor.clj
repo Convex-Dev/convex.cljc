@@ -1,16 +1,16 @@
-(ns convex.lisp.test.core.actor
+(ns convex.break.test.actor
 
   "Testing actor utilities."
 
   {:author "Adam Helinski"}
 
   (:require [clojure.test.check.properties :as TC.prop]
-            [convex.lisp                   :as $.lisp]
-            [convex.lisp.gen               :as $.gen]
-            [convex.lisp.test.core.account :as $.test.core.account]
-            [convex.lisp.test.eval         :as $.test.eval]
-            [convex.lisp.test.gen          :as $.test.gen]
-            [convex.lisp.test.prop         :as $.test.prop]))
+            [convex.lisp.gen               :as $.lisp.gen]
+            [convex.break.eval             :as $.test.eval]
+            [convex.break.gen              :as $.break.gen]
+            [convex.break.prop             :as $.break.prop]
+            [convex.break.test.account     :as $.break.test.account]))
+
 
 
 ;;;;;;;;;; Suites
@@ -22,23 +22,23 @@
 
   [ctx faulty-amount percent x]
 
-  ($.test.prop/checkpoint*
+  ($.break.prop/checkpoint*
 
     "Transfering coins"
 
-    (let [ctx-2 ($.test.core.account/ctx-transfer ctx
-                                                  faulty-amount
-                                                  percent)]
-      ($.test.prop/and* (-> ($.test.core.account/ctx-holding ctx-2
-                                                             'addr
-                                                             x)
-                            $.test.core.account/suite-holding)
-                        ($.test.core.account/suite-transfer ctx-2
-                                                            "Transfering coins to an actor")
-                        ($.test.prop/checkpoint*
+    (let [ctx-2 ($.break.test.account/ctx-transfer ctx
+                                                   faulty-amount
+                                                   percent)]
+      ($.break.prop/and* (-> ($.break.test.account/ctx-holding ctx-2
+                                                               'addr
+                                                               x)
+                            $.break.test.account/suite-holding)
+                        ($.break.test.account/suite-transfer ctx-2
+                                                             "Transfering coins to an actor")
+                        ($.break.prop/checkpoint*
 
                           "`accept` and `receive-coin`"
-                          ($.test.prop/mult*
+                          ($.break.prop/mult*
 
                             "Cannot send coin to actor without an exported `receive-coin` function"
                             ($.test.eval/error-state?* ctx-2
@@ -76,11 +76,11 @@
 ;;;;;;;;;; Tests
 
 
-($.test.prop/deftest main
+($.break.prop/deftest main
 
-  (TC.prop/for-all [faulty-amount  $.test.gen/not-long
-                    percent        $.test.gen/percent
-                    x              $.gen/any]
+  (TC.prop/for-all [faulty-amount  $.break.gen/not-long
+                    percent        $.break.gen/percent
+                    x              $.lisp.gen/any]
     (let [ctx ($.test.eval/ctx* (do
                                   (def addr
                                        (deploy '(do
@@ -105,16 +105,16 @@
                                                   (export receive-coin))))
                                   (def addr-empty
                                        (deploy nil))))]
-      ($.test.prop/and* (-> ($.test.core.account/ctx-holding ctx
-                                                             'addr
-                                                             x)
-                            $.test.core.account/suite-holding)
-                        ($.test.core.account/suite-new ctx
-                                                       true?)
-                        (suite-transfer ctx
-                                        faulty-amount
-                                        percent
-                                        x)
-                        ($.test.core.account/suite-transfer-memory ctx
-                                                                   faulty-amount
-                                                                   percent)))))
+      ($.break.prop/and* (-> ($.break.test.account/ctx-holding ctx
+                                                               'addr
+                                                               x)
+                             $.break.test.account/suite-holding)
+                         ($.break.test.account/suite-new ctx
+                                                         true?)
+                         (suite-transfer ctx
+                                         faulty-amount
+                                         percent
+                                         x)
+                         ($.break.test.account/suite-transfer-memory ctx
+                                                                     faulty-amount
+                                                                     percent)))))

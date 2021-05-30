@@ -19,7 +19,7 @@
   :fuzz-random
   {:exec-args   {:max-size 200
                  :root     "report/fuzz"}
-   :exec-fn     convex.lisp.run.fuzz/random
+   :exec-fn     convex.break.run.fuzz/random
    :extra-paths ["src/run"
                  "src/test"]}
 

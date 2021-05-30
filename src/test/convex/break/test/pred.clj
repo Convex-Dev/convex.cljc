@@ -1,4 +1,4 @@
-(ns convex.lisp.test.core.pred
+(ns convex.break.test.pred
 
   "Tests Convex core type predicate. 
   
@@ -9,10 +9,10 @@
   (:require [clojure.test                  :as t]
             [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
+            [convex.break.eval             :as $.break.eval]
+            [convex.break.prop             :as $.break.prop]
             [convex.lisp                   :as $.lisp]
-            [convex.lisp.gen               :as $.gen]
-            [convex.lisp.test.eval         :as $.test.eval]
-            [convex.lisp.test.prop         :as $.test.prop]))
+            [convex.lisp.gen               :as $.lisp.gen]))
 
 
 ;;;;;;;;;;
@@ -25,9 +25,9 @@
   [form result? f gen]
 
   (TC.prop/for-all [x gen]
-    (let [result ($.test.eval/result* (~form ~x))]
+    (let [result ($.break.eval/result* (~form ~x))]
 
-      ($.test.prop/mult*
+      ($.break.prop/mult*
 
         "Returns right boolean value"
         (result? result)
@@ -87,256 +87,256 @@
 ;;;;;;;;;;
 
 
-($.test.prop/deftest account?--false
+($.break.prop/deftest account?--false
 
   (prop-false 'account?
               (TC.gen/such-that (comp not
                                       $.lisp/address?)
-                                $.gen/any)))
+                                $.lisp.gen/any)))
 
 
 
-($.test.prop/deftest address?--false
+($.break.prop/deftest address?--false
 
   (prop-false 'address?
               (TC.gen/such-that (comp not
                                       $.lisp/address?)
-                                $.gen/any)))
+                                $.lisp.gen/any)))
 
 
 
-($.test.prop/deftest address?--true
+($.break.prop/deftest address?--true
 
-  (TC.prop/for-all* [$.gen/address]
-                    #($.test.eval/result (list 'address?
-                                               %))))
+  (TC.prop/for-all* [$.lisp.gen/address]
+                    #($.break.eval/result (list 'address?
+                                                %))))
 
 
 
-($.test.prop/deftest blob?--false
+($.break.prop/deftest blob?--false
 
   (prop-false 'blob?
               (TC.gen/such-that (comp not
                                       $.lisp/blob?)
-                                $.gen/any)))
+                                $.lisp.gen/any)))
 
 
 
-($.test.prop/deftest blob?--true
+($.break.prop/deftest blob?--true
 
   (prop-true 'blob?
-             $.gen/blob))
+             $.lisp.gen/blob))
 
 
 
-($.test.prop/deftest boolean?--false
+($.break.prop/deftest boolean?--false
 
   (prop-false 'boolean?
               boolean?
               (TC.gen/such-that (comp not
                                       boolean?)
-                                $.gen/any)))
+                                $.lisp.gen/any)))
 
 
 
 (t/deftest boolean?--true
 
-  (t/is (true? ($.test.eval/result true))
+  (t/is (true? ($.break.eval/result true))
         "True")
 
-  (t/is (false? ($.test.eval/result false))
+  (t/is (false? ($.break.eval/result false))
         "False"))
 
 
 
-#_($.test.prop/deftest coll?--false
+#_($.break.prop/deftest coll?--false
 
   ;; TODO. Returns true on blob-like items.
 
   (prop-false 'coll?
               coll?
-              $.gen/scalar))
+              $.lisp.gen/scalar))
 
 
 
-($.test.prop/deftest coll?--true
+($.break.prop/deftest coll?--true
 
   (prop-true 'coll?
              coll?
-             $.gen/collection))
+             $.lisp.gen/collection))
 
 
 
-($.test.prop/deftest keyword?--false
+($.break.prop/deftest keyword?--false
 
   (prop-false 'keyword?
               keyword?
               (TC.gen/such-that (comp not
                                       keyword?)
-                                $.gen/any)))
+                                $.lisp.gen/any)))
 
 
 
-($.test.prop/deftest keyword?--true
+($.break.prop/deftest keyword?--true
 
   (prop-true 'keyword?
              keyword?
-             $.gen/keyword))
+             $.lisp.gen/keyword))
 
 
 
-($.test.prop/deftest list?--false
+($.break.prop/deftest list?--false
 
   (prop-false 'list?
               $.lisp/list?
               (TC.gen/such-that (comp not
                                       $.lisp/list?)
-                                $.gen/any)))
+                                $.lisp.gen/any)))
 
 
 
-($.test.prop/deftest list?--true
+($.break.prop/deftest list?--true
 
   (prop-true 'list?
              $.lisp/list?
-             $.gen/list))
+             $.lisp.gen/list))
 
 
 
-($.test.prop/deftest long?--false
+($.break.prop/deftest long?--false
 
   (prop-false 'long?
               int?
               (TC.gen/such-that (comp not
                                       int?)
-                                $.gen/any)))
+                                $.lisp.gen/any)))
 
 
 
-($.test.prop/deftest long?--true
+($.break.prop/deftest long?--true
 
   (prop-true 'long?
              int?
-             $.gen/long))
+             $.lisp.gen/long))
 
 
 
-($.test.prop/deftest map?--false
+($.break.prop/deftest map?--false
 
   (prop-false 'map?
               map?
               (TC.gen/such-that #(not (map? %))
-                                $.gen/any)))
+                                $.lisp.gen/any)))
 
 
 
-($.test.prop/deftest map?--true
+($.break.prop/deftest map?--true
 
   (prop-true 'map?
              map?
-             $.gen/map))
+             $.lisp.gen/map))
 
 
 
-($.test.prop/deftest nil?--false
+($.break.prop/deftest nil?--false
 
   (prop-false 'nil?
               nil?
               (TC.gen/such-that some?
-                                $.gen/any)))
+                                $.lisp.gen/any)))
 
 
 
 (t/deftest nil?--true
 
-  (t/is (true? (nil? ($.test.eval/result nil))))
+  (t/is (true? (nil? ($.break.eval/result nil))))
 
-  (t/is (true? (nil? ($.test.eval/result '(do nil))))))
+  (t/is (true? (nil? ($.break.eval/result '(do nil))))))
 
 
 
-($.test.prop/deftest number?--false
+($.break.prop/deftest number?--false
 
   (prop-false 'number?
               number?
               (TC.gen/such-that (comp not
                                       number?)
-                                $.gen/any)))
+                                $.lisp.gen/any)))
 
 
 
-($.test.prop/deftest number?--true
+($.break.prop/deftest number?--true
 
   (prop-true 'number?
              number?
-             $.gen/number))
+             $.lisp.gen/number))
 
 
 
-($.test.prop/deftest set?--false
+($.break.prop/deftest set?--false
 
   (prop-false 'set?
               set?
               (TC.gen/such-that (comp not
                                       set?)
-                                $.gen/any)))
+                                $.lisp.gen/any)))
 
 
 
-($.test.prop/deftest set?--true
+($.break.prop/deftest set?--true
 
   (prop-true 'set?
              set?
-             $.gen/set))
+             $.lisp.gen/set))
 
 
 
-($.test.prop/deftest str?--false
+($.break.prop/deftest str?--false
 
   (prop-false 'str?
               string?
               (TC.gen/such-that (comp not
                                       string?)
-                                $.gen/any)))
+                                $.lisp.gen/any)))
 
 
 
-($.test.prop/deftest str?--true
+($.break.prop/deftest str?--true
 
   (prop-true 'str?
              string?
-             $.gen/string))
+             $.lisp.gen/string))
 
 
 
-($.test.prop/deftest symbol?--false
+($.break.prop/deftest symbol?--false
 
   (prop-false 'symbol?
               (TC.gen/such-that (comp not
                                       $.lisp/quoted?)
-                                $.gen/any)))
+                                $.lisp.gen/any)))
 
 
 
-($.test.prop/deftest symbol?--true
+($.break.prop/deftest symbol?--true
 
   (prop-true 'symbol?
-             $.gen/symbol-quoted))
+             $.lisp.gen/symbol-quoted))
 
 
 
-($.test.prop/deftest vector?--false
+($.break.prop/deftest vector?--false
 
   (prop-false 'vector?
               vector?
               (TC.gen/such-that (comp not
                                       vector?)
-                                $.gen/any)))
+                                $.lisp.gen/any)))
 
 
 
-($.test.prop/deftest vector?--true
+($.break.prop/deftest vector?--true
 
   (prop-true 'vector?
              vector?
-             $.gen/vector))
+             $.lisp.gen/vector))

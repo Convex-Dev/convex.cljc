@@ -1,4 +1,4 @@
-(ns convex.lisp.run.fuzz
+(ns convex.break.run.fuzz
 
   "Running fuzzy tests until user interrupts them.
   
@@ -11,10 +11,10 @@
             [clojure.test.check            :as TC]
             [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
+            [convex.break.gen              :as $.break.gen]
             [convex.cvm                    :as $.cvm]
             [convex.cvm.eval               :as $.cvm.eval]
-            [convex.lisp.gen               :as $.gen]
-            [convex.lisp.test.gen          :as $.test.gen])
+            [convex.lisp.gen               :as $.lisp.gen])
   (:import java.io.File))
 
 
@@ -41,10 +41,10 @@
         d*ensure-dir (delay
                        (.mkdirs (File. ^String root)))
         ctx          ($.cvm/ctx)
-        prop         (TC.prop/for-all [form ($.gen/call $.test.gen/core-symbol
-                                                        (TC.gen/vector $.gen/any
-                                                                       0
-                                                                       8))]
+        prop         (TC.prop/for-all [form ($.lisp.gen/call $.break.gen/core-symbol
+                                                             (TC.gen/vector $.lisp.gen/any
+                                                                            0
+                                                                            8))]
                        ($.cvm.eval/value ctx
                                          form)
                        true)

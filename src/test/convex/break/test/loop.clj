@@ -1,4 +1,4 @@
-(ns convex.lisp.test.core.loop
+(ns convex.break.test.loop
 
   "Testing various ways of looping and doing recursion."
 
@@ -6,10 +6,10 @@
 
   (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
+            [convex.break.eval             :as $.break.eval]
+            [convex.break.prop             :as $.break.prop]
             [convex.lisp                   :as $.lisp]
-            [convex.lisp.gen               :as $.gen]
-            [convex.lisp.test.eval         :as $.test.eval]
-            [convex.lisp.test.prop         :as $.test.prop]))
+            [convex.lisp.gen               :as $.lisp.gen]))
 
 
 ;;;;;;;;;; Helpers
@@ -85,32 +85,32 @@
 ;;;;;;;;;; Tests
 
 
-($.test.prop/deftest dotimes--
+($.break.prop/deftest dotimes--
 
   (TC.prop/for-all [n             (TC.gen/double* {:infinite? false
                                                    :max       1e3
                                                    :min       0
                                                    :NaN?      false})
                     [sym-bind
-                     sym-counter] (TC.gen/vector-distinct $.gen/symbol
+                     sym-counter] (TC.gen/vector-distinct $.lisp.gen/symbol
                                                           {:num-elements 2})]
-    ($.test.eval/result* (do
-                           (def ~sym-counter
-                                0)
-                           (dotimes [~sym-bind ~n]
-                             (def ~sym-counter
-                                  (+ ~sym-counter
-                                     1)))
-                           (== ~sym-counter
-                               (floor ~n))))))
+    ($.break.eval/result* (do
+                            (def ~sym-counter
+                                 0)
+                            (dotimes [~sym-bind ~n]
+                              (def ~sym-counter
+                                   (+ ~sym-counter
+                                      1)))
+                            (== ~sym-counter
+                                (floor ~n))))))
 
 
 
-($.test.prop/deftest recur--
+($.break.prop/deftest recur--
 
-  (TC.prop/for-all [looping+ (TC.gen/vector (TC.gen/hash-map :fixed+      ($.gen/binding+ 0
+  (TC.prop/for-all [looping+ (TC.gen/vector (TC.gen/hash-map :fixed+      ($.lisp.gen/binding+ 0
                                                                                           4)
-                                                             :fn-wrap?    $.gen/boolean
+                                                             :fn-wrap?    $.lisp.gen/boolean
                                                              :n           (TC.gen/choose 0
                                                                                          5)
                                                              :recur-point (TC.gen/elements [:fn
@@ -121,32 +121,32 @@
                                                                                                      'inc
                                                                                                      'recur}
                                                                                                     %))
-                                                                                            $.gen/symbol))
+                                                                                            $.lisp.gen/symbol))
                                             1
                                             5)]
     (= (-> looping+
            first
            :n)
-       ($.test.eval/result (-recur looping+)))))
+       ($.break.eval/result (-recur looping+)))))
 
 
 
-($.test.prop/deftest reduce--
+($.break.prop/deftest reduce--
 
   (TC.prop/for-all [x (TC.gen/such-that #(not-empty (cond->
                                                       %
                                                       (seq? %)
                                                       rest))
-                                        $.gen/collection)]
+                                        $.lisp.gen/collection)]
 
-    ($.test.eval/result* (let [x '~x
-                               v (nth x
-                                      ~(rand-int (count x)))]
-                           (= v
-                              (reduce (fn [acc item]
-                                        (if (= item
-                                               v)
-                                          (reduced item)
-                                          acc))
-                                      :convex-sentinel
-                                      x))))))
+    ($.break.eval/result* (let [x '~x
+                                v (nth x
+                                       ~(rand-int (count x)))]
+                            (= v
+                               (reduce (fn [acc item]
+                                         (if (= item
+                                                v)
+                                           (reduced item)
+                                           acc))
+                                       :convex-sentinel
+                                       x))))))

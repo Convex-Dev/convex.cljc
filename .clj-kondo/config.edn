@@ -1,15 +1,15 @@
-{:hooks   {:analyze-call {convex.lisp/templ*                   hooks.convex/templ*
-                          convex.lisp.test.eval/ctx*           hooks.convex/templ*
-                          convex.lisp.test.eval/error*         hooks.convex/templ*
-                          convex.lisp.test.eval/error?*        hooks.convex/templ*
-                          convex.lisp.test.eval/error-arg?*    hooks.convex/templ*
-                          convex.lisp.test.eval/error-arity?*  hooks.convex/templ*
-                          convex.lisp.test.eval/error-cast?*   hooks.convex/templ*
-                          convex.lisp.test.eval/error-fund?*   hooks.convex/templ*
-                          convex.lisp.test.eval/error-memory?* hooks.convex/templ*
-                          convex.lisp.test.eval/error-nobody?* hooks.convex/templ*
-                          convex.lisp.test.eval/error-state?*  hooks.convex/templ*
-                          convex.lisp.test.eval/like-clojure?* hooks.convex/templ*
-                          convex.lisp.test.eval/result*        hooks.convex/templ*}}
+{:hooks   {:analyze-call {convex.break.eval/ctx*           hooks.convex/templ*
+                          convex.break.eval/error*         hooks.convex/templ*
+                          convex.break.eval/error?*        hooks.convex/templ*
+                          convex.break.eval/error-arg?*    hooks.convex/templ*
+                          convex.break.eval/error-arity?*  hooks.convex/templ*
+                          convex.break.eval/error-cast?*   hooks.convex/templ*
+                          convex.break.eval/error-fund?*   hooks.convex/templ*
+                          convex.break.eval/error-memory?* hooks.convex/templ*
+                          convex.break.eval/error-nobody?* hooks.convex/templ*
+                          convex.break.eval/error-state?*  hooks.convex/templ*
+                          convex.break.eval/like-clojure?* hooks.convex/templ*
+                          convex.break.eval/result*        hooks.convex/templ*
+                          convex.lisp/templ*               hooks.convex/templ*}}
  :lint-as {clojure.test.check.properties/for-all clojure.core/let
-           convex.lisp.test.prop/deftest         clojure.test/deftest}}
+           convex.break.prop/deftest             clojure.test/deftest}}

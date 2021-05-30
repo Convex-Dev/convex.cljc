@@ -1,6 +1,6 @@
-(ns convex.lisp.test.util
+(ns convex.break.util
 
-  "Miscellaneous helpers for tests."
+  "Miscellaneous helpers."
 
   {:author "Adam Helinski"})
 

@@ -1,14 +1,14 @@
-(ns convex.lisp.test.core.fn
+(ns convex.break.test.fn
 
   "Testing creating functions and calling them."
 
   {:author "Adam Helinski"}
 
   (:require [clojure.test.check.properties :as TC.prop]
+            [convex.break.eval             :as $.break.eval]
+            [convex.break.prop             :as $.break.prop]
             [convex.lisp                   :as $.lisp]
-            [convex.lisp.gen               :as $.gen]
-            [convex.lisp.test.eval         :as $.test.eval]
-            [convex.lisp.test.prop         :as $.test.prop]))
+            [convex.lisp.gen               :as $.lisp.gen]))
 
 
 ;;;;;;;;;; Suites
@@ -20,10 +20,10 @@
 
   [form]
 
-  ($.test.prop/checkpoint*
+  ($.break.prop/checkpoint*
 
     "`fn?`"
-    ($.test.eval/result* (fn? ~form))))
+    ($.break.eval/result* (fn? ~form))))
 
 
 
@@ -34,87 +34,87 @@
 
   [form arg+ ret]
 
-  (let [ctx ($.test.eval/ctx* (def ret
-                                   ~ret))]
-    ($.test.prop/checkpoint*
+  (let [ctx ($.break.eval/ctx* (def ret
+                                    ~ret))]
+    ($.break.prop/checkpoint*
 
       "Calling a function"
 
-      ($.test.prop/mult*
+      ($.break.prop/mult*
 
         #_#_"Direct call"
-        ($.test.eval/result* ctx
-                             (= ret
-                                (~form ~@arg+)))
+        ($.break.eval/result* ctx
+                              (= ret
+                                 (~form ~@arg+)))
 
         "After def"
-        (let [ctx-2 ($.test.eval/ctx* ctx
-                                      (def f
-                                           ~form))]
-          ($.test.prop/mult*
+        (let [ctx-2 ($.break.eval/ctx* ctx
+                                       (def f
+                                            ~form))]
+          ($.break.prop/mult*
 
             "`fn?`"
-            ($.test.eval/result ctx-2
-                                '(fn? f))
+            ($.break.eval/result ctx-2
+                                 '(fn? f))
 
             "Calling"
-            ($.test.eval/result* ctx-2
-                                 (= ret
-                                    (f ~@arg+)))))
+            ($.break.eval/result* ctx-2
+                                  (= ret
+                                     (f ~@arg+)))))
 
         "From `let`, `fn?`"
-        ($.test.eval/result* ctx
-                             (let [f ~form]
-                               (fn? f)))
+        ($.break.eval/result* ctx
+                              (let [f ~form]
+                                (fn? f)))
 
         "From `let`, calling"
-        ($.test.eval/result* ctx
-                             (let [f ~form]
-                               (= ret
-                                  (f ~@arg+))))))))
+        ($.break.eval/result* ctx
+                              (let [f ~form]
+                                (= ret
+                                   (f ~@arg+))))))))
 
 
 ;;;;;;;;;; Tests
 
 
-($.test.prop/deftest fn--arg-0
+($.break.prop/deftest fn--arg-0
 
   ;; Calling no-arg functions.
 
-  (TC.prop/for-all [x $.gen/any]
+  (TC.prop/for-all [x $.lisp.gen/any]
     (let [fn-form ($.lisp/templ* (fn [] ~x))]
-      ($.test.prop/and* (suite-fn? fn-form)
-                        (suite-fn-call fn-form
-                                       nil
-                                       x)))))
+      ($.break.prop/and* (suite-fn? fn-form)
+                         (suite-fn-call fn-form
+                                        nil
+                                        x)))))
 
 
 
-($.test.prop/deftest fn--arg-fixed
+($.break.prop/deftest fn--arg-fixed
 
   ;; Calling functions with a fixed number of arguments.
 
-  (TC.prop/for-all [binding+ ($.gen/binding+ 1
-                                             16)]
+  (TC.prop/for-all [binding+ ($.lisp.gen/binding+ 1
+                                                  16)]
     (let [arg+    (mapv second
                         binding+)
           sym+    (mapv first
                         binding+)
           fn-form ($.lisp/templ* (fn ~sym+
                                      ~sym+))]
-      ($.test.prop/and* (suite-fn? fn-form)
-                        (suite-fn-call fn-form
-                                       arg+
-                                       arg+)))))
+      ($.break.prop/and* (suite-fn? fn-form)
+                         (suite-fn-call fn-form
+                                        arg+
+                                        arg+)))))
 
 
 
-($.test.prop/deftest fn--variadic
+($.break.prop/deftest fn--variadic
 
   ;; Calling functions with a variadic number of arguments.
 
-  (TC.prop/for-all [binding+ ($.gen/binding+ 1
-                                             16)]
+  (TC.prop/for-all [binding+ ($.lisp.gen/binding+ 1
+                                                  16)]
 
     (let [arg+       (mapv second
                            binding+)
@@ -128,15 +128,15 @@
                                         binding+)))
           fn-form    ($.lisp/templ* (fn ~binding-2+
                                         ~binding+))]
-      ($.test.prop/mult*
+      ($.break.prop/mult*
         
         "Right number of arguments"
-        ($.test.prop/and* (suite-fn? fn-form)
-                          (suite-fn-call fn-form
-                                         arg+
-                                         (update arg+
-                                                 pos-amper
-                                                 vector)))
+        ($.break.prop/and* (suite-fn? fn-form)
+                           (suite-fn-call fn-form
+                                          arg+
+                                          (update arg+
+                                                  pos-amper
+                                                  vector)))
 
         "1 argument less"
         (suite-fn-call fn-form

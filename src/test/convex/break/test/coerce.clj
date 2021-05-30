@@ -1,4 +1,4 @@
-(ns convex.lisp.test.core.coerce
+(ns convex.break.test.coerce
 
   "Tests Convex core coercions."
 
@@ -6,10 +6,10 @@
 
   (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
+            [convex.break.eval             :as $.break.eval]
+            [convex.break.prop             :as $.break.prop]
             [convex.lisp                   :as $.lisp]
-            [convex.lisp.gen               :as $.gen]
-            [convex.lisp.test.eval         :as $.test.eval]
-            [convex.lisp.test.prop         :as $.test.prop]))
+            [convex.lisp.gen               :as $.lisp.gen]))
 
 
 ;;;;;;;;;;
@@ -57,10 +57,10 @@
                    suite)]
      (TC.prop/for-all [x gen]
        (let [[x-2
-              cast?] ($.test.eval/result* (let [x-2 (~form-cast ~x)]
-                                            [x-2
-                                             (~form-pred x-2)]))]
-         ($.test.prop/mult (suite-2 x
+              cast?] ($.break.eval/result* (let [x-2 (~form-cast ~x)]
+                                             [x-2
+                                              (~form-pred x-2)]))]
+         ($.break.prop/mult (suite-2 x
                                     x-2
                                     cast?)))))))
 
@@ -75,66 +75,66 @@
   [form-cast gen]
 
   (TC.prop/for-all [x gen]
-    ($.test.eval/error-cast?* (~form-cast ~x))))
+    ($.break.eval/error-cast?* (~form-cast ~x))))
 
 
 ;;;;;;;;;;
 
 
-($.test.prop/deftest address--
+($.break.prop/deftest address--
 
   (prop-coerce 'address
                'address?
                $.lisp/address?
-               (TC.gen/one-of [$.gen/address
-                               $.gen/blob-8
-                               $.gen/hex-string-8
+               (TC.gen/one-of [$.lisp.gen/address
+                               $.lisp.gen/blob-8
+                               $.lisp.gen/hex-string-8
                                (TC.gen/large-integer* {:min 0})])))
 
 
 
-;; ($.test.prop/deftest address--fail
+;; ($.break.prop/deftest address--fail
 ;; 
 ;;   (prop-error-cast 'address
 ;;                    (TC.gen/such-that #(if (int? %)
 ;;                                         (neg? %)
 ;;                                         %)
-;;                                      ($.gen/any-but #{$.gen/blob-8
-;;                                                       $.gen/hex-string-8}))))
+;;                                      ($.lisp.gen/any-but #{$.lisp.gen/blob-8
+;;                                                       $.lisp.gen/hex-string-8}))))
 
 
 
-($.test.prop/deftest blob--
+($.break.prop/deftest blob--
 
   ;; TODO. Also test hashes, special type of blob that can be coerced to an actual blob.
 
   (prop-coerce 'blob
                'blob?
                $.lisp/blob?
-               (TC.gen/one-of [$.gen/address
-                               $.gen/blob
-                               $.gen/hex-string])))
+               (TC.gen/one-of [$.lisp.gen/address
+                               $.lisp.gen/blob
+                               $.lisp.gen/hex-string])))
 
 
 
-;($.test.prop/deftest blob--fail
+;($.break.prop/deftest blob--fail
 ;
 ;  (prop-error-cast 'blob
-;                   ($.gen/any-but #{$.gen/
+;                   ($.lisp.gen/any-but #{$.lisp.gen/
 ;
 
-($.test.prop/deftest boolean--
+($.break.prop/deftest boolean--
 
   (prop-coerce 'boolean
                'boolean?
                true?
                (TC.gen/such-that #(and (some? %)
                                        (not (false? %)))
-                                 $.gen/any)))
+                                 $.lisp.gen/any)))
 
 
 
-($.test.prop/deftest byte--
+($.break.prop/deftest byte--
 
   (prop-coerce 'byte
                'number?
@@ -142,111 +142,111 @@
                #(<= Byte/MIN_VALUE
                     %
                     Byte/MAX_VALUE)
-               ($.gen/number-bounded {:max 1e6
-                                      :min -1e6})))
+               ($.lisp.gen/number-bounded {:max 1e6
+                                           :min -1e6})))
 
 
 
-($.test.prop/deftest char--
+($.break.prop/deftest char--
 
   (prop-coerce 'char
                '(fn [_] true)           ;; TODO. Incorrect, see #68, #92
                unchecked-char
                char?
-               ($.gen/number-bounded {:max 1e6
-                                      :min -1e6})))
+               ($.lisp.gen/number-bounded {:max 1e6
+                                           :min -1e6})))
 
 
 
-($.test.prop/deftest encoding--
+($.break.prop/deftest encoding--
 
-  (TC.prop/for-all [x $.gen/any]
-    (let [ctx ($.test.eval/ctx* (do
-                                  (def x
-                                       (quote ~x))
-                                  (def -encoding
-                                       (encoding x))))]
-      ($.test.prop/mult*
+  (TC.prop/for-all [x $.lisp.gen/any]
+    (let [ctx ($.break.eval/ctx* (do
+                                   (def x
+                                        (quote ~x))
+                                   (def -encoding
+                                        (encoding x))))]
+      ($.break.prop/mult*
 
         "Result is a blob"
-        ($.test.eval/result ctx
-                            '(blob? -encoding))
+        ($.break.eval/result ctx
+                             '(blob? -encoding))
 
         "Encoding is deterministic"
-        ($.test.eval/result ctx
-                            '(= -encoding
-                                (encoding x)))))))
+        ($.break.eval/result ctx
+                             '(= -encoding
+                                 (encoding x)))))))
 
 
 
-($.test.prop/deftest hash--
+($.break.prop/deftest hash--
 
   ;; Also tests `hash?`.
 
-  (TC.prop/for-all [x (TC.gen/one-of [$.gen/address
-                                      $.gen/blob])]
-    (let [ctx ($.test.eval/ctx* (def -hash
-                                     (hash ~x)))]
-      ($.test.prop/mult*
+  (TC.prop/for-all [x (TC.gen/one-of [$.lisp.gen/address
+                                      $.lisp.gen/blob])]
+    (let [ctx ($.break.eval/ctx* (def -hash
+                                      (hash ~x)))]
+      ($.break.prop/mult*
 
         "`hash?`"
-        ($.test.eval/result ctx
+        ($.break.eval/result ctx
                             '(hash? -hash))
 
         "Hashing is deterministic"
-        ($.test.eval/result* ctx
-                             (= -hash
-                                (hash ~x)))
+        ($.break.eval/result* ctx
+                              (= -hash
+                                 (hash ~x)))
 
         "Hashes are not mere blobs"
-        ($.test.eval/result ctx
+        ($.break.eval/result ctx
                             '(not (blob? -hash)))
 
         "Hashing a hash produces a hash"
-        ($.test.eval/result ctx
+        ($.break.eval/result ctx
                             '(hash? (hash -hash)))))))
 
 
 
-($.test.prop/deftest keyword--
+($.break.prop/deftest keyword--
 
   (prop-coerce 'keyword
                'keyword?
                keyword?
-               (TC.gen/one-of [$.gen/keyword
-                               $.gen/string-symbolic
-                               $.gen/symbol-quoted
-                               $.gen/symbol-ns-quoted])))
+               (TC.gen/one-of [$.lisp.gen/keyword
+                               $.lisp.gen/string-symbolic
+                               $.lisp.gen/symbol-quoted
+                               $.lisp.gen/symbol-ns-quoted])))
 
 
 
-($.test.prop/deftest long--
+($.break.prop/deftest long--
 
   (prop-coerce 'long
                'long?
                int?
-               (TC.gen/one-of [$.gen/address
-                               $.gen/boolean
-                               $.gen/byte
-                               $.gen/char
-                               $.gen/double
-                               $.gen/long])))
+               (TC.gen/one-of [$.lisp.gen/address
+                               $.lisp.gen/boolean
+                               $.lisp.gen/byte
+                               $.lisp.gen/char
+                               $.lisp.gen/double
+                               $.lisp.gen/long])))
 
 
 
 ;; TODO. Currently failing, see #77
 ;;
-#_($.test.prop/deftest set--
+#_($.break.prop/deftest set--
 
   (prop-coerce 'set
                'set?
                set
                set?
-               $.gen/collection))
+               $.lisp.gen/collection))
 
 
 
-($.test.prop/deftest str--
+($.break.prop/deftest str--
 
   ;; TODO. Improve to be variadic.
 
@@ -254,26 +254,26 @@
                'str?
                ;; str ;; No comparable Clojure coercion, Convex prints vectors with "," instead of spaces, unlike Clojure
                string?
-               $.gen/any))
+               $.lisp.gen/any))
 
 
 
-($.test.prop/deftest symbol--
+($.break.prop/deftest symbol--
 
   (prop-coerce 'symbol
                'symbol?
                symbol?
-               (TC.gen/one-of [$.gen/keyword
-                               $.gen/string-symbolic
-                               $.gen/symbol-quoted
-                               $.gen/symbol-ns-quoted])))
+               (TC.gen/one-of [$.lisp.gen/keyword
+                               $.lisp.gen/string-symbolic
+                               $.lisp.gen/symbol-quoted
+                               $.lisp.gen/symbol-ns-quoted])))
 
 
 
-($.test.prop/deftest vec--
+($.break.prop/deftest vec--
 
   (prop-coerce 'vec
                'vector?
                ;; `vec` cannot be used because Convex implements order differently in maps and sets
                vector?
-               $.gen/collection))
+               $.lisp.gen/collection))

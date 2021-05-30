@@ -1,11 +1,11 @@
-(ns convex.lisp.test.prop
+(ns convex.break.prop
 
   "Utilities for building property based tests."
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.test.check.clojure-test :as tc.ct]
-            [clojure.test.check.results      :as tc.result]))
+  (:require [clojure.test.check.clojure-test :as TC.ct]
+            [clojure.test.check.results      :as TC.result]))
 
 
 (declare fail)
@@ -39,7 +39,7 @@
 
   ([sym option+ prop]
 
-   `(tc.ct/defspec ~sym
+   `(TC.ct/defspec ~sym
                    ~(merge-with *
                                 {:max-size  200
                                  :num-tests 100}
@@ -124,7 +124,7 @@
        (cond
          (true? x)                    true
          (false? x)                   (fail beacon)
-         (satisfies? tc.result/Result
+         (satisfies? TC.result/Result
                      x)               (fail x
                                             beacon)
          (instance? Throwable
@@ -164,7 +164,7 @@
 
   ([checkpoint]
 
-   (reify tc.result/Result
+   (reify TC.result/Result
 
      (pass? [_]
        false)
@@ -175,11 +175,11 @@
 
   ([failure checkpoint]
 
-   (let [result (update (tc.result/result-data failure)
+   (let [result (update (TC.result/result-data failure)
                         :convex.test/error
                         (partial into
                                  [checkpoint]))]
-     (reify tc.result/Result
+     (reify TC.result/Result
 
        (pass? [_]
          false)

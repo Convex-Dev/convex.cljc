@@ -1,14 +1,14 @@
-(ns convex.lisp.test.gen
+(ns convex.break.gen
 
-  "Generators for test purposes."
+  "Generators used throughout this test suite."
 
   {:author "Adam Helinski"}
 
   (:require [clojure.test.check.generators :as TC.gen]
+            [convex.break.eval             :as $.break.eval]
             [convex.cvm                    :as $.cvm]
             [convex.lisp                   :as $.lisp]
-            [convex.lisp.gen               :as $.gen]
-            [convex.lisp.test.eval         :as $.test.eval]))
+            [convex.lisp.gen               :as $.lisp.gen]))
 
 
 (declare kv+
@@ -29,8 +29,8 @@
 
   [gen-exponent]
 
-  (TC.gen/let [m-1 $.gen/long
-               m-2 (TC.gen/one-of [$.gen/nothing
+  (TC.gen/let [m-1 $.lisp.gen/long
+               m-2 (TC.gen/one-of [$.lisp.gen/nothing
                                    (TC.gen/large-integer* {:min 0})])
                e   (TC.gen/elements [\e \E])
                x   gen-exponent]
@@ -45,7 +45,9 @@
 
 (defn kv+
 
-  "Vector of `[Key Value]`."
+  "Vector of `[Key Value]`.
+  
+   Ensures that all the keys are distinct which might matter in test situations."
 
   [gen-k gen-v]
 
@@ -66,8 +68,8 @@
 
   "Either a map or nil."
 
-  (TC.gen/one-of [$.gen/map
-                  $.gen/nothing]))
+  (TC.gen/one-of [$.lisp.gen/map
+                  $.lisp.gen/nothing]))
 
 
 
@@ -75,8 +77,8 @@
 
   "Either a set or nil."
 
-  (TC.gen/one-of [$.gen/nothing
-                  $.gen/set]))
+  (TC.gen/one-of [$.lisp.gen/nothing
+                  $.lisp.gen/set]))
 
 
 
@@ -98,7 +100,7 @@
   "Anything but an address."
 
   (TC.gen/such-that #(not ($.lisp/address? %))
-                    $.gen/any))
+                    $.lisp.gen/any))
 
 
 
@@ -107,7 +109,7 @@
   "Anything but a proper collection."
 
   (TC.gen/such-that some?
-                    $.gen/scalar))
+                    $.lisp.gen/scalar))
 
 
 
@@ -116,7 +118,7 @@
   "Anything but a long."
 
   (TC.gen/such-that #(not (int? %))
-                    $.gen/any))
+                    $.lisp.gen/any))
 
 
 
@@ -125,7 +127,7 @@
   "Anything but a number (double or long)."
 
   (TC.gen/such-that #(not (number? %))
-                    $.gen/any))
+                    $.lisp.gen/any))
 
 
 
@@ -142,14 +144,14 @@
   ([set-gen-good]
 
    (outlier (TC.gen/one-of (vec set-gen-good))
-            ($.gen/any-but set-gen-good)))
+            ($.lisp.gen/any-but set-gen-good)))
 
 
   ([gen-good gen-wrong]
 
    (mix-one-in gen-wrong
                (TC.gen/vector (TC.gen/one-of [gen-good
-                                              $.gen/any])))))
+                                              $.lisp.gen/any])))))
 
 
 
@@ -168,8 +170,8 @@
 
   "Address that is not being used yet."
 
-  (TC.gen/such-that #($.test.eval/result* (nil? (account ~%)))
-                    $.gen/address
+  (TC.gen/such-that #($.break.eval/result* (nil? (account ~%)))
+                    $.lisp.gen/address
                     100))
 
 
@@ -188,7 +190,7 @@
                                                           'fn     ;; TODO. https://github.com/Convex-Dev/convex/issues/152
                                                           }
                                                         %))))
-                         ($.cvm/env $.test.eval/ctx-base
+                         ($.cvm/env $.break.eval/ctx-base
                                     8))))
 
 ;;;;;;;;;;
