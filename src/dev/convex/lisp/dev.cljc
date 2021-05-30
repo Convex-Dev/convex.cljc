@@ -9,6 +9,7 @@
             [convex.cvm.eval                          :as $.cvm.eval]
             [convex.cvm.eval.src                      :as $.cvm.src]
             [convex.cvm.type                          :as $.cvm.type]
+            [convex.cvm.watch                         :as $.cvm.watch]
             #?(:clj [convex.lisp                      :as $.lisp])
             [convex.lisp.gen                          :as $.lisp.gen]
             #?@(:clj [[convex.break.eval]
@@ -35,7 +36,7 @@
 			          [clojure.data]])
             [clojure.pprint]
             #?(:clj [clojure.reflect])
-            [clojure.test.check.properties            :as tc.prop]))
+            [hawk.core                                :as watcher]))
 
 
 #?(:clj (set! *warn-on-reflection*
@@ -63,5 +64,17 @@
 
   ($.cvm/account ($.cvm/ctx))
 
+
+
+
+  (def ctx
+       ($.cvm.watch/start {"src/convex/util.cvx" '$}))
+
+  ($.cvm/exception @ctx)
+
+  ($.cvm.eval/result @ctx
+                     '$/foo)
+
+  (.close ctx)
 
   ))

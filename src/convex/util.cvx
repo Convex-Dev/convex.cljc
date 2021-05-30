@@ -1,0 +1,86 @@
+(do
+
+
+
+  (defn allowance
+
+    ([]
+
+     (allowance *address*))
+
+    ([addr]
+
+     (:allowance (account addr))))
+
+
+
+  (defn env
+
+    ([]
+
+     (env *address*))
+
+    ([addr]
+
+     (:environment (account addr))))
+
+
+
+  (defn every?
+
+    [f coll]
+
+    (boolean (reduce (fn [_acc x]
+                       (or (f x)
+                           (reduced false)))
+                     true
+                     coll)))
+
+
+
+  (defn every-index?
+
+    [f sequential]
+
+    (loop [i (dec (count sequential))]
+      (if (> i
+             0)
+        (if (f sequential
+               i)
+          (recur (dec i))
+          false)
+        true)))
+
+
+
+  (defn long-percentage
+
+    [percent n]
+
+    (long (floor (* percent
+                    n))))
+
+
+
+  (defn some
+
+    [f coll]
+
+    (boolean (reduce (fn [_acc x]
+                       (let [x-2 (f x)]
+                         (if x-2
+                           (reduced x-2)
+                           false)))
+                     true
+                     coll)))
+
+
+
+  (defn unused-address
+
+    [addr]
+
+    (if (account addr)
+      (recur (address (inc (long addr))))
+      addr))
+  )

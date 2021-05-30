@@ -114,7 +114,7 @@
 
 (def hex-digit
 
-  "Any valid character for hexadecimal notation, from `\0` to  `\f`."
+  "Any valid character for hexadecimal notation, from ` \0 ` to ` \f `."
 
   ;; TODO. Case insensitive, but CVM outputs as lowercase.
 
