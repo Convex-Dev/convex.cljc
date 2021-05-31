@@ -109,11 +109,9 @@
 
 
 
-#_($.break.prop/deftest poly
+($.break.prop/deftest poly
 
   ;; Using at least 2 sets.
-
-  ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/155
 
   (TC.prop/for-all [s+ (TC.gen/vector $.break.gen/maybe-set
                                       2
@@ -270,13 +268,11 @@
                                              -difference)
                                  -intersection))
 
-        ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/155
-        ;;
-        ;; "No difference between difference and union"
-        ;; ($.break.eval/result ctx
-        ;;                     '(= #{}
-        ;;                         (difference -difference
-        ;;                                     -union)))
+        "No difference between difference and union"
+        ($.break.eval/result ctx
+                            '(= #{}
+                                (difference -difference
+                                            -union)))
 
         "No difference between intersection and union"
         ($.break.eval/result ctx
@@ -290,13 +286,11 @@
                                                      -intersection)
                                        (first s+)))
 
-        ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/155
-        ;;
-        ;; "Intersection between difference and union is difference"
-        ;; ($.break.eval/result ctx
-        ;;                     '(= -difference
-        ;;                         (intersection -difference
-        ;;                                       -union)))
+        "Intersection between difference and union is difference"
+        ($.break.eval/result ctx
+                            '(= -difference
+                                (intersection -difference
+                                              -union)))
 
         "Intersection between intersection and union is intersection"
         ($.break.eval/result ctx
@@ -310,11 +304,11 @@
                                              -intersection)
                                       (first s+)))
 
-        ;; "Union between difference and union is union"
-        ;; ($.break.eval/result ctx
-        ;;                     '(= -union
-        ;;                         (union -difference
-        ;;                                -union)))
+        "Union between difference and union is union"
+        ($.break.eval/result ctx
+                            '(= -union
+                                (union -difference
+                                       -union)))
 
         "Union between intersection and union is union"
         ($.break.eval/result ctx
@@ -322,12 +316,9 @@
                                  (union -intersection
                                         -union)))
 
-        ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/153 
-        ;;
-        ;; "Order of arguments does not matter in `union`"
-        ;; ($.break.eval/result ctx
-        ;;                     '(= -union
-        ;;                         (apply union
-        ;;                                (into (list)
-        ;;                                      s+))))
-        ))))
+        "Order of arguments does not matter in `union`"
+        ($.break.eval/result ctx
+                            '(= -union
+                                (apply union
+                                       (into (list)
+                                             s+))))))))

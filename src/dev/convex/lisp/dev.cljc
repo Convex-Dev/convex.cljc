@@ -35,6 +35,7 @@
 			          [clojure.data]])
             [clojure.pprint]
             #?(:clj [clojure.reflect])
+            [clojure.test.check.generators            :as TC.gen]
             [hawk.core                                :as watcher]))
 
 
@@ -70,8 +71,9 @@
        ($.cvm/watch {"src/convex/util.cvx" '$}))
 
   ($.cvm.eval/result @ctx
-                     '$/every?)
+                     ($.lisp/templ* (create-account ~(TC.gen/generate $.lisp.gen/blob-32))))
 
   (.close ctx)
 
+      
   ))

@@ -35,25 +35,6 @@
                                           x)))]
         ($.break.prop/and* ($.break.prop/checkpoint*
 
-                            "`lookup-syntax`"
-                            ($.break.prop/mult*
-
-                              "`meta` returns empty map"
-                              ($.break.eval/result ctx
-                                                   '(= {}
-                                                       (meta (lookup-syntax sym))))
-
-                              "`syntax?`"
-                              ($.break.eval/result ctx
-                                                   '(syntax? (lookup-syntax sym)))
-
-                              "`unsyntax`"
-                              ($.break.eval/result ctx
-                                                   '(= x
-                                                       (unsyntax (lookup-syntax sym))))))
-
-                          ($.break.prop/checkpoint*
-
                             "Without meta"
                             ($.break.prop/mult*
 

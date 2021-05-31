@@ -131,7 +131,7 @@
 
 ($.break.prop/deftest string-
 
-  ;; TODO. Suffers from #66.
+  ;; TODO. Suffers from https://github.com/Convex-Dev/convex/issues/66
 
   (prop-quotable $.lisp.gen/string))
 

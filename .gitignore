@@ -43,5 +43,6 @@ package.json
 /.clj-kondo/*
 !/.clj-kondo/config.edn
 !/.clj-kondo/hooks
+/cvm
 /report
 /private

@@ -138,10 +138,11 @@
 
   (prop-coerce 'byte
                'number?
-               unchecked-byte
-               #(<= Byte/MIN_VALUE
+               #(bit-and 0xFF
+                         (unchecked-byte %))
+               #(<= 0
                     %
-                    Byte/MAX_VALUE)
+                    255)
                ($.lisp.gen/number-bounded {:max 1e6
                                            :min -1e6})))
 
@@ -150,7 +151,7 @@
 ($.break.prop/deftest char--
 
   (prop-coerce 'char
-               '(fn [_] true)           ;; TODO. Incorrect, see #68, #92
+               '(fn [_] true)  ;; TODO. Incorrect, see https://github.com/Convex-Dev/convex/issues/92
                unchecked-char
                char?
                ($.lisp.gen/number-bounded {:max 1e6
@@ -234,7 +235,7 @@
 
 
 
-;; TODO. Currently failing, see #77
+;; TODO. Currently failing, see https://github.com/Convex-Dev/convex/issues/77
 ;;
 #_($.break.prop/deftest set--
 

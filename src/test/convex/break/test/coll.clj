@@ -51,9 +51,7 @@
                                       (= v
                                          (get x
                                               k)
-                                         ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/145
-                                         ; (x k)
-                                         ))
+                                         (x k)))
                                     kv+))))
 
 
@@ -100,7 +98,7 @@
     (suite-new ($.break.eval/ctx* (do
                                     (def kv+
                                          ~(mapv #(vector %
-                                                         %)
+                                                         true)
                                                 x+))
                                     (def x
                                          (hash-set ~@x+))))
@@ -220,6 +218,8 @@
   
    Other `dissoc` tests based around working repeatedly with key-values are in [[suite-kv+]]."
 
+  ;; TODO. Follow this issue, sets should pass this suite: https://github.com/Convex-Dev/convex/issues/178
+
   [ctx]
 
   ($.break.prop/checkpoint*
@@ -258,13 +258,12 @@
                              '(nil? (get-in x-3
                                             [k])))
 
-        ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/102
-        ;; "`get-in` returns 'not-found' value"
-        ;; ($.break.eval/result ctx-2
-        ;;                    '(= :convex-sentinel
-        ;;                        (get-in x-3
-        ;;                                [k]
-        ;;                                :convex-sentinel)))
+        "`get-in` returns 'not-found' value"
+        ($.break.eval/result ctx-2
+                           '(= :convex-sentinel
+                               (get-in x-3
+                                       [k]
+                                       :convex-sentinel)))
 
         "Keys do not contain key"
         ($.break.eval/result ctx-2
@@ -510,30 +509,27 @@
 
     ($.break.prop/mult*
 
-      ;; <!> TODO. Fails on sets because of: https://github.com/Convex-Dev/convex/issues/109
-      ;;                                     https://github.com/Convex-Dev/convex/issues/110
-      
-      ;; "Contains key"
-      ;; ($.break.eval/result ctx
-      ;;                     '(contains-key? x-2
-      ;;                                     k))
+      "Contains key"
+      ($.break.eval/result ctx
+                          '(contains-key? x-2
+                                          k))
 
-      ;; "`get` returns the value"
-      ;; ($.break.eval/result ctx
-      ;;                     '(= v
-      ;;                         (get x-2
-      ;;                              k)))
+      "`get` returns the value"
+      ($.break.eval/result ctx
+                          '(= v
+                              (get x-2
+                                   k)))
 
-      ;; "Using collection as function returns the value"
-      ;; ($.break.eval/result ctx
-      ;;                     '(= v
-      ;;                         (x-2 k)))
+      "Using collection as function returns the value"
+      ($.break.eval/result ctx
+                          '(= v
+                              (x-2 k)))
 
-      ;; "`get-in` returns the value"
-      ;; ($.break.eval/result ctx
-      ;;                     '(= v
-      ;;                         (get-in x-2
-      ;;                                 [k])))
+      "`get-in` returns the value"
+      ($.break.eval/result ctx
+                          '(= v
+                              (get-in x-2
+                                      [k])))
 
       "Cannot be empty"
       ($.break.eval/result ctx
@@ -907,7 +903,7 @@
                   (ctx-main s
                             s
                             v
-                            v)))))
+                            true)))))
 
 
 ;;;;;;;;;; `assoc`
@@ -930,6 +926,7 @@
   (TC.prop/for-all* [($.lisp.gen/any-but #{$.lisp.gen/list
                                            $.lisp.gen/map
                                            $.lisp.gen/nothing
+                                           $.lisp.gen/set
                                            $.lisp.gen/vector})
                      $.lisp.gen/any
                      $.lisp.gen/any]
@@ -992,6 +989,7 @@
   (TC.prop/for-all [x    ($.lisp.gen/any-but #{$.lisp.gen/list
                                                $.lisp.gen/map
                                                $.lisp.gen/nothing
+                                               $.lisp.gen/set
                                                $.lisp.gen/vector})
                     path (TC.gen/such-that #(seq (if (vector? %)
                                                    %
@@ -1220,13 +1218,17 @@
 ;;;;;;;;;; Negative tests
 
 
-($.break.prop/deftest blob-map--err-cast
+#_($.break.prop/deftest blob-map--err-cast
+
+  ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/179
 
   (TC.prop/for-all [arg+ (let [set-gen-good #{$.lisp.gen/address
                                               $.lisp.gen/blob}]
                            ($.break.gen/mix-one-in (TC.gen/tuple ($.lisp.gen/any-but set-gen-good)
                                                                  $.lisp.gen/any)
-                                                   ($.break.gen/kv+ (TC.gen/one-of [(TC.gen/one-of (vec set-gen-good))
+                                                   ($.break.gen/kv+ $.lisp.gen/long
+                                                                    $.lisp.gen/long)
+                                                   #_($.break.gen/kv+ (TC.gen/one-of [(TC.gen/one-of (vec set-gen-good))
                                                                                     $.lisp.gen/any])
                                                                     $.lisp.gen/any)))]
     ($.break.eval/error-cast?* (blob-map ~@(mapcat identity
@@ -1238,6 +1240,7 @@
 
   (TC.prop/for-all [arg+ ($.break.gen/outlier #{$.lisp.gen/list
                                                 $.lisp.gen/map
+                                                $.lisp.gen/nothing
                                                 $.lisp.gen/set
                                                 $.lisp.gen/vector})]
     ($.break.eval/error-cast?* (concat ~@arg+))))

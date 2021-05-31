@@ -68,45 +68,9 @@
                                        (quote ~sym)))))))
 
 
-
-($.test.prop/deftest expand--
-
-  (TC.prop/for-all [x $.lisp.gen/any]
-    (let [ctx ($.break.eval/ctx* (def x ~x))]
-      ($.test.prop/and* ($.test.prop/checkpoint*
-
-                          "Expanding data"
-                          ($.test.prop/mult*
-
-                            "Expands to syntax"
-                            ($.break.eval/result ctx
-                                                 '(syntax? (expand x)))
-
-                            "No metadata is created during expansion"
-                            ($.break.eval/result ctx
-                                                 '(= {}
-                                                     (meta (expand x))))))
-
-                        ($.test.prop/checkpoint*
-
-                          "Expanding a macro"
-                          (let [ctx-2 ($.break.eval/ctx ctx
-                                                        '(defmacro macro-twice [x] [x x]))]
-                            ($.test.prop/mult*
-
-                              "Expands to syntax"
-                              ($.break.eval/result ctx-2
-                                                   '(syntax? (expand '(macro-twice x))))
-
-                              "Data is expanded as needed"
-                              ($.break.eval/result ctx-2
-                                                   '(= [x x]
-                                                       (eval (expand '(macro-twice x)))))
-
-                              "No metadata is created during expansion"
-                              ($.break.eval/result ctx-2
-                                                   '(= {}
-                                                       (meta (expand '(macro-write x))))))))))))
+;; TODO. When expanders are stabilized.
+;;
+;; ($.test.prop/deftest expand--)
 
 
 ;;;;;;;;;;

@@ -124,13 +124,11 @@
 
 
 
-#_($.break.prop/deftest max--
+($.break.prop/deftest max--
 
   ;; In case of equal inputs, Clojure favors the last argument whereas Convex favors the first one.
   ;; 
   ;; (max 1 1.0)  =>  1.0 in Clojure, 1 in Convex
-
-  ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/99
 
   (prop-comparison 'max
                    (fn [& arg+]
@@ -139,11 +137,9 @@
 
 
 
-#_($.break.prop/deftest min--
+($.break.prop/deftest min--
 
   ;; See comment for [[max--]].
-
-  ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/99
 
   (prop-comparison 'min
                    (fn [& arg+]
@@ -376,9 +372,7 @@
 
 
 
-#_($.break.prop/deftest signum--
-
-  ;; TODO. Fail because of: https://github.com/Convex-Dev/convex/issues/147
+($.break.prop/deftest signum--
 
   (TC.prop/for-all [x $.lisp.gen/number]
     ($.break.eval/result* (= ~x
@@ -433,13 +427,11 @@
 
   ;; Functions with one argument that should accept a number only.
 
-  ;; TODO. Follow: https://github.com/Convex-Dev/convex/issues/154
-
   (TC.prop/for-all [x $.break.gen/not-number]
     ($.break.prop/mult*
 
-      ;; "`abs`"
-      ;; ($.break.eval/error-cast?* (abs ~x))
+      "`abs`"
+      ($.break.eval/error-cast?* (abs ~x))
 
       "`ceil`"
       ($.break.eval/error-cast?* (ceil ~x))
@@ -450,8 +442,8 @@
       "`floor`"
       ($.break.eval/error-cast?* (floor ~x))
 
-      ;; "`signum`"
-      ;; ($.break.eval/error-cast?* (signum ~x))
+      "`signum`"
+      ($.break.eval/error-cast?* (signum ~x))
 
       "`sqrt`"
       ($.break.eval/error-cast?* (sqrt ~x)))))
@@ -461,8 +453,6 @@
 ($.break.prop/deftest error-cast-number-2
 
   ;; Functions that should accept only two number arguments
-  ;;
-  ;; Comparison functions are variadic but they test arguments 2 by 2.
 
   (TC.prop/for-all [[a
                      b] (TC.gen/let [a $.break.gen/not-number
@@ -502,15 +492,8 @@
       "`-`"
       ($.break.eval/error-cast?* (- ~@x+))
 
-      ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/154
-      ;;
-      ;; "`/`"
-      ;; ($.break.eval/error-cast?* (/ ~@x+))
-
-      ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/157
-      ;;
-      ;; "`==`"
-      ;; ($.break.eval/error-cast?* (== ~@x+)))
+      "`/`"
+      ($.break.eval/error-cast?* (/ ~@x+))
 
       "`max`"
       ($.break.eval/error-cast?* (max ~@x+))
@@ -518,22 +501,22 @@
       "`min`"
       ($.break.eval/error-cast?* (min ~@x+))
 
-      ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/157
-      ;;
-      ;; "Relative comparators"
-      ;; (let [x-2+ (sort-by number?
-      ;;                     x+)]
-      ;;   ($.break.prop/mult*
+      "Relative comparators"
+      (let [x-2+ (sort-by number?
+                          x+)]
+        ($.break.prop/mult*
 
-      ;;     "`<`"
-      ;;     ($.break.eval/error-cast?* (< ~@x-2+))
+          "`<`"
+          ($.break.eval/error-cast?* (< ~@x-2+))
     
-      ;;     "`<=`"
-      ;;     ($.break.eval/error-cast?* (<= ~@x-2+))
+          "`<=`"
+          ($.break.eval/error-cast?* (<= ~@x-2+))
     
-      ;;     "`>=`"
-      ;;     ($.break.eval/error-cast?* (>= ~@x-2+))
+          "`==`"
+          ($.break.eval/error-cast?* (== ~@x-2+))
+
+          "`>=`"
+          ($.break.eval/error-cast?* (>= ~@x-2+))
     
-      ;;     "`>`"
-      ;;     ($.break.eval/error-cast?* (> ~@x-2+))))
-      )))
+          "`>`"
+          ($.break.eval/error-cast?* (> ~@x-2+)))))))

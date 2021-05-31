@@ -637,7 +637,13 @@
 
      (eval (fork @ctx)
            '(lib/my-func 42))
-     ```"
+     ```
+
+     Supported options are:
+
+     | Key | Value |
+     |---|---|
+     | `:after-import` | Function which map the prepared context after all imports |"
 
 
     ([path->alias]

@@ -268,8 +268,6 @@
                                         *address*
                                         holding))))
 
-      ;; TODO. Keep an eye on: https://github.com/Convex-Dev/convex/issues/131
-      ;;
       "`*holdings* is consistent with `account`"
       ($.break.eval/result ctx
                            '(if (nil? holding)
@@ -479,7 +477,7 @@
   (TC.prop/for-all [export-sym+    (TC.gen/vector $.lisp.gen/symbol)
                     faulty-amount  $.break.gen/not-long
                     holding        $.lisp.gen/any
-                    pubkey         $.lisp.gen/hex-string-32
+                    pubkey         $.lisp.gen/blob-32
                     percent        $.break.gen/percent]
     (let [ctx            ($.break.eval/ctx* (do
                                               (def addr
@@ -488,26 +486,23 @@
                                       '*address*
                                       holding)]
       ($.break.prop/and* (suite-export ctx
-                                      export-sym+)
-                        (suite-*holdings* ctx-*holdings*)
-                        (suite-holding ctx-*holdings*)
-                        (suite-holding (ctx-holding ctx
-                                                    'addr
-                                                    holding))
-                        (suite-new ctx
-                                   false?)
-                        (suite-set-key ctx
-                                       pubkey)
-                        (suite-transfer (ctx-transfer ctx
-                                                      faulty-amount
-                                                      percent)
-                                        "Transfering coins to a user account")
-                        (suite-transfer-memory ctx
-                                               faulty-amount
-                                               percent)))))
-
-
-;; TODO. `set-controller`, already a bit tested by `eval-as`, also see: https://github.com/Convex-Dev/convex/issues/133
+                                       export-sym+)
+                         (suite-*holdings* ctx-*holdings*)
+                         (suite-holding ctx-*holdings*)
+                         (suite-holding (ctx-holding ctx
+                                                     'addr
+                                                     holding))
+                         (suite-new ctx
+                                    false?)
+                         (suite-set-key ctx
+                                        pubkey)
+                         (suite-transfer (ctx-transfer ctx
+                                                       faulty-amount
+                                                       percent)
+                                         "Transfering coins to a user account")
+                         (suite-transfer-memory ctx
+                                                faulty-amount
+                                                percent)))))
 
 
 ;;;;;;;;;; Negative tests
@@ -520,10 +515,8 @@
   (TC.prop/for-all [x $.break.gen/not-address]
     ($.break.prop/mult*
 
-      ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/158
-      ;;
-      ;; "`account`"
-      ;; ($.break.eval/error-cast?* (account ~x))
+      "`account`"
+      ($.break.eval/error-cast?* (account ~x))
 
       "`balance`"
       ($.break.eval/error-cast?* (balance ~x))
@@ -589,9 +582,6 @@
        ($.break.eval/error-nobody?* (transfer ~addr
                                               42))
 
-      ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/159
-      ;;
-      ;; "Transfering allowance to unused address"
-      ;; ($.break.eval/error-nobody?* (transfer-memory ~addr
-      ;;                                               42))
-      )))
+      "Transfering allowance to unused address"
+      ($.break.eval/error-nobody?* (transfer-memory ~addr
+                                                    42)))))
