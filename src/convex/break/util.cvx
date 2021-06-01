@@ -53,6 +53,19 @@
 
 
 
+  (defn foreach
+
+    [f coll]
+
+    (reduce (fn [_acc x]
+              (f x)
+              nil)
+            nil
+            coll)
+    coll)
+
+
+
   (defn long-percentage
 
     [percent n]
