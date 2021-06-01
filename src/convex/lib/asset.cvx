@@ -7,7 +7,7 @@
 ;; import with (import convex.asset :as asset)
 ;;
 ;; An asset is described by either:
-;; - a Long (indicating a quantity of Convex coins), or
+;; - a Long (indicating a quantity of Convex coins), or  ;; TODO. Not supported?
 ;; - [asset-address quantity] vector, indicating an asset managed by an Actor 
 ;; - A {asset-address quantity} map, indicating assets owned managed by zero or more Actors
 ;;
@@ -300,7 +300,7 @@
             :examples [{:code "(quantity-add fungible-token 100 1000)"}
                        {:code "(quantity-add non-fungible-token #{1 2} #{3 4})"}
                        {:code "(quantity-add [token-a 100] [token-b 1000])"}]
-            :type :function
+            :type      :function
             :signature [{:params [asset-address a b]}]}}
 
 
