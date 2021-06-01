@@ -55,10 +55,10 @@
 (comment
 
 
-  (def ctx
+  (def w*ctx
        ($.cvm/watch {"src/convex/util.cvx" '$}))
 
-  ($.cvm.eval/result @ctx
+  ($.cvm.eval/result @w*ctx
                      ($.lisp/templ* (do
                                       (defn f [a]
                                         (if (zero? a)
@@ -66,7 +66,7 @@
                                           (tailcall (f (dec a)))))
                                       (f 10))))
 
-  (.close ctx)
+  (.close w*ctx)
 
       
   )
