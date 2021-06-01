@@ -4,8 +4,7 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.lisp     :as $]
-            [convex.lisp.dev :as $.dev]))
+  (:require [convex.dev]))
 
 
 (set! *warn-on-reflection*

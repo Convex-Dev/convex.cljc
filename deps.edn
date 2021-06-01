@@ -11,17 +11,17 @@
 
   :dev
   {:extra-deps  {org.clojure/tools.reader {:mvn/version "1.3.4"}}
-   :extra-paths ["src/dev"
-                 "src/example"
-                 "src/run"
-                 "src/test"]}
+   :extra-paths ["src/clojure/dev"
+                 "src/clojure/example"
+                 "src/clojure/run"
+                 "src/clojure/test"]}
 
   :fuzz-random
   {:exec-args   {:max-size 200
                  :root     "report/fuzz"}
    :exec-fn     convex.break.run.fuzz/random
-   :extra-paths ["src/run"
-                 "src/test"]}
+   :extra-paths ["src/clojure/run"
+                 "src/clojure/test"]}
 
   :jar
   {:exec-args    {:jar      "compiled/jvm/release.jar"
@@ -43,13 +43,13 @@
    :main-opts  ["-m" "nrepl.cmdline" "--port" "14563"]}
 
   :test
-  {:extra-paths ["src/test"]}}
+  {:extra-paths ["src/clojure/test"]}}
 
  :deps
  {;cljs-ajax/cljs-ajax  {:mvn/version "0.8.3"}
   hawk/hawk                {:mvn/version "0.2.11"}
   org.clojure/test.check   {:mvn/version "1.1.0"}
-  world.convex/convex      {:local/root "cvm/8fc94974ff5a3b6113b5df2d490576f27a14103b.jar"}}
+  world.convex/convex      {:local/root "cvm/76e557391b3d4e1064fe617d7099109dce1c5065.jar"}}
 
  :paths
- ["src/main"]}
+ ["src/clojure/main"]}
