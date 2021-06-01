@@ -31,6 +31,7 @@
             [convex.cvm.type               :as $.cvm.type]
             [convex.example.exec]
             [convex.example.templ]
+            [convex.lib.dev.trust]
             [convex.lisp                   :as $.lisp]
             [convex.lisp.gen               :as $.lisp.gen]
             [convex.lisp.test]

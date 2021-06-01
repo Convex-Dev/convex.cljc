@@ -4,8 +4,7 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.dev]
-            [convex.dev.lib.asset]))
+  (:require [convex.dev]))
 
 
 (set! *warn-on-reflection*
