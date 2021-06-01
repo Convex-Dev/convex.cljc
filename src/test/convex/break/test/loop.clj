@@ -134,6 +134,7 @@
 ($.break.prop/deftest reduce--
 
   (TC.prop/for-all [x (TC.gen/such-that #(not-empty (cond->
+                                                      ;; `(list ...)` form or a vector
                                                       %
                                                       (seq? %)
                                                       rest))

@@ -71,7 +71,7 @@
        ($.cvm/watch {"src/convex/util.cvx" '$}))
 
   ($.cvm.eval/result @ctx
-                     ($.lisp/templ* (create-account ~(TC.gen/generate $.lisp.gen/blob-32))))
+                     ($.lisp/templ* (reduce + [])))
 
   (.close ctx)
 

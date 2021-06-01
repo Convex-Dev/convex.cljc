@@ -60,8 +60,8 @@
 
 ($.break.prop/deftest blob-map--
 
-  (TC.prop/for-all [kv+ ($.break.gen/kv+ $.lisp.gen/blob
-                                         $.lisp.gen/any)]
+  (TC.prop/for-all [kv+ ($.lisp.gen/kv+ $.lisp.gen/blob
+                                        $.lisp.gen/any)]
     (suite-new ($.break.eval/ctx* (do
                                     (def kv+
                                          ~kv+)
@@ -78,8 +78,8 @@
   ;;
   ;; Cannot compare with Clojure: https://github.com/Convex-Dev/convex-web/issues/66
 
-  (TC.prop/for-all [kv+ ($.break.gen/kv+ $.lisp.gen/any
-                                         $.lisp.gen/any)]
+  (TC.prop/for-all [kv+ ($.lisp.gen/kv+ $.lisp.gen/any
+                                        $.lisp.gen/any)]
     (suite-new ($.break.eval/ctx* (do
                                     (def kv+
                                          ~kv+)
@@ -1218,31 +1218,27 @@
 ;;;;;;;;;; Negative tests
 
 
-#_($.break.prop/deftest blob-map--err-cast
-
-  ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/179
+($.break.prop/deftest blob-map--err-cast
 
   (TC.prop/for-all [arg+ (let [set-gen-good #{$.lisp.gen/address
                                               $.lisp.gen/blob}]
-                           ($.break.gen/mix-one-in (TC.gen/tuple ($.lisp.gen/any-but set-gen-good)
-                                                                 $.lisp.gen/any)
-                                                   ($.break.gen/kv+ $.lisp.gen/long
-                                                                    $.lisp.gen/long)
-                                                   #_($.break.gen/kv+ (TC.gen/one-of [(TC.gen/one-of (vec set-gen-good))
-                                                                                    $.lisp.gen/any])
-                                                                    $.lisp.gen/any)))]
-    ($.break.eval/error-cast?* (blob-map ~@(mapcat identity
-                                                   arg+)))))
+                           ($.lisp.gen/mix-one-in (TC.gen/tuple ($.lisp.gen/any-but set-gen-good)
+                                                                $.lisp.gen/any)
+                                                  ($.lisp.gen/kv+ (TC.gen/one-of [(TC.gen/one-of (vec set-gen-good))
+                                                                                  $.lisp.gen/any])
+                                                                  $.lisp.gen/any)))]
+    ($.break.eval/error-arg?* (blob-map ~@(mapcat identity
+                                                  arg+)))))
 
 
 
 ($.break.prop/deftest concat--err-cast
 
-  (TC.prop/for-all [arg+ ($.break.gen/outlier #{$.lisp.gen/list
-                                                $.lisp.gen/map
-                                                $.lisp.gen/nothing
-                                                $.lisp.gen/set
-                                                $.lisp.gen/vector})]
+  (TC.prop/for-all [arg+ ($.lisp.gen/outlier #{$.lisp.gen/list
+                                               $.lisp.gen/map
+                                               $.lisp.gen/nothing
+                                               $.lisp.gen/set
+                                               $.lisp.gen/vector})]
     ($.break.eval/error-cast?* (concat ~@arg+))))
 
 

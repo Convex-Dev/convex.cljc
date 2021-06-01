@@ -11,8 +11,7 @@
             [convex.lisp.gen               :as $.lisp.gen]))
 
 
-(declare kv+
-         mix-one-in)
+(declare kv+)
 
 
 ;;;;;;;;;;
@@ -43,27 +42,6 @@
 
 
 
-(defn kv+
-
-  "Vector of `[Key Value]`.
-  
-   Ensures that all the keys are distinct which might matter in test situations."
-
-  [gen-k gen-v]
-
-  (TC.gen/fmap (fn [[k+ v+]]
-                 (mapv vec
-                       (partition 2
-                                  (interleave k+
-                                              v+))))
-               (TC.gen/bind (TC.gen/vector-distinct gen-k)
-                            (fn [k+]
-                              (TC.gen/tuple (TC.gen/return k+)
-                                            (TC.gen/vector gen-v
-                                                           (count k+)))))))
-
-
-
 (def maybe-map
 
   "Either a map or nil."
@@ -79,19 +57,6 @@
 
   (TC.gen/one-of [$.lisp.gen/nothing
                   $.lisp.gen/set]))
-
-
-
-(defn mix-one-in
-
-  "Ensures that an item from `gen-one` is present and shuffled in `gen-coll`."
-
-  [gen-one gen-coll]
-
-  (TC.gen/let [x  gen-one
-               x+ gen-coll]
-    (TC.gen/shuffle (conj x+
-                          x))))
 
 
 
@@ -128,30 +93,6 @@
 
   (TC.gen/such-that #(not (number? %))
                     $.lisp.gen/any))
-
-
-
-(defn outlier
-
-  "Produces a vector of items where each item is either a good item or anything.
-  
-   Ensures that at least one wrong item is produced.
-  
-   Both kind can be given explicitly or a set of good generators can be given from which
-   a \"bad\" generator can be deduced."
-
-
-  ([set-gen-good]
-
-   (outlier (TC.gen/one-of (vec set-gen-good))
-            ($.lisp.gen/any-but set-gen-good)))
-
-
-  ([gen-good gen-wrong]
-
-   (mix-one-in gen-wrong
-               (TC.gen/vector (TC.gen/one-of [gen-good
-                                              $.lisp.gen/any])))))
 
 
 

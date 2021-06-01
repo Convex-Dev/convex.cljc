@@ -643,7 +643,7 @@
 
      | Key | Value |
      |---|---|
-     | `:after-import` | Function which map the prepared context after all imports |"
+     | `:after-import` | Function which maps the prepared context after all imports |"
 
 
     ([path->alias]

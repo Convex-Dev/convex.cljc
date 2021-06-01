@@ -22,7 +22,71 @@
             [convex.lisp                   :as $.lisp]))
 
 
+(declare any
+         any-but)
+
+
 ;;;;;;;;;; Miscellaneous helpers
+
+
+(defn kv+
+
+  "Vector of `[Key Value]`.
+  
+   Ensures that all the keys are distinct which might matter in test situations."
+
+  [gen-k gen-v]
+
+  (TC.gen/fmap (fn [[k+ v+]]
+                 (mapv vec
+                       (partition 2
+                                  (interleave k+
+                                              v+))))
+               (TC.gen/bind (TC.gen/vector-distinct gen-k)
+                            (fn [k+]
+                              (TC.gen/tuple (TC.gen/return k+)
+                                            (TC.gen/vector gen-v
+                                                           (count k+)))))))
+
+
+
+(defn mix-one-in
+
+  "Ensures that an item from `gen-one` is present and shuffled in the sequential collection produced by `gen-coll`."
+
+  [gen-one gen-coll]
+
+  (TC.gen/let [x  gen-one
+               x+ gen-coll]
+    (TC.gen/shuffle (conj x+
+                          x))))
+
+
+
+(defn outlier
+
+  "Produces a vector of items where each item is either a good item or anything else.
+  
+   Ensures that at least one wrong item is produced.
+  
+   Both kind can be given explicitly or a set of good generators can be given from which
+   a \"bad\" generator can be deduced.
+  
+   Useful for testing in order to produce inputs that are always faulty (at least partly)."
+
+
+  ([set-gen-good]
+
+   (outlier (TC.gen/one-of (vec set-gen-good))
+            (any-but set-gen-good)))
+
+
+  ([gen-good gen-wrong]
+
+   (mix-one-in gen-wrong
+               (TC.gen/vector (TC.gen/one-of [any
+                                              gen-good])))))
+
 
 
 (defn quoted
