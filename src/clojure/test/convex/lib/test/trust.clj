@@ -72,19 +72,6 @@
 
 
 
-(defn suite-list-set
-
-  ""
-
-  [ctx sym-lookup-list]
-
-  (let [ctx-2 ($.break.eval/ctx* ctx
-                                 (def sym-lookup
-                                      (quote ~sym-lookup-list)))]
-    ))
-
-
-
 (defn suite-list
 
   ""
@@ -285,3 +272,60 @@
                                                 (= (lookup actor-controlled
                                                            'whitelist)
                                                    listing-before))))))))))
+
+
+
+($.break.prop/deftest upgrade
+
+  (TC.prop/for-all [upgrade-data $.lisp.gen/any
+                    upgrade-sym  $.lisp.gen/symbol]
+    (let [ctx-2 ($.break.eval/ctx* ctx
+                                   (do
+                                     (def actor-controlled
+                                          (deploy (trust/add-trusted-upgrade nil)))
+
+                                     (def blacklist
+                                          (deploy (trust/build-blacklist {:blacklist [*address*]})))
+
+                                     (def actor-uncontrolled
+                                          (deploy (trust/add-trusted-upgrade {:root blacklist})))
+                                     
+                                     (defn upgrade [actor]
+                                       (call actor
+                                             (upgrade (quote (def ~upgrade-sym
+                                                                  ~upgrade-data)))))))]
+      ($.break.prop/mult*
+
+        "Root is caller by default"
+        ($.break.eval/result ctx-2
+                             '(= *address*
+                                 (lookup actor-controlled
+                                         'upgradable-root)))
+
+        "Root can be set via options"
+        ($.break.eval/result ctx-2
+                             '(= blacklist
+                                 (lookup actor-uncontrolled
+                                         'upgradable-root)))
+
+        "Can eval code in controlled actor"
+        ($.break.eval/result* ctx-2
+                              (do
+                                (upgrade actor-controlled)
+                                (= ~upgrade-data
+                                   (lookup actor-controlled
+                                           (quote ~upgrade-sym)))))
+
+        "Cannot eval code after giving up root access"
+        ($.break.eval/error-state? ctx-2
+                                   '(do
+                                      (trust/remove-upgradability! actor-controlled)
+                                      (upgrade actor-controlled)))
+
+        "Cannot eval code in uncontrolled actor"
+        ($.break.eval/error-trust? ctx-2
+                                   '(upgrade actor-uncontrolled))
+
+        "Cannot remove upgradability in uncontrolled actor"
+        ($.break.eval/error-trust? ctx-2
+                                   '(trust/remove-upgradability! actor-uncontrolled))))))

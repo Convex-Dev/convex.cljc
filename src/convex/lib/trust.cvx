@@ -203,35 +203,37 @@
 
   (defn add-trusted-upgrade
 
-     ^{:doc {:description "Creates deployable code for an Actor upgradable by a ':root' User or Trust Monitor. A root-authorised user can 'eval' code in the Actor's environment using '(call actor (upgrade code-to-eval))'. If not specified, the generator of the code (*address*) will be the initial root user. SECURITY: A user or actor with root access can do *anything* to this actor. Do not hand out such access unwisely."
-             :examples    [{:code "(deploy (add-trusted-upgrade {:root *address*}))"}]
-             :signature   [{:params [config]}]
-             :type        :function}}
+    ;; TODO. Improve docstring, `:root` is a blacklist or a whitelist.
 
-      [config]
+    ^{:doc {:description "Creates deployable code for an Actor upgradable by a ':root' User or Trust Monitor. A root-authorised user can 'eval' code in the Actor's environment using '(call actor (upgrade code-to-eval))'. If not specified, the generator of the code (*address*) will be the initial root user. SECURITY: A user or actor with root access can do *anything* to this actor. Do not hand out such access unwisely."
+            :examples    [{:code "(deploy (add-trusted-upgrade {:root *address*}))"}]
+            :signature   [{:params [config]}]
+            :type        :function}}
 
-      (let [root (address (or (:root config)
-                              *address*))]
-        `(do
-           (import ~trust :as trust)
-           
+     [config]
 
-           (export upgrade)
+     (let [root (address (or (:root config)
+                             *address*))]
+       `(do
+          (import ~trust :as trust)
+          
+
+          (export upgrade)
 
 
-           (def upgradable-root
-                ~root)
-           
+          (def upgradable-root
+               ~root)
+          
 
-           (defn upgrade
-             
-             [code]
+          (defn upgrade
+            
+            [code]
 
-             (if (trust/trusted? upgradable-root
-                                 *caller*)
-               (eval code)
-               (fail :TRUST
-                     "No root access to upgrade capability!"))))))
+            (if (trust/trusted? upgradable-root
+                                *caller*)
+              (eval code)
+              (fail :TRUST
+                    "No root access to upgrade capability!"))))))
   
 
 
@@ -255,5 +257,7 @@
                       (disj *exports*
                             'upgrade)))))))
 
+
+  ;; TODO. Allow setting another root
 
   ) ;; END

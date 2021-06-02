@@ -8,6 +8,7 @@
                           convex.break.eval/error-memory?* hooks.convex/templ*
                           convex.break.eval/error-nobody?* hooks.convex/templ*
                           convex.break.eval/error-state?*  hooks.convex/templ*
+                          convex.break.eval/error-trust?*  hooks.convex/templ*
                           convex.break.eval/like-clojure?* hooks.convex/templ*
                           convex.break.eval/result*        hooks.convex/templ*
                           convex.lisp/templ*               hooks.convex/templ*}}

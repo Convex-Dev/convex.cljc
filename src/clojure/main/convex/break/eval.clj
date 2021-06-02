@@ -321,13 +321,13 @@
 
 (defn error-state?
 
-  "Returns true if the given form is evaluated to an `:NOBODY` error."
+  "Returns true if the given form is evaluated to an `:STATE`` error."
 
 
   ([form]
 
    (error-state? ctx-base
-                  form))
+                 form))
 
 
   ([ctx form]
@@ -349,6 +349,40 @@
   ([ctx form]
 
    `(error-state? ~ctx
+                  ($.lisp/templ* ~form))))
+
+
+
+(defn error-trust?
+
+  "Returns true if the given form is evaluated to an `:TRUST`` error."
+
+
+  ([form]
+
+   (error-trust? ctx-base
+                 form))
+
+
+  ([ctx form]
+
+   (= :TRUST
+      (:convex.error/code (exception ctx
+                                     form)))))
+
+
+
+(defmacro error-trust?*
+
+
+  ([form]
+
+   `(error-trust? ($.lisp/templ* ~form)))
+
+
+  ([ctx form]
+
+   `(error-trust? ~ctx
                   ($.lisp/templ* ~form))))
 
 
