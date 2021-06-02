@@ -18,7 +18,7 @@
 
 (def ctx
 
-  ""
+  "Base context for this namespace."
 
   ($.cvm/import {"src/convex/break/util.cvx" '$
                  "src/convex/lib/trust.cvx"  'trust}))
@@ -29,7 +29,9 @@
 
 (defn suite-list-get
 
-  ""
+  "Used by [[suite-list]].
+  
+   Tests reading trust."
 
   [ctx controller sym-actor]
 
@@ -74,7 +76,7 @@
 
 (defn suite-list
 
-  ""
+  "Suite used by [[blacklist]] and [[white-list]]."
 
   [ctx not-caller f-list-set]
 
@@ -111,7 +113,7 @@
 
 (def gen-addr-list+
 
-  ""
+  "Generates a pair of `[addr-allow+ addr-forbid+]`."
 
   (TC.gen/bind (TC.gen/vector $.lisp.gen/address)
                (fn [addr-forbid+]
@@ -125,7 +127,7 @@
 
 (def gen-not-caller
 
-  ""
+  "Generates an address that is different from the caller."
 
   (TC.gen/such-that (let [addr ($.break.eval/result ctx
                                                     '*address*)]
@@ -138,6 +140,8 @@
 
 
 ($.break.prop/deftest blacklist
+
+  ;; Creating a blacklist.
 
   (TC.prop/for-all [[addr-allow+
                      addr-forbid+] gen-addr-list+
@@ -208,6 +212,8 @@
 
 ($.break.prop/deftest whitelist
 
+  ;; Creating a whitelist.
+
   (TC.prop/for-all [[addr-allow+
                      addr-forbid+] gen-addr-list+
                     not-caller     gen-not-caller]
@@ -276,6 +282,8 @@
 
 
 ($.break.prop/deftest upgrade
+
+  ;; Creating an upgradable actor.
 
   (TC.prop/for-all [upgrade-data $.lisp.gen/any
                     upgrade-sym  $.lisp.gen/symbol]
