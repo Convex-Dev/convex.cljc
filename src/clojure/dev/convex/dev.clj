@@ -31,6 +31,7 @@
             [convex.cvm.type               :as $.cvm.type]
             [convex.example.exec]
             [convex.example.templ]
+			[convex.lib.dev.incub.xform]
             [convex.lib.dev.trust]
             [convex.lisp                   :as $.lisp]
             [convex.lisp.gen               :as $.lisp.gen]
@@ -57,7 +58,7 @@
 
 
   (def w*ctx
-       ($.cvm/watch {"src/convex/util.cvx" '$}))
+       ($.cvm/watch {"src/convex/break/util.cvx" '$}))
 
   ($.cvm.eval/result @w*ctx
                      ($.lisp/templ* (do
