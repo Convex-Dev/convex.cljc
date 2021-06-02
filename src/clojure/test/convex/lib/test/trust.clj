@@ -27,7 +27,7 @@
 ;;;;;;;;;; Suites
 
 
-(defn suite-blacklist
+(defn suite-list-get
 
   ""
 
@@ -35,35 +35,116 @@
 
 
   (let [ctx-2 ($.break.eval/ctx* ctx
-                                 (def bl
+                                 (def actor
                                       ~sym-actor))]
     ($.break.prop/mult*
 
           "Controller is right"
           ($.break.eval/result* ctx-2
-                                (= (lookup bl
+                                (= (lookup actor
                                            'controller)
                                    ~controller))
           
-          "All addresses to forbid are indeed forbidden"
+          "All forbidden addresses are not trusted"
           ($.break.eval/result ctx-2
-                               '($/every? not-trusted?
-                                          addr-black+))
+                               '($/every? (fn [addr]
+                                            (not (trust/trusted? actor
+                                                                 addr)))
+                                          addr-forbid+))
 
-          "Any not-forbidden address is trusted"
+          "All allowed addresses are trusted"
           ($.break.eval/result ctx-2
-                               '($/every? trusted?
-                                          addr-test+))
+                               '($/every? (fn [addr]
+                                            (trust/trusted? actor
+                                                            addr))
+                                          addr-allow+))
 
           "`trust/trusted?` is consistent with calling `check-trusted` on actor"
           ($.break.eval/result ctx-2
                                '($/every? (fn [addr]
-                                            (= (trusted? addr)
-                                               (call bl
+                                            (= (trust/trusted? actor
+                                                               addr)
+                                               (call actor
                                                      (check-trusted? addr
                                                                      nil
                                                                      nil))))
                                           addr-all+)))))
+
+
+
+(defn suite-list-set
+
+  ""
+
+  [ctx sym-lookup-list]
+
+  (let [ctx-2 ($.break.eval/ctx* ctx
+                                 (def sym-lookup
+                                      (quote ~sym-lookup-list)))]
+    ))
+
+
+
+(defn suite-list
+
+  ""
+
+  [ctx not-caller f-list-set]
+
+  (let [ctx-2 ($.break.eval/ctx ctx
+                                '(def addr-all+
+                                      (into #{}
+                                            (concat addr-allow+
+                                                    addr-forbid+))))]
+    ($.break.prop/and* ($.break.prop/checkpoint*
+
+                         "Getting trust, controller is caller"
+
+                         (suite-list-get ctx-2
+                                         '*address*
+                                         'actor-controlled))
+
+                       ($.break.prop/checkpoint*
+
+                         "Getting trust, controller is not caller"
+
+                         (suite-list-get ctx-2
+                                         not-caller
+                                         'actor-uncontrolled))
+
+                       ($.break.prop/checkpoint*
+
+                         "Setting trust"
+
+                         (f-list-set ctx-2)))))
+
+
+;;;;;;;;;; Generators
+
+
+(def gen-addr-list+
+
+  ""
+
+  (TC.gen/bind (TC.gen/vector $.lisp.gen/address)
+               (fn [addr-forbid+]
+                 (TC.gen/tuple (TC.gen/vector-distinct (TC.gen/such-that (comp not
+                                                                               (partial contains?
+                                                                                        (set addr-forbid+)))
+                                                                         $.lisp.gen/address)
+                                                       {:min-elements 1})
+                               (TC.gen/return addr-forbid+)))))
+
+
+(def gen-not-caller
+
+  ""
+
+  (TC.gen/such-that (let [addr ($.break.eval/result ctx
+                                                    '*address*)]
+                      #(not (= %
+                               addr)))
+                    $.lisp.gen/address))
 
 
 ;;;;;;;;;; Tests
@@ -71,104 +152,136 @@
 
 ($.break.prop/deftest blacklist
 
-  (TC.prop/for-all [[addr-black+
-                     addr-test+] (TC.gen/bind (TC.gen/vector $.lisp.gen/address)
-                                              (fn [addr-black+]
-                                                (TC.gen/tuple (TC.gen/return addr-black+)
-                                                              (TC.gen/vector-distinct (TC.gen/such-that (comp not
-                                                                                                              (partial contains?
-                                                                                                                       (set addr-black+)))
-                                                                                                        $.lisp.gen/address)
-                                                                                      {:min-elements 1}))))
-                    not-caller   (TC.gen/such-that (let [addr ($.break.eval/result ctx
-                                                                                   '*address*)]
-                                                     #(not (= %
-                                                              addr)))
-                                                   $.lisp.gen/address)]
+  (TC.prop/for-all [[addr-allow+
+                     addr-forbid+] gen-addr-list+
+                    not-caller     gen-not-caller]
     (let [ctx-2 ($.break.eval/ctx* ctx
                                    (do
-                                     (def addr-black+
-                                          ~addr-black+)
+                                     (def addr-allow+
+                                          ~addr-allow+)
 
-                                     (def addr-test+
-                                          ~addr-test+)
-
-                                     (def addr-all+
-                                          (into #{}
-                                                (concat addr-black+
-                                                        addr-test+)))
+                                     (def addr-forbid+
+                                          ~addr-forbid+)
 
                                      (def actor-controlled
-                                          (deploy (trust/build-blacklist {:blacklist addr-black+})))
+                                          (deploy (trust/build-blacklist {:blacklist addr-forbid+})))
 
                                      (def actor-uncontrolled
-                                          (deploy (trust/build-blacklist {:blacklist  addr-black+
-                                                                          :controller ~not-caller})))
+                                          (deploy (trust/build-blacklist {:blacklist  addr-forbid+
+                                                                          :controller ~not-caller})))))]
+      (suite-list ctx-2
+                  not-caller
+                  (fn [ctx-3]
+                    ($.break.prop/mult*
 
-                                     ;; `bl` is defined by [[suite-blacklist]]
+                      "Removing trust with `set-trust`"
+                      ($.break.eval/result ctx-3
+                                           '(do
+                                              ($/foreach (fn [addr]
+                                                           (call actor-controlled
+                                                                 (set-trusted addr
+                                                                              false)))
+                                                         addr-allow+)
+                                              (= (lookup actor-controlled
+                                                         'blacklist)
+                                                 addr-all+)))
+                      
+                      "Adding trust with `set-trusted`"
+                      ($.break.eval/result ctx-3
+                                           '(do
+                                              ($/foreach (fn [addr]
+                                                           (call actor-controlled
+                                                                 (set-trusted addr
+                                                                              true)))
+                                                         addr-forbid+)
+                                              (= (lookup actor-controlled
+                                                         'blacklist)
+                                                 #{})))
+                
+                      "Not changing trust with `set-trusted`"
+                      ($.break.eval/result ctx-3
+                                           '(do
+                                              (let [listing-before (lookup actor-controlled
+                                                                           'blacklist)]
+                                                ($/foreach (fn [addr]
+                                                             (call actor-controlled
+                                                                   (set-trusted addr
+                                                                                true)))
+                                                           addr-allow+)
+                                                ($/foreach (fn [addr]
+                                                             (call actor-controlled
+                                                                   (set-trusted addr
+                                                                                false)))
+                                                           addr-forbid+)
+                                                (= (lookup actor-controlled
+                                                           'blacklist)
+                                                   listing-before))))))))))
 
-                                     (defn trusted? [addr]
-                                       (trust/trusted? bl
-                                                       addr))
 
-                                     (defn not-trusted? [addr]
-                                       (not (trusted? addr)))))]
-      ($.break.prop/and* ($.break.prop/checkpoint*
 
-                           "Controller is caller"
-                           (suite-blacklist ctx-2
-                                            '*address*
-                                            'actor-controlled))
+($.break.prop/deftest whitelist
 
-                         ($.break.prop/checkpoint*
+  (TC.prop/for-all [[addr-allow+
+                     addr-forbid+] gen-addr-list+
+                    not-caller     gen-not-caller]
+    (let [ctx-2 ($.break.eval/ctx* ctx
+                                   (do
+                                     (def addr-allow+
+                                          ~addr-allow+)
 
-                           "Controller is not caller"
-                           (suite-blacklist ctx-2
-                                            not-caller
-                                            'actor-uncontrolled))
+                                     (def addr-forbid+
+                                          ~addr-forbid+)
 
-                         ($.break.prop/mult*
+                                     (def actor-controlled
+                                          (deploy (trust/build-whitelist {:whitelist addr-allow+})))
 
-                           "Adding to blacklist with `set-trusted`"
-                           ($.break.eval/result ctx-2
-                                                '(do
-                                                   ($/foreach (fn [addr]
-                                                                (call actor-controlled
-                                                                      (set-trusted addr
-                                                                                   false)))
-                                                              addr-test+)
-                                                   (= (lookup actor-controlled
-                                                              'blacklist)
-                                                      addr-all+)))
-                 
-                           "Removing from blacklist with `set-trusted`"
-                           ($.break.eval/result ctx-2
-                                                '(do
-                                                   ($/foreach (fn [addr]
-                                                                (call actor-controlled
-                                                                      (set-trusted addr
-                                                                                   true)))
-                                                              addr-black+)
-                                                   (= (lookup actor-controlled
-                                                              'blacklist)
-                                                      #{})))
+                                     (def actor-uncontrolled
+                                          (deploy (trust/build-whitelist {:controller ~not-caller
+                                                                          :whitelist  addr-allow+ })))))]
+      (suite-list ctx-2
+                  not-caller
+                  (fn [ctx-3]
+                    ($.break.prop/mult*
 
-                           "Not changing status with `set-trusted`"
-                           ($.break.eval/result ctx-2
-                                                '(do
-                                                   (let [blacklist-before (lookup actor-controlled
-                                                                                  'blacklist)]
-                                                     ($/foreach (fn [addr]
-                                                                  (call actor-controlled
-                                                                        (set-trusted addr
-                                                                                     false)))
-                                                                addr-black+)
-                                                     ($/foreach (fn [addr]
-                                                                  (call actor-controlled
-                                                                        (set-trusted addr
-                                                                                     true)))
-                                                                addr-test+)
-                                                     (= (lookup actor-controlled
-                                                                'blacklist)
-                                                        blacklist-before)))))
-                         ))))
+                      "Removing trust with `set-trust`"
+                      ($.break.eval/result ctx-3
+                                           '(do
+                                              ($/foreach (fn [addr]
+                                                           (call actor-controlled
+                                                                 (set-trusted addr
+                                                                              false)))
+                                                         addr-allow+)
+                                              (= (lookup actor-controlled
+                                                         'whitelist)
+                                                 #{})))
+                      
+                      "Adding trust with `set-trusted`"
+                      ($.break.eval/result ctx-3
+                                           '(do
+                                              ($/foreach (fn [addr]
+                                                           (call actor-controlled
+                                                                 (set-trusted addr
+                                                                              true)))
+                                                         addr-forbid+)
+                                              (= (lookup actor-controlled
+                                                         'whitelist)
+                                                 addr-all+)))
+                
+                      "Not changing trust with `set-trusted`"
+                      ($.break.eval/result ctx-3
+                                           '(do
+                                              (let [listing-before (lookup actor-controlled
+                                                                           'whitelist)]
+                                                ($/foreach (fn [addr]
+                                                             (call actor-controlled
+                                                                   (set-trusted addr
+                                                                                true)))
+                                                           addr-allow+)
+                                                ($/foreach (fn [addr]
+                                                             (call actor-controlled
+                                                                   (set-trusted addr
+                                                                                false)))
+                                                           addr-forbid+)
+                                                (= (lookup actor-controlled
+                                                           'whitelist)
+                                                   listing-before))))))))))
