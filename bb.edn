@@ -9,14 +9,14 @@
          dev:clojure
 
          {:doc  "Start Clojure JVM dev environment (NREPL on port 14563)"
-          :task (clojure "-M:dev:test:nrepl")}
+          :task (clojure-2 "-M:dev:test:nrepl")}
 
 
 
          dev:cljs
 
          {:doc  "Start CLJS dev environment (NREPL on port 14563, server on port 8000)"
-          :task (clojure "-M:cljs:dev watch dev")}
+          :task (clojure-2 "-M:cljs:dev:test watch dev")}
 
 
 
@@ -49,6 +49,7 @@
                                                (first *command-line-args*)))}
 
 
+
          pom
 
          {:doc  "Sync POM file with deps.edn"
@@ -58,13 +59,13 @@
 
          test:jvm
 
-         {:doc  "Run tests on the JVM once"
+         {:doc  "Run tests on the JVM once ; accepts Kaocha CLI arguments"
           :task (test-jvm nil)}
 
 
          test:jvm:watch
 
-         {:doc "Run tests on the JVM everytime a file is changed"
+         {:doc "Run tests on the JVM everytime a file is changed ; accepts Kaocha CLI arguments"
           :task (test-node ["--watch"])}
 
 
@@ -88,25 +89,47 @@
          (do
            (require 'clojure.string)
 
+
+
+           (defn clojure-2
+
+             ;; Like `clojure` but prepares environment for `test.check` and appends additional CLI arguments.
+
+             [command]
+
+             (let [{:keys [extra+
+                           max-size
+                           n-test]} (-> *command-line-args*
+                                        first
+                                        clojure.edn/read-string )]
+               (clojure {:extra-env {"BREAK_MAX_SIZE" max-size
+                                     "BREAK_N_TEST"   n-test}}
+                        (str command
+                             " "
+                             (clojure.string/join " "
+                                                  extra+)))))
+
+
+
            (defn test-jvm
 
              ;; Concats CLI args with the given ones.
 
              [arg+]
 
-             (clojure (str "-M:kaocha:test -m kaocha.runner --config-file kaocha.edn :jvm "
-                           (clojure.string/join " "
-                                                (concat arg+
-                                                        *command-line-args*)))))
+             (clojure-2 "-M:kaocha:test -m kaocha.runner --config-file kaocha.edn :jvm "))
+
+
 
            (defn test-node
 
              [optimize?]
 
-             (clojure (format "-M:cljs:test %s test-node"
-                              (if optimize?
-                                "release"
-                                "compile")))
+             (clojure-2 (format "-M:cljs:test %s test-node"
+                               (if optimize?
+                                 "release"
+                                 "compile")))
              (shell "node ./compiled/node/test.js"))
+
 
            )}}

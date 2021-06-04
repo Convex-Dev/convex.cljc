@@ -25,6 +25,7 @@
 
 (do
 
+ (def foo 42)
 
   (def trust
        *address*)

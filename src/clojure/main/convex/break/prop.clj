@@ -14,6 +14,36 @@
 ;;;;;;;;;; Defining generative tests
 
 
+(let [get-env (fn [k default]
+                (if-some [x (not-empty (System/getenv k))]
+                  (try
+                    (Long/parseLong x)
+                    (catch Throwable e
+                      (throw (ex-info (str "While parsing env variable: "
+                                           k)
+                                      {::env-var k}
+                                      e))))
+                  default))]
+
+  (def max-size
+
+    "Maximum size used by [[deftest]]. Can be set using the \"BREAK_MAX_SIZE\" env variable."
+
+    (get-env "BREAK_MAX_SIZE"
+             200))
+
+
+
+  (def n-test
+  
+    "Number of tests used by [[deftest]]. Can be set using the \"BREAK_N_TEST\" env variable."
+
+    (get-env "BREAK_N_TEST"
+             100)))
+
+
+
+
 (defmacro deftest
 
   "Like `clojure.test.check.clojure-test/defspec`.
@@ -21,13 +51,16 @@
    Difference is that the number of tests and maximum size can be easily configured
    at the level of the whole test suite and also by providing metadata:
 
+   For altering those default values, see [[max-size]] and [[n-test]].
+
+   
+
 
    ```clojure
-   (defcheck some-test
+   (deftest some-test
 
-     (check :double
-            (fn [x]
-              (double? x))))
+     {:ratio-n
+     ...)
    ```"
 
   ([sym prop]
@@ -40,10 +73,17 @@
   ([sym option+ prop]
 
    `(TC.ct/defspec ~sym
-                   ~(merge-with *
-                                {:max-size  200
-                                 :num-tests 100}
-                                option+)
+                  ~(-> option+
+                       (update :max-size
+                               #(or %
+                                    (* max-size
+                                       (or (:ratio-size option+)
+                                           1))))
+                       (update :num-tests
+                               #(or %
+                                    (* n-test
+                                       (or (:ratio-count option+)
+                                           1)))))
                    ~prop)))
 
 

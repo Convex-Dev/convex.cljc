@@ -283,6 +283,9 @@
 
 ($.break.prop/deftest upgrade
 
+  {:ratio-count 5
+   }
+
   ;; Creating an upgradable actor.
 
   (TC.prop/for-all [upgrade-data $.lisp.gen/any
