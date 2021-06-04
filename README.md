@@ -4,42 +4,39 @@
 
 [![Cljdoc](https://cljdoc.org/badge/helins/convex.lisp.cljc)](https://cljdoc.org/d/helins/convex.lisp.cljc)
 
-Working with Convex Lisp and the CVM (Convex Virtual Machine).
+Working with Convex Lisp and the CVM (Convex Virtual Machine) in Clojure.
 
-Toolset consist of:
+This repository holds several interrelated projects and this document is only a brief overview. Namespaces are well documented and the user is
+expected to explore them.
 
-- Reading, expanding, compiling, and executing Convex Lisp code from the JVM
-- Translating between Convex object and Clojure data structures
-- Templating Convex Lisp code from Clojure
-- Specyfing Convex Lisp using Malli, providing:
-    - Some basic level of validation
-    - Generation of random forms
-- Writing generative tests against the CVM
+Attention, while those projects are getting more and more stable, unannonced breaking changes are still happening.
 
 
-## Usage
+## Projects
 
-The toolset already provides quite a lot of useful features for interacting with Convex Lisp. Currently, the API is unstable and unannounced breaking changes are to be expected.
+Current examples are located in the [example directory](../main/src/example/convex/example). This document shows excerpts.
 
-More examples will follow as the API stabilizes.
+### convex.break
 
-Current examples are located in the [example directory](../main/src/example/convex/example).
+Extensive test suite targetting the CVM. The various generative tests have been helping in strenghtening the CVM and validating its design. They form a strong empirical proof
+that the CVM is robust and that the Convex Lisp language is consistent.
 
-Requiring namespaces for current examples:
+Based on [test.check](https://github.com/clojure/test.check), they leverage the numerous generators found in the `convex.lisp` project.
 
-```clojure
-(require 'convex.cvm           ;; Expanding, compiling, and executing code on the CVM
-         'convex.cvm.eval      ;; Helpers for quickly evaluating forms (dev + tests)
-         'convex.cvm.eval.src  ;; Ditto, but when working with source strings
-         'convex.lisp          ;; Using Clojure for writing Convex Lisp
-         'convex.lisp.schema)  ;; Malli schemas for Convex Lisp
-```
 
-### Handling Convex Lisp code
+### convex.cvm
 
-Convex Lisp source code goes through 4 steps: reading, expanding, compiling, and executing. A CVM context is needed for handling such operations. The result of an operation is either a valid result or a handled error. There should never be an unhandled exception coming from the CVM.
+Interface for using the CVM and evaluating Convex Lisp source.
 
-Going through the whole cycle (context could be reused for further execution):
+
+##### Handling Convex Lisp code
+
+Convex Lisp source code goes through 4 steps: reading, expanding, compiling, and executing. A CVM context is needed for handling them. The result of a step is either a valid result or a CVM exception. If needed, those Java objects can be converted to Clojure data for easy consumption.
+
+A CVM exception is a special state which means that the CVM shortcuts execution, such as when a failure happens. Any JVM exception **MUST** be handled by the CVM otherwise
+it should be reported as a bug.
+
+First, an example of going through those 4 steps one by one:
 
 ```clojure
 (let [;; It is convenient writing Convex Lisp as Clojure data
@@ -75,7 +72,8 @@ There are shortcuts and it is easy writing a helper function as needed. For inst
     convex.cvm/as-clojure)
 ```
 
-Often, a CVM context needs some preparation such as adding utility functions. It is a good idea forking the context when used so that any work is done on cheap copies, leaving the original context intact in order to be reused at will.
+Often, a CVM context needs some preparation such as adding utility functions. Then, prior to using it, a cheap copy can be obtained by forking it, leaving the original
+intact and reusable at will.
 
 ```clojure
 ;; Creating a new context, modifying it by adding a couple of functions in the environment
@@ -97,7 +95,8 @@ Often, a CVM context needs some preparation such as adding utility functions. It
     convex.cvm/as-clojure)
 ```
 
-This pattern of forking and getting some value translated in Clojure data is so common that there are 2 namespaces providing shotcuts:
+This pattern of forking and getting some value translated to Clojure data is so common that there are 2 namespaces providing shotcuts, depending on whether the user
+is dealing with forms expressed as Clojure data or as text:
 
 ```clojure
 (= 4
@@ -108,9 +107,41 @@ This pattern of forking and getting some value translated in Clojure data is so 
 ```
 
 
-### Templating Convex Lisp code
+##### Watching Convex Lisp files
 
-It is particularly convenient writing Convex Lisp code as Clojure data which is easily manipulated.
+Developping Convex Lisp interactively with a Clojure environment provides a uniquely productive flow akin to having a REPL.
+
+The following starts a file watcher for all mentioned files which are re-imported as aliased libraries on each change. Derefencing the result provides a fresh context with
+all required imports:
+
+```clojure
+;; Starting a watcher with a map of `file path` -> `alias`
+;;
+(def w*ctx
+     ($.cvm/watch {"src/convex/break/util.cvx" '$}))
+
+;; Using it as needed
+;;
+@w*ctx
+
+;; Stopping the watcher
+;;
+(.close w*ctx)
+```
+
+
+### convex.lib
+
+Official Convex libraries are maintained here. Each library has or will have a dev namespace and a test namespace using the same methods that are employed in the
+`convex.break` project.
+
+
+### convex.lisp
+
+Convex Lisp and Clojure are so close that it is very convenient templating the former with the latter. This project provides CLJC utilities focusing on the language itself.
+
+
+##### Templating Convex Lisp code
 
 The following macro provides a templating experience close to Clojure's syntax quote by leveraging `~` and `~@`, unquoting and unquote-splicing.
 
@@ -132,26 +163,27 @@ Produces the following vector:
 ```
 
 
-## Testing the CVM
+##### Generating Convex Lisp forms
 
-For the time being, this repository bundles both general-purpose utilities for Convex Lisp
-as well as an advanced test suite for the CVM. In the future, both will be split.
-
-This suite consists of generative tests which are routinely being added and improved, all contributions welcome.
+The `convex.lisp.gen` namespaces provides `test.check` generators for Convex Lisp forms and various related utilities. Those generators are heavily used in the `convex.break` and
+`convex.lib` projects. Thus, the user is encouraged to use them as well when writing Convex Lisp code.
 
 
-## Tasks and development
 
-All useful tasks for development and testing are accessible via [Babashka](https://github.com/babashka/babashka). After a quick and easy installation, tasks can be listed with:
+## Development and testing <a name="develop">
 
-```bash
+This repository is organized with [Babashka](https://github.com/babashka/babashka), a wonderful tool for any Clojurist.
+
+All tasks can be listed by running:
+
+```shell
 $ bb tasks
 ```
 
-Launching a task such as starting NREPL for development on the JVM:
+For instance, a task starting a Clojure dev environment:
 
-```bash
-bb dev:clojure
+```shell
+$ bb dev:clojure
 ```
 
 
