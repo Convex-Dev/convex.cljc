@@ -7,14 +7,14 @@
   (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
             [convex.break.eval             :as $.break.eval]
-            [convex.break.prop             :as $.break.prop]
-            [convex.lisp.gen               :as $.lisp.gen]))
+            [convex.lisp.gen               :as $.lisp.gen]
+            [helins.mprop                  :as mprop]))
 
 
 ;;;;;;;;;;
 
 
-($.break.prop/deftest name--
+(mprop/deftest name--
 
   (TC.prop/for-all [x (TC.gen/one-of [$.lisp.gen/keyword
                                       $.lisp.gen/symbol-quoted

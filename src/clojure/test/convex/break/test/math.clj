@@ -9,8 +9,8 @@
             [clojure.test.check.properties :as TC.prop]
             [convex.break.eval             :as $.break.eval]
             [convex.break.gen              :as $.break.gen]
-            [convex.break.prop             :as $.break.prop]
-            [convex.lisp.gen               :as $.lisp.gen]))
+            [convex.lisp.gen               :as $.lisp.gen]
+            [helins.mprop                  :as mprop]))
 
 
 ;;;;;;;;;; Reusing properties
@@ -30,12 +30,15 @@
   (TC.prop/for-all [x+ (TC.gen/vector $.lisp.gen/long
                                       1
                                       16)]
-    ($.break.prop/mult*
+    (mprop/mult
       
       "Numerical computation of longs must result in a long"
+
       ($.break.eval/result* (long? (~form ~@x+)))
 
+
       "Numerical computation with at least one double must result in a double"
+
       (double? ($.break.eval/result* (~form ~@(update x+
                                                       (rand-int (dec (count x+)))
                                                       double)))))))
@@ -60,25 +63,25 @@
 ;;;;;;;;;; Arithmetic operators
 
 
-($.break.prop/deftest *--
+(mprop/deftest *--
 
   (prop-arithmetic '*))
 
 
 
-($.break.prop/deftest +--
+(mprop/deftest +--
 
   (prop-arithmetic '+))
 
 
 
-($.break.prop/deftest ---
+(mprop/deftest ---
 
   (prop-arithmetic '-))
 
 
 
-($.break.prop/deftest div--
+(mprop/deftest div--
 
   (TC.prop/for-all [x+ (TC.gen/vector $.lisp.gen/number
                                       1
@@ -89,42 +92,42 @@
 ;;;;;;;;;; Comparators
 
 
-($.break.prop/deftest <--
+(mprop/deftest <--
 
   (prop-comparison '<
                    <))
 
 
 
-($.break.prop/deftest <=--
+(mprop/deftest <=--
 
   (prop-comparison '<=
                    <=))
 
 
 
-($.break.prop/deftest ==--
+(mprop/deftest ==--
 
   (prop-comparison '==
                    ==))
 
 
 
-($.break.prop/deftest >=--
+(mprop/deftest >=--
 
   (prop-comparison '>=
                    >=))
 
 
 
-($.break.prop/deftest >--
+(mprop/deftest >--
 
   (prop-comparison '>
                    >))
 
 
 
-($.break.prop/deftest max--
+(mprop/deftest max--
 
   ;; In case of equal inputs, Clojure favors the last argument whereas Convex favors the first one.
   ;; 
@@ -137,7 +140,7 @@
 
 
 
-($.break.prop/deftest min--
+(mprop/deftest min--
 
   ;; See comment for [[max--]].
 
@@ -150,7 +153,7 @@
 ;;;;;;;;;; Exponentiation
 
 
-($.break.prop/deftest exp--
+(mprop/deftest exp--
 
   (TC.prop/for-all [x $.lisp.gen/number]
     ($.break.eval/like-clojure? 'exp
@@ -159,7 +162,7 @@
 
 
 
-($.break.prop/deftest pow--
+(mprop/deftest pow--
 
   (TC.prop/for-all [x $.lisp.gen/number
                     y $.lisp.gen/number]
@@ -171,7 +174,7 @@
 
 
 
-($.break.prop/deftest sqrt--
+(mprop/deftest sqrt--
 
   (TC.prop/for-all [x $.lisp.gen/number]
     ($.break.eval/like-clojure? 'sqrt
@@ -182,30 +185,37 @@
 ;;;;;;;;;; Increment / decrement
 
 
-($.break.prop/deftest dec--
+(mprop/deftest dec--
 
   (TC.prop/for-all [x $.lisp.gen/long]
     (let [ctx ($.break.eval/ctx* (def dec-
                                       (dec ~x)))]
-      ($.break.prop/mult*
+      (mprop/mult
 
         "Returns a long"
+
         ($.break.eval/result ctx
                              '(long? dec-))
 
+
         "Consistent with `-`"
+
         ($.break.eval/result* ctx
                               (= dec-
                                  (- ~x
                                     1)))
 
+
         "Consisent with `+`"
+
         ($.break.eval/result* ctx
                               (= dec-
                                  (+ ~x
                                     -1)))
 
+
         "Decrement or underflow"
+
         (= ($.break.eval/result ctx
                                 'dec-)
            (if (= x
@@ -215,30 +225,37 @@
 
 
 
-($.break.prop/deftest inc--
+(mprop/deftest inc--
 
   (TC.prop/for-all [x $.lisp.gen/long]
     (let [ctx ($.break.eval/ctx* (def inc-
                                       (inc ~x)))]
-      ($.break.prop/mult*
+      (mprop/mult
 
         "Returns a long"
+
         ($.break.eval/result ctx
                              '(long? inc-))
 
+
         "Consistent with `-`"
+
         ($.break.eval/result* ctx
                               (= inc-
                                  (- ~x
                                     -1)))
         
+
         "Consistent with `+`"
+
         ($.break.eval/result* ctx
                               (= inc-
                                  (+ ~x
                                     1)))
 
+
         "Increment or overflow"
+
         (= ($.break.eval/result ctx
                                 'inc-)
            (if (= x
@@ -250,7 +267,7 @@
 ;;;;;;;;;; Integer operations
 
 
-($.break.prop/deftest euclidian-div
+(mprop/deftest euclidian-div
 
   ;; Testing `mod` and `quot`.
 
@@ -271,33 +288,44 @@
                                    (def -rem
                                         (rem a
                                              b))))]
-      ($.break.prop/mult*
+      (mprop/mult
 
         "`mod` produces a long"
+
         ($.break.eval/result ctx
                              '(long? -mod))
 
+
         "`quot` produces a long"
+
         ($.break.eval/result ctx
                              '(long? -quot))
 
+
         "`rem` produces a long"
+
         ($.break.eval/result ctx
                              '(long? -rem))
 
+
         "`quot` is consistent with Clojure"
+
         (= (quot a
                  b)
            ($.break.eval/result ctx
                                 '-quot))
 
+
         "`rem` is consistent with Clojure"
+
         (= (rem a
                 b)
            ($.break.eval/result ctx
                                 '-rem))
 
+
         "`quot` and `rem` are consistent"
+
         ($.break.eval/result ctx
                              '(= a
                                  (+ -rem
@@ -308,7 +336,7 @@
 ;;;;;;;;;; Miscellaneous
 
 
-($.break.prop/deftest zero?--false
+(mprop/deftest zero?--false
 
   (TC.prop/for-all [x (TC.gen/such-that #(not (and (number? %)
                                                    (zero? %)))
@@ -325,7 +353,7 @@
 ;;;;;;;;;; Rounding
 
 
-($.break.prop/deftest ceil--
+(mprop/deftest ceil--
 
   (TC.prop/for-all [x $.lisp.gen/number]
     ($.break.eval/like-clojure? 'ceil
@@ -334,7 +362,7 @@
 
 
 
-($.break.prop/deftest floor--
+(mprop/deftest floor--
 
   (TC.prop/for-all [x $.lisp.gen/number]
     ($.break.eval/like-clojure? 'floor
@@ -345,20 +373,23 @@
 ;;;;;;;;;; Sign operations
 
 
-($.break.prop/deftest abs--
+(mprop/deftest abs--
 
   (TC.prop/for-all [x (TC.gen/such-that #(not (Double/isNaN %))
                                         $.lisp.gen/number)]
     (let [ctx ($.break.eval/ctx* (def abs-
                                       (abs ~x)))]
-      ($.break.prop/mult*
+      (mprop/mult
 
         "Must be positive"
+
         ($.break.eval/result* ctx
                               (>= abs-
                                   0))
 
+
         "Type is preserved"
+
         (= (type ($.break.eval/result ctx
                                       'abs-))
            (type x))))))
@@ -372,7 +403,7 @@
 
 
 
-($.break.prop/deftest signum--
+(mprop/deftest signum--
 
   (TC.prop/for-all [x $.lisp.gen/number]
     ($.break.eval/result* (= ~x
@@ -383,22 +414,25 @@
 ;;;;;;;;;; Failing cases
 
 
-($.break.prop/deftest error-cast-long-1
+(mprop/deftest error-cast-long-1
 
   ;; Functions that should accept only one long argument.
   
   (TC.prop/for-all [x $.break.gen/not-long]
-    ($.break.prop/mult*
+    (mprop/mult
 
       "`dec`"
+
       ($.break.eval/error-cast?* (dec ~x))
 
+
       "`inc`"
+
       ($.break.eval/error-cast?* (inc ~x)))))
 
 
 
-($.break.prop/deftest error-cast-long-2
+(mprop/deftest error-cast-long-2
 
   ;; Functions that should accept only two long arguments.
   
@@ -407,50 +441,65 @@
                                      b (TC.gen/one-of [$.lisp.gen/any
                                                        $.lisp.gen/long])]
                           (TC.gen/shuffle [a b]))]
-    ($.break.prop/mult*
+    (mprop/mult
 
       "`mod`"
+
       ($.break.eval/error-cast?* (mod ~a
                                       ~b))
 
+
       "`rem`"
+
       ($.break.eval/error-cast?* (rem ~a
                                       ~b))
 
+
       "`quot`"
+
       ($.break.eval/error-cast?* (quot ~a
                                        ~b)))))
 
 
 
-($.break.prop/deftest error-cast-number-1
+(mprop/deftest error-cast-number-1
 
   ;; Functions with one argument that should accept a number only.
 
   (TC.prop/for-all [x $.break.gen/not-number]
-    ($.break.prop/mult*
+    (mprop/mult
 
       "`abs`"
+
       ($.break.eval/error-cast?* (abs ~x))
 
+
       "`ceil`"
+
       ($.break.eval/error-cast?* (ceil ~x))
 
+
       "`exp`"
+
       ($.break.eval/error-cast?* (exp ~x))
 
+
       "`floor`"
+
       ($.break.eval/error-cast?* (floor ~x))
 
+
       "`signum`"
+
       ($.break.eval/error-cast?* (signum ~x))
+
 
       "`sqrt`"
       ($.break.eval/error-cast?* (sqrt ~x)))))
 
 
 
-($.break.prop/deftest error-cast-number-2
+(mprop/deftest error-cast-number-2
 
   ;; Functions that should accept only two number arguments
 
@@ -459,15 +508,16 @@
                                      b (TC.gen/one-of [$.lisp.gen/any
                                                        $.lisp.gen/number])]
                           (TC.gen/shuffle [a b]))]
-    ($.break.prop/mult*
+    (mprop/check
 
       "`pow`"
+
       ($.break.eval/error-cast?* (pow ~a
                                       ~b)))))
 
 
 
-($.break.prop/deftest error-cast-variadic
+(mprop/deftest error-cast-variadic
 
   ;; Functions that accepts a variadic number of number arguments only.
   ;;
@@ -481,42 +531,64 @@
                                                       7)]
                          (TC.gen/shuffle (cons a
                                                b+)))]
-    ($.break.prop/mult*
+    (mprop/mult
 
       "`*`"
+
       ($.break.eval/error-cast?* (* ~@x+))
 
+
       "`+`"
+
       ($.break.eval/error-cast?* (+ ~@x+))
 
+
       "`-`"
+
       ($.break.eval/error-cast?* (- ~@x+))
 
+
       "`/`"
+
       ($.break.eval/error-cast?* (/ ~@x+))
 
+
       "`max`"
+
       ($.break.eval/error-cast?* (max ~@x+))
 
+
       "`min`"
+
       ($.break.eval/error-cast?* (min ~@x+))
 
+
       "Relative comparators"
+
       (let [x-2+ (sort-by number?
                           x+)]
-        ($.break.prop/mult*
+        (mprop/mult
 
           "`<`"
+
           ($.break.eval/error-cast?* (< ~@x-2+))
+
     
           "`<=`"
+
           ($.break.eval/error-cast?* (<= ~@x-2+))
+
     
           "`==`"
+
           ($.break.eval/error-cast?* (== ~@x-2+))
 
+
           "`>=`"
+
           ($.break.eval/error-cast?* (>= ~@x-2+))
+
     
           "`>`"
+
           ($.break.eval/error-cast?* (> ~@x-2+)))))))

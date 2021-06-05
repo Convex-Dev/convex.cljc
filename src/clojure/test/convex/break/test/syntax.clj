@@ -7,14 +7,14 @@
   (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
             [convex.break.eval             :as $.break.eval]
-            [convex.break.prop             :as $.break.prop]
-            [convex.lisp.gen               :as $.lisp.gen]))
+            [convex.lisp.gen               :as $.lisp.gen]
+            [helins.mprop                  :as mprop]))
 
 
 ;;;;;;;;;;
 
 
-($.break.prop/deftest syntax--
+(mprop/deftest syntax--
 
   (let [gen-meta (TC.gen/one-of [$.lisp.gen/map
                                  $.lisp.gen/nothing])]
@@ -33,75 +33,93 @@
                                           ~x)
                                      (def ~sym
                                           x)))]
-        ($.break.prop/and* ($.break.prop/checkpoint*
+        (mprop/and (mprop/check
 
-                            "Without meta"
-                            ($.break.prop/mult*
+                     "Without meta"
 
-                              "`meta` returns empty map"
-                              ($.break.eval/result ctx
-                                                   '(= {}
-                                                       (meta (syntax x))))
+                     (mprop/mult
 
-                              "No double wrapping"
-                              ($.break.eval/result* ctx
-                                                    (let [~sym (syntax x)]
-                                                      (= ~sym
-                                                         (syntax ~sym))))
+                       "`meta` returns empty map"
 
-                              "Rewrapping with meta"
-                              ($.break.eval/result* ctx
-                                                    (let [~sym (syntax x)]
-                                                      (= (syntax x
-                                                                 meta-1)
-                                                         (syntax ~sym
-                                                                 meta-1))))
+                       ($.break.eval/result ctx
+                                            '(= {}
+                                                (meta (syntax x))))
 
-                              "`syntax?`"
-                              ($.break.eval/result ctx
-                                                   '(syntax? (syntax x)))
 
-                              "`unsyntax`"
-                              ($.break.eval/result ctx
-                                                   '(= x
-                                                       (unsyntax (syntax x))))))
+                       "No double wrapping"
 
-                          ($.break.prop/checkpoint*
+                       ($.break.eval/result* ctx
+                                             (let [~sym (syntax x)]
+                                               (= ~sym
+                                                  (syntax ~sym))))
 
-                            "With meta"
-                            ($.break.prop/mult*
 
-                              "`meta` returns the given metadata"
-                              ($.break.eval/result ctx
-                                                   '(= (if (nil? meta-1)
-                                                         {}
-                                                         meta-1)
-                                                       (meta (syntax x
-                                                                     meta-1))))
+                       "Rewrapping with meta"
 
-                              "No double wrapping"
-                              ($.break.eval/result* ctx
-                                                    (let [~sym (syntax x
-                                                                       meta-1)]
-                                                      (= ~sym
-                                                         (syntax ~sym
-                                                                 meta-1))))
+                       ($.break.eval/result* ctx
+                                             (let [~sym (syntax x)]
+                                               (= (syntax x
+                                                          meta-1)
+                                                  (syntax ~sym
+                                                          meta-1))))
 
-                              "Rewrapping with new metadata merges all metadata"
-                              ($.break.eval/result ctx
-                                                   '(= (merge meta-1
-                                                              meta-2)
-                                                       (meta (syntax (syntax x
-                                                                             meta-1)
-                                                                     meta-2))))
 
-                              "`syntax?"
-                              ($.break.eval/result ctx
-                                                   '(syntax? (syntax x
-                                                                     meta-1)))
+                       "`syntax?`"
 
-                              "`unsyntax`"
-                              ($.break.eval/result ctx
-                                                   '(= x
-                                                       (unsyntax (syntax x
-                                                                         meta-2)))))))))))
+                       ($.break.eval/result ctx
+                                            '(syntax? (syntax x)))
+
+
+                       "`unsyntax`"
+
+                       ($.break.eval/result ctx
+                                            '(= x
+                                                (unsyntax (syntax x))))))
+
+                   (mprop/check
+
+                     "With meta"
+                     (mprop/mult
+
+                       "`meta` returns the given metadata"
+
+                       ($.break.eval/result ctx
+                                            '(= (if (nil? meta-1)
+                                                  {}
+                                                  meta-1)
+                                                (meta (syntax x
+                                                              meta-1))))
+
+
+                       "No double wrapping"
+
+                       ($.break.eval/result* ctx
+                                             (let [~sym (syntax x
+                                                                meta-1)]
+                                               (= ~sym
+                                                  (syntax ~sym
+                                                          meta-1))))
+
+
+                       "Rewrapping with new metadata merges all metadata"
+
+                       ($.break.eval/result ctx
+                                            '(= (merge meta-1
+                                                       meta-2)
+                                                (meta (syntax (syntax x
+                                                                      meta-1)
+                                                              meta-2))))
+
+                       "`syntax?"
+
+                       ($.break.eval/result ctx
+                                            '(syntax? (syntax x
+                                                              meta-1)))
+
+
+                       "`unsyntax`"
+
+                       ($.break.eval/result ctx
+                                            '(= x
+                                                (unsyntax (syntax x
+                                                                  meta-2)))))))))))

@@ -10,9 +10,9 @@
             [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
             [convex.break.eval             :as $.break.eval]
-            [convex.break.prop             :as $.break.prop]
             [convex.lisp                   :as $.lisp]
-            [convex.lisp.gen               :as $.lisp.gen]))
+            [convex.lisp.gen               :as $.lisp.gen]
+            [helins.mprop                  :as mprop]))
 
 
 ;;;;;;;;;;
@@ -27,12 +27,15 @@
   (TC.prop/for-all [x gen]
     (let [result ($.break.eval/result* (~form ~x))]
 
-      ($.break.prop/mult*
+      (mprop/mult
 
         "Returns right boolean value"
+
         (result? result)
         
+
         "Consistent with Clojure"
+
         (if f
           (= result
              (f x))
@@ -87,7 +90,7 @@
 ;;;;;;;;;;
 
 
-($.break.prop/deftest account?--false
+(mprop/deftest account?--false
 
   (prop-false 'account?
               (TC.gen/such-that (comp not
@@ -96,7 +99,7 @@
 
 
 
-($.break.prop/deftest address?--false
+(mprop/deftest address?--false
 
   (prop-false 'address?
               (TC.gen/such-that (comp not
@@ -105,7 +108,7 @@
 
 
 
-($.break.prop/deftest address?--true
+(mprop/deftest address?--true
 
   (TC.prop/for-all* [$.lisp.gen/address]
                     #($.break.eval/result (list 'address?
@@ -113,7 +116,7 @@
 
 
 
-($.break.prop/deftest blob?--false
+(mprop/deftest blob?--false
 
   (prop-false 'blob?
               (TC.gen/such-that (comp not
@@ -122,14 +125,14 @@
 
 
 
-($.break.prop/deftest blob?--true
+(mprop/deftest blob?--true
 
   (prop-true 'blob?
              $.lisp.gen/blob))
 
 
 
-($.break.prop/deftest boolean?--false
+(mprop/deftest boolean?--false
 
   (prop-false 'boolean?
               boolean?
@@ -149,7 +152,7 @@
 
 
 
-#_($.break.prop/deftest coll?--false
+#_(mprop/deftest coll?--false
 
   ;; TODO. Returns true on blob-like items.
 
@@ -159,7 +162,7 @@
 
 
 
-($.break.prop/deftest coll?--true
+(mprop/deftest coll?--true
 
   (prop-true 'coll?
              coll?
@@ -167,7 +170,7 @@
 
 
 
-($.break.prop/deftest keyword?--false
+(mprop/deftest keyword?--false
 
   (prop-false 'keyword?
               keyword?
@@ -177,7 +180,7 @@
 
 
 
-($.break.prop/deftest keyword?--true
+(mprop/deftest keyword?--true
 
   (prop-true 'keyword?
              keyword?
@@ -185,7 +188,7 @@
 
 
 
-($.break.prop/deftest list?--false
+(mprop/deftest list?--false
 
   (prop-false 'list?
               $.lisp/list?
@@ -195,7 +198,7 @@
 
 
 
-($.break.prop/deftest list?--true
+(mprop/deftest list?--true
 
   (prop-true 'list?
              $.lisp/list?
@@ -203,7 +206,7 @@
 
 
 
-($.break.prop/deftest long?--false
+(mprop/deftest long?--false
 
   (prop-false 'long?
               int?
@@ -213,7 +216,7 @@
 
 
 
-($.break.prop/deftest long?--true
+(mprop/deftest long?--true
 
   (prop-true 'long?
              int?
@@ -221,7 +224,7 @@
 
 
 
-($.break.prop/deftest map?--false
+(mprop/deftest map?--false
 
   (prop-false 'map?
               map?
@@ -230,7 +233,7 @@
 
 
 
-($.break.prop/deftest map?--true
+(mprop/deftest map?--true
 
   (prop-true 'map?
              map?
@@ -238,7 +241,7 @@
 
 
 
-($.break.prop/deftest nil?--false
+(mprop/deftest nil?--false
 
   (prop-false 'nil?
               nil?
@@ -255,7 +258,7 @@
 
 
 
-($.break.prop/deftest number?--false
+(mprop/deftest number?--false
 
   (prop-false 'number?
               number?
@@ -265,7 +268,7 @@
 
 
 
-($.break.prop/deftest number?--true
+(mprop/deftest number?--true
 
   (prop-true 'number?
              number?
@@ -273,7 +276,7 @@
 
 
 
-($.break.prop/deftest set?--false
+(mprop/deftest set?--false
 
   (prop-false 'set?
               set?
@@ -283,7 +286,7 @@
 
 
 
-($.break.prop/deftest set?--true
+(mprop/deftest set?--true
 
   (prop-true 'set?
              set?
@@ -291,7 +294,7 @@
 
 
 
-($.break.prop/deftest str?--false
+(mprop/deftest str?--false
 
   (prop-false 'str?
               string?
@@ -301,7 +304,7 @@
 
 
 
-($.break.prop/deftest str?--true
+(mprop/deftest str?--true
 
   (prop-true 'str?
              string?
@@ -309,7 +312,7 @@
 
 
 
-($.break.prop/deftest symbol?--false
+(mprop/deftest symbol?--false
 
   (prop-false 'symbol?
               (TC.gen/such-that (comp not
@@ -318,14 +321,14 @@
 
 
 
-($.break.prop/deftest symbol?--true
+(mprop/deftest symbol?--true
 
   (prop-true 'symbol?
              $.lisp.gen/symbol-quoted))
 
 
 
-($.break.prop/deftest vector?--false
+(mprop/deftest vector?--false
 
   (prop-false 'vector?
               vector?
@@ -335,7 +338,7 @@
 
 
 
-($.break.prop/deftest vector?--true
+(mprop/deftest vector?--true
 
   (prop-true 'vector?
              vector?
