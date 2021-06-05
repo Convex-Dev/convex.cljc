@@ -83,6 +83,8 @@
   ;;
   ;; Cannot compare with Clojure: https://github.com/Convex-Dev/convex-web/issues/66
 
+
+  {:ratio-size 2}
   (TC.prop/for-all [kv+ ($.lisp.gen/kv+ $.lisp.gen/any
                                         $.lisp.gen/any)]
     (suite-new ($.break.eval/ctx* (do
@@ -965,6 +967,8 @@
 
   ;; TODO. Add proper blob-map generation.
 
+  {:ratio-num 5}
+
   (TC.prop/for-all* [$.lisp.gen/blob
                      $.lisp.gen/any]
                     (comp suite-map
@@ -974,6 +978,8 @@
 
 
 (mprop/deftest main-map
+
+  {:ratio-num 5}
 
   (TC.prop/for-all [m $.lisp.gen/map
                     k $.lisp.gen/any
@@ -988,6 +994,8 @@
 
 (mprop/deftest main-nil
 
+  {:ratio-num 5}
+
   (TC.prop/for-all* [$.lisp.gen/nothing
                      $.lisp.gen/any
                      $.lisp.gen/any]
@@ -997,6 +1005,8 @@
 
 
 (mprop/deftest main-sequential
+
+  {:ratio-num 8}
 
   (TC.prop/for-all [coll (TC.gen/such-that #(seq (cond->
                                                    %
@@ -1018,6 +1028,8 @@
 
 
 (mprop/deftest main-set
+
+  {:ratio-num 8}
 
   (TC.prop/for-all [s (TC.gen/not-empty $.lisp.gen/set)]
     (suite-main (let [v (first s)]
@@ -1044,6 +1056,8 @@
 
 (mprop/deftest assoc--fail
 
+  {:ratio-num 10}
+
   (TC.prop/for-all* [($.lisp.gen/any-but #{$.lisp.gen/list
                                            $.lisp.gen/map
                                            $.lisp.gen/nothing
@@ -1057,6 +1071,8 @@
 
 (mprop/deftest assoc--blob-map-fail
 
+  {:ratio-num 10}
+
   (TC.prop/for-all [k ($.lisp.gen/any-but #{$.lisp.gen/address
                                        $.lisp.gen/blob})
                     v $.lisp.gen/any]
@@ -1067,6 +1083,8 @@
 
 
 (mprop/deftest assoc--sequential-fail
+
+  {:ratio-num 10}
 
   (TC.prop/for-all [[x
                      k] (TC.gen/let [x $.lisp.gen/sequential
@@ -1091,6 +1109,8 @@
 
   ;; Trying to assoc using a path that is not a collection.
 
+  {:ratio-num 10}
+
   (TC.prop/for-all [x    (TC.gen/one-of [$.lisp.gen/list
                                          $.lisp.gen/map
                                          $.lisp.gen/nothing
@@ -1106,6 +1126,8 @@
 
 
 (mprop/deftest assoc-in--fail-type
+
+  {:ratio-num 10}
 
   (TC.prop/for-all [x    ($.lisp.gen/any-but #{$.lisp.gen/list
                                                $.lisp.gen/map
@@ -1144,6 +1166,8 @@
 
   ;; TODO. Currently, empty path returns the value. Keep an eye on: https://github.com/Convex-Dev/convex/issues/96
 
+  {:ratio-num 10}
+
   (TC.prop/for-all [x    $.break.gen/maybe-map
                     path $.lisp.gen/sequential
                     v    $.lisp.gen/any]
@@ -1163,6 +1187,8 @@
 
 (mprop/deftest mapcat--
 
+  {:ratio-num 10}
+  
   (TC.prop/for-all [coll $.lisp.gen/collection]
     (mprop/mult
 
@@ -1211,6 +1237,8 @@
 
 (mprop/deftest mapping
 
+  {:ratio-num 10}
+  
   (TC.prop/for-all [coll $.lisp.gen/collection]
     (let [ctx ($.break.eval/ctx* (do
                                    (def coll
@@ -1300,6 +1328,8 @@
 
 (mprop/deftest merge--
 
+  {:ratio-num 4}
+
   (TC.prop/for-all [x+ (TC.gen/vector (TC.gen/one-of [$.lisp.gen/map
                                                       $.lisp.gen/nothing])
                                       0
@@ -1340,6 +1370,8 @@
 
 
 (mprop/deftest reduce--
+
+  {:ratio-num 10}
 
   (TC.prop/for-all [percent $.break.gen/percent
                     x       (TC.gen/such-that #(seq (if (seq? %)
@@ -1392,6 +1424,8 @@
 
   ;; TODO. Blob-maps with non-blob keys.
 
+  {:ratio-num 10}
+
   (TC.prop/for-all [x    $.break.gen/not-collection
                     arg+ (TC.gen/vector $.lisp.gen/any
                                         0
@@ -1403,6 +1437,8 @@
 
 (mprop/deftest cons--err-cast
 
+  {:ratio-num 20}
+
   (TC.prop/for-all [x        $.lisp.gen/any
                     not-coll $.break.gen/not-collection]
     ($.break.eval/error-cast?* (cons ~x
@@ -1411,6 +1447,8 @@
 
 
 (mprop/deftest contains-key?--err-cast
+
+  {:ratio-num 15}
 
   (TC.prop/for-all [x $.break.gen/not-collection
                     k $.lisp.gen/any]

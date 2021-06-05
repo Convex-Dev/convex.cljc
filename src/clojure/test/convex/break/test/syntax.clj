@@ -16,6 +16,8 @@
 
 (mprop/deftest syntax--
 
+  {:ratio-num 10}
+
   (let [gen-meta (TC.gen/one-of [$.lisp.gen/map
                                  $.lisp.gen/nothing])]
     (TC.prop/for-all [sym    $.lisp.gen/symbol

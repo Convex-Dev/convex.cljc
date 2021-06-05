@@ -16,6 +16,8 @@
 
 (mprop/deftest def--
 
+  {:ratio-num 10}
+
   (TC.prop/for-all [sym $.lisp.gen/symbol
                     x   $.lisp.gen/any]
     (let [ctx ($.break.eval/ctx* (do

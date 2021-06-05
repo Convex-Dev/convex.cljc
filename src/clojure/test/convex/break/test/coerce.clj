@@ -98,6 +98,8 @@
 
 (mprop/deftest address--
 
+  {:ratio-num 100}
+
   (prop-coerce 'address
                'address?
                $.lisp/address?
@@ -123,6 +125,8 @@
 
   ;; TODO. Also test hashes, special type of blob that can be coerced to an actual blob.
 
+  {:ratio-num 100}
+
   (prop-coerce 'blob
                'blob?
                $.lisp/blob?
@@ -140,6 +144,8 @@
 
 (mprop/deftest boolean--
 
+  {:ratio-num 100}
+
   (prop-coerce 'boolean
                'boolean?
                true?
@@ -150,6 +156,8 @@
 
 
 (mprop/deftest byte--
+
+  {:ratio-num 100}
 
   (prop-coerce 'byte
                'number?
@@ -165,6 +173,8 @@
 
 (mprop/deftest char--
 
+  {:ratio-num 100}
+
   (prop-coerce 'char
                '(fn [_] true)  ;; TODO. Incorrect, see https://github.com/Convex-Dev/convex/issues/92
                unchecked-char
@@ -175,6 +185,8 @@
 
 
 (mprop/deftest encoding--
+
+  {:ratio-num 100}
 
   (TC.prop/for-all [x $.lisp.gen/any]
     (let [ctx ($.break.eval/ctx* (do
@@ -201,6 +213,8 @@
 (mprop/deftest hash--
 
   ;; Also tests `hash?`.
+
+  {:ratio-num 100}
 
   (TC.prop/for-all [x (TC.gen/one-of [$.lisp.gen/address
                                       $.lisp.gen/blob])]
@@ -236,6 +250,8 @@
 
 (mprop/deftest keyword--
 
+  {:ratio-num 100}
+
   (prop-coerce 'keyword
                'keyword?
                keyword?
@@ -247,6 +263,8 @@
 
 
 (mprop/deftest long--
+
+  {:ratio-num 100}
 
   (prop-coerce 'long
                'long?
@@ -264,6 +282,8 @@
 ;;
 #_(mprop/deftest set--
 
+  {:ratio-num 100}
+
   (prop-coerce 'set
                'set?
                set
@@ -276,6 +296,8 @@
 
   ;; TODO. Improve to be variadic.
 
+  {:ratio-num 100}
+
   (prop-coerce 'str
                'str?
                ;; str ;; No comparable Clojure coercion, Convex prints vectors with "," instead of spaces, unlike Clojure
@@ -285,6 +307,8 @@
 
 
 (mprop/deftest symbol--
+
+  {:ratio-num 100}
 
   (prop-coerce 'symbol
                'symbol?
@@ -297,6 +321,8 @@
 
 
 (mprop/deftest vec--
+
+  {:ratio-num 100}
 
   (prop-coerce 'vec
                'vector?

@@ -23,6 +23,9 @@
   ;; Generating randorm forms that should either fail or succeed on the CVM, but no
   ;; JVM exception should be thrown without being handled.
 
+  {:ratio-num  10
+   :ratio-size 2}
+
   (TC.prop/for-all [form ($.lisp.gen/call $.break.gen/core-symbol
                                           (TC.gen/vector $.lisp.gen/any
                                                          1

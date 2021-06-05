@@ -299,6 +299,8 @@
 
   ;; Creating an upgradable actor.
 
+  {:ratio-num 2}
+
   (TC.prop/for-all [upgrade-data $.lisp.gen/any
                     upgrade-sym  $.lisp.gen/symbol]
     (let [ctx-2 ($.break.eval/ctx* ctx

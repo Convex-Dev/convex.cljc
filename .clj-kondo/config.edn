@@ -1,16 +1,15 @@
-{:hooks   {:analyze-call {convex.break.eval/ctx*           hooks.convex/templ*
-                          convex.break.eval/error*         hooks.convex/templ*
-                          convex.break.eval/error?*        hooks.convex/templ*
-                          convex.break.eval/error-arg?*    hooks.convex/templ*
-                          convex.break.eval/error-arity?*  hooks.convex/templ*
-                          convex.break.eval/error-cast?*   hooks.convex/templ*
-                          convex.break.eval/error-fund?*   hooks.convex/templ*
-                          convex.break.eval/error-memory?* hooks.convex/templ*
-                          convex.break.eval/error-nobody?* hooks.convex/templ*
-                          convex.break.eval/error-state?*  hooks.convex/templ*
-                          convex.break.eval/error-trust?*  hooks.convex/templ*
-                          convex.break.eval/like-clojure?* hooks.convex/templ*
-                          convex.break.eval/result*        hooks.convex/templ*
-                          convex.lisp/templ*               hooks.convex/templ*}}
- :lint-as {clojure.test.check.properties/for-all clojure.core/let
-           helins.mprop/deftest                  clojure.test/deftest}}
+{:config-paths ["io.helins/mprop"]
+ :hooks        {:analyze-call {convex.break.eval/ctx*           hooks.convex/templ*
+                               convex.break.eval/error*         hooks.convex/templ*
+                               convex.break.eval/error?*        hooks.convex/templ*
+                               convex.break.eval/error-arg?*    hooks.convex/templ*
+                               convex.break.eval/error-arity?*  hooks.convex/templ*
+                               convex.break.eval/error-cast?*   hooks.convex/templ*
+                               convex.break.eval/error-fund?*   hooks.convex/templ*
+                               convex.break.eval/error-memory?* hooks.convex/templ*
+                               convex.break.eval/error-nobody?* hooks.convex/templ*
+                               convex.break.eval/error-state?*  hooks.convex/templ*
+                               convex.break.eval/error-trust?*  hooks.convex/templ*
+                               convex.break.eval/like-clojure?* hooks.convex/templ*
+                               convex.break.eval/result*        hooks.convex/templ*
+                               convex.lisp/templ*               hooks.convex/templ*}}}

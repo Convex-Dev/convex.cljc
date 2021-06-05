@@ -92,6 +92,8 @@
 
 (mprop/deftest account?--false
 
+  {:ratio-num 10}
+
   (prop-false 'account?
               (TC.gen/such-that (comp not
                                       $.lisp/address?)
@@ -100,6 +102,8 @@
 
 
 (mprop/deftest address?--false
+
+  {:ratio-num 10}
 
   (prop-false 'address?
               (TC.gen/such-that (comp not
@@ -110,6 +114,8 @@
 
 (mprop/deftest address?--true
 
+  {:ratio-num 50}
+
   (TC.prop/for-all* [$.lisp.gen/address]
                     #($.break.eval/result (list 'address?
                                                 %))))
@@ -117,6 +123,8 @@
 
 
 (mprop/deftest blob?--false
+
+  {:ratio-num 10}
 
   (prop-false 'blob?
               (TC.gen/such-that (comp not
@@ -127,12 +135,16 @@
 
 (mprop/deftest blob?--true
 
+  {:ratio-num 50}
+
   (prop-true 'blob?
              $.lisp.gen/blob))
 
 
 
 (mprop/deftest boolean?--false
+
+  {:ratio-num 10}
 
   (prop-false 'boolean?
               boolean?
@@ -154,6 +166,8 @@
 
 #_(mprop/deftest coll?--false
 
+  {:ratio-num 10}
+
   ;; TODO. Returns true on blob-like items.
 
   (prop-false 'coll?
@@ -164,6 +178,8 @@
 
 (mprop/deftest coll?--true
 
+  {:ratio-num 10}
+
   (prop-true 'coll?
              coll?
              $.lisp.gen/collection))
@@ -171,6 +187,8 @@
 
 
 (mprop/deftest keyword?--false
+
+  {:ratio-num 10}
 
   (prop-false 'keyword?
               keyword?
@@ -182,6 +200,8 @@
 
 (mprop/deftest keyword?--true
 
+  {:ratio-num 50}
+
   (prop-true 'keyword?
              keyword?
              $.lisp.gen/keyword))
@@ -189,6 +209,8 @@
 
 
 (mprop/deftest list?--false
+
+  {:ratio-num 15}
 
   (prop-false 'list?
               $.lisp/list?
@@ -200,6 +222,8 @@
 
 (mprop/deftest list?--true
 
+  {:ratio-num 10}
+
   (prop-true 'list?
              $.lisp/list?
              $.lisp.gen/list))
@@ -207,6 +231,8 @@
 
 
 (mprop/deftest long?--false
+
+  {:ratio-num 10}
 
   (prop-false 'long?
               int?
@@ -218,6 +244,8 @@
 
 (mprop/deftest long?--true
 
+  {:ratio-num 50}
+
   (prop-true 'long?
              int?
              $.lisp.gen/long))
@@ -225,6 +253,8 @@
 
 
 (mprop/deftest map?--false
+
+  {:ratio-num 15}
 
   (prop-false 'map?
               map?
@@ -235,6 +265,8 @@
 
 (mprop/deftest map?--true
 
+  {:ratio-num 10}
+
   (prop-true 'map?
              map?
              $.lisp.gen/map))
@@ -242,6 +274,8 @@
 
 
 (mprop/deftest nil?--false
+
+  {:ratio-num 10}
 
   (prop-false 'nil?
               nil?
@@ -260,6 +294,8 @@
 
 (mprop/deftest number?--false
 
+  {:ratio-num 10}
+
   (prop-false 'number?
               number?
               (TC.gen/such-that (comp not
@@ -270,6 +306,8 @@
 
 (mprop/deftest number?--true
 
+  {:ratio-num 50}
+
   (prop-true 'number?
              number?
              $.lisp.gen/number))
@@ -277,6 +315,8 @@
 
 
 (mprop/deftest set?--false
+
+  {:ratio-num 10}
 
   (prop-false 'set?
               set?
@@ -288,6 +328,8 @@
 
 (mprop/deftest set?--true
 
+  {:ratio-num 10}
+
   (prop-true 'set?
              set?
              $.lisp.gen/set))
@@ -295,6 +337,8 @@
 
 
 (mprop/deftest str?--false
+
+  {:ratio-num 10}
 
   (prop-false 'str?
               string?
@@ -306,6 +350,8 @@
 
 (mprop/deftest str?--true
 
+  {:ratio-num 10}
+
   (prop-true 'str?
              string?
              $.lisp.gen/string))
@@ -313,6 +359,8 @@
 
 
 (mprop/deftest symbol?--false
+
+  {:ratio-num 10}
 
   (prop-false 'symbol?
               (TC.gen/such-that (comp not
@@ -323,12 +371,16 @@
 
 (mprop/deftest symbol?--true
 
+  {:ratio-num 50}
+
   (prop-true 'symbol?
              $.lisp.gen/symbol-quoted))
 
 
 
 (mprop/deftest vector?--false
+
+  {:ratio-num 10}
 
   (prop-false 'vector?
               vector?
@@ -339,6 +391,8 @@
 
 
 (mprop/deftest vector?--true
+
+  {:ratio-num 10}
 
   (prop-true 'vector?
              vector?

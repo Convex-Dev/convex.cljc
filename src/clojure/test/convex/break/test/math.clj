@@ -65,11 +65,15 @@
 
 (mprop/deftest *--
 
+  {:ratio-num 100}
+
   (prop-arithmetic '*))
 
 
 
 (mprop/deftest +--
+
+  {:ratio-num 100}
 
   (prop-arithmetic '+))
 
@@ -77,11 +81,15 @@
 
 (mprop/deftest ---
 
+  {:ratio-num 100}
+
   (prop-arithmetic '-))
 
 
 
 (mprop/deftest div--
+
+  {:ratio-num 100}
 
   (TC.prop/for-all [x+ (TC.gen/vector $.lisp.gen/number
                                       1
@@ -94,12 +102,16 @@
 
 (mprop/deftest <--
 
+  {:ratio-num 100}
+
   (prop-comparison '<
                    <))
 
 
 
 (mprop/deftest <=--
+
+  {:ratio-num 100}
 
   (prop-comparison '<=
                    <=))
@@ -108,6 +120,8 @@
 
 (mprop/deftest ==--
 
+  {:ratio-num 100}
+
   (prop-comparison '==
                    ==))
 
@@ -115,12 +129,16 @@
 
 (mprop/deftest >=--
 
+  {:ratio-num 100}
+
   (prop-comparison '>=
                    >=))
 
 
 
 (mprop/deftest >--
+
+  {:ratio-num 100}
 
   (prop-comparison '>
                    >))
@@ -133,6 +151,8 @@
   ;; 
   ;; (max 1 1.0)  =>  1.0 in Clojure, 1 in Convex
 
+  {:ratio-num 100}
+
   (prop-comparison 'max
                    (fn [& arg+]
                      (apply max
@@ -143,6 +163,8 @@
 (mprop/deftest min--
 
   ;; See comment for [[max--]].
+
+  {:ratio-num 100}
 
   (prop-comparison 'min
                    (fn [& arg+]
@@ -155,6 +177,8 @@
 
 (mprop/deftest exp--
 
+  {:ratio-num 100}
+
   (TC.prop/for-all [x $.lisp.gen/number]
     ($.break.eval/like-clojure? 'exp
                                 #(StrictMath/exp %)
@@ -163,6 +187,8 @@
 
 
 (mprop/deftest pow--
+
+  {:ratio-num 100}
 
   (TC.prop/for-all [x $.lisp.gen/number
                     y $.lisp.gen/number]
@@ -176,6 +202,8 @@
 
 (mprop/deftest sqrt--
 
+  {:ratio-num 100}
+
   (TC.prop/for-all [x $.lisp.gen/number]
     ($.break.eval/like-clojure? 'sqrt
                                 #(StrictMath/sqrt %)
@@ -186,6 +214,8 @@
 
 
 (mprop/deftest dec--
+
+  {:ratio-num 100}
 
   (TC.prop/for-all [x $.lisp.gen/long]
     (let [ctx ($.break.eval/ctx* (def dec-
@@ -226,6 +256,8 @@
 
 
 (mprop/deftest inc--
+
+  {:ratio-num 100}
 
   (TC.prop/for-all [x $.lisp.gen/long]
     (let [ctx ($.break.eval/ctx* (def inc-
@@ -269,7 +301,9 @@
 
 (mprop/deftest euclidian-div
 
-  ;; Testing `mod` and `quot`.
+  ;; `mod` and `quot`.
+
+  {:ratio-num 20}
 
   (TC.prop/for-all [a $.lisp.gen/long
                     b (TC.gen/such-that #(not (zero? %))
@@ -338,6 +372,8 @@
 
 (mprop/deftest zero?--false
 
+  {:ratio-num 20}
+
   (TC.prop/for-all [x (TC.gen/such-that #(not (and (number? %)
                                                    (zero? %)))
                                         $.lisp.gen/any)]
@@ -355,6 +391,8 @@
 
 (mprop/deftest ceil--
 
+  {:ratio-num 100}
+
   (TC.prop/for-all [x $.lisp.gen/number]
     ($.break.eval/like-clojure? 'ceil
                                 #(StrictMath/ceil %)
@@ -363,6 +401,8 @@
 
 
 (mprop/deftest floor--
+
+  {:ratio-num 100}
 
   (TC.prop/for-all [x $.lisp.gen/number]
     ($.break.eval/like-clojure? 'floor
@@ -374,6 +414,8 @@
 
 
 (mprop/deftest abs--
+
+  {:ratio-num 100}
 
   (TC.prop/for-all [x (TC.gen/such-that #(not (Double/isNaN %))
                                         $.lisp.gen/number)]
@@ -405,6 +447,8 @@
 
 (mprop/deftest signum--
 
+  {:ratio-num 100}
+
   (TC.prop/for-all [x $.lisp.gen/number]
     ($.break.eval/result* (= ~x
                              (* (abs ~x)
@@ -418,6 +462,8 @@
 
   ;; Functions that should accept only one long argument.
   
+  {:ratio-num 20}
+
   (TC.prop/for-all [x $.break.gen/not-long]
     (mprop/mult
 
@@ -435,6 +481,8 @@
 (mprop/deftest error-cast-long-2
 
   ;; Functions that should accept only two long arguments.
+
+  {:ratio-num 20}
   
   (TC.prop/for-all [[a
                      b] (TC.gen/let [a $.break.gen/not-long
@@ -465,6 +513,8 @@
 (mprop/deftest error-cast-number-1
 
   ;; Functions with one argument that should accept a number only.
+
+  {:ratio-num 10}
 
   (TC.prop/for-all [x $.break.gen/not-number]
     (mprop/mult
@@ -503,6 +553,8 @@
 
   ;; Functions that should accept only two number arguments
 
+  {:ratio-num 20}
+
   (TC.prop/for-all [[a
                      b] (TC.gen/let [a $.break.gen/not-number
                                      b (TC.gen/one-of [$.lisp.gen/any
@@ -523,6 +575,8 @@
   ;;
   ;; Comparison functions are variadic but are tested in [[error-cast-number-2]] since
   ;; they test argument 2 by 2 (which would even succeed in these negative tests).
+
+  {:ratio-num 5}
 
   (TC.prop/for-all [x+ (TC.gen/let [a  $.break.gen/not-number
                                     b+ (TC.gen/vector (TC.gen/one-of [$.lisp.gen/any
@@ -553,16 +607,6 @@
       ($.break.eval/error-cast?* (/ ~@x+))
 
 
-      "`max`"
-
-      ($.break.eval/error-cast?* (max ~@x+))
-
-
-      "`min`"
-
-      ($.break.eval/error-cast?* (min ~@x+))
-
-
       "Relative comparators"
 
       (let [x-2+ (sort-by number?
@@ -591,4 +635,14 @@
     
           "`>`"
 
-          ($.break.eval/error-cast?* (> ~@x-2+)))))))
+          ($.break.eval/error-cast?* (> ~@x-2+))
+
+
+          "`max`"
+
+          ($.break.eval/error-cast?* (max ~@x-2+))
+
+
+          "`min`"
+
+          ($.break.eval/error-cast?* (min ~@x-2+)))))))

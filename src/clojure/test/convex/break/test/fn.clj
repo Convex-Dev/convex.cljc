@@ -92,6 +92,8 @@
 
   ;; Calling no-arg functions.
 
+  {:ratio-num 10}
+
   (TC.prop/for-all [x $.lisp.gen/any]
     (let [fn-form ($.lisp/templ* (fn [] ~x))]
       (mprop/and (suite-fn? fn-form)
@@ -104,6 +106,8 @@
 (mprop/deftest fn--arg-fixed
 
   ;; Calling functions with a fixed number of arguments.
+
+  {:ratio-num 3}
 
   (TC.prop/for-all [binding+ ($.lisp.gen/binding+ 1
                                                   16)]
@@ -123,6 +127,8 @@
 (mprop/deftest fn--variadic
 
   ;; Calling functions with a variadic number of arguments.
+
+  {:ratio-num 3}
 
   (TC.prop/for-all [binding+ ($.lisp.gen/binding+ 1
                                                   16)]

@@ -92,6 +92,8 @@
 
 (mprop/deftest main
 
+  {:ratio-num 5}
+
   (TC.prop/for-all [faulty-amount $.break.gen/not-long
                     percent       $.break.gen/percent
                     x             $.lisp.gen/any]

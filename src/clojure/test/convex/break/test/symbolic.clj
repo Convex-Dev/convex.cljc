@@ -16,6 +16,8 @@
 
 (mprop/deftest name--
 
+  {:ratio-num 10}
+
   (TC.prop/for-all [x (TC.gen/one-of [$.lisp.gen/keyword
                                       $.lisp.gen/symbol-quoted
                                       $.lisp.gen/symbol-ns-quoted])]

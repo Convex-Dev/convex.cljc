@@ -60,6 +60,8 @@
 
 (mprop/deftest assert--
 
+  {:ratio-num 10}
+
   (TC.prop/for-all [n        gen-nest
                     x-ploy   $.lisp.gen/any
                     x-return $.lisp.gen/truthy]
@@ -72,6 +74,10 @@
 
 
 (mprop/deftest logic
+
+  ;; Various `and` + `or` flavors.
+
+  {:ratio-num 2}
 
   (TC.prop/for-all [[falsy+
                      mix+
@@ -131,6 +137,8 @@
 
 (mprop/deftest cond--
 
+  {:ratio-num 5}
+
   (TC.prop/for-all [else? $.lisp.gen/boolean
                     x+    (TC.gen/vector (TC.gen/tuple $.lisp.gen/boolean
                                                        (TC.gen/one-of [$.lisp.gen/falsy
@@ -159,6 +167,8 @@
 
 
 (mprop/deftest fail--
+
+  {:ratio-num 7}
 
   (TC.prop/for-all [n       gen-nest
                     code    (TC.gen/such-that some?
@@ -210,6 +220,8 @@
 
 (mprop/deftest halting
 
+  {:ratio-num 7}
+
   (TC.prop/for-all [n        gen-nest
                     x-ploy   $.lisp.gen/any
                     x-return $.lisp.gen/any]
@@ -237,6 +249,8 @@
 
 
 (mprop/deftest if-like
+
+  {:ratio-num 7}
 
   (TC.prop/for-all [sym    $.lisp.gen/symbol
                     falsy  $.lisp.gen/falsy
@@ -331,6 +345,8 @@
 
 (mprop/deftest rollback--
 
+  {:ratio-num 7}
+
   (TC.prop/for-all [n        gen-nest
                     sym      $.lisp.gen/symbol
                     x-env    $.lisp.gen/any
@@ -382,6 +398,8 @@
 (mprop/deftest x-let--error-arity
 
   ;; `if-let` and `when-let` should only accept one binding.
+
+  {:ratio-num 5}
 
   (TC.prop/for-all [binding+ ($.lisp.gen/binding+ 2
 	                                              8)

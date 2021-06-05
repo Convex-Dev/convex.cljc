@@ -523,6 +523,8 @@
 
 (mprop/deftest account-inexistant
 
+  {:ratio-num 5}
+
   (TC.prop/for-all [unused-address $.break.gen/unused-address]
     (mprop/mult
 
@@ -548,6 +550,8 @@
 
 
 (mprop/deftest main
+
+  {:ratio-num 2}
 
   (TC.prop/for-all [export-sym+   (TC.gen/vector $.lisp.gen/symbol)
                     faulty-amount $.break.gen/not-long
@@ -586,6 +590,8 @@
 (mprop/deftest error-cast-address
 
   ;; Functions that should throw a CAST error when not operating over an address.
+
+  {:ratio-num 5}
 
   (TC.prop/for-all [x $.break.gen/not-address]
     (mprop/mult
@@ -639,6 +645,8 @@
 
 (mprop/deftest error-cast-key
 
+  {:ratio-num 10}
+
   ;; Providing something that cannot be used as a key should fail.
 
   (TC.prop/for-all [x (TC.gen/such-that (fn [x]
@@ -656,6 +664,8 @@
 (mprop/deftest error-nobody
 
   ;; Side-effects on adresses that should fail if the target address does not exist.
+
+  {:ratio-num 10}
 
   (TC.prop/for-all [addr $.break.gen/unused-address]
     (mprop/mult

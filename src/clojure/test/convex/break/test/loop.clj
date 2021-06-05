@@ -87,6 +87,8 @@
 
 (mprop/deftest dotimes--
 
+  {:ratio-num 20}
+
   (TC.prop/for-all [n             (TC.gen/double* {:infinite? false
                                                    :max       1e3
                                                    :min       0
@@ -107,6 +109,8 @@
 
 
 (mprop/deftest recur--
+
+  {:ratio-num 5}
 
   (TC.prop/for-all [looping+ (TC.gen/vector (TC.gen/hash-map :fixed+      ($.lisp.gen/binding+ 0
                                                                                           4)
@@ -132,6 +136,8 @@
 
 
 (mprop/deftest reduce--
+
+  {:ratio-num 10}
 
   (TC.prop/for-all [x (TC.gen/such-that #(not-empty (cond->
                                                       ;; `(list ...)` form or a vector

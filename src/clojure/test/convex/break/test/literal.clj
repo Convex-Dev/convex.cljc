@@ -75,11 +75,15 @@
 
 (mprop/deftest address
 
+  {:ratio-num 100}
+
   (prop-quotable $.lisp.gen/address))
 
 
 
 (mprop/deftest blob
+
+  {:ratio-num 100}
 
   (prop-quotable $.lisp.gen/blob))
 
@@ -87,11 +91,15 @@
 
 (mprop/deftest boolean-
 
+  {:ratio-num 100}
+
   (prop-quotable $.lisp.gen/boolean))
 
 
 
 (mprop/deftest char-
+
+  {:ratio-num 100}
 
   (prop-quotable $.lisp.gen/char))
 
@@ -99,11 +107,15 @@
 
 (mprop/deftest double-
 
+  {:ratio-num 100}
+
   (prop-quotable $.lisp.gen/double))
 
 
 
 (mprop/deftest double-E-notation
+
+  {:ratio-num 100}
 
   (TC.prop/for-all [x ($.break.gen/E-notation $.lisp.gen/long)]
     (= (Double/parseDouble (str x))
@@ -115,6 +127,8 @@
 
   ;; TODO. Must catch a Reader error, it is not at the CVM level.
 
+  {:ratio-num 100}
+
   (TC.prop/for-all [x ($.break.gen/E-notation $.lisp.gen/double)]
     ($.break.eval/exception? x)))
 
@@ -122,11 +136,15 @@
 
 (mprop/deftest keyword-
 
+  {:ratio-num 100}
+
   (prop-quotable $.lisp.gen/keyword))
 
 
 
 (mprop/deftest long-
+
+  {:ratio-num 100}
 
   (prop-quotable $.lisp.gen/long))
 
@@ -136,11 +154,15 @@
 
   ;; TODO. Suffers from https://github.com/Convex-Dev/convex/issues/66
 
+  {:ratio-num 100}
+
   (prop-quotable $.lisp.gen/string))
 
 
 
 (mprop/deftest symbol-
+
+  {:ratio-num 100}
 
   (TC.prop/for-all [x (TC.gen/one-of [$.lisp.gen/symbol
                                       $.lisp.gen/symbol-ns])]
@@ -154,6 +176,8 @@
 (mprop/deftest list-
 
   ;; Quoting mess with some data values, that is why a subset of scalar generators is used.
+
+  {:ratio-num 10}
 
   (TC.prop/for-all [x+ (TC.gen/vector (TC.gen/one-of [$.lisp.gen/address
                                                       $.lisp.gen/blob
@@ -171,6 +195,8 @@
 
 (mprop/deftest map-
 
+  {:ratio-num 10}
+
   (TC.prop/for-all [x $.lisp.gen/map]
     ($.break.eval/result* (= (hash-map ~@(mapcat identity
                                                 x))
@@ -180,6 +206,8 @@
 
 (mprop/deftest set-
 
+  {:ratio-num 10}
+
   (TC.prop/for-all [x $.lisp.gen/set]
     ($.break.eval/result* (= (hash-set ~@x)
                              ~x))))
@@ -187,6 +215,8 @@
 
 
 (mprop/deftest vector-
+
+  {:ratio-num 10}
 
   (TC.prop/for-all [x $.lisp.gen/vector]
     ($.break.eval/result* (= (vector ~@x)
@@ -197,6 +227,8 @@
 
 
 (mprop/deftest ==--fail
+
+  {:ratio-num 10}
 
   (TC.prop/for-all [x+ (TC.gen/vector-distinct $.lisp.gen/any
                                                {:max-elements 6

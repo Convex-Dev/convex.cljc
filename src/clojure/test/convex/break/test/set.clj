@@ -19,6 +19,8 @@
 
   ;; Using only one set.
 
+  {:ratio-num 10}
+
   (TC.prop/for-all [s $.lisp.gen/set]
     (let [ctx ($.break.eval/ctx* (def s
                                       ~s))]
@@ -137,6 +139,8 @@
 (mprop/deftest poly
 
   ;; Using at least 2 sets.
+
+  {:ratio-num 10}
 
   (TC.prop/for-all [s+ (TC.gen/vector $.break.gen/maybe-set
                                       2
