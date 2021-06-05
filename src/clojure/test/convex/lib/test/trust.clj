@@ -7,10 +7,9 @@
   (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
             [convex.break.eval             :as $.break.eval]
-            [convex.break.prop             :as $.break.prop]
             [convex.cvm                    :as $.cvm]
-            [convex.cvm.eval               :as $.cvm.eval]
-            [convex.lisp.gen               :as $.lisp.gen]))
+            [convex.lisp.gen               :as $.lisp.gen]
+            [helins.mprop                  :as mprop]))
 
 
 ;;;;;;;;;; CVM context
@@ -39,38 +38,45 @@
   (let [ctx-2 ($.break.eval/ctx* ctx
                                  (def actor
                                       ~sym-actor))]
-    ($.break.prop/mult*
+    (mprop/mult
 
-          "Controller is right"
-          ($.break.eval/result* ctx-2
-                                (= (lookup actor
-                                           'controller)
-                                   ~controller))
-          
-          "All forbidden addresses are not trusted"
-          ($.break.eval/result ctx-2
-                               '($/every? (fn [addr]
-                                            (not (trust/trusted? actor
-                                                                 addr)))
-                                          addr-forbid+))
+      "Controller is right"
 
-          "All allowed addresses are trusted"
-          ($.break.eval/result ctx-2
-                               '($/every? (fn [addr]
-                                            (trust/trusted? actor
-                                                            addr))
-                                          addr-allow+))
+      ($.break.eval/result* ctx-2
+                            (= (lookup actor
+                                       'controller)
+                               ~controller))
+      
 
-          "`trust/trusted?` is consistent with calling `check-trusted` on actor"
-          ($.break.eval/result ctx-2
-                               '($/every? (fn [addr]
-                                            (= (trust/trusted? actor
-                                                               addr)
-                                               (call actor
-                                                     (check-trusted? addr
-                                                                     nil
-                                                                     nil))))
-                                          addr-all+)))))
+      "All forbidden addresses are not trusted"
+
+      ($.break.eval/result ctx-2
+                           '($/every? (fn [addr]
+                                        (not (trust/trusted? actor
+                                                             addr)))
+                                      addr-forbid+))
+
+
+      "All allowed addresses are trusted"
+
+      ($.break.eval/result ctx-2
+                           '($/every? (fn [addr]
+                                        (trust/trusted? actor
+                                                        addr))
+                                      addr-allow+))
+
+
+      "`trust/trusted?` is consistent with calling `check-trusted` on actor"
+
+      ($.break.eval/result ctx-2
+                           '($/every? (fn [addr]
+                                        (= (trust/trusted? actor
+                                                           addr)
+                                           (call actor
+                                                 (check-trusted? addr
+                                                                 nil
+                                                                 nil))))
+                                      addr-all+)))))
 
 
 
@@ -85,27 +91,25 @@
                                       (into #{}
                                             (concat addr-allow+
                                                     addr-forbid+))))]
-    ($.break.prop/and* ($.break.prop/checkpoint*
+    (mprop/mult
 
-                         "Getting trust, controller is caller"
+      "Getting trust, controller is caller"
 
-                         (suite-list-get ctx-2
-                                         '*address*
-                                         'actor-controlled))
+      (suite-list-get ctx-2
+                      '*address*
+                      'actor-controlled)
 
-                       ($.break.prop/checkpoint*
 
-                         "Getting trust, controller is not caller"
+      "Getting trust, controller is not caller"
 
-                         (suite-list-get ctx-2
-                                         not-caller
-                                         'actor-uncontrolled))
+      (suite-list-get ctx-2
+                      not-caller
+                      'actor-uncontrolled)
 
-                       ($.break.prop/checkpoint*
 
-                         "Setting trust"
+      "Setting trust"
 
-                         (f-list-set ctx-2)))))
+      (f-list-set ctx-2))))
 
 
 ;;;;;;;;;; Generators
@@ -139,7 +143,7 @@
 ;;;;;;;;;; Tests
 
 
-($.break.prop/deftest blacklist
+(mprop/deftest blacklist
 
   ;; Creating a blacklist.
 
@@ -163,9 +167,10 @@
       (suite-list ctx-2
                   not-caller
                   (fn [ctx-3]
-                    ($.break.prop/mult*
+                    (mprop/mult
 
                       "Removing trust with `set-trust`"
+
                       ($.break.eval/result ctx-3
                                            '(do
                                               ($/foreach (fn [addr]
@@ -177,7 +182,9 @@
                                                          'blacklist)
                                                  addr-all+)))
                       
+
                       "Adding trust with `set-trusted`"
+
                       ($.break.eval/result ctx-3
                                            '(do
                                               ($/foreach (fn [addr]
@@ -189,7 +196,9 @@
                                                          'blacklist)
                                                  #{})))
                 
+
                       "Not changing trust with `set-trusted`"
+
                       ($.break.eval/result ctx-3
                                            '(do
                                               (let [listing-before (lookup actor-controlled
@@ -210,7 +219,7 @@
 
 
 
-($.break.prop/deftest whitelist
+(mprop/deftest whitelist
 
   ;; Creating a whitelist.
 
@@ -234,9 +243,10 @@
       (suite-list ctx-2
                   not-caller
                   (fn [ctx-3]
-                    ($.break.prop/mult*
+                    (mprop/mult
 
                       "Removing trust with `set-trust`"
+
                       ($.break.eval/result ctx-3
                                            '(do
                                               ($/foreach (fn [addr]
@@ -248,7 +258,9 @@
                                                          'whitelist)
                                                  #{})))
                       
+
                       "Adding trust with `set-trusted`"
+
                       ($.break.eval/result ctx-3
                                            '(do
                                               ($/foreach (fn [addr]
@@ -260,7 +272,9 @@
                                                          'whitelist)
                                                  addr-all+)))
                 
+
                       "Not changing trust with `set-trusted`"
+
                       ($.break.eval/result ctx-3
                                            '(do
                                               (let [listing-before (lookup actor-controlled
@@ -281,10 +295,7 @@
 
 
 
-($.break.prop/deftest upgrade
-
-  {:ratio-count 5
-   }
+(mprop/deftest upgrade
 
   ;; Creating an upgradable actor.
 
@@ -305,21 +316,26 @@
                                        (call actor
                                              (upgrade (quote (def ~upgrade-sym
                                                                   ~upgrade-data)))))))]
-      ($.break.prop/mult*
+      (mprop/mult
 
         "Root is caller by default"
+
         ($.break.eval/result ctx-2
                              '(= *address*
                                  (lookup actor-controlled
                                          'upgradable-root)))
 
+
         "Root can be set via options"
+
         ($.break.eval/result ctx-2
                              '(= blacklist
                                  (lookup actor-uncontrolled
                                          'upgradable-root)))
 
+
         "Can eval code in controlled actor"
+
         ($.break.eval/result* ctx-2
                               (do
                                 (upgrade actor-controlled)
@@ -327,16 +343,22 @@
                                    (lookup actor-controlled
                                            (quote ~upgrade-sym)))))
 
+
         "Cannot eval code after giving up root access"
+
         ($.break.eval/error-state? ctx-2
                                    '(do
                                       (trust/remove-upgradability! actor-controlled)
                                       (upgrade actor-controlled)))
 
+
         "Cannot eval code in uncontrolled actor"
+
         ($.break.eval/error-trust? ctx-2
                                    '(upgrade actor-uncontrolled))
 
+
         "Cannot remove upgradability in uncontrolled actor"
+
         ($.break.eval/error-trust? ctx-2
                                    '(trust/remove-upgradability! actor-uncontrolled))))))

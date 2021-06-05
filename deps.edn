@@ -43,7 +43,8 @@
    :main-opts  ["-m" "nrepl.cmdline" "--port" "14563"]}
 
   :test
-  {:extra-paths ["src/clojure/test"]}}
+  {:extra-deps  {io.helins/mprop {:mvn/version "0.0.0-alpha0"}}
+   :extra-paths ["src/clojure/test"]}}
 
  :deps
  {;cljs-ajax/cljs-ajax  {:mvn/version "0.8.3"}

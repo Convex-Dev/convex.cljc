@@ -13,4 +13,4 @@
                           convex.break.eval/result*        hooks.convex/templ*
                           convex.lisp/templ*               hooks.convex/templ*}}
  :lint-as {clojure.test.check.properties/for-all clojure.core/let
-           convex.break.prop/deftest             clojure.test/deftest}}
+           helins.mprop/deftest                  clojure.test/deftest}}
