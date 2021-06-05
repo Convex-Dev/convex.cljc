@@ -16,9 +16,9 @@
             [clojure.test.check.properties :as TC.prop]
             [convex.break.eval             :as $.break.eval]
             [convex.break.gen              :as $.break.gen]
-            [convex.break.prop             :as $.break.prop]
             [convex.lisp                   :as $.lisp]
-            [convex.lisp.gen               :as $.lisp.gen]))
+            [convex.lisp.gen               :as $.lisp.gen]
+            [helins.mprop                  :as mprop]))
 
 
 (declare ctx-main
@@ -34,18 +34,23 @@
 
   [ctx form-type?]
 
-  ($.break.prop/mult*
+  (mprop/mult
 
     "Type is correct"
+
     ($.break.eval/result* ctx
                           (~form-type? x))
 
+
     "Same number of key-values"
+
     ($.break.eval/result ctx
                          '(= (count kv+)
                              (count x)))
 
+
     "All key-values can be retrieved"
+
     ($.break.eval/result ctx
                          '($/every? (fn [[k v]]
                                       (= v
@@ -58,7 +63,7 @@
 ;;;;;;;;;; Creating collections from functions
 
 
-($.break.prop/deftest blob-map--
+(mprop/deftest blob-map--
 
   (TC.prop/for-all [kv+ ($.lisp.gen/kv+ $.lisp.gen/blob
                                         $.lisp.gen/any)]
@@ -72,7 +77,7 @@
 
 
 
-($.break.prop/deftest hash-map--
+(mprop/deftest hash-map--
 
   ;; TODO. Also test failing with odd number of items.
   ;;
@@ -90,7 +95,7 @@
 
 
 
-($.break.prop/deftest hash-set--
+(mprop/deftest hash-set--
 
   ;; Cannot compare with Clojure: https://github.com/Convex-Dev/convex-web/issues/66
 
@@ -106,7 +111,7 @@
 
 
 
-($.break.prop/deftest list--
+(mprop/deftest list--
 
   (TC.prop/for-all [x+ (TC.gen/vector $.lisp.gen/any)]
     (suite-new ($.break.eval/ctx* (do
@@ -120,7 +125,7 @@
 
 
 
-($.break.prop/deftest vector--
+(mprop/deftest vector--
 
   (TC.prop/for-all [x+ (TC.gen/vector $.lisp.gen/any)]
     (suite-new ($.break.eval/ctx* (do
@@ -190,20 +195,23 @@
 
   [ctx]
 
-  ($.break.prop/checkpoint*
+  (mprop/check
 
     "`assoc`"
 
-    ($.break.prop/mult*
+    (mprop/mult
   
       "Associating existing value does not change anything"
+
       ($.break.eval/result ctx
                            '(= x-2
                                (assoc x-2
                                       k
                                       v)))
+
   
       "Consistent with `assoc-in`"
+
       ($.break.eval/result ctx
                            '(= x-2
                                (assoc-in x
@@ -222,7 +230,7 @@
 
   [ctx]
 
-  ($.break.prop/checkpoint*
+  (mprop/check
 
     "Suite revolving around `dissoc` and its consequences measurable via other functions."
 
@@ -230,47 +238,62 @@
                                   '(def x-3
                                         (dissoc x-2
                                                 k)))]
-      ($.break.prop/mult*
+      (mprop/mult
 
         "Does not contain key anymore"
+
         ($.break.eval/result ctx-2
                              '(not (contains-key? x-3
                                                   k)))
 
+
         "`get` returns nil"
+
         ($.break.eval/result ctx-2
                              '(nil? (get x-3
                                          k)))
 
+
         "Using collection as function returns nil"
+
         ($.break.eval/result ctx-2
                              '(nil? (x-3 k)))
 
+
         "`get` returns 'not-found' value"
+
         ($.break.eval/result ctx-2
                              '(= :convex-sentinel
                                  (get x-3
                                       k
                                       :convex-sentinel)))
 
+
         "`get-in` returns nil"
+
         ($.break.eval/result ctx-2
                              '(nil? (get-in x-3
                                             [k])))
 
+
         "`get-in` returns 'not-found' value"
+
         ($.break.eval/result ctx-2
                            '(= :convex-sentinel
                                (get-in x-3
                                        [k]
                                        :convex-sentinel)))
 
+
         "Keys do not contain key"
+
         ($.break.eval/result ctx-2
                              '(not (contains-key? (set (keys x-3))
                                                   k)))
 
+
         "All other key-values are preserved"
+
         ($.break.eval/result ctx-2
                              '($/every? (fn [k]
                                           (= (get x-3
@@ -279,7 +302,9 @@
                                                   k)))
                                         (keys x-3)))
 
+
         "Equal to original or count updated as needed"
+
         ($.break.eval/result ctx-2
                              '(if (nil? x)
                                 (= {}
@@ -299,9 +324,10 @@
 
   [ctx]
 
-  ($.break.prop/checkpoint*
+  (mprop/check
 
     "Using `hash-map` to rebuild map"
+
     ($.break.eval/result ctx
                          '(= x-2
                              (apply hash-map
@@ -320,7 +346,7 @@
 
   [ctx]
 
-  ($.break.prop/checkpoint*
+  (mprop/check
 
     "Suite for collections that support `keys` and `values` (currently, only map-like types)."
 
@@ -332,14 +358,17 @@
                                           (vec x-2))
                                      (def v+
                                           (values x-2))))]
-      ($.break.prop/mult*
+      (mprop/mult
 
         "Keys contain new key"
+
         ($.break.eval/result ctx-2
                              '(contains-key? (set k+)
                                              k))
 
+
         "Order of `keys` is consistent with order of `values`"
+
         ($.break.eval/result ctx-2
                              '($/every-index? (fn [k+ i]
                                                 (and (= (get x-2
@@ -353,6 +382,7 @@
 
 
         "`vec` correctly maps key-values"
+
         ($.break.eval/result ctx-2
                              '($/every? (fn [[k v]]
                                           (= v
@@ -361,25 +391,33 @@
                                              (x-2 k)))
                                         kv+))
 
+
         "`vec` is consitent with `into`"
+
         ($.break.eval/result ctx-2
                              '(= kv+
                                  (into []
                                        x-2)))
 
+
         "Order of `keys` is consistent with `vec`"
+
         ($.break.eval/result ctx-2
                              '(= k+
                                  (map first
                                       kv+)))
 
+
         "Order of `values` is consistent with `vec`"
+
         ($.break.eval/result ctx-2
                              '(= v+
                                  (map second
                                       kv+)))
 
+
         "Order of `mapv` is consistent with `vec`"
+
         ($.break.eval/result ctx-2
                              '(= kv+
                                  (mapv identity
@@ -387,13 +425,16 @@
 
 
         "Contains all its keys"
+
         ($.break.eval/result ctx-2
                              '($/every? (fn [k]
                                           (contains-key? x-2
                                                          k))
                                         k+))
 
+
         "`assoc` is consistent with `count`"
+
         ($.break.eval/result ctx-2
                              '(= x-2
                                  (reduce (fn [x-3 [k v]]
@@ -409,6 +450,7 @@
 
 
        "Using `assoc` to rebuild map in a loop"
+
        ($.break.eval/result ctx-2
                             '(let [rebuild (fn [acc]
                                              (reduce (fn [acc-2 [k v]]
@@ -421,7 +463,9 @@
                                   (rebuild (empty x-2))
                                   (rebuild x-2))))
 
+
        "Using `assoc` with `apply` to rebuild map"
+
        (let [ctx-3 ($.break.eval/ctx ctx-2
                                      '(def arg+
                                            (reduce (fn [acc [k v]]
@@ -430,16 +474,19 @@
                                                            v))
                                                    []
                                                    kv+)))]
-         ($.break.prop/mult*
+         (mprop/mult
 
            "From an empty map"
+
            ($.break.eval/result ctx-3
                                 '(= x-2
                                     (apply assoc
                                           (empty x-2)
                                           arg+)))
 
+
            "On the map itself"
+
            ($.break.eval/result ctx-3
                                 '(= x-2
                                     (apply assoc
@@ -454,7 +501,7 @@
 
   [ctx]
 
-  ($.break.prop/checkpoint*
+  (mprop/check
 
     "Suite that all collections must pass (having exactly 1 item)."
 
@@ -462,36 +509,47 @@
                                   '(def x-3
                                         (conj (empty x-2)
                                               (first x-2))))]
-      ($.break.prop/mult*
+      (mprop/mult
 
         "`cons`"
+
         ($.break.eval/result ctx-2
                              '(= (list 42
                                        (first x-3))
                                  (cons 42
                                        x-3)))
 
+
         "`count` returns 1"
+
         ($.break.eval/result ctx-2
                              '(= 1
                                  (count x-3)))
 
+
         "Not empty"
+
         ($.break.eval/result ctx-2
                              '(not (empty? x-3)))
 
+
         "`first` and `last` are equivalent, consistent with `nth`"
+
         ($.break.eval/result ctx-2
                              '(= (first x-3)
                                  (last x-3)
                                  (nth x-3
                                       0)))
 
+
         "`next` returns nil"
+
         ($.break.eval/result ctx-2
                              '(nil? (next x-3)))
 
+
         "`second` is exceptional"
+
         ($.break.eval/exception? ctx-2
                                  '(second x-3))))))
 
@@ -503,82 +561,107 @@
 
   [ctx]
 
-  ($.break.prop/checkpoint*
+  (mprop/check
 
     "Suite that all collections must pass (having >= 1 item)."
 
-    ($.break.prop/mult*
+    (mprop/mult
 
       "Contains key"
+
       ($.break.eval/result ctx
                           '(contains-key? x-2
                                           k))
 
+
       "`get` returns the value"
+
       ($.break.eval/result ctx
                           '(= v
                               (get x-2
                                    k)))
 
+
       "Using collection as function returns the value"
+
       ($.break.eval/result ctx
                           '(= v
                               (x-2 k)))
 
+
       "`get-in` returns the value"
+
       ($.break.eval/result ctx
                           '(= v
                               (get-in x-2
                                       [k])))
 
+
       "Cannot be empty"
+
       ($.break.eval/result ctx
                            '(not (empty? x-2)))
 
+
       "Count is at least 1"
+
       ($.break.eval/result ctx
                            '(>= (count x-2)
                                 1))
 
+
       "`first` is not exceptional"
+
       ($.break.eval/result ctx
                            '(do
                               (first x-2)
                               true))
 
+
       "`(nth 0)` is not exceptional"
+
       ($.break.eval/result ctx
                            '(do
                               (nth x-2
                                    0)
                               true))
 
+
       "`last` is is not exceptional"
+
       ($.break.eval/result ctx
                            '(do
                               (last x-2)
                               true))
 
+
       "`nth` to last item is not exceptional"
+
       ($.break.eval/result ctx
                            '(do
                               (nth x-2
                                    (dec (count x-2)))
                               true))
 
+
       "`nth` is consistent with `first`"
+
       ($.break.eval/result ctx
                            '(= (first x-2)
                                (nth x-2
                                     0)))
 
+
       "`nth` is consistent with `last`"
+
       ($.break.eval/result ctx
                            '(= (last x-2)
                                (nth x-2
                                     (dec (count x-2)))))
 
+
       "`nth` is consistent with second"
+
       ($.break.eval/result ctx
                            '(if (>= (count x-2)
                                     2)
@@ -587,7 +670,9 @@
                                       1))
                               true))
 
+
       "Using `concat` to rebuild collection as a vector"
+
       ($.break.eval/result ctx
                            '(let [as-vec (vec x-2)]
                               (= as-vec
@@ -595,34 +680,45 @@
                                         (map vector
                                              x-2)))))
 
+
       "`cons`"
+
       (let [ctx-2 ($.break.eval/ctx ctx
                                     '(def -cons
                                           (cons (first x-2)
                                                 x-2)))]
-        ($.break.prop/mult*
+        (mprop/mult
           
           "Produces a list"
+
           ($.break.eval/result ctx-2
                                '(list? -cons))
 
+
           "Count is coherent compared to the consed collection"
+
           ($.break.eval/result ctx-2
                                '(= (count -cons)
                                    (inc (count x-2))))
 
+
           "First elements are consistent with setup"
+
           ($.break.eval/result ctx-2
                                '(= (first -cons)
                                    (second -cons)
                                    (first x-2)))
 
+
           "Consistent with `next`"
+
           ($.break.eval/result ctx-2
                                '(= (vec (next -cons))
                                    (vec x-2)))))
 
+
       "`cons` repeatedly reverse a collection"
+
       ($.break.eval/result ctx
                            '(= (into (list)
                                      x-2)
@@ -632,7 +728,9 @@
                                        (empty x-2)
                                        x-2)))
 
+
       "`next` preserves types of lists, returns vectors for other collections"
+
       ($.break.eval/result ctx
                            '(let [-next (next x-2)]
                               (if (nil? -next)
@@ -641,7 +739,9 @@
                                   (list? -next)
                                   (vector? -next)))))
 
+
       "`next` is consistent with `first`, `second`, and `count`"
+
       ($.break.eval/result ctx
                            '(loop [x-3 x-2]
                               (let [n-x-3 (count x-3)]
@@ -660,7 +760,9 @@
                                         (recur x-3-next)
                                         false)))))))
 
+
       "`empty?` is consistent with `count?`"
+
       ($.break.eval/result ctx
                            '(let [-count-pos? (> (count x-2)
                                                  0)
@@ -669,7 +771,9 @@
                                 (not -count-pos?)
                                 -count-pos?)))
 
+
       "`empty?` is consistent with `empty`"
+
       ($.break.eval/result ctx
                            '(empty? (empty x-2))))))
 
@@ -681,7 +785,7 @@
 
   [ctx]
 
-  ($.break.prop/and* (suite-main-poly ctx)
+  (mprop/and (suite-main-poly ctx)
                      (suite-main-mono ctx)))
 
 
@@ -692,13 +796,14 @@
 
   [ctx]
 
-  ($.break.prop/checkpoint*
+  (mprop/check
 
     "Suite for operations specific to map-like types (ie. blob-map, hash-map, and nil-."
 
-    ($.break.prop/mult*
+    (mprop/mult
 
       "Count has been updated as needed"
+
       ($.break.eval/result ctx
                            '(= (count x-2)
                                (+ (count x)
@@ -708,6 +813,7 @@
                                                          k))
                                     0
                                     1))))
+
 
       ;; TODO.Failing because of: https://github.com/Convex-Dev/convex/issues/103
       ;;
@@ -723,7 +829,9 @@
       ;;                         (merge x
       ;;                                x-2)))
 
+
       "`conj` is consistent with `assoc`"
+
       ($.break.eval/result ctx
                            '(if (map? x)
                               (= x-2
@@ -731,7 +839,9 @@
                                        [k v]))
                               true))
 
+
       "`into` is consistent with `assoc`"
+
       ($.break.eval/result ctx
                            '(if (map? x)
                               (= x-2
@@ -739,7 +849,9 @@
                                        [[k v]]))
                               true))
 
+
       "All other key-values are preserved"
+
       ($.break.eval/result ctx
                            '($/every? (fn [k]
                                         (= (get x
@@ -750,7 +862,9 @@
                                       (keys (dissoc x
                                                     k))))
 
+
       "Using `into` to rebuild map"
+
       (let [ctx-2 ($.break.eval/ctx ctx
                                     '(do
                                        (def -empty
@@ -758,9 +872,10 @@
                                        (def as-list
                                             (into (list)
                                                   x-2))))]
-        ($.break.prop/mult*
+        (mprop/mult
 
           "On empty map"
+
           ($.break.eval/result ctx-2
                                '(= x-2
                                    (into -empty
@@ -770,6 +885,7 @@
 
 
           "Using `into` on map with this very same map does not change anything"
+
           ($.break.eval/result ctx-2
                                '(= x-2
                                    (into x-2
@@ -785,11 +901,11 @@
 
   [ctx]
 
-  ($.break.prop/and* (suite-assoc ctx)
-                     (suite-main ctx)
-                     (suite-dissoc ctx)
-                     (suite-kv+ ctx)
-                     (suite-map-like ctx)))
+  (mprop/and (suite-assoc ctx)
+             (suite-main ctx)
+             (suite-dissoc ctx)
+             (suite-kv+ ctx)
+             (suite-map-like ctx)))
 
 
 
@@ -799,18 +915,21 @@
 
   [ctx]
 
-  ($.break.prop/checkpoint*
+  (mprop/check
 
     "Specific to sequential collections"
 
-    ($.break.prop/mult*
+    (mprop/mult
 
       "`contains-key?` with indices"
+
       ($.break.eval/result ctx
                            '($/every-index? contains-key?
                                             x-2))
 
+
       "`get` is consistent with `nth`"
+
       ($.break.eval/result ctx
                            '($/every-index? (fn [x-2 i]
                                               (= (get x-2
@@ -820,7 +939,9 @@
                                                       i)))
                                             x-2))
 
+
       "Rebuilding sequential using `assoc` and `apply`"
+
       ($.break.eval/result ctx
                            '(= x-2
                                (apply assoc
@@ -840,7 +961,7 @@
 ;;;;;;;;;; Generative tests for main suites
 
 
-($.break.prop/deftest main-blob-map
+(mprop/deftest main-blob-map
 
   ;; TODO. Add proper blob-map generation.
 
@@ -852,7 +973,7 @@
 
 
 
-($.break.prop/deftest main-map
+(mprop/deftest main-map
 
   (TC.prop/for-all [m $.lisp.gen/map
                     k $.lisp.gen/any
@@ -860,12 +981,12 @@
     (let [ctx (ctx-assoc m
                          k
                          v)]
-      ($.break.prop/and* (suite-map ctx)
+      (mprop/and (suite-map ctx)
                          (suite-hash-map ctx)))))
 
 
 
-($.break.prop/deftest main-nil
+(mprop/deftest main-nil
 
   (TC.prop/for-all* [$.lisp.gen/nothing
                      $.lisp.gen/any
@@ -875,7 +996,7 @@
 
 
 
-($.break.prop/deftest main-sequential
+(mprop/deftest main-sequential
 
   (TC.prop/for-all [coll (TC.gen/such-that #(seq (cond->
                                                    %
@@ -890,13 +1011,13 @@
                                             rest)))
 
                          v)]
-      ($.break.prop/and* (suite-assoc ctx)
+      (mprop/and (suite-assoc ctx)
                          (suite-main ctx)
                          (suite-sequential ctx)))))
 
 
 
-($.break.prop/deftest main-set
+(mprop/deftest main-set
 
   (TC.prop/for-all [s (TC.gen/not-empty $.lisp.gen/set)]
     (suite-main (let [v (first s)]
@@ -921,7 +1042,7 @@
 
 
 
-($.break.prop/deftest assoc--fail
+(mprop/deftest assoc--fail
 
   (TC.prop/for-all* [($.lisp.gen/any-but #{$.lisp.gen/list
                                            $.lisp.gen/map
@@ -934,7 +1055,7 @@
 
 
 
-($.break.prop/deftest assoc--blob-map-fail
+(mprop/deftest assoc--blob-map-fail
 
   (TC.prop/for-all [k ($.lisp.gen/any-but #{$.lisp.gen/address
                                        $.lisp.gen/blob})
@@ -945,7 +1066,7 @@
 
 
 
-($.break.prop/deftest assoc--sequential-fail
+(mprop/deftest assoc--sequential-fail
 
   (TC.prop/for-all [[x
                      k] (TC.gen/let [x $.lisp.gen/sequential
@@ -966,7 +1087,7 @@
 ;;;;;;;;;; `assoc-in`
 
 
-($.break.prop/deftest assoc-in--fail-path
+(mprop/deftest assoc-in--fail-path
 
   ;; Trying to assoc using a path that is not a collection.
 
@@ -984,7 +1105,7 @@
 
 
 
-($.break.prop/deftest assoc-in--fail-type
+(mprop/deftest assoc-in--fail-type
 
   (TC.prop/for-all [x    ($.lisp.gen/any-but #{$.lisp.gen/list
                                                $.lisp.gen/map
@@ -1019,7 +1140,7 @@
 
 
 
-($.break.prop/deftest assoc-in--map
+(mprop/deftest assoc-in--map
 
   ;; TODO. Currently, empty path returns the value. Keep an eye on: https://github.com/Convex-Dev/convex/issues/96
 
@@ -1040,12 +1161,13 @@
 ;;;;;;;;;; Misc
 
 
-($.break.prop/deftest mapcat--
+(mprop/deftest mapcat--
 
   (TC.prop/for-all [coll $.lisp.gen/collection]
-    ($.break.prop/mult*
+    (mprop/mult
 
       "Duplicating items"
+
       ($.break.eval/result* (let [coll ~coll]
                               (= (vec (mapcat (fn [x]
                                                 [x x])
@@ -1057,7 +1179,9 @@
                                          []
                                          coll))))
 
+
       "Keeping items at even positions"
+
       ($.break.eval/result* (do
                               (def n-mapcat
                                    -1)
@@ -1085,7 +1209,7 @@
 
 
 
-($.break.prop/deftest mapping
+(mprop/deftest mapping
 
   (TC.prop/for-all [coll $.lisp.gen/collection]
     (let [ctx ($.break.eval/ctx* (do
@@ -1096,67 +1220,85 @@
                                    (def modified
                                         (mapv vector
                                               coll))))]
-      ($.break.prop/mult*
+      (mprop/mult
 
         "`for` to recreate collection as vector"
+
         ($.break.eval/result ctx
                              '(= vect
                                  (for [x coll]
                                    x)))
 
+
         "`for` to modify collection"
+
         ($.break.eval/result ctx
                              '(= modified
                                  (for [x coll]
                                    [x])))
 
+
         "`mapv` with identity"
+
         ($.break.eval/result ctx
                              '(= vect
                                  (mapv identity
                                        coll)))
 
+
         "`mapv` to modify collection"
+
         ($.break.eval/result ctx
                              '(= modified
                                  (mapv vector
                                        coll)))
 
+
         "`mapcat`"
-        ($.break.prop/and* ($.break.prop/checkpoint* "Modifies collection"
-                                                     ($.break.eval/result ctx
-                                                                          '(= modified
-                                                                              (vec (mapcat (fn [x]
-                                                                                             [[x]])
-                                                                                           coll)))))
-                           (let [ctx-2 ($.break.eval/ctx ctx
-                                                         '(def -mapcat
-                                                               (mapcat vector
-                                                                       coll)))]
-                             (if (seq? coll)
-                               ($.break.prop/mult*
 
-                                 "Produces a list"
-                                 ($.break.eval/result ctx-2
-                                                      '(list? -mapcat))
-                                 "List is recreated"
-                                 ($.break.eval/result ctx-2
-                                                      '(= coll
-                                                          -mapcat)))
-                               ($.break.prop/mult*
+        (mprop/and (mprop/check
+                     
+                     "Modifies collection"
 
-                                 "Produces a vector"
-                                 ($.break.eval/result ctx-2
-                                                      '(vector? -mapcat))
+                     ($.break.eval/result ctx
+                                          '(= modified
+                                              (vec (mapcat (fn [x]
+                                                             [[x]])
+                                                           coll)))))
 
-                                 "Recreates collection as a vector"
-                                 ($.break.eval/result ctx-2
-                                                      '(= vect
-                                                          -mapcat))))))))))
+                   (let [ctx-2 ($.break.eval/ctx ctx
+                                                 '(def -mapcat
+                                                       (mapcat vector
+                                                               coll)))]
+                     (if (seq? coll)
+                       (mprop/mult
+
+                         "Produces a list"
+
+                         ($.break.eval/result ctx-2
+                                              '(list? -mapcat))
+
+                         "List is recreated"
+
+                         ($.break.eval/result ctx-2
+                                              '(= coll
+                                                  -mapcat)))
+                       (mprop/mult
+
+                         "Produces a vector"
+
+                         ($.break.eval/result ctx-2
+                                              '(vector? -mapcat))
+
+
+                         "Recreates collection as a vector"
+                         ($.break.eval/result ctx-2
+                                              '(= vect
+                                                  -mapcat))))))))))
 
 
 
-($.break.prop/deftest merge--
+(mprop/deftest merge--
 
   (TC.prop/for-all [x+ (TC.gen/vector (TC.gen/one-of [$.lisp.gen/map
                                                       $.lisp.gen/nothing])
@@ -1167,9 +1309,10 @@
                                         ~x+)
                                    (def merge-
                                         (merge ~@x+))))]
-      ($.break.prop/mult*
+      (mprop/mult
 
         "Count of merge cannot be bigger than all involved key-values"
+
         ($.break.eval/result ctx
                              '(<= (count merge-)
                                   (reduce (fn [acc arg]
@@ -1178,7 +1321,9 @@
                                           0
                                           arg+)))
 
+
         "All key-values in merged result must be in at least one input"
+
         ($.break.eval/result ctx
                              '($/every? (fn [[k v]]
                                           ($/some (fn [arg]
@@ -1194,7 +1339,7 @@
 
 
 
-($.break.prop/deftest reduce--
+(mprop/deftest reduce--
 
   (TC.prop/for-all [percent $.break.gen/percent
                     x       (TC.gen/such-that #(seq (if (seq? %)
@@ -1218,7 +1363,7 @@
 ;;;;;;;;;; Negative tests
 
 
-($.break.prop/deftest blob-map--err-cast
+(mprop/deftest blob-map--err-cast
 
   (TC.prop/for-all [arg+ (let [set-gen-good #{$.lisp.gen/address
                                               $.lisp.gen/blob}]
@@ -1232,7 +1377,7 @@
 
 
 
-($.break.prop/deftest concat--err-cast
+(mprop/deftest concat--err-cast
 
   (TC.prop/for-all [arg+ ($.lisp.gen/outlier #{$.lisp.gen/list
                                                $.lisp.gen/map
@@ -1243,7 +1388,7 @@
 
 
 
-($.break.prop/deftest conj--err-cast
+(mprop/deftest conj--err-cast
 
   ;; TODO. Blob-maps with non-blob keys.
 
@@ -1256,7 +1401,7 @@
 
 
 
-($.break.prop/deftest cons--err-cast
+(mprop/deftest cons--err-cast
 
   (TC.prop/for-all [x        $.lisp.gen/any
                     not-coll $.break.gen/not-collection]
@@ -1265,7 +1410,7 @@
 
 
 
-($.break.prop/deftest contains-key?--err-cast
+(mprop/deftest contains-key?--err-cast
 
   (TC.prop/for-all [x $.break.gen/not-collection
                     k $.lisp.gen/any]
