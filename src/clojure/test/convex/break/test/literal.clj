@@ -19,10 +19,10 @@
             [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
             [convex.break.eval             :as $.break.eval]
-            [convex.break.prop             :as $.break.prop]
             [convex.break.gen              :as $.break.gen]
             [convex.lisp                   :as $.lisp]
-            [convex.lisp.gen               :as $.lisp.gen]))
+            [convex.lisp.gen               :as $.lisp.gen]
+            [helins.mprop                  :as mprop]))
 
 
 ;;;;;;;;;; Suites
@@ -34,7 +34,7 @@
 
   [x]
 
-  ($.break.prop/checkpoint*
+  (mprop/check
 
     "`=` returns true when an item is compared with itself"
     ($.break.eval/result* (= ~x
@@ -51,14 +51,17 @@
   [gen]
 
   (TC.prop/for-all [x gen]
-    ($.break.prop/and* (suite-equal x)
-                      ($.break.prop/checkpoint*
+    (mprop/and
+      
+      (suite-equal x)
 
-                        "Round-trip through the CVM"
+      (mprop/check
 
-                        ($.lisp/= x
-                                  ($.break.eval/result* (identity ~x))
-                                  ($.break.eval/result* (quote ~x)))))))
+        "Round-trip through the CVM"
+
+        ($.lisp/= x
+                  ($.break.eval/result* (identity ~x))
+                  ($.break.eval/result* (quote ~x)))))))
 
 
 ;;;;;;;;;; Scalar values
@@ -70,37 +73,37 @@
  
 
 
-($.break.prop/deftest address
+(mprop/deftest address
 
   (prop-quotable $.lisp.gen/address))
 
 
 
-($.break.prop/deftest blob
+(mprop/deftest blob
 
   (prop-quotable $.lisp.gen/blob))
 
 
 
-($.break.prop/deftest boolean-
+(mprop/deftest boolean-
 
   (prop-quotable $.lisp.gen/boolean))
 
 
 
-($.break.prop/deftest char-
+(mprop/deftest char-
 
   (prop-quotable $.lisp.gen/char))
 
 
 
-($.break.prop/deftest double-
+(mprop/deftest double-
 
   (prop-quotable $.lisp.gen/double))
 
 
 
-($.break.prop/deftest double-E-notation
+(mprop/deftest double-E-notation
 
   (TC.prop/for-all [x ($.break.gen/E-notation $.lisp.gen/long)]
     (= (Double/parseDouble (str x))
@@ -108,7 +111,7 @@
 
 
 
-#_($.break.prop/deftest double-E-notation--fail
+#_(mprop/deftest double-E-notation--fail
 
   ;; TODO. Must catch a Reader error, it is not at the CVM level.
 
@@ -117,19 +120,19 @@
 
 
 
-($.break.prop/deftest keyword-
+(mprop/deftest keyword-
 
   (prop-quotable $.lisp.gen/keyword))
 
 
 
-($.break.prop/deftest long-
+(mprop/deftest long-
 
   (prop-quotable $.lisp.gen/long))
 
 
 
-($.break.prop/deftest string-
+(mprop/deftest string-
 
   ;; TODO. Suffers from https://github.com/Convex-Dev/convex/issues/66
 
@@ -137,7 +140,7 @@
 
 
 
-($.break.prop/deftest symbol-
+(mprop/deftest symbol-
 
   (TC.prop/for-all [x (TC.gen/one-of [$.lisp.gen/symbol
                                       $.lisp.gen/symbol-ns])]
@@ -148,7 +151,7 @@
 ;;;;;;;;;; Collections
 
 
-($.break.prop/deftest list-
+(mprop/deftest list-
 
   ;; Quoting mess with some data values, that is why a subset of scalar generators is used.
 
@@ -166,7 +169,7 @@
 
 
 
-($.break.prop/deftest map-
+(mprop/deftest map-
 
   (TC.prop/for-all [x $.lisp.gen/map]
     ($.break.eval/result* (= (hash-map ~@(mapcat identity
@@ -175,7 +178,7 @@
 
 
 
-($.break.prop/deftest set-
+(mprop/deftest set-
 
   (TC.prop/for-all [x $.lisp.gen/set]
     ($.break.eval/result* (= (hash-set ~@x)
@@ -183,7 +186,7 @@
 
 
 
-($.break.prop/deftest vector-
+(mprop/deftest vector-
 
   (TC.prop/for-all [x $.lisp.gen/vector]
     ($.break.eval/result* (= (vector ~@x)
@@ -193,7 +196,7 @@
 ;;;;;;;;;; Negative tests
 
 
-($.break.prop/deftest ==--fail
+(mprop/deftest ==--fail
 
   (TC.prop/for-all [x+ (TC.gen/vector-distinct $.lisp.gen/any
                                                {:max-elements 6

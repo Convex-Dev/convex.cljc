@@ -7,9 +7,9 @@
   (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
             [convex.break.eval             :as $.break.eval]
-            [convex.break.prop             :as $.break.prop]
             [convex.lisp                   :as $.lisp]
-            [convex.lisp.gen               :as $.lisp.gen]))
+            [convex.lisp.gen               :as $.lisp.gen]
+            [helins.mprop                  :as mprop]))
 
 
 ;;;;;;;;;; Helpers
@@ -85,7 +85,7 @@
 ;;;;;;;;;; Tests
 
 
-($.break.prop/deftest dotimes--
+(mprop/deftest dotimes--
 
   (TC.prop/for-all [n             (TC.gen/double* {:infinite? false
                                                    :max       1e3
@@ -106,7 +106,7 @@
 
 
 
-($.break.prop/deftest recur--
+(mprop/deftest recur--
 
   (TC.prop/for-all [looping+ (TC.gen/vector (TC.gen/hash-map :fixed+      ($.lisp.gen/binding+ 0
                                                                                           4)
@@ -131,7 +131,7 @@
 
 
 
-($.break.prop/deftest reduce--
+(mprop/deftest reduce--
 
   (TC.prop/for-all [x (TC.gen/such-that #(not-empty (cond->
                                                       ;; `(list ...)` form or a vector

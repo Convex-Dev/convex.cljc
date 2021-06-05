@@ -6,15 +6,15 @@
 
   (:require [clojure.test.check.properties :as TC.prop]
             [convex.break.eval             :as $.break.eval]
-            [convex.break.prop             :as $.break.prop]
             [convex.lisp                   :as $.lisp]
-            [convex.lisp.gen               :as $.lisp.gen]))
+            [convex.lisp.gen               :as $.lisp.gen]
+            [helins.mprop                  :as mprop]))
 
 
 ;;;;;;;;;; 
 
 
-($.break.prop/deftest def--
+(mprop/deftest def--
 
   (TC.prop/for-all [sym $.lisp.gen/symbol
                     x   $.lisp.gen/any]
@@ -27,41 +27,53 @@
                                         ~x)
                                    (def ~sym
                                         x)))]
-      ($.break.prop/mult*
+      (mprop/mult
 
         "`defined?` on input symbol returns true"
+
         ($.break.eval/result* ctx
                               (defined? ~sym))
 
+
         "Interned value is the input value"
+
         ($.break.eval/result* ctx
                               (= ~x
                                  ~sym))
 
+
         "Value figures in environment"
+
         ($.break.eval/result ctx
                              '(= x
                                  (unsyntax (get ($/env)
                                                 sym))))
 
+
         "`undef`"
+
         (let [ctx-2 ($.break.eval/ctx ctx
                                       (list 'undef
                                             sym))]
-          ($.break.prop/mult*
+          (mprop/mult
 
             "`defined?` on input symbol returns false (unless it was a core function defined before)"
+
             ($.break.eval/result* ctx-2
                                   (if -defined?
                                     true
                                     (not (defined? ~sym))))
 
+
             "Environment does not contain symbol anymore"
+
             ($.break.eval/result ctx-2
                                  '(not (contains-key? ($/env)
                                                       sym)))
 
+
             "Environment produced by `undef*` is the same as produced by `undef`"
+
             ($.lisp/= ($.break.eval/result ctx-2
                                           '($/env))
                       ($.break.eval/result ctx
@@ -70,6 +82,7 @@
                                              ($/env))))
 
             "Undefined symbol must result in an error when used"
+
             (if ($.break.eval/result ctx-2
                                      '(not (defined? sym)))
               (identical? :UNDECLARED

@@ -6,9 +6,9 @@
 
   (:require [clojure.test.check.properties :as TC.prop]
             [convex.break.eval             :as $.break.eval]
-            [convex.break.prop             :as $.break.prop]
             [convex.lisp                   :as $.lisp]
-            [convex.lisp.gen               :as $.lisp.gen]))
+            [convex.lisp.gen               :as $.lisp.gen]
+            [helins.mprop                  :as mprop]))
 
 
 ;;;;;;;;;; Suites
@@ -20,9 +20,10 @@
 
   [form]
 
-  ($.break.prop/checkpoint*
+  (mprop/check
 
     "`fn?`"
+
     ($.break.eval/result* (fn? ~form))))
 
 
@@ -36,38 +37,48 @@
 
   (let [ctx ($.break.eval/ctx* (def ret
                                     ~ret))]
-    ($.break.prop/checkpoint*
+    (mprop/check
 
       "Calling a function"
 
-      ($.break.prop/mult*
+      (mprop/mult
 
-        #_#_"Direct call"
+        "Direct call"
+
         ($.break.eval/result* ctx
                               (= ret
                                  (~form ~@arg+)))
 
+
         "After def"
+
         (let [ctx-2 ($.break.eval/ctx* ctx
                                        (def f
                                             ~form))]
-          ($.break.prop/mult*
+          (mprop/mult
 
             "`fn?`"
+
             ($.break.eval/result ctx-2
                                  '(fn? f))
 
+
             "Calling"
+
             ($.break.eval/result* ctx-2
                                   (= ret
                                      (f ~@arg+)))))
 
+
         "From `let`, `fn?`"
+
         ($.break.eval/result* ctx
                               (let [f ~form]
                                 (fn? f)))
 
+
         "From `let`, calling"
+
         ($.break.eval/result* ctx
                               (let [f ~form]
                                 (= ret
@@ -77,20 +88,20 @@
 ;;;;;;;;;; Tests
 
 
-($.break.prop/deftest fn--arg-0
+(mprop/deftest fn--arg-0
 
   ;; Calling no-arg functions.
 
   (TC.prop/for-all [x $.lisp.gen/any]
     (let [fn-form ($.lisp/templ* (fn [] ~x))]
-      ($.break.prop/and* (suite-fn? fn-form)
-                         (suite-fn-call fn-form
-                                        nil
-                                        x)))))
+      (mprop/and (suite-fn? fn-form)
+                 (suite-fn-call fn-form
+                                nil
+                                x)))))
 
 
 
-($.break.prop/deftest fn--arg-fixed
+(mprop/deftest fn--arg-fixed
 
   ;; Calling functions with a fixed number of arguments.
 
@@ -102,14 +113,14 @@
                         binding+)
           fn-form ($.lisp/templ* (fn ~sym+
                                      ~sym+))]
-      ($.break.prop/and* (suite-fn? fn-form)
-                         (suite-fn-call fn-form
-                                        arg+
-                                        arg+)))))
+      (mprop/and (suite-fn? fn-form)
+                 (suite-fn-call fn-form
+                                arg+
+                                arg+)))))
 
 
 
-($.break.prop/deftest fn--variadic
+(mprop/deftest fn--variadic
 
   ;; Calling functions with a variadic number of arguments.
 
@@ -128,17 +139,20 @@
                                         binding+)))
           fn-form    ($.lisp/templ* (fn ~binding-2+
                                         ~binding+))]
-      ($.break.prop/mult*
+      (mprop/mult
         
         "Right number of arguments"
-        ($.break.prop/and* (suite-fn? fn-form)
+
+        (mprop/and (suite-fn? fn-form)
                            (suite-fn-call fn-form
                                           arg+
                                           (update arg+
                                                   pos-amper
                                                   vector)))
 
+
         "1 argument less"
+
         (suite-fn-call fn-form
                        (vec (concat (take pos-amper
                                           arg+)
@@ -147,8 +161,10 @@
                        (assoc arg+
                               pos-amper
                               []))
+
          
         "Extra argument"
+
         (suite-fn-call fn-form
                        (vec (concat (take pos-amper
                                           arg+)

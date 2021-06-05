@@ -11,14 +11,14 @@
             [clojure.test.check.properties :as TC.prop]
             [convex.break.eval             :as $.break.eval]
             [convex.break.gen              :as $.break.gen]
-            [convex.break.prop             :as $.break.prop]
-            [convex.lisp.gen               :as $.lisp.gen]))
+            [convex.lisp.gen               :as $.lisp.gen]
+            [helins.mprop                  :as mprop]))
 
 
 ;;;;;;;;;;
 
 
-($.break.prop/deftest random
+(mprop/deftest random
 
   ;; Generating randorm forms that should either fail or succeed on the CVM, but no
   ;; JVM exception should be thrown without being handled.
