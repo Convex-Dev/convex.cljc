@@ -8,10 +8,10 @@
             [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
             [convex.break.eval             :as $.break.eval]
-            [convex.break.prop             :as $.break.prop]
             [convex.cvm                    :as $.cvm]
             [convex.lisp                   :as $.lisp]
-            [convex.lisp.gen               :as $.lisp.gen]))
+            [convex.lisp.gen               :as $.lisp.gen]
+            [helins.mprop                  :as mprop]))
 
 
 ;;;;;;;;;; Helpers
@@ -58,7 +58,7 @@
 ;;;;;;;;;; Tests
 
 
-($.break.prop/deftest assert--
+(mprop/deftest assert--
 
   (TC.prop/for-all [n        gen-nest
                     x-ploy   $.lisp.gen/any
@@ -71,7 +71,7 @@
 
 
 
-($.break.prop/deftest logic
+(mprop/deftest logic
 
   (TC.prop/for-all [[falsy+
                      mix+
@@ -86,40 +86,50 @@
                                                            (TC.gen/shuffle (concat falsy+
                                                                                    truthy+))
                                                            (TC.gen/return truthy+))))]
-    ($.break.prop/mult*
+    (mprop/mult
 
       "`and` on falsy"
+
       ($.break.eval/result* (= ~(first falsy+)
                                (and ~@falsy+)))
 
+
       "`and` on mixed"
+
       ($.break.eval/result* (= ~(first (filter (comp not
                                                      boolean)
                                                mix+))
                                (and ~@mix+)))
 
+
       "`and` on truthy"
+
       ($.break.eval/result* (= ~(last truthy+)
                                (and ~@truthy+)))
 
 
       "`or` on falsy"
+
       ($.break.eval/result* (= ~(last falsy+)
                                (or ~@falsy+)))
+
       
       "`or` on mixed"
+
       ($.break.eval/result* (= ~(first (filter boolean
                                                mix+))
                                (or ~@mix+)))
 
+
       "`or` on truthy"
+
       ($.break.eval/result* (= ~(first truthy+)
                                (or ~@truthy+))))))
 
 
 
 
-($.break.prop/deftest cond--
+(mprop/deftest cond--
 
   (TC.prop/for-all [else? $.lisp.gen/boolean
                     x+    (TC.gen/vector (TC.gen/tuple $.lisp.gen/boolean
@@ -148,7 +158,7 @@
 
 
 
-($.break.prop/deftest fail--
+(mprop/deftest fail--
 
   (TC.prop/for-all [n       gen-nest
                     code    (TC.gen/such-that some?
@@ -160,54 +170,62 @@
                                                           form
                                                           x-ploy)))
           message-2 ($.break.eval/result message)]
-      ($.break.prop/and* ($.break.prop/checkpoint*
-   
-                           "Without code"
+      (mprop/mult
 
-                           (let [ret (exec ($.lisp/templ* (fail ~message)))]
-                             ($.break.prop/mult*
+        "Without code"
 
-                               "No code"
-                               (= :ASSERT
-                                  (ret :convex.error/code))
+        (let [ret (exec ($.lisp/templ* (fail ~message)))]
+          (mprop/mult
 
-                               "Message"
-                               ($.lisp/= message-2
-                                         (ret :convex.error/message)))))
+            "No code"
 
-                         ($.break.prop/checkpoint*
-
-                           "With code"
-
-                           (let [ret (exec ($.lisp/templ* (fail ~code
-                                                                ~message)))]
-                             ($.break.prop/mult*
-
-                               "Code"
-                               ($.lisp/= ($.break.eval/result code)
-                                         (ret :convex.error/code))
-
-                               "Message"
-                               ($.lisp/= message-2
-                                         (ret :convex.error/message)))))))))
+            (= :ASSERT
+               (ret :convex.error/code))
 
 
+            "Message"
 
-($.break.prop/deftest halting
+            ($.lisp/= message-2
+                      (ret :convex.error/message)))))
+
+
+        "With code"
+
+        (let [ret (exec ($.lisp/templ* (fail ~code
+                                             ~message)))]
+          (mprop/mult
+
+            "Code"
+
+            ($.lisp/= ($.break.eval/result code)
+                      (ret :convex.error/code))
+
+
+            "Message"
+
+            ($.lisp/= message-2
+                      (ret :convex.error/message)))))))
+
+
+
+(mprop/deftest halting
 
   (TC.prop/for-all [n        gen-nest
                     x-ploy   $.lisp.gen/any
                     x-return $.lisp.gen/any]
-    ($.break.prop/mult*
+    (mprop/mult
 
       "`halt`"
+
       ($.lisp/= ($.break.eval/result x-return)
                 ($.break.eval/result (-nested-fn n
                                                  'halt
                                                  x-ploy
                                                  x-return)))
 
+
       "`return`"
+
       ($.lisp/= ($.break.eval/result* [~x-return
                                        ~x-ploy])
                 ($.break.eval/result* [~(-nested-fn n
@@ -218,7 +236,7 @@
 
 
 
-($.break.prop/deftest if-like
+(mprop/deftest if-like
 
   (TC.prop/for-all [sym    $.lisp.gen/symbol
                     falsy  $.lisp.gen/falsy
@@ -228,71 +246,90 @@
                                         [:tag ~falsy])
                                    (def tag-true
                                         [:tag ~truthy])))]
-     ($.break.prop/mult*
+     (mprop/mult
 
        "`if` false"
+
        ($.break.eval/result* ctx
                              (= tag-false
                                 (if ~falsy
                                   tag-true
                                   tag-false)))
 
+
        "`if` true"
+
        ($.break.eval/result* ctx
                              (= tag-true
                                 (if ~truthy
                                   tag-true
                                   tag-false)))
 
+
        "`if-let` false"
+
        ($.break.eval/result* ctx
                              (= tag-false
                                 (if-let [~sym ~falsy]
                                   tag-true
                                   tag-false)))
 
+
        "`if-let` true"
+
        ($.break.eval/result* ctx
                              (= tag-true
                                 (if-let [~sym ~truthy]
                                   tag-true
                                   tag-false)))
 
+
        "`when` false"
+
        ($.break.eval/result* ctx
                              (nil? (when ~falsy
                                      tag-true)))
 
+
        "`when` true"
+
        ($.break.eval/result* ctx
                              (= tag-true
                                 (when ~truthy
                                   tag-true)))
 
+
        "`when-let` false"
+
        ($.break.eval/result* ctx
                              (nil? (when-let [~sym ~falsy]
                                      tag-true)))
 
+
        "`when-let` true"
+
        ($.break.eval/result* ctx
                              (= tag-true
                                 (when-let [~sym ~truthy]
                                   tag-true)))
 
+
        "`when-not` false"
+
        ($.break.eval/result* ctx
                              (= tag-false
                                 (when-not ~falsy
                                   tag-false)))
+
        "`when-not` true"
+
        ($.break.eval/result* ctx
                              (nil? (when-not ~truthy
                                      tag-true)))))))
 
 
 
-($.break.prop/deftest rollback--
+(mprop/deftest rollback--
 
   (TC.prop/for-all [n        gen-nest
                     sym      $.lisp.gen/symbol
@@ -307,15 +344,18 @@
                                                 x-ploy
                                                 x-return)
                                    ~x-ploy))]
-      ($.break.prop/mult*
+      (mprop/mult
 
         "Returned value is the rollback value"
+
         ($.lisp/= ($.break.eval/result x-return)
                   (-> ctx
                       $.cvm/result
                       $.cvm/as-clojure))
 
+
         "State has been rolled back"
+
         (let [form '(hash (encoding *state*))]
           ($.lisp/= ($.break.eval/result form)
                     ($.break.eval/result ctx
@@ -327,7 +367,7 @@
 
 ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/163
 ;;
-;; ($.break.prop/deftest x-let--error-cast
+;; (mprop/deftest x-let--error-cast
 ;; 
 ;;   ;; Any binding form that is not a vector should be rejected.
 ;; 
@@ -339,7 +379,7 @@
 
 
 
-($.break.prop/deftest x-let--error-arity
+(mprop/deftest x-let--error-arity
 
   ;; `if-let` and `when-let` should only accept one binding.
 
