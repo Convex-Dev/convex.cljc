@@ -6,15 +6,14 @@
 
   (:require [clojure.test.check.properties :as TC.prop]
             [convex.break.eval             :as $.break.eval]
-            [convex.break.prop             :as $.test.prop]
             [convex.lisp.gen               :as $.lisp.gen]
-            ))
+            [helins.mprop                  :as mprop]))
 
 
 ;;;;;;;;;;
 
 
-($.test.prop/deftest eval--
+(mprop/deftest eval--
 
   (TC.prop/for-all [x $.lisp.gen/any]
     (let [ctx ($.break.eval/ctx* (do
@@ -25,29 +24,38 @@
                                                       (quote (unquote x)))))
                                    (def eval-
                                         (eval form))))]
-      ($.test.prop/mult*
+      (mprop/mult
 
         "Data evaluates to itself"
+
         ($.break.eval/result ctx
                              '(= x
                                  (eval 'x)))
 
+
         "Call evaluated function"
+
         ($.break.eval/result ctx
                              '(= x
                                  (eval-)))
 
+
         "Expanding form prior to `eval` has no impact"
+
         ($.break.eval/result ctx
                              '(= eval-
                                  (eval (expand form))))
 
+
         "Compiling form prior to `eval` has no impact"
+
         ($.break.eval/result ctx
                              '(= eval-
                                  (eval (compile form))))
 
+
         "Expanding and compiling form prior to `eval` has no impact"
+
         ($.break.eval/result ctx
                              '(= eval-
                                  (eval (compile (expand form)))))))))
@@ -55,7 +63,7 @@
 
 
 
-($.test.prop/deftest eval-as--
+(mprop/deftest eval-as--
 
   (TC.prop/for-all [sym $.lisp.gen/symbol
                     x   $.lisp.gen/any]

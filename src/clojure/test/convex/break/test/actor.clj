@@ -8,8 +8,8 @@
             [convex.lisp.gen               :as $.lisp.gen]
             [convex.break.eval             :as $.test.eval]
             [convex.break.gen              :as $.break.gen]
-            [convex.break.prop             :as $.break.prop]
-            [convex.break.test.account     :as $.break.test.account]))
+            [convex.break.test.account     :as $.break.test.account]
+            [helins.mprop                  :as mprop]))
 
 
 
@@ -22,65 +22,79 @@
 
   [ctx faulty-amount percent x]
 
-  ($.break.prop/checkpoint*
+  (mprop/check
 
     "Transfering coins"
 
     (let [ctx-2 ($.break.test.account/ctx-transfer ctx
                                                    faulty-amount
                                                    percent)]
-      ($.break.prop/and* (-> ($.break.test.account/ctx-holding ctx-2
-                                                               'addr
-                                                               x)
-                            $.break.test.account/suite-holding)
-                        ($.break.test.account/suite-transfer ctx-2
-                                                             "Transfering coins to an actor")
-                        ($.break.prop/checkpoint*
+      (mprop/and (-> ($.break.test.account/ctx-holding ctx-2
+                                                        'addr
+                                                        x)
+                     $.break.test.account/suite-holding)
 
-                          "`accept` and `receive-coin`"
-                          ($.break.prop/mult*
+                 ($.break.test.account/suite-transfer ctx-2
+                                                      "Transfering coins to an actor")
 
-                            "Cannot send coin to actor without an exported `receive-coin` function"
-                            ($.test.eval/error-state?* ctx-2
-                                                       (transfer (deploy
-                                                                   '(defn receive-coin [origin offer no-arg]))
-                                                                 ($/long-percentage ~percent
-                                                                                    *balance*)))
+                 (mprop/check
 
-                            "`receive-coin` is exported"
-                            ($.test.eval/result ctx-2
-                                                '(exports? addr
-                                                           'receive-coin))
+                   "`accept` and `receive-coin`"
 
-                            "`accept` returns the accepted amount"
-                            ($.test.eval/result ctx-2
-                                                '(lookup addr
-                                                         '-accept))
+                   (mprop/mult
 
-                            "Caller argument"
-                            ($.test.eval/result ctx-2
-                                                '(lookup addr
-                                                         '-caller))
+                     "Cannot send coin to actor without an exported `receive-coin` function"
 
-                            "Offer argument"
-                            ($.test.eval/result ctx-2
-                                                '(lookup addr
-                                                         '-offer))
+                     ($.test.eval/error-state?* ctx-2
+                                                (transfer (deploy
+                                                            '(defn receive-coin [origin offer no-arg]))
+                                                          ($/long-percentage ~percent
+                                                                             *balance*)))
 
-                            "Third argument is nil"
-                            ($.test.eval/result ctx-2
-                                                '(lookup addr
-                                                         '-nil-arg-2))))))))
+
+                     "`receive-coin` is exported"
+
+                     ($.test.eval/result ctx-2
+                                         '(exports? addr
+                                                    'receive-coin))
+
+
+                     "`accept` returns the accepted amount"
+
+                     ($.test.eval/result ctx-2
+                                         '(lookup addr
+                                                  '-accept))
+
+
+                     "Caller argument"
+
+                     ($.test.eval/result ctx-2
+                                         '(lookup addr
+                                                  '-caller))
+
+
+                     "Offer argument"
+
+                     ($.test.eval/result ctx-2
+                                         '(lookup addr
+                                                  '-offer))
+
+
+                     "Third argument is nil"
+
+                     ($.test.eval/result ctx-2
+                                         '(lookup addr
+                                                  '-nil-arg-2))))))))
 
 
 ;;;;;;;;;; Tests
 
 
-($.break.prop/deftest main
+(mprop/deftest main
 
-  (TC.prop/for-all [faulty-amount  $.break.gen/not-long
-                    percent        $.break.gen/percent
-                    x              $.lisp.gen/any]
+  (TC.prop/for-all [faulty-amount $.break.gen/not-long
+                    percent       $.break.gen/percent
+                    x             $.lisp.gen/any]
     (let [ctx ($.test.eval/ctx* (do
                                   (def addr
                                        (deploy '(do
@@ -105,16 +119,19 @@
                                                   (export receive-coin))))
                                   (def addr-empty
                                        (deploy nil))))]
-      ($.break.prop/and* (-> ($.break.test.account/ctx-holding ctx
-                                                               'addr
-                                                               x)
-                             $.break.test.account/suite-holding)
-                         ($.break.test.account/suite-new ctx
-                                                         true?)
-                         (suite-transfer ctx
-                                         faulty-amount
-                                         percent
-                                         x)
-                         ($.break.test.account/suite-transfer-memory ctx
-                                                                     faulty-amount
-                                                                     percent)))))
+      (mprop/and (-> ($.break.test.account/ctx-holding ctx
+                                                       'addr
+                                                       x)
+                     $.break.test.account/suite-holding)
+
+                 ($.break.test.account/suite-new ctx
+                                                 true?)
+
+                 (suite-transfer ctx
+                                 faulty-amount
+                                 percent
+                                 x)
+
+                 ($.break.test.account/suite-transfer-memory ctx
+                                                             faulty-amount
+                                                             percent)))))
