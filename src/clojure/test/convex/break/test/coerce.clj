@@ -7,9 +7,9 @@
   (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
             [convex.break.eval             :as $.break.eval]
-            [convex.break.prop             :as $.break.prop]
             [convex.lisp                   :as $.lisp]
-            [convex.lisp.gen               :as $.lisp.gen]))
+            [convex.lisp.gen               :as $.lisp.gen]
+            [helins.mprop                  :as mprop]))
 
 
 ;;;;;;;;;;
@@ -56,13 +56,28 @@
                                 (clojure-cast x))]))
                    suite)]
      (TC.prop/for-all [x gen]
-       (let [[x-2
-              cast?] ($.break.eval/result* (let [x-2 (~form-cast ~x)]
-                                             [x-2
-                                              (~form-pred x-2)]))]
-         ($.break.prop/mult (suite-2 x
-                                    x-2
-                                    cast?)))))))
+       (let [ctx   ($.break.eval/ctx* (def -cast
+                                           (~form-cast ~x)))
+             -cast ($.break.eval/result ctx
+                                        '-cast)]
+         (mprop/mult
+
+           "Properly cast"
+
+           -cast
+
+
+           "Predicate is consistent with Clojure"
+
+           (clojure-pred ($.break.eval/result ctx
+                                              '-cast))
+
+           "Comparing cast with Clojure's"
+
+           (if clojure-cast
+             (= -cast
+                (clojure-cast x))
+             true)))))))
 
 
 
@@ -81,7 +96,7 @@
 ;;;;;;;;;;
 
 
-($.break.prop/deftest address--
+(mprop/deftest address--
 
   (prop-coerce 'address
                'address?
@@ -93,7 +108,7 @@
 
 
 
-;; ($.break.prop/deftest address--fail
+;; (mprop/deftest address--fail
 ;; 
 ;;   (prop-error-cast 'address
 ;;                    (TC.gen/such-that #(if (int? %)
@@ -104,7 +119,7 @@
 
 
 
-($.break.prop/deftest blob--
+(mprop/deftest blob--
 
   ;; TODO. Also test hashes, special type of blob that can be coerced to an actual blob.
 
@@ -117,13 +132,13 @@
 
 
 
-;($.break.prop/deftest blob--fail
+;(mprop/deftest blob--fail
 ;
 ;  (prop-error-cast 'blob
 ;                   ($.lisp.gen/any-but #{$.lisp.gen/
 ;
 
-($.break.prop/deftest boolean--
+(mprop/deftest boolean--
 
   (prop-coerce 'boolean
                'boolean?
@@ -134,7 +149,7 @@
 
 
 
-($.break.prop/deftest byte--
+(mprop/deftest byte--
 
   (prop-coerce 'byte
                'number?
@@ -148,7 +163,7 @@
 
 
 
-($.break.prop/deftest char--
+(mprop/deftest char--
 
   (prop-coerce 'char
                '(fn [_] true)  ;; TODO. Incorrect, see https://github.com/Convex-Dev/convex/issues/92
@@ -159,7 +174,7 @@
 
 
 
-($.break.prop/deftest encoding--
+(mprop/deftest encoding--
 
   (TC.prop/for-all [x $.lisp.gen/any]
     (let [ctx ($.break.eval/ctx* (do
@@ -167,20 +182,23 @@
                                         (quote ~x))
                                    (def -encoding
                                         (encoding x))))]
-      ($.break.prop/mult*
+      (mprop/mult
 
         "Result is a blob"
+
         ($.break.eval/result ctx
                              '(blob? -encoding))
 
+
         "Encoding is deterministic"
+
         ($.break.eval/result ctx
                              '(= -encoding
                                  (encoding x)))))))
 
 
 
-($.break.prop/deftest hash--
+(mprop/deftest hash--
 
   ;; Also tests `hash?`.
 
@@ -188,28 +206,35 @@
                                       $.lisp.gen/blob])]
     (let [ctx ($.break.eval/ctx* (def -hash
                                       (hash ~x)))]
-      ($.break.prop/mult*
+      (mprop/mult
 
         "`hash?`"
+
         ($.break.eval/result ctx
                             '(hash? -hash))
 
+
         "Hashing is deterministic"
+
         ($.break.eval/result* ctx
                               (= -hash
                                  (hash ~x)))
 
+
         "Hashes are not mere blobs"
+
         ($.break.eval/result ctx
                             '(not (blob? -hash)))
 
+
         "Hashing a hash produces a hash"
+
         ($.break.eval/result ctx
                             '(hash? (hash -hash)))))))
 
 
 
-($.break.prop/deftest keyword--
+(mprop/deftest keyword--
 
   (prop-coerce 'keyword
                'keyword?
@@ -221,7 +246,7 @@
 
 
 
-($.break.prop/deftest long--
+(mprop/deftest long--
 
   (prop-coerce 'long
                'long?
@@ -237,7 +262,7 @@
 
 ;; TODO. Currently failing, see https://github.com/Convex-Dev/convex/issues/77
 ;;
-#_($.break.prop/deftest set--
+#_(mprop/deftest set--
 
   (prop-coerce 'set
                'set?
@@ -247,7 +272,7 @@
 
 
 
-($.break.prop/deftest str--
+(mprop/deftest str--
 
   ;; TODO. Improve to be variadic.
 
@@ -259,7 +284,7 @@
 
 
 
-($.break.prop/deftest symbol--
+(mprop/deftest symbol--
 
   (prop-coerce 'symbol
                'symbol?
@@ -271,7 +296,7 @@
 
 
 
-($.break.prop/deftest vec--
+(mprop/deftest vec--
 
   (prop-coerce 'vec
                'vector?
