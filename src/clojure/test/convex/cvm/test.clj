@@ -132,10 +132,10 @@
                  "42"
                  "Long")
 
-    (-as-clojure {:convex.error/code    {:a 42}
-                  :convex.error/message [:foo]
-                  :convex.error/trace   '("test-1"
-                                          "test-2")}
+    (-as-clojure {:convex.exception/code    {:a 42}
+                  :convex.exception/message [:foo]
+                  :convex.exception/trace   '("test-1"
+                                              "test-2")}
                  (doto (ErrorValue/createRaw ($.cvm/read "{:a 42}")
                                              ($.cvm/read "[:foo]"))
                    (.addTrace "test-1")

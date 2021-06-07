@@ -634,10 +634,10 @@
   convex.core.lang.impl.ErrorValue
 
     (datafy [this]
-      {:convex.error/code    (clojure.core.protocols/datafy (.getCode this))
-       :convex.error/message (clojure.core.protocols/datafy (.getMessage this))
-       :convex.error/trace   (clojure.core.protocols/datafy (mapv clojure.core.protocols/datafy
-                                                                  (.getTrace this)))})
+      {:convex.exception/code    (clojure.core.protocols/datafy (.getCode this))
+       :convex.exception/message (clojure.core.protocols/datafy (.getMessage this))
+       :convex.exception/trace   (clojure.core.protocols/datafy (mapv clojure.core.protocols/datafy
+                                                                      (.getTrace this)))})
 
 
   ;; TODO. Use EDN? Ops have protected fields meaning they cannot be readily translated.

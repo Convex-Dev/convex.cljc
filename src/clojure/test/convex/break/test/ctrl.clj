@@ -9,6 +9,7 @@
             [clojure.test.check.properties :as TC.prop]
             [convex.break.eval             :as $.break.eval]
             [convex.cvm                    :as $.cvm]
+            [convex.cvm.eval               :as $.cvm.eval]
             [convex.lisp                   :as $.lisp]
             [convex.lisp.gen               :as $.lisp.gen]
             [helins.mprop                  :as mprop]))
@@ -65,11 +66,10 @@
   (TC.prop/for-all [n        gen-nest
                     x-ploy   $.lisp.gen/any
                     x-return $.lisp.gen/truthy]
-    (identical? :ASSERT
-                (-> ($.break.eval/exception (-nested-fn n
-                                                        ($.lisp/templ* (assert (not ~x-return)))
-                                                        x-ploy))
-                    :convex.error/code))))
+    ($.cvm.eval/code? ($.cvm/std-code* :ASSERT)
+                      (-nested-fn n
+                                  ($.lisp/templ* (assert (not ~x-return)))
+                                  x-ploy))))
 
 
 
@@ -176,10 +176,10 @@
                     message $.lisp.gen/any
                     x-ploy  $.lisp.gen/any]
     (let [exec      (fn [form]
-                      ($.break.eval/exception (-nested-fn n
-                                                          form
-                                                          x-ploy)))
-          message-2 ($.break.eval/result message)]
+                      ($.cvm.eval/exception (-nested-fn n
+                                                        form
+                                                        x-ploy)))
+          message-2 ($.cvm.eval/result message)]
       (mprop/mult
 
         "Without code"
@@ -190,13 +190,13 @@
             "No code"
 
             (= :ASSERT
-               (ret :convex.error/code))
+               (ret :convex.exception/code))
 
 
             "Message"
 
             ($.lisp/= message-2
-                      (ret :convex.error/message)))))
+                      (ret :convex.exception/message))))
 
 
         "With code"
@@ -208,13 +208,13 @@
             "Code"
 
             ($.lisp/= ($.break.eval/result code)
-                      (ret :convex.error/code))
+                      (ret :convex.exception/code))
 
 
             "Message"
 
             ($.lisp/= message-2
-                      (ret :convex.error/message)))))))
+                      (ret :convex.exception/message))))))))
 
 
 

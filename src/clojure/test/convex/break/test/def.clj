@@ -6,6 +6,7 @@
 
   (:require [clojure.test.check.properties :as TC.prop]
             [convex.break.eval             :as $.break.eval]
+            [convex.cvm.eval               :as $.cvm.eval]
             [convex.lisp                   :as $.lisp]
             [convex.lisp.gen               :as $.lisp.gen]
             [helins.mprop                  :as mprop]))
@@ -87,10 +88,9 @@
 
             (if ($.break.eval/result ctx-2
                                      '(not (defined? sym)))
-              (identical? :UNDECLARED
-                          (-> ($.break.eval/exception? ctx-2
-                                                       sym)
-                              :convex.error/code))
+              ($.cvm.eval/code? :UNDECLARED
+                                ctx-2
+                                sym)
               true)))))))
 
 
