@@ -1,6 +1,6 @@
 (ns convex.break
 
-  ""
+  "Miscellaneous utilities related to the Break project."
 
   {:author "Adam Helinski"}
 
@@ -12,7 +12,7 @@
 
 (defn ctx
 
-  ""
+  "Prepares a default context for dev and testing."
 
   []
 

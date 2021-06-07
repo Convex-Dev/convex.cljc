@@ -16,6 +16,9 @@
             [convex.lisp :as $.lisp]))
 
 
+(declare result)
+
+
 ;;;;;;;;;;
 
 
@@ -149,6 +152,54 @@
    (-> (convex.cvm.eval/ctx ctx
                             form)
        $.cvm/exception?)))
+
+
+
+(defn like-clojure?
+
+  "Returns true if applying `arg+` to `form` on the CVM produces the exact same result as
+  `(apply f arg+)`
+  
+   Alternatively, a unique `form` can be given for both execution environments. In that case,
+   the form is processed in Clojure via `eval`.
+  
+   ```clojure
+   (like-clojure? '(+ 2 2))
+
+   (like-clojure? '+
+                  +
+                  [2 2)
+   ```"
+
+
+  ([form]
+
+   (like-clojure? *ctx-default*
+                  form))
+
+
+  ([ctx form]
+
+   ($.lisp/= (eval form)
+             (result ctx
+                     form)))
+
+
+  ([form f arg+]
+
+   (like-clojure? *ctx-default*
+                  form
+                  f
+                  arg+))
+
+
+  ([ctx form f arg+]
+
+   ($.lisp/= (apply f
+                    arg+)
+             (result ctx
+                     (list* form
+                            arg+)))))
 
 
 
