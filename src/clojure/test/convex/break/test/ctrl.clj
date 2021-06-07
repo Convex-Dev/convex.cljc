@@ -7,7 +7,6 @@
   (:require [clojure.string]
             [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
-            [convex.break.eval             :as $.break.eval]
             [convex.cvm                    :as $.cvm]
             [convex.cvm.eval               :as $.cvm.eval]
             [convex.lisp                   :as $.lisp]
@@ -66,7 +65,7 @@
   (TC.prop/for-all [n        gen-nest
                     x-ploy   $.lisp.gen/any
                     x-return $.lisp.gen/truthy]
-    ($.cvm.eval/code? ($.cvm/std-code* :ASSERT)
+    ($.cvm.eval/code? ($.cvm/code-std* :ASSERT)
                       (-nested-fn n
                                   ($.lisp/templ* (assert (not ~x-return)))
                                   x-ploy))))
@@ -96,41 +95,41 @@
 
       "`and` on falsy"
 
-      ($.break.eval/result* (= ~(first falsy+)
-                               (and ~@falsy+)))
+      ($.cvm.eval/result* (= ~(first falsy+)
+                             (and ~@falsy+)))
 
 
       "`and` on mixed"
 
-      ($.break.eval/result* (= ~(first (filter (comp not
-                                                     boolean)
-                                               mix+))
-                               (and ~@mix+)))
+      ($.cvm.eval/result* (= ~(first (filter (comp not
+                                                   boolean)
+                                             mix+))
+                             (and ~@mix+)))
 
 
       "`and` on truthy"
 
-      ($.break.eval/result* (= ~(last truthy+)
-                               (and ~@truthy+)))
+      ($.cvm.eval/result* (= ~(last truthy+)
+                             (and ~@truthy+)))
 
 
       "`or` on falsy"
 
-      ($.break.eval/result* (= ~(last falsy+)
-                               (or ~@falsy+)))
+      ($.cvm.eval/result* (= ~(last falsy+)
+                             (or ~@falsy+)))
 
       
       "`or` on mixed"
 
-      ($.break.eval/result* (= ~(first (filter boolean
-                                               mix+))
-                               (or ~@mix+)))
+      ($.cvm.eval/result* (= ~(first (filter boolean
+                                             mix+))
+                             (or ~@mix+)))
 
 
       "`or` on truthy"
 
-      ($.break.eval/result* (= ~(first truthy+)
-                               (or ~@truthy+))))))
+      ($.cvm.eval/result* (= ~(first truthy+)
+                             (or ~@truthy+))))))
 
 
 
@@ -145,24 +144,24 @@
                                                                        $.lisp.gen/truthy]))
                                          1
                                          16)]
-    ($.break.eval/result* (= ~(or (first (into []
-                                               (comp (map second)
-                                                     (filter boolean)
-                                                     (take 1))
-                                               x+))
-                                  (when else?
-                                    (second (peek x+))))
-                             (cond
-                               ~@(cond->
-                                   (mapcat (fn [[identity? x]]
-                                             [(if identity?
-                                                (list 'identity
-                                                      x)
-                                                x)
-                                              x])
-                                           x+)
-                                   else?
-                                   butlast))))))
+    ($.cvm.eval/result* (= ~(or (first (into []
+                                             (comp (map second)
+                                                   (filter boolean)
+                                                   (take 1))
+                                             x+))
+                                (when else?
+                                  (second (peek x+))))
+                           (cond
+                             ~@(cond->
+                                 (mapcat (fn [[identity? x]]
+                                           [(if identity?
+                                              (list 'identity
+                                                    x)
+                                              x)
+                                            x])
+                                         x+)
+                                 else?
+                                 butlast))))))
 
 
 
@@ -207,7 +206,7 @@
 
             "Code"
 
-            ($.lisp/= ($.break.eval/result code)
+            ($.lisp/= ($.cvm.eval/result code)
                       (ret :convex.exception/code))
 
 
@@ -229,22 +228,22 @@
 
       "`halt`"
 
-      ($.lisp/= ($.break.eval/result x-return)
-                ($.break.eval/result (-nested-fn n
-                                                 'halt
-                                                 x-ploy
-                                                 x-return)))
+      ($.lisp/= ($.cvm.eval/result x-return)
+                ($.cvm.eval/result (-nested-fn n
+                                               'halt
+                                               x-ploy
+                                               x-return)))
 
 
       "`return`"
 
-      ($.lisp/= ($.break.eval/result* [~x-return
+      ($.lisp/= ($.cvm.eval/result* [~x-return
                                        ~x-ploy])
-                ($.break.eval/result* [~(-nested-fn n
-                                                    'return
-                                                    x-ploy
-                                                    x-return)
-                                       ~x-ploy])))))
+                ($.cvm.eval/result* [~(-nested-fn n
+                                                  'return
+                                                  x-ploy
+                                                  x-return)
+                                     ~x-ploy])))))
 
 
 
@@ -255,91 +254,91 @@
   (TC.prop/for-all [sym    $.lisp.gen/symbol
                     falsy  $.lisp.gen/falsy
                     truthy $.lisp.gen/truthy]
-    (let [ctx ($.break.eval/ctx* (do
-                                   (def tag-false
-                                        [:tag ~falsy])
-                                   (def tag-true
-                                        [:tag ~truthy])))]
+    (let [ctx ($.cvm.eval/ctx* (do
+                                 (def tag-false
+                                      [:tag ~falsy])
+                                 (def tag-true
+                                      [:tag ~truthy])))]
      (mprop/mult
 
        "`if` false"
 
-       ($.break.eval/result* ctx
-                             (= tag-false
-                                (if ~falsy
-                                  tag-true
-                                  tag-false)))
+       ($.cvm.eval/result* ctx
+                           (= tag-false
+                              (if ~falsy
+                                tag-true
+                                tag-false)))
 
 
        "`if` true"
 
-       ($.break.eval/result* ctx
-                             (= tag-true
-                                (if ~truthy
-                                  tag-true
-                                  tag-false)))
+       ($.cvm.eval/result* ctx
+                           (= tag-true
+                              (if ~truthy
+                                tag-true
+                                tag-false)))
 
 
        "`if-let` false"
 
-       ($.break.eval/result* ctx
-                             (= tag-false
-                                (if-let [~sym ~falsy]
-                                  tag-true
-                                  tag-false)))
+       ($.cvm.eval/result* ctx
+                           (= tag-false
+                              (if-let [~sym ~falsy]
+                                tag-true
+                                tag-false)))
 
 
        "`if-let` true"
 
-       ($.break.eval/result* ctx
-                             (= tag-true
-                                (if-let [~sym ~truthy]
-                                  tag-true
-                                  tag-false)))
+       ($.cvm.eval/result* ctx
+                           (= tag-true
+                              (if-let [~sym ~truthy]
+                                tag-true
+                                tag-false)))
 
 
        "`when` false"
 
-       ($.break.eval/result* ctx
-                             (nil? (when ~falsy
-                                     tag-true)))
+       ($.cvm.eval/result* ctx
+                           (nil? (when ~falsy
+                                   tag-true)))
 
 
        "`when` true"
 
-       ($.break.eval/result* ctx
-                             (= tag-true
-                                (when ~truthy
-                                  tag-true)))
+       ($.cvm.eval/result* ctx
+                           (= tag-true
+                              (when ~truthy
+                                tag-true)))
 
 
        "`when-let` false"
 
-       ($.break.eval/result* ctx
-                             (nil? (when-let [~sym ~falsy]
-                                     tag-true)))
+       ($.cvm.eval/result* ctx
+                           (nil? (when-let [~sym ~falsy]
+                                   tag-true)))
 
 
        "`when-let` true"
 
-       ($.break.eval/result* ctx
-                             (= tag-true
-                                (when-let [~sym ~truthy]
-                                  tag-true)))
+       ($.cvm.eval/result* ctx
+                           (= tag-true
+                              (when-let [~sym ~truthy]
+                                tag-true)))
 
 
        "`when-not` false"
 
-       ($.break.eval/result* ctx
-                             (= tag-false
-                                (when-not ~falsy
-                                  tag-false)))
+       ($.cvm.eval/result* ctx
+                           (= tag-false
+                              (when-not ~falsy
+                                tag-false)))
 
        "`when-not` true"
 
-       ($.break.eval/result* ctx
-                             (nil? (when-not ~truthy
-                                     tag-true)))))))
+       ($.cvm.eval/result* ctx
+                           (nil? (when-not ~truthy
+                                   tag-true)))))))
 
 
 
@@ -352,19 +351,19 @@
                     x-env    $.lisp.gen/any
                     x-return $.lisp.gen/any
                     x-ploy   $.lisp.gen/any]
-    (let [ctx ($.break.eval/ctx* (do
-                                   (def ~sym
-                                        ~x-env)
-                                   ~(-nested-fn n
-                                                'rollback
-                                                x-ploy
-                                                x-return)
-                                   ~x-ploy))]
+    (let [ctx ($.cvm.eval/ctx* (do
+                                 (def ~sym
+                                      ~x-env)
+                                 ~(-nested-fn n
+                                              'rollback
+                                              x-ploy
+                                              x-return)
+                                 ~x-ploy))]
       (mprop/mult
 
         "Returned value is the rollback value"
 
-        ($.lisp/= ($.break.eval/result x-return)
+        ($.lisp/= ($.cvm.eval/result x-return)
                   (-> ctx
                       $.cvm/result
                       $.cvm/as-clojure))
@@ -373,8 +372,8 @@
         "State has been rolled back"
 
         (let [form '(hash (encoding *state*))]
-          ($.lisp/= ($.break.eval/result form)
-                    ($.break.eval/result ctx
+          ($.lisp/= ($.cvm.eval/result form)
+                    ($.cvm.eval/result ctx
                                          form)))))))
 
 
@@ -390,8 +389,9 @@
 ;;   (TC.prop/for-all [bindvec ($.lisp.gen/any-but #{$.lisp.gen/vector})
 ;;                     sym     (TC.gen/elements ['if-let
 ;;                                               'when-let])]
-;;     ($.break.eval/error-cast?* (~sym ~bindvec
-;;                                     42))))
+;;     ($.cvm.eval/code?* :CAST
+;;                        (~sym ~bindvec
+;;                              42))))
 
 
 
@@ -405,7 +405,8 @@
 	                                              8)
                     sym      (TC.gen/elements ['if-let
                                                'when-let])]
-    ($.break.eval/error-arity?* (~sym ~(into []
-                                             (mapcat identity)
-                                             binding+)
-                                      42))))
+    ($.cvm.eval/code?* :ARITY
+                       (~sym ~(into []
+                                    (mapcat identity)
+                                    binding+)
+                             42))))

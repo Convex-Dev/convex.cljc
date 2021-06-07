@@ -5,7 +5,7 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.test.check.properties :as TC.prop]
-            [convex.break.eval             :as $.break.eval]
+            [convex.cvm.eval               :as $.cvm.eval]
             [convex.lisp.gen               :as $.lisp.gen]
             [helins.mprop                  :as mprop]))
 
@@ -18,49 +18,49 @@
   {:ratio-num 10}
 
   (TC.prop/for-all [x $.lisp.gen/any]
-    (let [ctx ($.break.eval/ctx* (do
-                                   (def x
-                                        ~x)
-                                   (def form
-                                        (quasiquote (fn []
-                                                      (quote (unquote x)))))
-                                   (def eval-
-                                        (eval form))))]
+    (let [ctx ($.cvm.eval/ctx* (do
+                                 (def x
+                                      ~x)
+                                 (def form
+                                      (quasiquote (fn []
+                                                    (quote (unquote x)))))
+                                 (def eval-
+                                      (eval form))))]
       (mprop/mult
 
         "Data evaluates to itself"
 
-        ($.break.eval/result ctx
-                             '(= x
-                                 (eval 'x)))
+        ($.cvm.eval/result ctx
+                           '(= x
+                               (eval 'x)))
 
 
         "Call evaluated function"
 
-        ($.break.eval/result ctx
-                             '(= x
-                                 (eval-)))
+        ($.cvm.eval/result ctx
+                           '(= x
+                               (eval-)))
 
 
         "Expanding form prior to `eval` has no impact"
 
-        ($.break.eval/result ctx
-                             '(= eval-
-                                 (eval (expand form))))
+        ($.cvm.eval/result ctx
+                           '(= eval-
+                               (eval (expand form))))
 
 
         "Compiling form prior to `eval` has no impact"
 
-        ($.break.eval/result ctx
-                             '(= eval-
-                                 (eval (compile form))))
+        ($.cvm.eval/result ctx
+                           '(= eval-
+                               (eval (compile form))))
 
 
         "Expanding and compiling form prior to `eval` has no impact"
 
-        ($.break.eval/result ctx
-                             '(= eval-
-                                 (eval (compile (expand form)))))))))
+        ($.cvm.eval/result ctx
+                           '(= eval-
+                               (eval (compile (expand form)))))))))
 
 
 
@@ -71,13 +71,13 @@
 
   (TC.prop/for-all [sym $.lisp.gen/symbol
                     x   $.lisp.gen/any]
-    ($.break.eval/result* (let [addr (deploy '(set-controller *caller*))]
-                            (eval-as addr
-                                     '(def ~sym
-                                           ~x))
-                            (= ~x
-                               (lookup addr
-                                       (quote ~sym)))))))
+    ($.cvm.eval/result* (let [addr (deploy '(set-controller *caller*))]
+                          (eval-as addr
+                                   '(def ~sym
+                                         ~x))
+                          (= ~x
+                             (lookup addr
+                                     (quote ~sym)))))))
 
 
 ;; TODO. When expanders are stabilized.

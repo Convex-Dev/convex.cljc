@@ -9,7 +9,7 @@
 
   (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
-            [convex.break.eval             :as $.break.eval]
+            [convex.cvm.eval               :as $.cvm.eval]
             [convex.break.gen              :as $.break.gen]
             [convex.lisp.gen               :as $.lisp.gen]
             [helins.mprop                  :as mprop]))
@@ -30,5 +30,5 @@
                                           (TC.gen/vector $.lisp.gen/any
                                                          1
                                                          8))]
-    ($.break.eval/value form)
+    ($.cvm.eval/value form)
     true))

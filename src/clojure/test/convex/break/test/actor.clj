@@ -5,8 +5,8 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.test.check.properties :as TC.prop]
+            [convex.cvm.eval               :as $.cvm.eval]
             [convex.lisp.gen               :as $.lisp.gen]
-            [convex.break.eval             :as $.test.eval]
             [convex.break.gen              :as $.break.gen]
             [convex.break.test.account     :as $.break.test.account]
             [helins.mprop                  :as mprop]))
@@ -45,46 +45,47 @@
 
                      "Cannot send coin to actor without an exported `receive-coin` function"
 
-                     ($.test.eval/error-state?* ctx-2
-                                                (transfer (deploy
-                                                            '(defn receive-coin [origin offer no-arg]))
-                                                          ($/long-percentage ~percent
-                                                                             *balance*)))
+                     ($.cvm.eval/code?* ctx-2
+                                        :STATE
+                                        (transfer (deploy
+                                                    '(defn receive-coin [origin offer no-arg]))
+                                                  ($/long-percentage ~percent
+                                                                     *balance*)))
 
 
                      "`receive-coin` is exported"
 
-                     ($.test.eval/result ctx-2
-                                         '(exports? addr
-                                                    'receive-coin))
+                     ($.cvm.eval/result ctx-2
+                                        '(exports? addr
+                                                   'receive-coin))
 
 
                      "`accept` returns the accepted amount"
 
-                     ($.test.eval/result ctx-2
-                                         '(lookup addr
-                                                  '-accept))
+                     ($.cvm.eval/result ctx-2
+                                        '(lookup addr
+                                                 '-accept))
 
 
                      "Caller argument"
 
-                     ($.test.eval/result ctx-2
-                                         '(lookup addr
-                                                  '-caller))
+                     ($.cvm.eval/result ctx-2
+                                        '(lookup addr
+                                                 '-caller))
 
 
                      "Offer argument"
 
-                     ($.test.eval/result ctx-2
-                                         '(lookup addr
-                                                  '-offer))
+                     ($.cvm.eval/result ctx-2
+                                        '(lookup addr
+                                                 '-offer))
 
 
                      "Third argument is nil"
 
-                     ($.test.eval/result ctx-2
-                                         '(lookup addr
-                                                  '-nil-arg-2))))))))
+                     ($.cvm.eval/result ctx-2
+                                        '(lookup addr
+                                                 '-nil-arg-2))))))))
 
 
 ;;;;;;;;;; Tests
@@ -97,30 +98,30 @@
   (TC.prop/for-all [faulty-amount $.break.gen/not-long
                     percent       $.break.gen/percent
                     x             $.lisp.gen/any]
-    (let [ctx ($.test.eval/ctx* (do
-                                  (def addr
-                                       (deploy '(do
+    (let [ctx ($.cvm.eval/ctx* (do
+                                 (def addr
+                                      (deploy '(do
 
-                                                  (def x
-                                                       ~x)
+                                                 (def x
+                                                      ~x)
 
-                                                  (defn receive-coin
-                                                    [origin offer no-arg]
-                                                    (def -caller
-                                                         (= origin
-                                                            *caller*))
-                                                    (def -offer
-                                                         (= offer
-                                                            *offer*))
-                                                    (def -nil-arg-2
-                                                          (nil? no-arg))
-                                                    (def -accept
-                                                         (= offer
-                                                            (accept offer))))
+                                                 (defn receive-coin
+                                                   [origin offer no-arg]
+                                                   (def -caller
+                                                        (= origin
+                                                           *caller*))
+                                                   (def -offer
+                                                        (= offer
+                                                           *offer*))
+                                                   (def -nil-arg-2
+                                                         (nil? no-arg))
+                                                   (def -accept
+                                                        (= offer
+                                                           (accept offer))))
 
-                                                  (export receive-coin))))
-                                  (def addr-empty
-                                       (deploy nil))))]
+                                                 (export receive-coin))))
+                                 (def addr-empty
+                                      (deploy nil))))]
       (mprop/and (-> ($.break.test.account/ctx-holding ctx
                                                        'addr
                                                        x)

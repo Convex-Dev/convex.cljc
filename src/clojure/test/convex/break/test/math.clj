@@ -7,8 +7,8 @@
   (:require [clojure.test                  :as t]
             [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
-            [convex.break.eval             :as $.break.eval]
             [convex.break.gen              :as $.break.gen]
+            [convex.cvm.eval               :as $.cvm.eval]
             [convex.lisp.gen               :as $.lisp.gen]
             [helins.mprop                  :as mprop]))
 
@@ -34,14 +34,14 @@
       
       "Numerical computation of longs must result in a long"
 
-      ($.break.eval/result* (long? (~form ~@x+)))
+      ($.cvm.eval/result* (long? (~form ~@x+)))
 
 
       "Numerical computation with at least one double must result in a double"
 
-      (double? ($.break.eval/result* (~form ~@(update x+
-                                                      (rand-int (dec (count x+)))
-                                                      double)))))))
+      (double? ($.cvm.eval/result* (~form ~@(update x+
+                                                    (rand-int (dec (count x+)))
+                                                    double)))))))
 
 
 
@@ -55,9 +55,9 @@
   (TC.prop/for-all [x+ (TC.gen/vector $.lisp.gen/number
                                       1
                                       16)]
-    ($.break.eval/like-clojure? form
-                                f
-                                x+)))
+    ($.cvm.eval/like-clojure? form
+                              f
+                              x+)))
 
 
 ;;;;;;;;;; Arithmetic operators
@@ -94,7 +94,7 @@
   (TC.prop/for-all [x+ (TC.gen/vector $.lisp.gen/number
                                       1
                                       16)]
-    (double? ($.break.eval/result* (/ ~@x+)))))
+    (double? ($.cvm.eval/result* (/ ~@x+)))))
 
 
 ;;;;;;;;;; Comparators
@@ -180,9 +180,9 @@
   {:ratio-num 100}
 
   (TC.prop/for-all [x $.lisp.gen/number]
-    ($.break.eval/like-clojure? 'exp
-                                #(StrictMath/exp %)
-                                [x])))
+    ($.cvm.eval/like-clojure? 'exp
+                              #(StrictMath/exp %)
+                              [x])))
 
 
 
@@ -192,11 +192,11 @@
 
   (TC.prop/for-all [x $.lisp.gen/number
                     y $.lisp.gen/number]
-    ($.break.eval/like-clojure? 'pow
-                                #(StrictMath/pow %1
-                                                 %2)
-                                [x
-                                 y])))
+    ($.cvm.eval/like-clojure? 'pow
+                              #(StrictMath/pow %1
+                                               %2)
+                              [x
+                               y])))
 
 
 
@@ -205,9 +205,9 @@
   {:ratio-num 100}
 
   (TC.prop/for-all [x $.lisp.gen/number]
-    ($.break.eval/like-clojure? 'sqrt
-                                #(StrictMath/sqrt %)
-                                [x])))
+    ($.cvm.eval/like-clojure? 'sqrt
+                              #(StrictMath/sqrt %)
+                              [x])))
 
 
 ;;;;;;;;;; Increment / decrement
@@ -218,36 +218,36 @@
   {:ratio-num 100}
 
   (TC.prop/for-all [x $.lisp.gen/long]
-    (let [ctx ($.break.eval/ctx* (def dec-
-                                      (dec ~x)))]
+    (let [ctx ($.cvm.eval/ctx* (def dec-
+                                    (dec ~x)))]
       (mprop/mult
 
         "Returns a long"
 
-        ($.break.eval/result ctx
-                             '(long? dec-))
+        ($.cvm.eval/result ctx
+                           '(long? dec-))
 
 
         "Consistent with `-`"
 
-        ($.break.eval/result* ctx
-                              (= dec-
-                                 (- ~x
-                                    1)))
+        ($.cvm.eval/result* ctx
+                            (= dec-
+                               (- ~x
+                                  1)))
 
 
         "Consisent with `+`"
 
-        ($.break.eval/result* ctx
-                              (= dec-
-                                 (+ ~x
-                                    -1)))
+        ($.cvm.eval/result* ctx
+                            (= dec-
+                               (+ ~x
+                                  -1)))
 
 
         "Decrement or underflow"
 
-        (= ($.break.eval/result ctx
-                                'dec-)
+        (= ($.cvm.eval/result ctx
+                              'dec-)
            (if (= x
                   Long/MIN_VALUE)
              Long/MAX_VALUE
@@ -260,36 +260,36 @@
   {:ratio-num 100}
 
   (TC.prop/for-all [x $.lisp.gen/long]
-    (let [ctx ($.break.eval/ctx* (def inc-
-                                      (inc ~x)))]
+    (let [ctx ($.cvm.eval/ctx* (def inc-
+                                    (inc ~x)))]
       (mprop/mult
 
         "Returns a long"
 
-        ($.break.eval/result ctx
-                             '(long? inc-))
+        ($.cvm.eval/result ctx
+                           '(long? inc-))
 
 
         "Consistent with `-`"
 
-        ($.break.eval/result* ctx
-                              (= inc-
-                                 (- ~x
-                                    -1)))
+        ($.cvm.eval/result* ctx
+                            (= inc-
+                               (- ~x
+                                  -1)))
         
 
         "Consistent with `+`"
 
-        ($.break.eval/result* ctx
-                              (= inc-
-                                 (+ ~x
-                                    1)))
+        ($.cvm.eval/result* ctx
+                            (= inc-
+                               (+ ~x
+                                  1)))
 
 
         "Increment or overflow"
 
-        (= ($.break.eval/result ctx
-                                'inc-)
+        (= ($.cvm.eval/result ctx
+                              'inc-)
            (if (= x
                   Long/MAX_VALUE)
              Long/MIN_VALUE
@@ -308,63 +308,63 @@
   (TC.prop/for-all [a $.lisp.gen/long
                     b (TC.gen/such-that #(not (zero? %))
                                         $.lisp.gen/long)]
-    (let [ctx ($.break.eval/ctx* (do
-                                   (def a
-                                        ~a)
-                                   (def b
-                                        ~b)
-                                   (def -mod
-                                        (mod a
-                                             b))
-                                   (def -quot
-                                        (quot a
-                                              b))
-                                   (def -rem
-                                        (rem a
-                                             b))))]
+    (let [ctx ($.cvm.eval/ctx* (do
+                                 (def a
+                                      ~a)
+                                 (def b
+                                      ~b)
+                                 (def -mod
+                                      (mod a
+                                           b))
+                                 (def -quot
+                                      (quot a
+                                            b))
+                                 (def -rem
+                                      (rem a
+                                           b))))]
       (mprop/mult
 
         "`mod` produces a long"
 
-        ($.break.eval/result ctx
-                             '(long? -mod))
+        ($.cvm.eval/result ctx
+                           '(long? -mod))
 
 
         "`quot` produces a long"
 
-        ($.break.eval/result ctx
-                             '(long? -quot))
+        ($.cvm.eval/result ctx
+                           '(long? -quot))
 
 
         "`rem` produces a long"
 
-        ($.break.eval/result ctx
-                             '(long? -rem))
+        ($.cvm.eval/result ctx
+                           '(long? -rem))
 
 
         "`quot` is consistent with Clojure"
 
         (= (quot a
                  b)
-           ($.break.eval/result ctx
-                                '-quot))
+           ($.cvm.eval/result ctx
+                             '-quot))
 
 
         "`rem` is consistent with Clojure"
 
         (= (rem a
                 b)
-           ($.break.eval/result ctx
-                                '-rem))
+           ($.cvm.eval/result ctx
+                            '-rem))
 
 
         "`quot` and `rem` are consistent"
 
-        ($.break.eval/result ctx
-                             '(= a
-                                 (+ -rem
-                                    (* b
-                                       -quot))))))))
+        ($.cvm.eval/result ctx
+                           '(= a
+                               (+ -rem
+                                  (* b
+                                     -quot))))))))
 
 
 ;;;;;;;;;; Miscellaneous
@@ -377,13 +377,13 @@
   (TC.prop/for-all [x (TC.gen/such-that #(not (and (number? %)
                                                    (zero? %)))
                                         $.lisp.gen/any)]
-    ($.break.eval/result* (not (zero? ~x)))))
+    ($.cvm.eval/result* (not (zero? ~x)))))
 
 
 
 (t/deftest zero?--true
 
-  (t/is ($.break.eval/result '(zero? 0))))
+  (t/is ($.cvm.eval/result '(zero? 0))))
 
 
 ;;;;;;;;;; Rounding
@@ -394,9 +394,9 @@
   {:ratio-num 100}
 
   (TC.prop/for-all [x $.lisp.gen/number]
-    ($.break.eval/like-clojure? 'ceil
-                                #(StrictMath/ceil %)
-                                [x])))
+    ($.cvm.eval/like-clojure? 'ceil
+                              #(StrictMath/ceil %)
+                              [x])))
 
 
 
@@ -405,9 +405,9 @@
   {:ratio-num 100}
 
   (TC.prop/for-all [x $.lisp.gen/number]
-    ($.break.eval/like-clojure? 'floor
-                                #(StrictMath/floor %)
-                                [x])))
+    ($.cvm.eval/like-clojure? 'floor
+                              #(StrictMath/floor %)
+                              [x])))
 
 
 ;;;;;;;;;; Sign operations
@@ -419,28 +419,28 @@
 
   (TC.prop/for-all [x (TC.gen/such-that #(not (Double/isNaN %))
                                         $.lisp.gen/number)]
-    (let [ctx ($.break.eval/ctx* (def abs-
-                                      (abs ~x)))]
+    (let [ctx ($.cvm.eval/ctx* (def abs-
+                                    (abs ~x)))]
       (mprop/mult
 
         "Must be positive"
 
-        ($.break.eval/result* ctx
-                              (>= abs-
-                                  0))
+        ($.cvm.eval/result* ctx
+                            (>= abs-
+                                0))
 
 
         "Type is preserved"
 
-        (= (type ($.break.eval/result ctx
-                                      'abs-))
+        (= (type ($.cvm.eval/result ctx
+                                    'abs-))
            (type x))))))
 
 
 
 (t/deftest abs--NaN
 
-  (t/is (Double/isNaN ($.break.eval/result '(abs ##NaN)))))
+  (t/is (Double/isNaN ($.cvm.eval/result '(abs ##NaN)))))
 
 
 
@@ -450,9 +450,9 @@
   {:ratio-num 100}
 
   (TC.prop/for-all [x $.lisp.gen/number]
-    ($.break.eval/result* (= ~x
-                             (* (abs ~x)
-                                (signum ~x))))))
+    ($.cvm.eval/result* (= ~x
+                           (* (abs ~x)
+                              (signum ~x))))))
 
 
 ;;;;;;;;;; Failing cases
@@ -469,12 +469,14 @@
 
       "`dec`"
 
-      ($.break.eval/error-cast?* (dec ~x))
+      ($.cvm.eval/code?* :CAST
+                         (dec ~x))
 
 
       "`inc`"
 
-      ($.break.eval/error-cast?* (inc ~x)))))
+      ($.cvm.eval/code?* :CAST
+                         (inc ~x)))))
 
 
 
@@ -493,20 +495,23 @@
 
       "`mod`"
 
-      ($.break.eval/error-cast?* (mod ~a
-                                      ~b))
+      ($.cvm.eval/code?* :CAST
+                         (mod ~a
+                              ~b))
 
 
       "`rem`"
 
-      ($.break.eval/error-cast?* (rem ~a
-                                      ~b))
+      ($.cvm.eval/code?* :CAST
+                         (rem ~a
+                              ~b))
 
 
       "`quot`"
 
-      ($.break.eval/error-cast?* (quot ~a
-                                       ~b)))))
+      ($.cvm.eval/code?* :CAST
+                         (quot ~a
+                               ~b)))))
 
 
 
@@ -521,31 +526,37 @@
 
       "`abs`"
 
-      ($.break.eval/error-cast?* (abs ~x))
+      ($.cvm.eval/code?* :CAST
+                         (abs ~x))
 
 
       "`ceil`"
 
-      ($.break.eval/error-cast?* (ceil ~x))
+      ($.cvm.eval/code?* :CAST
+                         (ceil ~x))
 
 
       "`exp`"
 
-      ($.break.eval/error-cast?* (exp ~x))
+      ($.cvm.eval/code?* :CAST
+                         (exp ~x))
 
 
       "`floor`"
 
-      ($.break.eval/error-cast?* (floor ~x))
+      ($.cvm.eval/code?* :CAST
+                         (floor ~x))
 
 
       "`signum`"
 
-      ($.break.eval/error-cast?* (signum ~x))
+      ($.cvm.eval/code?* :CAST
+                         (signum ~x))
 
 
       "`sqrt`"
-      ($.break.eval/error-cast?* (sqrt ~x)))))
+      ($.cvm.eval/code?* :CAST
+                         (sqrt ~x)))))
 
 
 
@@ -564,8 +575,9 @@
 
       "`pow`"
 
-      ($.break.eval/error-cast?* (pow ~a
-                                      ~b)))))
+      ($.cvm.eval/code?* :CAST
+                         (pow ~a
+                              ~b)))))
 
 
 
@@ -589,22 +601,26 @@
 
       "`*`"
 
-      ($.break.eval/error-cast?* (* ~@x+))
+      ($.cvm.eval/code?* :CAST
+                         (* ~@x+))
 
 
       "`+`"
 
-      ($.break.eval/error-cast?* (+ ~@x+))
+      ($.cvm.eval/code?* :CAST
+                         (+ ~@x+))
 
 
       "`-`"
 
-      ($.break.eval/error-cast?* (- ~@x+))
+      ($.cvm.eval/code?* :CAST
+                         (- ~@x+))
 
 
       "`/`"
 
-      ($.break.eval/error-cast?* (/ ~@x+))
+      ($.cvm.eval/code?* :CAST
+                         (/ ~@x+))
 
 
       "Relative comparators"
@@ -615,34 +631,41 @@
 
           "`<`"
 
-          ($.break.eval/error-cast?* (< ~@x-2+))
+          ($.cvm.eval/code?* :CAST
+                             (< ~@x-2+))
 
     
           "`<=`"
 
-          ($.break.eval/error-cast?* (<= ~@x-2+))
+          ($.cvm.eval/code?* :CAST
+                             (<= ~@x-2+))
 
     
           "`==`"
 
-          ($.break.eval/error-cast?* (== ~@x-2+))
+          ($.cvm.eval/code?* :CAST
+                             (== ~@x-2+))
 
 
           "`>=`"
 
-          ($.break.eval/error-cast?* (>= ~@x-2+))
+          ($.cvm.eval/code?* :CAST
+                             (>= ~@x-2+))
 
     
           "`>`"
 
-          ($.break.eval/error-cast?* (> ~@x-2+))
+          ($.cvm.eval/code?* :CAST
+                             (> ~@x-2+))
 
 
           "`max`"
 
-          ($.break.eval/error-cast?* (max ~@x-2+))
+          ($.cvm.eval/code?* :CAST
+                             (max ~@x-2+))
 
 
           "`min`"
 
-          ($.break.eval/error-cast?* (min ~@x-2+)))))))
+          ($.cvm.eval/code?* :CAST
+                             (min ~@x-2+)))))))

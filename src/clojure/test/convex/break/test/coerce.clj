@@ -6,7 +6,7 @@
 
   (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
-            [convex.break.eval             :as $.break.eval]
+            [convex.cvm.eval               :as $.cvm.eval]
             [convex.lisp                   :as $.lisp]
             [convex.lisp.gen               :as $.lisp.gen]
             [helins.mprop                  :as mprop]))
@@ -40,44 +40,28 @@
 
   ([form-cast form-pred clojure-cast clojure-pred gen]
 
-   (let [suite   (fn [_x x-2 cast?]
-                   [["Consistent with Clojure"
-                     #(clojure-pred x-2)]
+   (TC.prop/for-all [x gen]
+     (let [ctx   ($.cvm.eval/ctx* (def -cast
+                                         (~form-cast ~x)))
+           -cast ($.cvm.eval/result ctx
+                                    '-cast)]
+       (mprop/mult
 
-                    ["Properly cast"
-                     #(identity cast?)]])
-         suite-2 (if clojure-cast
-                   (fn [x x-2 cast?]
-                     (conj (suite x
-                                  x-2
-                                  cast?)
-                           ["Comparing cast with Clojure's"
-                            #(= x-2
-                                (clojure-cast x))]))
-                   suite)]
-     (TC.prop/for-all [x gen]
-       (let [ctx   ($.break.eval/ctx* (def -cast
-                                           (~form-cast ~x)))
-             -cast ($.break.eval/result ctx
-                                        '-cast)]
-         (mprop/mult
+         "Properly cast"
 
-           "Properly cast"
+         ($.cvm.eval/result* ctx
+                             (~form-pred -cast))
 
-           -cast
+         "Predicate is consistent with Clojure"
 
+         (clojure-pred -cast)
 
-           "Predicate is consistent with Clojure"
+         "Comparing cast with Clojure's"
 
-           (clojure-pred ($.break.eval/result ctx
-                                              '-cast))
-
-           "Comparing cast with Clojure's"
-
-           (if clojure-cast
-             (= -cast
-                (clojure-cast x))
-             true)))))))
+         (if clojure-cast
+           (= -cast
+              (clojure-cast x))
+           true))))))
 
 
 
@@ -90,7 +74,8 @@
   [form-cast gen]
 
   (TC.prop/for-all [x gen]
-    ($.break.eval/error-cast?* (~form-cast ~x))))
+    ($.cvm.eval/code?* :CAST
+                       (~form-cast ~x))))
 
 
 ;;;;;;;;;;
@@ -189,24 +174,24 @@
   {:ratio-num 100}
 
   (TC.prop/for-all [x $.lisp.gen/any]
-    (let [ctx ($.break.eval/ctx* (do
-                                   (def x
-                                        (quote ~x))
-                                   (def -encoding
-                                        (encoding x))))]
+    (let [ctx ($.cvm.eval/ctx* (do
+                                 (def x
+                                      (quote ~x))
+                                 (def -encoding
+                                      (encoding x))))]
       (mprop/mult
 
         "Result is a blob"
 
-        ($.break.eval/result ctx
-                             '(blob? -encoding))
+        ($.cvm.eval/result ctx
+                           '(blob? -encoding))
 
 
         "Encoding is deterministic"
 
-        ($.break.eval/result ctx
-                             '(= -encoding
-                                 (encoding x)))))))
+        ($.cvm.eval/result ctx
+                           '(= -encoding
+                               (encoding x)))))))
 
 
 
@@ -218,33 +203,33 @@
 
   (TC.prop/for-all [x (TC.gen/one-of [$.lisp.gen/address
                                       $.lisp.gen/blob])]
-    (let [ctx ($.break.eval/ctx* (def -hash
-                                      (hash ~x)))]
+    (let [ctx ($.cvm.eval/ctx* (def -hash
+                                    (hash ~x)))]
       (mprop/mult
 
         "`hash?`"
 
-        ($.break.eval/result ctx
-                            '(hash? -hash))
+        ($.cvm.eval/result ctx
+                           '(hash? -hash))
 
 
         "Hashing is deterministic"
 
-        ($.break.eval/result* ctx
-                              (= -hash
-                                 (hash ~x)))
+        ($.cvm.eval/result* ctx
+                            (= -hash
+                               (hash ~x)))
 
 
         "Hashes are not mere blobs"
 
-        ($.break.eval/result ctx
-                            '(not (blob? -hash)))
+        ($.cvm.eval/result ctx
+                           '(not (blob? -hash)))
 
 
         "Hashing a hash produces a hash"
 
-        ($.break.eval/result ctx
-                            '(hash? (hash -hash)))))))
+        ($.cvm.eval/result ctx
+                           '(hash? (hash -hash)))))))
 
 
 

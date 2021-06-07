@@ -5,7 +5,7 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.test.check.properties :as TC.prop]
-            [convex.break.eval             :as $.break.eval]
+            [convex.cvm.eval               :as $.cvm.eval]
             [convex.lisp                   :as $.lisp]
             [convex.lisp.gen               :as $.lisp.gen]
             [helins.mprop                  :as mprop]))
@@ -24,7 +24,7 @@
 
     "`fn?`"
 
-    ($.break.eval/result* (fn? ~form))))
+    ($.cvm.eval/result* (fn? ~form))))
 
 
 
@@ -35,8 +35,8 @@
 
   [form arg+ ret]
 
-  (let [ctx ($.break.eval/ctx* (def ret
-                                    ~ret))]
+  (let [ctx ($.cvm.eval/ctx* (def ret
+                                  ~ret))]
     (mprop/check
 
       "Calling a function"
@@ -45,44 +45,44 @@
 
         "Direct call"
 
-        ($.break.eval/result* ctx
-                              (= ret
-                                 (~form ~@arg+)))
+        ($.cvm.eval/result* ctx
+                            (= ret
+                               (~form ~@arg+)))
 
 
         "After def"
 
-        (let [ctx-2 ($.break.eval/ctx* ctx
-                                       (def f
-                                            ~form))]
+        (let [ctx-2 ($.cvm.eval/ctx* ctx
+                                     (def f
+                                          ~form))]
           (mprop/mult
 
             "`fn?`"
 
-            ($.break.eval/result ctx-2
-                                 '(fn? f))
+            ($.cvm.eval/result ctx-2
+                               '(fn? f))
 
 
             "Calling"
 
-            ($.break.eval/result* ctx-2
-                                  (= ret
-                                     (f ~@arg+)))))
+            ($.cvm.eval/result* ctx-2
+                                (= ret
+                                   (f ~@arg+)))))
 
 
         "From `let`, `fn?`"
 
-        ($.break.eval/result* ctx
-                              (let [f ~form]
-                                (fn? f)))
+        ($.cvm.eval/result* ctx
+                            (let [f ~form]
+                              (fn? f)))
 
 
         "From `let`, calling"
 
-        ($.break.eval/result* ctx
-                              (let [f ~form]
-                                (= ret
-                                   (f ~@arg+))))))))
+        ($.cvm.eval/result* ctx
+                            (let [f ~form]
+                              (= ret
+                                 (f ~@arg+))))))))
 
 
 ;;;;;;;;;; Tests

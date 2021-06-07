@@ -11,7 +11,6 @@
   (:require [clojure.data]
             [clojure.pprint]
             [convex.break]
-            [convex.break.eval]
             [convex.break.gen]
             [convex.break.run.fuzz]
             [convex.break.test.account]

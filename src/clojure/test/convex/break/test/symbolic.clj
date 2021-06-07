@@ -6,7 +6,7 @@
 
   (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
-            [convex.break.eval             :as $.break.eval]
+            [convex.cvm.eval               :as $.cvm.eval]
             [convex.lisp.gen               :as $.lisp.gen]
             [helins.mprop                  :as mprop]))
 
@@ -21,4 +21,4 @@
   (TC.prop/for-all [x (TC.gen/one-of [$.lisp.gen/keyword
                                       $.lisp.gen/symbol-quoted
                                       $.lisp.gen/symbol-ns-quoted])]
-    ($.break.eval/like-clojure?* (name ~x))))
+    ($.cvm.eval/like-clojure?* (name ~x))))

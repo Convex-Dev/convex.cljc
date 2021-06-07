@@ -92,7 +92,7 @@
 
   "Like [[exception]] but returns an exception only if it matches the given `code`.
   
-   See [[convex.cvm/std-code*]]."
+   See [[convex.cvm/code-std*]]."
 
   
   ([code form]
@@ -118,14 +118,14 @@
   [code]
 
   (if (keyword? code)
-    `($.cvm/std-code* ~code)
+    `($.cvm/code-std* ~code)
     code))
 
 
 
 (defmacro code*
 
-  "Note: if `code` is a keyword, it is passed to [[convex.cvm/std-code*]]."
+  "Note: if `code` is a keyword, it is passed to [[convex.cvm/code-std*]]."
 
   ([code form]
 
@@ -163,7 +163,7 @@
 
 (defmacro code?*
 
-  "Note: if `code` is a keyword, it is passed to [[convex.cvm/std-code*]]."
+  "Note: if `code` is a keyword, it is passed to [[convex.cvm/code-std*]]."
 
   ([code form]
 

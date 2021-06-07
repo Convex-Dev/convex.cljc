@@ -5,7 +5,6 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.test.check.generators :as TC.gen]
-            [convex.break.eval             :as $.break.eval]
             [convex.cvm                    :as $.cvm]
             [convex.cvm.eval               :as $.cvm.eval]
             [convex.lisp                   :as $.lisp]
@@ -112,7 +111,7 @@
 
   "Address that is not being used yet."
 
-  (TC.gen/such-that #($.break.eval/result* (nil? (account ~%)))
+  (TC.gen/such-that #($.cvm.eval/result* (nil? (account ~%)))
                     $.lisp.gen/address
                     100))
 

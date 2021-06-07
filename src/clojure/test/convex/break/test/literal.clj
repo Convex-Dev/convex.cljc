@@ -18,8 +18,8 @@
   (:require [clojure.test                  :as t]
             [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
-            [convex.break.eval             :as $.break.eval]
             [convex.break.gen              :as $.break.gen]
+            [convex.cvm.eval               :as $.cvm.eval]
             [convex.lisp                   :as $.lisp]
             [convex.lisp.gen               :as $.lisp.gen]
             [helins.mprop                  :as mprop]))
@@ -37,8 +37,8 @@
   (mprop/check
 
     "`=` returns true when an item is compared with itself"
-    ($.break.eval/result* (= ~x
-                             ~x))))
+    ($.cvm.eval/result* (= ~x
+                           ~x))))
 
 
 ;;;;;;;;;; Properties
@@ -60,8 +60,8 @@
         "Round-trip through the CVM"
 
         ($.lisp/= x
-                  ($.break.eval/result* (identity ~x))
-                  ($.break.eval/result* (quote ~x)))))))
+                  ($.cvm.eval/result* (identity ~x))
+                  ($.cvm.eval/result* (quote ~x)))))))
 
 
 ;;;;;;;;;; Scalar values
@@ -69,7 +69,7 @@
 
 (t/deftest nil--
 
-  (t/is (nil? ($.break.eval/result nil))))
+  (t/is (nil? ($.cvm.eval/result nil))))
  
 
 
@@ -119,7 +119,7 @@
 
   (TC.prop/for-all [x ($.break.gen/E-notation $.lisp.gen/long)]
     (= (Double/parseDouble (str x))
-       ($.break.eval/result x))))
+       ($.cvm.eval/result x))))
 
 
 
@@ -130,7 +130,7 @@
   {:ratio-num 100}
 
   (TC.prop/for-all [x ($.break.gen/E-notation $.lisp.gen/double)]
-    ($.break.eval/exception? x)))
+    ($.cvm.eval/exception? x)))
 
 
 
@@ -167,7 +167,7 @@
   (TC.prop/for-all [x (TC.gen/one-of [$.lisp.gen/symbol
                                       $.lisp.gen/symbol-ns])]
     ($.lisp/= x
-              ($.break.eval/result* (identity (quote ~x))))))
+              ($.cvm.eval/result* (identity (quote ~x))))))
 
 
 ;;;;;;;;;; Collections
@@ -188,8 +188,8 @@
                                                       $.lisp.gen/long
                                                       $.lisp.gen/nothing
                                                       $.lisp.gen/string]))]
-    ($.break.eval/result* (= (list ~@x+)
-                             (quote (~@x+))))))
+    ($.cvm.eval/result* (= (list ~@x+)
+                           (quote (~@x+))))))
 
 
 
@@ -198,9 +198,9 @@
   {:ratio-num 10}
 
   (TC.prop/for-all [x $.lisp.gen/map]
-    ($.break.eval/result* (= (hash-map ~@(mapcat identity
-                                                x))
-                             ~x))))
+    ($.cvm.eval/result* (= (hash-map ~@(mapcat identity
+                                               x))
+                            ~x))))
 
 
 
@@ -209,8 +209,8 @@
   {:ratio-num 10}
 
   (TC.prop/for-all [x $.lisp.gen/set]
-    ($.break.eval/result* (= (hash-set ~@x)
-                             ~x))))
+    ($.cvm.eval/result* (= (hash-set ~@x)
+                           ~x))))
 
 
 
@@ -219,8 +219,8 @@
   {:ratio-num 10}
 
   (TC.prop/for-all [x $.lisp.gen/vector]
-    ($.break.eval/result* (= (vector ~@x)
-                             ~x))))
+    ($.cvm.eval/result* (= (vector ~@x)
+                           ~x))))
 
 
 ;;;;;;;;;; Negative tests
@@ -233,4 +233,4 @@
   (TC.prop/for-all [x+ (TC.gen/vector-distinct $.lisp.gen/any
                                                {:max-elements 6
                                                 :min-elements 2})]
-    ($.break.eval/result* (not (= ~@x+)))))
+    ($.cvm.eval/result* (not (= ~@x+)))))

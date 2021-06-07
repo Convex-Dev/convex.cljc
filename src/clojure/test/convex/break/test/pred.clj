@@ -9,7 +9,7 @@
   (:require [clojure.test                  :as t]
             [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
-            [convex.break.eval             :as $.break.eval]
+            [convex.cvm.eval               :as $.cvm.eval]
             [convex.lisp                   :as $.lisp]
             [convex.lisp.gen               :as $.lisp.gen]
             [helins.mprop                  :as mprop]))
@@ -25,7 +25,7 @@
   [form result? f gen]
 
   (TC.prop/for-all [x gen]
-    (let [result ($.break.eval/result* (~form ~x))]
+    (let [result ($.cvm.eval/result* (~form ~x))]
 
       (mprop/mult
 
@@ -117,8 +117,8 @@
   {:ratio-num 50}
 
   (TC.prop/for-all* [$.lisp.gen/address]
-                    #($.break.eval/result (list 'address?
-                                                %))))
+                    #($.cvm.eval/result (list 'address?
+                                              %))))
 
 
 
@@ -156,10 +156,10 @@
 
 (t/deftest boolean?--true
 
-  (t/is (true? ($.break.eval/result true))
+  (t/is (true? ($.cvm.eval/result true))
         "True")
 
-  (t/is (false? ($.break.eval/result false))
+  (t/is (false? ($.cvm.eval/result false))
         "False"))
 
 
@@ -286,9 +286,9 @@
 
 (t/deftest nil?--true
 
-  (t/is (true? (nil? ($.break.eval/result nil))))
+  (t/is (true? (nil? ($.cvm.eval/result nil))))
 
-  (t/is (true? (nil? ($.break.eval/result '(do nil))))))
+  (t/is (true? (nil? ($.cvm.eval/result '(do nil))))))
 
 
 

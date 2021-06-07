@@ -144,7 +144,7 @@
    An exception code can be provided as a filter, meaning that even if an exception occured, this
    functions will return nil unless that exception had the given `code`.
   
-   Also see [[std-code*]] for easily retrieving an official error code. Note that in practise, unlike the CVM
+   Also see [[code-std*]] for easily retrieving an official error code. Note that in practise, unlike the CVM
    itself or any of the core function, a user Convex function can return anything as a code."
 
 
@@ -413,7 +413,7 @@
 ;;;;;;;;;; Miscellaneous
 
 
-(defmacro std-code*
+(defmacro code-std*
 
   "Given a Clojure keyword, returns the corresponding standard error code (any of the Convex keyword the CVM itself
    can throw):

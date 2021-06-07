@@ -6,7 +6,7 @@
 
   (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
-            [convex.break.eval             :as $.break.eval]
+            [convex.cvm.eval               :as $.cvm.eval]
             [convex.lisp                   :as $.lisp]
             [convex.lisp.gen               :as $.lisp.gen]
             [helins.mprop                  :as mprop]))
@@ -96,15 +96,15 @@
                     [sym-bind
                      sym-counter] (TC.gen/vector-distinct $.lisp.gen/symbol
                                                           {:num-elements 2})]
-    ($.break.eval/result* (do
+    ($.cvm.eval/result* (do
+                          (def ~sym-counter
+                               0)
+                          (dotimes [~sym-bind ~n]
                             (def ~sym-counter
-                                 0)
-                            (dotimes [~sym-bind ~n]
-                              (def ~sym-counter
-                                   (+ ~sym-counter
-                                      1)))
-                            (== ~sym-counter
-                                (floor ~n))))))
+                                 (+ ~sym-counter
+                                    1)))
+                          (== ~sym-counter
+                              (floor ~n))))))
 
 
 
@@ -132,7 +132,7 @@
     (= (-> looping+
            first
            :n)
-       ($.break.eval/result (-recur looping+)))))
+       ($.cvm.eval/result (-recur looping+)))))
 
 
 
@@ -147,14 +147,14 @@
                                                       rest))
                                         $.lisp.gen/collection)]
 
-    ($.break.eval/result* (let [x '~x
-                                v (nth x
-                                       ~(rand-int (count x)))]
-                            (= v
-                               (reduce (fn [acc item]
-                                         (if (= item
-                                                v)
-                                           (reduced item)
-                                           acc))
-                                       :convex-sentinel
-                                       x))))))
+    ($.cvm.eval/result* (let [x '~x
+                              v (nth x
+                                     ~(rand-int (count x)))]
+                          (= v
+                             (reduce (fn [acc item]
+                                       (if (= item
+                                              v)
+                                         (reduced item)
+                                         acc))
+                                     :convex-sentinel
+                                     x))))))
