@@ -2,9 +2,12 @@
 
   "Shortcuts for evaluating Convex Lisp code, useful for development and testing.
 
-   Deals with form (ie. Clojure data expressing Convex Lisp code), whereas [[convex.cvm.eval.src]] deals
-   with source code (ie. strings).
+   Takes a form (Clojure data expressing Convex Lisp code) and evaluates to some result returned as Clojure data.
   
+   This namespace offers many flavors of how exceptions and results are handled and returned.
+
+   Primarily useful for dev and testing.
+
    Given context is always forked, meaning the argument is left intact. See [[convex.cvm/fork]]."
 
   {:author "Adam Helinski"}
@@ -42,6 +45,7 @@
 ;;;;;;;;;;
 
 
+
 (defn ctx
 
   "Evaluates the given `form` and returns `ctx`.
@@ -61,6 +65,51 @@
                (-> form
                    $.lisp/src
                    $.cvm/read))))
+
+
+;;;;;;;;;;
+
+
+(defn code
+
+  "Like [[exception]] but returns an exception only if it matches the given code.
+  
+   See [[convex.cvm/code*]]."
+
+  
+  ([code form]
+
+   (convex.cvm.eval/code *ctx-default*
+                         code
+                         form))
+
+
+  ([ctx code form]
+
+   (->> (convex.cvm.eval/ctx ctx
+                             form)
+        ($.cvm/exception code)
+        $.cvm/as-clojure)))
+
+
+
+(defn code?
+
+  "Like [[code]] but returns a boolean indicating if an exception of the given `code occured."
+
+  
+  ([code form]
+
+   (code? *ctx-default*
+          code
+          form))
+
+
+  ([ctx code form]
+
+   (->> (convex.cvm.eval/ctx ctx
+                             form)
+        ($.cvm/exception? code))))
 
 
 

@@ -71,7 +71,7 @@
   (.close w*ctx)
 
 
-  ($.cvm/exception ErrorCodes/CAST
+  ($.cvm/exception? ($.cvm/code* :CAST)
                    ($.cvm/eval @w*ctx
                                ($.cvm/read-form '(+ 4 "fail"))))
       
