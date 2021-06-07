@@ -70,14 +70,29 @@
                    $.cvm/read))))
 
 
+
+(defmacro ctx*
+
+
+  ([form]
+
+   `(convex.cvm.eval/ctx ($.lisp/templ* ~form)))
+
+
+  ([ctx form]
+
+   `(convex.cvm.eval/ctx ~ctx
+                         ($.lisp/templ* ~form))))
+
+
 ;;;;;;;;;;
 
 
 (defn code
 
-  "Like [[exception]] but returns an exception only if it matches the given code.
+  "Like [[exception]] but returns an exception only if it matches the given `code`.
   
-   See [[convex.cvm/code*]]."
+   See [[convex.cvm/std-code*]]."
 
   
   ([code form]
@@ -93,6 +108,36 @@
                              form)
         ($.cvm/exception code)
         $.cvm/as-clojure)))
+
+
+
+(defn- ^:private -code
+
+  ;; Helper for macros which converts the given `code` to an exception code if it is a keyword.
+
+  [code]
+
+  (if (keyword? code)
+    `($.cvm/std-code* ~code)
+    code))
+
+
+
+(defmacro code*
+
+  "Note: if `code` is a keyword, it is passed to [[convex.cvm/std-code*]]."
+
+  ([code form]
+
+   `(convex.cvm.eval/code ~(-code code)
+                          ($.lisp/templ* ~form)))
+
+
+  ([ctx code form]
+
+   `(convex.cvm.eval/code ~ctx
+                          ~(-code code)
+                          ($.lisp/templ* ~form))))
 
 
 
@@ -116,6 +161,24 @@
 
 
 
+(defmacro code?*
+
+  "Note: if `code` is a keyword, it is passed to [[convex.cvm/std-code*]]."
+
+  ([code form]
+
+   `(convex.cvm.eval/code? ~(-code code)
+                           ($.lisp/templ* ~form)))
+
+
+  ([ctx code form]
+
+   `(convex.cvm.eval/code? ~ctx
+                           ~(-code code)
+                           ($.lisp/templ* ~form))))
+
+
+
 (defn exception
 
   "Like [[ctx]] but returns the current exception or nil if there is none."
@@ -136,6 +199,21 @@
 
 
 
+(defmacro exception*
+
+
+  ([form]
+
+   `(exception ($.lisp/templ* ~form)))
+
+
+  ([ctx form]
+
+   `(exception ~ctx
+               ($.lisp/templ* ~form))))
+
+
+
 (defn exception?
 
   "Like [[ctx]] but returns a boolean indicating if an exception occured."
@@ -152,6 +230,21 @@
    (-> (convex.cvm.eval/ctx ctx
                             form)
        $.cvm/exception?)))
+
+
+
+(defmacro exception?*
+
+
+  ([form]
+
+   `(exception? ($.lisp/templ* ~form)))
+
+
+  ([ctx form]
+
+   `(exception? ~ctx
+                ($.lisp/templ* ~form))))
 
 
 
@@ -203,6 +296,36 @@
 
 
 
+(defmacro like-clojure?*
+
+
+  ([form]
+
+   `(like-clojure? ($.lisp/templ* ~form)))
+
+
+  ([ctx form]
+
+   `(like-clojure? ~ctx
+                   ($.lisp/templ* ~form)))
+
+
+  ([form f arg+]
+
+   `(like-clojure? ($.lisp/templ* ~form)
+                   ~f
+                   ~arg+))
+
+
+  ([ctx form f arg+]
+
+   `(like-clojure? ~ctx
+                   ($.lisp/templ* ~form)
+                   ~f
+                   ~arg+)))
+
+
+
 (let [src     (fn [form]
                 ($.lisp/src ($.lisp/templ* (log {:form   (quote ~form)
                                                  :return ~form}))))
@@ -220,15 +343,30 @@
 
     ([form]
 
-     (-> (convex.cvm.eval/ctx form)
+     (-> (convex.cvm/ctx (src form))
          process))
 
 
     ([ctx form]
 
-     (-> (convex.cvm.eval/ctx ctx
-                              form)
+     (-> (convex.cvm/ctx ctx
+                         (src form))
          process))))
+
+
+
+(defmacro log*
+
+
+  ([form]
+
+   `(log ($.lisp/templ* ~form)))
+
+
+  ([ctx form]
+
+   `(log ~ctx
+         ($.lisp/templ* ~form))))
 
 
 
@@ -252,6 +390,21 @@
 
 
 
+(defmacro result*
+
+
+  ([form]
+
+   `(result ($.lisp/templ* ~form)))
+
+
+  ([ctx form]
+
+   `(result ~ctx
+            ($.lisp/templ* ~form))))
+
+
+
 (defn value
 
   "Like [[ctx]] but returns either an [[exception]] or a [[result]]."
@@ -272,3 +425,18 @@
            ($.cvm/result ctx-2)
            exception)
          $.cvm/as-clojure))))
+
+
+
+(defmacro value*
+
+
+  ([form]
+
+   `(value ($.lisp/templ* ~form)))
+
+
+  ([ctx form]
+
+   `(value ~ctx
+           ($.lisp/templ* ~form))))

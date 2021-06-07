@@ -18,8 +18,7 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core ErrorCodes
-                        Init)
+  (:import (convex.core Init)
            (convex.core.data AccountStatus
                              ACell
                              Address
@@ -145,7 +144,7 @@
    An exception code can be provided as a filter, meaning that even if an exception occured, this
    functions will return nil unless that exception had the given `code`.
   
-   Also see [[code*]] for easily retrieving an official error code. Note that in practise, unlike the CVM
+   Also see [[std-code*]] for easily retrieving an official error code. Note that in practise, unlike the CVM
    itself or any of the core function, a user Convex function can return anything as a code."
 
 
@@ -414,9 +413,10 @@
 ;;;;;;;;;; Miscellaneous
 
 
-(defmacro code*
+(defmacro std-code*
 
-  "Given a keyword code, returns the corresponding official error code:
+  "Given a Clojure keyword, returns the corresponding standard error code (any of the Convex keyword the CVM itself
+   can throw):
   
    - `:ARGUMENT`
    - `:ARITY`
@@ -444,7 +444,11 @@
    - `:TODO`
    - `:TRUST`
    - `:UNDECLARED`
-   - `:UNEXPECTED`"
+   - `:UNEXPECTED`
+  
+   Throws if keyword does not match any of those.
+  
+   Note that in user functions, codes can be anything, any type."
 
   [kw]
 

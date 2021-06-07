@@ -1,15 +1,11 @@
 {:config-paths ["io.helins/mprop"]
- :hooks        {:analyze-call {convex.break.eval/ctx*           hooks.convex/templ*
-                               convex.break.eval/error*         hooks.convex/templ*
-                               convex.break.eval/error?*        hooks.convex/templ*
-                               convex.break.eval/error-arg?*    hooks.convex/templ*
-                               convex.break.eval/error-arity?*  hooks.convex/templ*
-                               convex.break.eval/error-cast?*   hooks.convex/templ*
-                               convex.break.eval/error-fund?*   hooks.convex/templ*
-                               convex.break.eval/error-memory?* hooks.convex/templ*
-                               convex.break.eval/error-nobody?* hooks.convex/templ*
-                               convex.break.eval/error-state?*  hooks.convex/templ*
-                               convex.break.eval/error-trust?*  hooks.convex/templ*
-                               convex.break.eval/like-clojure?* hooks.convex/templ*
-                               convex.break.eval/result*        hooks.convex/templ*
-                               convex.lisp/templ*               hooks.convex/templ*}}}
+ :hooks        {:analyze-call {convex.cvm.eval/code*          hooks.convex/templ*
+                               convex.cvm.eval/code?*         hooks.convex/templ*
+                               convex.cvm.eval/ctx*           hooks.convex/templ*
+                               convex.cvm.eval/exception*     hooks.convex/templ*
+                               convex.cvm.eval/exception?*    hooks.convex/templ*
+                               convex.cvm.eval/like-clojure?* hooks.convex/templ*
+                               convex.cvm.eval/log*           hooks.convex/templ*
+                               convex.cvm.eval/result*        hooks.convex/templ*
+                               convex.cvm.eval/value*         hooks.convex/templ*
+                               convex.lisp/templ*             hooks.convex/templ*}}}

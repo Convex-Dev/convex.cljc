@@ -70,9 +70,11 @@
 
   (.close w*ctx)
 
+  
+  ($.cvm.eval/code* :CAST
+                    (+ 4 "cast"))
 
-  ($.cvm/exception? ($.cvm/code* :CAST)
-                   ($.cvm/eval @w*ctx
-                               ($.cvm/read-form '(+ 4 "fail"))))
+
+
       
   )
