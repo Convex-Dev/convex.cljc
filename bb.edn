@@ -145,7 +145,8 @@
                                         first
                                         clojure.edn/read-string )]
                (clojure {:extra-env {"BREAK_MAX_SIZE" max-size
-                                     "BREAK_N_TEST"   n-test}}
+                                     "BREAK_N_TEST"   n-test
+                                     "CVM_CTX"        "convex.break/ctx"}}
                         (str command
                              " "
                              (clojure.string/join " "
@@ -187,10 +188,10 @@
 
              [arg+]
 
-             (clojure (str "-M:kaocha:test -m kaocha.runner --config-file kaocha.edn :jvm "
-                           (clojure.string/join " "
-                                                (concat arg+
-                                                        *command-line-args*)))))
+             (clojure-2 (str "-M:kaocha:test -m kaocha.runner --config-file kaocha.edn :jvm "
+                             (clojure.string/join " "
+                                                  (concat arg+
+                                                          *command-line-args*)))))
 
 
 

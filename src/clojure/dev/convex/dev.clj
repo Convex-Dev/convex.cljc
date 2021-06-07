@@ -6,14 +6,17 @@
    :clj-kondo/config '{:linters {:unused-import    {:level :off}
                                  :unused-namespace {:level :off}}}}
 
-  (:import convex.core.lang.Reader)
+  (:import convex.core.ErrorCodes
+           convex.core.lang.Reader)
   (:require [clojure.data]
             [clojure.pprint]
+            [convex.break]
             [convex.break.eval]
             [convex.break.gen]
             [convex.break.run.fuzz]
             [convex.break.test.account]
             [convex.break.test.actor]
+            [convex.break.test.code]
             [convex.break.test.coerce]
             [convex.break.test.coll]
             [convex.break.test.ctrl]
@@ -25,6 +28,8 @@
             [convex.break.test.math]
             [convex.break.test.pred]
             [convex.break.test.set]
+            [convex.break.test.symbolic]
+            [convex.break.test.syntax]
             [convex.cvm                    :as $.cvm]
             [convex.cvm.eval               :as $.cvm.eval]
             [convex.cvm.eval.src           :as $.cvm.src]
@@ -37,8 +42,7 @@
             [convex.lisp                   :as $.lisp]
             [convex.lisp.gen               :as $.lisp.gen]
             [convex.lisp.test]
-            [clojure.test.check.generators :as TC.gen]
-            [hawk.core                     :as watcher]))
+            [clojure.test.check.generators :as TC.gen]))
 
 
 (set! *warn-on-reflection*
@@ -67,5 +71,9 @@
 
   (.close w*ctx)
 
+
+  ($.cvm/exception ErrorCodes/CAST
+                   ($.cvm/eval @w*ctx
+                               ($.cvm/read-form '(+ 4 "fail"))))
       
   )

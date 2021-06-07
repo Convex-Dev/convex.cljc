@@ -49,7 +49,7 @@
 
 (defn ctx
 
-  "Creates a \"fake\" context, ideal for testing and repl'ing around."
+  "Creates a \"fake\" context. Ideal for testing and repl'ing around."
 
 
   (^Context []
@@ -141,10 +141,20 @@
    Returns the current exception or nil if `ctx` is not in such a state meaning that [[result]]
    can be safely used."
 
-  [^Context ctx]
 
-  (when (.isExceptional ctx)
-    (.getExceptional ctx)))
+  ([^Context ctx]
+
+   (when (.isExceptional ctx)
+     (.getExceptional ctx)))
+
+
+  ([^ACell code ^Context ctx]
+
+   (when (.isExceptional ctx)
+     (let [e (.getExceptional ctx)]
+       (when (= (.getCode e)
+                code)
+         e)))))
 
 
 
@@ -153,6 +163,7 @@
   "Returns true if the given `ctx` is in an exceptional state.
 
    See [[exception]]."
+
 
   [^Context ctx]
 

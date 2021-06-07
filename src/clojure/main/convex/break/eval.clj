@@ -1,6 +1,6 @@
 (ns convex.break.eval
 
-  "Mimicks directly `convex.lisp.eval`, hence the absence of docstrings. Those functions rely on [[ctx-base]]
+  "Mimicks directly `convex.lisp.eval`, hence the absence of docstrings.
    when no context is provided/
   
    Symbols ending with '*' designate a macro equivalent of a related function ([[result*]] for [[result]]) which
@@ -8,14 +8,14 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.cvm      :as $.cvm]
-            [convex.cvm.eval :as $.cvm.eval]
-            [convex.lisp     :as $.lisp]
-            [helins.mprop    :as mprop]))
+  (:require [convex.cvm          :as $.cvm]
+            [convex.cvm.eval     :as $.cvm.eval]
+            [convex.cvm.eval.src :as $.cvm.eval.src]
+            [convex.lisp         :as $.lisp]
+            [helins.mprop        :as mprop]))
 
 
-(declare ctx-base
-         result)
+(declare result)
 
 
 ;;;;;;;;;;
@@ -26,7 +26,7 @@
 
   ([form]
 
-   (convex.break.eval/ctx ctx-base
+   (convex.break.eval/ctx $.cvm.eval.src/*ctx-default*
                           form))
 
 
@@ -57,7 +57,7 @@
 
   ([form]
 
-   (exception ctx-base
+   (exception $.cvm.eval.src/*ctx-default*
               form))
 
 
@@ -88,7 +88,7 @@
 
   ([form]
 
-   (exception? ctx-base
+   (exception? $.cvm.eval.src/*ctx-default*
            form))
 
 
@@ -121,7 +121,7 @@
 
   ([form]
 
-   (error-arg? ctx-base
+   (error-arg? $.cvm.eval.src/*ctx-default*
                form))
 
 
@@ -156,7 +156,7 @@
 
   ([form]
 
-   (error-arity? ctx-base
+   (error-arity? $.cvm.eval.src/*ctx-default*
                  form))
 
 
@@ -190,7 +190,7 @@
 
   ([form]
 
-   (error-cast? ctx-base
+   (error-cast? $.cvm.eval.src/*ctx-default*
                 form))
 
 
@@ -224,7 +224,7 @@
 
   ([form]
 
-   (error-fund? ctx-base
+   (error-fund? $.cvm.eval.src/*ctx-default*
                 form))
 
 
@@ -258,7 +258,7 @@
 
   ([form]
 
-   (error-arg? ctx-base
+   (error-arg? $.cvm.eval.src/*ctx-default*
                form))
 
 
@@ -292,7 +292,7 @@
 
   ([form]
 
-   (error-nobody? ctx-base
+   (error-nobody? $.cvm.eval.src/*ctx-default*
                   form))
 
 
@@ -326,7 +326,7 @@
 
   ([form]
 
-   (error-state? ctx-base
+   (error-state? $.cvm.eval.src/*ctx-default*
                  form))
 
 
@@ -360,7 +360,7 @@
 
   ([form]
 
-   (error-trust? ctx-base
+   (error-trust? $.cvm.eval.src/*ctx-default*
                  form))
 
 
@@ -395,7 +395,7 @@
 
   ([form]
 
-   (like-clojure? ctx-base
+   (like-clojure? $.cvm.eval.src/*ctx-default*
                   form))
 
 
@@ -408,7 +408,7 @@
 
   ([form f arg+]
 
-   (like-clojure? ctx-base
+   (like-clojure? $.cvm.eval.src/*ctx-default*
                   form
                   f
                   arg+))
@@ -459,7 +459,7 @@
 
   ([form]
 
-   (log ctx-base
+   (log $.cvm.eval.src/*ctx-default*
         form))
 
 
@@ -475,7 +475,7 @@
 
   ([form]
 
-   (result ctx-base
+   (result $.cvm.eval.src/*ctx-default*
            form))
 
 
@@ -508,7 +508,7 @@
 
   ([form]
 
-   (result ctx-base
+   (result $.cvm.eval.src/*ctx-default*
            form))
 
 
@@ -532,7 +532,7 @@
 
   ([form]
 
-   (value ctx-base
+   (value $.cvm.eval.src/*ctx-default*
           form))
 
 
@@ -540,14 +540,3 @@
 
    ($.cvm.eval/value ctx
                      form)))
-
-
-;;;;;;;;;;
-
-
-(def ctx-base
-
-  "Base context to use for testing."
-
-  (-> ($.cvm/import {"src/convex/break/util.cvx" '$})
-      ($.cvm/set-juice 1e7)))

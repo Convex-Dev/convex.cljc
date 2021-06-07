@@ -21,10 +21,16 @@
 
   "Evaluates the given `form` and returns `ctx`."
 
-  [ctx form]
 
-  ($.cvm.eval.src/ctx ctx
-                      ($.lisp/src form)))
+  ([form]
+
+   ($.cvm.eval.src/ctx ($.lisp/src form)))
+
+
+  ([ctx form]
+
+   ($.cvm.eval.src/ctx ctx
+                       ($.lisp/src form))))
 
 
 
@@ -32,10 +38,16 @@
 
   "Like [[ctx]] but returns the current exception or nil if there is none."
 
-  [ctx form]
 
-  ($.cvm.eval.src/exception ctx
-                            ($.lisp/src form)))
+  ([form]
+
+   ($.cvm.eval.src/exception ($.lisp/src form)))
+
+
+  ([ctx form]
+
+   ($.cvm.eval.src/exception ctx
+                             ($.lisp/src form))))
 
 
 
@@ -43,27 +55,45 @@
 
   "Like [[ctx]] but returns a boolean indicating if an exception occured."
 
-  [ctx form]
-   
-  ($.cvm.eval.src/exception? ctx
-                             ($.lisp/src form)))
-
-
-
-(defn log
-
-  "Like [[ctx]] but returns the context log as Clojure data structure, where the last entry for the executing
-   address is a map containing the given `form` as well as its return value.
   
-   Useful for debugging, akin to using `println` with Clojure."
+  ([form]
 
-  [ctx form]
+   ($.cvm.eval.src/exception? ($.lisp/src form)))
 
-  (-> ($.cvm.eval.src/ctx ctx
-                          ($.lisp/src ($.lisp/templ* (log {:form   (quote ~form)
-                                                           :return ~form}))))
-      $.cvm/log
-      $.cvm/as-clojure))
+
+  ([ctx form]
+   
+   ($.cvm.eval.src/exception? ctx
+                              ($.lisp/src form))))
+
+
+
+(let [src     (fn [form]
+                ($.lisp/src ($.lisp/templ* (log {:form   (quote ~form)
+                                                 :return ~form}))))
+      process (fn [ctx]
+                (-> ctx
+                    $.cvm/log
+                    $.cvm/as-clojure))]
+  (defn log
+
+    "Like [[ctx]] but returns the context log as Clojure data structure, where the last entry for the executing
+     address is a map containing the given `form` as well as its return value.
+    
+     Useful for debugging, akin to using `println` with Clojure."
+
+
+    ([form]
+
+     (-> ($.cvm.eval.src/ctx (src form))
+         process))
+
+
+    ([ctx form]
+
+     (-> ($.cvm.eval.src/ctx ctx
+                             (src form))
+         process))))
 
 
 
@@ -71,10 +101,16 @@
 
   "Like [[ctx]] but returns the result as Clojure data."
 
-  [ctx form]
 
-  ($.cvm.eval.src/result ctx
-                         ($.lisp/src form)))
+  ([form]
+
+   ($.cvm.eval.src/result ($.lisp/src form)))
+
+
+  ([ctx form]
+
+   ($.cvm.eval.src/result ctx
+                          ($.lisp/src form))))
 
 
 
@@ -82,7 +118,12 @@
 
   "Like [[ctx]] but returns either an [[exception]] or a [[result]]."
   
-  [ctx form]
+  ([form]
 
-  ($.cvm.eval.src/value ctx
-                        ($.lisp/src form)))
+   ($.cvm.eval.src/value ($.lisp/src form)))
+
+
+  ([ctx form]
+
+   ($.cvm.eval.src/value ctx
+                         ($.lisp/src form))))
