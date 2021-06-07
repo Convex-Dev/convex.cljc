@@ -7,7 +7,7 @@
   (:require [clojure.test.check.generators :as TC.gen]
             [convex.break.eval             :as $.break.eval]
             [convex.cvm                    :as $.cvm]
-            [convex.cvm.eval.src           :as $.cvm.eval.src]
+            [convex.cvm.eval               :as $.cvm.eval]
             [convex.lisp                   :as $.lisp]
             [convex.lisp.gen               :as $.lisp.gen]))
 
@@ -132,7 +132,7 @@
                                                           'fn     ;; TODO. https://github.com/Convex-Dev/convex/issues/152
                                                           }
                                                         %))))
-                         ($.cvm/env $.cvm.eval.src/*ctx-default*
+                         ($.cvm/env $.cvm.eval/*ctx-default*
                                     8))))
 
 ;;;;;;;;;;

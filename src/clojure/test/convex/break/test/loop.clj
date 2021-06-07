@@ -26,7 +26,7 @@
    Sometimes, loops are wrapped in a no-arg function just for messing with the recursion point.
   
    Otherwise, execution stops by calling `fail`."
-
+      
   [[{:keys [fixed+
             fn-wrap?
             n
@@ -113,13 +113,14 @@
   {:ratio-num 5}
 
   (TC.prop/for-all [looping+ (TC.gen/vector (TC.gen/hash-map :fixed+      ($.lisp.gen/binding+ 0
-                                                                                          4)
+                                                                                               4)
                                                              :fn-wrap?    $.lisp.gen/boolean
                                                              :n           (TC.gen/choose 0
                                                                                          5)
                                                              :recur-point (TC.gen/elements [:fn
                                                                                             :loop])
-                                                             :sym         (TC.gen/such-that #(not (#{'+
+                                                             :sym         (TC.gen/such-that #(not (#{;; TODO. Must also be different from syms in `:fixed+`
+                                                                                                     '+
                                                                                                      '=
                                                                                                      'fail
                                                                                                      'inc

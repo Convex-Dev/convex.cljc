@@ -9,9 +9,34 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.cvm          :as $.cvm]
-            [convex.cvm.eval.src :as $.cvm.eval.src]
-            [convex.lisp         :as $.lisp]))
+  (:require [convex.cvm  :as $.cvm]
+            [convex.lisp :as $.lisp]))
+
+
+;;;;;;;;;;
+
+
+(def ^:dynamic *ctx-default*
+
+  "Holder for a default context which can set at start-up or dynamically with Clojure's `binding`.
+
+   For preparing one at start-up, set the `CVM_CTX` environment variable to a qualified symbol which points to a
+   context producing function. This function is called without argument when this namespace is required.
+
+   For instance, [[convex.cvm/ctx]] creates a basic context. Hence, if it does not need further preparation:
+
+   ```bash
+   $ env CVM_CTX='convex.cvm/ctx'  clojure ...
+   ```"
+
+  (when-some [ctx-string (not-empty (System/getenv "CVM_CTX"))]
+    (try
+      ((requiring-resolve (symbol ctx-string)))
+      (catch Throwable e
+        (throw (ex-info (str "While trying to produce a default CVM context with: "
+                             ctx-string)
+                        {::env ctx-string}
+                        e))))))
 
 
 ;;;;;;;;;;
@@ -19,18 +44,23 @@
 
 (defn ctx
 
-  "Evaluates the given `form` and returns `ctx`."
+  "Evaluates the given `form` and returns `ctx`.
+  
+   Uses [[convex.cvm/*ctx-default*]] if `ctx` is not provided."
 
 
   ([form]
 
-   ($.cvm.eval.src/ctx ($.lisp/src form)))
+   (convex.cvm.eval/ctx *ctx-default*
+                        form))
 
 
   ([ctx form]
 
-   ($.cvm.eval.src/ctx ctx
-                       ($.lisp/src form))))
+   ($.cvm/eval ($.cvm/fork ctx)
+               (-> form
+                   $.lisp/src
+                   $.cvm/read))))
 
 
 
@@ -41,13 +71,16 @@
 
   ([form]
 
-   ($.cvm.eval.src/exception ($.lisp/src form)))
+   (exception *ctx-default*
+              form))
 
 
   ([ctx form]
 
-   ($.cvm.eval.src/exception ctx
-                             ($.lisp/src form))))
+   (-> (convex.cvm.eval/ctx ctx
+                            form)
+       $.cvm/exception
+       $.cvm/as-clojure)))
 
 
 
@@ -55,16 +88,18 @@
 
   "Like [[ctx]] but returns a boolean indicating if an exception occured."
 
-  
+
   ([form]
 
-   ($.cvm.eval.src/exception? ($.lisp/src form)))
+   (exception? *ctx-default*
+               form))
 
 
   ([ctx form]
-   
-   ($.cvm.eval.src/exception? ctx
-                              ($.lisp/src form))))
+
+   (-> (convex.cvm.eval/ctx ctx
+                            form)
+       $.cvm/exception?)))
 
 
 
@@ -85,14 +120,14 @@
 
     ([form]
 
-     (-> ($.cvm.eval.src/ctx (src form))
+     (-> (convex.cvm.eval/ctx form)
          process))
 
 
     ([ctx form]
 
-     (-> ($.cvm.eval.src/ctx ctx
-                             (src form))
+     (-> (convex.cvm.eval/ctx ctx
+                              form)
          process))))
 
 
@@ -104,13 +139,16 @@
 
   ([form]
 
-   ($.cvm.eval.src/result ($.lisp/src form)))
+   (result *ctx-default*
+           form))
 
 
   ([ctx form]
 
-   ($.cvm.eval.src/result ctx
-                          ($.lisp/src form))))
+   (-> (convex.cvm.eval/ctx ctx
+                            form)
+       $.cvm/result
+       $.cvm/as-clojure)))
 
 
 
@@ -118,12 +156,19 @@
 
   "Like [[ctx]] but returns either an [[exception]] or a [[result]]."
   
+
   ([form]
 
-   ($.cvm.eval.src/value ($.lisp/src form)))
+   (value *ctx-default*
+          form))
 
 
   ([ctx form]
 
-   ($.cvm.eval.src/value ctx
-                         ($.lisp/src form))))
+   (let [ctx-2     (convex.cvm.eval/ctx ctx
+                                        form)
+         exception ($.cvm/exception ctx-2)]
+     (-> (if (nil? exception)
+           ($.cvm/result ctx-2)
+           exception)
+         $.cvm/as-clojure))))

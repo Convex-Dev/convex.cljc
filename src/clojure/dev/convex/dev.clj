@@ -32,7 +32,6 @@
             [convex.break.test.syntax]
             [convex.cvm                    :as $.cvm]
             [convex.cvm.eval               :as $.cvm.eval]
-            [convex.cvm.eval.src           :as $.cvm.src]
             [convex.cvm.test]
             [convex.cvm.type               :as $.cvm.type]
             [convex.example.exec]
@@ -66,7 +65,7 @@
        ($.cvm/watch {"src/convex/break/util.cvx" '$}))
 
   ($.cvm.eval/result @w*ctx
-                     '(hash (blob "1212"))
+                     '(hash? (hash (blob "1212")))
                      )
 
   (.close w*ctx)

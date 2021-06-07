@@ -4,7 +4,6 @@
 
   (:require [convex.cvm]
             [convex.cvm.eval]
-            [convex.cvm.eval.src]
             [convex.lisp]))
 
 
@@ -70,13 +69,11 @@
 
 
 
-  ;; Using helpers (takes care of forking and translating into Clojure)
+  ;; Using a helper (takes care of handling the form, forking the context, and translating into Clojure)
   ;;
   (= 4
      (convex.cvm.eval/result base-ctx
-                             '(my-dec (my-inc 42)))
-     (convex.cvm.eval.src/result base-ctx
-                                 "(my-dec (my-inc 42))"))
+                             '(my-dec (my-inc 42))))
 
   
   )

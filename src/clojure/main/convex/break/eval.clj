@@ -10,7 +10,6 @@
 
   (:require [convex.cvm          :as $.cvm]
             [convex.cvm.eval     :as $.cvm.eval]
-            [convex.cvm.eval.src :as $.cvm.eval.src]
             [convex.lisp         :as $.lisp]
             [helins.mprop        :as mprop]))
 
@@ -26,7 +25,7 @@
 
   ([form]
 
-   (convex.break.eval/ctx $.cvm.eval.src/*ctx-default*
+   (convex.break.eval/ctx $.cvm.eval/*ctx-default*
                           form))
 
 
@@ -57,7 +56,7 @@
 
   ([form]
 
-   (exception $.cvm.eval.src/*ctx-default*
+   (exception $.cvm.eval/*ctx-default*
               form))
 
 
@@ -88,7 +87,7 @@
 
   ([form]
 
-   (exception? $.cvm.eval.src/*ctx-default*
+   (exception? $.cvm.eval/*ctx-default*
            form))
 
 
@@ -121,7 +120,7 @@
 
   ([form]
 
-   (error-arg? $.cvm.eval.src/*ctx-default*
+   (error-arg? $.cvm.eval/*ctx-default*
                form))
 
 
@@ -156,7 +155,7 @@
 
   ([form]
 
-   (error-arity? $.cvm.eval.src/*ctx-default*
+   (error-arity? $.cvm.eval/*ctx-default*
                  form))
 
 
@@ -190,7 +189,7 @@
 
   ([form]
 
-   (error-cast? $.cvm.eval.src/*ctx-default*
+   (error-cast? $.cvm.eval/*ctx-default*
                 form))
 
 
@@ -224,7 +223,7 @@
 
   ([form]
 
-   (error-fund? $.cvm.eval.src/*ctx-default*
+   (error-fund? $.cvm.eval/*ctx-default*
                 form))
 
 
@@ -258,7 +257,7 @@
 
   ([form]
 
-   (error-arg? $.cvm.eval.src/*ctx-default*
+   (error-arg? $.cvm.eval/*ctx-default*
                form))
 
 
@@ -292,7 +291,7 @@
 
   ([form]
 
-   (error-nobody? $.cvm.eval.src/*ctx-default*
+   (error-nobody? $.cvm.eval/*ctx-default*
                   form))
 
 
@@ -326,7 +325,7 @@
 
   ([form]
 
-   (error-state? $.cvm.eval.src/*ctx-default*
+   (error-state? $.cvm.eval/*ctx-default*
                  form))
 
 
@@ -360,7 +359,7 @@
 
   ([form]
 
-   (error-trust? $.cvm.eval.src/*ctx-default*
+   (error-trust? $.cvm.eval/*ctx-default*
                  form))
 
 
@@ -395,7 +394,7 @@
 
   ([form]
 
-   (like-clojure? $.cvm.eval.src/*ctx-default*
+   (like-clojure? $.cvm.eval/*ctx-default*
                   form))
 
 
@@ -408,7 +407,7 @@
 
   ([form f arg+]
 
-   (like-clojure? $.cvm.eval.src/*ctx-default*
+   (like-clojure? $.cvm.eval/*ctx-default*
                   form
                   f
                   arg+))
@@ -459,7 +458,7 @@
 
   ([form]
 
-   (log $.cvm.eval.src/*ctx-default*
+   (log $.cvm.eval/*ctx-default*
         form))
 
 
@@ -475,7 +474,7 @@
 
   ([form]
 
-   (result $.cvm.eval.src/*ctx-default*
+   (result $.cvm.eval/*ctx-default*
            form))
 
 
@@ -508,7 +507,7 @@
 
   ([form]
 
-   (result $.cvm.eval.src/*ctx-default*
+   (result $.cvm.eval/*ctx-default*
            form))
 
 
@@ -532,7 +531,7 @@
 
   ([form]
 
-   (value $.cvm.eval.src/*ctx-default*
+   (value $.cvm.eval/*ctx-default*
           form))
 
 

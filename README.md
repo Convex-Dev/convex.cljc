@@ -101,9 +101,7 @@ is dealing with forms expressed as Clojure data or as text:
 ```clojure
 (= 4
    (convex.cvm.eval/result base-ctx
-                           '(my-dec (my-inc 42)))
-   (convex.cvm.eval.src/result base-ctx
-                               "(my-dec (my-inc 42))"))
+                           '(my-dec (my-inc 42))))
 ```
 
 
