@@ -653,8 +653,8 @@
                                           (if-some [x-2 (cond
                                                           (string? x)      x
                                                           ($.lisp/blob? x) ($.lisp/meta-raw x))]
-                                            (= (count x-2)
-                                               64)
+                                            (not= (count x-2)
+                                                         64)
                                             (some? x)))
                                         $.lisp.gen/any)]
     ($.break.eval/error-cast?* (set-key ~x))))

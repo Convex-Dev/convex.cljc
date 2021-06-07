@@ -2,14 +2,15 @@
 
   "Dev playground."
 
-  {:author "Adam Helinski"}
+  {:author           "Adam Helinski"
+   :clj-kondo/config '{:linters {:unused-import    {:level :off}
+                                 :unused-namespace {:level :off}}}}
 
   (:import convex.core.lang.Reader)
   (:require [clojure.data]
             [clojure.pprint]
             [convex.break.eval]
             [convex.break.gen]
-            [convex.break.prop]
             [convex.break.run.fuzz]
             [convex.break.test.account]
             [convex.break.test.actor]
@@ -61,12 +62,8 @@
        ($.cvm/watch {"src/convex/break/util.cvx" '$}))
 
   ($.cvm.eval/result @w*ctx
-                     ($.lisp/templ* (do
-                                      (defn f [a]
-                                        (if (zero? a)
-                                          :ok
-                                          (tailcall (f (dec a)))))
-                                      (f 10))))
+                     '(hash (blob "1212"))
+                     )
 
   (.close w*ctx)
 

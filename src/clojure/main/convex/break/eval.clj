@@ -8,10 +8,10 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.break.prop :as $.break.prop]
-            [convex.cvm        :as $.cvm]
-            [convex.cvm.eval   :as $.cvm.eval]
-            [convex.lisp       :as $.lisp]))
+  (:require [convex.cvm      :as $.cvm]
+            [convex.cvm.eval :as $.cvm.eval]
+            [convex.lisp     :as $.lisp]
+            [helins.mprop    :as mprop]))
 
 
 (declare ctx-base
@@ -520,9 +520,10 @@
                    $.cvm/result
                    $.cvm/as-clojure)]
      (or res
-         ($.break.prop/fail {:convex.test/log (-> ctx-2
-                                                  $.cvm/log
-                                                  $.cvm/as-clojure)})))))
+         (mprop/fail "Failure, accessing log"
+                     {:convex.test/log (-> ctx-2
+                                           $.cvm/log
+                                           $.cvm/as-clojure)})))))
 
 
 

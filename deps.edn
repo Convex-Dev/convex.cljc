@@ -50,7 +50,7 @@
  {;cljs-ajax/cljs-ajax  {:mvn/version "0.8.3"}
   hawk/hawk                {:mvn/version "0.2.11"}
   org.clojure/test.check   {:mvn/version "1.1.0"}
-  world.convex/convex      {:local/root "cvm/76e557391b3d4e1064fe617d7099109dce1c5065.jar"}}
+  world.convex/convex      {:local/root "cvm/06710c159311c980cca3a417adcd8444cc67a4f4.jar"}}
 
  :paths
  ["src/clojure/main"]}

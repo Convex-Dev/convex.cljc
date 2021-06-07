@@ -2,6 +2,8 @@
 
   "Mimicks [[convex.cvm.eval]] but for evaling Convex Lisp source, strings of code."
 
+  ;; In reality, it is the opposite. This namespace does all the work while [[convex.cvm.eval]] delegates to it?
+
   {:author "Adam Helinski"}
 
   (:require [convex.cvm :as $.cvm]))
