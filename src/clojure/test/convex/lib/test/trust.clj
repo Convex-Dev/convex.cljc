@@ -9,6 +9,7 @@
             [convex.cvm                    :as $.cvm]
             [convex.cvm.eval               :as $.cvm.eval]
             [convex.cvm.file               :as $.cvm.file]
+            [convex.cvm.raw                :as $.cvm.raw]
             [convex.lisp.gen               :as $.lisp.gen]
             [helins.mprop                  :as mprop]))
 
@@ -20,12 +21,15 @@
 
   "Base context for this namespace."
 
-  (-> ($.cvm/ctx)
-      $.cvm/juice-refill
-      ($.cvm.file/deploy '$
-                         "src/convex/break/util.cvx")
-      ($.cvm.file/deploy 'trust
-                         "src/convex/lib/trust.cvx")))
+  ($.cvm.file/load [["src/convex/break/util.cvx"
+                     {:code (partial $.cvm.raw/deploy
+                                     ($.cvm.raw/symbol '$))}]
+
+                    ["src/convex/lib/trust.cvx"
+                     {:code (partial $.cvm.raw/deploy
+                                     ($.cvm.raw/symbol 'trust))}]]
+
+                   {:after-run $.cvm/juice-refill}))
 
 
 ;;;;;;;;;; Suites

@@ -5,11 +5,11 @@
   {:author "Adam Helinski"}
 
   (:refer-clojure :exclude [intern
+                            load
                             read])
   (:import java.io.File)
-  (:require [convex.cvm     :as $.cvm]
-            [convex.cvm.raw :as $.cvm.raw]
-            [hawk.core      :as watcher]))
+  (:require [convex.cvm :as $.cvm]
+            [hawk.core  :as watcher]))
 
 
 ;;;;;;;;;;
@@ -24,77 +24,6 @@
   (-> path
       slurp
       $.cvm/read))
-
-
-
-(defn run
-
-  ""
-
-
-  ([ctx path]
-
-   (run ctx
-        path
-        identity))
-
-
-  ([ctx path wrap-read]
-
-   (let [juice- ($.cvm/juice ctx)]
-     (.withJuice ($.cvm/eval ($.cvm/fork ctx)
-                             (-> path
-                                 read
-                                 wrap-read))
-                 juice-))))
-
-
-;;;;;;;;;;
-
-
-(defn deploy
-
-  ""
-
-
-  ([ctx sym path]
-
-   (deploy ctx
-           sym
-           path
-           identity))
-
-
-  ([ctx sym path wrap-read]
-
-   (run ctx
-        path
-        (fn [parsed]
-          ($.cvm.raw/intern-deploy ($.cvm.raw/symbol sym)
-                                   (wrap-read parsed))))))
-
-
-
-(defn intern
-
-  ""
-
-
-  ([ctx sym path]
-
-   (intern ctx
-           sym
-           path
-           identity))
-          
-
-  ([ctx sym path wrap-read]
-
-   (run ctx
-        path
-        (fn [parsed]
-          ($.cvm.raw/def ($.cvm.raw/symbol sym)
-                         (wrap-read parsed))))))
 
 
 ;;;;;;;;;;
@@ -188,7 +117,7 @@
   ""
 
   [{:as   env
-    :keys [after-import
+    :keys [after-run
            init
            step+]}]
 
@@ -206,8 +135,8 @@
                    ((or init
                         $.cvm/ctx))
                    step+)
-           after-import
-           after-import)))
+           after-run
+           after-run)))
 
 
 
@@ -259,6 +188,28 @@
        cache)))
 
 
+;;;;;;;;;;
+
+
+(defn load
+
+  ""
+
+
+  ([step+]
+
+   (load step+
+         nil))
+
+
+  ([step+ option+]
+
+   (-> (env step+
+            option+)
+       exec
+       :ctx)))
+
+
 ;;;;;;;;;; Watching Convex Lisp files and syncing with a context
 
 
@@ -282,7 +233,7 @@
 
    | Key | Value | Default
    |---|---|---|
-   | `:after-import` | Function **ctx** -> **ctx** run after all steps | `identity` |
+   | `:after-run` | Function **ctx** -> **ctx** run after all steps | `identity` |
    | `:init` | No-arg function which create the initial context prior to running through steps | `convex.cvm/ctx` |
 
    Reifies `java.lang.AutoCloseable`, hence can be stopped with `.close`."

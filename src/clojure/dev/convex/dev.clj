@@ -38,6 +38,7 @@
             [convex.example.templ]
 			[convex.lib.dev.lab.xform]
             [convex.lib.dev.trust]
+            [convex.lib.test.trust]
             [convex.lisp                   :as $.lisp]
             [convex.lisp.gen               :as $.lisp.gen]
             [convex.lisp.test]
@@ -62,20 +63,18 @@
 
 
   (def ctx
-       (-> ($.cvm/ctx)
-           ($.cvm/eval ($.cvm.file/deploy 'lib
-                                          "src/convex/break/util.cvx"))))
+       ($.cvm.file/load [["src/convex/break/util.cvx"]]))
 
 
   ($.cvm.eval/result* ctx
-                      lib/every?)
+                      foo)
 
 
 
 
   (def w*ctx
        ($.cvm.file/watch [["src/convex/break/util.cvx"
-                           {:code (partial $.cvm.raw/intern-deploy
+                           {:code (partial $.cvm.raw/deploy
                                            ($.cvm.raw/symbol '$))}]]))
 
   (.close w*ctx)
