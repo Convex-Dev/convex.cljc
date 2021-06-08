@@ -67,27 +67,23 @@
                           "src/convex/break/util.cvx"))
 
   ($.cvm.eval/result* ctx
-                      lib)
+                      lib/every?)
 
 
 
-
-  (def w*ctx
-       ($.cvm/watch [["src/convex/break/util.cvx" '$]]))
-
-  ($.cvm.eval/result @w*ctx
-                     '(hash? (hash (blob "1212")))
-                     )
 
   (.close w*ctx)
+  (def w*ctx
+       ($.cvm.file/watch [["src/convex/break/util.cvx" '$]]))
+
+
+  ($.cvm/exception @w*ctx)
+
+  ($.cvm.eval/result* @w*ctx
+                      $/foo)
+
 
   
-  ($.cvm.eval/code* :CAST
-                    (+ 4 "cast"))
-
-
-  ($.lisp/src [:ok ($.cvm.raw/keyword :test)])
-
 
       
   )

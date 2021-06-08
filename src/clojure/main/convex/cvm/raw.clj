@@ -272,7 +272,7 @@
 
   ""
   
-  [& form+]
+  [form+]
 
   (list (cons Symbols/DO
               form+)))
@@ -289,6 +289,20 @@
          x
          (keyword :as)
          as]))
+
+
+
+(defn intern-deploy
+
+  ""
+
+  [sym code]
+
+  (convex.cvm.raw/do [(convex.cvm.raw/def sym
+                                          (deploy code))
+                      (convex.cvm.raw/import (list [(symbol 'address)
+                                                    sym])
+                                             sym)]))
 
 
 
