@@ -327,8 +327,8 @@
 
 
 (let [src     (fn [form]
-                ($.lisp/src ($.lisp/templ* (log {:form   (quote ~form)
-                                                 :return ~form}))))
+                ($.lisp/templ* (log {:form   (quote ~form)
+                                     :return ~form})))
       process (fn [ctx]
                 (-> ctx
                     $.cvm/log
@@ -343,14 +343,14 @@
 
     ([form]
 
-     (-> (convex.cvm/ctx (src form))
+     (-> (convex.cvm.eval/ctx (src form))
          process))
 
 
     ([ctx form]
 
-     (-> (convex.cvm/ctx ctx
-                         (src form))
+     (-> (convex.cvm.eval/ctx ctx
+                              (src form))
          process))))
 
 

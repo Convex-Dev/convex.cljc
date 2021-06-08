@@ -1,0 +1,62 @@
+(do
+
+  (def inventory
+       [{:code     :apple
+         :price    500
+         :quantity 5
+         :tag+     #{:fruit}}
+        {:code     :banana
+         :price    320
+         :quantity 0
+         :tag+     #{:fruit}}
+        {:code     :carrot
+         :price    200
+         :quantity 26
+         :tag+     #{:root}}
+        {:code     :onion
+         :price    350
+         :quantity 0
+         :tag+     #{:root}}
+        {:code     :pear
+         :price    620
+         :quantity 14
+         :tag+     #{:fruit}}
+        {:code     :potato
+         :price    175
+         :quantity 0
+         :tag+     #{:root}}])
+
+
+
+  (def code
+       :code)
+
+  (def price
+       :price)
+
+  (def quantity
+       :quantity)
+
+  (def tag+
+       :tag+)
+
+
+
+  (defn available?
+
+    [x]
+
+    (> (quantity x)
+       0))
+
+
+
+  (defn out-of-stock?
+
+    [x]
+
+    (not (available? x)))
+
+
+
+  )
