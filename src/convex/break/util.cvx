@@ -1,6 +1,10 @@
 (do
 
 
+  (def foo 42)
+
+
+
   (defn allowance
 
     ([]

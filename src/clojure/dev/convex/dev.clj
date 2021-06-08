@@ -62,9 +62,10 @@
 
 
   (def ctx
-       ($.cvm.file/deploy ($.cvm/ctx)
-                          'lib
-                          "src/convex/break/util.cvx"))
+       (-> ($.cvm/ctx)
+           ($.cvm/eval ($.cvm.file/deploy 'lib
+                                          "src/convex/break/util.cvx"))))
+
 
   ($.cvm.eval/result* ctx
                       lib/every?)
@@ -72,9 +73,12 @@
 
 
 
-  (.close w*ctx)
   (def w*ctx
-       ($.cvm.file/watch [["src/convex/break/util.cvx" '$]]))
+       ($.cvm.file/watch [["src/convex/break/util.cvx"
+                           {:code (partial $.cvm.raw/intern-deploy
+                                           ($.cvm.raw/symbol '$))}]]))
+
+  (.close w*ctx)
 
 
   ($.cvm/exception @w*ctx)
