@@ -246,6 +246,20 @@
 ;;;;;;;;;; Modifying context properties after fork
 
 
+(defn juice-preserve
+
+  "Executes `(f ctx)`, `f` being a function `ctx` -> `ctx`.
+  
+   The returned `ctx` will have the same amount of juice as the original."
+
+  [ctx f]
+
+  (let [juice- (juice ctx)]
+    (.withJuice ^Context (f ctx)
+                juice-)))
+
+
+
 (defn juice-refill
 
   "Forks the given context and refills juice to maximum.

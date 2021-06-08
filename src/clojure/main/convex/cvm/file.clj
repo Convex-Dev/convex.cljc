@@ -97,152 +97,235 @@
                          (wrap-read parsed))))))
 
 
+;;;;;;;;;;
+
+
+(defn cache
+  
+  ""
+
+  ([env]
+
+   (update env
+           :step+
+           (fn [step+]
+             (reduce-kv cache
+                        step+
+                        (env :path->i-step+ )))))
+
+
+  ([env path-canonical]
+
+   (update env
+           :step+
+           (fn [step+]
+             (cache step+
+                    path-canonical
+                    (get-in env
+                            [:path->i-step+
+                             path-canonical])))))
+
+
+  ([step+ path-canonical i-step+]
+
+   (let [cache (try
+                 (read path-canonical)
+                 (catch Throwable e
+                   (throw (ex-info (str "While reading: "
+                                        path-canonical)
+                                   {::path path-canonical}
+                                   e))))]
+     (reduce (fn [step-2+ i-step]
+               (update step-2+
+                       i-step
+                       (fn [{:as    step
+                             :keys [code]}]
+                         (assoc step
+                                :cache
+                                (cond->
+                                  cache
+                                  code
+                                  code)))))
+             step+
+             i-step+))))
+
+
+
+(defn cache-purge
+
+  ""
+
+
+  ([env]
+
+   (update env
+           :step+
+           (fn [step+]
+             (mapv #(dissoc %
+                            :cache)
+                   step+))))
+
+
+  ([env path-canonical]
+
+   (update env
+           :step+
+           (fn [step+]
+             (reduce (fn [step-2+ i-step]
+                       (update step-2+
+                               i-step
+                               dissoc
+                               :cache))
+                     step+
+                     (get-in env
+                             [:path->i-step+
+                              path-canonical]))))))
+
+
+
+(defn exec
+
+  ""
+
+  [{:as   env
+    :keys [after-import
+           init
+           step+]}]
+
+  (assoc env
+         :ctx
+         (cond->
+           (reduce (fn [ctx {:keys [cache
+                                    eval]}]
+                     (if cache
+                       ((or eval
+                            $.cvm/eval)
+                        ctx
+                        cache)
+                       ctx))
+                   ((or init
+                        $.cvm/ctx))
+                   step+)
+           after-import
+           after-import)))
+
+
+
+
+(defn prepare-step+
+
+  ""
+
+  [step+]
+
+  (reduce (fn [env [i-step [^String path step]]]
+               (let [path-2 (.getCanonicalPath (File. path))]
+                 (-> env
+                     (update-in [:path->i-step+
+                                 path-2]
+                                (fnil conj
+                                      [])
+                               i-step)
+                     (update :step+
+                             conj
+                             (assoc step
+                                    :i    i-step
+                                    :path path-2)))))
+             {:path->i-step+ {}
+              :step+         []}
+             (partition 2
+                        (interleave (range)
+                                    step+))))
+
+
+
+
+(defn env
+
+  ""
+
+  
+  ([step+]
+
+   (env step+
+        nil))
+
+
+  ([step+ option+]
+
+   (-> step+
+       prepare-step+
+       (merge option+)
+       cache)))
+
+
 ;;;;;;;;;; Watching Convex Lisp files and syncing with a context
 
 
-(let [-cache     (fn [step+ path i-step+]
-                   (let [cache (try
-                                 (read path)
-                                 (catch Throwable e
-                                   (throw (ex-info (str "While reading: "
-                                                        path)
-                                                   {::path path}
-                                                   e))))]
-                     (reduce (fn [step-2+ i-step]
-                               (update step-2+
-                                       i-step
-                                       (fn [{:as    step
-                                             :keys [code]}]
-                                         (assoc step
-                                                :cache
-                                                (cond->
-                                                  cache
-                                                  code
-                                                  code)))))
-                             step+
-                             i-step+)))
+(defn watch
 
-      -exec      (fn [{:as   env
-                       :keys [after-import
-                              init
-                              step+]}]
-                   (assoc env
-                          :ctx
-                          (cond->
-                            (reduce (fn [ctx {:keys [cache
-                                                     eval]}]
-                                      (if cache
-                                        ((or eval
-                                             $.cvm/eval)
-                                         ctx
-                                         cache)
-                                        ctx))
-                                    (init)
-                                    step+)
-                            after-import
-                            after-import)))]
+  "Starts a watcher which syncs Convex Lisp files to a context.
 
-  (defn watch
+   When a file is modified, its source is processed and all sources are evaluated in the given order, step by step.
 
-    "Starts a watcher which syncs Convex Lisp files to a context.
+   `step+` is a collection of steps, 2-tuples composed of:
 
-     When a file is modified, its source is processed and all sources are evaluated in the given order, step by step.
+   - Path to a Convex Lisp file
+   - Map with:
 
-     `step+` is a collection of steps, 2-tuples composed of:
+   | Key | Optional? | Value | Default |
+   |---|---|---|---|
+   | `:code` | True | Function **code from target file** -> **code** (as a Convex object) | `identity` |
+   | `:eval` | True | Evaluating function which runs **code** for the target file (as a Convex object) | `convex.cvm/eval` |
 
-     - Path to a Convex Lisp file
-     - Map with:
+   `option+` is a map of options:
 
-     | Key | Optional? | Value | Default |
-     |---|---|---|---|
-     | `:code` | True | Function **code from target file** -> **code** (as a Convex object) | `identity` |
-     | `:eval` | True | Evaluating function which runs **code** for the target file (as a Convex object) | `convex.cvm/eval` |
+   | Key | Value | Default
+   |---|---|---|
+   | `:after-import` | Function **ctx** -> **ctx** run after all steps | `identity` |
+   | `:init` | No-arg function which create the initial context prior to running through steps | `convex.cvm/ctx` |
 
-     `option+` is a map of options:
-
-     | Key | Value | Default
-     |---|---|---|
-     | `:after-import` | Function **ctx** -> **ctx** run after all steps | `identity` |
-     | `:init` | No-arg function which create the initial context prior to running through steps | `convex.cvm/ctx` |
-
-     Reifies `java.lang.AutoCloseable`, hence can be stopped with `.close`."
+   Reifies `java.lang.AutoCloseable`, hence can be stopped with `.close`."
 
 
-    ([step+]
+  ([step+]
 
-     (watch step+
-            nil))
-
-
-    ([step+ option+]
-
-     (let [after-import  (or (:after-import option+)
-                             identity)
-           init          (or (:init option+)
-                             $.cvm/ctx)
-           env           (reduce (fn [env [i-step [^String path step]]]
-                                   (let [path-2 (.getCanonicalPath (File. path))]
-                                     (-> env
-                                         (update-in [:path->i-step+
-                                                     path-2]
-                                                    (fnil conj
-                                                          [])
-                                                   i-step)
-                                         (update :step+
-                                                 conj
-                                                 (assoc step
-                                                        :i    i-step
-                                                        :path path-2)))))
-                                 {:after-import  after-import
-                                  :init          init
-                                  :path->i-step+ {}
-                                  :step+         []}
-                                 (partition 2
-                                            (interleave (range)
-                                                        step+)))
-           path->i-step+ (env :path->i-step+)
-           *env          (atom (-> env
-                                   (update :step+
-                                           (fn [step+]
-                                             (reduce-kv -cache
-                                                        step+
-                                                        path->i-step+)))
-                                   -exec))
-           watcher       (watcher/watch! [{:handler (fn [_ {:keys [^File file
-                                                                   kind]}]
-                                                      (swap! *env
-                                                             (fn [env]
-                                                               (let [path    (.getCanonicalPath file)
-                                                                     i-step+ (get-in env
-                                                                                     [:path->i-step+
-                                                                                      path])]
-                                                                 (-exec (update env
-                                                                                :step+
-                                                                                (fn [step+]
-                                                                                  (if (identical? kind
-                                                                                                  :delete)
-                                                                                    (reduce (fn [step-2+ i-step]
-                                                                                              (update step-2+
-                                                                                                      i-step
-                                                                                                      dissoc
-                                                                                                      :cache))
-                                                                                            step+
-                                                                                            i-step+)
-                                                                                    (-cache step+
-                                                                                            path
-                                                                                            i-step+)))))))))
-                                           :paths   (keys path->i-step+)}])]
-
-       (reify
+   (watch step+
+          nil))
 
 
-         clojure.lang.IDeref
+  ([step+ option+]
 
-           (deref [_]
-             (@*env :ctx))
-         
+   (let [env-    (exec (env step+
+                            option+))
+         *env    (atom nil)
+         watcher (watcher/watch! [{:handler (fn [_ {:keys [^File file
+                                                           kind]}]
+                                              (swap! *env
+                                                     (fn [env]
+                                                       (let [path (.getCanonicalPath file)]
+                                                         (exec (if (identical? kind
+                                                                               :delete)
+                                                                 (cache-purge env
+                                                                              cache)
+                                                                 (cache env
+                                                                        path)))))))
+                                   :paths   (keys (env- :path->i-step+))}])]
+     (reset! *env
+             (assoc env-
+                    :watcher
+                    watcher))
 
-         java.lang.AutoCloseable
+     (reify
 
-           (close [_]
-             (watcher/stop! watcher)))))))
+
+       clojure.lang.IDeref
+
+         (deref [_]
+           (@*env :ctx))
+       
+
+       java.lang.AutoCloseable
+
+         (close [_]
+           (watcher/stop! watcher))))))
