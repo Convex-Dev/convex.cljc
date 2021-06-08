@@ -8,6 +8,7 @@
             [clojure.test.check.properties :as TC.prop]
             [convex.cvm                    :as $.cvm]
             [convex.cvm.eval               :as $.cvm.eval]
+            [convex.cvm.file               :as $.cvm.file]
             [convex.lisp.gen               :as $.lisp.gen]
             [helins.mprop                  :as mprop]))
 
@@ -19,8 +20,12 @@
 
   "Base context for this namespace."
 
-  ($.cvm/import {"src/convex/break/util.cvx" '$
-                 "src/convex/lib/trust.cvx"  'trust}))
+  (-> ($.cvm/ctx)
+      $.cvm/juice-refill
+      ($.cvm.file/deploy '$
+                         "src/convex/break/util.cvx")
+      ($.cvm.file/deploy 'trust
+                         "src/convex/lib/trust.cvx")))
 
 
 ;;;;;;;;;; Suites

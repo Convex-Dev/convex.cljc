@@ -4,7 +4,8 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.cvm :as $.cvm]))
+  (:require [convex.cvm      :as $.cvm]
+            [convex.cvm.file :as $.cvm.file]))
 
 
 ;;;;;;;;;;
@@ -16,5 +17,7 @@
 
   []
 
-  (-> ($.cvm/import {"src/convex/break/util.cvx" '$})
-      $.cvm/juice-refill))
+  (-> ($.cvm/ctx)
+      $.cvm/juice-refill
+      ($.cvm.file/deploy '$
+                         "src/convex/break/util.cvx")))

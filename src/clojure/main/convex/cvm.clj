@@ -30,7 +30,6 @@
            java.io.File)
   (:refer-clojure :exclude [compile
                             eval
-                            import
                             read])
   (:require [clojure.core.protocols]
             [convex.cvm.type         :as $.cvm.type]
@@ -708,44 +707,22 @@
    as an actor and then imports it using that alias."
 
 
-  ([[path alias]]
+  ([[sym path]]
 
-   (form-import path
-                alias))
-
-
-  ([path alias]
-
-   ($.lisp/templ* (let [addr (deploy (quote ~($.lisp/literal (slurp path))))]
-                    (def *aliases*
-                         (assoc *aliases*
-                                (quote ~alias)
-                                addr))))))
+   (form-import sym
+                path))
 
 
+  ([sym path]
 
-(defn import
-
-  "Given a map of `file path` -> `alias symbol`, imports that code into the given `ctx` using
-   [[form-import]].
-  
-   Creates a new [[ctx]] if none is provided.
-
-   Also see [[watch]]."
-
-
-  ([path->alias]
-
-   (import (ctx)
-           path->alias))
-
-
-  ([ctx path->alias]
-
-   (eval ctx
-         (read-form ($.lisp/templ* (do
-                                     ~@(map form-import
-                                            path->alias)))))))
+   (try
+     ($.lisp/templ* (def ~sym
+                         (quote ~($.lisp/literal (slurp path)))))
+     (catch Throwable e
+       (throw (ex-info (str "While reading source: "
+                            path)
+                       {::path path}
+                       e))))))
 
 
 ;;;;;;;;;; Watching Convex Lisp files and syncing with a context
@@ -792,15 +769,15 @@
 
      (let [after-import (or (:after-import option+)
                             identity)
-           import+      (reduce-kv (fn [import+ ^String path alias]
-                                     (let [path-2 (.getCanonicalPath (File. path))]
-                                       (assoc import+
-                                              path-2
-                                              {:alias alias
-                                               :code  (form-import path-2
-                                                                   alias)})))
-                                   {}
-                                   path->alias)
+           import+      (reduce (fn [import+ [^String path alias]]
+                                  (let [path-2 (.getCanonicalPath (File. path))]
+                                    (assoc import+
+                                           path-2
+                                           {:alias alias
+                                            :code  (form-import path-2
+                                                                alias)})))
+                                {}
+                                path->alias)
            *state       (atom {:ctx     (-ctx-watch after-import
                                                     import+)
                                :import+ import+})

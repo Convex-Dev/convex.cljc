@@ -31,11 +31,12 @@
             [convex.break.test.syntax]
             [convex.cvm                    :as $.cvm]
             [convex.cvm.eval               :as $.cvm.eval]
+            [convex.cvm.file               :as $.cvm.file]
             [convex.cvm.test]
             [convex.cvm.type               :as $.cvm.type]
             [convex.example.exec]
             [convex.example.templ]
-			[convex.lib.dev.incub.xform]
+			[convex.lib.dev.lab.xform]
             [convex.lib.dev.trust]
             [convex.lisp                   :as $.lisp]
             [convex.lisp.gen               :as $.lisp.gen]
@@ -60,8 +61,19 @@
 (comment
 
 
+  (def ctx
+       ($.cvm.file/deploy ($.cvm/ctx)
+                          'lib
+                          "src/convex/break/util.cvx"))
+
+  ($.cvm.eval/result* ctx
+                      lib/every?)
+
+
+
+
   (def w*ctx
-       ($.cvm/watch {"src/convex/break/util.cvx" '$}))
+       ($.cvm/watch [["src/convex/break/util.cvx" '$]]))
 
   ($.cvm.eval/result @w*ctx
                      '(hash? (hash (blob "1212")))
@@ -74,6 +86,7 @@
                     (+ 4 "cast"))
 
 
+  ($.lisp/src [:ok ($.cvm.type/keyword :test)])
 
       
   )

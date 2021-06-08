@@ -131,7 +131,8 @@
                                                           'fn     ;; TODO. https://github.com/Convex-Dev/convex/issues/152
                                                           }
                                                         %))))
-                         ($.cvm/env $.cvm.eval/*ctx-default*
+                         ($.cvm/env (or $.cvm.eval/*ctx-default*
+                                        ($.cvm/ctx))
                                     8))))
 
 ;;;;;;;;;;
