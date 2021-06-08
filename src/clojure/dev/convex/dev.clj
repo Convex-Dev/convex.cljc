@@ -32,8 +32,8 @@
             [convex.cvm                    :as $.cvm]
             [convex.cvm.eval               :as $.cvm.eval]
             [convex.cvm.file               :as $.cvm.file]
+            [convex.cvm.raw                :as $.cvm.raw]
             [convex.cvm.test]
-            [convex.cvm.type               :as $.cvm.type]
             [convex.example.exec]
             [convex.example.templ]
 			[convex.lib.dev.lab.xform]
@@ -67,7 +67,7 @@
                           "src/convex/break/util.cvx"))
 
   ($.cvm.eval/result* ctx
-                      lib/every?)
+                      lib)
 
 
 
@@ -86,7 +86,8 @@
                     (+ 4 "cast"))
 
 
-  ($.lisp/src [:ok ($.cvm.type/keyword :test)])
+  ($.lisp/src [:ok ($.cvm.raw/keyword :test)])
+
 
       
   )

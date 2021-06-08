@@ -1,4 +1,4 @@
-(ns convex.cvm.type
+(ns convex.cvm.raw
 
   "Constructing CVM objects."
 
@@ -24,18 +24,23 @@
                                   CVMChar
                                   CVMDouble
                                   CVMLong)
+           convex.core.lang.Symbols
            (java.util Collection
                       List))
   (:refer-clojure :exclude [boolean
                             byte
                             char
+                            def
+                            do
                             double
+                            import
                             keyword
                             list
                             long
                             map
                             set
                             symbol
+                            quote
                             vector])
   (:require [clojure.core]))
 
@@ -44,10 +49,11 @@
       true)
 
 
-(declare vector)
+(declare quote
+         vector)
 
 
-;;;;;;;;;;
+;;;;;;;;;; Types
 
 
 (defn address
@@ -234,3 +240,63 @@
   [^Collection x]
 
   (Vectors/create x))
+
+
+;;;;;;;;;; Common form
+
+
+(defn def
+
+  ""
+
+  [sym x]
+
+  (list [Symbols/DEF
+         sym
+         x]))
+
+
+
+(defn deploy
+
+  ""
+
+  [code]
+
+  (list [Symbols/DEPLOY
+         (convex.cvm.raw/quote code)]))
+
+
+
+(defn do
+
+  ""
+  
+  [& form+]
+
+  (list (cons Symbols/DO
+              form+)))
+
+
+
+(defn import
+
+  ""
+
+  [x as]
+
+  (list [(symbol 'import)
+         x
+         (keyword :as)
+         as]))
+
+
+
+(defn quote
+
+  ""
+
+  [x]
+
+  (list [Symbols/QUOTE
+         x]))

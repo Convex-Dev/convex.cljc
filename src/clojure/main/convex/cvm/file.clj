@@ -4,12 +4,25 @@
 
   {:author "Adam Helinski"}
 
-  (:refer-clojure :exclude [intern])
-  (:require [convex.cvm      :as $.cvm]
-            [convex.cvm.type :as $.cvm.type]))
+  (:refer-clojure :exclude [intern
+                            read])
+  (:require [convex.cvm     :as $.cvm]
+            [convex.cvm.raw :as $.cvm.raw]))
 
 
 ;;;;;;;;;;
+
+
+(defn read
+
+  ""
+
+  [path]
+
+  (-> path
+      slurp
+      $.cvm/read))
+
 
 
 (defn run
@@ -29,14 +42,12 @@
    (let [juice- ($.cvm/juice ctx)]
      (.withJuice ($.cvm/eval ($.cvm/fork ctx)
                              (-> path
-                                 slurp
-                                 $.cvm/read
+                                 read
                                  wrap-read))
                  juice-))))
 
 
 ;;;;;;;;;;
-
 
 
 (defn deploy
@@ -54,21 +65,15 @@
 
   ([ctx sym path wrap-read]
 
-  (let [sym-2 ($.cvm.type/symbol sym)]
+  (let [sym-2 ($.cvm.raw/symbol sym)]
     (run ctx
          path
          (fn [parsed]
-           ($.cvm.type/list (list ($.cvm.type/symbol 'do)
-                                  ($.cvm.type/list (list ($.cvm.type/symbol 'def)
-                                                         sym-2
-                                                         ($.cvm.type/list (list ($.cvm.type/symbol 'deploy)
-                                                                                ($.cvm.type/list (list ($.cvm.type/symbol 'quote)
-                                                                                                       (wrap-read parsed)))))))
-                                  ($.cvm.type/list (list ($.cvm.type/symbol 'import)
-                                                         ($.cvm.type/list (list ($.cvm.type/symbol 'address)
-                                                                                sym-2))
-                                                         ($.cvm.type/keyword :as)
-                                                         sym-2)))))))))
+           ($.cvm.raw/do ($.cvm.raw/def sym-2
+                                        ($.cvm.raw/deploy (wrap-read parsed)))
+                         ($.cvm.raw/import ($.cvm.raw/list [($.cvm.raw/symbol 'address)
+                                                            sym-2])
+                                           sym-2)))))))
 
 
 
@@ -90,6 +95,5 @@
    (run ctx
         path
         (fn [parsed]
-          ($.cvm.type/list (list ($.cvm.type/symbol 'def)
-                                 ($.cvm.type/symbol sym)
-                                 (wrap-read parsed)))))))
+          ($.cvm.raw/def ($.cvm.raw/symbol sym)
+                         (wrap-read parsed))))))
