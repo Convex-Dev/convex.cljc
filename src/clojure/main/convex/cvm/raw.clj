@@ -136,9 +136,9 @@
 
   ^Keyword
 
-  [kw]
+  [^String string]
 
-  (Keyword/create (name kw)))
+  (Keyword/create string))
 
 
 
@@ -146,11 +146,15 @@
 
   "Creates a CVM list from a collection of CVM items."
 
-  ^AList
 
-  [x]
+  (^AList []
 
-  (Lists/create x))
+   (list []))
+
+
+  (^AList [x]
+
+   (Lists/create x)))
 
 
 
@@ -165,18 +169,23 @@
   (CVMLong/create x))
 
 
+
 (defn map
 
   "Creates a CVM map from a collection of `[key value]`."
 
-  ^AMap
 
-  [x]
+  (^AMap []
 
-  (Maps/create ^List (clojure.core/map (fn [[k v]]
-                                         (MapEntry/create k
-                                                          v))
-                                       x)))
+   (map []))
+
+
+  (^AMap [x]
+
+   (Maps/create ^List (clojure.core/map (fn [[k v]]
+                                          (MapEntry/create k
+                                                           v))
+                                        x))))
 
 
 
@@ -184,11 +193,15 @@
 
   "Creates a CVM set from a collection of CVM items."
 
-  ^ASet
 
-  [x]
+  (^ASet []
 
-  (Sets/create (vector x)))
+   (set []))
+
+
+  (^ASet [x]
+
+   (Sets/create (vector x))))
 
 
 
@@ -213,13 +226,9 @@
      given separately"
 
 
-  (^Symbol [sym]
+  (^Symbol [^String name]
 
-   (let [name- (name sym)]
-     (if-some [ns- (namespace sym)]
-       (Symbol/create (Symbol/create ns-)
-                      (string name-))
-       (Symbol/create ^String name-))))
+   (Symbol/create name))
 
 
   (^Symbol [namespace name]
@@ -237,14 +246,30 @@
 
   "Creates a CVM vector from a collection of CVM items."
 
-  ^AVector
 
-  [^Collection x]
+  (^AVector []
 
-  (Vectors/create x))
+   (vector []))
+
+
+  (^AVector [^Collection x]
+
+   (Vectors/create x)))
 
 
 ;;;;;;;;;; Common form
+
+
+(defn- -sym
+
+  ;;
+
+  [sym]
+
+  (if (symbol? sym)
+    (symbol (name sym))
+    sym))
+
 
 
 (defn def
@@ -254,7 +279,7 @@
   [sym x]
 
   (list [Symbols/DEF
-         sym
+         (-sym sym)
          x]))
 
 
@@ -272,11 +297,12 @@
 
   ([sym code]
 
-   (convex.cvm.raw/do [(convex.cvm.raw/def sym
-                                           (deploy code))
-                       (convex.cvm.raw/import (list [(symbol 'address)
-                                                     sym])
-                                              sym)])))
+   (let [sym-2 (-sym sym)]
+     (convex.cvm.raw/do [(convex.cvm.raw/def sym-2
+                                             (deploy code))
+                         (convex.cvm.raw/import (list [(symbol "address")
+                                                       sym-2])
+                                                sym-2)]))))
 
 
 
@@ -297,9 +323,9 @@
 
   [x as]
 
-  (list [(symbol 'import)
+  (list [(symbol "import")
          x
-         (keyword :as)
+         (keyword "as")
          as]))
 
 

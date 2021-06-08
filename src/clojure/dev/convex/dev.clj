@@ -75,7 +75,7 @@
   (def w*ctx
        ($.cvm.file/watch [["src/convex/break/util.cvx"
                            {:code (partial $.cvm.raw/deploy
-                                           ($.cvm.raw/symbol '$))}]]))
+                                           '$)}]]))
 
   (.close w*ctx)
 

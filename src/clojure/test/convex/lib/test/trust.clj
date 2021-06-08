@@ -23,11 +23,11 @@
 
   ($.cvm.file/load [["src/convex/break/util.cvx"
                      {:code (partial $.cvm.raw/deploy
-                                     ($.cvm.raw/symbol '$))}]
+                                     '$)}]
 
                     ["src/convex/lib/trust.cvx"
                      {:code (partial $.cvm.raw/deploy
-                                     ($.cvm.raw/symbol 'trust))}]]
+                                     'trust)}]]
 
                    {:after-run $.cvm/juice-refill}))
 

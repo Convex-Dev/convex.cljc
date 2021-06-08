@@ -20,5 +20,5 @@
 
   ($.cvm.file/load [["src/convex/break/util.cvx"
                      {:code (partial $.cvm.raw/deploy
-                                     ($.cvm.raw/symbol '$))}]]
+                                     '$)}]]
                    {:after-run $.cvm/juice-refill}))
