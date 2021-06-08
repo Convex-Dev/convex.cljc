@@ -17,4 +17,4 @@
   []
 
   (-> ($.cvm/import {"src/convex/break/util.cvx" '$})
-      ($.cvm/set-juice Long/MAX_VALUE)))
+      $.cvm/juice-refill))

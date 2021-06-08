@@ -18,7 +18,8 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core Init)
+  (:import (convex.core Constants
+                        Init)
            (convex.core.data AccountStatus
                              ACell
                              Address
@@ -41,7 +42,8 @@
       true)
 
 
-(declare run)
+(declare juice-set
+         run)
 
 
 ;;;;;;;;;; Creating a new context
@@ -54,19 +56,15 @@
 
   (^Context []
 
-   (ctx Init/HERO))
-
-
-  (^Context [account]
-
-   (ctx (Init/createState)
-        account))
+   (ctx nil))
 
   
-  (^Context [state account]
+  (^Context [option+]
 
-   (Context/createFake state
-                       account)))
+   (Context/createFake (or (:convex.cvm/state option+)
+                           (Init/createState))
+                       (or (:convex.cvm/address option+)
+                           Init/HERO))))
 
 
 
@@ -84,6 +82,21 @@
 ;;;;;;;;;; Querying context properties
 
 
+(defn- -wrap-address
+
+  ;; Wraps `x` in an Address object if it is not already.
+
+  ^Address
+
+  [x]
+
+  (cond->
+    x
+    (number? x)
+    $.cvm.type/address))
+
+
+
 (defn account
 
   "Returns the account for the given `address` (or the return value of [[address]] if none is provided)."
@@ -96,11 +109,8 @@
 
   (^AccountStatus [^Context ctx address]
 
-    (.getAccountStatus ctx
-                       (cond->
-                         address
-                         (number? address)
-                         $.cvm.type/address))))
+   (.getAccountStatus ctx
+                      (-wrap-address address))))
 
 
 
@@ -189,7 +199,7 @@
 
   "Returns the remaining amount of juice available for the executing account.
   
-   See [[set-juice]]."
+   See [[juice-set]]."
 
   [^Context ctx]
 
@@ -199,11 +209,20 @@
 
 (defn log
 
-  "Returns the log of `ctx` (a map of `address` -> `vector of values)."
+  "Returns the log of `ctx` (a map of `address` -> `vector of values).
+  
+   If an address is provided, returns the vector entry for that address only."
 
-  [^Context ctx]
 
-  (.getLog ctx))
+  ([^Context ctx]
+
+   (.getLog ctx))
+
+
+  ([^Context ctx address]
+
+   (.getLog ctx
+            (-wrap-address address))))
 
 
 
@@ -231,14 +250,29 @@
 ;;;;;;;;;; Modifying context properties after fork
 
 
-(defn set-juice
+(defn juice-refill
 
-  "Forks and sets the juice of the copied context to the requested amount"
+  "Forks the given context and refills juice to maximum.
 
-  [^Context ctx juice]
+   Also see [[juice-set]]."
+
+  [^Context ctx]
+
+  (juice-set ctx
+             Long/MAX_VALUE))
+
+
+
+(defn juice-set
+
+  "Forks and sets the juice of the copied context to the requested amount.
+  
+   Also see [[juice-refill]]."
+
+  [^Context ctx amount]
 
   (.withJuice (fork ctx)
-              juice))
+              amount))
 
 
 ;;;;;;;;;; Phase 1 - Reading Convex Lisp 
@@ -416,7 +450,7 @@
 (defmacro code-std*
 
   "Given a Clojure keyword, returns the corresponding standard error code (any of the Convex keyword the CVM itself
-   can throw):
+   uses):
   
    - `:ARGUMENT`
    - `:ARITY`
@@ -656,7 +690,9 @@
 
 (defn as-edn
 
-  "Translates a Convex object into an EDN string."
+  "Translates a Convex object into an EDN string
+  
+   Attention, the EDN representation of Convex objects is currently lacking and unstable."
   
   [^ACell form]
 
