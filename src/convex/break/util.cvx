@@ -1,7 +1,7 @@
 (do
 
 
-  (def foo 24)
+  (def foo 4)
 
 
 

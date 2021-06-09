@@ -63,18 +63,22 @@
 
 
   (def ctx
-       ($.cvm.file/load [["src/convex/break/util.cvx"]]))
+       ($.cvm.file/load [["src/convex/break/util.cvx"
+                          {:wrap (partial $.cvm.raw/deploy
+                                          '$)}]]))
 
+
+  ($.cvm/exception ctx)
 
   ($.cvm.eval/result* ctx
-                      foo)
+                      $)
 
 
 
 
   (def w*ctx
        ($.cvm.file/watch [["src/convex/break/util.cvx"
-                           {:code (partial $.cvm.raw/deploy
+                           {:wrap (partial $.cvm.raw/deploy
                                            '$)}]]))
 
   (.close w*ctx)

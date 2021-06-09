@@ -30,53 +30,27 @@
 
 
 (defn cache
-  
+
   ""
 
-  ([env]
+  [env code i-step+]
 
-   (update env
-           :step+
-           (fn [step+]
-             (reduce-kv cache
-                        step+
-                        (env :path->i-step+ )))))
-
-
-  ([env path-canonical]
-
-   (update env
-           :step+
-           (fn [step+]
-             (cache step+
-                    path-canonical
-                    (get-in env
-                            [:path->i-step+
-                             path-canonical])))))
-
-
-  ([step+ path-canonical i-step+]
-
-   (let [cache (try
-                 (read path-canonical)
-                 (catch Throwable e
-                   (throw (ex-info (str "While reading: "
-                                        path-canonical)
-                                   {::path path-canonical}
-                                   e))))]
-     (reduce (fn [step-2+ i-step]
-               (update step-2+
-                       i-step
-                       (fn [{:as    step
-                             :keys [code]}]
-                         (assoc step
-                                :cache
-                                (cond->
-                                  cache
-                                  code
-                                  code)))))
-             step+
-             i-step+))))
+  (update env
+          :step+
+          (fn [step+]
+            (reduce (fn [step-2+ i-step]
+                      (update step-2+
+                              i-step
+                              (fn [{:as   step
+                                    :keys [wrap]}]
+                                (assoc step
+                                       :code
+                                       (cond->
+                                         code
+                                         wrap
+                                         wrap)))))
+                    step+
+                    i-step+))))
 
 
 
@@ -91,7 +65,7 @@
            :step+
            (fn [step+]
              (mapv #(dissoc %
-                            :cache)
+                            :code)
                    step+))))
 
 
@@ -104,7 +78,7 @@
                        (update step-2+
                                i-step
                                dissoc
-                               :cache))
+                               :code))
                      step+
                      (get-in env
                              [:path->i-step+
@@ -124,17 +98,23 @@
   (assoc env
          :ctx
          (cond->
-           (reduce (fn [ctx {:keys [cache
+           (reduce (fn [ctx {:as   step
+                             :keys [code
                                     eval]}]
-                     (if cache
+                     (try
                        ((or eval
                             $.cvm/eval)
                         ctx
-                        cache)
-                       ctx))
+                        code)
+                       (catch Throwable err
+                         (throw (ex-info "During evaluation"
+                                         {::error :eval
+                                          ::step  step}
+                                         err)))))
                    ((or init
                         $.cvm/ctx))
-                   step+)
+                   (eduction (filter :code)
+                             step+))
            after-run
            after-run)))
 
@@ -168,7 +148,6 @@
 
 
 
-
 (defn env
 
   ""
@@ -184,8 +163,7 @@
 
    (-> step+
        prepare-step+
-       (merge option+)
-       cache)))
+       (merge option+))))
 
 
 ;;;;;;;;;;
@@ -204,10 +182,23 @@
 
   ([step+ option+]
 
-   (-> (env step+
-            option+)
-       exec
-       :ctx)))
+   (let [env  (env step+
+                   option+)
+         src+ (into []
+                    (map (juxt identity
+                               read))
+                    (keys (env :path->i-step+)))]
+
+     (-> (reduce (fn [env-2 [path src]]
+                   (cache env-2
+                          src
+                          (get-in env-2
+                                  [:path->i-step+
+                                   path])))
+                 env
+                 src+)
+         exec
+         :ctx))))
 
 
 ;;;;;;;;;; Watching Convex Lisp files and syncing with a context
@@ -247,25 +238,90 @@
 
   ([step+ option+]
 
-   (let [env-    (exec (env step+
-                            option+))
-         *env    (atom nil)
+   (let [*env    (atom nil)
+         env     (env step+
+                      option+)
+         path+   (keys (env :path->i-step+))
+         env-2   (reduce (fn [x path]
+                           (try
+                             (assoc-in x
+                                       [:path->code
+                                        path]
+                                       (read path))
+                             (catch Throwable err
+                               (assoc-in x
+                                         [:path->error
+                                          path]
+                                         err))))
+                         (assoc env
+                                :path->code  {}
+                                :path->error {})
+                         path+)
+         env-3   (reduce-kv (fn [env-3 path code]
+                              (cache env-3
+                                     code
+                                     (get-in env-3
+                                             [:path->i-step+
+                                              path])))
+                            (dissoc env-2
+                                    :path->code)
+                            (env-2 :path->code))
+         
          watcher (watcher/watch! [{:handler (fn [_ {:keys [^File file
                                                            kind]}]
-                                              (swap! *env
-                                                     (fn [env]
-                                                       (let [path (.getCanonicalPath file)]
-                                                         (exec (if (identical? kind
-                                                                               :delete)
-                                                                 (cache-purge env
-                                                                              cache)
-                                                                 (cache env
-                                                                        path)))))))
-                                   :paths   (keys (env- :path->i-step+))}])]
+                                              (let [path (.getCanonicalPath file)]
+                                                (if (identical? kind
+                                                                :delete)
+                                                  (swap! *env
+                                                         (fn [env]
+                                                           (let [env-2 (-> env
+                                                                           (cache-purge path)
+                                                                           (update :path->error
+                                                                                   dissoc
+                                                                                   path))]
+                                                             (if (seq (env-2 :path->error))
+                                                               env-2
+                                                               (try
+                                                                 (exec env-2)
+                                                                 (catch Throwable _err
+                                                                   (dissoc env-2
+                                                                           :ctx)))))))
+                                                  (let [[err
+                                                         code] (try
+                                                                 [nil
+                                                                  (read path)]
+                                                                 (catch Throwable err
+                                                                   [err
+                                                                    nil]))]
+                                                    (swap! *env
+                                                           (fn [env]
+                                                             (if code
+                                                               (let [env-2 (cache (update env
+                                                                                          :path->error
+                                                                                          dissoc
+                                                                                          path)
+                                                                                  code
+                                                                                  (get-in env
+                                                                                          [:path->i-step+
+                                                                                           path]))]
+                                                                 (try
+                                                                   (exec env-2)
+                                                                   (catch Throwable _err
+                                                                     (dissoc env-2
+                                                                             :ctx))))
+                                                               (-> env
+                                                                   (assoc-in [:path->error
+                                                                              path]
+                                                                             err)
+                                                                   (dissoc :ctx)))))))))
+                                   :paths   path+}])]
      (reset! *env
-             (assoc env-
-                    :watcher
-                    watcher))
+             (if (seq (env-3 :path->error))
+               env-3
+               (try
+                 (exec env-3)
+                 (catch Throwable _err
+                   env-3))))
 
      (reify
 

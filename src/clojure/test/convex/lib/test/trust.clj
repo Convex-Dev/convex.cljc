@@ -22,11 +22,11 @@
   "Base context for this namespace."
 
   ($.cvm.file/load [["src/convex/break/util.cvx"
-                     {:code (partial $.cvm.raw/deploy
+                     {:wrap (partial $.cvm.raw/deploy
                                      '$)}]
 
                     ["src/convex/lib/trust.cvx"
-                     {:code (partial $.cvm.raw/deploy
+                     {:wrap (partial $.cvm.raw/deploy
                                      'trust)}]]
 
                    {:after-run $.cvm/juice-refill}))
