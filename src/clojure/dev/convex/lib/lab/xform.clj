@@ -1,4 +1,4 @@
-(ns convex.lib.dev.lab.xform
+(ns convex.lib.lab.xform
 
   "Dev environment for prototyping transducers."
 
@@ -20,11 +20,11 @@
 
   (def w*ctx
        ($.disk/watch [["src/convex/lib/lab/xform/store.cvx"
-                      {:code (partial $.code/deploy
+                      {:wrap (partial $.code/deploy
                                       'store)}]
 
                      ["src/convex/lib/lab/xform.cvx"
-                      {:code (partial $.code/deploy
+                      {:wrap (partial $.code/deploy
                                       'xform)}]]))
 
 
@@ -40,7 +40,6 @@
                                        conj
                                        []
                                        [-1 0 1 42]))
-
 
 
 

@@ -1,4 +1,4 @@
-(ns convex.lib.dev.trust
+(ns convex.lib.trust
 
   "Dev environment for the Trust library."
 
@@ -9,7 +9,7 @@
             [convex.cvm      :as $.cvm]
             [convex.clj.eval :as $.clj.eval]
             [convex.disk     :as $.disk]
-            [convex.clj     :as $.clj]))
+            [convex.clj      :as $.clj]))
 
 
 ;;;;;;;;;;

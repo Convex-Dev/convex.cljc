@@ -1,4 +1,11 @@
-{:tasks {cp
+{:tasks {app:fuzz
+
+         {:doc  "Run base fuzzy tester with random forms, in an infinite loop"
+          :task (clojure "-X:app-fuzz")}
+
+
+
+         cp
 
          {:doc  "Print the classpath"
           :task (do
@@ -37,13 +44,6 @@
 
          {:doc  "Start CLJS dev environment (NREPL on port 14563, server on port 8000)"
           :task (clojure-2 "-M:cljs:dev:test watch dev")}
-
-
-
-         fuzz:random
-
-         {:doc  "Run base fuzzy tester with random forms, in an infinite loop"
-          :task (clojure "-X:fuzz-random")}
 
 
 

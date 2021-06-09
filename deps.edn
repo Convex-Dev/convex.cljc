@@ -1,5 +1,11 @@
 {:aliases
- {:cljs
+ {:app-fuzz
+  {:exec-args   {:max-size 200
+                 :root     "report/fuzz"}
+   :exec-fn     convex.app.fuzz/random
+   :extra-paths ["src/clojure/app"
+                 "src/clojure/test"]}
+  :cljs
   {:extra-deps {thheller/shadow-cljs {:mvn/version "2.11.23"}}
    :main-opts  ["-m" "shadow.cljs.devtools.cli"]}
 
@@ -11,16 +17,9 @@
 
   :dev
   {:extra-deps  {org.clojure/tools.reader {:mvn/version "1.3.4"}}
-   :extra-paths ["src/clojure/dev"
+   :extra-paths ["src/clojure/app"
+                 "src/clojure/dev"
                  "src/clojure/example"
-                 "src/clojure/run"
-                 "src/clojure/test"]}
-
-  :fuzz-random
-  {:exec-args   {:max-size 200
-                 :root     "report/fuzz"}
-   :exec-fn     convex.break.run.fuzz/random
-   :extra-paths ["src/clojure/run"
                  "src/clojure/test"]}
 
   :jar

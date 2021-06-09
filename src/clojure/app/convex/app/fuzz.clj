@@ -1,4 +1,4 @@
-(ns convex.break.run.fuzz
+(ns convex.app.fuzz
 
   "Running fuzzy tests until user interrupts them.
   
