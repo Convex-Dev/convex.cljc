@@ -6,9 +6,9 @@
 
   (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
+            [convex.code                   :as $.code]
             [convex.cvm                    :as $.cvm]
             [convex.cvm.eval               :as $.cvm.eval]
-            [convex.cvm.raw                :as $.cvm.raw]
             [convex.disk                   :as $.disk]
             [convex.lisp.gen               :as $.lisp.gen]
             [helins.mprop                  :as mprop]))
@@ -22,11 +22,11 @@
   "Base context for this namespace."
 
   (:ctx ($.disk/load [["src/convex/break/util.cvx"
-                       {:wrap (partial $.cvm.raw/deploy
+                       {:wrap (partial $.code/deploy
                                        '$)}]
 
                       ["src/convex/lib/trust.cvx"
-                       {:wrap (partial $.cvm.raw/deploy
+                       {:wrap (partial $.code/deploy
                                        'trust)}]]
 
                      {:after-run $.cvm/juice-refill})))

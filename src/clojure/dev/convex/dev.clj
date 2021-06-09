@@ -29,9 +29,9 @@
             [convex.break.test.set]
             [convex.break.test.symbolic]
             [convex.break.test.syntax]
+            [convex.code                   :as $.code]
             [convex.cvm                    :as $.cvm]
             [convex.cvm.eval               :as $.cvm.eval]
-            [convex.cvm.raw                :as $.cvm.raw]
             [convex.cvm.test]
             [convex.disk                   :as $.disk]
             [convex.example.exec]
@@ -65,7 +65,7 @@
 
   (def ctx
        (:ctx ($.disk/load [["src/convex/break/util.cvx"
-                            {:wrap (partial $.cvm.raw/deploy
+                            {:wrap (partial $.code/deploy
                                             '$)}]])))
 
 
@@ -79,7 +79,7 @@
 
   (def w*ctx
        ($.disk/watch [["src/convex/break/util.cvx"
-                       {:wrap (partial $.cvm.raw/deploy
+                       {:wrap (partial $.code/deploy
                                        '$)}]]
                      {:on-error println}))
 

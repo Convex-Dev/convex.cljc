@@ -5,9 +5,9 @@
   {:author           "Adam Helinski"
    :clj-kondo/config '{:linters {:unused-namespace {:level :off}}}}
 
-  (:require [convex.cvm      :as $.cvm]
+  (:require [convex.code     :as $.code]
+            [convex.cvm      :as $.cvm]
             [convex.cvm.eval :as $.cvm.eval]
-            [convex.cvm.raw  :as $.cvm.raw]
             [convex.disk     :as $.disk]
             [convex.lisp     :as $.lisp]))
 
@@ -20,11 +20,11 @@
 
   (def w*ctx
        ($.disk/watch [["src/convex/lib/lab/xform/store.cvx"
-                      {:code (partial $.cvm.raw/deploy
+                      {:code (partial $.code/deploy
                                       'store)}]
 
                      ["src/convex/lib/lab/xform.cvx"
-                      {:code (partial $.cvm.raw/deploy
+                      {:code (partial $.code/deploy
                                       'xform)}]]))
 
 

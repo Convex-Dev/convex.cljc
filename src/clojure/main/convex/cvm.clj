@@ -30,7 +30,7 @@
                             eval
                             read])
   (:require [clojure.core.protocols]
-            [convex.cvm.raw          :as $.cvm.raw]
+            [convex.code             :as $.code]
             [convex.lisp             :as $.lisp]))
 
 
@@ -89,7 +89,7 @@
   (cond->
     x
     (number? x)
-    $.cvm.raw/address))
+    $.code/address))
 
 
 

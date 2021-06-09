@@ -4,8 +4,8 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.cvm      :as $.cvm]
-            [convex.cvm.raw  :as $.cvm.raw]
+  (:require [convex.code     :as $.code]
+            [convex.cvm      :as $.cvm]
             [convex.disk     :as $.disk]))
 
 
@@ -19,6 +19,6 @@
   []
 
   (:ctx ($.disk/load [["src/convex/break/util.cvx"
-                       {:wrap (partial $.cvm.raw/deploy
+                       {:wrap (partial $.code/deploy
                                        '$)}]]
                      {:after-run $.cvm/juice-refill})))

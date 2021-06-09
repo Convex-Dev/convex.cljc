@@ -1,4 +1,4 @@
-(ns convex.cvm.raw
+(ns convex.code
 
   "Constructing CVM objects."
 
@@ -292,17 +292,17 @@
   ([code]
 
    (list [Symbols/DEPLOY
-          (convex.cvm.raw/quote code)]))
+          (convex.code/quote code)]))
 
 
   ([sym code]
 
    (let [sym-2 (-sym sym)]
-     (convex.cvm.raw/do [(convex.cvm.raw/def sym-2
-                                             (deploy code))
-                         (convex.cvm.raw/import (list [(symbol "address")
-                                                       sym-2])
-                                                sym-2)]))))
+     (convex.code/do [(convex.code/def sym-2
+                                       (deploy code))
+                      (convex.code/import (list [(symbol "address")
+                                                    sym-2])
+                                             sym-2)]))))
 
 
 
