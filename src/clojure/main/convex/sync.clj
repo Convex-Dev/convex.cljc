@@ -1,17 +1,28 @@
 (ns convex.sync
 
-  "About running Convex Lisp input and producing a context.
+  "About running Convex Lisp inputs and producing a context.
   
    This namespace is currently the core implementation of [[convex.disk]]. However, it is written
    in such a way that it is generic and could be applied to sources other than files.
 
-   For understanding what is going on, it is best to study it alongsied [[convex.disk]]."
+   For understanding what is going on, it is best to study it alongside [[convex.disk]]. Terminology stems
+   from the docstrings of [[convex.disk/load]] and [[convex.disk/watch]].
+  
+   The order is typically:
+
+   - [[env]] (includes [[load]])
+   - [[sync]]
+   - [[exec]]
+   - [[reload]] + [[unload]] when watching, followed by [[exec]]"
 
   {:author "Adam Helinski"}
 
   (:refer-clojure :exclude [load
                             sync])
   (:require [convex.cvm :as $.cvm]))
+
+
+(declare load)
 
 
 ;;;;;;;;;; Helpers
@@ -36,7 +47,16 @@
 
 (defn link
 
-  ""
+  "Given steps, returns a map with:
+  
+   | Key | Value |
+   | `input->i-step+` | Map of `input` -> `vector with indices to reladed steps` |
+   | `step+` | Given argument but augmented, each step points back to its input |
+
+   This organization assumes that a given input can be used in more than one step (eg. loadinga file
+   more than once).
+  
+   Used by [[env]]."
 
   [step+]
 
@@ -62,7 +82,10 @@
 
 (defn sync
 
-  ""
+  "When `code` is avaiable for an `input`, it is fed through the `:map` functions of all the
+   related steps.
+  
+   Meant to be used after [[load]] or [[reload]]."
 
 
   ([env]
@@ -99,7 +122,12 @@
 
 (defn env
 
-  ""
+  "Entry point, creates an executing environment given `step+` and `option+`.
+
+   Besides what the [[convex.disk]] namespace describes, `option+` requires an additial key `:read` which
+   is a function that receive an input (eg. a file path) and returns code (eg. effectively reads the file).
+  
+   Effectively loads all inputs using [[load]]. Commonly, [[synced]] is used after that step."
 
   
   ([step+]
@@ -118,7 +146,8 @@
               :init-ctx  (or (:init-ctx option+)
                              $.cvm/ctx)
               :read      (or (:read option+)
-                             (throw (IllegalArgumentException. "Read function is mandatory")))))))
+                             (throw (IllegalArgumentException. "Read function is mandatory"))))
+       load)))
 
 
 ;;;;;;;;;; Reading source and handling change
@@ -126,7 +155,14 @@
 
 (defn load
 
-  ""
+  "Used by [[env]] to load initial inputs.
+  
+   Adds to `env` 2 keys:
+
+   | Key | Value |
+   |---|---|
+   | `:input->code` | Map of `input` -> `loaded code` |
+   | `:input->error` | Represent failures, map of `input` -> `exception` |" 
 
 
   ([env]
@@ -157,7 +193,11 @@
 
 (defn reload
 
-  ""
+  "Reloads an input and run [[sync]] that that only input.
+  
+   Like [[load]], updates `:input->code` and `:input->error` as needed.
+
+   Runs the result through [[update-error]]."
 
   [env input]
 
@@ -188,7 +228,9 @@
 
 (defn unload
 
-  ""
+  "Opposite of [[reload]], removes an input and code from related steps.
+
+   Runs the result through [[update-error]]."
 
   [env input]
 
@@ -218,7 +260,9 @@
 
 (defn exec
 
-  ""
+  "When any code has been loaded/reloaded, executes all steps one by one.
+  
+   Resulting context is attached under `:ctx` unless an error occurs and figures under `:error`."
 
   [{:as   env
     :keys [after-run

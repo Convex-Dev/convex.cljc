@@ -1,8 +1,8 @@
 (ns convex.disk
 
-  "Loading Convex Lisp files in context, watching and live-reloading.
+  "Loading Convex Lisp files in contextes + live-reloading.
   
-   See [[convex.example.disk]] namespace for exmaples."
+   See [[convex.example.disk]] namespace for examples."
 
   {:author "Adam Helinski"}
 
@@ -55,7 +55,7 @@
 
 (defn read
 
-  "Reads the file located at `path` and return Convex code."
+  "Reads the file located at `path` and returns Convex code."
 
   [path]
 
@@ -69,7 +69,7 @@
 
 (defn load
 
-  "Loads the given `step+`, in order, where each step is a Convex Lisp file, and execute them one by one.
+  "Loads the given `step+`, in order, where each step is a Convex Lisp file, and executes them one by one.
 
    A step is a 2-tuple containing:
 
@@ -86,12 +86,12 @@
     | Key | Value | Default
     |---|---|---|
     | `:after-run` | Function **ctx** -> **ctx** run after all steps | `identity` |
-    | `:eval` | Evaluating function used when step does not provide one | [[convex.cvm/eval]] |
-    | `:init-ctx` | No-arg function which create the initial context prior to running through steps | `convex.cvm/ctx` |
+    | `:eval` | Evaluating function used when a step does not provide one | [[convex.cvm/eval]] |
+    | `:init-ctx` | No-arg function that creates the initial context prior to running through steps | `convex.cvm/ctx` |
   
 
    Returns a map which holds the resulting context under `:ctx`, unless an `:error` is present. This `:error` points to
-   a key in the returned valued that holds diagnostic information. Currently:
+   a key in the returned valued that holds diagnostic information. Currently, could be one of:
 
    | Key | Value |
    |---|---|
@@ -145,7 +145,7 @@
 
      | Key | Value | Default
      |---|---|---|
-     | `:on-error` | Called in case of failure with the same value as returned from [[load]] |
+     | `:on-error` | Called in case of failure with the same value as returned from [[load]] in the same situation |
 
      Exceptions are catched only during reading and evaluation. Errors resulting elsewhere (eg. during a step's`:map`)
      must be handled by the user."
