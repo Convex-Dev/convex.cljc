@@ -6,71 +6,131 @@
 
 Working with Convex Lisp and the CVM (Convex Virtual Machine) in Clojure.
 
-This repository holds several interrelated projects and this document is only a brief overview. Namespaces are well documented and the user is
-expected to explore them.
+This repository holds a diversity of tools and libraries, this document being only an overview.
 
-Attention, while those projects are getting more and more stable, unannonced breaking changes are still happening.
+Namespaces are well documented and the user is expected to explore them.
 
+Current examples are located in the [example directory](../main/src/example/convex/example).
 
-## Projects
+For brievety and consistency with the source, when mentioning a namespace, `convex` is replaced with `$` such as: `convex.cvm` -> `$.cvm`. 
 
-Current examples are located in the [example directory](../main/src/example/convex/example). This document shows excerpts.
-
-### convex.break
-
-Extensive test suite targetting the CVM. The various generative tests have been helping in strenghtening the CVM and validating its design. They form a strong empirical proof
-that the CVM is robust and that the Convex Lisp language is consistent.
-
-Based on [test.check](https://github.com/clojure/test.check), they leverage the numerous generators found in the `convex.lisp` project.
+** Attention, while those projects are getting more and more stable, unannonced breaking changes are still happening.**
 
 
-### convex.cvm
+## Interacting with the CVM
 
-Interface for using the CVM and evaluating Convex Lisp source.
+**Namespaces of interest:** `$.cvm`.
+
+A context represents the interface of the CVM. It holds the current state as well as an executing account under which
+all operations are performed. Each operation consumes some amount of `juice`. This namespace provides utilities for creating contextes and interacting
+with them in many ways. Any new endaveour mostlikely starts with:
+
+```clojure
+(def ctx
+     ($.cvm/ctx))
+```
 
 
-##### Handling Convex Lisp code
+## Writing Convex Lisp code programmatically
 
-Convex Lisp source code goes through 4 steps: reading, expanding, compiling, and executing. A CVM context is needed for handling them. The result of a step is either a valid result or a CVM exception. If needed, those Java objects can be converted to Clojure data for easy consumption.
+**Namespaces of interest:** `$.code`, `$.clj`
 
-A CVM exception is a special state which means that the CVM shortcuts execution, such as when a failure happens. Any JVM exception **MUST** be handled by the CVM otherwise
-it should be reported as a bug.
+The CVM handles Java objects that essentially represent Convex Lisp. The `$.code` namespace offers a series of functions for creating such objects. It is
+mostly useful for writing advanced applications.
 
-First, an example of going through those 4 steps one by one:
+More often, especially during development and testing, the user will want to leverage the fact that Convex Lisp is so close to Clojure itself. The `$.clj`
+namespace helps in writing Convex Lisp code directly as Clojure data:
+
+```clojure
+(= "(+ 2 2)"
+   ($.clj/src '(+ 2 2)))
+
+(= "#42"
+   ($.clj/src ($.clj/address 42)))
+```
+
+In Clojure, templating code with `~` and `~@` is a powerful feature. The following macro provides an almost exact experience for templating Convex Lisp:
+
+```clojure
+(let [kw :foo
+      xs [2 3]
+      y  42]
+  ($.clj/templ* [~kw 1 ~@xs 4 ~y y (unquote y) (unquote-splicing xs)]))
+
+;; [:foo 1 2 3 4 42 y (unquote y) (unquote-splicing xs)]
+```
+
+Notice how `unquote` and `unquote-splicing`, written in plain text, remain intact. This is because Convex Lisp has templating as well. For avoiding confusion,
+when using this macro, only `~` and `~@` are actually processed. The rest is in the realm of Convex Lisp.
+
+
+## Evaluating Convex Lisp
+
+**Namespaces of interest:** `$.clj.eval`, `$.cvm`
+
+Armed with a context, Convex Lisp code goes through 4 operations before ultimately producing a result: read, expand, compile, and execute. Besides producing a result,
+the CVM can also enter in an exceptional state when an error occurs or when using features such as `return`. Note that the CVM **MUST** never throw an actual Java
+exception. This would be considered a bug and shall be reported.
+
+First, for thorough understanding, going through all 4 operations one by one:
 
 ```clojure
 (let [;; It is convenient writing Convex Lisp as Clojure data
       form   '(+ 2 2)
       
       ;; Converting Clojure data to source code (a string)
-      source (convex.lisp/src form)
+      source ($.clj/src form)
       
       ;; Reading source code as Convex object
-      code   (convex.cvm/read source)
+      code   ($.cvm/read source)
       
       ;; Creating a test context
-      ctx    (convex.cvm/ctx)
+      ctx    ($.cvm/ctx)
       
       ;; Using context for expanding, compiling, and running code
-      ctx-2  (-> (convex.cvm/expand ctx
-                                    code)
-                 convex.cvm/compile
-                 convex.cvm/run)]
+      ctx-2  (-> ($.cvm/expand ctx
+                               code)
+                 $.cvm/compile
+                 $.cvm/run)]
 
   ;; Getting result and converting to Clojure data
   (-> ctx-2
-      convex.cvm/result
-      convex.cvm/as-clojure))
+      $.cvm/result
+      $.cvm/as-clojure))
 ```
 
-There are shortcuts and it is easy writing a helper function as needed. For instance, leveraging `eval`:
+In practice, evaluating is more commonly used instead of going through all steps:
 
 ```clojure
-(-> (convex.cvm/eval (convex.cvm/ctx)
-                     (convex.cvm/read-form '(+ 2 2)))
-    convex.cvm/result
-    convex.cvm/as-clojure)
+(-> ($.cvm/eval ($.cvm/ctx)
+                ($.cvm/read-form '(+ 2 2)))
+    $.cvm/result
+    $.cvm/as-clojure)
 ```
+
+During development and testing, evaluating code written in Clojure for various purposes is so common that `$.clj.eval` is solely dedicated to that purpose:
+
+```clojure
+($.clj.eval/result ($.cvm/ctx)
+                   '(+ 2 42))
+
+;; 44
+```
+
+Each function has a macro variant that uses the `$.clj/templ*` macro under the hood so that the user can simply:
+
+```clojure
+(let [foo 42]
+  ($.clj.eval/result* ($.cvm/ctx)
+                      (+ 2 ~foo)))
+
+;; 44
+```
+
+
+## Preparing a context
+
+**Namespaces of interest:** `$.cvm`
 
 Often, a CVM context needs some preparation such as adding utility functions. Then, prior to using it, a cheap copy can be obtained by forking it, leaving the original
 intact and reusable at will.
@@ -79,110 +139,126 @@ intact and reusable at will.
 ;; Creating a new context, modifying it by adding a couple of functions in the environment
 ;;
 (def base-ctx
-     (convex.cvm.eval/ctx (convex.cvm/ctx)
-                          '(do
-                             (defn my-inc [x] (+ x 1))
-                             (defn my-dec [x] (- x 1)))))
-
+     ($.clj.eval/ctx ($.cvm/ctx)
+                     '(do
+                        (defn my-inc [x] (+ x 1))
+                        (defn my-dec [x] (- x 1)))))
 
 
 ;; Later, forking and reusing it ad libidum
 ;;
-(-> (convex.cvm/eval (convex.cvm/fork base-ctx)
-                     (convex.cvm/read-form '(= 42
-                                               (my-dec (my-inc 42)))))
-    convex.cvm/result
-    convex.cvm/as-clojure)
-```
-
-This pattern of forking and getting some value translated to Clojure data is so common that there are 2 namespaces providing shotcuts, depending on whether the user
-is dealing with forms expressed as Clojure data or as text:
-
-```clojure
-(= 4
-   (convex.cvm.eval/result base-ctx
-                           '(my-dec (my-inc 42))))
-```
+($.cvm/fork base-ctx)
 
 
-##### Watching Convex Lisp files
-
-Developping Convex Lisp interactively with a Clojure environment provides a uniquely productive flow akin to having a REPL.
-
-The following starts a file watcher for all mentioned files which are re-imported as aliased libraries on each change. Derefencing the result provides a fresh context with
-all required imports:
-
-```clojure
-;; Starting a watcher with a map of `file path` -> `alias`
+;; All functions from `$.clj.eval` fork the given context by default
 ;;
-(def w*ctx
-     ($.cvm/watch {"src/convex/break/util.cvx" '$}))
-
-;; Using it as needed
-;;
-@w*ctx
-
-;; Stopping the watcher
-;;
-(.close w*ctx)
+($.clj.eval/result base-ctx
+                   '(= 42
+                       (my-dec (my-inc 42))))
 ```
 
 
-### convex.lib
+## Setting a default context for development
 
-Official Convex libraries are maintained here. Each library has or will have a dev namespace and a test namespace using the same methods that are employed in the
-`convex.break` project.
+**Namespaces of interest:** `$.clj.eval`
 
-
-### convex.lisp
-
-Convex Lisp and Clojure are so close that it is very convenient templating the former with the latter. This project provides CLJC utilities focusing on the language itself.
-
-
-##### Templating Convex Lisp code
-
-The following macro provides a templating experience close to Clojure's syntax quote by leveraging `~` and `~@`, unquoting and unquote-splicing.
-
-Convex Lisp also uses those symbols. For avoiding confusing, symbols are used for injecting values from Clojure whereas the form notation (`(unquote x)` and `(unquote-splicing x)`) is left as such for Convex Lisp. Unlike the syntax quote, symbols are not qualified automatically since this is about templating Convex Lisp code.
-
-For example:
-
-```clojure
-(let [kw :foo
-      xs [2 3]
-      y  42]
-  (convex.lisp/templ* [~kw 1 ~@xs 4 ~y y (unquote y) (unquote-splicing xs)]))
-```
-
-Produces the following vector:
-
-```clojure
-[:foo 1 2 3 4 42 y (unquote y) (unquote-splicing xs)]
-```
-
-
-##### Generating Convex Lisp forms
-
-The `convex.lisp.gen` namespaces provides `test.check` generators for Convex Lisp forms and various related utilities. Those generators are heavily used in the `convex.break` and
-`convex.lib` projects. Thus, the user is encouraged to use them as well when writing Convex Lisp code.
-
-
-
-## Development and testing <a name="develop">
-
-This repository is organized with [Babashka](https://github.com/babashka/babashka), a wonderful tool for any Clojurist.
-
-All tasks can be listed by running:
+When working at the REPL, there is often a need for having a prepared context at hand. A default context can be created by setting the `CVM_CTX` environment variable
+to a symbol which points to a no-arg function. For instance, in the terminal when launching a REPL:
 
 ```shell
+$ env CVM_CTX=convex.cvm/ctx  clojure ...
+```
+
+It is available at `$.clj.eval/*ctx-default*` and functions from the `$.clj.eval` namespace use that default context when one is not provided:
+
+```clojure
+($.clj.eval/result '(+ 2 2))
+```
+
+
+## Loading and live-reloading Convex Lisp files
+
+**Namespaces of interest:** `$.code`, `$.disk`
+
+Writing Convex Lisp code as Clojure or in any programmatic way is convenient during development and testing. However, any non-trivial source should be written in proper
+`.cvx` files.
+
+Files can be loaded by using utilities from the `$.disk` namespace and providing a vector of paths:
+
+```clojure
+(def ctx
+     (:ctx ($.disk/load [["path/to/lib.cvx"
+                          {:map (partial $.code/deploy
+                                         'lib)}]
+             
+                         ["path/to/exec.cvx"]])))
+```
+
+The first path is an actor that we want to deploy and alias as `lib`. Hence, a `:map` argument is provided with a function that takes the Convex Lisp code parsed from the target
+file and wraps it in more code for that effect. The second path is simply executed directly.
+
+Loading produces a result map which holds the context under `:ctx`, unless there is an `:error`.
+
+A very similar interface can be used for watching files and live-reloading them on each change:
+
+
+```clojure
+(def w*ctx
+     ($.disk/watch [["path/to/lib.cvx"
+                     {:map (partial $.code/deploy
+                                    'lib)}]
+        
+                    ["path/to/exec.cvx"]]
+
+                   {:on-error println}))
+
+
+@w*ctx
+```
+
+Dereferencing the result always returns a fork of an udpated context, or nil in case of error. When an error is fixed, live-reloading resumes.
+
+
+## Testing Convex Lisp code
+
+**Namespaces of interest:** `$.clj.eval`, `$.clj.gen`, `$.disk`
+
+Reusing Clojure tooling provides a productive experience for testing Convex Lisp. The plethora of tests in the `$.break.test.*` namespaces provide a good example.
+
+Generative testing with [test.check](https://github.com/clojure/test.check) is highly recommended, especially when testing smart contracts or Convex libraries that
+need to be extremely secure. For that effect, the `$.clj.gen` namespace offers a variety of generators for producing random Convex Lisp forms. Combined with the
+`$.clj/templ*` macro and the `$.clj.eval` namespace, powerful tests are easily written.
+
+For organizing generative tests, we recommend the [Mprop](https://github.com/helins/mprop.cljc) library, used extensively in this repository.
+
+
+## Official Convex libraries
+
+The official Convex libraries are maintained and incubated in this repository. Ultimately, each will have an extensive generative test suite
+under a dedicated test namespace. For development, each has or will have a dedicated dev namespace as well.
+
+For example, the Trust library is developped in the `convex.lib.trust` namespace and tested in the `convex.lib.test.trust` namespace.
+
+For starting a new one, please follow the following structure: development in `convex.lib.lab.NAME` and testing in `convex.lib.test.lab.NAME`.
+
+
+## Repository organization
+
+This repository is organized around [Clojure Deps](https://clojure.org/guides/deps_and_cli). All tasks are written in Clojure and executed with [Babashka](https://github.com/babashka/babashka) instead of plain ol' Bash.
+
+For listing tasks:
+
+```bash
 $ bb tasks
 ```
 
-For instance, a task starting a Clojure dev environment:
+For instance, executing the `dev:clojure` task which starts a REPL and require the `$.dev` namespace:
 
-```shell
+```bash
 $ bb dev:clojure
 ```
+
+All Convex source is located in `./src/convex` while all Clojure source is located in `./src/clojure`.
 
 
 ## License
