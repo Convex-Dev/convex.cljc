@@ -40,9 +40,9 @@
 
 
 
-  ;; Simplified execution
+  ;; Simplified execution, `eval` takes care of expansion, compilation, and execution
   ;;
-  (-> (convex.clj.eval (convex.cvm/ctx)
+  (-> (convex.cvm/eval (convex.cvm/ctx)
                        (convex.cvm/read-form '(+ 2 2)))
       convex.cvm/result
       convex.cvm/as-clojure)
@@ -61,7 +61,7 @@
 
   ;; Later, forking and reusing it ad libidum
   ;;
-  (-> (convex.clj.eval (convex.cvm/fork base-ctx)
+  (-> (convex.cvm/eval (convex.cvm/fork base-ctx)
                        (convex.cvm/read-form '(= 42
                                                  (my-dec (my-inc 42)))))
       convex.cvm/result
@@ -71,7 +71,7 @@
 
   ;; Using a helper (takes care of handling the form, forking the context, and translating into Clojure)
   ;;
-  (= 4
+  (= 42
      (convex.clj.eval/result base-ctx
                              '(my-dec (my-inc 42))))
 
