@@ -31,9 +31,9 @@
             [convex.break.test.syntax]
             [convex.cvm                    :as $.cvm]
             [convex.cvm.eval               :as $.cvm.eval]
-            [convex.cvm.file               :as $.cvm.file]
             [convex.cvm.raw                :as $.cvm.raw]
             [convex.cvm.test]
+            [convex.disk                   :as $.disk]
             [convex.example.exec]
             [convex.example.templ]
 			[convex.lib.dev.lab.xform]
@@ -42,6 +42,7 @@
             [convex.lisp                   :as $.lisp]
             [convex.lisp.gen               :as $.lisp.gen]
             [convex.lisp.test]
+            [convex.sync                   :as $.sync]
             [clojure.test.check.generators :as TC.gen]))
 
 
@@ -63,24 +64,24 @@
 
 
   (def ctx
-       ($.cvm.file/load [["src/convex/break/util.cvx"
-                          {:wrap (partial $.cvm.raw/deploy
-                                          '$)}]]))
+       (:ctx ($.disk/load [["src/convex/break/util.cvx"
+                            {:wrap (partial $.cvm.raw/deploy
+                                            '$)}]])))
 
 
   ($.cvm/exception ctx)
 
   ($.cvm.eval/result* ctx
-                      $)
+                      $/foo)
 
 
 
 
   (def w*ctx
-       ($.cvm.file/watch [["src/convex/break/util.cvx"
-                           {:wrap (partial $.cvm.raw/deploy
-                                           '$)}]]
-                         {:on-error println}))
+       ($.disk/watch [["src/convex/break/util.cvx"
+                       {:wrap (partial $.cvm.raw/deploy
+                                       '$)}]]
+                     {:on-error println}))
 
   (.close w*ctx)
 

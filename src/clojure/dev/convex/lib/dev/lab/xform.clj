@@ -7,8 +7,8 @@
 
   (:require [convex.cvm      :as $.cvm]
             [convex.cvm.eval :as $.cvm.eval]
-            [convex.cvm.file :as $.cvm.file]
             [convex.cvm.raw  :as $.cvm.raw]
+            [convex.disk     :as $.disk]
             [convex.lisp     :as $.lisp]))
 
 
@@ -19,13 +19,13 @@
 
 
   (def w*ctx
-       ($.cvm.file/watch [["src/convex/lib/lab/xform/store.cvx"
-                           {:code (partial $.cvm.raw/deploy
-                                           'store)}]
+       ($.disk/watch [["src/convex/lib/lab/xform/store.cvx"
+                      {:code (partial $.cvm.raw/deploy
+                                      'store)}]
 
-                          ["src/convex/lib/lab/xform.cvx"
-                           {:code (partial $.cvm.raw/deploy
-                                           'xform)}]]))
+                     ["src/convex/lib/lab/xform.cvx"
+                      {:code (partial $.cvm.raw/deploy
+                                      'xform)}]]))
 
 
   ($.cvm/exception @w*ctx)
