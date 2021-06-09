@@ -1,7 +1,11 @@
 (do
 
 
-  (def foo 48)
+  (def foo
+
+    ;; For checking if loading or watching works properly.
+
+    42)
 
 
 
