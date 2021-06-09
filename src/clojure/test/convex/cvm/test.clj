@@ -2,9 +2,9 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.test     :as t]
-            [convex.cvm       :as $.cvm]
-            [convex.lisp      :as $.lisp])
+  (:require [clojure.test :as t]
+            [convex.cvm   :as $.cvm]
+            [convex.clj   :as $.clj])
   (:import convex.core.data.Syntax
            convex.core.data.prim.CVMByte
            convex.core.lang.impl.ErrorValue))
@@ -163,7 +163,7 @@
                    (inc x))]]
       (t/is (= code
                (-> code
-                   $.lisp/src
+                   $.clj/src
                    $.cvm/read
                    $.cvm/as-clojure))
             "Stress test"))))

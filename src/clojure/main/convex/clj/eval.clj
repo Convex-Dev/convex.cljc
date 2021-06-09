@@ -1,4 +1,4 @@
-(ns convex.cvm.eval
+(ns convex.clj.eval
 
   "Shortcuts for evaluating Convex Lisp code, useful for development and testing.
 
@@ -12,8 +12,8 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.cvm  :as $.cvm]
-            [convex.lisp :as $.lisp]))
+  (:require [convex.cvm :as $.cvm]
+            [convex.clj :as $.clj]))
 
 
 (declare result)
@@ -58,7 +58,7 @@
 
   ([form]
 
-   (convex.cvm.eval/ctx *ctx-default*
+   (convex.clj.eval/ctx *ctx-default*
                         form))
 
 
@@ -66,7 +66,7 @@
 
    ($.cvm/eval ($.cvm/fork ctx)
                (-> form
-                   $.lisp/src
+                   $.clj/src
                    $.cvm/read))))
 
 
@@ -76,13 +76,13 @@
 
   ([form]
 
-   `(convex.cvm.eval/ctx ($.lisp/templ* ~form)))
+   `(convex.clj.eval/ctx ($.clj/templ* ~form)))
 
 
   ([ctx form]
 
-   `(convex.cvm.eval/ctx ~ctx
-                         ($.lisp/templ* ~form))))
+   `(convex.clj.eval/ctx ~ctx
+                         ($.clj/templ* ~form))))
 
 
 ;;;;;;;;;;
@@ -97,14 +97,14 @@
   
   ([code form]
 
-   (convex.cvm.eval/code *ctx-default*
+   (convex.clj.eval/code *ctx-default*
                          code
                          form))
 
 
   ([ctx code form]
 
-   (->> (convex.cvm.eval/ctx ctx
+   (->> (convex.clj.eval/ctx ctx
                              form)
         ($.cvm/exception code)
         $.cvm/as-clojure)))
@@ -129,15 +129,15 @@
 
   ([code form]
 
-   `(convex.cvm.eval/code ~(-code code)
-                          ($.lisp/templ* ~form)))
+   `(convex.clj.eval/code ~(-code code)
+                          ($.clj/templ* ~form)))
 
 
   ([ctx code form]
 
-   `(convex.cvm.eval/code ~ctx
+   `(convex.clj.eval/code ~ctx
                           ~(-code code)
-                          ($.lisp/templ* ~form))))
+                          ($.clj/templ* ~form))))
 
 
 
@@ -155,7 +155,7 @@
 
   ([ctx code form]
 
-   (->> (convex.cvm.eval/ctx ctx
+   (->> (convex.clj.eval/ctx ctx
                              form)
         ($.cvm/exception? code))))
 
@@ -167,15 +167,15 @@
 
   ([code form]
 
-   `(convex.cvm.eval/code? ~(-code code)
-                           ($.lisp/templ* ~form)))
+   `(convex.clj.eval/code? ~(-code code)
+                           ($.clj/templ* ~form)))
 
 
   ([ctx code form]
 
-   `(convex.cvm.eval/code? ~ctx
+   `(convex.clj.eval/code? ~ctx
                            ~(-code code)
-                           ($.lisp/templ* ~form))))
+                           ($.clj/templ* ~form))))
 
 
 
@@ -192,7 +192,7 @@
 
   ([ctx form]
 
-   (-> (convex.cvm.eval/ctx ctx
+   (-> (convex.clj.eval/ctx ctx
                             form)
        $.cvm/exception
        $.cvm/as-clojure)))
@@ -204,13 +204,13 @@
 
   ([form]
 
-   `(exception ($.lisp/templ* ~form)))
+   `(exception ($.clj/templ* ~form)))
 
 
   ([ctx form]
 
    `(exception ~ctx
-               ($.lisp/templ* ~form))))
+               ($.clj/templ* ~form))))
 
 
 
@@ -227,7 +227,7 @@
 
   ([ctx form]
 
-   (-> (convex.cvm.eval/ctx ctx
+   (-> (convex.clj.eval/ctx ctx
                             form)
        $.cvm/exception?)))
 
@@ -238,13 +238,13 @@
 
   ([form]
 
-   `(exception? ($.lisp/templ* ~form)))
+   `(exception? ($.clj/templ* ~form)))
 
 
   ([ctx form]
 
    `(exception? ~ctx
-                ($.lisp/templ* ~form))))
+                ($.clj/templ* ~form))))
 
 
 
@@ -273,9 +273,9 @@
 
   ([ctx form]
 
-   ($.lisp/= (eval form)
-             (result ctx
-                     form)))
+   ($.clj/= (eval form)
+            (result ctx
+                    form)))
 
 
   ([form f arg+]
@@ -288,11 +288,11 @@
 
   ([ctx form f arg+]
 
-   ($.lisp/= (apply f
-                    arg+)
-             (result ctx
-                     (list* form
-                            arg+)))))
+   ($.clj/= (apply f
+                   arg+)
+            (result ctx
+                    (list* form
+                           arg+)))))
 
 
 
@@ -301,18 +301,18 @@
 
   ([form]
 
-   `(like-clojure? ($.lisp/templ* ~form)))
+   `(like-clojure? ($.clj/templ* ~form)))
 
 
   ([ctx form]
 
    `(like-clojure? ~ctx
-                   ($.lisp/templ* ~form)))
+                   ($.clj/templ* ~form)))
 
 
   ([form f arg+]
 
-   `(like-clojure? ($.lisp/templ* ~form)
+   `(like-clojure? ($.clj/templ* ~form)
                    ~f
                    ~arg+))
 
@@ -320,15 +320,15 @@
   ([ctx form f arg+]
 
    `(like-clojure? ~ctx
-                   ($.lisp/templ* ~form)
+                   ($.clj/templ* ~form)
                    ~f
                    ~arg+)))
 
 
 
 (let [src     (fn [form]
-                ($.lisp/templ* (log {:form   (quote ~form)
-                                     :return ~form})))
+                ($.clj/templ* (log {:form   (quote ~form)
+                                    :return ~form})))
       process (fn [ctx]
                 (-> ctx
                     $.cvm/log
@@ -343,13 +343,13 @@
 
     ([form]
 
-     (-> (convex.cvm.eval/ctx (src form))
+     (-> (convex.clj.eval/ctx (src form))
          process))
 
 
     ([ctx form]
 
-     (-> (convex.cvm.eval/ctx ctx
+     (-> (convex.clj.eval/ctx ctx
                               (src form))
          process))))
 
@@ -360,13 +360,13 @@
 
   ([form]
 
-   `(log ($.lisp/templ* ~form)))
+   `(log ($.clj/templ* ~form)))
 
 
   ([ctx form]
 
    `(log ~ctx
-         ($.lisp/templ* ~form))))
+         ($.clj/templ* ~form))))
 
 
 
@@ -383,7 +383,7 @@
 
   ([ctx form]
 
-   (-> (convex.cvm.eval/ctx ctx
+   (-> (convex.clj.eval/ctx ctx
                             form)
        $.cvm/result
        $.cvm/as-clojure)))
@@ -395,13 +395,13 @@
 
   ([form]
 
-   `(result ($.lisp/templ* ~form)))
+   `(result ($.clj/templ* ~form)))
 
 
   ([ctx form]
 
    `(result ~ctx
-            ($.lisp/templ* ~form))))
+            ($.clj/templ* ~form))))
 
 
 
@@ -418,7 +418,7 @@
 
   ([ctx form]
 
-   (let [ctx-2     (convex.cvm.eval/ctx ctx
+   (let [ctx-2     (convex.clj.eval/ctx ctx
                                         form)
          exception ($.cvm/exception ctx-2)]
      (-> (if (nil? exception)
@@ -433,10 +433,10 @@
 
   ([form]
 
-   `(value ($.lisp/templ* ~form)))
+   `(value ($.clj/templ* ~form)))
 
 
   ([ctx form]
 
    `(value ~ctx
-           ($.lisp/templ* ~form))))
+           ($.clj/templ* ~form))))

@@ -7,9 +7,9 @@
 
   (:require [convex.code     :as $.code]
             [convex.cvm      :as $.cvm]
-            [convex.cvm.eval :as $.cvm.eval]
+            [convex.clj.eval :as $.clj.eval]
             [convex.disk     :as $.disk]
-            [convex.lisp     :as $.lisp]))
+            [convex.clj     :as $.clj]))
 
 
 ;;;;;;;;;;
@@ -29,7 +29,7 @@
 
 
 
-  ($.cvm.eval/result @w*ctx
+  ($.clj.eval/result @w*ctx
                      '(do
                         (let [addr (deploy ($/build-whitelist {:whitelist [42]}))]
                           [($/trusted? addr
@@ -38,7 +38,7 @@
                                        100)])))
 
 
-  ($.cvm.eval/result @w*ctx
+  ($.clj.eval/result @w*ctx
                      '(do
                         (let [addr (deploy ($/add-trusted-upgrade nil))]
                           (call addr

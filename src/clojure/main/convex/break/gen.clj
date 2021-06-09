@@ -6,9 +6,9 @@
 
   (:require [clojure.test.check.generators :as TC.gen]
             [convex.cvm                    :as $.cvm]
-            [convex.cvm.eval               :as $.cvm.eval]
-            [convex.lisp                   :as $.lisp]
-            [convex.lisp.gen               :as $.lisp.gen]))
+            [convex.clj.eval               :as $.clj.eval]
+            [convex.clj                    :as $.clj]
+            [convex.clj.gen                :as $.clj.gen]))
 
 
 (declare kv+)
@@ -28,8 +28,8 @@
 
   [gen-exponent]
 
-  (TC.gen/let [m-1 $.lisp.gen/long
-               m-2 (TC.gen/one-of [$.lisp.gen/nothing
+  (TC.gen/let [m-1 $.clj.gen/long
+               m-2 (TC.gen/one-of [$.clj.gen/nothing
                                    (TC.gen/large-integer* {:min 0})])
                e   (TC.gen/elements [\e \E])
                x   gen-exponent]
@@ -46,8 +46,8 @@
 
   "Either a map or nil."
 
-  (TC.gen/one-of [$.lisp.gen/map
-                  $.lisp.gen/nothing]))
+  (TC.gen/one-of [$.clj.gen/map
+                  $.clj.gen/nothing]))
 
 
 
@@ -55,8 +55,8 @@
 
   "Either a set or nil."
 
-  (TC.gen/one-of [$.lisp.gen/nothing
-                  $.lisp.gen/set]))
+  (TC.gen/one-of [$.clj.gen/nothing
+                  $.clj.gen/set]))
 
 
 
@@ -64,8 +64,8 @@
 
   "Anything but an address."
 
-  (TC.gen/such-that #(not ($.lisp/address? %))
-                    $.lisp.gen/any))
+  (TC.gen/such-that #(not ($.clj/address? %))
+                    $.clj.gen/any))
 
 
 
@@ -74,7 +74,7 @@
   "Anything but a proper collection."
 
   (TC.gen/such-that some?
-                    $.lisp.gen/scalar))
+                    $.clj.gen/scalar))
 
 
 
@@ -83,7 +83,7 @@
   "Anything but a long."
 
   (TC.gen/such-that #(not (int? %))
-                    $.lisp.gen/any))
+                    $.clj.gen/any))
 
 
 
@@ -92,7 +92,7 @@
   "Anything but a number (double or long)."
 
   (TC.gen/such-that #(not (number? %))
-                    $.lisp.gen/any))
+                    $.clj.gen/any))
 
 
 
@@ -111,8 +111,8 @@
 
   "Address that is not being used yet."
 
-  (TC.gen/such-that #($.cvm.eval/result* (nil? (account ~%)))
-                    $.lisp.gen/address
+  (TC.gen/such-that #($.clj.eval/result* (nil? (account ~%)))
+                    $.clj.gen/address
                     100))
 
 
@@ -131,7 +131,7 @@
                                                           'fn     ;; TODO. https://github.com/Convex-Dev/convex/issues/152
                                                           }
                                                         %))))
-                         ($.cvm/env (or $.cvm.eval/*ctx-default*
+                         ($.cvm/env (or $.clj.eval/*ctx-default*
                                         ($.cvm/ctx))
                                     8))))
 

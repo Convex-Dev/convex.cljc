@@ -1,4 +1,4 @@
-(ns convex.lisp
+(ns convex.clj
 
   "Working with Clojure data representing Convex Lisp code.
   
@@ -21,7 +21,7 @@
   (:require [clojure.core]
             [clojure.core.protocols]
             [clojure.string])
-  #?(:cljs (:require-macros [convex.lisp :refer [templ*]])))
+  #?(:cljs (:require-macros [convex.clj :refer [templ*]])))
 
 
 ;;;;;;;;;; Literal notations for Convex objects that do not map to Clojure but can be expressed as symbols

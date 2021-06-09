@@ -6,9 +6,9 @@
 
   (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
-            [convex.cvm.eval               :as $.cvm.eval]
-            [convex.lisp                   :as $.lisp]
-            [convex.lisp.gen               :as $.lisp.gen]
+            [convex.clj.eval               :as $.clj.eval]
+            [convex.clj                    :as $.clj]
+            [convex.clj.gen                :as $.clj.gen]
             [helins.mprop                  :as mprop]))
 
 
@@ -41,15 +41,15 @@
   ([form-cast form-pred clojure-cast clojure-pred gen]
 
    (TC.prop/for-all [x gen]
-     (let [ctx   ($.cvm.eval/ctx* (def -cast
+     (let [ctx   ($.clj.eval/ctx* (def -cast
                                          (~form-cast ~x)))
-           -cast ($.cvm.eval/result ctx
+           -cast ($.clj.eval/result ctx
                                     '-cast)]
        (mprop/mult
 
          "Properly cast"
 
-         ($.cvm.eval/result* ctx
+         ($.clj.eval/result* ctx
                              (~form-pred -cast))
 
          "Predicate is consistent with Clojure"
@@ -74,7 +74,7 @@
   [form-cast gen]
 
   (TC.prop/for-all [x gen]
-    ($.cvm.eval/code?* :CAST
+    ($.clj.eval/code?* :CAST
                        (~form-cast ~x))))
 
 
@@ -87,10 +87,10 @@
 
   (prop-coerce 'address
                'address?
-               $.lisp/address?
-               (TC.gen/one-of [$.lisp.gen/address
-                               $.lisp.gen/blob-8
-                               $.lisp.gen/hex-string-8
+               $.clj/address?
+               (TC.gen/one-of [$.clj.gen/address
+                               $.clj.gen/blob-8
+                               $.clj.gen/hex-string-8
                                (TC.gen/large-integer* {:min 0})])))
 
 
@@ -101,8 +101,8 @@
 ;;                    (TC.gen/such-that #(if (int? %)
 ;;                                         (neg? %)
 ;;                                         %)
-;;                                      ($.lisp.gen/any-but #{$.lisp.gen/blob-8
-;;                                                       $.lisp.gen/hex-string-8}))))
+;;                                      ($.clj.gen/any-but #{$.clj.gen/blob-8
+;;                                                       $.clj.gen/hex-string-8}))))
 
 
 
@@ -114,17 +114,17 @@
 
   (prop-coerce 'blob
                'blob?
-               $.lisp/blob?
-               (TC.gen/one-of [$.lisp.gen/address
-                               $.lisp.gen/blob
-                               $.lisp.gen/hex-string])))
+               $.clj/blob?
+               (TC.gen/one-of [$.clj.gen/address
+                               $.clj.gen/blob
+                               $.clj.gen/hex-string])))
 
 
 
 ;(mprop/deftest blob--fail
 ;
 ;  (prop-error-cast 'blob
-;                   ($.lisp.gen/any-but #{$.lisp.gen/
+;                   ($.clj.gen/any-but #{$.clj.gen/
 ;
 
 (mprop/deftest boolean--
@@ -136,7 +136,7 @@
                true?
                (TC.gen/such-that #(and (some? %)
                                        (not (false? %)))
-                                 $.lisp.gen/any)))
+                                 $.clj.gen/any)))
 
 
 
@@ -151,8 +151,8 @@
                #(<= 0
                     %
                     255)
-               ($.lisp.gen/number-bounded {:max 1e6
-                                           :min -1e6})))
+               ($.clj.gen/number-bounded {:max 1e6
+                                          :min -1e6})))
 
 
 
@@ -164,8 +164,8 @@
                '(fn [_] true)  ;; TODO. Incorrect, see https://github.com/Convex-Dev/convex/issues/92
                unchecked-char
                char?
-               ($.lisp.gen/number-bounded {:max 1e6
-                                           :min -1e6})))
+               ($.clj.gen/number-bounded {:max 1e6
+                                          :min -1e6})))
 
 
 
@@ -173,8 +173,8 @@
 
   {:ratio-num 100}
 
-  (TC.prop/for-all [x $.lisp.gen/any]
-    (let [ctx ($.cvm.eval/ctx* (do
+  (TC.prop/for-all [x $.clj.gen/any]
+    (let [ctx ($.clj.eval/ctx* (do
                                  (def x
                                       (quote ~x))
                                  (def -encoding
@@ -183,13 +183,13 @@
 
         "Result is a blob"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(blob? -encoding))
 
 
         "Encoding is deterministic"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= -encoding
                                (encoding x)))))))
 
@@ -201,34 +201,34 @@
 
   {:ratio-num 100}
 
-  (TC.prop/for-all [x (TC.gen/one-of [$.lisp.gen/address
-                                      $.lisp.gen/blob])]
-    (let [ctx ($.cvm.eval/ctx* (def -hash
+  (TC.prop/for-all [x (TC.gen/one-of [$.clj.gen/address
+                                      $.clj.gen/blob])]
+    (let [ctx ($.clj.eval/ctx* (def -hash
                                     (hash ~x)))]
       (mprop/mult
 
         "`hash?`"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(hash? -hash))
 
 
         "Hashing is deterministic"
 
-        ($.cvm.eval/result* ctx
+        ($.clj.eval/result* ctx
                             (= -hash
                                (hash ~x)))
 
 
         "Hashes are not mere blobs"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(not (blob? -hash)))
 
 
         "Hashing a hash produces a hash"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(hash? (hash -hash)))))))
 
 
@@ -240,10 +240,10 @@
   (prop-coerce 'keyword
                'keyword?
                keyword?
-               (TC.gen/one-of [$.lisp.gen/keyword
-                               $.lisp.gen/string-symbolic
-                               $.lisp.gen/symbol-quoted
-                               $.lisp.gen/symbol-ns-quoted])))
+               (TC.gen/one-of [$.clj.gen/keyword
+                               $.clj.gen/string-symbolic
+                               $.clj.gen/symbol-quoted
+                               $.clj.gen/symbol-ns-quoted])))
 
 
 
@@ -254,12 +254,12 @@
   (prop-coerce 'long
                'long?
                int?
-               (TC.gen/one-of [$.lisp.gen/address
-                               $.lisp.gen/boolean
-                               $.lisp.gen/byte
-                               $.lisp.gen/char
-                               $.lisp.gen/double
-                               $.lisp.gen/long])))
+               (TC.gen/one-of [$.clj.gen/address
+                               $.clj.gen/boolean
+                               $.clj.gen/byte
+                               $.clj.gen/char
+                               $.clj.gen/double
+                               $.clj.gen/long])))
 
 
 
@@ -273,7 +273,7 @@
                'set?
                set
                set?
-               $.lisp.gen/collection))
+               $.clj.gen/collection))
 
 
 
@@ -287,7 +287,7 @@
                'str?
                ;; str ;; No comparable Clojure coercion, Convex prints vectors with "," instead of spaces, unlike Clojure
                string?
-               $.lisp.gen/any))
+               $.clj.gen/any))
 
 
 
@@ -298,10 +298,10 @@
   (prop-coerce 'symbol
                'symbol?
                symbol?
-               (TC.gen/one-of [$.lisp.gen/keyword
-                               $.lisp.gen/string-symbolic
-                               $.lisp.gen/symbol-quoted
-                               $.lisp.gen/symbol-ns-quoted])))
+               (TC.gen/one-of [$.clj.gen/keyword
+                               $.clj.gen/string-symbolic
+                               $.clj.gen/symbol-quoted
+                               $.clj.gen/symbol-ns-quoted])))
 
 
 
@@ -313,4 +313,4 @@
                'vector?
                ;; `vec` cannot be used because Convex implements order differently in maps and sets
                vector?
-               $.lisp.gen/collection))
+               $.clj.gen/collection))

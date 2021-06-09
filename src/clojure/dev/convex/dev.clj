@@ -31,7 +31,7 @@
             [convex.break.test.syntax]
             [convex.code                   :as $.code]
             [convex.cvm                    :as $.cvm]
-            [convex.cvm.eval               :as $.cvm.eval]
+            [convex.clj.eval               :as $.clj.eval]
             [convex.cvm.test]
             [convex.disk                   :as $.disk]
             [convex.example.exec]
@@ -39,9 +39,9 @@
 			[convex.lib.dev.lab.xform]
             [convex.lib.dev.trust]
             [convex.lib.test.trust]
-            [convex.lisp                   :as $.lisp]
-            [convex.lisp.gen               :as $.lisp.gen]
-            [convex.lisp.test]
+            [convex.clj                   :as $.clj]
+            [convex.clj.gen               :as $.clj.gen]
+            [convex.clj.test]
             [convex.sync                   :as $.sync]
             [clojure.test.check.generators :as TC.gen]))
 
@@ -71,7 +71,7 @@
 
   ($.cvm/exception ctx)
 
-  ($.cvm.eval/result* ctx
+  ($.clj.eval/result* ctx
                       $/foo)
 
 
@@ -88,7 +88,7 @@
 
   ($.cvm/exception @w*ctx)
 
-  ($.cvm.eval/result* @w*ctx
+  ($.clj.eval/result* @w*ctx
                       $/foo)
 
 

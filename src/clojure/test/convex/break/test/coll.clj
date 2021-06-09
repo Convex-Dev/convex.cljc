@@ -14,10 +14,10 @@
 
   (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
-            [convex.cvm.eval               :as $.cvm.eval]
+            [convex.clj.eval               :as $.clj.eval]
             [convex.break.gen              :as $.break.gen]
-            [convex.lisp                   :as $.lisp]
-            [convex.lisp.gen               :as $.lisp.gen]
+            [convex.clj                    :as $.clj]
+            [convex.clj.gen                :as $.clj.gen]
             [helins.mprop                  :as mprop]))
 
 
@@ -38,20 +38,20 @@
 
     "Type is correct"
 
-    ($.cvm.eval/result* ctx
+    ($.clj.eval/result* ctx
                         (~form-type? x))
 
 
     "Same number of key-values"
 
-    ($.cvm.eval/result ctx
+    ($.clj.eval/result ctx
                        '(= (count kv+)
                            (count x)))
 
 
     "All key-values can be retrieved"
 
-    ($.cvm.eval/result ctx
+    ($.clj.eval/result ctx
                        '($/every? (fn [[k v]]
                                     (= v
                                        (get x
@@ -65,9 +65,9 @@
 
 (mprop/deftest blob-map--
 
-  (TC.prop/for-all [kv+ ($.lisp.gen/kv+ $.lisp.gen/blob
-                                        $.lisp.gen/any)]
-    (suite-new ($.cvm.eval/ctx* (do
+  (TC.prop/for-all [kv+ ($.clj.gen/kv+ $.clj.gen/blob
+                                       $.clj.gen/any)]
+    (suite-new ($.clj.eval/ctx* (do
                                   (def kv+
                                        ~kv+)
                                   (def x
@@ -85,9 +85,9 @@
 
 
   {:ratio-size 2}
-  (TC.prop/for-all [kv+ ($.lisp.gen/kv+ $.lisp.gen/any
-                                        $.lisp.gen/any)]
-    (suite-new ($.cvm.eval/ctx* (do
+  (TC.prop/for-all [kv+ ($.clj.gen/kv+ $.clj.gen/any
+                                       $.clj.gen/any)]
+    (suite-new ($.clj.eval/ctx* (do
                                   (def kv+
                                        ~kv+)
                                   (def x
@@ -101,8 +101,8 @@
 
   ;; Cannot compare with Clojure: https://github.com/Convex-Dev/convex-web/issues/66
 
-  (TC.prop/for-all [x+ (TC.gen/vector-distinct $.lisp.gen/any)]
-    (suite-new ($.cvm.eval/ctx* (do
+  (TC.prop/for-all [x+ (TC.gen/vector-distinct $.clj.gen/any)]
+    (suite-new ($.clj.eval/ctx* (do
                                   (def kv+
                                        ~(mapv #(vector %
                                                        true)
@@ -115,8 +115,8 @@
 
 (mprop/deftest list--
 
-  (TC.prop/for-all [x+ (TC.gen/vector $.lisp.gen/any)]
-    (suite-new ($.cvm.eval/ctx* (do
+  (TC.prop/for-all [x+ (TC.gen/vector $.clj.gen/any)]
+    (suite-new ($.clj.eval/ctx* (do
                                   (def kv+
                                        ~(mapv vector
                                               (range)
@@ -129,8 +129,8 @@
 
 (mprop/deftest vector--
 
-  (TC.prop/for-all [x+ (TC.gen/vector $.lisp.gen/any)]
-    (suite-new ($.cvm.eval/ctx* (do
+  (TC.prop/for-all [x+ (TC.gen/vector $.clj.gen/any)]
+    (suite-new ($.clj.eval/ctx* (do
                                   (def kv+
                                        ~(mapv vector
                                               (range)
@@ -160,9 +160,9 @@
   ([x k v]
 
    (ctx-main x
-             ($.lisp/templ* (assoc ~x
-                                   ~k
-                                   ~v))
+             ($.clj/templ* (assoc ~x
+                                  ~k
+                                  ~v))
              k
              v)))
 
@@ -176,16 +176,16 @@
 
   [x x-2 k v]
 
-  (-> ($.lisp/templ* (do
-                       (def k
-                            ~k)
-                       (def v
-                            ~v)
-                       (def x
-                            ~x)
-                       (def x-2
-                            ~x-2)))
-       $.cvm.eval/ctx))
+  (-> ($.clj/templ* (do
+                      (def k
+                           ~k)
+                      (def v
+                           ~v)
+                      (def x
+                           ~x)
+                      (def x-2
+                           ~x-2)))
+       $.clj.eval/ctx))
 
 
 ;;;;;;;;;; Main - Different suites targeting different collection capabilities
@@ -205,7 +205,7 @@
   
       "Associating existing value does not change anything"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(= x-2
                              (assoc x-2
                                     k
@@ -214,7 +214,7 @@
   
       "Consistent with `assoc-in`"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(= x-2
                              (assoc-in x
                                        [k]
@@ -236,7 +236,7 @@
 
     "Suite revolving around `dissoc` and its consequences measurable via other functions."
 
-    (let [ctx-2 ($.cvm.eval/ctx ctx
+    (let [ctx-2 ($.clj.eval/ctx ctx
                                 '(def x-3
                                       (dissoc x-2
                                               k)))]
@@ -244,27 +244,27 @@
 
         "Does not contain key anymore"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '(not (contains-key? x-3
                                                 k)))
 
 
         "`get` returns nil"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '(nil? (get x-3
                                        k)))
 
 
         "Using collection as function returns nil"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '(nil? (x-3 k)))
 
 
         "`get` returns 'not-found' value"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '(= :convex-sentinel
                                (get x-3
                                     k
@@ -273,14 +273,14 @@
 
         "`get-in` returns nil"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '(nil? (get-in x-3
                                           [k])))
 
 
         "`get-in` returns 'not-found' value"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '(= :convex-sentinel
                                (get-in x-3
                                        [k]
@@ -289,14 +289,14 @@
 
         "Keys do not contain key"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '(not (contains-key? (set (keys x-3))
                                                 k)))
 
 
         "All other key-values are preserved"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '($/every? (fn [k]
                                         (= (get x-3
                                                 k)
@@ -307,7 +307,7 @@
 
         "Equal to original or count updated as needed"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '(if (nil? x)
                               (= {}
                                  x-3)
@@ -330,7 +330,7 @@
 
     "Using `hash-map` to rebuild map"
 
-    ($.cvm.eval/result ctx
+    ($.clj.eval/result ctx
                        '(= x-2
                            (apply hash-map
                                   (reduce (fn [acc [k v]]
@@ -352,7 +352,7 @@
 
     "Suite for collections that support `keys` and `values` (currently, only map-like types)."
 
-    (let [ctx-2 ($.cvm.eval/ctx ctx
+    (let [ctx-2 ($.clj.eval/ctx ctx
                                 '(do
                                    (def k+
                                         (keys x-2))
@@ -364,14 +364,14 @@
 
         "Keys contain new key"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '(contains-key? (set k+)
                                            k))
 
 
         "Order of `keys` is consistent with order of `values`"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '($/every-index? (fn [k+ i]
                                               (and (= (get x-2
                                                            (get k+
@@ -385,7 +385,7 @@
 
         "`vec` correctly maps key-values"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '($/every? (fn [[k v]]
                                         (= v
                                            (get x-2
@@ -396,7 +396,7 @@
 
         "`vec` is consitent with `into`"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '(= kv+
                                (into []
                                      x-2)))
@@ -404,7 +404,7 @@
 
         "Order of `keys` is consistent with `vec`"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '(= k+
                                (map first
                                     kv+)))
@@ -412,7 +412,7 @@
 
         "Order of `values` is consistent with `vec`"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '(= v+
                                (map second
                                     kv+)))
@@ -420,7 +420,7 @@
 
         "Order of `mapv` is consistent with `vec`"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '(= kv+
                                (mapv identity
                                      x-2)))
@@ -428,7 +428,7 @@
 
         "Contains all its keys"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '($/every? (fn [k]
                                         (contains-key? x-2
                                                        k))
@@ -437,7 +437,7 @@
 
         "`assoc` is consistent with `count`"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '(= x-2
                                (reduce (fn [x-3 [k v]]
                                          (let [x-4 (assoc x-3
@@ -453,7 +453,7 @@
 
        "Using `assoc` to rebuild map in a loop"
 
-       ($.cvm.eval/result ctx-2
+       ($.clj.eval/result ctx-2
                           '(let [rebuild (fn [acc]
                                            (reduce (fn [acc-2 [k v]]
                                                      (assoc acc-2
@@ -468,7 +468,7 @@
 
        "Using `assoc` with `apply` to rebuild map"
 
-       (let [ctx-3 ($.cvm.eval/ctx ctx-2
+       (let [ctx-3 ($.clj.eval/ctx ctx-2
                                    '(def arg+
                                          (reduce (fn [acc [k v]]
                                                    (conj acc
@@ -480,7 +480,7 @@
 
            "From an empty map"
 
-           ($.cvm.eval/result ctx-3
+           ($.clj.eval/result ctx-3
                               '(= x-2
                                   (apply assoc
                                         (empty x-2)
@@ -489,7 +489,7 @@
 
            "On the map itself"
 
-           ($.cvm.eval/result ctx-3
+           ($.clj.eval/result ctx-3
                               '(= x-2
                                   (apply assoc
                                          x-2
@@ -507,7 +507,7 @@
 
     "Suite that all collections must pass (having exactly 1 item)."
 
-    (let [ctx-2 ($.cvm.eval/ctx ctx
+    (let [ctx-2 ($.clj.eval/ctx ctx
                                 '(def x-3
                                       (conj (empty x-2)
                                             (first x-2))))]
@@ -515,7 +515,7 @@
 
         "`cons`"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '(= (list 42
                                      (first x-3))
                                (cons 42
@@ -524,20 +524,20 @@
 
         "`count` returns 1"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                              '(= 1
                                  (count x-3)))
 
 
         "Not empty"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '(not (empty? x-3)))
 
 
         "`first` and `last` are equivalent, consistent with `nth`"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '(= (first x-3)
                                (last x-3)
                                (nth x-3
@@ -546,13 +546,13 @@
 
         "`next` returns nil"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '(nil? (next x-3)))
 
 
         "`second` is exceptional"
 
-        ($.cvm.eval/exception? ctx-2
+        ($.clj.eval/exception? ctx-2
                                '(second x-3))))))
 
 
@@ -571,14 +571,14 @@
 
       "Contains key"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(contains-key? x-2
                                          k))
 
 
       "`get` returns the value"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(= v
                              (get x-2
                                   k)))
@@ -586,14 +586,14 @@
 
       "Using collection as function returns the value"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(= v
                              (x-2 k)))
 
 
       "`get-in` returns the value"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(= v
                              (get-in x-2
                                      [k])))
@@ -601,20 +601,20 @@
 
       "Cannot be empty"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(not (empty? x-2)))
 
 
       "Count is at least 1"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(>= (count x-2)
                               1))
 
 
       "`first` is not exceptional"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(do
                             (first x-2)
                             true))
@@ -622,7 +622,7 @@
 
       "`(nth 0)` is not exceptional"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(do
                             (nth x-2
                                  0)
@@ -631,7 +631,7 @@
 
       "`last` is is not exceptional"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(do
                             (last x-2)
                             true))
@@ -639,7 +639,7 @@
 
       "`nth` to last item is not exceptional"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(do
                             (nth x-2
                                  (dec (count x-2)))
@@ -648,7 +648,7 @@
 
       "`nth` is consistent with `first`"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(= (first x-2)
                              (nth x-2
                                   0)))
@@ -656,7 +656,7 @@
 
       "`nth` is consistent with `last`"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(= (last x-2)
                              (nth x-2
                                   (dec (count x-2)))))
@@ -664,7 +664,7 @@
 
       "`nth` is consistent with second"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(if (>= (count x-2)
                                   2)
                             (= (second x-2)
@@ -675,7 +675,7 @@
 
       "Using `concat` to rebuild collection as a vector"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(let [as-vec (vec x-2)]
                             (= as-vec
                                (apply concat
@@ -685,7 +685,7 @@
 
       "`cons`"
 
-      (let [ctx-2 ($.cvm.eval/ctx ctx
+      (let [ctx-2 ($.clj.eval/ctx ctx
                                   '(def -cons
                                         (cons (first x-2)
                                               x-2)))]
@@ -693,20 +693,20 @@
           
           "Produces a list"
 
-          ($.cvm.eval/result ctx-2
+          ($.clj.eval/result ctx-2
                              '(list? -cons))
 
 
           "Count is coherent compared to the consed collection"
 
-          ($.cvm.eval/result ctx-2
+          ($.clj.eval/result ctx-2
                              '(= (count -cons)
                                  (inc (count x-2))))
 
 
           "First elements are consistent with setup"
 
-          ($.cvm.eval/result ctx-2
+          ($.clj.eval/result ctx-2
                              '(= (first -cons)
                                  (second -cons)
                                  (first x-2)))
@@ -714,14 +714,14 @@
 
           "Consistent with `next`"
 
-          ($.cvm.eval/result ctx-2
+          ($.clj.eval/result ctx-2
                              '(= (vec (next -cons))
                                  (vec x-2)))))
 
 
       "`cons` repeatedly reverse a collection"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(= (into (list)
                                    x-2)
                              (reduce (fn [acc x]
@@ -733,7 +733,7 @@
 
       "`next` preserves types of lists, returns vectors for other collections"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(let [-next (next x-2)]
                             (if (nil? -next)
                               true
@@ -744,7 +744,7 @@
 
       "`next` is consistent with `first`, `second`, and `count`"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(loop [x-3 x-2]
                             (let [n-x-3 (count x-3)]
                               (if (zero? n-x-3)
@@ -765,7 +765,7 @@
 
       "`empty?` is consistent with `count?`"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(let [-count-pos? (> (count x-2)
                                                0)
                                 -empty?     (empty? x-2)]
@@ -776,7 +776,7 @@
 
       "`empty?` is consistent with `empty`"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(empty? (empty x-2))))))
 
 
@@ -806,7 +806,7 @@
 
       "Count has been updated as needed"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(= (count x-2)
                              (+ (count x)
                                 (if (or (= x-2
@@ -820,13 +820,13 @@
       ;; TODO.Failing because of: https://github.com/Convex-Dev/convex/issues/103
       ;;
       ;; "Using `merge` to rebuild map"
-      ;; ($.cvm.eval/result ctx
+      ;; ($.clj.eval/result ctx
       ;;                    '(= x-2
       ;;                        (merge (empty x-2)
       ;;                               x-2)))
       ;;
       ;; "Merging original with new = new"
-      ;; ($.cvm.eval/result ctx
+      ;; ($.clj.eval/result ctx
       ;;                    '(= x-2
       ;;                        (merge x
       ;;                               x-2)))
@@ -834,7 +834,7 @@
 
       "`conj` is consistent with `assoc`"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(if (map? x)
                             (= x-2
                                (conj x
@@ -844,7 +844,7 @@
 
       "`into` is consistent with `assoc`"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(if (map? x)
                             (= x-2
                                (into x
@@ -854,7 +854,7 @@
 
       "All other key-values are preserved"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '($/every? (fn [k]
                                       (= (get x
                                               k)
@@ -867,7 +867,7 @@
 
       "Using `into` to rebuild map"
 
-      (let [ctx-2 ($.cvm.eval/ctx ctx
+      (let [ctx-2 ($.clj.eval/ctx ctx
                                   '(do
                                      (def -empty
                                           (empty x-2))
@@ -878,7 +878,7 @@
 
           "On empty map"
 
-          ($.cvm.eval/result ctx-2
+          ($.clj.eval/result ctx-2
                              '(= x-2
                                  (into -empty
                                        x-2)
@@ -888,7 +888,7 @@
 
           "Using `into` on map with this very same map does not change anything"
 
-          ($.cvm.eval/result ctx-2
+          ($.clj.eval/result ctx-2
                              '(= x-2
                                  (into x-2
                                        x-2)
@@ -925,14 +925,14 @@
 
       "`contains-key?` with indices"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '($/every-index? contains-key?
                                           x-2))
 
 
       "`get` is consistent with `nth`"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '($/every-index? (fn [x-2 i]
                                             (= (get x-2
                                                     i)
@@ -944,7 +944,7 @@
 
       "Rebuilding sequential using `assoc` and `apply`"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(= x-2
                              (apply assoc
                                     x-2
@@ -969,8 +969,8 @@
 
   {:ratio-num 5}
 
-  (TC.prop/for-all* [$.lisp.gen/blob
-                     $.lisp.gen/any]
+  (TC.prop/for-all* [$.clj.gen/blob
+                     $.clj.gen/any]
                     (comp suite-map
                           (partial ctx-assoc
                                    '(blob-map)))))
@@ -981,9 +981,9 @@
 
   {:ratio-num 5}
 
-  (TC.prop/for-all [m $.lisp.gen/map
-                    k $.lisp.gen/any
-                    v $.lisp.gen/any]
+  (TC.prop/for-all [m $.clj.gen/map
+                    k $.clj.gen/any
+                    v $.clj.gen/any]
     (let [ctx (ctx-assoc m
                          k
                          v)]
@@ -996,9 +996,9 @@
 
   {:ratio-num 5}
 
-  (TC.prop/for-all* [$.lisp.gen/nothing
-                     $.lisp.gen/any
-                     $.lisp.gen/any]
+  (TC.prop/for-all* [$.clj.gen/nothing
+                     $.clj.gen/any
+                     $.clj.gen/any]
                     (comp suite-map
                           ctx-assoc)))
 
@@ -1012,8 +1012,8 @@
                                                    %
                                                    (seq? %)
                                                    rest))
-                                           $.lisp.gen/sequential)
-                    v    $.lisp.gen/any]
+                                           $.clj.gen/sequential)
+                    v    $.clj.gen/any]
     (let [ctx (ctx-assoc coll
                          (rand-int (count (cond->
                                             coll
@@ -1031,7 +1031,7 @@
 
   {:ratio-num 8}
 
-  (TC.prop/for-all [s (TC.gen/not-empty $.lisp.gen/set)]
+  (TC.prop/for-all [s (TC.gen/not-empty $.clj.gen/set)]
     (suite-main (let [v (first s)]
                   (ctx-main s
                             s
@@ -1048,7 +1048,7 @@
 
   [x k v]
 
-  ($.cvm.eval/exception?* (assoc ~x
+  ($.clj.eval/exception?* (assoc ~x
                                  ~k
                                  ~v)))
 
@@ -1058,13 +1058,13 @@
 
   {:ratio-num 10}
 
-  (TC.prop/for-all* [($.lisp.gen/any-but #{$.lisp.gen/list
-                                           $.lisp.gen/map
-                                           $.lisp.gen/nothing
-                                           $.lisp.gen/set
-                                           $.lisp.gen/vector})
-                     $.lisp.gen/any
-                     $.lisp.gen/any]
+  (TC.prop/for-all* [($.clj.gen/any-but #{$.clj.gen/list
+                                          $.clj.gen/map
+                                          $.clj.gen/nothing
+                                          $.clj.gen/set
+                                          $.clj.gen/vector})
+                     $.clj.gen/any
+                     $.clj.gen/any]
                     -assoc-fail))
 
 
@@ -1073,9 +1073,9 @@
 
   {:ratio-num 10}
 
-  (TC.prop/for-all [k ($.lisp.gen/any-but #{$.lisp.gen/address
-                                       $.lisp.gen/blob})
-                    v $.lisp.gen/any]
+  (TC.prop/for-all [k ($.clj.gen/any-but #{$.clj.gen/address
+                                           $.clj.gen/blob})
+                    v $.clj.gen/any]
     (-assoc-fail '(blob-map)
                  k
                  v)))
@@ -1087,16 +1087,16 @@
   {:ratio-num 10}
 
   (TC.prop/for-all [[x
-                     k] (TC.gen/let [x $.lisp.gen/sequential
+                     k] (TC.gen/let [x $.clj.gen/sequential
                                      k (TC.gen/such-that #(not (and (number? %)
                                                                     (<= 0
                                                                         %
                                                                         (dec (count (if (vector? x)
                                                                                       x
                                                                                       (rest x)))))))
-                                                         $.lisp.gen/any)]
+                                                         $.clj.gen/any)]
                           [x k])
-                    v   $.lisp.gen/any]
+                    v   $.clj.gen/any]
     (-assoc-fail x
                  k
                  v)))
@@ -1111,15 +1111,15 @@
 
   {:ratio-num 10}
 
-  (TC.prop/for-all [x    (TC.gen/one-of [$.lisp.gen/list
-                                         $.lisp.gen/map
-                                         $.lisp.gen/nothing
-                                         $.lisp.gen/vector])
-                    path ($.lisp.gen/any-but #{$.lisp.gen/list
-                                               $.lisp.gen/nothing
-                                               $.lisp.gen/vector})
-                    v    $.lisp.gen/any]
-    ($.cvm.eval/exception?* (assoc-in ~x
+  (TC.prop/for-all [x    (TC.gen/one-of [$.clj.gen/list
+                                         $.clj.gen/map
+                                         $.clj.gen/nothing
+                                         $.clj.gen/vector])
+                    path ($.clj.gen/any-but #{$.clj.gen/list
+                                              $.clj.gen/nothing
+                                              $.clj.gen/vector})
+                    v    $.clj.gen/any]
+    ($.clj.eval/exception?* (assoc-in ~x
                                       ~path
                                       ~v))))
 
@@ -1129,17 +1129,17 @@
 
   {:ratio-num 10}
 
-  (TC.prop/for-all [x    ($.lisp.gen/any-but #{$.lisp.gen/list
-                                               $.lisp.gen/map
-                                               $.lisp.gen/nothing
-                                               $.lisp.gen/set
-                                               $.lisp.gen/vector})
+  (TC.prop/for-all [x    ($.clj.gen/any-but #{$.clj.gen/list
+                                              $.clj.gen/map
+                                              $.clj.gen/nothing
+                                              $.clj.gen/set
+                                              $.clj.gen/vector})
                     path (TC.gen/such-that #(seq (if (vector? %)
                                                    %
-                                                   ($.lisp/meta-raw %)))
-                                           $.lisp.gen/sequential)
-                    v    $.lisp.gen/any]
-    ($.cvm.eval/exception?* (assoc-in ~x
+                                                   ($.clj/meta-raw %)))
+                                           $.clj.gen/sequential)
+                    v    $.clj.gen/any]
+    ($.clj.eval/exception?* (assoc-in ~x
                                       ~path
                                       ~v))))
 
@@ -1151,7 +1151,7 @@
 
   [x path v]
 
-  ($.cvm.eval/result* (= ~v
+  ($.clj.eval/result* (= ~v
                          (let [x-2 (assoc-in ~x
                                              ~path
                                              ~v)]
@@ -1169,8 +1169,8 @@
   {:ratio-num 10}
 
   (TC.prop/for-all [x    $.break.gen/maybe-map
-                    path $.lisp.gen/sequential
-                    v    $.lisp.gen/any]
+                    path $.clj.gen/sequential
+                    v    $.clj.gen/any]
     (-eval-assoc-in (cond->
                       x
                       (seq path)
@@ -1189,12 +1189,12 @@
 
   {:ratio-num 10}
   
-  (TC.prop/for-all [coll $.lisp.gen/collection]
+  (TC.prop/for-all [coll $.clj.gen/collection]
     (mprop/mult
 
       "Duplicating items"
 
-      ($.cvm.eval/result* (let [coll ~coll]
+      ($.clj.eval/result* (let [coll ~coll]
                             (= (vec (mapcat (fn [x]
                                               [x x])
                                             coll))
@@ -1208,7 +1208,7 @@
 
       "Keeping items at even positions"
 
-      ($.cvm.eval/result* (do
+      ($.clj.eval/result* (do
                             (def n-mapcat
                                  -1)
                             (def n-reduce
@@ -1239,8 +1239,8 @@
 
   {:ratio-num 10}
   
-  (TC.prop/for-all [coll $.lisp.gen/collection]
-    (let [ctx ($.cvm.eval/ctx* (do
+  (TC.prop/for-all [coll $.clj.gen/collection]
+    (let [ctx ($.clj.eval/ctx* (do
                                  (def coll
                                       ~coll)
                                  (def vect
@@ -1252,7 +1252,7 @@
 
         "`for` to recreate collection as vector"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= vect
                                (for [x coll]
                                  x)))
@@ -1260,7 +1260,7 @@
 
         "`for` to modify collection"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= modified
                                (for [x coll]
                                  [x])))
@@ -1268,7 +1268,7 @@
 
         "`mapv` with identity"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= vect
                                (mapv identity
                                      coll)))
@@ -1276,7 +1276,7 @@
 
         "`mapv` to modify collection"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= modified
                                (mapv vector
                                      coll)))
@@ -1288,13 +1288,13 @@
                      
                      "Modifies collection"
 
-                     ($.cvm.eval/result ctx
+                     ($.clj.eval/result ctx
                                         '(= modified
                                             (vec (mapcat (fn [x]
                                                            [[x]])
                                                          coll)))))
 
-                   (let [ctx-2 ($.cvm.eval/ctx ctx
+                   (let [ctx-2 ($.clj.eval/ctx ctx
                                                '(def -mapcat
                                                      (mapcat vector
                                                              coll)))]
@@ -1303,24 +1303,24 @@
 
                          "Produces a list"
 
-                         ($.cvm.eval/result ctx-2
+                         ($.clj.eval/result ctx-2
                                             '(list? -mapcat))
 
                          "List is recreated"
 
-                         ($.cvm.eval/result ctx-2
+                         ($.clj.eval/result ctx-2
                                             '(= coll
                                                 -mapcat)))
                        (mprop/mult
 
                          "Produces a vector"
 
-                         ($.cvm.eval/result ctx-2
+                         ($.clj.eval/result ctx-2
                                             '(vector? -mapcat))
 
 
                          "Recreates collection as a vector"
-                         ($.cvm.eval/result ctx-2
+                         ($.clj.eval/result ctx-2
                                             '(= vect
                                                 -mapcat))))))))))
 
@@ -1330,11 +1330,11 @@
 
   {:ratio-num 4}
 
-  (TC.prop/for-all [x+ (TC.gen/vector (TC.gen/one-of [$.lisp.gen/map
-                                                      $.lisp.gen/nothing])
+  (TC.prop/for-all [x+ (TC.gen/vector (TC.gen/one-of [$.clj.gen/map
+                                                      $.clj.gen/nothing])
                                       0
                                       16)]
-    (let [ctx ($.cvm.eval/ctx* (do
+    (let [ctx ($.clj.eval/ctx* (do
                                  (def arg+
                                       ~x+)
                                  (def merge-
@@ -1343,7 +1343,7 @@
 
         "Count of merge cannot be bigger than all involved key-values"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(<= (count merge-)
                                 (reduce (fn [acc arg]
                                           (+ acc
@@ -1354,7 +1354,7 @@
 
         "All key-values in merged result must be in at least one input"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '($/every? (fn [[k v]]
                                         ($/some (fn [arg]
                                                   (and (= v
@@ -1375,10 +1375,10 @@
 
   (TC.prop/for-all [percent $.break.gen/percent
                     x       (TC.gen/such-that #(seq (if (seq? %)
-                                                      ($.lisp/meta-raw %)
+                                                      ($.clj/meta-raw %)
                                                       %))
-                                              $.lisp.gen/collection)]
-    ($.cvm.eval/result* (let [x ~x
+                                              $.clj.gen/collection)]
+    ($.clj.eval/result* (let [x ~x
                               v (nth x
                                      (long (floor (* ~percent
                                                      (dec (count x))))))]
@@ -1397,14 +1397,14 @@
 
 (mprop/deftest blob-map--err-cast
 
-  (TC.prop/for-all [arg+ (let [set-gen-good #{$.lisp.gen/address
-                                              $.lisp.gen/blob}]
-                           ($.lisp.gen/mix-one-in (TC.gen/tuple ($.lisp.gen/any-but set-gen-good)
-                                                                $.lisp.gen/any)
-                                                  ($.lisp.gen/kv+ (TC.gen/one-of [(TC.gen/one-of (vec set-gen-good))
-                                                                                  $.lisp.gen/any])
-                                                                  $.lisp.gen/any)))]
-    ($.cvm.eval/code?* :ARGUMENT
+  (TC.prop/for-all [arg+ (let [set-gen-good #{$.clj.gen/address
+                                              $.clj.gen/blob}]
+                           ($.clj.gen/mix-one-in (TC.gen/tuple ($.clj.gen/any-but set-gen-good)
+                                                                $.clj.gen/any)
+                                                  ($.clj.gen/kv+ (TC.gen/one-of [(TC.gen/one-of (vec set-gen-good))
+                                                                                 $.clj.gen/any])
+                                                                 $.clj.gen/any)))]
+    ($.clj.eval/code?* :ARGUMENT
                        (blob-map ~@(mapcat identity
                                            arg+)))))
 
@@ -1412,12 +1412,12 @@
 
 (mprop/deftest concat--err-cast
 
-  (TC.prop/for-all [arg+ ($.lisp.gen/outlier #{$.lisp.gen/list
-                                               $.lisp.gen/map
-                                               $.lisp.gen/nothing
-                                               $.lisp.gen/set
-                                               $.lisp.gen/vector})]
-    ($.cvm.eval/code?* :CAST
+  (TC.prop/for-all [arg+ ($.clj.gen/outlier #{$.clj.gen/list
+                                              $.clj.gen/map
+                                              $.clj.gen/nothing
+                                              $.clj.gen/set
+                                              $.clj.gen/vector})]
+    ($.clj.eval/code?* :CAST
                        (concat ~@arg+))))
 
 
@@ -1429,10 +1429,10 @@
   {:ratio-num 10}
 
   (TC.prop/for-all [x    $.break.gen/not-collection
-                    arg+ (TC.gen/vector $.lisp.gen/any
+                    arg+ (TC.gen/vector $.clj.gen/any
                                         0
                                         6)]
-    ($.cvm.eval/code?* :CAST
+    ($.clj.eval/code?* :CAST
                        (conj ~x
                              ~@arg+))))
 
@@ -1442,9 +1442,9 @@
 
   {:ratio-num 20}
 
-  (TC.prop/for-all [x        $.lisp.gen/any
+  (TC.prop/for-all [x        $.clj.gen/any
                     not-coll $.break.gen/not-collection]
-    ($.cvm.eval/code?* :CAST
+    ($.clj.eval/code?* :CAST
                        (cons ~x
                              ~not-coll))))
 
@@ -1455,8 +1455,8 @@
   {:ratio-num 15}
 
   (TC.prop/for-all [x $.break.gen/not-collection
-                    k $.lisp.gen/any]
-    ($.cvm.eval/code?* :CAST
+                    k $.clj.gen/any]
+    ($.clj.eval/code?* :CAST
                        (contains-key? ~x
                                       ~k))))
 

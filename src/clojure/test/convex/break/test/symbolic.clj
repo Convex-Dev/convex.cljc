@@ -6,8 +6,8 @@
 
   (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
-            [convex.cvm.eval               :as $.cvm.eval]
-            [convex.lisp.gen               :as $.lisp.gen]
+            [convex.clj.eval               :as $.clj.eval]
+            [convex.clj.gen                :as $.clj.gen]
             [helins.mprop                  :as mprop]))
 
 
@@ -18,7 +18,7 @@
 
   {:ratio-num 10}
 
-  (TC.prop/for-all [x (TC.gen/one-of [$.lisp.gen/keyword
-                                      $.lisp.gen/symbol-quoted
-                                      $.lisp.gen/symbol-ns-quoted])]
-    ($.cvm.eval/like-clojure?* (name ~x))))
+  (TC.prop/for-all [x (TC.gen/one-of [$.clj.gen/keyword
+                                      $.clj.gen/symbol-quoted
+                                      $.clj.gen/symbol-ns-quoted])]
+    ($.clj.eval/like-clojure?* (name ~x))))

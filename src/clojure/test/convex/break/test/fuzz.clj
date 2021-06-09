@@ -9,9 +9,9 @@
 
   (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
-            [convex.cvm.eval               :as $.cvm.eval]
+            [convex.clj.eval               :as $.clj.eval]
             [convex.break.gen              :as $.break.gen]
-            [convex.lisp.gen               :as $.lisp.gen]
+            [convex.clj.gen                :as $.clj.gen]
             [helins.mprop                  :as mprop]))
 
 
@@ -26,9 +26,9 @@
   {:ratio-num  10
    :ratio-size 2}
 
-  (TC.prop/for-all [form ($.lisp.gen/call $.break.gen/core-symbol
-                                          (TC.gen/vector $.lisp.gen/any
-                                                         1
-                                                         8))]
-    ($.cvm.eval/value form)
+  (TC.prop/for-all [form ($.clj.gen/call $.break.gen/core-symbol
+                                         (TC.gen/vector $.clj.gen/any
+                                                        1
+                                                        8))]
+    ($.clj.eval/value form)
     true))

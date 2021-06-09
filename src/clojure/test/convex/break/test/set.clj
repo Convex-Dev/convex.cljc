@@ -7,8 +7,8 @@
   (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
             [convex.break.gen              :as $.break.gen]
-            [convex.cvm.eval               :as $.cvm.eval]
-            [convex.lisp.gen               :as $.lisp.gen]
+            [convex.clj.eval               :as $.clj.eval]
+            [convex.clj.gen                :as $.clj.gen]
             [helins.mprop                  :as mprop]))
 
 
@@ -21,14 +21,14 @@
 
   {:ratio-num 10}
 
-  (TC.prop/for-all [s $.lisp.gen/set]
-    (let [ctx ($.cvm.eval/ctx* (def s
+  (TC.prop/for-all [s $.clj.gen/set]
+    (let [ctx ($.clj.eval/ctx* (def s
                                     ~s))]
       (mprop/mult
 
         "There is no difference between a set and itself"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= #{}
                                (difference s
                                            s)))
@@ -36,7 +36,7 @@
 
         "The intersection of a set with itself is the set itself"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= s
                                (intersection s
                                              s)))
@@ -44,14 +44,14 @@
 
         "A set is a subset of itself"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(subset? s
                                      s))
 
 
         "The union of a set with itself is the set itself"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= s
                                (union s
                                       s)))
@@ -59,14 +59,14 @@
 
         "`empty`"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= #{}
                                (empty s)))
 
 
         "Rebuilding set using `into` on empty set"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= s
                                (into (empty s)
                                      s)))
@@ -74,7 +74,7 @@
 
         "Rebuilding set using `into` on the set itself"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= s
                                (into s
                                      s)))
@@ -82,7 +82,7 @@
 
         "Rebuilding set from list using `into`"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= s
                                (into (empty s)
                                      (into (list)
@@ -91,7 +91,7 @@
 
         "Rebuilding set by applying it to `conj`"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= s
                                (apply conj
                                       #{}
@@ -100,7 +100,7 @@
 
         "Adding all values of set into that same set does not change anything"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= s
                                (reduce conj
                                        s
@@ -109,7 +109,7 @@
 
         "A set contains each of its values"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '($/every? (fn [v]
                                         (contains-key? s
                                                        v))
@@ -118,7 +118,7 @@
 
         "`disj` consistent with `contains-key?`"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '($/every? (fn [v]
                                         (not (contains-key? (disj s
                                                                   v)
@@ -128,7 +128,7 @@
 
         "`disj` all values returns an empty set"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= #{}
                                (reduce disj
                                        s
@@ -145,7 +145,7 @@
   (TC.prop/for-all [s+ (TC.gen/vector $.break.gen/maybe-set
                                       2
                                       8)]
-    (let [ctx ($.cvm.eval/ctx* (do
+    (let [ctx ($.clj.eval/ctx* (do
                                  (def s+
                                       ~s+)
                                  (def -difference
@@ -170,52 +170,52 @@
 
         "Difference is a set"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(set? -difference))
 
 
         "Intersection is a set"
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(set? -intersection))
 
 
         "Union is a set"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(set? -union))
 
 
         "Difference cannot be bigger than first set"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(<= n-difference
                                 (first n-s+)))
 
 
         "Difference cannot be bigger than union"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(<= n-difference
                                 n-union))
 
 
         "Intersection cannot be bigger th first set"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(<= n-intersection
                                 (first n-s+)))
 
 
         "Intersection cannot be bigger than union"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(<= n-intersection
                                 n-union))
 
 
         "All sets are <= than union"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '($/every? (fn [s]
                                         (<= (count s)
                                             n-union))
@@ -224,7 +224,7 @@
 
         "Difference is a subset of first set"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(let [s (first s+)]
                               (and (subset? -difference
                                             s)
@@ -236,7 +236,7 @@
 
         "Non-empty difference is not a subset of sets other than first one"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(if (empty? -difference)
                               true
                               ($/every? (fn [s]
@@ -251,7 +251,7 @@
 
         "Intersection is a subset of all sets"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '($/every? (fn [s]
                                         (and (subset? -intersection
                                                       s)
@@ -264,7 +264,7 @@
 
         "All sets are subsets of union"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '($/every? (fn [s]
                                         (and (subset? s
                                                       -union)
@@ -277,7 +277,7 @@
 
         "Emulating union with `into`"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= -union
                                (reduce into
                                        #{}
@@ -286,7 +286,7 @@
 
         "Removing difference items from first set removes the difference"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= #{}
                                (apply difference
                                       (cons (reduce disj
@@ -297,7 +297,7 @@
 
         "Removing intersection items from first set removes the intersection"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= #{}
                                (apply intersection
                                       (cons (reduce disj
@@ -308,7 +308,7 @@
 
         "Difference and intersection have nothing in common"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= #{}
                                (intersection -difference
                                              -intersection)
@@ -318,7 +318,7 @@
 
         "Difference between difference and intersection is difference"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= (difference -difference
                                            -intersection)
                                -difference))
@@ -326,7 +326,7 @@
 
         "Difference between intersection and difference is intersection"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= (difference -intersection
                                            -difference)
                                -intersection))
@@ -334,7 +334,7 @@
 
         "No difference between difference and union"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= #{}
                                (difference -difference
                                            -union)))
@@ -342,7 +342,7 @@
 
         "No difference between intersection and union"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= #{}
                                (difference -intersection
                                            -union)))
@@ -350,14 +350,14 @@
 
         "Intersection between difference and intersection is a subset of first set"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(subset? (intersection -difference
                                                    -intersection)
                                      (first s+)))
 
         "Intersection between difference and union is difference"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= -difference
                                (intersection -difference
                                              -union)))
@@ -365,7 +365,7 @@
 
         "Intersection between intersection and union is intersection"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= -intersection
                                (intersection -intersection
                                              -union)))
@@ -373,7 +373,7 @@
 
         "Union between difference and intersection is a subset of first set"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(subset? (union -difference
                                             -intersection)
                                      (first s+)))
@@ -381,7 +381,7 @@
 
         "Union between difference and union is union"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= -union
                                (union -difference
                                       -union)))
@@ -389,7 +389,7 @@
 
         "Union between intersection and union is union"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                             '(= -union
                                 (union -intersection
                                        -union)))
@@ -397,7 +397,7 @@
 
         "Order of arguments does not matter in `union`"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= -union
                                (apply union
                                       (into (list)

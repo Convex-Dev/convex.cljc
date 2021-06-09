@@ -14,7 +14,7 @@
    Such operations consume juice and lead either to a successful [[result]] or to an [[error]]. Functions that
    do not return a context (eg. [[env]], [[juice]]) do not consume juice.
 
-   Result objects (Convex objects) can be datafied with [[convex.lisp/datafy]] for easy consumption from Clojure."
+   Result objects (Convex objects) can be datafied with [[convex.clj/datafy]] for easy consumption from Clojure."
 
   {:author "Adam Helinski"}
 
@@ -31,7 +31,7 @@
                             read])
   (:require [clojure.core.protocols]
             [convex.code             :as $.code]
-            [convex.lisp             :as $.lisp]))
+            [convex.clj              :as $.clj]))
 
 
 (set! *warn-on-reflection*
@@ -312,7 +312,7 @@
   [form]
 
   (-> form
-      $.lisp/src
+      $.clj/src
       read))
 
 
@@ -554,13 +554,13 @@
   convex.core.data.ABlob
 
     (datafy [this]
-      ($.lisp/blob (.toHexString this)))
+      ($.clj/blob (.toHexString this)))
 
   
   convex.core.data.Address
 
     (datafy [this]
-      ($.lisp/address (.longValue this)))
+      ($.clj/address (.longValue this)))
 
 
   convex.core.data.AList

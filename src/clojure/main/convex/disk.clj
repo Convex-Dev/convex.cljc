@@ -118,7 +118,7 @@
      | Key | Optional? | Value | Default |
      |---|---|---|---|
      | `:code` | True | Function **code from target file** -> **code** (as a Convex object) | `identity` |
-     | `:eval` | True | Evaluating function which runs **code** for the target file (as a Convex object) | `convex.cvm/eval` |
+     | `:eval` | True | Evaluating function which runs **code** for the target file (as a Convex object) | `convex.clj.eval` |
 
      `option+` is a map of options:
 

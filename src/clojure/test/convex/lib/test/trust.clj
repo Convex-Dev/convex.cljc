@@ -8,9 +8,9 @@
             [clojure.test.check.properties :as TC.prop]
             [convex.code                   :as $.code]
             [convex.cvm                    :as $.cvm]
-            [convex.cvm.eval               :as $.cvm.eval]
+            [convex.clj.eval               :as $.clj.eval]
             [convex.disk                   :as $.disk]
-            [convex.lisp.gen               :as $.lisp.gen]
+            [convex.clj.gen                :as $.clj.gen]
             [helins.mprop                  :as mprop]))
 
 
@@ -44,14 +44,14 @@
   [ctx controller sym-actor]
 
 
-  (let [ctx-2 ($.cvm.eval/ctx* ctx
+  (let [ctx-2 ($.clj.eval/ctx* ctx
                                (def actor
                                     ~sym-actor))]
     (mprop/mult
 
       "Controller is right"
 
-      ($.cvm.eval/result* ctx-2
+      ($.clj.eval/result* ctx-2
                           (= (lookup actor
                                      'controller)
                              ~controller))
@@ -59,7 +59,7 @@
 
       "All forbidden addresses are not trusted"
 
-      ($.cvm.eval/result ctx-2
+      ($.clj.eval/result ctx-2
                          '($/every? (fn [addr]
                                       (not (trust/trusted? actor
                                                            addr)))
@@ -68,7 +68,7 @@
 
       "All allowed addresses are trusted"
 
-      ($.cvm.eval/result ctx-2
+      ($.clj.eval/result ctx-2
                          '($/every? (fn [addr]
                                       (trust/trusted? actor
                                                       addr))
@@ -77,7 +77,7 @@
 
       "`trust/trusted?` is consistent with calling `check-trusted` on actor"
 
-      ($.cvm.eval/result ctx-2
+      ($.clj.eval/result ctx-2
                          '($/every? (fn [addr]
                                       (= (trust/trusted? actor
                                                          addr)
@@ -95,7 +95,7 @@
 
   [ctx not-caller f-list-set]
 
-  (let [ctx-2 ($.cvm.eval/ctx ctx
+  (let [ctx-2 ($.clj.eval/ctx ctx
                               '(def addr-all+
                                     (into #{}
                                           (concat addr-allow+
@@ -128,12 +128,12 @@
 
   "Generates a pair of `[addr-allow+ addr-forbid+]`."
 
-  (TC.gen/bind (TC.gen/vector $.lisp.gen/address)
+  (TC.gen/bind (TC.gen/vector $.clj.gen/address)
                (fn [addr-forbid+]
                  (TC.gen/tuple (TC.gen/vector-distinct (TC.gen/such-that (comp not
                                                                                (partial contains?
                                                                                         (set addr-forbid+)))
-                                                                         $.lisp.gen/address)
+                                                                         $.clj.gen/address)
                                                        {:min-elements 1})
                                (TC.gen/return addr-forbid+)))))
 
@@ -142,11 +142,11 @@
 
   "Generates an address that is different from the caller."
 
-  (TC.gen/such-that (let [addr ($.cvm.eval/result ctx
+  (TC.gen/such-that (let [addr ($.clj.eval/result ctx
                                                   '*address*)]
                       #(not (= %
                                addr)))
-                    $.lisp.gen/address))
+                    $.clj.gen/address))
 
 
 ;;;;;;;;;; Tests
@@ -159,7 +159,7 @@
   (TC.prop/for-all [[addr-allow+
                      addr-forbid+] gen-addr-list+
                     not-caller     gen-not-caller]
-    (let [ctx-2 ($.cvm.eval/ctx* ctx
+    (let [ctx-2 ($.clj.eval/ctx* ctx
                                  (do
                                    (def addr-allow+
                                         ~addr-allow+)
@@ -180,7 +180,7 @@
 
                       "Removing trust with `set-trust`"
 
-                      ($.cvm.eval/result ctx-3
+                      ($.clj.eval/result ctx-3
                                          '(do
                                             ($/foreach (fn [addr]
                                                          (call actor-controlled
@@ -194,7 +194,7 @@
 
                       "Adding trust with `set-trusted`"
 
-                      ($.cvm.eval/result ctx-3
+                      ($.clj.eval/result ctx-3
                                          '(do
                                             ($/foreach (fn [addr]
                                                          (call actor-controlled
@@ -208,7 +208,7 @@
 
                       "Not changing trust with `set-trusted`"
 
-                      ($.cvm.eval/result ctx-3
+                      ($.clj.eval/result ctx-3
                                          '(do
                                             (let [listing-before (lookup actor-controlled
                                                                          'blacklist)]
@@ -235,7 +235,7 @@
   (TC.prop/for-all [[addr-allow+
                      addr-forbid+] gen-addr-list+
                     not-caller     gen-not-caller]
-    (let [ctx-2 ($.cvm.eval/ctx* ctx
+    (let [ctx-2 ($.clj.eval/ctx* ctx
                                  (do
                                    (def addr-allow+
                                         ~addr-allow+)
@@ -256,7 +256,7 @@
 
                       "Removing trust with `set-trust`"
 
-                      ($.cvm.eval/result ctx-3
+                      ($.clj.eval/result ctx-3
                                          '(do
                                             ($/foreach (fn [addr]
                                                          (call actor-controlled
@@ -270,7 +270,7 @@
 
                       "Adding trust with `set-trusted`"
 
-                      ($.cvm.eval/result ctx-3
+                      ($.clj.eval/result ctx-3
                                          '(do
                                             ($/foreach (fn [addr]
                                                          (call actor-controlled
@@ -284,7 +284,7 @@
 
                       "Not changing trust with `set-trusted`"
 
-                      ($.cvm.eval/result ctx-3
+                      ($.clj.eval/result ctx-3
                                          '(do
                                             (let [listing-before (lookup actor-controlled
                                                                          'whitelist)]
@@ -310,9 +310,9 @@
 
   {:ratio-num 2}
 
-  (TC.prop/for-all [upgrade-data $.lisp.gen/any
-                    upgrade-sym  $.lisp.gen/symbol]
-    (let [ctx-2 ($.cvm.eval/ctx* ctx
+  (TC.prop/for-all [upgrade-data $.clj.gen/any
+                    upgrade-sym  $.clj.gen/symbol]
+    (let [ctx-2 ($.clj.eval/ctx* ctx
                                  (do
                                    (def actor-controlled
                                         (deploy (trust/add-trusted-upgrade nil)))
@@ -331,7 +331,7 @@
 
         "Root is caller by default"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '(= *address*
                                (lookup actor-controlled
                                        'upgradable-root)))
@@ -339,7 +339,7 @@
 
         "Root can be set via options"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '(= blacklist
                                (lookup actor-uncontrolled
                                        'upgradable-root)))
@@ -347,7 +347,7 @@
 
         "Can eval code in controlled actor"
 
-        ($.cvm.eval/result* ctx-2
+        ($.clj.eval/result* ctx-2
                             (do
                               (upgrade actor-controlled)
                               (= ~upgrade-data
@@ -357,7 +357,7 @@
 
         "Cannot eval code after giving up root access"
 
-        ($.cvm.eval/code? ctx-2
+        ($.clj.eval/code? ctx-2
                           ($.cvm/code-std* :STATE)
                           '(do
                              (trust/remove-upgradability! actor-controlled)
@@ -366,13 +366,13 @@
 
         "Cannot eval code in uncontrolled actor"
 
-        ($.cvm.eval/code? ctx-2
+        ($.clj.eval/code? ctx-2
                           ($.cvm/code-std* :TRUST)
                           '(upgrade actor-uncontrolled))
 
 
         "Cannot remove upgradability in uncontrolled actor"
 
-        ($.cvm.eval/code? ctx-2
+        ($.clj.eval/code? ctx-2
                           ($.cvm/code-std* :TRUST)
                           '(trust/remove-upgradability! actor-uncontrolled))))))

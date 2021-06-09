@@ -8,9 +8,9 @@
             [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
             [convex.cvm                    :as $.cvm]
-            [convex.cvm.eval               :as $.cvm.eval]
-            [convex.lisp                   :as $.lisp]
-            [convex.lisp.gen               :as $.lisp.gen]
+            [convex.clj.eval               :as $.clj.eval]
+            [convex.clj                    :as $.clj]
+            [convex.clj.gen                :as $.clj.gen]
             [helins.mprop                  :as mprop]))
 
 
@@ -27,22 +27,22 @@
    (if (<= n
            0)
      form
-     ($.lisp/templ* ((fn []
-                       ~(-nested-fn (dec n)
-                                    form))))))
+     ($.clj/templ* ((fn []
+                      ~(-nested-fn (dec n)
+                                   form))))))
 
   ([n form x-ploy]
 
    (-nested-fn n
-               ($.lisp/templ* (do
-                                ~form
-                                ~x-ploy))))
+               ($.clj/templ* (do
+                               ~form
+                               ~x-ploy))))
 
 
   ([n sym x-ploy x-return]
 
    (-nested-fn n
-               ($.lisp/templ* (~sym ~x-return))
+               ($.clj/templ* (~sym ~x-return))
                x-ploy)))
 
 
@@ -63,11 +63,11 @@
   {:ratio-num 10}
 
   (TC.prop/for-all [n        gen-nest
-                    x-ploy   $.lisp.gen/any
-                    x-return $.lisp.gen/truthy]
-    ($.cvm.eval/code? ($.cvm/code-std* :ASSERT)
+                    x-ploy   $.clj.gen/any
+                    x-return $.clj.gen/truthy]
+    ($.clj.eval/code? ($.cvm/code-std* :ASSERT)
                       (-nested-fn n
-                                  ($.lisp/templ* (assert (not ~x-return)))
+                                  ($.clj/templ* (assert (not ~x-return)))
                                   x-ploy))))
 
 
@@ -80,10 +80,10 @@
 
   (TC.prop/for-all [[falsy+
                      mix+
-                     truthy+] (TC.gen/bind (TC.gen/tuple (TC.gen/vector $.lisp.gen/falsy
+                     truthy+] (TC.gen/bind (TC.gen/tuple (TC.gen/vector $.clj.gen/falsy
                                                                         1
                                                                         16)
-                                                         (TC.gen/vector $.lisp.gen/truthy
+                                                         (TC.gen/vector $.clj.gen/truthy
                                                                         1
                                                                         16))
                                            (fn [[falsy+ truthy+]]
@@ -95,13 +95,13 @@
 
       "`and` on falsy"
 
-      ($.cvm.eval/result* (= ~(first falsy+)
+      ($.clj.eval/result* (= ~(first falsy+)
                              (and ~@falsy+)))
 
 
       "`and` on mixed"
 
-      ($.cvm.eval/result* (= ~(first (filter (comp not
+      ($.clj.eval/result* (= ~(first (filter (comp not
                                                    boolean)
                                              mix+))
                              (and ~@mix+)))
@@ -109,26 +109,26 @@
 
       "`and` on truthy"
 
-      ($.cvm.eval/result* (= ~(last truthy+)
+      ($.clj.eval/result* (= ~(last truthy+)
                              (and ~@truthy+)))
 
 
       "`or` on falsy"
 
-      ($.cvm.eval/result* (= ~(last falsy+)
+      ($.clj.eval/result* (= ~(last falsy+)
                              (or ~@falsy+)))
 
       
       "`or` on mixed"
 
-      ($.cvm.eval/result* (= ~(first (filter boolean
+      ($.clj.eval/result* (= ~(first (filter boolean
                                              mix+))
                              (or ~@mix+)))
 
 
       "`or` on truthy"
 
-      ($.cvm.eval/result* (= ~(first truthy+)
+      ($.clj.eval/result* (= ~(first truthy+)
                              (or ~@truthy+))))))
 
 
@@ -138,13 +138,13 @@
 
   {:ratio-num 5}
 
-  (TC.prop/for-all [else? $.lisp.gen/boolean
-                    x+    (TC.gen/vector (TC.gen/tuple $.lisp.gen/boolean
-                                                       (TC.gen/one-of [$.lisp.gen/falsy
-                                                                       $.lisp.gen/truthy]))
+  (TC.prop/for-all [else? $.clj.gen/boolean
+                    x+    (TC.gen/vector (TC.gen/tuple $.clj.gen/boolean
+                                                       (TC.gen/one-of [$.clj.gen/falsy
+                                                                       $.clj.gen/truthy]))
                                          1
                                          16)]
-    ($.cvm.eval/result* (= ~(or (first (into []
+    ($.clj.eval/result* (= ~(or (first (into []
                                              (comp (map second)
                                                    (filter boolean)
                                                    (take 1))
@@ -171,19 +171,19 @@
 
   (TC.prop/for-all [n       gen-nest
                     code    (TC.gen/such-that some?
-                                              $.lisp.gen/any)
-                    message $.lisp.gen/any
-                    x-ploy  $.lisp.gen/any]
+                                              $.clj.gen/any)
+                    message $.clj.gen/any
+                    x-ploy  $.clj.gen/any]
     (let [exec      (fn [form]
-                      ($.cvm.eval/exception (-nested-fn n
+                      ($.clj.eval/exception (-nested-fn n
                                                         form
                                                         x-ploy)))
-          message-2 ($.cvm.eval/result message)]
+          message-2 ($.clj.eval/result message)]
       (mprop/mult
 
         "Without code"
 
-        (let [ret (exec ($.lisp/templ* (fail ~message)))]
+        (let [ret (exec ($.clj/templ* (fail ~message)))]
           (mprop/mult
 
             "No code"
@@ -194,26 +194,26 @@
 
             "Message"
 
-            ($.lisp/= message-2
-                      (ret :convex.exception/message))))
+            ($.clj/= message-2
+                     (ret :convex.exception/message))))
 
 
         "With code"
 
-        (let [ret (exec ($.lisp/templ* (fail ~code
+        (let [ret (exec ($.clj/templ* (fail ~code
                                              ~message)))]
           (mprop/mult
 
             "Code"
 
-            ($.lisp/= ($.cvm.eval/result code)
-                      (ret :convex.exception/code))
+            ($.clj/= ($.clj.eval/result code)
+                     (ret :convex.exception/code))
 
 
             "Message"
 
-            ($.lisp/= message-2
-                      (ret :convex.exception/message))))))))
+            ($.clj/= message-2
+                     (ret :convex.exception/message))))))))
 
 
 
@@ -222,28 +222,28 @@
   {:ratio-num 7}
 
   (TC.prop/for-all [n        gen-nest
-                    x-ploy   $.lisp.gen/any
-                    x-return $.lisp.gen/any]
+                    x-ploy   $.clj.gen/any
+                    x-return $.clj.gen/any]
     (mprop/mult
 
       "`halt`"
 
-      ($.lisp/= ($.cvm.eval/result x-return)
-                ($.cvm.eval/result (-nested-fn n
-                                               'halt
-                                               x-ploy
-                                               x-return)))
+      ($.clj/= ($.clj.eval/result x-return)
+               ($.clj.eval/result (-nested-fn n
+                                              'halt
+                                              x-ploy
+                                              x-return)))
 
 
       "`return`"
 
-      ($.lisp/= ($.cvm.eval/result* [~x-return
-                                       ~x-ploy])
-                ($.cvm.eval/result* [~(-nested-fn n
-                                                  'return
-                                                  x-ploy
-                                                  x-return)
-                                     ~x-ploy])))))
+      ($.clj/= ($.clj.eval/result* [~x-return
+                                    ~x-ploy])
+               ($.clj.eval/result* [~(-nested-fn n
+                                                 'return
+                                                 x-ploy
+                                                 x-return)
+                                    ~x-ploy])))))
 
 
 
@@ -251,10 +251,10 @@
 
   {:ratio-num 7}
 
-  (TC.prop/for-all [sym    $.lisp.gen/symbol
-                    falsy  $.lisp.gen/falsy
-                    truthy $.lisp.gen/truthy]
-    (let [ctx ($.cvm.eval/ctx* (do
+  (TC.prop/for-all [sym    $.clj.gen/symbol
+                    falsy  $.clj.gen/falsy
+                    truthy $.clj.gen/truthy]
+    (let [ctx ($.clj.eval/ctx* (do
                                  (def tag-false
                                       [:tag ~falsy])
                                  (def tag-true
@@ -263,7 +263,7 @@
 
        "`if` false"
 
-       ($.cvm.eval/result* ctx
+       ($.clj.eval/result* ctx
                            (= tag-false
                               (if ~falsy
                                 tag-true
@@ -272,7 +272,7 @@
 
        "`if` true"
 
-       ($.cvm.eval/result* ctx
+       ($.clj.eval/result* ctx
                            (= tag-true
                               (if ~truthy
                                 tag-true
@@ -281,7 +281,7 @@
 
        "`if-let` false"
 
-       ($.cvm.eval/result* ctx
+       ($.clj.eval/result* ctx
                            (= tag-false
                               (if-let [~sym ~falsy]
                                 tag-true
@@ -290,7 +290,7 @@
 
        "`if-let` true"
 
-       ($.cvm.eval/result* ctx
+       ($.clj.eval/result* ctx
                            (= tag-true
                               (if-let [~sym ~truthy]
                                 tag-true
@@ -299,14 +299,14 @@
 
        "`when` false"
 
-       ($.cvm.eval/result* ctx
+       ($.clj.eval/result* ctx
                            (nil? (when ~falsy
                                    tag-true)))
 
 
        "`when` true"
 
-       ($.cvm.eval/result* ctx
+       ($.clj.eval/result* ctx
                            (= tag-true
                               (when ~truthy
                                 tag-true)))
@@ -314,14 +314,14 @@
 
        "`when-let` false"
 
-       ($.cvm.eval/result* ctx
+       ($.clj.eval/result* ctx
                            (nil? (when-let [~sym ~falsy]
                                    tag-true)))
 
 
        "`when-let` true"
 
-       ($.cvm.eval/result* ctx
+       ($.clj.eval/result* ctx
                            (= tag-true
                               (when-let [~sym ~truthy]
                                 tag-true)))
@@ -329,14 +329,14 @@
 
        "`when-not` false"
 
-       ($.cvm.eval/result* ctx
+       ($.clj.eval/result* ctx
                            (= tag-false
                               (when-not ~falsy
                                 tag-false)))
 
        "`when-not` true"
 
-       ($.cvm.eval/result* ctx
+       ($.clj.eval/result* ctx
                            (nil? (when-not ~truthy
                                    tag-true)))))))
 
@@ -347,11 +347,11 @@
   {:ratio-num 7}
 
   (TC.prop/for-all [n        gen-nest
-                    sym      $.lisp.gen/symbol
-                    x-env    $.lisp.gen/any
-                    x-return $.lisp.gen/any
-                    x-ploy   $.lisp.gen/any]
-    (let [ctx ($.cvm.eval/ctx* (do
+                    sym      $.clj.gen/symbol
+                    x-env    $.clj.gen/any
+                    x-return $.clj.gen/any
+                    x-ploy   $.clj.gen/any]
+    (let [ctx ($.clj.eval/ctx* (do
                                  (def ~sym
                                       ~x-env)
                                  ~(-nested-fn n
@@ -363,18 +363,18 @@
 
         "Returned value is the rollback value"
 
-        ($.lisp/= ($.cvm.eval/result x-return)
-                  (-> ctx
-                      $.cvm/result
-                      $.cvm/as-clojure))
+        ($.clj/= ($.clj.eval/result x-return)
+                 (-> ctx
+                     $.cvm/result
+                     $.cvm/as-clojure))
 
 
         "State has been rolled back"
 
         (let [form '(hash (encoding *state*))]
-          ($.lisp/= ($.cvm.eval/result form)
-                    ($.cvm.eval/result ctx
-                                         form)))))))
+          ($.clj/= ($.clj.eval/result form)
+                   ($.clj.eval/result ctx
+                                        form)))))))
 
 
 ;;;;;;;;;; Negative tests
@@ -386,10 +386,10 @@
 ;; 
 ;;   ;; Any binding form that is not a vector should be rejected.
 ;; 
-;;   (TC.prop/for-all [bindvec ($.lisp.gen/any-but #{$.lisp.gen/vector})
+;;   (TC.prop/for-all [bindvec ($.clj.gen/any-but #{$.clj.gen/vector})
 ;;                     sym     (TC.gen/elements ['if-let
 ;;                                               'when-let])]
-;;     ($.cvm.eval/code?* :CAST
+;;     ($.clj.eval/code?* :CAST
 ;;                        (~sym ~bindvec
 ;;                              42))))
 
@@ -401,11 +401,11 @@
 
   {:ratio-num 5}
 
-  (TC.prop/for-all [binding+ ($.lisp.gen/binding+ 2
-	                                              8)
+  (TC.prop/for-all [binding+ ($.clj.gen/binding+ 2
+	                                             8)
                     sym      (TC.gen/elements ['if-let
                                                'when-let])]
-    ($.cvm.eval/code?* :ARITY
+    ($.clj.eval/code?* :ARITY
                        (~sym ~(into []
                                     (mapcat identity)
                                     binding+)

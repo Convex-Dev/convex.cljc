@@ -9,9 +9,9 @@
   (:require [clojure.test                  :as t]
             [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
-            [convex.cvm.eval               :as $.cvm.eval]
-            [convex.lisp                   :as $.lisp]
-            [convex.lisp.gen               :as $.lisp.gen]
+            [convex.clj.eval               :as $.clj.eval]
+            [convex.clj                    :as $.clj]
+            [convex.clj.gen                :as $.clj.gen]
             [helins.mprop                  :as mprop]))
 
 
@@ -25,7 +25,7 @@
   [form result? f gen]
 
   (TC.prop/for-all [x gen]
-    (let [result ($.cvm.eval/result* (~form ~x))]
+    (let [result ($.clj.eval/result* (~form ~x))]
 
       (mprop/mult
 
@@ -96,8 +96,8 @@
 
   (prop-false 'account?
               (TC.gen/such-that (comp not
-                                      $.lisp/address?)
-                                $.lisp.gen/any)))
+                                      $.clj/address?)
+                                $.clj.gen/any)))
 
 
 
@@ -107,8 +107,8 @@
 
   (prop-false 'address?
               (TC.gen/such-that (comp not
-                                      $.lisp/address?)
-                                $.lisp.gen/any)))
+                                      $.clj/address?)
+                                $.clj.gen/any)))
 
 
 
@@ -116,8 +116,8 @@
 
   {:ratio-num 50}
 
-  (TC.prop/for-all* [$.lisp.gen/address]
-                    #($.cvm.eval/result (list 'address?
+  (TC.prop/for-all* [$.clj.gen/address]
+                    #($.clj.eval/result (list 'address?
                                               %))))
 
 
@@ -128,8 +128,8 @@
 
   (prop-false 'blob?
               (TC.gen/such-that (comp not
-                                      $.lisp/blob?)
-                                $.lisp.gen/any)))
+                                      $.clj/blob?)
+                                $.clj.gen/any)))
 
 
 
@@ -138,7 +138,7 @@
   {:ratio-num 50}
 
   (prop-true 'blob?
-             $.lisp.gen/blob))
+             $.clj.gen/blob))
 
 
 
@@ -150,16 +150,16 @@
               boolean?
               (TC.gen/such-that (comp not
                                       boolean?)
-                                $.lisp.gen/any)))
+                                $.clj.gen/any)))
 
 
 
 (t/deftest boolean?--true
 
-  (t/is (true? ($.cvm.eval/result true))
+  (t/is (true? ($.clj.eval/result true))
         "True")
 
-  (t/is (false? ($.cvm.eval/result false))
+  (t/is (false? ($.clj.eval/result false))
         "False"))
 
 
@@ -172,7 +172,7 @@
 
   (prop-false 'coll?
               coll?
-              $.lisp.gen/scalar))
+              $.clj.gen/scalar))
 
 
 
@@ -182,7 +182,7 @@
 
   (prop-true 'coll?
              coll?
-             $.lisp.gen/collection))
+             $.clj.gen/collection))
 
 
 
@@ -194,7 +194,7 @@
               keyword?
               (TC.gen/such-that (comp not
                                       keyword?)
-                                $.lisp.gen/any)))
+                                $.clj.gen/any)))
 
 
 
@@ -204,7 +204,7 @@
 
   (prop-true 'keyword?
              keyword?
-             $.lisp.gen/keyword))
+             $.clj.gen/keyword))
 
 
 
@@ -213,10 +213,10 @@
   {:ratio-num 15}
 
   (prop-false 'list?
-              $.lisp/list?
+              $.clj/list?
               (TC.gen/such-that (comp not
-                                      $.lisp/list?)
-                                $.lisp.gen/any)))
+                                      $.clj/list?)
+                                $.clj.gen/any)))
 
 
 
@@ -225,8 +225,8 @@
   {:ratio-num 10}
 
   (prop-true 'list?
-             $.lisp/list?
-             $.lisp.gen/list))
+             $.clj/list?
+             $.clj.gen/list))
 
 
 
@@ -238,7 +238,7 @@
               int?
               (TC.gen/such-that (comp not
                                       int?)
-                                $.lisp.gen/any)))
+                                $.clj.gen/any)))
 
 
 
@@ -248,7 +248,7 @@
 
   (prop-true 'long?
              int?
-             $.lisp.gen/long))
+             $.clj.gen/long))
 
 
 
@@ -259,7 +259,7 @@
   (prop-false 'map?
               map?
               (TC.gen/such-that #(not (map? %))
-                                $.lisp.gen/any)))
+                                $.clj.gen/any)))
 
 
 
@@ -269,7 +269,7 @@
 
   (prop-true 'map?
              map?
-             $.lisp.gen/map))
+             $.clj.gen/map))
 
 
 
@@ -280,15 +280,15 @@
   (prop-false 'nil?
               nil?
               (TC.gen/such-that some?
-                                $.lisp.gen/any)))
+                                $.clj.gen/any)))
 
 
 
 (t/deftest nil?--true
 
-  (t/is (true? (nil? ($.cvm.eval/result nil))))
+  (t/is (true? (nil? ($.clj.eval/result nil))))
 
-  (t/is (true? (nil? ($.cvm.eval/result '(do nil))))))
+  (t/is (true? (nil? ($.clj.eval/result '(do nil))))))
 
 
 
@@ -300,7 +300,7 @@
               number?
               (TC.gen/such-that (comp not
                                       number?)
-                                $.lisp.gen/any)))
+                                $.clj.gen/any)))
 
 
 
@@ -310,7 +310,7 @@
 
   (prop-true 'number?
              number?
-             $.lisp.gen/number))
+             $.clj.gen/number))
 
 
 
@@ -322,7 +322,7 @@
               set?
               (TC.gen/such-that (comp not
                                       set?)
-                                $.lisp.gen/any)))
+                                $.clj.gen/any)))
 
 
 
@@ -332,7 +332,7 @@
 
   (prop-true 'set?
              set?
-             $.lisp.gen/set))
+             $.clj.gen/set))
 
 
 
@@ -344,7 +344,7 @@
               string?
               (TC.gen/such-that (comp not
                                       string?)
-                                $.lisp.gen/any)))
+                                $.clj.gen/any)))
 
 
 
@@ -354,7 +354,7 @@
 
   (prop-true 'str?
              string?
-             $.lisp.gen/string))
+             $.clj.gen/string))
 
 
 
@@ -364,8 +364,8 @@
 
   (prop-false 'symbol?
               (TC.gen/such-that (comp not
-                                      $.lisp/quoted?)
-                                $.lisp.gen/any)))
+                                      $.clj/quoted?)
+                                $.clj.gen/any)))
 
 
 
@@ -374,7 +374,7 @@
   {:ratio-num 50}
 
   (prop-true 'symbol?
-             $.lisp.gen/symbol-quoted))
+             $.clj.gen/symbol-quoted))
 
 
 
@@ -386,7 +386,7 @@
               vector?
               (TC.gen/such-that (comp not
                                       vector?)
-                                $.lisp.gen/any)))
+                                $.clj.gen/any)))
 
 
 
@@ -396,4 +396,4 @@
 
   (prop-true 'vector?
              vector?
-             $.lisp.gen/vector))
+             $.clj.gen/vector))

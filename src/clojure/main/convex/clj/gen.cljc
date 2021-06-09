@@ -1,4 +1,4 @@
-(ns convex.lisp.gen
+(ns convex.clj.gen
 
   "Generators for Convex Lisp types and constructs."
 
@@ -19,7 +19,7 @@
             [clojure.set]
             [clojure.string]
             [clojure.test.check.generators :as TC.gen]
-            [convex.lisp                   :as $.lisp]))
+            [convex.clj                    :as $.clj]))
 
 
 (declare any
@@ -95,7 +95,7 @@
 
   [gen]
 
-  (TC.gen/fmap $.lisp/quoted
+  (TC.gen/fmap $.clj/quoted
                gen))
 
 
@@ -106,7 +106,7 @@
 
   "Any address."
 
-  (TC.gen/fmap $.lisp/address
+  (TC.gen/fmap $.clj/address
                (TC.gen/large-integer* {:min 0})))
 
 
@@ -232,7 +232,7 @@
 
   "Any blob."
 
-  (TC.gen/fmap $.lisp/blob
+  (TC.gen/fmap $.clj/blob
                hex-string))
 
 
@@ -243,7 +243,7 @@
   
    Compatible with addresses."
 
-  (TC.gen/fmap $.lisp/blob
+  (TC.gen/fmap $.clj/blob
                hex-string-8))
 
 
@@ -252,7 +252,7 @@
 
   "Like [[blob]] but fixed size representing 32 bytes."
 
-  (TC.gen/fmap $.lisp/blob
+  (TC.gen/fmap $.clj/blob
                hex-string-32))
 
 
@@ -387,7 +387,7 @@
 
   (TC.gen/recursive-gen (fn [gen-inner]
                           (let [gen-vector (TC.gen/vector gen-inner)]
-                            (TC.gen/one-of [(TC.gen/fmap $.lisp/list
+                            (TC.gen/one-of [(TC.gen/fmap $.clj/list
                                                          gen-vector)
                                             (TC.gen/scale #(quot %
                                                                  2)
@@ -407,15 +407,15 @@
   
   (TC.gen/fmap (fn [x]
                  (cond
-                   (map? x)    ($.lisp/list (reduce-kv conj
-                                                       []
-                                                       x))
-                   (set? x)    ($.lisp/list x)
-                   (seq? x)    (if ($.lisp/list? x)
+                   (map? x)    ($.clj/list (reduce-kv conj
+                                                      []
+                                                      x))
+                   (set? x)    ($.clj/list x)
+                   (seq? x)    (if ($.clj/list? x)
                                  x
-                                 ($.lisp/list [x]))
-                   (vector? x) ($.lisp/list x)
-                   :else       ($.lisp/list [x])))
+                                 ($.clj/list [x]))
+                   (vector? x) ($.clj/list x)
+                   :else       ($.clj/list [x])))
                recursive))
 
 
@@ -435,7 +435,7 @@
                    (cond
                      (map? x)    x
                      (set? x)    (-to-map x)
-                     (seq? x)    (if ($.lisp/list? x)
+                     (seq? x)    (if ($.clj/list? x)
                                    (-to-map (rest x))
                                    {x x})
                      (vector? x) (-to-map x)
@@ -454,7 +454,7 @@
                                           #{}
                                           x)
                    (set? x)    x
-                   (seq? x)    (if ($.lisp/list? x)
+                   (seq? x)    (if ($.clj/list? x)
                                  (clojure.core/set (rest x))
                                  #{x})
                    (vector? x) (clojure.core/set x)
@@ -473,7 +473,7 @@
                                           []
                                           x)
                    (set? x)    (vec x)
-                   (seq? x)    (if ($.lisp/list? x)
+                   (seq? x)    (if ($.clj/list? x)
                                  (vec (rest x))
                                  [x])
                    (vector? x) x

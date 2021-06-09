@@ -9,9 +9,9 @@
             [clojure.test.check.properties :as TC.prop]
             [convex.break.gen              :as $.break.gen]
             [convex.cvm                    :as $.cvm]
-            [convex.cvm.eval               :as $.cvm.eval]
-            [convex.lisp                   :as $.lisp]
-            [convex.lisp.gen               :as $.lisp.gen]
+            [convex.clj.eval               :as $.clj.eval]
+            [convex.clj                    :as $.clj]
+            [convex.clj.gen                :as $.clj.gen]
             [helins.mprop                  :as mprop]))
 
 
@@ -22,7 +22,7 @@
 
   "Tests exportings symbols in user accounts only.
   
-   See [[convex.lisp.test.core.actor]] namespace for more thorough tests involving
+   See [[convex.clj.test.core.actor]] namespace for more thorough tests involving
    actors."
 
   [ctx sym+]
@@ -31,11 +31,11 @@
     
     "Exporting symbols in user account"
 
-    (let [ctx-2 ($.cvm.eval/ctx* ctx
+    (let [ctx-2 ($.clj.eval/ctx* ctx
                                  (do
                                    (def -export+
                                         ~(into #{}
-                                               (map $.lisp/quoted)
+                                               (map $.clj/quoted)
                                                sym+))
                                    (def -result-export
                                         (export ~@sym+))))]
@@ -43,21 +43,21 @@
 
         "`export` returns `*exports*`"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '(= -result-export
                                *exports*))
 
 
         "`*export*` has been updated"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '(= -export+
                                *exports*))
 
         ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/136
         ;;
         ;; "`exports?`"
-        ;; ($.cvm.eval/result ctx-2
+        ;; ($.clj.eval/result ctx-2
         ;;                      '($/every? (fn [sym]
         ;;                                   (exports? *address*
         ;;                                             sym))
@@ -82,49 +82,49 @@
 
       "Address is interned" 
 
-      ($.lisp/address? ($.cvm.eval/result ctx
-                                          'addr))
+      ($.clj/address? ($.clj.eval/result ctx
+                                         'addr))
 
 
       "`account?`"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(account? addr))
 
 
       "`actor?`"
 
-      (actor? ($.cvm.eval/result ctx
+      (actor? ($.clj.eval/result ctx
                                  '(actor? addr)))
 
 
       "`address?`"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(address? addr))
 
 
       "Balance is 0"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(zero? (balance addr)))
 
 
       "Memory allowance is 0"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(zero? ($/allowance addr)))
 
 
       "`get-holding` returns nothing on a virgin account"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(nil? (get-holding addr)))
 
 
       "Comparing `account` with *state*"
       
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(= (account addr)
                              (get-in *state*
                                      [:accounts
@@ -144,7 +144,7 @@
 
     "Setting a new public key"
 
-    (let [ctx-2 ($.cvm.eval/ctx* ctx
+    (let [ctx-2 ($.clj.eval/ctx* ctx
                                  (do
                                    (def key-
                                         ~pubkey)
@@ -154,14 +154,14 @@
 
         "New key is set in `*key*`"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '(= (blob key-)
                                (blob *key*)))
 
 
         "`*key*` is consistent with `account`"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '(= *key*
                                (:key (account *address*))))))))
 
@@ -177,7 +177,7 @@
 
     "Transfering memory"
 
-    (let [ctx-2 ($.cvm.eval/ctx* ctx
+    (let [ctx-2 ($.clj.eval/ctx* ctx
                                  (do
                                    (def memory-before
                                         *memory*)
@@ -191,28 +191,28 @@
 
         "Returns the given amount"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '(= amount
                                -transfer-memory))
 
 
         "Consistenty between sender account information and `*memory*` (before transfer)"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= *memory*
                                ($/allowance)))
 
 
         "Consistency between sender account information and `*memory*` (after transfer)"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '(= *memory*
                                ($/allowance)))
 
 
         "Allowance of sender account has diminished as expected"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '(and (= memory-before
                                     (+ ($/allowance)
                                        amount))
@@ -223,14 +223,14 @@
 
         "Allowance of receiver account has increased as needed"
 
-        ($.cvm.eval/result ctx-2
+        ($.clj.eval/result ctx-2
                            '(= amount
                                ($/allowance addr)))
 
 
         "Transfering negative allowance"
 
-        ($.cvm.eval/code?* ctx-2
+        ($.clj.eval/code?* ctx-2
                            :ARGUMENT
                            (transfer-memory addr
                                             ~(min -1
@@ -240,7 +240,7 @@
 
         "Transfering too much allowance, insufficient amount"
 
-        ($.cvm.eval/code?* ctx-2
+        ($.clj.eval/code?* ctx-2
                            :MEMORY
                            (transfer-memory addr
                                             (let [allowance ($/allowance)]
@@ -253,7 +253,7 @@
 
         "Transfering allowance beyond authorized limit"
 
-        ($.cvm.eval/code?* ctx-2
+        ($.clj.eval/code?* ctx-2
                            :ARGUMENT
                            (transfer-memory addr
                                             (+ (max 1
@@ -263,7 +263,7 @@
 
         "Transfering garbage instead of memory"
 
-        ($.cvm.eval/code?* ctx-2
+        ($.clj.eval/code?* ctx-2
                            :CAST
                            (transfer-memory addr
                                             ~faulty-amount))))))
@@ -278,7 +278,7 @@
 
   [ctx sym-addr holding]
 
-  ($.cvm.eval/ctx* ctx
+  ($.clj.eval/ctx* ctx
                    (do
                      (def addr
                           ~sym-addr)
@@ -304,7 +304,7 @@
 
       "`*holdings*` has one element"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(= *holdings*
                              (if (nil? holding)
                                (blob-map)
@@ -315,7 +315,7 @@
 
       "`*holdings* is consistent with `account`"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(if (nil? holding)
                             true
                             (= *holdings*
@@ -324,7 +324,7 @@
 
       "Removing only holding from `*holdings*`"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(do
                             (set-holding *address*
                                          nil)
@@ -347,21 +347,21 @@
    
       "`set-holding` returns the given holding"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(= holding
                              -set-holding))
    
 
       "`get-holding` returns the given holding"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(= holding
                              (get-holding addr)))
    
 
       "`set-holding` is consistent with `account`"
 
-      ($.cvm.eval/result ctx
+      ($.clj.eval/result ctx
                          '(= (if (nil? holding)
                                (blob-map)
                                (assoc (blob-map)
@@ -372,7 +372,7 @@
 
       "Removing holding"
 
-      (let [ctx-2 ($.cvm.eval/ctx* ctx
+      (let [ctx-2 ($.clj.eval/ctx* ctx
                                    (do
                                      (def -set-holding-2
                                           (set-holding addr
@@ -380,11 +380,11 @@
         (mprop/mult
    
           "`set-holding` with nil returns nil"
-          ($.cvm.eval/result ctx-2
+          ($.clj.eval/result ctx-2
                              '(nil? -set-holding-2))
     
           "`account` shows nil in :holdings"
-          ($.cvm.eval/result ctx-2
+          ($.clj.eval/result ctx-2
                              '(= (blob-map)
                                  (get (account addr)
                                       :holdings
@@ -404,7 +404,7 @@
 
   [ctx faulty-amount percent]
 
-  ($.cvm.eval/ctx* ctx
+  ($.clj.eval/ctx* ctx
                    (do
                      (def balance-before
                           *balance*)
@@ -441,21 +441,21 @@
 
        "`transfer` returns the sent amount"
 
-       ($.cvm.eval/result ctx
+       ($.clj.eval/result ctx
                           '(= amount
                               -transfer))
 
 
        "Consistency between sender account information and `*balance*`, `balance` (before transfer)"
 
-       ($.cvm.eval/result '(= *balance*
+       ($.clj.eval/result '(= *balance*
                               (balance *address*)
                               (:balance (account *address*))))
 
 
        "Consistency between sender account information and `*balance*`, `balance` (after transfer)"
 
-       ($.cvm.eval/result ctx
+       ($.clj.eval/result ctx
                           '(= *balance*
                                (balance *address*)
                                (:balance (account *address*))))
@@ -463,14 +463,14 @@
 
        "Consistency between receiver account information and `balance`"
 
-       ($.cvm.eval/result ctx
+       ($.clj.eval/result ctx
                           '(= (balance addr)
                               (:balance (account addr))))
 
 
        "Own balance has been correctly updated"
 
-       ($.cvm.eval/result ctx
+       ($.clj.eval/result ctx
                           '(and (= balance-before
                                    (+ *balance*
                                       amount))
@@ -481,14 +481,14 @@
 
        "Balance of receiver has been correctly updated"
 
-       ($.cvm.eval/result ctx
+       ($.clj.eval/result ctx
                           '(= amount
                               (balance addr)))
 
 
        "Transfering negative amount"
 
-       ($.cvm.eval/code?* ctx
+       ($.clj.eval/code?* ctx
                           :ARGUMENT
                           (transfer addr
                                     (min -1
@@ -498,7 +498,7 @@
 
        "Transfering too much funds, insufficient amount"
 
-       ($.cvm.eval/code?* ctx
+       ($.clj.eval/code?* ctx
                           :FUNDS
                           (transfer addr
                                     (let [balance *balance*]
@@ -511,7 +511,7 @@
 
        "Transfering funds beyond authorized limit"
 
-       ($.cvm.eval/code?* ctx
+       ($.clj.eval/code?* ctx
                           :ARGUMENT
                           (transfer addr
                                     (+ (max 1
@@ -521,7 +521,7 @@
 
        "Transfering garbage instead of funds"
 
-       ($.cvm.eval/code? ctx
+       ($.clj.eval/code? ctx
                          ($.cvm/code-std* :CAST)
                          '(transfer addr
                                     faulty-amount)))))
@@ -539,22 +539,22 @@
 
       "Account does not exist (long)"
 
-      ($.cvm.eval/result* (not (account? ~unused-address)))
+      ($.clj.eval/result* (not (account? ~unused-address)))
 
 
       "Account does not exist (address)"
 
-      ($.cvm.eval/result* (not (account (address ~unused-address))))
+      ($.clj.eval/result* (not (account (address ~unused-address))))
 
 
       "Actor does not exist (long)"
 
-      ($.cvm.eval/result* (not (actor? ~unused-address)))
+      ($.clj.eval/result* (not (actor? ~unused-address)))
 
 
       "Actor does not exist (address)"
 
-      ($.cvm.eval/result* (not (actor? (address ~unused-address)))))))
+      ($.clj.eval/result* (not (actor? (address ~unused-address)))))))
 
 
 
@@ -562,12 +562,12 @@
 
   {:ratio-num 2}
 
-  (TC.prop/for-all [export-sym+   (TC.gen/vector $.lisp.gen/symbol)
+  (TC.prop/for-all [export-sym+   (TC.gen/vector $.clj.gen/symbol)
                     faulty-amount $.break.gen/not-long
-                    holding       $.lisp.gen/any
-                    pubkey        $.lisp.gen/blob-32
+                    holding       $.clj.gen/any
+                    pubkey        $.clj.gen/blob-32
                     percent       $.break.gen/percent]
-    (let [ctx            ($.cvm.eval/ctx* (def addr
+    (let [ctx            ($.clj.eval/ctx* (def addr
                                                (create-account ~pubkey)))
           ctx-*holdings* (ctx-holding ctx
                                       '*address*
@@ -606,26 +606,26 @@
 
       "`account`"
 
-      ($.cvm.eval/code?* :CAST
+      ($.clj.eval/code?* :CAST
                          (account ~x))
 
 
       "`balance`"
 
-      ($.cvm.eval/code?* :CAST
+      ($.clj.eval/code?* :CAST
                          (balance ~x))
 
 
       "`exports?`"
 
-      ($.cvm.eval/code?* :CAST
+      ($.clj.eval/code?* :CAST
                          (exports? ~x
                                    'foo))
 
 
       "`get-holding`"
 
-      ($.cvm.eval/code?* :CAST
+      ($.clj.eval/code?* :CAST
                          (get-holding ~x))
 
 
@@ -633,27 +633,27 @@
 
       (if (nil? x)
         true
-        ($.cvm.eval/code?* :CAST
+        ($.clj.eval/code?* :CAST
                            (set-controller ~x)))
 
 
       "`set-holding`"
 
-      ($.cvm.eval/code?* :CAST
+      ($.clj.eval/code?* :CAST
                          (set-holding ~x
                                       ~x))
 
 
       "`transfer`"
 
-      ($.cvm.eval/code?* :CAST
+      ($.clj.eval/code?* :CAST
                          (transfer ~x
                                    1))
 
 
       "`transfer-memory`"
 
-      ($.cvm.eval/code?* :CAST
+      ($.clj.eval/code?* :CAST
                          (transfer-memory ~x
                                           1)))))
 
@@ -668,12 +668,12 @@
   (TC.prop/for-all [x (TC.gen/such-that (fn [x]
                                           (if-some [x-2 (cond
                                                           (string? x)      x
-                                                          ($.lisp/blob? x) ($.lisp/meta-raw x))]
+                                                          ($.clj/blob? x) ($.clj/meta-raw x))]
                                             (not= (count x-2)
                                                          64)
                                             (some? x)))
-                                        $.lisp.gen/any)]
-    ($.cvm.eval/code?* :CAST
+                                        $.clj.gen/any)]
+    ($.clj.eval/code?* :CAST
                        (set-key ~x))))
 
 
@@ -689,13 +689,13 @@
 
       "`set-controller`"
 
-      ($.cvm.eval/code?* :NOBODY
+      ($.clj.eval/code?* :NOBODY
                          (set-controller ~addr))
 
 
       "`set-holding`"
 
-      ($.cvm.eval/code?* :NOBODY
+      ($.clj.eval/code?* :NOBODY
                          (set-holding ~addr
                                       42))
 
@@ -703,13 +703,13 @@
 
        "`transfer`"
 
-       ($.cvm.eval/code?* :NOBODY
+       ($.clj.eval/code?* :NOBODY
                           (transfer ~addr
                                     42))
 
 
       "Transfering allowance to unused address"
 
-      ($.cvm.eval/code?* :NOBODY
+      ($.clj.eval/code?* :NOBODY
                          (transfer-memory ~addr
                                           42)))))

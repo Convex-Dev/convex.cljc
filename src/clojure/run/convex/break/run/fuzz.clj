@@ -13,8 +13,8 @@
             [clojure.test.check.properties :as TC.prop]
             [convex.break.gen              :as $.break.gen]
             [convex.cvm                    :as $.cvm]
-            [convex.cvm.eval               :as $.cvm.eval]
-            [convex.lisp.gen               :as $.lisp.gen])
+            [convex.clj.eval               :as $.clj.eval]
+            [convex.clj.gen                :as $.clj.gen])
   (:import java.io.File))
 
 
@@ -41,11 +41,11 @@
         d*ensure-dir (delay
                        (.mkdirs (File. ^String root)))
         ctx          ($.cvm/ctx)
-        prop         (TC.prop/for-all [form ($.lisp.gen/call $.break.gen/core-symbol
-                                                             (TC.gen/vector $.lisp.gen/any
-                                                                            0
-                                                                            8))]
-                       ($.cvm.eval/value ctx
+        prop         (TC.prop/for-all [form ($.clj.gen/call $.break.gen/core-symbol
+                                                            (TC.gen/vector $.clj.gen/any
+                                                                           0
+                                                                           8))]
+                       ($.clj.eval/value ctx
                                          form)
                        true)
         a*print      (agent 0)

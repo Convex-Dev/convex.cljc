@@ -5,8 +5,8 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.test.check.properties :as TC.prop]
-            [convex.cvm.eval               :as $.cvm.eval]
-            [convex.lisp.gen               :as $.lisp.gen]
+            [convex.clj.eval               :as $.clj.eval]
+            [convex.clj.gen                :as $.clj.gen]
             [convex.break.gen              :as $.break.gen]
             [convex.break.test.account     :as $.break.test.account]
             [helins.mprop                  :as mprop]))
@@ -45,7 +45,7 @@
 
                      "Cannot send coin to actor without an exported `receive-coin` function"
 
-                     ($.cvm.eval/code?* ctx-2
+                     ($.clj.eval/code?* ctx-2
                                         :STATE
                                         (transfer (deploy
                                                     '(defn receive-coin [origin offer no-arg]))
@@ -55,35 +55,35 @@
 
                      "`receive-coin` is exported"
 
-                     ($.cvm.eval/result ctx-2
+                     ($.clj.eval/result ctx-2
                                         '(exports? addr
                                                    'receive-coin))
 
 
                      "`accept` returns the accepted amount"
 
-                     ($.cvm.eval/result ctx-2
+                     ($.clj.eval/result ctx-2
                                         '(lookup addr
                                                  '-accept))
 
 
                      "Caller argument"
 
-                     ($.cvm.eval/result ctx-2
+                     ($.clj.eval/result ctx-2
                                         '(lookup addr
                                                  '-caller))
 
 
                      "Offer argument"
 
-                     ($.cvm.eval/result ctx-2
+                     ($.clj.eval/result ctx-2
                                         '(lookup addr
                                                  '-offer))
 
 
                      "Third argument is nil"
 
-                     ($.cvm.eval/result ctx-2
+                     ($.clj.eval/result ctx-2
                                         '(lookup addr
                                                  '-nil-arg-2))))))))
 
@@ -97,8 +97,8 @@
 
   (TC.prop/for-all [faulty-amount $.break.gen/not-long
                     percent       $.break.gen/percent
-                    x             $.lisp.gen/any]
-    (let [ctx ($.cvm.eval/ctx* (do
+                    x             $.clj.gen/any]
+    (let [ctx ($.clj.eval/ctx* (do
                                  (def addr
                                       (deploy '(do
 

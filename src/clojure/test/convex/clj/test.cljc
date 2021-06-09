@@ -1,11 +1,11 @@
-(ns convex.lisp.test
+(ns convex.clj.test
 
   "Testing core features."
 
   {:author "Adam Helinski"}
 
   (:require [clojure.test :as T]
-            [convex.lisp  :as $.lisp]))
+            [convex.clj  :as $.clj]))
 
 
 ;;;;;;;;;;

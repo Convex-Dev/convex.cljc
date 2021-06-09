@@ -6,9 +6,9 @@
 
   (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
-            [convex.cvm.eval               :as $.cvm.eval]
-            [convex.lisp                   :as $.lisp]
-            [convex.lisp.gen               :as $.lisp.gen]
+            [convex.clj.eval               :as $.clj.eval]
+            [convex.clj                    :as $.clj]
+            [convex.clj.gen                :as $.clj.gen]
             [helins.mprop                  :as mprop]))
 
 
@@ -38,47 +38,47 @@
         fixed-sym+ (mapv first
                          fixed+)
         ;; And associated values
-        fixed-x+   (mapv (comp $.lisp/quoted
+        fixed-x+   (mapv (comp $.clj/quoted
                                second)
                          fixed+)
         ;; Code that will be in the (loop [] ...) or ((fn [] ...)) form
-        body       ($.lisp/templ* (if (= ~sym
+        body       ($.clj/templ* (if (= ~sym
                                          ~n)
                                     (if (= ~fixed-sym+
                                            ~fixed-x+)
                                       ~n
                                       (fail :NOT-FIXED
                                             "Fixed bindings were wrongfully modified"))
-                                    ~(let [recur-form ($.lisp/templ* (recur ~@fixed-sym+
-                                                                            (inc ~sym)))]
+                                    ~(let [recur-form ($.clj/templ* (recur ~@fixed-sym+
+                                                                           (inc ~sym)))]
                                        (if looping+
-                                         ($.lisp/templ* (if (= ~(-> looping+
-                                                                    first
-                                                                    :n)
-                                                               ~(-recur looping+))
-                                                          ~recur-form
-                                                          (fail :BAD-ITER
-                                                                "Iteration count of inner loop is wrong")))
+                                         ($.clj/templ* (if (= ~(-> looping+
+                                                                   first
+                                                                   :n)
+                                                              ~(-recur looping+))
+                                                         ~recur-form
+                                                         (fail :BAD-ITER
+                                                               "Iteration count of inner loop is wrong")))
                                          recur-form))))
         ;; Wrapping body in a loop or a fn form
         looping   (case recur-point
-                    :fn   ($.lisp/templ* ((fn ~(conj fixed-sym+
-                                                     sym)
-                                              ~body)
-                                          ~@(conj fixed-x+
-                                                  0)))
-                    :loop ($.lisp/templ* (loop ~(conj (reduce (fn [acc [sym x]]
-                                                                (conj acc
-                                                                      sym
-                                                                      ($.lisp/quoted x)))
-                                                              []
-                                                              fixed+)
-                                                      sym
-                                                      0)
-                                           ~body)))]
+                    :fn   ($.clj/templ* ((fn ~(conj fixed-sym+
+                                                    sym)
+                                             ~body)
+                                         ~@(conj fixed-x+
+                                                 0)))
+                    :loop ($.clj/templ* (loop ~(conj (reduce (fn [acc [sym x]]
+                                                               (conj acc
+                                                                     sym
+                                                                     ($.clj/quoted x)))
+                                                             []
+                                                             fixed+)
+                                                     sym
+                                                     0)
+                                          ~body)))]
     ;; Messing with point of recursion by wrapping in a fn that is immedialy called
     (if fn-wrap?
-      ($.lisp/templ* ((fn [] ~looping)))
+      ($.clj/templ* ((fn [] ~looping)))
       looping)))
 
 
@@ -94,9 +94,9 @@
                                                    :min       0
                                                    :NaN?      false})
                     [sym-bind
-                     sym-counter] (TC.gen/vector-distinct $.lisp.gen/symbol
+                     sym-counter] (TC.gen/vector-distinct $.clj.gen/symbol
                                                           {:num-elements 2})]
-    ($.cvm.eval/result* (do
+    ($.clj.eval/result* (do
                           (def ~sym-counter
                                0)
                           (dotimes [~sym-bind ~n]
@@ -112,9 +112,9 @@
 
   {:ratio-num 5}
 
-  (TC.prop/for-all [looping+ (TC.gen/vector (TC.gen/hash-map :fixed+      ($.lisp.gen/binding+ 0
-                                                                                               4)
-                                                             :fn-wrap?    $.lisp.gen/boolean
+  (TC.prop/for-all [looping+ (TC.gen/vector (TC.gen/hash-map :fixed+      ($.clj.gen/binding+ 0
+                                                                                              4)
+                                                             :fn-wrap?    $.clj.gen/boolean
                                                              :n           (TC.gen/choose 0
                                                                                          5)
                                                              :recur-point (TC.gen/elements [:fn
@@ -126,13 +126,13 @@
                                                                                                      'inc
                                                                                                      'recur}
                                                                                                     %))
-                                                                                            $.lisp.gen/symbol))
+                                                                                            $.clj.gen/symbol))
                                             1
                                             5)]
     (= (-> looping+
            first
            :n)
-       ($.cvm.eval/result (-recur looping+)))))
+       ($.clj.eval/result (-recur looping+)))))
 
 
 
@@ -145,9 +145,9 @@
                                                       %
                                                       (seq? %)
                                                       rest))
-                                        $.lisp.gen/collection)]
+                                        $.clj.gen/collection)]
 
-    ($.cvm.eval/result* (let [x '~x
+    ($.clj.eval/result* (let [x '~x
                               v (nth x
                                      ~(rand-int (count x)))]
                           (= v

@@ -5,9 +5,9 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.test.check.properties :as TC.prop]
-            [convex.cvm.eval               :as $.cvm.eval]
-            [convex.lisp                   :as $.lisp]
-            [convex.lisp.gen               :as $.lisp.gen]
+            [convex.clj.eval               :as $.clj.eval]
+            [convex.clj                    :as $.clj]
+            [convex.clj.gen                :as $.clj.gen]
             [helins.mprop                  :as mprop]))
 
 
@@ -24,7 +24,7 @@
 
     "`fn?`"
 
-    ($.cvm.eval/result* (fn? ~form))))
+    ($.clj.eval/result* (fn? ~form))))
 
 
 
@@ -35,7 +35,7 @@
 
   [form arg+ ret]
 
-  (let [ctx ($.cvm.eval/ctx* (def ret
+  (let [ctx ($.clj.eval/ctx* (def ret
                                   ~ret))]
     (mprop/check
 
@@ -45,41 +45,41 @@
 
         "Direct call"
 
-        ($.cvm.eval/result* ctx
+        ($.clj.eval/result* ctx
                             (= ret
                                (~form ~@arg+)))
 
 
         "After def"
 
-        (let [ctx-2 ($.cvm.eval/ctx* ctx
+        (let [ctx-2 ($.clj.eval/ctx* ctx
                                      (def f
                                           ~form))]
           (mprop/mult
 
             "`fn?`"
 
-            ($.cvm.eval/result ctx-2
+            ($.clj.eval/result ctx-2
                                '(fn? f))
 
 
             "Calling"
 
-            ($.cvm.eval/result* ctx-2
+            ($.clj.eval/result* ctx-2
                                 (= ret
                                    (f ~@arg+)))))
 
 
         "From `let`, `fn?`"
 
-        ($.cvm.eval/result* ctx
+        ($.clj.eval/result* ctx
                             (let [f ~form]
                               (fn? f)))
 
 
         "From `let`, calling"
 
-        ($.cvm.eval/result* ctx
+        ($.clj.eval/result* ctx
                             (let [f ~form]
                               (= ret
                                  (f ~@arg+))))))))
@@ -94,8 +94,8 @@
 
   {:ratio-num 10}
 
-  (TC.prop/for-all [x $.lisp.gen/any]
-    (let [fn-form ($.lisp/templ* (fn [] ~x))]
+  (TC.prop/for-all [x $.clj.gen/any]
+    (let [fn-form ($.clj/templ* (fn [] ~x))]
       (mprop/and (suite-fn? fn-form)
                  (suite-fn-call fn-form
                                 nil
@@ -109,14 +109,14 @@
 
   {:ratio-num 3}
 
-  (TC.prop/for-all [binding+ ($.lisp.gen/binding+ 1
-                                                  16)]
+  (TC.prop/for-all [binding+ ($.clj.gen/binding+ 1
+                                                 16)]
     (let [arg+    (mapv second
                         binding+)
           sym+    (mapv first
                         binding+)
-          fn-form ($.lisp/templ* (fn ~sym+
-                                     ~sym+))]
+          fn-form ($.clj/templ* (fn ~sym+
+                                    ~sym+))]
       (mprop/and (suite-fn? fn-form)
                  (suite-fn-call fn-form
                                 arg+
@@ -130,8 +130,8 @@
 
   {:ratio-num 3}
 
-  (TC.prop/for-all [binding+ ($.lisp.gen/binding+ 1
-                                                  16)]
+  (TC.prop/for-all [binding+ ($.clj.gen/binding+ 1
+                                                 16)]
 
     (let [arg+       (mapv second
                            binding+)
@@ -143,8 +143,8 @@
                                   ['&]
                                   (drop pos-amper
                                         binding+)))
-          fn-form    ($.lisp/templ* (fn ~binding-2+
-                                        ~binding+))]
+          fn-form    ($.clj/templ* (fn ~binding-2+
+                                       ~binding+))]
       (mprop/mult
         
         "Right number of arguments"

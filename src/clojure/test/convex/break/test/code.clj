@@ -5,8 +5,8 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.test.check.properties :as TC.prop]
-            [convex.cvm.eval               :as $.cvm.eval]
-            [convex.lisp.gen               :as $.lisp.gen]
+            [convex.clj.eval               :as $.clj.eval]
+            [convex.clj.gen                :as $.clj.gen]
             [helins.mprop                  :as mprop]))
 
 
@@ -17,8 +17,8 @@
 
   {:ratio-num 10}
 
-  (TC.prop/for-all [x $.lisp.gen/any]
-    (let [ctx ($.cvm.eval/ctx* (do
+  (TC.prop/for-all [x $.clj.gen/any]
+    (let [ctx ($.clj.eval/ctx* (do
                                  (def x
                                       ~x)
                                  (def form
@@ -30,35 +30,35 @@
 
         "Data evaluates to itself"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= x
                                (eval 'x)))
 
 
         "Call evaluated function"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= x
                                (eval-)))
 
 
         "Expanding form prior to `eval` has no impact"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= eval-
                                (eval (expand form))))
 
 
         "Compiling form prior to `eval` has no impact"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= eval-
                                (eval (compile form))))
 
 
         "Expanding and compiling form prior to `eval` has no impact"
 
-        ($.cvm.eval/result ctx
+        ($.clj.eval/result ctx
                            '(= eval-
                                (eval (compile (expand form)))))))))
 
@@ -69,9 +69,9 @@
 
   {:ratio-num 10}
 
-  (TC.prop/for-all [sym $.lisp.gen/symbol
-                    x   $.lisp.gen/any]
-    ($.cvm.eval/result* (let [addr (deploy '(set-controller *caller*))]
+  (TC.prop/for-all [sym $.clj.gen/symbol
+                    x   $.clj.gen/any]
+    ($.clj.eval/result* (let [addr (deploy '(set-controller *caller*))]
                           (eval-as addr
                                    '(def ~sym
                                          ~x))

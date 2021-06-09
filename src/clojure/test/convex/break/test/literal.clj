@@ -19,9 +19,9 @@
             [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
             [convex.break.gen              :as $.break.gen]
-            [convex.cvm.eval               :as $.cvm.eval]
-            [convex.lisp                   :as $.lisp]
-            [convex.lisp.gen               :as $.lisp.gen]
+            [convex.clj.eval               :as $.clj.eval]
+            [convex.clj                    :as $.clj]
+            [convex.clj.gen                :as $.clj.gen]
             [helins.mprop                  :as mprop]))
 
 
@@ -37,7 +37,7 @@
   (mprop/check
 
     "`=` returns true when an item is compared with itself"
-    ($.cvm.eval/result* (= ~x
+    ($.clj.eval/result* (= ~x
                            ~x))))
 
 
@@ -59,9 +59,9 @@
 
         "Round-trip through the CVM"
 
-        ($.lisp/= x
-                  ($.cvm.eval/result* (identity ~x))
-                  ($.cvm.eval/result* (quote ~x)))))))
+        ($.clj/= x
+                 ($.clj.eval/result* (identity ~x))
+                 ($.clj.eval/result* (quote ~x)))))))
 
 
 ;;;;;;;;;; Scalar values
@@ -69,7 +69,7 @@
 
 (t/deftest nil--
 
-  (t/is (nil? ($.cvm.eval/result nil))))
+  (t/is (nil? ($.clj.eval/result nil))))
  
 
 
@@ -77,7 +77,7 @@
 
   {:ratio-num 100}
 
-  (prop-quotable $.lisp.gen/address))
+  (prop-quotable $.clj.gen/address))
 
 
 
@@ -85,7 +85,7 @@
 
   {:ratio-num 100}
 
-  (prop-quotable $.lisp.gen/blob))
+  (prop-quotable $.clj.gen/blob))
 
 
 
@@ -93,7 +93,7 @@
 
   {:ratio-num 100}
 
-  (prop-quotable $.lisp.gen/boolean))
+  (prop-quotable $.clj.gen/boolean))
 
 
 
@@ -101,7 +101,7 @@
 
   {:ratio-num 100}
 
-  (prop-quotable $.lisp.gen/char))
+  (prop-quotable $.clj.gen/char))
 
 
 
@@ -109,7 +109,7 @@
 
   {:ratio-num 100}
 
-  (prop-quotable $.lisp.gen/double))
+  (prop-quotable $.clj.gen/double))
 
 
 
@@ -117,9 +117,9 @@
 
   {:ratio-num 100}
 
-  (TC.prop/for-all [x ($.break.gen/E-notation $.lisp.gen/long)]
+  (TC.prop/for-all [x ($.break.gen/E-notation $.clj.gen/long)]
     (= (Double/parseDouble (str x))
-       ($.cvm.eval/result x))))
+       ($.clj.eval/result x))))
 
 
 
@@ -129,8 +129,8 @@
 
   {:ratio-num 100}
 
-  (TC.prop/for-all [x ($.break.gen/E-notation $.lisp.gen/double)]
-    ($.cvm.eval/exception? x)))
+  (TC.prop/for-all [x ($.break.gen/E-notation $.clj.gen/double)]
+    ($.clj.eval/exception? x)))
 
 
 
@@ -138,7 +138,7 @@
 
   {:ratio-num 100}
 
-  (prop-quotable $.lisp.gen/keyword))
+  (prop-quotable $.clj.gen/keyword))
 
 
 
@@ -146,7 +146,7 @@
 
   {:ratio-num 100}
 
-  (prop-quotable $.lisp.gen/long))
+  (prop-quotable $.clj.gen/long))
 
 
 
@@ -156,7 +156,7 @@
 
   {:ratio-num 100}
 
-  (prop-quotable $.lisp.gen/string))
+  (prop-quotable $.clj.gen/string))
 
 
 
@@ -164,10 +164,10 @@
 
   {:ratio-num 100}
 
-  (TC.prop/for-all [x (TC.gen/one-of [$.lisp.gen/symbol
-                                      $.lisp.gen/symbol-ns])]
-    ($.lisp/= x
-              ($.cvm.eval/result* (identity (quote ~x))))))
+  (TC.prop/for-all [x (TC.gen/one-of [$.clj.gen/symbol
+                                      $.clj.gen/symbol-ns])]
+    ($.clj/= x
+              ($.clj.eval/result* (identity (quote ~x))))))
 
 
 ;;;;;;;;;; Collections
@@ -179,16 +179,16 @@
 
   {:ratio-num 10}
 
-  (TC.prop/for-all [x+ (TC.gen/vector (TC.gen/one-of [$.lisp.gen/address
-                                                      $.lisp.gen/blob
-                                                      $.lisp.gen/boolean
-                                                      $.lisp.gen/char
-                                                      $.lisp.gen/double
-                                                      $.lisp.gen/keyword
-                                                      $.lisp.gen/long
-                                                      $.lisp.gen/nothing
-                                                      $.lisp.gen/string]))]
-    ($.cvm.eval/result* (= (list ~@x+)
+  (TC.prop/for-all [x+ (TC.gen/vector (TC.gen/one-of [$.clj.gen/address
+                                                      $.clj.gen/blob
+                                                      $.clj.gen/boolean
+                                                      $.clj.gen/char
+                                                      $.clj.gen/double
+                                                      $.clj.gen/keyword
+                                                      $.clj.gen/long
+                                                      $.clj.gen/nothing
+                                                      $.clj.gen/string]))]
+    ($.clj.eval/result* (= (list ~@x+)
                            (quote (~@x+))))))
 
 
@@ -197,8 +197,8 @@
 
   {:ratio-num 10}
 
-  (TC.prop/for-all [x $.lisp.gen/map]
-    ($.cvm.eval/result* (= (hash-map ~@(mapcat identity
+  (TC.prop/for-all [x $.clj.gen/map]
+    ($.clj.eval/result* (= (hash-map ~@(mapcat identity
                                                x))
                             ~x))))
 
@@ -208,8 +208,8 @@
 
   {:ratio-num 10}
 
-  (TC.prop/for-all [x $.lisp.gen/set]
-    ($.cvm.eval/result* (= (hash-set ~@x)
+  (TC.prop/for-all [x $.clj.gen/set]
+    ($.clj.eval/result* (= (hash-set ~@x)
                            ~x))))
 
 
@@ -218,8 +218,8 @@
 
   {:ratio-num 10}
 
-  (TC.prop/for-all [x $.lisp.gen/vector]
-    ($.cvm.eval/result* (= (vector ~@x)
+  (TC.prop/for-all [x $.clj.gen/vector]
+    ($.clj.eval/result* (= (vector ~@x)
                            ~x))))
 
 
@@ -230,7 +230,7 @@
 
   {:ratio-num 10}
 
-  (TC.prop/for-all [x+ (TC.gen/vector-distinct $.lisp.gen/any
+  (TC.prop/for-all [x+ (TC.gen/vector-distinct $.clj.gen/any
                                                {:max-elements 6
                                                 :min-elements 2})]
-    ($.cvm.eval/result* (not (= ~@x+)))))
+    ($.clj.eval/result* (not (= ~@x+)))))
