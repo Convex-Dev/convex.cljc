@@ -6,8 +6,6 @@
    :clj-kondo/config '{:linters {:unused-import    {:level :off}
                                  :unused-namespace {:level :off}}}}
 
-  (:import convex.core.ErrorCodes
-           convex.core.lang.Reader)
   (:require [clojure.data]
             [clojure.pprint]
             [convex.app.fuzz]
@@ -66,8 +64,8 @@
 
   (def ctx
        (:ctx ($.disk/load [["src/convex/break/util.cvx"
-                            {:wrap (partial $.code/deploy
-                                            '$)}]])))
+                            {:map (partial $.code/deploy
+                                           '$)}]])))
 
 
   ($.cvm/exception ctx)
@@ -80,8 +78,8 @@
 
   (def w*ctx
        ($.disk/watch [["src/convex/break/util.cvx"
-                       {:wrap (partial $.code/deploy
-                                       '$)}]]
+                       {:map (partial $.code/deploy
+                                      '$)}]]
                      {:on-error println}))
 
   (.close w*ctx)

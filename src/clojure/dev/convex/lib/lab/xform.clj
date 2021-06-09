@@ -20,12 +20,12 @@
 
   (def w*ctx
        ($.disk/watch [["src/convex/lib/lab/xform/store.cvx"
-                      {:wrap (partial $.code/deploy
-                                      'store)}]
+                      {:map (partial $.code/deploy
+                                     'store)}]
 
                      ["src/convex/lib/lab/xform.cvx"
-                      {:wrap (partial $.code/deploy
-                                      'xform)}]]))
+                      {:map (partial $.code/deploy
+                                     'xform)}]]))
 
 
   ($.cvm/exception @w*ctx)

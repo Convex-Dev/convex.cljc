@@ -19,6 +19,6 @@
   []
 
   (:ctx ($.disk/load [["src/convex/break/util.cvx"
-                       {:wrap (partial $.code/deploy
-                                       '$)}]]
+                       {:map (partial $.code/deploy
+                                      '$)}]]
                      {:after-run $.cvm/juice-refill})))

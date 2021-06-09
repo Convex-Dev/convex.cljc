@@ -22,12 +22,12 @@
   "Base context for this namespace."
 
   (:ctx ($.disk/load [["src/convex/break/util.cvx"
-                       {:wrap (partial $.code/deploy
-                                       '$)}]
+                       {:map (partial $.code/deploy
+                                      '$)}]
 
                       ["src/convex/lib/trust.cvx"
-                       {:wrap (partial $.code/deploy
-                                       'trust)}]]
+                       {:map (partial $.code/deploy
+                                      'trust)}]]
 
                      {:after-run $.cvm/juice-refill})))
 

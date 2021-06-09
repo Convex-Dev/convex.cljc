@@ -20,8 +20,8 @@
 
   (def w*ctx
        ($.disk/watch [["src/convex/lib/trust.cvx"
-                      {:wrap (partial $.code/deploy
-                                      '$)}]]))
+                      {:map (partial $.code/deploy
+                                     '$)}]]))
 
   ($.cvm/exception @w*ctx)
 

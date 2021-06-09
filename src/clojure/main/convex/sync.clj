@@ -18,15 +18,15 @@
 
   [env]
 
-  (if (seq (env :src->error))
+  (if (seq (env :input->error))
     (assoc env
            :error
-           :src->error)
+           :input->error)
     (dissoc env
             :error)))
 
 
-;;;;;;;;;; A source file can be loaded in more than one step, hence there are `src` -> `step+` links
+;;;;;;;;;; An input can be loaded in more than one step, hence there are `input` -> `step+` links
 
 
 (defn link
@@ -35,20 +35,20 @@
 
   [step+]
 
-  (reduce (fn [env [i-step [src step]]]
+  (reduce (fn [env [i-step [input step]]]
             (-> env
-                (update-in [:src->i-step+
-                            src]
+                (update-in [:input->i-step+
+                            input]
                            (fnil conj
                                  [])
                           i-step)
                 (update :step+
                         conj
                         (assoc step
-                               :i   i-step
-                               :src src))))
-          {:src->i-step+ {}
-           :step+         []}
+                               :i     i-step
+                               :input input))))
+          {:input->i-step+ {}
+           :step+          []}
           (partition 2
                      (interleave (range)
                                  step+))))
@@ -64,10 +64,10 @@
 
    (reduce-kv sync
               env
-              (env :src->code)))
+              (env :input->code)))
 
 
-  ([env src code]
+  ([env input code]
 
    (update env
            :step+
@@ -75,18 +75,18 @@
              (reduce (fn [step-2+ i-step]
                        (update step-2+
                                i-step
-                              (fn [{:as   step
-                                     :keys [wrap]}]
+                              (fn [{:as      step
+                                    map-code :map}]
                                  (assoc step
                                         :code
                                         (cond->
                                           code
-                                          wrap
-                                          wrap)))))
+                                          map-code
+                                          map-code)))))
                      step+
                      (get-in env
-                             [:src->i-step+
-                              src]))))))
+                             [:input->i-step+
+                              input]))))))
 
 
 ;;;;;;;;;; Creating an execution environment
@@ -128,24 +128,24 @@
 
    (reduce load
            (assoc env
-                  :src->code  {}
-                  :src->error {})
-           (keys (env :src->i-step+))))
+                  :input->code  {}
+                  :input->error {})
+           (keys (env :input->i-step+))))
 
 
-  ([env src]
+  ([env input]
 
    (try
      (assoc-in env
-               [:src->code
-                src]
-               ((env :read) src))
+               [:input->code
+                input]
+               ((env :read) input))
      (catch Throwable err
        (-> env
            (assoc :error
-                  :src->error)
-           (assoc-in [:src->error
-                      src]
+                  :input->error)
+           (assoc-in [:input->error
+                      input]
                      err))))))
 
 
@@ -154,29 +154,29 @@
 
   ""
 
-  [env src]
+  [env input]
 
   (try
-    (let [code ((env :read) src)]
+    (let [code ((env :read) input)]
       (-> env
-          (assoc-in [:src->code
-                     src]
+          (assoc-in [:input->code
+                     input]
                     code)
-          (update :src->error
+          (update :input->error
                   dissoc
-                  src)
-          (sync src
+                  input)
+          (sync input
                 code)
           update-error))
     (catch Throwable err
       (-> env
           (assoc :error
-                 :src->error)
-          (update :src->code
+                 :input->error)
+          (update :input->code
                   dissoc
-                  src)
-          (assoc-in [:src->error
-                     src]
+                  input)
+          (assoc-in [:input->error
+                     input]
                     err)))))
 
 
@@ -185,7 +185,7 @@
 
   ""
 
-  [env src]
+  [env input]
 
   (-> env
       (update :step+
@@ -197,14 +197,14 @@
                                   :code))
                         step+
                         (get-in env
-                                [:src->i-step+
-                                 src]))))
-      (update :src->code
+                                [:input->i-step+
+                                 input]))))
+      (update :input->code
               dissoc
-              src)
-      (update :src->error
+              input)
+      (update :input->error
               dissoc
-              src)
+              input)
       update-error))
 
 

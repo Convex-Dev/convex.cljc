@@ -23,8 +23,8 @@
 
   (def ctx
        (:ctx ($.disk/load [["src/convex/break/util.cvx"
-                            {:wrap (partial $.code/deploy
-                                            '$)}]])))
+                            {:map (partial $.code/deploy
+                                           '$)}]])))
 
 
 
@@ -39,8 +39,8 @@
 
   (def w*ctx
        ($.disk/watch [["src/convex/break/util.cvx"
-                       {:wrap (partial $.code/deploy
-                                       '$)}]]
+                       {:map (partial $.code/deploy
+                                      '$)}]]
                      {:on-error println}))
 
 
