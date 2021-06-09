@@ -1,6 +1,11 @@
 (ns convex.sync
 
-  ""
+  "About running Convex Lisp input and producing a context.
+  
+   This namespace is currently the core implementation of [[convex.disk]]. However, it is written
+   in such a way that it is generic and could be applied to sources other than files.
+
+   For understanding what is going on, it is best to study it alongsied [[convex.disk]]."
 
   {:author "Adam Helinski"}
 
@@ -14,7 +19,7 @@
 
 (defn update-error
 
-  ""
+  "Points to a `:input->error` if needed."
 
   [env]
 

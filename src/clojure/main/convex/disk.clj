@@ -1,6 +1,8 @@
 (ns convex.disk
 
-  ""
+  "Loading Convex Lisp files in context, watching and live-reloading.
+  
+   See [[convex.example.disk]] namespace for exmaples."
 
   {:author "Adam Helinski"}
 
@@ -21,7 +23,7 @@
 
 (defn- -canonical-path+
 
-  ;;
+  ;; Maps `step+` so that each file path ends up in canonical representation.
 
   [step+]
 
@@ -36,7 +38,7 @@
 
 (defn- -env
 
-  ;;
+  ;; Layer on top of [[$.sync/env]].
 
   [step+ option+]
 
@@ -53,7 +55,7 @@
 
 (defn read
 
-  ""
+  "Reads the file located at `path` and return Convex code."
 
   [path]
 
@@ -67,7 +69,34 @@
 
 (defn load
 
-  ""
+  "Loads the given `step+`, in order, where each step is a Convex Lisp file, and execute them one by one.
+
+   A step is a 2-tuple containing:
+
+   - Path to Convex Lisp file
+   - Optional map with:
+  
+   | Key | Optional? | Value | Default |
+   |---|---|---|---|
+   | `:eval` | True | Evaluating function which runs **code** for the target file (as a Convex object) | See `option+` |
+   | `:map` | True | Function **code from target file** -> **code** (as a Convex object) | `identity` |
+
+   `option` is a map of options such as:
+   
+    | Key | Value | Default
+    |---|---|---|
+    | `:after-run` | Function **ctx** -> **ctx** run after all steps | `identity` |
+    | `:eval` | Evaluating function used when step does not provide one | [[convex.cvm/eval]] |
+    | `:init-ctx` | No-arg function which create the initial context prior to running through steps | `convex.cvm/ctx` |
+  
+
+   Returns a map which holds the resulting context under `:ctx`, unless an `:error` is present. This `:error` points to
+   a key in the returned valued that holds diagnostic information. Currently:
+
+   | Key | Value |
+   |---|---|
+   | `:error-eval` | Exception that occured when evaluating a step |
+   | `:path->error` | Map of `file path` -> `exception` |"
 
 
   ([step+]
@@ -106,28 +135,20 @@
 
   (defn watch
 
-    "Starts a watcher which syncs Convex Lisp files to a context.
+    "Like [[load]] but watches the files and provides live-reloading.
 
-     When a file is modified, its source is processed and all sources are evaluated in the given order, step by step.
+     Returns an object which can be deferenced to fork of a context that is always up-to-date.
 
-     `step+` is a collection of steps, 2-tuples composed of:
+     Reifies `java.lang.AutoCloseable`, hence can be stopped with `.close`.
 
-     - Path to a Convex Lisp file
-     - Map with:
-
-     | Key | Optional? | Value | Default |
-     |---|---|---|---|
-     | `:code` | True | Function **code from target file** -> **code** (as a Convex object) | `identity` |
-     | `:eval` | True | Evaluating function which runs **code** for the target file (as a Convex object) | `convex.clj.eval` |
-
-     `option+` is a map of options:
+     In addition, `option+` can also contain:
 
      | Key | Value | Default
      |---|---|---|
-     | `:after-run` | Function **ctx** -> **ctx** run after all steps | `identity` |
-     | `:init` | No-arg function which create the initial context prior to running through steps | `convex.cvm/ctx` |
+     | `:on-error` | Called in case of failure with the same value as returned from [[load]] |
 
-     Reifies `java.lang.AutoCloseable`, hence can be stopped with `.close`."
+     Exceptions are catched only during reading and evaluation. Errors resulting elsewhere (eg. during a step's`:map`)
+     must be handled by the user."
 
 
     ([step+]
