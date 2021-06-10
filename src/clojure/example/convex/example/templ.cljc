@@ -2,7 +2,7 @@
 
   "Templating Convex Lisp in Clojure."
 
-  (:require [convex.clj]))
+  (:require [convex.clj :as $.clj]))
 
 
 ;;;;;;;;;;
@@ -15,10 +15,10 @@
   ;;
   (let [addr   42
         amount 1000]
-    (convex.clj/templ* (let [addr (address ~addr)]
-                          (transfer addr
-                                    ~amount)
-                          (balance addr))))
+    ($.clj/templ* (let [addr (address ~addr)]
+                    (transfer addr
+                              ~amount)
+                    (balance addr))))
 
 
   ;; Producing a vector
@@ -31,7 +31,7 @@
   (let [kw :foo
         xs [2 3]
         y  42]
-    (convex.clj/templ* [~kw 1 ~@xs 4 ~y y (unquote y) (unquote-splicing xs)]))
+    ($.clj/templ* [~kw 1 ~@xs 4 ~y y (unquote y) (unquote-splicing xs)]))
 
   ;; => [:foo 1 2 3 4 42 y (unquote y) (unquote-splicing xs)]
   )

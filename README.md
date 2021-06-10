@@ -14,7 +14,7 @@ Current examples are located in the [example directory](../main/src/example/conv
 
 For brievety and consistency with the source, when mentioning a namespace, `convex` is replaced with `$` such as: `convex.cvm` -> `$.cvm`. 
 
-** Attention, while those projects are getting more and more stable, unannonced breaking changes are still happening.**
+**Attention, while those projects are getting more and more stable, unannonced breaking changes are still happening.**
 
 
 ## Interacting with the CVM
