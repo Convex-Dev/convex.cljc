@@ -5,7 +5,8 @@
   {:author           "Adam Helinski"
    :clj-kondo/config '{:linters {:unused-namespace {:level :off}}}}
 
-  (:require [convex.code     :as $.code]
+  (:require [clojure.pprint]
+            [convex.code     :as $.code]
             [convex.cvm      :as $.cvm]
             [convex.clj.eval :as $.clj.eval]
             [convex.disk     :as $.disk]
@@ -43,18 +44,19 @@
 
 
 
-  ($.clj.eval/result* @w*ctx
-                      (xform/transduce (xform/comp (xform/filter (fn [item]
-                                                                   (contains-key? (store/tag+ item)
-                                                                                  :fruit)))
-                                                   ;(xform/filter (fn [item]
-                                                   ;                (< (store/price item)
-                                                   ;                   600)))
-                                                   ;(xform/filter store/available?)
-                                                   (xform/map store/code)
-                                                   )
-                                       xform/last
-                                       store/inventory))
+  (clojure.pprint/pprint
+    ($.clj.eval/result* @w*ctx
+                        (xform/transduce (xform/comp (xform/filter (fn [item]
+                                                                     (contains-key? (store/tag+ item)
+                                                                                    :fruit)))
+                                                     ;(xform/filter (fn [item]
+                                                     ;                (< (store/price item)
+                                                     ;                   600)))
+                                                     ;(xform/filter store/available?)
+                                                     ;(xform/map store/code)
+                                                     )
+                                         xform/first
+                                         store/inventory)))
 
 
   )

@@ -48,8 +48,11 @@
  :deps
  {;cljs-ajax/cljs-ajax  {:mvn/version "0.8.3"}
   hawk/hawk                {:mvn/version "0.2.11"}
+  org.clojure/tools.cli    {:mvn/version "1.0.206"}
   org.clojure/test.check   {:mvn/version "1.1.0"}
-  world.convex/convex      {:local/root "cvm/06710c159311c980cca3a417adcd8444cc67a4f4.jar"}}
+  world.convex/convex      {:local/root "cvm/06710c159311c980cca3a417adcd8444cc67a4f4.jar"
+                            ;"cvm/e4a76ab015fa3dca12f1b43d1019aba4491e8bde.jar"
+                            }}
 
  :paths
  ["src/clojure/main"]}
