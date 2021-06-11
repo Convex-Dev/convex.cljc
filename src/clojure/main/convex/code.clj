@@ -212,7 +212,7 @@
 
 
 
-(defn vector
+(defn vector?
 
   "Is `x` a CVM vector?"
 

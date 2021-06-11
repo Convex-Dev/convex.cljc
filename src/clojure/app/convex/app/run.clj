@@ -7,31 +7,82 @@
   (:gen-class)
   (:require [clojure.tools.cli]
             [convex.code        :as $.code]
-            [convex.cvm         :as $.cvm])
-  )
+            [convex.cvm         :as $.cvm]
+            [convex.disk        :as $.disk]))
 
 
 ;;;;;;;;;; Helpers
+
+
+(defn error
+
+  ""
+
+  [message]
+
+  (println message)
+  #_(System/exit 42))
+
+
+
+(defn cvm-print
+
+  ""
+
+  [cvm-object]
+
+  (println (str cvm-object)))
+
+
+
+(def kw-convex
+
+  ""
+
+  ($.code/keyword "convex"))
+
+
+
+(defn process-config
+
+  ""
+
+  [result]
+
+  (let [run (get result
+                 ($.code/keyword "run"))]
+    (when-not ($.code/vector? run)
+      (error "`:run` argument must be a vector"))
+    (-> (map (fn [cvm-string]
+               (when-not ($.code/string? cvm-string)
+                 (error (str "Should be file path to run, not: "
+                             cvm-string)))
+               [(str cvm-string)])
+             run)
+        $.disk/load
+        :ctx
+        $.cvm/result
+        cvm-print)))
+
 
 
 (defn exec
 
   ""
 
-  
-  ([src]
+  [src _option+]
 
-   (exec ($.cvm/ctx)
-         src))
-
-
-  ([ctx src]
-
-   (-> ($.cvm/eval ctx
-                   ($.cvm/read src))
-       $.cvm/result
-       str
-       println)))
+  (let [ctx       ($.cvm/eval ($.cvm/ctx)
+                              ($.cvm/read src))
+        exception ($.cvm/exception ctx)]
+    (if exception
+      (println exception)
+      (let [result ($.cvm/result ctx)]
+        (if (and ($.code/map? result)
+                 (contains? result
+                            kw-convex))
+          (process-config result)
+          (cvm-print result))))))
 
 
 ;;;;;;;;;; Eval
@@ -41,9 +92,10 @@
 
   ""
 
-  [arg+ _option+]
+  [arg+ option+]
 
-  (exec (first arg+)))
+  (exec (first arg+)
+        option+))
 
 
 ;;;;;;;;;; Load files
@@ -53,9 +105,10 @@
 
   ""
 
-  [arg+ _option+]
+  [arg+ option+]
 
-  (exec (slurp (first arg+))))
+  (exec (slurp (first arg+))
+        option+))
 
 
 ;;;;;;;;;; Main command
@@ -86,7 +139,18 @@
     (if f
       (f (rest arg+)
          option+)
-      (do
-        (println (format "Unknown command: %s"
-                         command))
-        #_(System/exit 42)))))
+      (error (format "Unknown command: %s"
+                     command)))))
+
+
+;;;;;;;;;;
+
+
+(comment
+
+
+  (-main "load"
+         "src/convex/dev/app/run.cvx")
+
+
+  )

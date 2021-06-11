@@ -1,0 +1,5 @@
+{:convex true
+ :run    ["src/convex/lib/lab/xform.cvx"
+          "src/convex/lib/lab/xform/store.cvx"]
+ 
+ }
