@@ -66,162 +66,6 @@
          vector)
 
 
-;;;;;;;;; Type predicates
-
-
-(defn address?
-
-  "Is `x` an address?"
-
-  [x]
-
-  (instance? Address
-             x))
-
-
-
-(defn blob?
-
-  "Is `x` a blob?"
-
-  [x]
-
-  (instance? ABlob
-             x))
-
-
-
-(defn boolean?
-
-  "Is `x` a CVM boolean?"
-
-  [x]
-
-  (instance? CVMBool
-             x))
-
-
-
-(defn byte?
-
-  "Is `x` a CVM byte?"
-
-  [x]
-
-  (instance? CVMByte
-             x))
-
-
-
-(defn char?
-
-  "Is `x` a CVM char?"
-
-  [x]
-
-  (instance? CVMChar
-             x))
-
-
-
-(defn double?
-
-  "Is `x` a CVM double?"
-
-  [x]
-
-  (instance? CVMDouble
-             x))
-
-
-
-(defn keyword?
-
-  "Is `x` a CVM keyword?"
-
-  [x]
-
-  (instance? Keyword
-             x))
-
-
-
-(defn list?
-
-  "Is `x` a CVM list?"
-
-  [x]
-
-  (instance? AList
-             x))
-
-
-
-(defn long?
-
-  "Is `x` a CVM long?"
-
-  [x]
-
-  (instance? CVMLong
-             x))
-
-
-
-(defn map?
-
-  "Is `x` a CVM map?"
-
-  [x]
-
-  (instance? AMap
-             x))
-
-
-
-(defn set?
-
-  "Is `x` a CVM set?"
-
-  [x]
-
-  (instance? ASet
-             x))
-
-
-
-(defn string?
-
-  "Is `x` a CVM string?"
-
-  [x]
-
-  (instance? AString
-             x))
-
-
-
-(defn symbol?
-
-  "Is `x` a CVM symbol?"
-
-  [x]
-
-  (instance? Symbol
-             x))
-
-
-
-(defn vector?
-
-  "Is `x` a CVM vector?"
-
-  [x]
-
-  (instance? AVector
-             x))
-
-
 ;;;;;;;;;; Creating values
 
 
@@ -505,3 +349,173 @@
 
   (list [Symbols/QUOTE
          x]))
+
+
+;;;;;;;;; Type predicates
+
+
+(defn address?
+
+  "Is `x` an address?"
+
+  [x]
+
+  (instance? Address
+             x))
+
+
+
+(defn blob?
+
+  "Is `x` a blob?"
+
+  [x]
+
+  (instance? ABlob
+             x))
+
+
+
+(defn boolean?
+
+  "Is `x` a CVM boolean?"
+
+  [x]
+
+  (instance? CVMBool
+             x))
+
+
+
+(defn byte?
+
+  "Is `x` a CVM byte?"
+
+  [x]
+
+  (instance? CVMByte
+             x))
+
+
+
+(defn char?
+
+  "Is `x` a CVM char?"
+
+  [x]
+
+  (instance? CVMChar
+             x))
+
+
+
+(defn double?
+
+  "Is `x` a CVM double?"
+
+  [x]
+
+  (instance? CVMDouble
+             x))
+
+
+
+(defn keyword?
+
+  "Is `x` a CVM keyword?"
+
+  [x]
+
+  (instance? Keyword
+             x))
+
+
+
+(defn list?
+
+  "Is `x` a CVM list?"
+
+  [x]
+
+  (instance? AList
+             x))
+
+
+
+(defn long?
+
+  "Is `x` a CVM long?"
+
+  [x]
+
+  (instance? CVMLong
+             x))
+
+
+
+(defn map?
+
+  "Is `x` a CVM map?"
+
+  [x]
+
+  (instance? AMap
+             x))
+
+
+
+(defn set?
+
+  "Is `x` a CVM set?"
+
+  [x]
+
+  (instance? ASet
+             x))
+
+
+
+(defn string?
+
+  "Is `x` a CVM string?"
+
+  [x]
+
+  (instance? AString
+             x))
+
+
+
+(defn symbol?
+
+  "Is `x` a CVM symbol?"
+
+  [x]
+
+  (instance? Symbol
+             x))
+
+
+
+(defn vector?
+
+  "Is `x` a CVM vector?"
+
+  [x]
+
+  (instance? AVector
+             x))
+
+
+;;;;;;;;;; Miscellaneous predicates
+
+
+(defn call?
+
+  "Is `x` a call for `form` such as `(form ...)`?"
+
+  [x form]
+
+  (and (list? x)
+       (= (first x)
+          form)))

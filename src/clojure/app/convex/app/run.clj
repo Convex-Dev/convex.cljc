@@ -20,8 +20,8 @@
 
   [message]
 
-  (println message)
-  #_(System/exit 42))
+  (throw (ex-info message
+                  {::error? true})))
 
 
 
@@ -35,54 +35,30 @@
 
 
 
-(def kw-convex
-
-  ""
-
-  ($.code/keyword "convex"))
-
-
-
-(defn process-config
-
-  ""
-
-  [result]
-
-  (let [run (get result
-                 ($.code/keyword "run"))]
-    (when-not ($.code/vector? run)
-      (error "`:run` argument must be a vector"))
-    (-> (map (fn [cvm-string]
-               (when-not ($.code/string? cvm-string)
-                 (error (str "Should be file path to run, not: "
-                             cvm-string)))
-               [(str cvm-string)])
-             run)
-        $.disk/load
-        :ctx
-        $.cvm/result
-        cvm-print)))
-
-
-
 (defn exec
 
   ""
 
   [src _option+]
 
-  (let [ctx       ($.cvm/eval ($.cvm/ctx)
-                              ($.cvm/read src))
-        exception ($.cvm/exception ctx)]
-    (if exception
-      (println exception)
-      (let [result ($.cvm/result ctx)]
-        (if (and ($.code/map? result)
-                 (contains? result
-                            kw-convex))
-          (process-config result)
-          (cvm-print result))))))
+  (let [form+     ($.cvm/read-many src)
+        form-1    (first form+)
+        [ctx
+         form-2+] (if ($.code/call? form-1
+                                    ($.code/symbol ".read"))
+                    [(:ctx ($.disk/load (map (fn [x]
+                                               [(str (second x))
+                                                {:map (fn [code]
+                                                        ($.code/def (first x)
+                                                                    ($.code/quote code)))}])
+                                             (rest form-1))))
+                     (rest form+)]
+                    [($.cvm/ctx)
+                     form+])]
+    (-> ($.cvm/eval ctx
+                    ($.code/do form-2+))
+        $.cvm/result
+        cvm-print)))
 
 
 ;;;;;;;;;; Eval
@@ -114,6 +90,17 @@
 ;;;;;;;;;; Main command
 
 
+(defn handle-exception
+
+  ""
+
+  [err]
+
+  (println :Exception
+           err))
+
+
+
 (def cli-option+
 
   ""
@@ -128,19 +115,35 @@
 
   [& arg+]
 
-  (let [{arg+    :arguments
-         option+ :options}  (clojure.tools.cli/parse-opts arg+
-                                                          cli-option+)
-        command             (first arg+)
-        f                   (case command
-                             "eval" cmd-eval
-                             "load" cmd-load
-                             nil)]
-    (if f
-      (f (rest arg+)
-         option+)
-      (error (format "Unknown command: %s"
-                     command)))))
+  (try
+    (let [{arg+    :arguments
+           option+ :options}  (clojure.tools.cli/parse-opts arg+
+                                                            cli-option+)
+          command             (first arg+)
+          f                   (case command
+                               "eval" cmd-eval
+                               "load" cmd-load
+                               nil)]
+      (if f
+        (f (rest arg+)
+           option+)
+        (error (format "Unknown command: %s"
+                       command))))
+
+
+    (catch clojure.lang.ExceptionInfo err
+      (let [data (ex-data err)]
+        (if (::error? data)
+          (do
+            (println (.getMessage err))
+            ;(System/exit 42)
+            )
+          (handle-exception err))))
+
+
+    (catch Throwable err
+      (handle-exception err))))
+
 
 
 ;;;;;;;;;;

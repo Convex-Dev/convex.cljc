@@ -1,5 +1,20 @@
-{:convex true
- :run    ["src/convex/lib/lab/xform.cvx"
-          "src/convex/lib/lab/xform/store.cvx"]
- 
- }
+(.read [xform "src/convex/lib/lab/xform.cvx"]
+       [store "src/convex/lib/lab/xform/store.cvx"])
+
+(deploy xform)
+
+(import convex.xform :as xform)
+
+
+(eval store)
+
+
+(xform/transduce (xform/comp (xform/filter (fn [item]
+                                             (contains-key? (tag+ item)
+                                                            :fruit))))
+                 conj
+                 []
+                 inventory)
+
+
+

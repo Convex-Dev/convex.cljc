@@ -65,7 +65,10 @@
   (def ctx
        (:ctx ($.disk/load [["src/convex/break/util.cvx"
                             {:map (partial $.code/deploy
-                                           '$)}]])))
+                                           '$)}]
+
+                           ['(def bar 100)]])))
+
 
 
   ($.cvm/exception ctx)
@@ -73,6 +76,9 @@
   ($.clj.eval/result* ctx
                       $/foo)
 
+
+
+  ($.cvm/read-many "42 40")
 
 
 
