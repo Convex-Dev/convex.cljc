@@ -6,6 +6,7 @@
 
   (:gen-class)
   (:require [clojure.tools.cli]
+            [convex.code        :as $.code]
             [convex.cvm         :as $.cvm])
   )
 
@@ -64,8 +65,7 @@
 
   ""
 
-  [[
-   ]])
+  [])
 
 
 

@@ -1,10 +1,11 @@
 (ns convex.code
 
-  "Constructing CVM objects."
+  "Constructing CVM objects + related type predicates."
 
   {:author "Adam Helinski"}
 
   (:import (convex.core.data Address
+                             ABlob
                              AList
                              AMap
                              ASet
@@ -28,20 +29,30 @@
            (java.util Collection
                       List))
   (:refer-clojure :exclude [boolean
+                            boolean?
                             byte
                             char
+                            char?
                             def
                             do
                             double
+                            double?
                             import
                             keyword
+                            keyword?
                             list
+                            list?
                             long
                             map
+                            map?
                             set
+                            set?
+                            string?
                             symbol
+                            symbol?
                             quote
-                            vector])
+                            vector
+                            vector?])
   (:require [clojure.core]))
 
 
@@ -55,7 +66,163 @@
          vector)
 
 
-;;;;;;;;;; Types
+;;;;;;;;; Type predicates
+
+
+(defn address?
+
+  "Is `x` an address?"
+
+  [x]
+
+  (instance? Address
+             x))
+
+
+
+(defn blob?
+
+  "Is `x` a blob?"
+
+  [x]
+
+  (instance? ABlob
+             x))
+
+
+
+(defn boolean?
+
+  "Is `x` a CVM boolean?"
+
+  [x]
+
+  (instance? CVMBool
+             x))
+
+
+
+(defn byte?
+
+  "Is `x` a CVM byte?"
+
+  [x]
+
+  (instance? CVMByte
+             x))
+
+
+
+(defn char?
+
+  "Is `x` a CVM char?"
+
+  [x]
+
+  (instance? CVMChar
+             x))
+
+
+
+(defn double?
+
+  "Is `x` a CVM double?"
+
+  [x]
+
+  (instance? CVMDouble
+             x))
+
+
+
+(defn keyword?
+
+  "Is `x` a CVM keyword?"
+
+  [x]
+
+  (instance? Keyword
+             x))
+
+
+
+(defn list?
+
+  "Is `x` a CVM list?"
+
+  [x]
+
+  (instance? AList
+             x))
+
+
+
+(defn long?
+
+  "Is `x` a CVM long?"
+
+  [x]
+
+  (instance? CVMLong
+             x))
+
+
+
+(defn map?
+
+  "Is `x` a CVM map?"
+
+  [x]
+
+  (instance? AMap
+             x))
+
+
+
+(defn set?
+
+  "Is `x` a CVM set?"
+
+  [x]
+
+  (instance? ASet
+             x))
+
+
+
+(defn string?
+
+  "Is `x` a CVM string?"
+
+  [x]
+
+  (instance? AString
+             x))
+
+
+
+(defn symbol?
+
+  "Is `x` a CVM symbol?"
+
+  [x]
+
+  (instance? Symbol
+             x))
+
+
+
+(defn vector
+
+  "Is `x` a CVM vector?"
+
+  [x]
+
+  (instance? AVector
+             x))
+
+
+;;;;;;;;;; Creating values
 
 
 (defn address
@@ -234,7 +401,7 @@
   (^Symbol [namespace name]
 
    (let [name-2 (string (clojure.core/name name))]
-     (if (int? namespace)
+     (if (clojure.core/int? namespace)
        (Symbol/create ^Address (address namespace)
                       name-2)
        (Symbol/create (Symbol/create ^String namespace)
@@ -266,7 +433,7 @@
 
   [sym]
 
-  (if (symbol? sym)
+  (if (clojure.core/symbol? sym)
     (symbol (name sym))
     sym))
 
