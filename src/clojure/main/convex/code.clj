@@ -230,26 +230,13 @@
 
 (defn symbol
 
-  "Creates a CVM symbol either from:
-  
-   - Clojure symbol where namespace and name matters
-   - Namespace (either long representing an address or a Clojure symbol) and name (Clojure symbol)
-     given separately"
+  "Creates a CVM symbol from a string."
 
+  ^Symbol
 
-  (^Symbol [^String name]
+  [^String string]
 
-   (Symbol/create name))
-
-
-  (^Symbol [namespace name]
-
-   (let [name-2 (string (clojure.core/name name))]
-     (if (clojure.core/int? namespace)
-       (Symbol/create ^Address (address namespace)
-                      name-2)
-       (Symbol/create (Symbol/create ^String namespace)
-                      name-2)))))
+  (Symbol/create string))
 
 
 

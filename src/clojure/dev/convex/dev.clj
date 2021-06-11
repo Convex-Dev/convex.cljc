@@ -78,7 +78,7 @@
 
 
 
-  ($.cvm/read-many "42 40")
+  ($.cvm/read-many "#42/foo")
 
 
 

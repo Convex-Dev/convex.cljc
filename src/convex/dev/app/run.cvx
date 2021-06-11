@@ -1,9 +1,9 @@
 (.read [xform "src/convex/lib/lab/xform.cvx"]
        [store "src/convex/lib/lab/xform/store.cvx"])
 
-(deploy xform)
 
-(import convex.xform :as xform)
+(def xform
+     (deploy xform))
 
 
 (eval store)

@@ -628,14 +628,7 @@
   convex.core.data.Symbol
 
     (datafy [this]
-      (let [name (.getName this)
-            path (some-> (.getPath this)
-                         .toString)]
-        (symbol (if path
-                  (str path
-                       \/
-                       name)
-                  (str name)))))
+      (symbol (.getName this)))
 
 
   convex.core.data.Syntax
