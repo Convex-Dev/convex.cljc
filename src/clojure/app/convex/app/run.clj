@@ -12,6 +12,9 @@
             [convex.disk        :as $.disk]))
 
 
+(declare eval-trx+)
+
+
 ;;;;;;;;;; MIscellaneous
 
 
@@ -80,10 +83,25 @@
     (when exception
       (error (str "Exception during transaction: "
                   exception)))
-    (assoc env
-           :ctx        ctx-2
-           :juice-last (- juice
-                          ($.cvm/juice ctx-2)))))
+    (-> env
+        (assoc :ctx        ctx-2
+               :juice-last (- juice
+                              ($.cvm/juice ctx-2)))
+        (update :i-trx
+                inc))))
+
+
+
+(defn cvm-do
+
+  ""
+
+  [env ctx form]
+
+  (eval-trx+ (assoc env
+                    :ctx
+                    ctx)
+             (rest form)))
 
 
 
@@ -129,14 +147,14 @@
 
   ""
 
-  [env i-trx form]
+  [env form]
 
   (let [ctx         (env :ctx)
         ctx-2       ($.cvm/eval ctx
                                 ($.code/do [($.code/def ($.code/symbol "cvm.juice.last")
                                                         ($.code/long (env :juice-last)))
                                             ($.code/def ($.code/symbol "cvm.trx")
-                                                        ($.code/long i-trx))]))
+                                                        ($.code/long (env :i-trx)))]))
         ctx-3       ($.cvm/expand ctx-2
                                   form)
         exception   ($.cvm/exception ctx-3)]
@@ -149,6 +167,7 @@
           (if (clojure.string/starts-with? sym-string
                                            "cvm.")
             (if-some [f (case sym-string
+                          "cvm.do"   cvm-do
                           "cvm.log"  cvm-log
                           "cvm.out"  cvm-out
                           "cvm.read" cvm-read
@@ -164,6 +183,22 @@
         (eval-form env
                    ctx-2
                    form-2)))))
+
+
+
+(defn eval-trx+
+
+  ""
+
+  [env form+]
+
+  (reduce (fn [env form]
+            (-> (eval-trx env
+                          form)
+                (update :ctx
+                        $.cvm/juice-refill)))
+          env
+          form+))
 
 
 
@@ -188,19 +223,11 @@
                       (rest form+)]
                      [(ctx-init)
                       form+])
-        env        (reduce (fn [env [i-trx form]]
-                              (-> (eval-trx env
-                                            i-trx
-                                            form)
-                                  (update :ctx
-                                          $.cvm/juice-refill)))
-                            {:ctx        ctx
-                             :juice-last 0}
-                            (partition 2
-                                       (interleave (range)
-                                                   (butlast form-2+))))]
+        env        (eval-trx+ {:ctx        ctx
+                               :i-trx      0
+                               :juice-last 0}
+                              (butlast form-2+))]
     (-> (eval-trx env
-                  (dec (count form-2+))
                   (last form-2+))
         :ctx
         $.cvm/result
@@ -242,7 +269,8 @@
 
   [err]
 
-  (*output* [:exception.java err]))
+  ;(*output* [:exception.java err])
+  (throw err))
 
 
 

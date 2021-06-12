@@ -10,18 +10,8 @@
 (eval store)
 
 
+  
 
-(defmacro macro-out
-
-  [x]
-
-  `(cvm.out [:test ~x]))
-
-
-
-
-
-(macro-out :yes!)
 
 
 42
@@ -43,3 +33,21 @@
 
 
 ;cvm.juice.last
+
+
+
+; (defmacro out-log
+; 
+;   []
+; 
+;   `(cvm.do
+;      (cvm.log LOG)
+;      (cvm.out [:log LOG])
+;      (undef LOG)))
+; 
+; 
+; 
+; (log :a :b :c)
+; 
+; 
+; (out-log)
