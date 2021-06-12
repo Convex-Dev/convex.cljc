@@ -5,15 +5,7 @@
    This namespace is currently the core implementation of [[convex.disk]]. However, it is written
    in such a way that it is generic and could be applied to sources other than files.
 
-   For understanding what is going on, it is best to study it alongside [[convex.disk]]. Terminology stems
-   from the docstrings of [[convex.disk/load]] and [[convex.disk/watch]].
-  
-   The order is typically:
-
-   - [[env]] (includes [[load]])
-   - [[sync]]
-   - [[exec]]
-   - [[reload]] + [[unload]] when watching, followed by [[exec]]"
+   For understanding what is going on, it is best to study it alongside [[convex.disk]], especially [[convex.disk/load]]."
 
   {:author "Adam Helinski"}
 
@@ -27,40 +19,12 @@
          unload)
 
 
-;;;;;;;;;; Creating an execution environment
-
-
-(defn env
-
-  "Entry point, creates an executing environment given `step+` and `option+`.
-
-   Besides what the [[convex.disk]] namespace describes, `option+` requires an additial key `:read` which
-   is a function that receive an input (eg. a file path) and returns code (eg. effectively reads the file).
-  
-   Effectively loads all inputs using [[load]]. Commonly, [[synced]] is used after that step."
-
-  
-  ([read input+]
-
-   (env read
-        input+
-        nil))
-
-
-  ([read input+ option+]
-
-   (-> option+
-       (assoc :input+ input+
-              :read   read)
-       load)))
-
-
-;;;;;;;;;; Reading source and handling change
+;;;;;;;;;; Altering the "env" map (executing environment)
 
 
 (defn assoc-code
 
-  ""
+  "Associates the given `code` to `input` in `env`."
 
   [env input code]
 
@@ -73,7 +37,7 @@
 
 (defn assoc-err-read
 
-  ""
+  "Adds `err` as a read error that occured when reading `input`."
 
   [env input err]
 
@@ -91,18 +55,17 @@
                {input err}]))))
 
 
+;;;;;;;;;; Dealing with inputs
+
 
 (defn load
 
-  "Used by [[env]] to load initial inputs.
+  "Reads the given `input` (or all `:inputs+` in `env`).
   
-   Adds to `env` 2 keys:
+   Essentially does `((env :read) env input)`, which means that the `:read` function in `env`
+   must appropriately handle read errors using [[assoc-err-read]].
 
-   | Key | Value |
-   |---|---|
-   | `:input->code` | Map of `input` -> `loaded code` |
-   | `:input->error` | Represent failures, map of `input` -> `exception` |" 
-
+   Even in case of errors, all inputs are processed."
 
   ([env]
 
@@ -121,7 +84,9 @@
 
 (defn reload
 
-  ""
+  "Like [[load]] but meant to be used whenever an input is updated.
+
+   Updates read errors."
 
   [env input]
 
@@ -133,9 +98,9 @@
 
 (defn unload
 
-  "Opposite of [[reload]], removes an input and code from related steps.
+  "Opposite of [[load]], removes code for the given `input`.
 
-   Runs the result through [[update-error]]."
+   Updates existing read errors."
 
   [env input]
 
@@ -163,9 +128,7 @@
 
 (defn exec
 
-  "When any code has been loaded/reloaded, executes all steps one by one.
-  
-   Resulting context is attached under `:ctx` unless an error occurs and figures under `:error`."
+  "Evaluates the code for all `:input+` in `env` on `ctx`, unless there is an `:error` attached."
 
   [ctx env]
 
