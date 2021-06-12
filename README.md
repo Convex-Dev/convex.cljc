@@ -162,17 +162,20 @@ intact and reusable at will.
 
 **Namespaces of interest:** `$.clj.eval`
 
-When working at the REPL, there is often a need for having a prepared context at hand. A default context can be created by setting the `CVM_CTX` environment variable
-to a symbol which points to a no-arg function. For instance, in the terminal when launching a REPL:
-
-```shell
-$ env CVM_CTX=convex.cvm/ctx  clojure ...
-```
-
-It is available at `$.clj.eval/*ctx-default*` and functions from the `$.clj.eval` namespace use that default context when one is not provided:
+When working at the REPL or during some test situations, there is often a need for having a prepared context at hand. A default context
+can be set under `$.clj.eval/*ctx-default*` with:
 
 ```clojure
-($.clj.eval/result '(+ 2 2))
+($.clj.eval/alter-ctx-default some-ctx)
+
+```
+
+All functions and macros from the `$.clj.eval` namespace use that default context when none is provided. This var is also dynamic, hence
+the following is possible:
+
+```clojure
+(binding [$.clj.eval/*ctx-default* some-ctx]
+  ($.clj.eval/result '(+ 2 2)))
 ```
 
 
