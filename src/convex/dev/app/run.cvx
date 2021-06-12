@@ -10,11 +10,27 @@
 (eval store)
 
 
+
+(defmacro printer
+
+  [code]
   
+  `(cvm.do
+     (cvm.do
+       (cvm.out [:trx *cvm.trx.id* ~(:tag (meta code))]))
+     (cvm.do
+       ~code)))
 
 
 
-42
+(cvm.trx.map printer)
+
+
+
+^{:tag :foo} 42
+
+
+44
 
 ;(xform/transduce (xform/comp (xform/filter (fn [item]
 ;                                             (contains-key? (tag+ item)

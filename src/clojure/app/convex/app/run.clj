@@ -74,9 +74,10 @@
 
   ""
 
-  [env ctx form]
+  [env form]
 
-  (let [juice     ($.cvm/juice ctx)
+  (let [ctx       ($.cvm/juice-refill (env :ctx))
+        juice     ($.cvm/juice ctx)
         ctx-2     ($.cvm/eval ctx
                               form)
         exception ($.cvm/exception ctx-2)]
@@ -96,11 +97,9 @@
 
   ""
 
-  [env ctx form]
+  [env form]
 
-  (eval-trx+ (assoc env
-                    :ctx
-                    ctx)
+  (eval-trx+ env
              (rest form)))
 
 
@@ -109,10 +108,9 @@
 
   ""
 
-  [env ctx form]
+  [env form]
 
   (let [env-2 (eval-form env
-                         ctx
                          (second form))]
     (*output* ($.cvm/result (env-2 :ctx)))
     env-2))
@@ -123,13 +121,24 @@
 
   ""
 
-  [env ctx form]
+  [env form]
 
   (let [cvm-sym (second form)]
     (eval-form env
-               ctx
                ($.code/def cvm-sym
-                           ($.cvm/log ctx)))))
+                           ($.cvm/log (env :ctx))))))
+
+
+
+(defn cvm-trx-map
+
+  ""
+
+  [env form]
+
+  (assoc env
+         :map-trx
+         (second form)))
 
 
 
@@ -137,9 +146,66 @@
 
   ""
 
-  [_env _ctx _form]
+  [_env _form]
 
   (error "CVM special command 'cvm.read' can only be used as first transaction"))
+
+
+
+
+(defn cvm-command
+
+  ""
+
+  [form]
+
+  (when ($.code/list? form)
+    (let [sym-string (str (first form))]
+      (when (clojure.string/starts-with? sym-string
+                                         "cvm.")
+        (case sym-string
+          "cvm.do"      cvm-do
+          "cvm.log"     cvm-log
+          "cvm.out"     cvm-out
+          "cvm.read"    cvm-read
+          "cvm.trx.map" cvm-trx-map
+          (error (str "Unknown CVM special command: "
+                      sym-string)))))))
+
+
+
+(defn inject-value+
+
+  ""
+
+  [env]
+
+  (update env
+          :ctx
+          (fn [ctx]
+            ($.cvm/eval ctx
+                        ($.code/do [($.code/def ($.code/symbol "*cvm.juice.last*")
+                                                ($.code/long (env :juice-last)))
+                                    ($.code/def ($.code/symbol "*cvm.trx.id*")
+                                                ($.code/long (env :i-trx)))])))))
+
+
+
+(defn expand
+
+  ""
+
+  [env form]
+
+  (let [ctx-2     ($.cvm/expand (env :ctx)
+                                form)
+        exception ($.cvm/exception ctx-2)]
+    (when exception
+      (error (str "Exception during expansion of: "
+                  form)))
+    (assoc env
+           :ctx
+           ctx-2)))
 
 
 
@@ -149,39 +215,23 @@
 
   [env form]
 
-  (let [ctx         (env :ctx)
-        ctx-2       ($.cvm/eval ctx
-                                ($.code/do [($.code/def ($.code/symbol "cvm.juice.last")
-                                                        ($.code/long (env :juice-last)))
-                                            ($.code/def ($.code/symbol "cvm.trx")
-                                                        ($.code/long (env :i-trx)))]))
-        ctx-3       ($.cvm/expand ctx-2
-                                  form)
-        exception   ($.cvm/exception ctx-3)]
-    (when exception
-      (error (str "Exception during expansion of: "
-                  form)))
-    (let [form-2 ($.cvm/result ctx-3)]
-      (if ($.code/list? form-2)
-        (let [sym-string (str (first form-2))]
-          (if (clojure.string/starts-with? sym-string
-                                           "cvm.")
-            (if-some [f (case sym-string
-                          "cvm.do"   cvm-do
-                          "cvm.log"  cvm-log
-                          "cvm.out"  cvm-out
-                          "cvm.read" cvm-read
-                          nil)]
-              (f env
-                 ctx-2
-                 form-2)
-              (error (str "Unknown CVM special command: "
-                          sym-string)))
-            (eval-form env
-                       ctx-2
-                       form-2)))
-        (eval-form env
-                   ctx-2
+  (let [env-2  (-> env
+                   inject-value+
+                   (expand form))
+        form-2 (-> env-2
+                   :ctx
+                   $.cvm/result)]
+    (if-some [f (cvm-command form-2)]
+      (f env-2
+         form-2)
+      (if-some [map-trx (env :map-trx)]
+        (-> env-2
+            (dissoc :map-trx)
+            (eval-trx ($.code/list [map-trx
+                                    form-2]))
+            (assoc :map-trx
+                   map-trx))
+        (eval-form env-2
                    form-2)))))
 
 
@@ -192,11 +242,7 @@
 
   [env form+]
 
-  (reduce (fn [env form]
-            (-> (eval-trx env
-                          form)
-                (update :ctx
-                        $.cvm/juice-refill)))
+  (reduce eval-trx
           env
           form+))
 
@@ -226,9 +272,8 @@
         env        (eval-trx+ {:ctx        ctx
                                :i-trx      0
                                :juice-last 0}
-                              (butlast form-2+))]
-    (-> (eval-trx env
-                  (last form-2+))
+                              form-2+)]
+    (-> env
         :ctx
         $.cvm/result
         *output*)))
