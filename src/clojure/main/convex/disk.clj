@@ -10,7 +10,8 @@
                             load
                             read])
   (:import (java.io File))
-  (:require [convex.cvm  :as $.cvm]
+  (:require [convex.code :as $.code]
+            [convex.cvm  :as $.cvm]
             [convex.sync :as $.sync]
             [hawk.core   :as watcher]))
 
@@ -21,34 +22,37 @@
 ;;;;;;;;;; Helpers
 
 
-(defn- -canonical-path+
-
-  ;; Maps `step+` so that each file path ends up in canonical representation.
-
-  [step+]
-
-  (map (fn [step]
-         (update step
-                 0
-                 (fn [^String path]
-                   (.getCanonicalPath (File. path)))))
-       step+))
-
-
-
 (defn- -env
 
   ;; Layer on top of [[$.sync/env]].
 
-  [step+ option+]
+  [sym->path option+]
 
-  (-> step+
-      -canonical-path+
-      ($.sync/env (update option+
-                          :read
-                          #(or %
-                               read)))
-      $.sync/load))
+  (let [input+        (reduce (fn [input+ [sym ^String path]]
+                                (conj input+
+                                      [(.getCanonicalPath (File. path))
+                                       ($.code/symbol (str sym))]))
+                              []
+                              sym->path)
+        path->cvm-sym (into {}
+                            input+)]
+    (-> ($.sync/env (fn [env path]
+                      ($.sync/update-code env
+                                          path
+                                          ($.code/def (path->cvm-sym path)
+                                                      ($.code/quote (try
+                                                                      (read path)
+                                                                      (catch Throwable err
+                                                                        (-> env
+                                                                            (assoc :error
+                                                                                   :input->error)
+                                                                            (assoc-in [:input->error
+                                                                                       path]
+                                                                                      err))))))))
+                    (mapv first
+                          input+)
+                    option+)
+        $.sync/load)))
 
 
 ;;;;;;;;;; Miscellaneous
@@ -100,20 +104,19 @@
    | `:path->error` | Map of `file path` -> `exception` |"
 
 
-  ([step+]
+  ([path->sym]
 
-   (load step+
+   (load path->sym
          nil))
 
 
-  ([step+ option+]
+  ([path->sym option+]
 
-   (let [env (-env step+
+   (let [env (-env path->sym
                    option+)]
      (if (env :error)
        env
        (-> env
-           $.sync/sync
            $.sync/exec)))))
 
 
@@ -152,18 +155,17 @@
      must be handled by the user."
 
 
-    ([step+]
+    ([sym->input]
 
-     (watch step+
+     (watch sym->input
             nil))
 
 
-    ([step+ option+]
+    ([sym->input option+]
 
      (let [*env     (atom nil)
-           env-2    (-> (-env step+
-                              option+)
-                        $.sync/sync)
+           env      (-env sym->input
+                          option+)
            watcher  (watcher/watch! [{:handler (fn [_ {:keys [^File file
                                                               kind]}]
                                                  (let [path (.getCanonicalPath file)]
@@ -175,7 +177,7 @@
                                                                       $.sync/reload)
                                                                     env
                                                                     path))))))
-                                      :paths   (keys (env-2 :input->i-step+))}])
+                                      :paths   (env :input+)}])
            ret      (reify
 
                       clojure.lang.IDeref
@@ -188,7 +190,7 @@
                         (close [_]
                           (watcher/stop! watcher)))]
        (reset! *env
-               (-> env-2
+               (-> env
                    (assoc :watcher
                           ret)
                    exec-))

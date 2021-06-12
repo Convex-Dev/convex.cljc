@@ -17,9 +17,8 @@
 
   {:author "Adam Helinski"}
 
-  (:refer-clojure :exclude [load
-                            sync])
-  (:require [convex.cvm :as $.cvm]))
+  (:refer-clojure :exclude [load])
+  (:require [convex.cvm  :as $.cvm]))
 
 
 (declare load)
@@ -42,82 +41,6 @@
             :error)))
 
 
-;;;;;;;;;; An input can be loaded in more than one step, hence there are `input` -> `step+` links
-
-
-(defn link
-
-  "Given steps, returns a map with:
-  
-   | Key | Value |
-   | `input->i-step+` | Map of `input` -> `vector with indices to reladed steps` |
-   | `step+` | Given argument but augmented, each step points back to its input |
-
-   This organization assumes that a given input can be used in more than one step (eg. loadinga file
-   more than once).
-  
-   Used by [[env]]."
-
-  [step+]
-
-  (reduce (fn [env [i-step [input step]]]
-            (-> env
-                (update-in [:input->i-step+
-                            input]
-                           (fnil conj
-                                 [])
-                          i-step)
-                (update :step+
-                        conj
-                        (assoc step
-                               :i     i-step
-                               :input input))))
-          {:input->i-step+ {}
-           :input->option+ {}
-           :step+          []}
-          (partition 2
-                     (interleave (range)
-                                 step+))))
-
-
-
-(defn sync
-
-  "When `code` is avaiable for an `input`, it is fed through the `:map` functions of all the
-   related steps.
-  
-   Meant to be used after [[load]] or [[reload]]."
-
-
-  ([env]
-
-   (reduce-kv sync
-              env
-              (env :input->code)))
-
-
-  ([env input code]
-
-   (update env
-           :step+
-           (fn [step+]
-             (reduce (fn [step-2+ i-step]
-                       (update step-2+
-                               i-step
-                              (fn [{:as      step
-                                    map-code :map}]
-                                 (assoc step
-                                        :code
-                                        (cond->
-                                          code
-                                          map-code
-                                          map-code)))))
-                     step+
-                     (get-in env
-                             [:input->i-step+
-                              input]))))))
-
-
 ;;;;;;;;;; Creating an execution environment
 
 
@@ -131,27 +54,44 @@
    Effectively loads all inputs using [[load]]. Commonly, [[synced]] is used after that step."
 
   
-  ([step+]
+  ([read input+]
 
-   (env step+
+   (env read
+        input+
         nil))
 
 
-  ([step+ option+]
+  ([read input+ option+]
 
-   (-> (link step+)
-       (assoc :after-run (or (:after-run option+)
-                             identity)
-              :eval      (or (:eval option+)
-                             $.cvm/eval)
-              :init-ctx  (or (:init-ctx option+)
-                             $.cvm/ctx)
-              :read      (or (:read option+)
-                             (throw (IllegalArgumentException. "Read function is mandatory"))))
+   (-> option+
+       (update :after-run
+               #(or %
+                    identity))
+       (update :eval
+               #(or %
+                    $.cvm/eval))
+       (update :init-ctx
+               #(or %
+                    $.cvm/ctx))
+       (assoc :input+ input+
+              :read   read)
        load)))
 
 
 ;;;;;;;;;; Reading source and handling change
+
+
+(defn update-code
+
+  ""
+
+  [env input code]
+
+  (assoc-in env
+            [:input->code
+             input]
+            code))
+
 
 
 (defn load
@@ -168,62 +108,45 @@
 
   ([env]
 
-   (reduce load
-           (assoc env
-                  :input->code  {}
-                  :input->error {})
-           (keys (env :input->i-step+))))
+   (reduce (env :read)
+           env
+           (env :input+)))
 
 
   ([env input]
 
-   (try
-     (assoc-in env
-               [:input->code
-                input]
-               ((env :read) input))
-     (catch Throwable err
-       (-> env
-           (assoc :error
-                  :input->error)
-           (assoc-in [:input->error
-                      input]
-                     err))))))
+   ((env :read)
+    env
+    input)))
+
+
+
+(defn- -update-input
+
+  ;;
+
+  [env input]
+
+  (-> env
+      (update :input->code
+              dissoc
+              input)
+      (update :input->error
+              dissoc
+              input)))
 
 
 
 (defn reload
 
-  "Reloads an input and run [[sync]] that that only input.
-  
-   Like [[load]], updates `:input->code` and `:input->error` as needed.
-
-   Runs the result through [[update-error]]."
+  ""
 
   [env input]
 
-  (try
-    (let [code ((env :read) input)]
-      (-> env
-          (assoc-in [:input->code
-                     input]
-                    code)
-          (update :input->error
-                  dissoc
-                  input)
-          (sync input
-                code)
-          update-error))
-    (catch Throwable err
-      (-> env
-          (assoc :error
-                 :input->error)
-          (update :input->code
-                  dissoc
-                  input)
-          (assoc-in [:input->error
-                     input]
-                    err)))))
+  (-> env
+      (-update-input input)
+      (load input)
+      update-error))
 
 
 
@@ -236,23 +159,7 @@
   [env input]
 
   (-> env
-      (update :step+
-              (fn [step+]
-                (reduce (fn [step-2+ i-step]
-                          (update step-2+
-                                  i-step
-                                  dissoc
-                                  :code))
-                        step+
-                        (get-in env
-                                [:input->i-step+
-                                 input]))))
-      (update :input->code
-              dissoc
-              input)
-      (update :input->error
-              dissoc
-              input)
+      (-update-input input)
       update-error))
 
 
@@ -269,28 +176,27 @@
     :keys [after-run
            eval
            init-ctx
-           step+]}]
+           input->code]}]
 
-  (try
-    (assoc env
-           :ctx
-           (after-run (reduce (fn [ctx step]
-                                (try
-                                  ((or (step :eval)
-                                       eval)
-                                   ctx
-                                   (step :code))
-                                  (catch Throwable err
-                                    (throw (ex-info "During evaluation"
-                                                    {::error :eval
-                                                     ::step  step}
-                                                    err)))))
-                              (init-ctx)
-                              (eduction (filter :code)
-                                        step+))))
-    (catch Throwable err
-      (-> env
-          (assoc :error      :error-eval
-                 :error-eval err)
-          (dissoc :ctx)
-          after-run))))
+  (let [eval-2 (or eval
+                   $.cvm/eval)]
+    (try
+      (assoc env
+             :ctx
+             (after-run (reduce-kv (fn [ctx input code]
+                                     (try
+                                       (eval-2 ctx
+                                               code)
+                                       (catch Throwable err
+                                         (throw (ex-info "During evaluation"
+                                                         {::error :eval
+                                                          ::input input}
+                                                         err)))))
+                                   (init-ctx)
+                                   input->code)))
+      (catch Throwable err
+        (-> env
+            (assoc :error      :error-eval
+                   :error-eval err)
+            (dissoc :ctx)
+            after-run)))))

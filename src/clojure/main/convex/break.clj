@@ -4,7 +4,7 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.code     :as $.code]
+  (:require [convex.clj.eval :as $.clj.eval]
             [convex.cvm      :as $.cvm]
             [convex.disk     :as $.disk]))
 
@@ -18,7 +18,12 @@
 
   []
 
-  (:ctx ($.disk/load [["src/convex/break/util.cvx"
-                       {:map (partial $.code/deploy
-                                      '$)}]]
-                     {:after-run $.cvm/juice-refill})))
+  (:ctx ($.disk/load {'$ "src/convex/break/util.cvx"}
+                     {:after-run (fn [ctx]
+                                   (-> ctx
+                                       ($.clj.eval/ctx '(def $
+                                                             (deploy $)))
+                                       $.cvm/juice-refill))})))
+
+
+($.clj.eval/alter-ctx-default (ctx))

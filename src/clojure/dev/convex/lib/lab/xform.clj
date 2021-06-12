@@ -6,9 +6,8 @@
    :clj-kondo/config '{:linters {:unused-namespace {:level :off}}}}
 
   (:require [clojure.pprint]
-            [convex.code     :as $.code]
-            [convex.cvm      :as $.cvm]
             [convex.clj.eval :as $.clj.eval]
+            [convex.cvm      :as $.cvm]
             [convex.disk     :as $.disk]
             [convex.clj      :as $.clj]))
 
@@ -20,13 +19,15 @@
 
 
   (def w*ctx
-       ($.disk/watch [["src/convex/lib/lab/xform/store.cvx"
-                      {:map (partial $.code/deploy
-                                     'store)}]
-
-                     ["src/convex/lib/lab/xform.cvx"
-                      {:map (partial $.code/deploy
-                                     'xform)}]]))
+       ($.disk/watch {'store "src/convex/lib/lab/xform/store.cvx"
+                      'xform "src/convex/lib/lab/xform.cvx"}
+                     {:after-run (fn [ctx]
+                                   ($.clj.eval/ctx ctx
+                                                   '(do
+                                                      (def store
+                                                           (deploy store))
+                                                      (def xform
+                                                           (deploy xform)))))}))
 
 
   ($.cvm/exception @w*ctx)
