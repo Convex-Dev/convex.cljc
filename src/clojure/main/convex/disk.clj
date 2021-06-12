@@ -35,34 +35,28 @@
 
 (defn load
 
-  "Loads the given `step+`, in order, where each step is a Convex Lisp file, and executes them one by one.
+  "Into the given `ctx` (or a newly created one if not provided), reads the given files and intern then as unevaluted code
+   under their respective symbols.
 
-   A step is a 2-tuple containing:
+   Returns a map which contains the prepared `:ctx` or an `:error` if something failed.
 
-   - Path to Convex Lisp file
-   - Optional map with:
-  
-   | Key | Optional? | Value | Default |
-   |---|---|---|---|
-   | `:eval` | True | Evaluating function which runs **code** for the target file (as a Convex object) | See `option+` |
-   | `:map` | True | Function **code from target file** -> **code** (as a Convex object) | `identity` |
+   This interned code can they be used as needed through the power of Lisp. Typically, either `deploy` or `eval` is used.
 
-   `option` is a map of options such as:
+   Eg. Reading a file and deploying as a library (without error checking):
    
-    | Key | Value | Default
-    |---|---|---|
-    | `:after-run` | Function **ctx** -> **ctx** run after all steps | `identity` |
-    | `:eval` | Evaluating function used when a step does not provide one | [[convex.cvm/eval]] |
-    | `:init-ctx` | No-arg function that creates the initial context prior to running through steps | `convex.cvm/ctx` |
-  
+   ```clojure
+   (-> (convex.disk/load {'my-lib \"./path/to/lib.cvx\"})
+       :ctx
+       (convex.clj.eval/ctx '(def my-lib
+                                  (deploy my-lib))))
+   ```
 
-   Returns a map which holds the resulting context under `:ctx`, unless an `:error` is present. This `:error` points to
-   a key in the returned valued that holds diagnostic information. Currently, could be one of:
+   An `:error` is a 2-tuple vector where the first item is a keyword indicating an error type and second item is information:
 
-   | Key | Value |
+   | Position 0 | Position 1 |
    |---|---|
-   | `:error-eval` | Exception that occured when evaluating a step |
-   | `:path->error` | Map of `file path` -> `exception` |"
+   | `:input->error` | Map of `file path` -> `Java exception occured during reading` |
+   | `eval` | Map with `:exception` (either Java or CVM exception) and `:input` (which input caused this evaluation error) |"
 
 
   ([sym->path]
@@ -103,20 +97,28 @@
 
 (defn watch
 
-  "Like [[load]] but watches the files and provides live-reloading.
+  "Exactly like [[load]] but live-reloads the given files on change.
 
-   Returns an object which can be deferenced to fork of a context that is always up-to-date.
+   After interning all files on a forked `ctx`, `on-run` is called with the same map as in [[load]].
 
-   Reifies `java.lang.AutoCloseable`, hence can be stopped with `.close`.
+   Returns an object which can be be `deref` to a fork of an always updated context.
 
-   In addition, `option+` can also contain:
+   Eg. Translating example in [[load]]:
 
-   | Key | Value | Default
-   |---|---|---|
-   | `:on-error` | Called in case of failure with the same value as returned from [[load]] in the same situation |
+   ```clojure
+   (def w*ctx
+        (convex.disk/load {'my-lib \"./path/to/lib.cvx\"}
+                          (fn [env]
+                            (update env
+                                    :ctx
+                                    convex.clj.eval/ctx
+                                    '(def my-lib
+                                          (deploy my-lib))))))
 
-   Exceptions are catched only during reading and evaluation. Errors resulting elsewhere (eg. during a step's`:map`)
-   must be handled by the user."
+   (deref w*ctx)
+
+   (.close w*ctx)
+   ```"
 
 
   ([sym->path on-run]
