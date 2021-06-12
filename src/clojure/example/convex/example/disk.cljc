@@ -16,32 +16,29 @@
 (comment
 
 
-  ;; Loading a vector of files (one in this example).
+  ;; Loading a file, binding the code to the given symbol and then deploying it as a library..
   ;;
-  ;; Code is wraped in `$.code/deploy` which deploys it under the given '$ symbol.
-  ;; If load was successful, `:ctx` contains the prepared context.
-
   (def ctx
-       (:ctx ($.disk/load [["src/convex/break/util.cvx"
-                            {:map (partial $.code/deploy
-                                           '$)}]])))
-
+       (-> ($.disk/load {'$ "src/convex/break/util.cvx"})
+           :ctx
+           ($.clj.eval/ctx '(def $
+                                 (deploy $)))))
 
 
   ($.clj.eval/result* ctx
                       $/foo)
 
 
-  ;; Watching a vector of files (still one in this example).
+  ;; Like previously example but live-reloads the file on change.
   ;;
-  ;; Everything a source file changes, it is being processed again.
-  ;; Derefencing the result forks and returns an up-to-date context.
-
   (def w*ctx
-       ($.disk/watch [["src/convex/break/util.cvx"
-                       {:map (partial $.code/deploy
-                                      '$)}]]
-                     {:on-error println}))
+       ($.disk/watch {'$ "src/convex/break/util.cvx"}
+                     (fn on-run [env]
+                       (update env
+                               :ctx
+                               $.clj.eval/ctx
+                               '(def $
+                                     (deploy $))))))
 
 
   ($.clj.eval/result* @w*ctx

@@ -150,7 +150,7 @@ intact and reusable at will.
 ($.cvm/fork base-ctx)
 
 
-;; All functions from `$.clj.eval` fork the given context by default
+;; All functions from `$.clj.eval` fork the given context by default, no need to do it manually
 ;;
 ($.clj.eval/result base-ctx
                    '(= 42
@@ -186,40 +186,47 @@ the following is possible:
 Writing Convex Lisp code as Clojure or in any programmatic way is convenient during development and testing. However, any non-trivial source should be written in proper
 `.cvx` files.
 
-Files can be loaded by using utilities from the `$.disk` namespace and providing a vector of paths:
+Files can be loaded by using utilities from the `$.disk` namespace and providing a map of `symbol` -> `file path`.
+
+Starting from a new context, each file is read and interned  under its related symbol as unevaluated code. Then, through the power of Lisp, this code can be handled exactly
+as needed. Often, `eval` or `deploy` are involved.
+
+Without error checking, `$.disk/load`:
 
 ```clojure
 (def ctx
-     (:ctx ($.disk/load [["path/to/lib.cvx"
-                          {:map (partial $.code/deploy
-                                         'lib)}]
-             
-                         ["path/to/exec.cvx"]])))
+     (-> ($.disk/load {'$ "src/convex/break/util.cvx"})
+         :ctx
+         ($.clj.eval/ctx '(def $
+                               (deploy $)))))
+
+
+($.clj.eval/result* ctx
+                    $/foo)
 ```
 
-The first path is an actor that we want to deploy and alias as `lib`. Hence, a `:map` argument is provided with a function that takes the Convex Lisp code parsed from the target
-file and wraps it in more code for that effect. The second path is simply executed directly.
-
-Loading produces a result map which holds the context under `:ctx`, unless there is an `:error`.
-
-A very similar interface can be used for watching files and live-reloading them on each change:
-
+Similarly, live-reloading with `$.disk/watch`:
 
 ```clojure
 (def w*ctx
-     ($.disk/watch [["path/to/lib.cvx"
-                     {:map (partial $.code/deploy
-                                    'lib)}]
-        
-                    ["path/to/exec.cvx"]]
+     ($.disk/watch {'$ "src/convex/break/util.cvx"}
+                   (fn on-run [env]
+                     (update env
+                             :ctx
+                             $.clj.eval/ctx
+                             '(def $
+                                   (deploy $))))))
 
-                   {:on-error println}))
 
+;; Dereferencing returns a fork of an always updated context
+;;
+($.clj.eval/result* @w*ctx
+                    $/foo)
 
-@w*ctx
+;; When done:
+;;
+(.close w*ctx)
 ```
-
-Dereferencing the result always returns a fork of an udpated context, or nil in case of error. When an error is fixed, live-reloading resumes.
 
 
 ## Testing Convex Lisp code
