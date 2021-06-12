@@ -85,11 +85,11 @@
                              ($.sync/assoc-err-read env
                                                     path
                                                     ex))))]
-     ($.sync/exec ctx
-                  ($.sync/load {:input+        (mapv first
+     ($.sync/eval ($.sync/load {:input+        (mapv first
                                                      input+)
                                 :path->cvm-sym path->cvm-sym
-                                :read          read-input})))))
+                                :read          read-input})
+                  ctx))))
 
 
 ;;;;;;;;;; Watching Convex Lisp files and syncing with a context
@@ -149,14 +149,14 @@
                                                           (if (identical? kind
                                                                           :delete)
                                                             env
-                                                            (->> ((if (identical? kind
-                                                                                  :delete)
-                                                                    $.sync/unload
-                                                                    $.sync/reload)
-                                                                  env
-                                                                  path)
-                                                                 ($.sync/exec ($.cvm/fork ctx))
-                                                                 on-run-2))))))
+                                                            (-> ((if (identical? kind
+                                                                                 :delete)
+                                                                   $.sync/unload
+                                                                   $.sync/reload)
+                                                                 env
+                                                                 path)
+                                                                ($.sync/eval ($.cvm/fork ctx))
+                                                                on-run-2))))))
                                     :paths   (env :input+)}])
          ret      (reify
 

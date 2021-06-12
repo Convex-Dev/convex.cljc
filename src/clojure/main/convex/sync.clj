@@ -9,13 +9,12 @@
 
   {:author "Adam Helinski"}
 
-  (:refer-clojure :exclude [load])
+  (:refer-clojure :exclude [eval
+                            load])
   (:require [convex.cvm  :as $.cvm]))
 
 
-(declare eval-form
-         exec
-         load
+(declare load
          unload)
 
 
@@ -126,11 +125,11 @@
 ;;;;;;;;;; Executing steps
 
 
-(defn exec
+(defn eval
 
   "Evaluates the code for all `:input+` in `env` on `ctx`, unless there is an `:error` attached."
 
-  [ctx env]
+  [env ctx]
 
   (if (env :error)
     env
