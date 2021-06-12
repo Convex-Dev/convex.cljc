@@ -93,11 +93,26 @@
 
   [env ctx form]
 
+  (println :out form)
   (let [env-2 (eval-form env
                          ctx
                          (second form))]
     (*output* ($.cvm/result (env-2 :ctx)))
     env-2))
+
+
+
+(defn cvm-log
+
+  ""
+
+  [env ctx form]
+
+  (let [cvm-sym (second form)]
+    (eval-form env
+               ctx
+               ($.code/def cvm-sym
+                           ($.cvm/log ctx)))))
 
 
 
@@ -128,6 +143,7 @@
         (if (clojure.string/starts-with? sym-string
                                          "cvm.")
           (if-some [f (case sym-string
+                        "cvm.log"  cvm-log
                         "cvm.out"  cvm-out
                         "cvm.read" cvm-read
                         nil)]

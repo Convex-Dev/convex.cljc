@@ -2,6 +2,10 @@
           [store "src/convex/lib/lab/xform/store.cvx"])
 
 
+;(cvm.inject.after (cvm.out [cvm.trx
+;                            *result*]))
+
+
 (def xform
      (deploy xform))
 
@@ -23,9 +27,13 @@
 
 (log :foo :bar)
 
-(cvm.out ^:ok [42 :b :c])
 
-(cvm.read)
+
+
+(cvm.log l)
+
+(cvm.out [:log l])
+
 
 cvm.juice.last
 
