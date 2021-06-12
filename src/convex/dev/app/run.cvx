@@ -30,7 +30,9 @@
 ^{:tag :foo} 42
 
 
-44
+(cvm.trx.map nil)
+
+[:a :foo]
 
 ;(xform/transduce (xform/comp (xform/filter (fn [item]
 ;                                             (contains-key? (tag+ item)

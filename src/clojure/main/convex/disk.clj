@@ -44,9 +44,10 @@
 
   (-> step+
       -canonical-path+
-      ($.sync/env (assoc option+
-                         :read
-                         read))
+      ($.sync/env (update option+
+                          :read
+                          #(or %
+                               read)))
       $.sync/load))
 
 

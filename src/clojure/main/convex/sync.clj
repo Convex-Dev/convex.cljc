@@ -73,6 +73,7 @@
                                :i     i-step
                                :input input))))
           {:input->i-step+ {}
+           :input->option+ {}
            :step+          []}
           (partition 2
                      (interleave (range)

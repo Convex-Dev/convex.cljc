@@ -18,6 +18,17 @@
 ;;;;;;;;;; MIscellaneous
 
 
+(defn read?
+
+  ""
+
+  [form]
+
+  ($.code/call? form
+                ($.code/symbol "cvm.read")))
+
+
+
 (def ctx-base
 
   ""
@@ -257,8 +268,7 @@
   (let [form+      ($.cvm/read-many src)
         form-first (first form+)
         [ctx
-         form-2+]  (if ($.code/call? form-first
-                                     ($.code/symbol "cvm.read"))
+         form-2+]  (if (read? form-first)
                      [(:ctx ($.disk/load (map (fn [x]
                                                 [(str (second x))
                                                  {:map (fn [code]
@@ -305,6 +315,52 @@
         option+))
 
 
+;;;;;;;;;; Watch files
+
+
+(defn cmd-watch
+
+  ""
+
+  [arg+ _option+]
+
+  (let [path       (first arg+)
+        form+      ($.cvm/read-many (slurp path))
+        form-first (first form+)
+        dep+       (when (read? form-first)
+                     (mapv (fn [x]
+                             [(str (second x))
+                              {:map (fn [form+]
+                                      ($.code/def (first x)
+                                                  ($.code/quote ($.code/do form+))))}])
+                           (rest form-first)))
+        ]
+    ($.disk/watch (conj dep+
+                        [path
+                         {:eval (fn [ctx form+]
+                                  (println :form+ (mapv str (cond->
+                                                   form+
+                                                   (read? (first form+))
+                                                   rest)))
+                                  (-> {:ctx        ctx
+                                       :i-trx      0
+                                       :juice-last 0}
+                                      (eval-trx+ (cond->
+                                                   form+
+                                                   (read? (first form+))
+                                                   rest))
+                                      :ctx))}])
+                  {:after-run (fn [ctx]
+                                (-> ctx
+                                    $.cvm/result
+                                    *output*))
+                   :init-ctx  ctx-init
+                   :on-error  println
+                   :read      (fn [path]
+                                ($.cvm/read-many (slurp path)))
+                   })))
+
+
 ;;;;;;;;;; Main command
 
 
@@ -339,8 +395,9 @@
                                                             cli-option+)
           command             (first arg+)
           f                   (case command
-                               "eval" cmd-eval
-                               "load" cmd-load
+                               "eval"  cmd-eval
+                               "load"  cmd-load
+                               "watch" cmd-watch
                                nil)]
       (if f
         (f (rest arg+)
@@ -373,5 +430,11 @@
   (-main "load"
          "src/convex/dev/app/run.cvx")
 
+  (.close x)
+  (def x
+       (-main "watch"
+              "src/convex/dev/app/run.cvx"))
+
+  (deref x)
 
   )

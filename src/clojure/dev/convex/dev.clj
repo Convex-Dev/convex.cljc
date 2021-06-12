@@ -71,11 +71,8 @@
 
   ($.cvm/exception ctx)
 
- (let [c ($.clj.eval/ctx* ctx
-                      $/foo2)]
-   (-> c
-       $.cvm/juice-refill 
-       $.cvm/exception))
+  ($.clj.eval/result* ctx
+                      $/foo)
 
 
 
