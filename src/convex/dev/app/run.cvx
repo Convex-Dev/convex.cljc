@@ -2,9 +2,6 @@
           [store "src/convex/lib/lab/xform/store.cvx"])
 
 
-;(cvm.inject.after (cvm.out [cvm.trx
-;                            *result*]))
-
 
 (def xform
      (deploy xform))
@@ -14,26 +11,35 @@
 
 
 
+(defmacro macro-out
 
+  [x]
 
-(xform/transduce (xform/comp (xform/filter (fn [item]
-                                             (contains-key? (tag+ item)
-                                                            :fruit))))
-                 conj
-                 []
-                 inventory)
-
-
-
-(log :foo :bar)
+  `(cvm.out [:test ~x]))
 
 
 
 
-(cvm.log l)
 
-(cvm.out [:log l])
+(macro-out :yes!)
 
 
-cvm.juice.last
+42
 
+;(xform/transduce (xform/comp (xform/filter (fn [item]
+;                                             (contains-key? (tag+ item)
+;                                                            :fruit))))
+;                 conj
+;                 []
+;                 inventory)
+
+
+
+; (log :foo :bar)
+; 
+; (cvm.log l)
+; 
+; (cvm.out [:log l])
+
+
+;cvm.juice.last

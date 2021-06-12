@@ -93,7 +93,6 @@
 
   [env ctx form]
 
-  (println :out form)
   (let [env-2 (eval-form env
                          ctx
                          (second form))]
@@ -137,27 +136,34 @@
                                 ($.code/do [($.code/def ($.code/symbol "cvm.juice.last")
                                                         ($.code/long (env :juice-last)))
                                             ($.code/def ($.code/symbol "cvm.trx")
-                                                        ($.code/long i-trx))]))]
-    (if ($.code/list? form)
-      (let [sym-string (str (first form))]
-        (if (clojure.string/starts-with? sym-string
-                                         "cvm.")
-          (if-some [f (case sym-string
-                        "cvm.log"  cvm-log
-                        "cvm.out"  cvm-out
-                        "cvm.read" cvm-read
-                        nil)]
-            (f env
-               ctx-2
-               form)
-            (error (str "Unknown CVM special command: "
-                        sym-string)))
-          (eval-form env
-                     ctx-2
-                     form)))
-      (eval-form env
+                                                        ($.code/long i-trx))]))
+        ctx-3       ($.cvm/expand ctx-2
+                                  form)
+        exception   ($.cvm/exception ctx-3)]
+    (when exception
+      (error (str "Exception during expansion of: "
+                  form)))
+    (let [form-2 ($.cvm/result ctx-3)]
+      (if ($.code/list? form-2)
+        (let [sym-string (str (first form-2))]
+          (if (clojure.string/starts-with? sym-string
+                                           "cvm.")
+            (if-some [f (case sym-string
+                          "cvm.log"  cvm-log
+                          "cvm.out"  cvm-out
+                          "cvm.read" cvm-read
+                          nil)]
+              (f env
                  ctx-2
-                 form))))
+                 form-2)
+              (error (str "Unknown CVM special command: "
+                          sym-string)))
+            (eval-form env
+                       ctx-2
+                       form-2)))
+        (eval-form env
+                   ctx-2
+                   form-2)))))
 
 
 
