@@ -67,11 +67,11 @@
 
   ([sym->path]
 
-   (load sym->path
-         nil))
+   (load ($.cvm/ctx)
+         sym->path))
 
 
-  ([sym->path option+]
+  ([ctx sym->path]
 
    (let [input+        (reduce (fn [input+ [sym ^String path]]
                                  (conj input+
@@ -80,24 +80,22 @@
                                []
                                sym->path)
          path->cvm-sym (into {}
-                             input+)]
-     (-> ($.sync/env (fn [env path]
-                       (try
-                         ($.sync/assoc-code env
-                                            path
-                                            ($.code/def (path->cvm-sym path)
-                                                        ($.code/quote (read path))))
-                         (catch Throwable ex
-                           ($.sync/assoc-err-read env
-                                                  path
-                                                  ex))))
-                     (mapv first
-                           input+)
-                     (assoc option+
-                            :path->cvm-sym
-                            path->cvm-sym))
-         $.sync/load
-         $.sync/exec))))
+                             input+)
+         read-input    (fn [env path]
+                         (try
+                           ($.sync/assoc-code env
+                                              path
+                                              ($.code/def (path->cvm-sym path)
+                                                          ($.code/quote (read path))))
+                           (catch Throwable ex
+                             ($.sync/assoc-err-read env
+                                                    path
+                                                    ex))))]
+     ($.sync/exec ctx
+                  ($.sync/load {:input+        (mapv first
+                                                     input+)
+                                :path->cvm-sym path->cvm-sym
+                                :read          read-input})))))
 
 
 ;;;;;;;;;; Watching Convex Lisp files and syncing with a context
@@ -123,12 +121,12 @@
 
   ([sym->path on-run]
 
-   (watch sym->path
-          on-run
-          nil))
+   (watch ($.cvm/ctx)
+          sym->path
+          on-run))
 
 
-  ([sym->path on-run option+]
+  ([ctx sym->path on-run]
 
    (let [on-run-2 (fn [env]
                     (try
@@ -137,8 +135,8 @@
                         (dissoc env
                                 :ctx))))
          *env     (atom nil)
-         env      (-> (load sym->path
-                            option+)
+         env      (-> (load ($.cvm/fork ctx)
+                            sym->path)
                       on-run-2)
          watcher  (watcher/watch! [{:handler (fn [_ {:keys [^File file
                                                             kind]}]
@@ -149,14 +147,14 @@
                                                           (if (identical? kind
                                                                           :delete)
                                                             env
-                                                            (-> ((if (identical? kind
-                                                                                 :delete)
-                                                                   $.sync/unload
-                                                                   $.sync/reload)
-                                                                 env
-                                                                 path)
-                                                                $.sync/exec
-                                                                on-run-2))))))
+                                                            (->> ((if (identical? kind
+                                                                                  :delete)
+                                                                    $.sync/unload
+                                                                    $.sync/reload)
+                                                                  env
+                                                                  path)
+                                                                 ($.sync/exec ($.cvm/fork ctx))
+                                                                 on-run-2))))))
                                     :paths   (env :input+)}])
          ret      (reify
 

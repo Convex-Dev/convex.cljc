@@ -50,12 +50,6 @@
   ([read input+ option+]
 
    (-> option+
-       (update :after-run
-               #(or %
-                    identity))
-       (update :init-ctx
-               #(or %
-                    $.cvm/ctx))
        (assoc :input+ input+
               :read   read)
        load)))
@@ -173,7 +167,7 @@
   
    Resulting context is attached under `:ctx` unless an error occurs and figures under `:error`."
 
-  [env]
+  [ctx env]
 
   (if (env :error)
     env
@@ -194,5 +188,5 @@
                                  (dissoc :ctx)))))))
             (assoc env
                    :ctx
-                   ((env :init-ctx)))
+                   ctx)
             (env :input+))))
