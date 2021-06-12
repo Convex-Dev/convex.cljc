@@ -68,7 +68,9 @@
 
   "Duplicates the given [[ctx]] (very cheap).
 
-   Any operation on the returned copy has no impact on the original context."
+   Any operation on the returned copy has no impact on the original context.
+  
+   Attention, forking a `ctx` looses any attached result or exception."
 
   ^Context [^Context ctx]
 

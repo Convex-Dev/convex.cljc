@@ -44,13 +44,25 @@
 
 
 
-(defn cvm-print
+(defn print-code
 
   ""
 
-  [cvm-object]
+  [code]
 
-  (println (str cvm-object)))
+  (-> code
+      str
+      println))
+
+
+
+(defn ^:dynamic *output*
+
+  ""
+
+  [x]
+
+  (print-code x))
 
 
 
@@ -88,7 +100,7 @@
     (-> ($.cvm/eval ctx-2
                     (last form-2+))
         $.cvm/result
-        cvm-print)))
+        *output*)))
 
 
 ;;;;;;;;;; Eval
@@ -126,8 +138,7 @@
 
   [err]
 
-  (println :Exception
-           err))
+  (*output* [:exception.java err]))
 
 
 
@@ -165,7 +176,7 @@
       (let [data (ex-data err)]
         (if (::error? data)
           (do
-            (println (.getMessage err))
+            (*output* [:error (.getMessage err)])
             ;(System/exit 42)
             )
           (handle-exception err))))

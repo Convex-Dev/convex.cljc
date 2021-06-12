@@ -65,20 +65,21 @@
   (def ctx
        (:ctx ($.disk/load [["src/convex/break/util.cvx"
                             {:map (partial $.code/deploy
-                                           '$)}]
-
-                           ['(def bar 100)]])))
+                                           '$)}]])))
 
 
 
   ($.cvm/exception ctx)
 
-  ($.clj.eval/result* ctx
-                      $/foo)
+ (let [c ($.clj.eval/ctx* ctx
+                      $/foo2)]
+   (-> c
+       $.cvm/juice-refill 
+       $.cvm/exception))
 
 
 
-  ($.cvm/read-many "#42/foo")
+  ($.cvm/read-many "[]")
 
 
 
