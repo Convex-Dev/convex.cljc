@@ -6,9 +6,8 @@
 
   (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
-            [convex.code                   :as $.code]
-            [convex.cvm                    :as $.cvm]
             [convex.clj.eval               :as $.clj.eval]
+            [convex.cvm                    :as $.cvm]
             [convex.disk                   :as $.disk]
             [convex.clj.gen                :as $.clj.gen]
             [helins.mprop                  :as mprop]))
@@ -21,15 +20,16 @@
 
   "Base context for this namespace."
 
-  (:ctx ($.disk/load [["src/convex/break/util.cvx"
-                       {:map (partial $.code/deploy
-                                      '$)}]
-
-                      ["src/convex/lib/trust.cvx"
-                       {:map (partial $.code/deploy
-                                      'trust)}]]
-
-                     {:after-run $.cvm/juice-refill})))
+  (:ctx ($.disk/load {'$     "src/convex/break/util.cvx"
+                      'trust "src/convex/lib/trust.cvx"}
+                     {:after-run (fn [ctx]
+                                   (-> ctx
+                                       ($.clj.eval/ctx '(do
+                                                          (def $
+                                                               (deploy $))
+                                                          (def trust
+                                                               (deploy trust))))
+                                       $.cvm/juice-refill))})))
 
 
 ;;;;;;;;;; Suites

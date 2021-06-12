@@ -7,6 +7,7 @@
   (:import convex.core.Constants)
   (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
+            [convex.break]
             [convex.break.gen              :as $.break.gen]
             [convex.cvm                    :as $.cvm]
             [convex.clj.eval               :as $.clj.eval]

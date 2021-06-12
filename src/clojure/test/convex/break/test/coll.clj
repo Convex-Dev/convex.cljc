@@ -14,6 +14,7 @@
 
   (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
+            [convex.break]
             [convex.clj.eval               :as $.clj.eval]
             [convex.break.gen              :as $.break.gen]
             [convex.clj                    :as $.clj]

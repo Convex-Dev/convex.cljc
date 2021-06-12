@@ -5,6 +5,7 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.test.check.properties :as TC.prop]
+            [convex.break]
             [convex.clj.eval               :as $.clj.eval]
             [convex.clj.gen                :as $.clj.gen]
             [helins.mprop                  :as mprop]))

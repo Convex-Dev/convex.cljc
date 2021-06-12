@@ -19,7 +19,7 @@
 (declare result)
 
 
-;;;;;;;;;;
+;;;;;;;;;; Default context
 
 
 (def ^:dynamic *ctx-default*
@@ -35,14 +35,18 @@
    $ env CVM_CTX='convex.cvm/ctx'  clojure ...
    ```"
 
-  (when-some [ctx-string (not-empty (System/getenv "CVM_CTX"))]
-    (try
-      ((requiring-resolve (symbol ctx-string)))
-      (catch Throwable e
-        (throw (ex-info (str "While trying to produce a default CVM context with: "
-                             ctx-string)
-                        {::env ctx-string}
-                        e))))))
+  nil)
+
+
+
+(defn alter-ctx-default
+
+  ""
+
+  [ctx]
+
+  (alter-var-root #'*ctx-default*
+                  (constantly ctx)))
 
 
 ;;;;;;;;;;

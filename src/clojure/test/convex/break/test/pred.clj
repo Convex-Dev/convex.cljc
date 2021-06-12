@@ -9,6 +9,7 @@
   (:require [clojure.test                  :as t]
             [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
+            [convex.break]
             [convex.clj.eval               :as $.clj.eval]
             [convex.clj                    :as $.clj]
             [convex.clj.gen                :as $.clj.gen]
