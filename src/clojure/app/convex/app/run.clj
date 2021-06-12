@@ -11,7 +11,26 @@
             [convex.disk        :as $.disk]))
 
 
-;;;;;;;;;; Helpers
+;;;;;;;;;; MIscellaneous
+
+
+(def ctx-base
+
+  ""
+
+  ($.cvm/juice-refill ($.cvm/ctx)))
+
+
+
+(defn ctx-init
+
+  ""
+
+  []
+
+  ($.cvm/fork ctx-base))
+
+
 
 
 (defn error
@@ -41,22 +60,33 @@
 
   [src _option+]
 
-  (let [form+     ($.cvm/read-many src)
-        form-1    (first form+)
+  (let [form+      ($.cvm/read-many src)
+        form-first (first form+)
         [ctx
-         form-2+] (if ($.code/call? form-1
-                                    ($.code/symbol ".read"))
-                    [(:ctx ($.disk/load (map (fn [x]
-                                               [(str (second x))
-                                                {:map (fn [code]
-                                                        ($.code/def (first x)
-                                                                    ($.code/quote code)))}])
-                                             (rest form-1))))
-                     (rest form+)]
-                    [($.cvm/ctx)
-                     form+])]
-    (-> ($.cvm/eval ctx
-                    ($.code/do form-2+))
+         form-2+]  (if ($.code/call? form-first
+                                     ($.code/symbol "cvm.read"))
+                     [(:ctx ($.disk/load (map (fn [x]
+                                                [(str (second x))
+                                                 {:map (fn [code]
+                                                         ($.code/def (first x)
+                                                                     ($.code/quote code)))}])
+                                              (rest form-first))
+                                         {:init-ctx ctx-init}))
+                      (rest form+)]
+                     [(ctx-init)
+                      form+])
+        ctx-2       (reduce (fn [ctx-2 form]
+                              (let [ctx-3     ($.cvm/eval ctx-2
+                                                          form)
+                                    exception ($.cvm/exception ctx-3)]
+                                (if exception
+                                  (error (str "Exception during transaction: "
+                                              exception))
+                                  ($.cvm/juice-refill ctx-3))))
+                            ctx
+                            (butlast form-2+))]
+    (-> ($.cvm/eval ctx-2
+                    (last form-2+))
         $.cvm/result
         cvm-print)))
 
