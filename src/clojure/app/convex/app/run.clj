@@ -269,13 +269,12 @@
         form-first (first form+)
         [ctx
          form-2+]  (if (read? form-first)
-                     [(:ctx ($.disk/load (map (fn [x]
-                                                [(str (second x))
-                                                 {:map (fn [code]
-                                                         ($.code/def (first x)
-                                                                     ($.code/quote code)))}])
-                                              (rest form-first))
-                                         {:init-ctx ctx-init}))
+                     [(-> ($.disk/load (ctx-init)
+                                       (mapv (fn [x]
+                                              [(str (first x))
+                                               (str (second x))])
+                                            (second form-first)))
+                          :ctx)
                       (rest form+)]
                      [(ctx-init)
                       form+])

@@ -1,5 +1,5 @@
-(cvm.read [xform "src/convex/lib/lab/xform.cvx"]
-          [store "src/convex/lib/lab/xform/store.cvx"])
+(cvm.read {xform "src/convex/lib/lab/xform.cvx"
+           store "src/convex/lib/lab/xform/store.cvx"})
 
 
 
@@ -32,7 +32,7 @@
 
 (cvm.trx.map nil)
 
-[:a :foo]
+[:a :bar]
 
 ;(xform/transduce (xform/comp (xform/filter (fn [item]
 ;                                             (contains-key? (tag+ item)
