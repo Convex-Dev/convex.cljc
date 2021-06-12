@@ -16,45 +16,6 @@
             [hawk.core   :as watcher]))
 
 
-(declare read)
-
-
-;;;;;;;;;; Helpers
-
-
-(defn- -env
-
-  ;; Layer on top of [[$.sync/env]].
-
-  [sym->path option+]
-
-  (let [input+        (reduce (fn [input+ [sym ^String path]]
-                                (conj input+
-                                      [(.getCanonicalPath (File. path))
-                                       ($.code/symbol (str sym))]))
-                              []
-                              sym->path)
-        path->cvm-sym (into {}
-                            input+)]
-    (-> ($.sync/env (fn [env path]
-                      ($.sync/update-code env
-                                          path
-                                          ($.code/def (path->cvm-sym path)
-                                                      ($.code/quote (try
-                                                                      (read path)
-                                                                      (catch Throwable err
-                                                                        (-> env
-                                                                            (assoc :error
-                                                                                   :input->error)
-                                                                            (assoc-in [:input->error
-                                                                                       path]
-                                                                                      err))))))))
-                    (mapv first
-                          input+)
-                    option+)
-        $.sync/load)))
-
-
 ;;;;;;;;;; Miscellaneous
 
 
@@ -104,94 +65,114 @@
    | `:path->error` | Map of `file path` -> `exception` |"
 
 
-  ([path->sym]
+  ([sym->path]
 
-   (load path->sym
+   (load sym->path
          nil))
 
 
-  ([path->sym option+]
+  ([sym->path option+]
 
-   (let [env (-env path->sym
-                   option+)]
-     (if (env :error)
-       env
-       (-> env
-           $.sync/exec)))))
+   (let [input+        (reduce (fn [input+ [sym ^String path]]
+                                 (conj input+
+                                       [(.getCanonicalPath (File. path))
+                                        ($.code/symbol (str sym))]))
+                               []
+                               sym->path)
+         path->cvm-sym (into {}
+                             input+)]
+     (-> ($.sync/env (fn [env path]
+                       (try
+                         ($.sync/assoc-code env
+                                            path
+                                            ($.code/def (path->cvm-sym path)
+                                                        ($.code/quote (read path))))
+                         (catch Throwable ex
+                           ($.sync/assoc-err-read env
+                                                  path
+                                                  ex))))
+                     (mapv first
+                           input+)
+                     (assoc option+
+                            :path->cvm-sym
+                            path->cvm-sym))
+         $.sync/load
+         $.sync/exec))))
 
 
 ;;;;;;;;;; Watching Convex Lisp files and syncing with a context
 
 
-(let [err-  (fn [env]
-              (when (env :error)
-                (let [env-2 (dissoc env
-                                    :ctx)
-                      f     (:on-error env)]
-                  (when f
-                    (f env-2))
-                  env-2)))
-      exec- (fn [env]
-              (or (err- env)
-                  (let [env-2 ($.sync/exec env)]
-                    (or (err- env-2)
-                        env-2))))]
+(defn watch
 
-  (defn watch
+  "Like [[load]] but watches the files and provides live-reloading.
 
-    "Like [[load]] but watches the files and provides live-reloading.
+   Returns an object which can be deferenced to fork of a context that is always up-to-date.
 
-     Returns an object which can be deferenced to fork of a context that is always up-to-date.
+   Reifies `java.lang.AutoCloseable`, hence can be stopped with `.close`.
 
-     Reifies `java.lang.AutoCloseable`, hence can be stopped with `.close`.
+   In addition, `option+` can also contain:
 
-     In addition, `option+` can also contain:
+   | Key | Value | Default
+   |---|---|---|
+   | `:on-error` | Called in case of failure with the same value as returned from [[load]] in the same situation |
 
-     | Key | Value | Default
-     |---|---|---|
-     | `:on-error` | Called in case of failure with the same value as returned from [[load]] in the same situation |
-
-     Exceptions are catched only during reading and evaluation. Errors resulting elsewhere (eg. during a step's`:map`)
-     must be handled by the user."
+   Exceptions are catched only during reading and evaluation. Errors resulting elsewhere (eg. during a step's`:map`)
+   must be handled by the user."
 
 
-    ([sym->input]
+  ([sym->path on-run]
 
-     (watch sym->input
-            nil))
+   (watch sym->path
+          on-run
+          nil))
 
 
-    ([sym->input option+]
+  ([sym->path on-run option+]
 
-     (let [*env     (atom nil)
-           env      (-env sym->input
-                          option+)
-           watcher  (watcher/watch! [{:handler (fn [_ {:keys [^File file
-                                                              kind]}]
-                                                 (let [path (.getCanonicalPath file)]
-                                                   (swap! *env
-                                                          (fn [env]
-                                                            (exec- ((if (identical? kind
-                                                                                    :delete)
-                                                                      $.sync/unload
-                                                                      $.sync/reload)
-                                                                    env
-                                                                    path))))))
-                                      :paths   (env :input+)}])
-           ret      (reify
+   (let [on-run-2 (fn [env]
+                    (try
+                      (on-run env)
+                      (catch Throwable _err
+                        (dissoc env
+                                :ctx))))
+         *env     (atom nil)
+         env      (-> (load sym->path
+                            option+)
+                      on-run-2)
+         watcher  (watcher/watch! [{:handler (fn [_ {:keys [^File file
+                                                            kind]}]
+                                               (let [path (.getCanonicalPath file)]
+                                                 (swap! *env
+                                                        (fn [env]
+                                                          ;; TODO. Some editors save by deleting the original copy...
+                                                          (if (identical? kind
+                                                                          :delete)
+                                                            env
+                                                            (-> ((if (identical? kind
+                                                                                 :delete)
+                                                                   $.sync/unload
+                                                                   $.sync/reload)
+                                                                 env
+                                                                 path)
+                                                                $.sync/exec
+                                                                on-run-2))))))
+                                    :paths   (env :input+)}])
+         ret      (reify
 
-                      clojure.lang.IDeref
-                
-                        (deref [_]
-                          (@*env :ctx))
-                
-                      java.lang.AutoCloseable
-                
-                        (close [_]
-                          (watcher/stop! watcher)))]
-       (reset! *env
-               (-> env
-                   (assoc :watcher
-                          ret)
-                   exec-))
-       ret))))
+                    clojure.lang.IDeref
+              
+                      (deref [_]
+                        (some-> (@*env :ctx)
+                                $.cvm/fork))
+              
+                    java.lang.AutoCloseable
+              
+                      (close [_]
+                        (watcher/stop! watcher)))]
+
+     (reset! *env
+             (assoc env
+                    :watcher
+                    watcher))
+     ret)))

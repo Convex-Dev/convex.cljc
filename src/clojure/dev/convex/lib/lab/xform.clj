@@ -21,13 +21,15 @@
   (def w*ctx
        ($.disk/watch {'store "src/convex/lib/lab/xform/store.cvx"
                       'xform "src/convex/lib/lab/xform.cvx"}
-                     {:after-run (fn [ctx]
-                                   ($.clj.eval/ctx ctx
-                                                   '(do
-                                                      (def store
-                                                           (deploy store))
-                                                      (def xform
-                                                           (deploy xform)))))}))
+                     (fn [env]
+                       (update env
+                               :ctx
+                               $.clj.eval/ctx
+                               '(do
+                                  (def store
+                                       (deploy store))
+                                  (def xform
+                                       (deploy xform)))))))
 
 
   ($.cvm/exception @w*ctx)

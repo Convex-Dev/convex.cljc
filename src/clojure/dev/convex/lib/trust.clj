@@ -19,9 +19,13 @@
 
 
   (def w*ctx
-       ($.disk/watch [["src/convex/lib/trust.cvx"
-                      {:map (partial $.code/deploy
-                                     '$)}]]))
+       ($.disk/watch {'trust "src/convex/lib/trust.cvx"}
+                     (fn [env]
+                       (update env
+                               :ctx
+                               $.clj.eval/ctx
+                               '(def trust
+                                     (deploy trust))))))
 
   ($.cvm/exception @w*ctx)
 
@@ -31,19 +35,19 @@
 
   ($.clj.eval/result @w*ctx
                      '(do
-                        (let [addr (deploy ($/build-whitelist {:whitelist [42]}))]
-                          [($/trusted? addr
-                                       42)
-                           ($/trusted? addr
-                                       100)])))
+                        (let [addr (deploy (trust/build-whitelist {:whitelist [42]}))]
+                          [(trust/trusted? addr
+                                           42)
+                           (trust/trusted? addr
+                                           100)])))
 
 
   ($.clj.eval/result @w*ctx
                      '(do
-                        (let [addr (deploy ($/add-trusted-upgrade nil))]
+                        (let [addr (deploy (trust/add-trusted-upgrade nil))]
                           (call addr
                                 (upgrade '(def foo 42)))
                           (lookup addr
-                                  'foo))))
+                                  foo))))
 
   )

@@ -18,12 +18,11 @@
 
   []
 
-  (:ctx ($.disk/load {'$ "src/convex/break/util.cvx"}
-                     {:after-run (fn [ctx]
-                                   (-> ctx
-                                       ($.clj.eval/ctx '(def $
-                                                             (deploy $)))
-                                       $.cvm/juice-refill))})))
+  (-> ($.disk/load {'$ "src/convex/break/util.cvx"})
+      :ctx
+      ($.clj.eval/ctx '(def $
+                            (deploy $)))
+      $.cvm/juice-refill))
 
 
 ($.clj.eval/alter-ctx-default (ctx))

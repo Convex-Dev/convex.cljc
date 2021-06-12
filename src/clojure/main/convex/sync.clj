@@ -21,24 +21,10 @@
   (:require [convex.cvm  :as $.cvm]))
 
 
-(declare load)
-
-
-;;;;;;;;;; Helpers
-
-
-(defn update-error
-
-  "Points to a `:input->error` if needed."
-
-  [env]
-
-  (if (seq (env :input->error))
-    (assoc env
-           :error
-           :input->error)
-    (dissoc env
-            :error)))
+(declare eval-form
+         exec
+         load
+         unload)
 
 
 ;;;;;;;;;; Creating an execution environment
@@ -67,9 +53,6 @@
        (update :after-run
                #(or %
                     identity))
-       (update :eval
-               #(or %
-                    $.cvm/eval))
        (update :init-ctx
                #(or %
                     $.cvm/ctx))
@@ -81,7 +64,7 @@
 ;;;;;;;;;; Reading source and handling change
 
 
-(defn update-code
+(defn assoc-code
 
   ""
 
@@ -91,6 +74,27 @@
             [:input->code
              input]
             code))
+
+
+
+(defn assoc-err-read
+
+  ""
+
+  [env input err]
+
+  (update env
+          :error
+          (fn [error]
+            (if (identical? (first error)
+                            :input->error)
+              (update error
+                      1
+                      assoc
+                      input
+                      err)
+              [:input->error
+               {input err}]))))
 
 
 
@@ -121,22 +125,6 @@
 
 
 
-(defn- -update-input
-
-  ;;
-
-  [env input]
-
-  (-> env
-      (update :input->code
-              dissoc
-              input)
-      (update :input->error
-              dissoc
-              input)))
-
-
-
 (defn reload
 
   ""
@@ -144,9 +132,8 @@
   [env input]
 
   (-> env
-      (-update-input input)
-      (load input)
-      update-error))
+      (unload input)
+      (load input)))
 
 
 
@@ -158,9 +145,23 @@
 
   [env input]
 
-  (-> env
-      (-update-input input)
-      update-error))
+  (-> (let [error (env :error)]
+        (if (and error
+                 (identical? (first error)
+                             :input->error))
+          (let [input->error-2 (dissoc (second error)
+                                       input)]
+            (if (seq input->error-2)
+              (assoc env
+                     :error
+                     [:input->error
+                      input->error-2])
+              (dissoc env
+                      :error)))
+          env))
+      (update :input->code
+              dissoc
+              input)))
 
 
 ;;;;;;;;;; Executing steps
@@ -172,31 +173,26 @@
   
    Resulting context is attached under `:ctx` unless an error occurs and figures under `:error`."
 
-  [{:as   env
-    :keys [after-run
-           eval
-           init-ctx
-           input->code]}]
+  [env]
 
-  (let [eval-2 (or eval
-                   $.cvm/eval)]
-    (try
-      (assoc env
-             :ctx
-             (after-run (reduce-kv (fn [ctx input code]
-                                     (try
-                                       (eval-2 ctx
-                                               code)
-                                       (catch Throwable err
-                                         (throw (ex-info "During evaluation"
-                                                         {::error :eval
-                                                          ::input input}
-                                                         err)))))
-                                   (init-ctx)
-                                   input->code)))
-      (catch Throwable err
-        (-> env
-            (assoc :error      :error-eval
-                   :error-eval err)
-            (dissoc :ctx)
-            after-run)))))
+  (if (env :error)
+    env
+    (reduce (let [{:keys [input->code]} env]
+              (fn [env-2 input]
+                (try
+                  (update env-2
+                          :ctx
+                          (fn [ctx]
+                            ($.cvm/eval ctx
+                                        (input->code input))))
+                  (catch Throwable err
+                    (reduced (-> env-2
+                                 (assoc :error
+                                        [:eval
+                                         {:exception err
+                                          :input     input}])
+                                 (dissoc :ctx)))))))
+            (assoc env
+                   :ctx
+                   ((env :init-ctx)))
+            (env :input+))))

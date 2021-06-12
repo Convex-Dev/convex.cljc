@@ -49,7 +49,8 @@
  {;cljs-ajax/cljs-ajax  {:mvn/version "0.8.3"}
   hawk/hawk                {:mvn/version "0.2.11"}
   org.clojure/tools.cli    {:mvn/version "1.0.206"}
-  org.clojure/test.check   {:mvn/version "1.1.0"}
+com.nextjournal/beholder {:mvn/version "1.0.0"}
+  org.clojure/test.chec   {:mvn/version "1.1.0"}
   world.convex/convex      {:local/root "cvm/f1fb2cf1929cdebf99c0940742881ef842047339.jar"}}
 
  :paths

@@ -65,33 +65,32 @@
 
 
   (def ctx
-       (:ctx ($.disk/load {'store "src/convex/lib/lab/xform/store.cvx"
-                           'xform "src/convex/lib/lab/xform.cvx"}
-                          {:after-run (fn [ctx]
-                                        ($.clj.eval/ctx ctx
-                                                        '(do
-                                                           (eval store)
-                                                           (def xform
-                                                                (deploy xform)))))}
-                          )))
+       (-> ($.disk/load {'store "src/convex/lib/lab/xform/store.cvx"
+                         'xform "src/convex/lib/lab/xform.cvx"})
+           :ctx
+           ($.clj.eval/ctx '(do
+                              (eval store)
+                              (def xform
+                                   (deploy xform))))))
 
   ($.cvm/exception ctx)
 
 
 
   ($.clj.eval/result* ctx
-                      $/foo)
+                      inventory)
 
 
 
 
   (def w*ctx
        ($.disk/watch {'$ "src/convex/break/util.cvx"}
-                     {:after-run (fn [ctx]
-                                   ($.clj.eval/ctx ctx
-                                                   '(def $
-                                                         (deploy $))))
-                      :on-error println}))
+                     (fn [env]
+                       (update env
+                               :ctx
+                               $.clj.eval/ctx
+                               '(def $
+                                     (deploy $))))))
 
   (.close w*ctx)
 

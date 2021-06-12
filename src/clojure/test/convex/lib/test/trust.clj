@@ -20,16 +20,15 @@
 
   "Base context for this namespace."
 
-  (:ctx ($.disk/load {'$     "src/convex/break/util.cvx"
-                      'trust "src/convex/lib/trust.cvx"}
-                     {:after-run (fn [ctx]
-                                   (-> ctx
-                                       ($.clj.eval/ctx '(do
-                                                          (def $
-                                                               (deploy $))
-                                                          (def trust
-                                                               (deploy trust))))
-                                       $.cvm/juice-refill))})))
+  (-> ($.disk/load {'$     "src/convex/break/util.cvx"
+                    'trust "src/convex/lib/trust.cvx"})
+      :ctx
+      ($.clj.eval/ctx '(do
+                         (def $
+                              (deploy $))
+                         (def trust
+                              (deploy trust))))
+      $.cvm/juice-refill))
 
 
 ;;;;;;;;;; Suites
