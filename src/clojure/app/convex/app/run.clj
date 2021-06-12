@@ -66,6 +66,33 @@
 
 
 
+
+
+(defn eval-form
+
+  ""
+
+  [env i-form form]
+
+  (let [ctx         (env :ctx)
+        juice-begin ($.cvm/juice ctx)
+        ctx-2       (-> ctx
+                        ($.cvm/eval ($.code/do [($.code/def ($.code/symbol "cvm.juice.last")
+                                                            ($.code/long (env :juice-last)))
+                                                ($.code/def ($.code/symbol "cvm.trx")
+                                                            ($.code/long i-form))]))
+                        ($.cvm/eval form))
+        exception   ($.cvm/exception ctx-2)]
+    (when exception
+      (error (str "Exception during transaction: "
+                  exception)))
+    (assoc env
+           :ctx        ctx-2
+           :juice-last (- juice-begin
+                          ($.cvm/juice ctx-2)))))
+
+
+
 (defn exec
 
   ""
@@ -87,18 +114,21 @@
                       (rest form+)]
                      [(ctx-init)
                       form+])
-        ctx-2       (reduce (fn [ctx-2 form]
-                              (let [ctx-3     ($.cvm/eval ctx-2
-                                                          form)
-                                    exception ($.cvm/exception ctx-3)]
-                                (if exception
-                                  (error (str "Exception during transaction: "
-                                              exception))
-                                  ($.cvm/juice-refill ctx-3))))
-                            ctx
-                            (butlast form-2+))]
-    (-> ($.cvm/eval ctx-2
-                    (last form-2+))
+        env        (reduce (fn [env [i-form form]]
+                              (-> (eval-form env
+                                             i-form
+                                             form)
+                                  (update :ctx
+                                          $.cvm/juice-refill)))
+                            {:ctx        ctx
+                             :juice-last 0}
+                            (partition 2
+                                       (interleave (range)
+                                                   (butlast form-2+))))]
+    (-> (eval-form env
+                   (dec (count form-2+))
+                   (last form-2+))
+        :ctx
         $.cvm/result
         *output*)))
 

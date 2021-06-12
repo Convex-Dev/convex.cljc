@@ -21,3 +21,9 @@
 
 
 
+(log :foo :bar)
+
+[42 :b]
+
+cvm.juice.last
+
