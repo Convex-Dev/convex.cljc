@@ -79,7 +79,11 @@
 
 
 
-  ($.cvm/read-many "[]")
+  (-> ($.cvm/expand ($.cvm/eval ($.cvm/ctx)
+                                ($.cvm/read-form '(defmacro foo [x] [x x])))
+                    ($.cvm/read-form '(do
+                                        (foo 42))))
+      $.cvm/result)
 
 
 

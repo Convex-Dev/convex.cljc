@@ -23,7 +23,9 @@
 
 (log :foo :bar)
 
-[42 :b]
+(cvm.out ^:ok [42 :b :c])
+
+(cvm.read)
 
 cvm.juice.last
 

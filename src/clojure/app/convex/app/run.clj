@@ -5,7 +5,8 @@
   {:author "Adam Helinski"}
 
   (:gen-class)
-  (:require [clojure.tools.cli]
+  (:require [clojure.string]
+            [clojure.tools.cli]
             [convex.code        :as $.code]
             [convex.cvm         :as $.cvm]
             [convex.disk        :as $.disk]))
@@ -66,30 +67,81 @@
 
 
 
-
-
 (defn eval-form
 
   ""
 
-  [env i-form form]
+  [env ctx form]
 
-  (let [ctx         (env :ctx)
-        juice-begin ($.cvm/juice ctx)
-        ctx-2       (-> ctx
-                        ($.cvm/eval ($.code/do [($.code/def ($.code/symbol "cvm.juice.last")
-                                                            ($.code/long (env :juice-last)))
-                                                ($.code/def ($.code/symbol "cvm.trx")
-                                                            ($.code/long i-form))]))
-                        ($.cvm/eval form))
-        exception   ($.cvm/exception ctx-2)]
+  (let [juice     ($.cvm/juice ctx)
+        ctx-2     ($.cvm/eval ctx
+                              form)
+        exception ($.cvm/exception ctx-2)]
     (when exception
       (error (str "Exception during transaction: "
                   exception)))
     (assoc env
            :ctx        ctx-2
-           :juice-last (- juice-begin
+           :juice-last (- juice
                           ($.cvm/juice ctx-2)))))
+
+
+
+(defn cvm-out
+
+  ""
+
+  [env ctx form]
+
+  (let [env-2 (eval-form env
+                         ctx
+                         (second form))]
+    (*output* ($.cvm/result (env-2 :ctx)))
+    env-2))
+
+
+
+(defn cvm-read
+
+  ""
+
+  [_env _ctx _form]
+
+  (error "CVM special command 'cvm.read' can only be used as first transaction"))
+
+
+
+(defn eval-trx
+
+  ""
+
+  [env i-trx form]
+
+  (let [ctx         (env :ctx)
+        ctx-2       ($.cvm/eval ctx
+                                ($.code/do [($.code/def ($.code/symbol "cvm.juice.last")
+                                                        ($.code/long (env :juice-last)))
+                                            ($.code/def ($.code/symbol "cvm.trx")
+                                                        ($.code/long i-trx))]))]
+    (if ($.code/list? form)
+      (let [sym-string (str (first form))]
+        (if (clojure.string/starts-with? sym-string
+                                         "cvm.")
+          (if-some [f (case sym-string
+                        "cvm.out"  cvm-out
+                        "cvm.read" cvm-read
+                        nil)]
+            (f env
+               ctx-2
+               form)
+            (error (str "Unknown CVM special command: "
+                        sym-string)))
+          (eval-form env
+                     ctx-2
+                     form)))
+      (eval-form env
+                 ctx-2
+                 form))))
 
 
 
@@ -114,10 +166,10 @@
                       (rest form+)]
                      [(ctx-init)
                       form+])
-        env        (reduce (fn [env [i-form form]]
-                              (-> (eval-form env
-                                             i-form
-                                             form)
+        env        (reduce (fn [env [i-trx form]]
+                              (-> (eval-trx env
+                                            i-trx
+                                            form)
                                   (update :ctx
                                           $.cvm/juice-refill)))
                             {:ctx        ctx
@@ -125,9 +177,9 @@
                             (partition 2
                                        (interleave (range)
                                                    (butlast form-2+))))]
-    (-> (eval-form env
-                   (dec (count form-2+))
-                   (last form-2+))
+    (-> (eval-trx env
+                  (dec (count form-2+))
+                  (last form-2+))
         :ctx
         $.cvm/result
         *output*)))
