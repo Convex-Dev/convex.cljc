@@ -48,7 +48,16 @@
   "Into the given `ctx` (or a newly created one if not provided), reads the given files and intern then as unevaluted code
    under their respective symbols.
 
-   Returns a map which contains the prepared `:ctx` or an `:error` if something failed.
+   Returns a \"environment\" map which contains:
+
+   | Key | Value |
+   |---|---|
+   | `:ctx` | If there is no `:error`, the prepared context |
+   | `:error` | Signals an error and the absence of `:ctx` (see below) |
+   | `:input+` | Vector of requested input file paths |
+   | `:input->code` | Map of `input file path` -> `CVM code`, uses `:read` |
+   | `:path->cvm-symbol` | Map of `file path` -> `CVM symbol used for interning` |
+   | `:read` | Read function used by the [[convex.sync]] namespace, not a user concern |
 
    This interned code can they be used as needed through the power of Lisp. Typically, either `deploy` or `eval` is used.
 
@@ -109,21 +118,39 @@
 
   "Exactly like [[load]] but live-reloads the given files on change.
 
-   After interning all files on a forked `ctx`, `on-run` is called with the same map as in [[load]].
+   Can also watch extra files which are not processed but if a change is detected, inputs are not updated and
+   the user can decide what to do. Also see [[convex.sync/patch]] and [[convex.sync/eval]].
 
-   Returns an object which can be be `deref` to a fork of an always updated context.
+   `on-change` is like `on-run` in [[load]] but it is also called on every change.
+
+   The environment map it receives contains in addition:
+
+   | Key | Value |
+   |---|---|
+   | `:ctx-base` | Context that is used and forked for processing any update |
+   | `:cycle` | Starts at 0, is incremented each time prior to calling `on-change` |
+   | `:extra+| If any, set of extra paths that are being monitored |
+   | `:extra->change` | A map of `extra path` to one of `#{:create :delete :modify} if any extra path changed |
+   | `:input->change` | Like `:extra->change` but for inputs that were not automatically processed |
+   | `:ms-debounce` | Milliseconds, changes are debounced for better behavior with editors and OS |
+   | `:nano-change` | Last time change has been detected (uses `System/nanoTime`) |
+   | `:watcher` | Actual watcher object, not a user concern |
+
+   Any of these key-values can be altered in `on-change` if needed.
+
+   `option+` is a map which can contain any of those key-values for initializing the required behavior.
 
    Eg. Translating example in [[load]]:
 
    ```clojure
    (def w*ctx
-        (convex.disk/load {'my-lib \"./path/to/lib.cvx\"}
-                          (fn [env]
-                            (update env
-                                    :ctx
-                                    convex.clj.eval/ctx
-                                    '(def my-lib
-                                          (deploy my-lib))))))
+        (convex.disk/watch {'my-lib \"./path/to/lib.cvx\"}
+                           (fn [env]
+                             (update env
+                                     :ctx
+                                     convex.clj.eval/ctx
+                                     '(def my-lib
+                                           (deploy my-lib))))))
 
    (deref w*ctx)
 
@@ -131,38 +158,37 @@
    ```"
 
 
-  ([sym->path on-run]
+  ([sym->path on-change]
 
    (watch sym->path
-          on-run
+          on-change
           nil))
 
 
-  ([sym->path on-run option+]
+  ([sym->path on-change option+]
 
-   (let [on-run-2 (fn [env]
-                    (try
-                      (on-run env)
-                      (catch Throwable _err
-                        (dissoc env
-                                :ctx))))
-         ctx      (or (option+ :ctx)
-                      ($.cvm/ctx))
-         a*env    (agent nil)
-         env      (-> (load ($.cvm/fork ctx)
-                            sym->path)
-                      (merge (dissoc option+
-                                     :ctx))
-                      (assoc :ctx-base
-                             ctx)
-                      (update :cycle
-                              #(or %
-                                   0))
-                      (update :extra+
-                              #(into #{}
-                                     (map path-canonical)
-                                     %))
-                      on-run-2)
+   (let [on-change-2 (fn [env]
+                       (try
+                         (on-change env)
+                         (catch Throwable _err
+                           (dissoc env
+                                   :ctx))))
+         ctx         (or (option+ :ctx-base)
+                         ($.cvm/ctx))
+         a*env       (agent nil)
+         env         (-> (load ($.cvm/fork ctx)
+                               sym->path)
+                         (merge option+)
+                         (assoc :ctx-base
+                                ctx)
+                         (update :cycle
+                                 #(or %
+                                      0))
+                         (update :extra+
+                                 #(into #{}
+                                        (map path-canonical)
+                                        %))
+                         on-change-2)
          watcher  (watcher/watch! [{:handler (fn [_ {:keys [^File file
                                                             kind]}]
                                                (let [nano-change (System/nanoTime)
@@ -197,7 +223,7 @@
                                                                                        (dissoc :f*debounce)
                                                                                        (update :cycle
                                                                                                inc)
-                                                                                       on-run-2)
+                                                                                       on-change-2)
                                                                                    env)))))))))))
 
                                     :paths   (concat (env :extra+)

@@ -114,7 +114,7 @@
 
   "Opposite of [[load]], removes code for the given `input`.
 
-   Updates existing read errors."
+   This adds an error with [[assoc-err-read]] since it means the input is now missing."
 
   [env input]
 
@@ -131,7 +131,8 @@
 
 (defn patch
 
-  ""
+  "Looks for changes in `:input->change` (map of `input` -> `One of #{:create :delete :modify}`) and
+   applies them by using [[reload]] and [[unload]] as needed."
 
   ([env]
 
@@ -177,9 +178,9 @@
 
   (defn eval
 
-    ;; TODO. Docstring
-
-    "Evaluates the code for all `:input+` in `env` on `ctx`, unless there is an `:error` attached."
+    "Evaluates the code for all `:input+` in `env` on `ctx`, unless there is an `:error` attached.
+    
+      If `ctx` is not explicitly provided, it is fetched and forked from `:ctx-base` in the given `env`."
 
 
     ([env]
