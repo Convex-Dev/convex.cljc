@@ -92,7 +92,7 @@
                                $.clj.eval/ctx
                                '(def $
                                      (deploy $))))
-                     {:ms-debounce 1500}))
+                     {:ms-debounce 1000}))
 
   (.close w*ctx)
 

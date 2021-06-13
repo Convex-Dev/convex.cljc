@@ -154,30 +154,45 @@
 ;;;;;;;;;; Executing steps
 
 
-(defn eval
+(let [-eval (fn [env ctx]
+              (reduce (let [{:keys [input->code]} env]
+                        (fn [env-2 input]
+                          (try
+                            (update env-2
+                                    :ctx
+                                    (fn [ctx]
+                                      ($.cvm/eval ctx
+                                                  (input->code input))))
+                            (catch Throwable err
+                              (reduced (-> env-2
+                                           (assoc :error
+                                                  [:eval
+                                                   {:exception err
+                                                    :input     input}])
+                                           (dissoc :ctx)))))))
+                      (assoc env
+                             :ctx
+                             ctx)
+                      (env :input+)))]
 
-  "Evaluates the code for all `:input+` in `env` on `ctx`, unless there is an `:error` attached."
+  (defn eval
 
-  [env ctx]
+    ;; TODO. Docstring
 
-  (if (env :error)
-    env
-    (reduce (let [{:keys [input->code]} env]
-              (fn [env-2 input]
-                (try
-                  (update env-2
-                          :ctx
-                          (fn [ctx]
-                            ($.cvm/eval ctx
-                                        (input->code input))))
-                  (catch Throwable err
-                    (reduced (-> env-2
-                                 (assoc :error
-                                        [:eval
-                                         {:exception err
-                                          :input     input}])
-                                 (dissoc :ctx)))))))
-            (assoc env
-                   :ctx
-                   ctx)
-            (env :input+))))
+    "Evaluates the code for all `:input+` in `env` on `ctx`, unless there is an `:error` attached."
+
+
+    ([env]
+
+     (if (env :error)
+       env
+       (-eval env
+              ($.cvm/fork (env :ctx-base)))))
+
+
+    ([env ctx]
+
+     (if (env :error)
+       env
+       (-eval env
+              ctx)))))

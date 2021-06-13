@@ -153,6 +153,8 @@
                             sym->path)
                       (merge (dissoc option+
                                      :ctx))
+                      (assoc :ctx-base
+                             ctx)
                       (update :cycle
                               #(or %
                                    0))
@@ -191,7 +193,7 @@
                                                                                          env
                                                                                          (-> env
                                                                                              $.sync/patch
-                                                                                             ($.sync/eval ($.cvm/fork ctx))))
+                                                                                             $.sync/eval))
                                                                                        (dissoc :f*debounce)
                                                                                        (update :cycle
                                                                                                inc)
