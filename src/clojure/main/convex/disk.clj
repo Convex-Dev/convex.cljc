@@ -123,12 +123,12 @@
 
   ([sym->path on-run]
 
-   (watch ($.cvm/ctx)
-          sym->path
-          on-run))
+   (watch sym->path
+          on-run
+          nil))
 
 
-  ([ctx sym->path on-run]
+  ([sym->path on-run option+]
 
    (let [on-run-2 (fn [env]
                     (try
@@ -136,9 +136,16 @@
                       (catch Throwable _err
                         (dissoc env
                                 :ctx))))
+         ctx      (or (option+ :ctx)
+                      ($.cvm/ctx))
          a*env    (agent nil)
          env      (-> (load ($.cvm/fork ctx)
                             sym->path)
+                      (merge (dissoc option+
+                                     :ctx))
+                      (update :cycle
+                              #(or %
+                                   0))
                       on-run-2)
          watcher  (watcher/watch! [{:handler (fn [_ {:keys [^File file
                                                             kind]}]
@@ -157,7 +164,8 @@
                                                                        (some-> f*debounce
                                                                                future-cancel)
                                                                        (future
-                                                                         (Thread/sleep 20)
+                                                                         (Thread/sleep (or (env :ms-debounce)
+                                                                                           20))
                                                                          (send a*env
                                                                                (fn [env]
                                                                                  (if (= (env :nano-change)
@@ -174,6 +182,8 @@
                                                                                        (dissoc :f*debounce
                                                                                                :path->change)
                                                                                        ($.sync/eval ($.cvm/fork ctx))
+                                                                                       (update :cycle
+                                                                                               inc)
                                                                                        on-run-2)
                                                                                    env)))))))))))
 

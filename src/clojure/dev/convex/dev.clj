@@ -91,7 +91,8 @@
                                :ctx
                                $.clj.eval/ctx
                                '(def $
-                                     (deploy $))))))
+                                     (deploy $))))
+                     {:ms-debounce 1500}))
 
   (.close w*ctx)
 
