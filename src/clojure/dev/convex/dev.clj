@@ -86,6 +86,7 @@
   (def w*ctx
        ($.disk/watch {'$ "src/convex/break/util.cvx"}
                      (fn [env]
+                       (ppr [:env (dissoc env :input->code)])
                        (update env
                                :ctx
                                $.clj.eval/ctx
@@ -101,7 +102,4 @@
                       $/foo)
 
 
-  
-
-      
   )

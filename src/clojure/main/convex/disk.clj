@@ -136,43 +136,62 @@
                       (catch Throwable _err
                         (dissoc env
                                 :ctx))))
-         *env     (atom nil)
+         a*env    (agent nil)
          env      (-> (load ($.cvm/fork ctx)
                             sym->path)
                       on-run-2)
          watcher  (watcher/watch! [{:handler (fn [_ {:keys [^File file
                                                             kind]}]
-                                               (let [path (.getCanonicalPath file)]
-                                                 (swap! *env
-                                                        (fn [env]
-                                                          ;; TODO. Some editors save by deleting the original copy...
-                                                          (if (identical? kind
-                                                                          :delete)
-                                                            env
-                                                            (-> ((if (identical? kind
-                                                                                 :delete)
-                                                                   $.sync/unload
-                                                                   $.sync/reload)
-                                                                 env
-                                                                 path)
-                                                                ($.sync/eval ($.cvm/fork ctx))
-                                                                on-run-2))))))
+                                               (let [nano-change (System/nanoTime)
+                                                     path        (.getCanonicalPath file)]
+                                                 (send a*env
+                                                       (fn [env]
+                                                         (-> env
+                                                             (assoc-in [:path->change
+                                                                        path]
+                                                                       kind)
+                                                             (assoc :nano-change
+                                                                    nano-change)
+                                                             (update :f*debounce
+                                                                     (fn [f*debounce]
+                                                                       (some-> f*debounce
+                                                                               future-cancel)
+                                                                       (future
+                                                                         (Thread/sleep 20)
+                                                                         (send a*env
+                                                                               (fn [env]
+                                                                                 (if (= (env :nano-change)
+                                                                                        nano-change)
+                                                                                   (-> (reduce-kv (fn [env-2 path change]
+                                                                                                    ((if (identical? change
+                                                                                                                     :delete)
+                                                                                                       $.sync/unload
+                                                                                                       $.sync/reload)
+                                                                                                     env-2
+                                                                                                     path))
+                                                                                                  env
+                                                                                                  (env :path->change))
+                                                                                       (dissoc :f*debounce
+                                                                                               :path->change)
+                                                                                       ($.sync/eval ($.cvm/fork ctx))
+                                                                                       on-run-2)
+                                                                                   env)))))))))))
+
                                     :paths   (env :input+)}])
          ret      (reify
 
                     clojure.lang.IDeref
               
                       (deref [_]
-                        (some-> (@*env :ctx)
+                        (some-> (@a*env :ctx)
                                 $.cvm/fork))
               
                     java.lang.AutoCloseable
               
                       (close [_]
                         (watcher/stop! watcher)))]
-
-     (reset! *env
-             (assoc env
-                    :watcher
-                    watcher))
+     (send a*env
+           (constantly (assoc env
+                              :watcher
+                              watcher)))
      ret)))

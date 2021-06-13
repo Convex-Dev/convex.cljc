@@ -89,20 +89,6 @@
 
   [env input]
 
-  (-> env
-      (unload input)
-      (load input)))
-
-
-
-(defn unload
-
-  "Opposite of [[load]], removes code for the given `input`.
-
-   Updates existing read errors."
-
-  [env input]
-
   (-> (let [error (env :error)]
         (if (and error
                  (identical? (first error)
@@ -119,7 +105,25 @@
           env))
       (update :input->code
               dissoc
-              input)))
+              input)
+      (load input)))
+
+
+
+(defn unload
+
+  "Opposite of [[load]], removes code for the given `input`.
+
+   Updates existing read errors."
+
+  [env input]
+
+  (-> env
+      (update :input->code
+              dissoc
+              input)
+      (assoc-err-read input
+                      :unload)))
 
 
 ;;;;;;;;;; Executing steps
