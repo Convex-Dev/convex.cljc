@@ -18,15 +18,25 @@
 ;;;;;;;;;; MIscellaneous
 
 
-(defn read?
+(defn dep+
 
   ""
 
-  [form]
+  [form+]
 
-  ($.code/call? form
-                ($.code/symbol "cvm.read")))
-
+  (let [form-first (first form+)]
+    (when ($.code/list? form-first)
+      (let [item (first form-first)]
+        (when ($.code/symbol? item)
+          (when (= (str item)
+                   "cvm.read")
+            (not-empty (reduce (fn [hmap x]
+                                 (assoc hmap
+                                        (str (first x))
+                                        (str (second x))))
+                               {}
+                               (second form-first)))))))))
+          
 
 
 (def ctx-base
@@ -34,17 +44,6 @@
   ""
 
   ($.cvm/juice-refill ($.cvm/ctx)))
-
-
-
-(defn ctx-init
-
-  ""
-
-  []
-
-  ($.cvm/fork ctx-base))
-
 
 
 
@@ -266,17 +265,13 @@
   [src _option+]
 
   (let [form+      ($.cvm/read-many src)
-        form-first (first form+)
+        dep+       (dep+ form+)
         [ctx
-         form-2+]  (if (read? form-first)
-                     [(-> ($.disk/load (ctx-init)
-                                       (mapv (fn [x]
-                                              [(str (first x))
-                                               (str (second x))])
-                                            (second form-first)))
-                          :ctx)
+         form-2+]  (if dep+
+                     [(:ctx ($.disk/load ($.cvm/fork ctx-base)
+                                         dep+))
                       (rest form+)]
-                     [(ctx-init)
+                     [($.cvm/fork ctx-base)
                       form+])
         env        (eval-trx+ {:ctx        ctx
                                :i-trx      0
@@ -323,41 +318,27 @@
 
   [arg+ _option+]
 
-  (let [path       (first arg+)
-        form+      ($.cvm/read-many (slurp path))
-        form-first (first form+)
-        dep+       (when (read? form-first)
-                     (mapv (fn [x]
-                             [(str (second x))
-                              {:map (fn [form+]
-                                      ($.code/def (first x)
-                                                  ($.code/quote ($.code/do form+))))}])
-                           (rest form-first)))
-        ]
-    ($.disk/watch (conj dep+
-                        [path
-                         {:eval (fn [ctx form+]
-                                  (println :form+ (mapv str (cond->
-                                                   form+
-                                                   (read? (first form+))
-                                                   rest)))
-                                  (-> {:ctx        ctx
-                                       :i-trx      0
-                                       :juice-last 0}
-                                      (eval-trx+ (cond->
-                                                   form+
-                                                   (read? (first form+))
-                                                   rest))
-                                      :ctx))}])
-                  {:after-run (fn [ctx]
-                                (-> ctx
-                                    $.cvm/result
-                                    *output*))
-                   :init-ctx  ctx-init
-                   :on-error  println
-                   :read      (fn [path]
-                                ($.cvm/read-many (slurp path)))
-                   })))
+  (let [path  (first arg+)
+        form+ ($.cvm/read-many (slurp path))
+        -dep+ (dep+ form+)]
+    ($.disk/watch ($.cvm/fork ctx-base)
+                  (conj -dep+
+                        ['*cvm.master*
+                         path])
+                  (fn on-run [{:as   env
+                               :keys [ctx]}]
+                    (let [ctx-2 ($.cvm/eval ctx
+                                            ($.cvm/read-form '(let [trx+ *cvm.master*]
+                                                                (undef *cvm.master*)
+                                                                (next trx+))))
+                          form+ ($.cvm/result ctx-2)]
+                      (eval-trx+ (assoc env
+                                        :ctx        ctx-2
+                                        :i-trx      0
+                                        :juice-last 0)
+                                 (if (dep+ form+)
+                                   (rest form+)
+                                   form+)))))))
 
 
 ;;;;;;;;;; Main command
