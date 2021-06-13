@@ -126,6 +126,31 @@
                       :unload)))
 
 
+;;;;;;;;;;
+
+
+(defn patch
+
+  ""
+
+  ([env]
+
+   (reduce-kv patch
+              (dissoc env
+                      :input->change)
+              (env :input->change)))
+
+
+  ([env path change]
+
+   ((if (identical? change
+                    :delete)
+      unload
+      reload)
+    env
+    path)))
+
+
 ;;;;;;;;;; Executing steps
 
 

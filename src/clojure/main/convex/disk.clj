@@ -19,6 +19,16 @@
 ;;;;;;;;;; Miscellaneous
 
 
+(defn path-canonical
+
+  "Returns the canonical, unique representation of the given `path`."
+
+  [^String path]
+
+  (.getCanonicalPath (File. path)))
+
+
+
 (defn read
 
   "Reads the file located at `path` and returns Convex code."
@@ -69,7 +79,7 @@
 
    (let [input+        (reduce (fn [input+ [sym ^String path]]
                                  (conj input+
-                                       [(.getCanonicalPath (File. path))
+                                       [(path-canonical path)
                                         ($.code/symbol (str sym))]))
                                []
                                sym->path)
@@ -146,6 +156,10 @@
                       (update :cycle
                               #(or %
                                    0))
+                      (update :extra+
+                              #(into #{}
+                                     (map path-canonical)
+                                     %))
                       on-run-2)
          watcher  (watcher/watch! [{:handler (fn [_ {:keys [^File file
                                                             kind]}]
@@ -154,11 +168,14 @@
                                                  (send a*env
                                                        (fn [env]
                                                          (-> env
-                                                             (assoc-in [:path->change
-                                                                        path]
-                                                                       kind)
                                                              (assoc :nano-change
                                                                     nano-change)
+                                                             (assoc-in [(if (contains? (env :extra+)
+                                                                                       path)
+                                                                          :extra->change
+                                                                          :input->change)
+                                                                        path]
+                                                                       kind)
                                                              (update :f*debounce
                                                                      (fn [f*debounce]
                                                                        (some-> f*debounce
@@ -170,24 +187,19 @@
                                                                                (fn [env]
                                                                                  (if (= (env :nano-change)
                                                                                         nano-change)
-                                                                                   (-> (reduce-kv (fn [env-2 path change]
-                                                                                                    ((if (identical? change
-                                                                                                                     :delete)
-                                                                                                       $.sync/unload
-                                                                                                       $.sync/reload)
-                                                                                                     env-2
-                                                                                                     path))
-                                                                                                  env
-                                                                                                  (env :path->change))
-                                                                                       (dissoc :f*debounce
-                                                                                               :path->change)
-                                                                                       ($.sync/eval ($.cvm/fork ctx))
+                                                                                   (-> (if (seq (env :extra->change))
+                                                                                         env
+                                                                                         (-> env
+                                                                                             $.sync/patch
+                                                                                             ($.sync/eval ($.cvm/fork ctx))))
+                                                                                       (dissoc :f*debounce)
                                                                                        (update :cycle
                                                                                                inc)
                                                                                        on-run-2)
                                                                                    env)))))))))))
 
-                                    :paths   (env :input+)}])
+                                    :paths   (concat (env :extra+)
+                                                     (env :input+))}])
          ret      (reify
 
                     clojure.lang.IDeref
