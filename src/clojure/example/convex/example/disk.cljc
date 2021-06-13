@@ -46,5 +46,9 @@
 
   (.close w*ctx)
 
+  ;; Or
+
+  ($.disk/watch-stop w*ctx)
+
 
   )

@@ -94,7 +94,7 @@
                                      (deploy $))))
                      {:ms-debounce 1000}))
 
-  (.close w*ctx)
+  ($.disk/watch-stop w*ctx)
 
 
   ($.cvm/exception @w*ctx)

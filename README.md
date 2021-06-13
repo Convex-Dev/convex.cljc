@@ -226,6 +226,10 @@ Similarly, live-reloading with `$.disk/watch`:
 ;; When done:
 ;;
 (.close w*ctx)
+
+;; Or
+;;
+($.disk/watch-stop w*ctx)
 ```
 
 

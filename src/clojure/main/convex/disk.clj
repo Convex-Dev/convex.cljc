@@ -245,3 +245,16 @@
                               :watcher
                               watcher)))
      ret)))
+
+
+
+(defn watch-stop
+
+  "Stops the given [[watcher]]."
+
+  [watcher]
+
+  (.close ^java.lang.AutoCloseable (cond->
+                                     watcher
+                                     (map? watcher)
+                                     :watcher)))
