@@ -56,12 +56,22 @@
      clojure.pprint/pprint)
 
 
+(defn tap
+
+  ""
+
+  [x]
+
+  (println [:tap x]))
+
+
+(add-tap tap)
+
+
 ;;;;;;;;;;
 
 
 (comment
-
-
 
 
   (def ctx
