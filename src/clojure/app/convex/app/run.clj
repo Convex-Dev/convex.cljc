@@ -9,7 +9,8 @@
             [clojure.tools.cli]
             [convex.code        :as $.code]
             [convex.cvm         :as $.cvm]
-            [convex.disk        :as $.disk]))
+            [convex.disk        :as $.disk]
+            [convex.sync        :as $.sync]))
 
 
 (declare eval-trx+)
@@ -231,6 +232,7 @@
         form-2 (-> env-2
                    :ctx
                    $.cvm/result)]
+    
     (if-some [f (cvm-command form-2)]
       (f env-2
          form-2)
@@ -250,11 +252,18 @@
 
   ""
 
-  [env form+]
+  
+  ([env]
 
-  (reduce eval-trx
-          env
-          form+))
+   (eval-trx+ env
+              (env :trx+)))
+
+
+  ([env trx+]
+
+   (reduce eval-trx
+           env
+           trx+)))
 
 
 
@@ -312,33 +321,78 @@
 ;;;;;;;;;; Watch files
 
 
+(defn- -watcher
+
+  [*watcher env path trx+ -dep+]
+
+  (println :new-watcher)
+  (swap! *watcher
+         (fn [watcher]
+           (some-> watcher
+                   $.disk/watch-stop)
+           ($.disk/watch -dep+
+                         (fn on-change [env]
+                           (when (env :error)
+                             (println :err (env :error)))
+                           (let [env-2 (if (seq (env :extra->change))
+                                         (-> (let [trx+  ($.cvm/read-many (slurp path))
+                                                   -dep+ (dep+ trx+)]
+                                               (if (= -dep+
+                                                      (env :dep+))
+                                                 (do
+                                                   (println :dep-ok)
+                                                 (-> env
+                                                     (assoc :trx+
+                                                            (if -dep+
+                                                              (rest trx+)
+                                                              trx+))
+                                                     $.sync/patch
+                                                     $.sync/eval))
+                                                 (-watcher *watcher
+                                                           (dissoc env
+                                                                   :input->change)
+                                                           path
+                                                           trx+
+                                                           -dep+)))
+                                             (dissoc :extra->change))
+                                         env)]
+                             (eval-trx+ (assoc env-2
+                                               :i-trx      0
+                                               :juice-last 0))))
+                         (assoc env
+                                :dep+   -dep+
+                                :extra+ #{path}
+                                :trx+   (if -dep+
+                                          (rest trx+)
+                                          trx+))))))
+
+
+
 (defn cmd-watch
 
   ""
 
   [arg+ _option+]
 
-  (let [path  (first arg+)
-        form+ ($.cvm/read-many (slurp path))
-        -dep+ (dep+ form+)]
-    ($.disk/watch ($.cvm/fork ctx-base)
-                  (conj -dep+
-                        ['*cvm.master*
-                         path])
-                  (fn on-run [{:as   env
-                               :keys [ctx]}]
-                    (let [ctx-2 ($.cvm/eval ctx
-                                            ($.cvm/read-form '(let [trx+ *cvm.master*]
-                                                                (undef *cvm.master*)
-                                                                (next trx+))))
-                          form+ ($.cvm/result ctx-2)]
-                      (eval-trx+ (assoc env
-                                        :ctx        ctx-2
-                                        :i-trx      0
-                                        :juice-last 0)
-                                 (if (dep+ form+)
-                                   (rest form+)
-                                   form+)))))))
+  (let [path     (first arg+)
+        trx+     ($.cvm/read-many (slurp path))
+        *watcher (atom nil)]
+    (-watcher *watcher
+              {}
+              path
+              trx+
+              (dep+ trx+))
+    (reify
+
+      clojure.lang.IDeref
+
+        (deref [_]
+          @@*watcher)
+
+      java.lang.AutoCloseable
+
+        (close [_]
+          ($.disk/watch-stop @*watcher)))))
 
 
 ;;;;;;;;;; Main command
@@ -410,10 +464,10 @@
   (-main "load"
          "src/convex/dev/app/run.cvx")
 
-  (.close x)
   (def x
        (-main "watch"
               "src/convex/dev/app/run.cvx"))
+  (.close x)
 
   (deref x)
 

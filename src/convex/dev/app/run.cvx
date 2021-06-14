@@ -3,36 +3,59 @@
 
 
 
-(def xform
-     (deploy xform))
-
-
 (eval store)
 
 
 
-(defmacro printer
 
-  [code]
-  
-  `(cvm.do
-     (cvm.do
-       (cvm.out [:trx *cvm.trx.id* ~(:tag (meta code))]))
-     (cvm.do
-       ~code)))
+(defmacro foo [form]
 
-
-
-(cvm.trx.map printer)
-
-
-
-^{:tag :foo} 42
+  `(cvm.out [[:trx *cvm.trx.id*] (quote ~form) ~form]))
 
 
 (cvm.trx.map nil)
 
-[:a :bar]
+(+ 2 3)
+
+
+(foo :ok)
+
+
+
+
+
+;(cvm.out (def xform (deploy xform)))
+
+; (def xform
+;      (deploy xform))
+; 
+; 
+; (eval store)
+; 
+; 
+; 
+; (defmacro printer
+; 
+;   [code]
+;   
+;   `(cvm.do
+;      (cvm.do
+;        (cvm.out [:trx *cvm.trx.id* ~(:tag (meta code))]))
+;      (cvm.do
+;        ~code)))
+; 
+; 
+; 
+; (cvm.trx.map printer)
+; 
+; 
+; 
+; ^{:tag :foo2} 42
+; 
+; 
+; (cvm.trx.map nil)
+; 
+; [:a :bar]
 
 ;(xform/transduce (xform/comp (xform/filter (fn [item]
 ;                                             (contains-key? (tag+ item)

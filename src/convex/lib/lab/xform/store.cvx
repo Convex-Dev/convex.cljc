@@ -58,5 +58,4 @@
     (not (available? x)))
 
 
-
   )
