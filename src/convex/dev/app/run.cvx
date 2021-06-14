@@ -13,13 +13,15 @@
   `(cvm.out [[:trx *cvm.trx.id*] (quote ~form) ~form]))
 
 
-(cvm.trx.map nil)
+(cvm.trx.map foo)
 
 (+ 2 3)
 
-
 (foo :ok)
 
+
+
+(get [:a] 0)
 
 
 

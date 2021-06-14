@@ -356,9 +356,11 @@
                                                            -dep+)))
                                              (dissoc :extra->change))
                                          env)]
-                             (eval-trx+ (assoc env-2
-                                               :i-trx      0
-                                               :juice-last 0))))
+                             (-> env-2
+                                 (assoc :i-trx      0
+                                        :juice-last 0)
+                                 eval-trx+
+                                 (dissoc :map-trx))))
                          (assoc env
                                 :dep+   -dep+
                                 :extra+ #{path}
