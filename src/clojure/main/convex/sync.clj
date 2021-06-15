@@ -89,20 +89,19 @@
 
   [env input]
 
-  (-> (let [error (env :error)]
-        (if (and error
-                 (identical? (first error)
-                             :input->error))
-          (let [input->error-2 (dissoc (second error)
-                                       input)]
-            (if (seq input->error-2)
-              (assoc env
-                     :error
-                     [:input->error
-                      input->error-2])
-              (dissoc env
-                      :error)))
-          env))
+  (-> (let [error        (env :error)
+            input->error (when (and error
+                                    (identical? (first error)
+                                                :load))
+                           (not-empty (dissoc (second error)
+                                              input)))]
+        (if input->error
+          (assoc env
+                 :error
+                 [:load
+                  input->error])
+          (dissoc env
+                  :error)))
       (update :input->code
               dissoc
               input)
