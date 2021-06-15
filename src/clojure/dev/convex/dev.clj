@@ -35,6 +35,7 @@
             [convex.cvm                    :as $.cvm]
             [convex.clj.eval               :as $.clj.eval]
             [convex.cvm.test]
+            [convex.example.disk]
             [convex.example.exec]
             [convex.example.templ]
 			[convex.lib.lab.xform]

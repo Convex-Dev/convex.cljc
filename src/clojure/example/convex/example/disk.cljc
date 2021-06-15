@@ -4,9 +4,9 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.code     :as $.code]
-            [convex.clj.eval :as $.clj.eval]
-            [convex.disk     :as $.disk]))
+  (:require [convex.clj.eval :as $.clj.eval]
+            [convex.sync     :as $.sync]
+            [convex.watch    :as $.watch]))
 
 
 
@@ -19,7 +19,7 @@
   ;; Loading a file, binding the code to the given symbol and then deploying it as a library..
   ;;
   (def ctx
-       (-> ($.disk/load {'$ "src/convex/break/util.cvx"})
+       (-> ($.sync/disk {'$ "src/convex/break/util.cvx"})
            :ctx
            ($.clj.eval/ctx '(def $
                                  (deploy $)))))
@@ -31,24 +31,22 @@
 
   ;; Like previously example but live-reloads the file on change.
   ;;
-  (def w*ctx
-       ($.disk/watch {'$ "src/convex/break/util.cvx"}
-                     (fn on-run [env]
-                       (update env
-                               :ctx
-                               $.clj.eval/ctx
-                               '(def $
-                                     (deploy $))))))
+  (def a*env
+       (-> ($.watch/init {:on-change (fn on-run [env]
+                                       (update env
+                                               :ctx
+                                               $.clj.eval/ctx
+                                               '(def $
+                                                     (deploy $))))
+                          :sym->dep  {'$ "src/convex/break/util.cvx"}})
+           $.watch/start))
 
 
-  ($.clj.eval/result* @w*ctx
+  ($.clj.eval/result* ($.watch/ctx a*env)
                       $/foo)
 
-  (.close w*ctx)
+  ($.watch/stop a*env)
 
-  ;; Or
-
-  ($.disk/watch-stop w*ctx)
 
 
   )
