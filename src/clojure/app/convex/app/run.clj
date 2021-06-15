@@ -84,15 +84,15 @@
       (if f
         (f (rest arg+)
            option+)
-        ($.run/error (format "Unknown command: %s"
-                             command))))
+        (println (format "Unknown command: %s"
+                         command))))
 
 
     (catch clojure.lang.ExceptionInfo err
       (let [data (ex-data err)]
         (if (::error? data)
           (do
-            ($.run/*output* [:error (.getMessage err)])
+            (println [:error (.getMessage err)])
             ;(System/exit 42)
             )
           (handle-exception err))))

@@ -52,7 +52,7 @@
 ;;;;;;;;;; Output
 
 
-(defn ^:dynamic *output*
+(defn out-default
 
   ""
 
@@ -63,14 +63,22 @@
       tap>))
 
 
+
 (defn error
 
   ""
 
-  [message]
+  [env type arg]
 
-  (throw (ex-info message
-                  {::error? true})))
+  (let [err (cond->
+              [:cvm.error
+               type]
+              (some? arg)
+              (conj arg))]
+    ((:out env) err)
+    (assoc env
+           :error
+           err)))
 
 
 ;;;;;;;;;; Special transactions
@@ -95,8 +103,11 @@
 
   (let [env-2 (eval-form env
                          (second form))]
-    (*output* ($.cvm/result (env-2 :ctx)))
-    env-2))
+    (if (env-2 :error)
+      env-2
+      (do
+        ((env-2 :out) ($.cvm/result (env-2 :ctx)))
+        env-2))))
 
 
 
@@ -129,13 +140,15 @@
 
   ""
 
-  [_env _form]
+  [env _form]
 
-  (error "CVM special command 'cvm.read' can only be used as first transaction"))
+  (error env
+         :read.forbidden
+         "CVM special command 'cvm.read' can only be used as first transaction"))
 
 
+;;;;;
 
-;;
 
 (defn cvm-command
 
@@ -153,8 +166,10 @@
           "cvm.out"     cvm-out
           "cvm.read"    cvm-read
           "cvm.trx.map" cvm-trx-map
-          (error (str "Unknown CVM special command: "
-                      sym-string)))))))
+          (fn [env _trx]
+            (error env
+                   :cvm.unknown
+                   sym-string)))))))
 
 
 ;;;;;;;;;; Preparing transactions
@@ -169,12 +184,14 @@
   (let [ctx-2     ($.cvm/expand (env :ctx)
                                 form)
         exception ($.cvm/exception ctx-2)]
-    (when exception
-      (error (str "Exception during expansion of: "
-                  form)))
-    (assoc env
-           :ctx
-           ctx-2)))
+    (if exception
+      (error env
+             :expansion
+             [form
+              exception])
+      (assoc env
+             :ctx
+             ctx-2))))
 
 
 
@@ -184,14 +201,19 @@
 
   [env]
 
-  (update env
-          :ctx
-          (fn [ctx]
-            ($.cvm/eval ctx
-                        ($.code/do [($.code/def ($.code/symbol "*cvm.juice.last*")
-                                                ($.code/long (env :juice-last)))
-                                    ($.code/def ($.code/symbol "*cvm.trx.id*")
-                                                ($.code/long (env :i-trx)))])))))
+  (let [ctx       ($.cvm/eval (env :ctx)
+                              ($.code/do [($.code/def ($.code/symbol "*cvm.juice.last*")
+                                                      ($.code/long (env :juice-last)))
+                                          ($.code/def ($.code/symbol "*cvm.trx.id*")
+                                                      ($.code/long (env :i-trx)))]))
+        exception ($.cvm/exception ctx)]
+    (if exception
+      (error env
+             :inject-value+
+             exception)
+      (assoc env
+             :ctx
+             ctx))))
 
 
 ;;;;;;;;;; Evaluation
@@ -208,15 +230,16 @@
         ctx-2     ($.cvm/eval ctx
                               form)
         exception ($.cvm/exception ctx-2)]
-    (when exception
-      (error (str "Exception during transaction: "
-                  exception)))
-    (-> env
-        (assoc :ctx        ctx-2
-               :juice-last (- juice
-                              ($.cvm/juice ctx-2)))
-        (update :i-trx
-                inc))))
+    (if exception
+      (error env
+             :eval.trx
+             exception)
+      (-> env
+          (assoc :ctx        ctx-2
+                 :juice-last (- juice
+                                ($.cvm/juice ctx-2)))
+          (update :i-trx
+                  inc)))))
 
 
 
@@ -224,27 +247,30 @@
 
   ""
 
-  [env form]
+  [env trx]
 
-  (let [env-2  (-> env
-                   inject-value+
-                   (expand form))
-        form-2 (-> env-2
-                   :ctx
-                   $.cvm/result)]
-    
-    (if-some [f (cvm-command form-2)]
-      (f env-2
-         form-2)
-      (if-some [map-trx (env :map-trx)]
-        (-> env-2
-            (dissoc :map-trx)
-            (eval-trx ($.code/list [map-trx
-                                    form-2]))
-            (assoc :map-trx
-                   map-trx))
-        (eval-form env-2
-                   form-2)))))
+  (let [env-2 (inject-value+ env)]
+    (if (env-2 :error)
+      env-2
+      (let [env-3 (expand env-2
+                          trx)]
+        (if (env-3 :error)
+          env-3
+          (let [trx-2 (-> env-3
+                          :ctx
+                          $.cvm/result)]
+            (if-some [f (cvm-command trx-2)]
+              (f env-2
+                 trx-2)
+              (if-some [map-trx (env :map-trx)]
+                (-> env-2
+                    (dissoc :map-trx)
+                    (eval-trx ($.code/list [map-trx
+                                            trx-2]))
+                    (assoc :map-trx
+                           map-trx))
+                (eval-form env-2
+                           trx-2)))))))))
 
 
 
@@ -261,47 +287,92 @@
 
   ([env trx+]
 
-   (reduce eval-trx
+   (reduce (fn [env-2 trx]
+             (let [env-3 (eval-trx env-2
+                                   trx)]
+               (if (env-3 :error)
+                 (reduced env-3)
+                 env-3)))
            env
            trx+)))
 
 
 
-(defn once
+(defn exec-trx+
 
   ""
 
-  [src]
+  [env]
 
-  (let [form+      ($.cvm/read-many src)
-        dep+       (dep+ form+)
-        [ctx
-         form-2+]  (if dep+
-                     [(:ctx ($.disk/load ($.cvm/fork @d*ctx-base)
-                                         dep+))
-                      (rest form+)]
-                     [($.cvm/fork @d*ctx-base)
-                      form+])
-        env        (eval-trx+ {:ctx        ctx
-                               :i-trx      0
-                               :juice-last 0}
-                              form-2+)]
-    (-> env
-        :ctx
-        $.cvm/result
-        *output*)))
+  (-> env
+      (assoc :i-trx      0
+             :juice-last 0)
+      eval-trx+))
 
 
-;;;;;;;;;;; Entry points
+;;;;;;;;;; 
+
+
+(defn main
+
+  ""
+
+  [env path f]
+
+  (let [env-2 (update env
+                      :out
+                      #(or %
+                           out-default))
+        [err
+         src] (try
+                [nil
+                 (slurp path)]
+                (catch Throwable err
+                  [err
+                   nil]))]
+    (if err
+      (error env-2
+             :main.src
+             [path
+              err])
+      (f env-2
+         src))))
+
+
+;;;;;;;;;; Evaluating a given source string
 
 
 (defn eval
 
   ""
 
-  [src]
 
-  (once src))
+  ([src]
+
+   (eval nil
+         src))
+
+
+  ([env src]
+
+   (let [trx+  ($.cvm/read-many src)
+         dep+' (dep+ trx+)]
+     (if (seq dep+')
+       (let [env   (-> (merge env
+                              ($.disk/load ($.cvm/fork @d*ctx-base)
+                                           dep+'))
+                       (assoc :trx+
+                              (rest trx+)))
+             err   (env :error)]
+         (if err
+           (error env
+                  :dep+
+                  err)
+           (exec-trx+ env)))
+       (-> env
+           (assoc :ctx  ($.cvm/fork @d*ctx-base)
+                  :trx+ trx+)
+           exec-trx+)))))
 
 
 ;;;;;;;;;; Load files
@@ -311,31 +382,38 @@
 
   ""
 
-  [path]
 
-  (once (slurp path)))
+  ([path]
+
+   (load nil
+         path))
+
+
+  ([env path]
+
+   (main env
+         path
+         eval)))
 
 
 ;;;;;;;;;; Watch files
 
 
-(let [-watcher (fn -watcher [*watcher env path trx+ -dep+]
+(let [-watcher (fn -watcher [*watcher env path trx+ dep+']
                  (swap! *watcher
                         (fn [watcher]
                           (some-> watcher
                                   $.disk/watch-stop)
-                          ($.disk/watch -dep+
+                          ($.disk/watch dep+'
                                         (fn on-change [env]
-                                          (when (env :error)
-                                            (tap> [:err (env :error)]))
                                           (let [env-2 (if (seq (env :extra->change))
-                                                        (-> (let [trx+  ($.cvm/read-many (slurp path))
-                                                                  -dep+ (dep+ trx+)]
-                                                              (if (= -dep+
+                                                        (-> (let [trx+     ($.cvm/read-many (slurp path))
+                                                                  dep-new+ (dep+ trx+)]
+                                                              (if (= dep-new+
                                                                      (env :dep+))
                                                                 (-> env
                                                                     (assoc :trx+
-                                                                           (if -dep+
+                                                                           (if dep-new+
                                                                              (rest trx+)
                                                                              trx+))
                                                                     $.sync/patch
@@ -345,44 +423,52 @@
                                                                                   :input->change)
                                                                           path
                                                                           trx+
-                                                                          -dep+)))
+                                                                          dep-new+)))
                                                             (dissoc :extra->change))
                                                         env)]
                                             (-> env-2
-                                                (assoc :i-trx      0
-                                                       :juice-last 0)
-                                                eval-trx+
+                                                exec-trx+
                                                 (dissoc :map-trx))))
                                         (assoc env
-                                               :dep+   -dep+
+                                               :dep+   dep+'
                                                :extra+ #{path}
-                                               :trx+   (if -dep+
+                                               :trx+   (if dep+'
                                                          (rest trx+)
                                                          trx+))))))]
   (defn watch
 
     ""
 
-    [path]
 
-    (let [trx+     ($.cvm/read-many (slurp path))
-          *watcher (atom nil)]
-      (-watcher *watcher
-                {}
-                path
-                trx+
-                (dep+ trx+))
-      (reify
+    ([path]
 
-        clojure.lang.IDeref
+     (watch nil
+            path))
 
-          (deref [_]
-            @@*watcher)
 
-        java.lang.AutoCloseable
+    ([env path]
 
-          (close [_]
-            ($.disk/watch-stop @*watcher))))))
+     (main env
+           path
+           (fn [env-2 src]
+             (let [trx+     ($.cvm/read-many src)
+                   *watcher (atom nil)]
+               (-watcher *watcher
+                         env-2
+                         path
+                         trx+
+                         (dep+ trx+))
+               (reify
+
+                 clojure.lang.IDeref
+
+                   (deref [_]
+                     @@*watcher)
+
+                 java.lang.AutoCloseable
+
+                   (close [_]
+                     ($.disk/watch-stop @*watcher)))))))))
 
 
 ;;;;;;;;;;

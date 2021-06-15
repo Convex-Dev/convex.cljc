@@ -19,10 +19,12 @@
 
 (foo :foo)
 
-100
+101
 
 
+;(fail :failure)
 
+:here
 
 ;(cvm.out (def xform (deploy xform)))
 
