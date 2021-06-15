@@ -1,8 +1,11 @@
 (ns convex.watch
 
-  "Loading Convex Lisp files in contextes + live-reloading.
-  
-   See [[convex.example.disk]] namespace for examples."
+  "Builds on [[convex.sync/disk]] and [[convex.sync]] utilities for providing a live-reloading example.
+
+   A watcher is a Clojure agent which tracks involved files and always keeps a context in sync. The data it holds is an environemnt
+   map akin to what [[convex.sync/disk]] describes. However, it contains more data.
+
+   See [[init]], [[start]]."
 
   {:author "Adam Helinski"}
 
@@ -28,17 +31,40 @@
 
 (defn init
 
-  ""
+  "Creates an agent with some initial state which can then be used with [[start]].
+  
+   `env` will be merged with the environment map (see [[convex.sync/disk]]) and can contain any arbitrary data.
+
+   It **MUST** contain:
+
+   | Key | Value |
+   |---|---|
+   | `:on-change` | Function `env` -> `env` called after initial load and after each update |
+
+   It **MAY** contain:
+
+   | Key | Value | Default | Can be altered later |
+   |---|---|---|---|
+   | `:ctx-base` | Base context forked before each evaluation | Result of [[convex.cvm/ctx]] | Yes |
+   | `:cycle` | Is incremented each time prior to running `:on-change` | 0 | Yes |
+   | `:extra+` | List of files that ought to be monitored as well | `nil` | No |
+   | `:ms-debounce` | Milliseconds, changes  debounced for better behavior with editors and OS | 20 (minimum is 1) | Yes |
+   | `:sym->dep | Map of `symbol` -> `path to dependency file` | `nil` | No |
+
+   Just like in [[convex.sync/disk]], files from `:sym->dep` will be loaded in [[start]], interned under their respective symbols.
+
+   Extra files will not be read, only monitored for change. However, in case of change, dependencies will not update and the user
+   will be in charge of what should be done. This feature looks peculiar at first but it is used wisely by the [[convex.run]] namespace."
 
   [env]
 
   (agent (-> env
-             (update :cycle
-                     #(or %
-                          0))
              (update :ctx-base
                      #(or %
                           ($.cvm/ctx)))
+             (update :cycle
+                     #(or %
+                          0))
              (update :extra+
                      #(into #{}
                             (map (fn [^String path]
@@ -49,7 +75,11 @@
 
 (defn -start
 
-  ""
+  "Implementation for [[start]] (sent to the agent).
+
+   Needs a reference to the agent itself.
+  
+   Kept public since it is useful for building more complex features (see [[convex.run]] namespace)."
 
   [a*env env]
 
@@ -102,47 +132,19 @@
 
 (defn start
 
-  "Exactly like [[load]] but live-reloads the given files on change.
-
-   Can also watch extra files which are not processed but if a change is detected, inputs are not updated and
-   the user can decide what to do. Also see [[convex.sync/patch]] and [[convex.sync/eval]].
-
-   `on-change` is like `on-run` in [[load]] but it is also called on every change. It must handle errors and always
-   returned an environment map.
-
-   The environment map it receives contains in addition:
+  "After [[init]], actually starts the file watcher.
+  
+   The environment will contains all key-values that [[convex.sync/disk]] provides since it is being used under the hood.
+   In addition, it will also hold (besides what [[init]] describes):
 
    | Key | Value |
    |---|---|
-   | `:ctx-base` | Context that is used and forked for processing any update |
-   | `:cycle` | Starts at 0, is incremented each time prior to calling `on-change` |
-   | `:extra+| If any, set of extra paths that are being monitored |
    | `:extra->change` | A map of `extra path` to one of `#{:create :delete :modify} if any extra path changed |
    | `:input->change` | Like `:extra->change` but for inputs that were not automatically processed |
-   | `:ms-debounce` | Milliseconds, changes are debounced for better behavior with editors and OS |
    | `:nano-change` | Last time change has been detected (uses `System/nanoTime`) |
    | `:watcher` | Actual watcher object, not a user concern |
-
-   Any of these key-values can be altered in `on-change` if needed.
-
-   `option+` is a map which can contain any of those key-values for initializing the required behavior.
-
-   Eg. Translating example in [[load]]:
-
-   ```clojure
-   (def w*ctx
-        (convex.disk/watch {'my-lib \"./path/to/lib.cvx\"}
-                           (fn [env]
-                             (update env
-                                     :ctx
-                                     convex.clj.eval/ctx
-                                     '(def my-lib
-                                           (deploy my-lib))))))
-
-   (deref w*ctx)
-
-   (.close w*ctx)
-   ```"
+  
+   See [[stop]]."
 
   [a*env]
 
@@ -152,11 +154,11 @@
 
 
 
-
-
 (defn -stop
 
-  ""
+  "Implementation for [[stop]] (sent to the agent).
+  
+   Kept public since it is useful for building more complex features (see [[convex.run]] namespace)."
 
   [env]
 
@@ -168,7 +170,7 @@
 
 (defn stop
 
-  "Stops the given [[watcher]]."
+  "Stops the given watcher."
   
   [a*env]
 

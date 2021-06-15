@@ -207,8 +207,8 @@
 
 (defn disk
 
-  "Into the given CVM `ctx` (or a newly created one if not provided), reads the given files and internis then as unevaluted code
-   under their respective symbols.
+  "Into the given CVM `ctx` (or a newly created one if not provided), reads the given files and interns them as unevaluted code
+   under their respective symbols. Conceptually, they can be considered as dependency files.
   
    Only IO utility from this namespaces.
 
@@ -246,20 +246,20 @@
    | `:eval` | Map with `:exception` (either Java or CVM exception) and `:input` (which input caused this evaluation error) |"
 
 
-  ([sym->path]
+  ([sym->dep]
 
    (disk ($.cvm/ctx)
-         sym->path))
+         sym->dep))
 
 
-  ([ctx sym->path]
+  ([ctx sym->dep]
 
    (let [input+        (reduce (fn [input+ [sym ^String path]]
                                  (conj input+
                                        [(.getCanonicalPath (File. path))
                                         ($.code/symbol (str sym))]))
                                []
-                               sym->path)
+                               sym->dep)
          path->cvm-sym (into {}
                              input+)
          read-input    (fn [env path]

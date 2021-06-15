@@ -29,10 +29,10 @@
                       $/foo)
 
 
-  ;; Like previously example but live-reloads the file on change.
+  ;; Similar  example but live-reloads the file on change.
   ;;
   (def a*env
-       (-> ($.watch/init {:on-change (fn on-run [env]
+       (-> ($.watch/init {:on-change (fn [env]
                                        (update env
                                                :ctx
                                                $.clj.eval/ctx
@@ -44,6 +44,7 @@
 
   ($.clj.eval/result* ($.watch/ctx a*env)
                       $/foo)
+
 
   ($.watch/stop a*env)
 
