@@ -483,8 +483,10 @@
    (let [a*env ($.watch/init (assoc env
                                     :extra+
                                     #{(.getCanonicalPath (File. path))}))]
-     ($.watch/start a*env
-                    []
+     (send a*env
+           (fn [env]
+             (assoc env
+                    :on-change
                     (fn on-change [{:as       env-2
                                     dep-old+  :dep+
                                     error-dep :error}]
@@ -511,17 +513,19 @@
                                     (do
                                       ($.watch/-stop env-4)
                                       ($.watch/-start a*env
-                                                      dep-new+
-                                                      on-change
-                                                      (select-keys env-4
-                                                                   [:cycle
-                                                                    :ctx-base
-                                                                    :dep+
-                                                                    :ms-debounce
-                                                                    :out
-                                                                    :extra+
-                                                                    :trx+])))))))
-                            (exec-trx+ env-3))))))
+                                                      (-> (select-keys env-4
+                                                                       [:cycle
+                                                                        :ctx-base
+                                                                        :dep+
+                                                                        :ms-debounce
+                                                                        :on-change
+                                                                        :out
+                                                                        :extra+
+                                                                        :trx+])
+                                                          (assoc :sym->dep
+                                                                 dep-new+))))))))
+                            (exec-trx+ env-3))))))))
+     ($.watch/start a*env)
      a*env)))
 
 
