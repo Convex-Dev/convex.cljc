@@ -59,7 +59,6 @@
 
   [a*env sym->dep on-change env]
 
-  (tap> [:start (dissoc env :input->code)])
   (-> ($.disk/load ($.cvm/fork (env :ctx-base))
                    sym->dep)
       (merge env)

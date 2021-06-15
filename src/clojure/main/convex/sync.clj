@@ -44,13 +44,13 @@
           :error
           (fn [error]
             (if (identical? (first error)
-                            :input->error)
+                            :load)
               (update error
                       1
                       assoc
                       input
                       err)
-              [:input->error
+              [:load
                {input err}]))))
 
 

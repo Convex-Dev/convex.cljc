@@ -24,9 +24,11 @@
 
 ;(fail :failure)
 
-:here
+:here-3
 
-;(cvm.out (def xform (deploy xform)))
+(cvm.out (def xform (deploy xform)))
+
+:here-4
 
 ; (def xform
 ;      (deploy xform))

@@ -96,7 +96,7 @@
 
 
 
-  (def a*ctx
+  (def a*env
        (-> ($.watch/init {:ms-debounce 1000})
            ($.watch/start {'$ "src/convex/break/util.cvx"}
                           (fn [env]
@@ -107,15 +107,15 @@
                                     '(def $
                                           (deploy $)))))))
 
-  (ppr @a*ctx)
-  (agent-error a*ctx)
+  (ppr @a*env)
+  (agent-error a*env)
 
-  ($.watch/stop a*ctx)
+  ($.watch/stop a*env)
 
 
-  ($.cvm/exception ($.watch/ctx a*ctx))
+  ($.cvm/exception ($.watch/ctx a*env))
 
-  ($.clj.eval/result* ($.watch/ctx a*ctx)
+  ($.clj.eval/result* ($.watch/ctx a*env)
                       $/foo)
 
 
