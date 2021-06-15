@@ -9,6 +9,7 @@
   (:require [clojure.data]
             [clojure.pprint]
             [convex.app.fuzz]
+            [convex.app.run]
             [convex.break]
             [convex.break.gen]
             [convex.break.test.account]
@@ -38,9 +39,10 @@
 			[convex.lib.lab.xform]
             [convex.lib.trust]
             [convex.lib.test.trust]
-            [convex.clj                   :as $.clj]
-            [convex.clj.gen               :as $.clj.gen]
+            [convex.clj                    :as $.clj]
+            [convex.clj.gen                :as $.clj.gen]
             [convex.clj.test]
+            [convex.run                    :as $.run]
             [convex.sync                   :as $.sync]
             [clojure.test.check.generators :as TC.gen]))
 

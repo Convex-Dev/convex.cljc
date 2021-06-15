@@ -169,8 +169,7 @@
 
   ([sym->path on-change option+]
 
-   (let [a*env (or (:a*env option+)
-                   (agent nil))]
+   (let [a*env (agent nil)]
      (send-off a*env
                (fn [_]
                  (let [ctx    (or (:ctx-base option+)
@@ -181,8 +180,7 @@
                    (-> (load ($.cvm/fork ctx)
                              sym->path)
                        (merge option+)
-                       (assoc :a*env    a*env
-                              :ctx-base ctx
+                       (assoc :ctx-base ctx
                               :extra+   extra+
                               :watcher  (watcher/watch! [{:handler (fn [_ {:keys [^File file
                                                                                   kind]}]
@@ -252,4 +250,5 @@
   (.close ^java.lang.AutoCloseable (cond->
                                      watcher
                                      (map? watcher)
-                                     :watcher)))
+                                     :watcher))
+  nil)
