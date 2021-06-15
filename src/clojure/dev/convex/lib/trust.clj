@@ -8,8 +8,8 @@
   (:require [convex.code     :as $.code]
             [convex.cvm      :as $.cvm]
             [convex.clj.eval :as $.clj.eval]
-            [convex.disk     :as $.disk]
-            [convex.clj      :as $.clj]))
+            [convex.clj      :as $.clj]
+            [convex.watch    :as $.watch]))
 
 
 ;;;;;;;;;;
@@ -18,22 +18,25 @@
 (comment
 
 
-  (def w*ctx
-       ($.disk/watch {'trust "src/convex/lib/trust.cvx"}
-                     (fn [env]
-                       (update env
-                               :ctx
-                               $.clj.eval/ctx
-                               '(def trust
-                                     (deploy trust))))))
-
-  ($.cvm/exception @w*ctx)
-
-  (.close w*ctx)
+  (def a*env
+       (-> ($.watch/init {:on-change (fn [env]
+                                       (update env
+                                               :ctx
+                                               $.clj.eval/ctx
+                                               '(def trust
+                                                     (deploy trust))))
+                          :sym->dep {'trust "src/convex/lib/trust.cvx"}})
+           $.watch/start))
 
 
 
-  ($.clj.eval/result @w*ctx
+  ($.cvm/exception ($.watch/ctx a*env))
+
+  ($.watch/stop a*env)
+
+
+
+  ($.clj.eval/result ($.watch/ctx a*env)
                      '(do
                         (let [addr (deploy (trust/build-whitelist {:whitelist [42]}))]
                           [(trust/trusted? addr
@@ -42,7 +45,7 @@
                                            100)])))
 
 
-  ($.clj.eval/result @w*ctx
+  ($.clj.eval/result ($.watch/ctx a*env)
                      '(do
                         (let [addr (deploy (trust/add-trusted-upgrade nil))]
                           (call addr

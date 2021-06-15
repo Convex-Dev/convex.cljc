@@ -6,10 +6,10 @@
    :clj-kondo/config '{:linters {:unused-namespace {:level :off}}}}
 
   (:require [clojure.pprint]
+            [convex.clj      :as $.clj]
             [convex.clj.eval :as $.clj.eval]
             [convex.cvm      :as $.cvm]
-            [convex.disk     :as $.disk]
-            [convex.clj      :as $.clj]))
+            [convex.watch    :as $.watch]))
 
 
 ;;;;;;;;;;
@@ -18,27 +18,28 @@
 (comment
 
 
-  (def w*ctx
-       ($.disk/watch {'store "src/convex/lib/lab/xform/store.cvx"
-                      'xform "src/convex/lib/lab/xform.cvx"}
-                     (fn [env]
-                       (update env
-                               :ctx
-                               $.clj.eval/ctx
-                               '(do
-                                  (def store
-                                       (deploy store))
-                                  (def xform
-                                       (deploy xform)))))))
+  (def a*env
+       (-> ($.watch/init {:on-change (fn [env]
+                                       (update env
+                                               :ctx
+                                               $.clj.eval/ctx
+                                               '(do
+                                                  (def store
+                                                       (deploy store))
+                                                  (def xform
+                                                       (deploy xform)))))
+                          :sym->dep  {'store "src/convex/lib/lab/xform/store.cvx"
+                                      'xform "src/convex/lib/lab/xform.cvx"}})
+           $.watch/start))
 
 
-  ($.cvm/exception @w*ctx)
+  ($.cvm/exception ($.watch/ctx a*env))
 
-  (.close w*ctx)
+  ($.watch/stop a*env)
 
 
 
-  ($.clj.eval/result* @w*ctx
+  ($.clj.eval/result* ($.watch/ctx a*env)
                       (xform/transduce (xform/comp (xform/filter (fn [x] (> x 0)))
                                                    (xform/map inc))
                                        conj
@@ -48,7 +49,7 @@
 
 
   (clojure.pprint/pprint
-    ($.clj.eval/result* @w*ctx
+    ($.clj.eval/result* ($.watch/ctx a*env)
                         (xform/transduce (xform/comp (xform/filter (fn [item]
                                                                      (contains-key? (store/tag+ item)
                                                                                     :fruit)))

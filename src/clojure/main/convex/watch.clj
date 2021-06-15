@@ -31,25 +31,19 @@
 
   ""
 
+  [env]
 
-  ([]
-
-   (init nil))
-
-
-  ([option+]
-
-   (agent (-> option+
-              (update :cycle
-                      #(or %
-                           0))
-              (update :ctx-base
-                      #(or %
-                           ($.cvm/ctx)))
-              (update :extra+
-                      #(into #{}
-                             (map $.disk/path-canonical)
-                             %))))))
+  (agent (-> env
+             (update :cycle
+                     #(or %
+                          0))
+             (update :ctx-base
+                     #(or %
+                          ($.cvm/ctx)))
+             (update :extra+
+                     #(into #{}
+                            (map $.disk/path-canonical)
+                            %)))))
 
 
 
@@ -57,51 +51,52 @@
 
   ""
 
-  [a*env sym->dep on-change env]
+  [a*env env]
 
-  (-> ($.disk/load ($.cvm/fork (env :ctx-base))
-                   sym->dep)
-      (merge env)
-      (assoc :watcher
-             (watcher/watch! [{:handler (fn [_ {:keys [^File file
-                                                       kind]}]
-                                          (let [nano-change (System/nanoTime)
-                                                path        (.getCanonicalPath file)]
-                                            (send-off a*env
-                                                      (fn [env]
-                                                        (-> env
-                                                            (assoc :nano-change
-                                                                   nano-change)
-                                                            (assoc-in [(if (contains? (env :extra+)
-                                                                                      path)
-                                                                         :extra->change
-                                                                         :input->change)
-                                                                       path]
-                                                                      kind)
-                                                            (update :f*debounce
-                                                                    (fn [f*debounce]
-                                                                      (some-> f*debounce
-                                                                              future-cancel)
-                                                                      (future
-                                                                        (Thread/sleep (or (env :ms-debounce)
-                                                                                          20))
-                                                                        (send a*env
-                                                                              (fn [env]
-                                                                                (if (= (env :nano-change)
-                                                                                       nano-change)
-                                                                                  (-> (if (seq (env :extra->change))
-                                                                                        env
-                                                                                        (-> env
-                                                                                            $.sync/patch
-                                                                                            $.sync/eval))
-                                                                                      (dissoc :f*debounce)
-                                                                                      (update :cycle
-                                                                                              inc)
-                                                                                      on-change)
-                                                                                  env)))))))))))
-                               :paths   (concat (env :extra+)
-                                                (vals sym->dep))}]))
-      on-change))
+  (let [sym->dep (env :sym->dep)]
+    (-> ($.disk/load ($.cvm/fork (env :ctx-base))
+                     sym->dep)
+        (merge env)
+        (assoc :watcher
+               (watcher/watch! [{:handler (fn [_ {:keys [^File file
+                                                         kind]}]
+                                            (let [nano-change (System/nanoTime)
+                                                  path        (.getCanonicalPath file)]
+                                              (send-off a*env
+                                                        (fn [env]
+                                                          (-> env
+                                                              (assoc :nano-change
+                                                                     nano-change)
+                                                              (assoc-in [(if (contains? (env :extra+)
+                                                                                        path)
+                                                                           :extra->change
+                                                                           :input->change)
+                                                                         path]
+                                                                        kind)
+                                                              (update :f*debounce
+                                                                      (fn [f*debounce]
+                                                                        (some-> f*debounce
+                                                                                future-cancel)
+                                                                        (future
+                                                                          (Thread/sleep (or (env :ms-debounce)
+                                                                                            20))
+                                                                          (send a*env
+                                                                                (fn [env]
+                                                                                  (if (= (env :nano-change)
+                                                                                         nano-change)
+                                                                                    (-> (if (seq (env :extra->change))
+                                                                                          env
+                                                                                          (-> env
+                                                                                              $.sync/patch
+                                                                                              $.sync/eval))
+                                                                                        (dissoc :f*debounce)
+                                                                                        (update :cycle
+                                                                                                inc)
+                                                                                        ((env :on-change)))
+                                                                                    env)))))))))))
+                                 :paths   (concat (env :extra+)
+                                                  (vals sym->dep))}]))
+        ((env :on-change)))))
 
 
 
@@ -149,13 +144,11 @@
    (.close w*ctx)
    ```"
 
-  [a*env sym->dep on-change]
+  [a*env]
 
   (send-off a*env
             (partial -start
-                     a*env
-                     sym->dep
-                     on-change)))
+                     a*env)))
 
 
 
@@ -167,7 +160,8 @@
 
   [env]
 
-  (watcher/stop! (env :watcher))
+  (some-> (env :watcher)
+          watcher/stop!)
   env)
 
 

@@ -97,15 +97,16 @@
 
 
   (def a*env
-       (-> ($.watch/init {:ms-debounce 1000})
-           ($.watch/start {'$ "src/convex/break/util.cvx"}
-                          (fn [env]
-                            (ppr [:env (dissoc env :input->code)])
-                            (update env
-                                    :ctx
-                                    $.clj.eval/ctx
-                                    '(def $
-                                          (deploy $)))))))
+       (-> ($.watch/init {:ms-debounce 1000
+                          :on-change   (fn [env]
+                                         (ppr [:env (dissoc env :input->code)])
+                                         (update env
+                                                 :ctx
+                                                 $.clj.eval/ctx
+                                                 '(def $
+                                                       (deploy $))))
+                          :sym->dep    {'$ "src/convex/break/util.cvx"}})
+           $.watch/start))
 
   (ppr @a*env)
   (agent-error a*env)
