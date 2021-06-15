@@ -10,7 +10,6 @@
   (:require [clojure.string]
             [convex.code     :as $.code]
             [convex.cvm      :as $.cvm]
-            [convex.disk     :as $.disk]
             [convex.sync     :as $.sync]
             [convex.watch    :as $.watch]))
 
@@ -406,7 +405,7 @@
     env
     (if-some [dep+' (env :dep+)]
       (let [env-2 (merge env
-                         ($.disk/load ($.cvm/fork @d*ctx-base)
+                         ($.sync/disk ($.cvm/fork @d*ctx-base)
                                       dep+'))
             err   (env-2 ::error)]
         (if err

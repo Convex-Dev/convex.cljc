@@ -7,9 +7,9 @@
   (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
             [convex.clj.eval               :as $.clj.eval]
-            [convex.cvm                    :as $.cvm]
-            [convex.disk                   :as $.disk]
             [convex.clj.gen                :as $.clj.gen]
+            [convex.cvm                    :as $.cvm]
+            [convex.sync                   :as $.sync]
             [helins.mprop                  :as mprop]))
 
 
@@ -20,7 +20,7 @@
 
   "Base context for this namespace."
 
-  (-> ($.disk/load {'$     "src/convex/break/util.cvx"
+  (-> ($.sync/disk {'$     "src/convex/break/util.cvx"
                     'trust "src/convex/lib/trust.cvx"})
       :ctx
       ($.clj.eval/ctx '(do

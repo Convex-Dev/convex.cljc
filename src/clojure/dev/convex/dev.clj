@@ -28,20 +28,18 @@
             [convex.break.test.set]
             [convex.break.test.symbolic]
             [convex.break.test.syntax]
+            [convex.clj                    :as $.clj]
+            [convex.clj.gen                :as $.clj.gen]
+            [convex.clj.test]
             [convex.code                   :as $.code]
             [convex.cvm                    :as $.cvm]
             [convex.clj.eval               :as $.clj.eval]
             [convex.cvm.test]
-            [convex.disk                   :as $.disk]
-            [convex.example.disk]
             [convex.example.exec]
             [convex.example.templ]
 			[convex.lib.lab.xform]
             [convex.lib.trust]
             [convex.lib.test.trust]
-            [convex.clj                    :as $.clj]
-            [convex.clj.gen                :as $.clj.gen]
-            [convex.clj.test]
             [convex.run                    :as $.run]
             [convex.sync                   :as $.sync]
             [convex.watch                  :as $.watch]
@@ -78,7 +76,7 @@
 
 
   (def ctx
-       (-> ($.disk/load {'store "src/convex/lib/lab/xform/store.cvx"
+       (-> ($.sync/disk {'store "src/convex/lib/lab/xform/store.cvx"
                          'xform "src/convex/lib/lab/xform.cvx"})
            :ctx
            ($.clj.eval/ctx '(do

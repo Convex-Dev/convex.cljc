@@ -1,17 +1,21 @@
 (ns convex.sync
 
-  "About running Convex Lisp inputs and producing a context.
-  
-   This namespace is currently the core implementation of [[convex.disk]]. However, it is written
-   in such a way that it is generic and could be applied to sources other than files.
+  "About syncing running Convex Lisp source code with CVM contextes.
 
-   For understanding what is going on, it is best to study it alongside [[convex.disk]], especially [[convex.disk/load]]."
+   Series of abstract utilities for handling code reading, updating, errors, ...
+
+   A prime example is [[disk]] which reads and loads unevaluated source files into a CVM context.
+
+   Another one is [[convex.watch/start]] which builds on [[disk]] as well as other utilities from this namespace
+   for providing a live-reloading experience."
 
   {:author "Adam Helinski"}
 
+  (:import (java.io File))
   (:refer-clojure :exclude [eval
                             load])
-  (:require [convex.cvm  :as $.cvm]))
+  (:require [convex.code :as $.code]
+            [convex.cvm  :as $.cvm]))
 
 
 (declare load
@@ -177,7 +181,7 @@
 
   (defn eval
 
-    "Evaluates the code for all `:input+` in `env` on `ctx`, unless there is an `:error` attached.
+    "Evaluates the code for all `:input+` in `env` on `:ctx`, unless there is an `:error` attached.
     
       If `ctx` is not explicitly provided, it is fetched and forked from `:ctx-base` in the given `env`."
 
@@ -196,3 +200,83 @@
        env
        (-eval env
               ctx)))))
+
+
+;;;;;;;;;;
+
+
+(defn disk
+
+  "Into the given CVM `ctx` (or a newly created one if not provided), reads the given files and internis then as unevaluted code
+   under their respective symbols.
+  
+   Only IO utility from this namespaces.
+
+   Returns a map which shall be called an \"environment\" map. For simply loading files, only the prepared `:ctx` or the possible
+   `:error` are really needed. However, it contains other key-values which can be used with utilities from this namespace for further
+   processing, like [[convex.watch/start]] does.
+
+   An environment map contains:
+
+   | Key | Value |
+   |---|---|
+   | `:ctx` | If there is no `:error`, the prepared context |
+   | `:error` | Signals an error and the absence of `:ctx` (see below) |
+   | `:input+` | Vector of requested input file paths |
+   | `:input->code` | Map of `input file path` -> `CVM code`, uses `:read` |
+   | `:path->cvm-symbol` | Map of `file path` -> `CVM symbol used for interning` |
+   | `:read` | Read function used by the [[convex.sync]] namespace, not a user concern |
+
+   This interned code can they be used as needed through the power of Lisp. Typically, either `deploy` or `eval` is used.
+
+   Eg. Reading a file and deploying as a library (without error checking):
+   
+   ```clojure
+   (-> (load {'my-lib \"./path/to/lib.cvx\"})
+       :ctx
+       (convex.clj.eval/ctx '(def my-lib
+                                  (deploy my-lib))))
+   ```
+
+   An `:error` is a 2-tuple vector where the first item is a keyword indicating an error type and second item is information:
+
+   | Position 0 | Position 1 |
+   |---|---|
+   | `:load`` | Map of `file path` -> `Java exception occured during reading` |
+   | `:eval` | Map with `:exception` (either Java or CVM exception) and `:input` (which input caused this evaluation error) |"
+
+
+  ([sym->path]
+
+   (disk ($.cvm/ctx)
+         sym->path))
+
+
+  ([ctx sym->path]
+
+   (let [input+        (reduce (fn [input+ [sym ^String path]]
+                                 (conj input+
+                                       [(.getCanonicalPath (File. path))
+                                        ($.code/symbol (str sym))]))
+                               []
+                               sym->path)
+         path->cvm-sym (into {}
+                             input+)
+         read-input    (fn [env path]
+                         (try
+                           (assoc-code env
+                                       path
+                                       ($.code/def (path->cvm-sym path)
+                                                   ($.code/quote (-> path
+                                                                     slurp
+                                                                     $.cvm/read))))
+                           (catch Throwable ex
+                             (assoc-err-read env
+                                             path
+                                             ex))))]
+     (-> {:input+        (mapv first
+                               input+)
+          :path->cvm-sym path->cvm-sym
+          :read          read-input}
+         load
+         (eval ctx)))))

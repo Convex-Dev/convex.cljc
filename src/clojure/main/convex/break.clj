@@ -6,7 +6,7 @@
 
   (:require [convex.clj.eval :as $.clj.eval]
             [convex.cvm      :as $.cvm]
-            [convex.disk     :as $.disk]))
+            [convex.sync     :as $.sync]))
 
 
 ;;;;;;;;;;
@@ -18,7 +18,7 @@
 
   []
 
-  (-> ($.disk/load {'$ "src/convex/break/util.cvx"})
+  (-> ($.sync/disk {'$ "src/convex/break/util.cvx"})
       :ctx
       ($.clj.eval/ctx '(def $
                             (deploy $)))

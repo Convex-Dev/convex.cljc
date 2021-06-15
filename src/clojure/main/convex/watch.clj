@@ -7,8 +7,7 @@
   {:author "Adam Helinski"}
 
   (:import (java.io File))
-  (:require [convex.disk :as $.disk]
-            [convex.cvm  :as $.cvm]
+  (:require [convex.cvm  :as $.cvm]
             [convex.sync :as $.sync]
             [hawk.core   :as watcher]))
 
@@ -42,7 +41,8 @@
                           ($.cvm/ctx)))
              (update :extra+
                      #(into #{}
-                            (map $.disk/path-canonical)
+                            (map (fn [^String path]
+                                   (.getCanonicalPath (File. path))))
                             %)))))
 
 
@@ -54,7 +54,7 @@
   [a*env env]
 
   (let [sym->dep (env :sym->dep)]
-    (-> ($.disk/load ($.cvm/fork (env :ctx-base))
+    (-> ($.sync/disk ($.cvm/fork (env :ctx-base))
                      sym->dep)
         (merge env)
         (assoc :watcher
