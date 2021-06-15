@@ -44,6 +44,7 @@
             [convex.clj.test]
             [convex.run                    :as $.run]
             [convex.sync                   :as $.sync]
+            [convex.watch                  :as $.watch]
             [clojure.test.check.generators :as TC.gen]))
 
 
@@ -95,23 +96,26 @@
 
 
 
-  (def w*ctx
-       ($.disk/watch {'$ "src/convex/break/util.cvx"}
-                     (fn [env]
-                       (ppr [:env (dissoc env :input->code)])
-                       (update env
-                               :ctx
-                               $.clj.eval/ctx
-                               '(def $
-                                     (deploy $))))
-                     {:ms-debounce 1000}))
+  (def a*ctx
+       (-> ($.watch/init {:ms-debounce 1000})
+           ($.watch/start {'$ "src/convex/break/util.cvx"}
+                          (fn [env]
+                            (ppr [:env (dissoc env :input->code)])
+                            (update env
+                                    :ctx
+                                    $.clj.eval/ctx
+                                    '(def $
+                                          (deploy $)))))))
 
-  ($.disk/watch-stop w*ctx)
+  (ppr @a*ctx)
+  (agent-error a*ctx)
+
+  ($.watch/stop a*ctx)
 
 
-  ($.cvm/exception @w*ctx)
+  ($.cvm/exception ($.watch/ctx a*ctx))
 
-  ($.clj.eval/result* @w*ctx
+  ($.clj.eval/result* ($.watch/ctx a*ctx)
                       $/foo)
 
 
