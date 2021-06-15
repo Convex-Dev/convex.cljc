@@ -10,7 +10,7 @@ This repository holds a diversity of tools and libraries, this document being on
 
 Namespaces are well documented and the user is expected to explore them.
 
-Current examples are located in the [example directory](../main/src/example/convex/example).
+Current examples are located in the [example directory](../main/src/clojure/example/convex/example).
 
 For brievety and consistency with the source, when mentioning a namespace, `convex` is replaced with `$` such as: `convex.cvm` -> `$.cvm`. 
 
@@ -179,23 +179,21 @@ the following is possible:
 ```
 
 
-## Loading and live-reloading Convex Lisp files
+## Loading Convex Lisp files into a context
 
-**Namespaces of interest:** `$.code`, `$.disk`
+**Namespaces of interest:** `$.clj.eval`, `$.sync`
 
 Writing Convex Lisp code as Clojure or in any programmatic way is convenient during development and testing. However, any non-trivial source should be written in proper
 `.cvx` files.
 
-Files can be loaded by using utilities from the `$.disk` namespace and providing a map of `symbol` -> `file path`.
+In the following example, starting from a new context, each file is read and interned under its related symbol as unevaluated code. Then, through the power of Lisp,
+all this code can be handled exactly as needed once the context is ready. Often, `eval` or `deploy` are involved.
 
-Starting from a new context, each file is read and interned  under its related symbol as unevaluated code. Then, through the power of Lisp, this code can be handled exactly
-as needed. Often, `eval` or `deploy` are involved.
-
-Without error checking, `$.disk/load`:
+Without error checking:
 
 ```clojure
 (def ctx
-     (-> ($.disk/load {'$ "src/convex/break/util.cvx"})
+     (-> ($.sync/disk {'$ "src/convex/break/util.cvx"})
          :ctx
          ($.clj.eval/ctx '(def $
                                (deploy $)))))
@@ -205,31 +203,35 @@ Without error checking, `$.disk/load`:
                     $/foo)
 ```
 
-Similarly, live-reloading with `$.disk/watch`:
+
+## Live-reloading Convex Lisp files
+
+**Namespaces of interest:** `$.clj.eval`, `$.watch`
+
+Akin to the previous section, files can be loaded into a context and also live-reloaded. In other words, the context can be keep in sync everytime a file
+is changed.
+
+A watcher is effectively a Clojure agent but the API makes that transparent. The agent itself is exposed so that expert user can build more complex features.
+
+In essence:
 
 ```clojure
-(def w*ctx
-     ($.disk/watch {'$ "src/convex/break/util.cvx"}
-                   (fn on-run [env]
-                     (update env
-                             :ctx
-                             $.clj.eval/ctx
-                             '(def $
-                                   (deploy $))))))
+(def a*env
+     (-> ($.watch/init {:on-change (fn [env]
+                                     (update env
+                                             :ctx
+                                             $.clj.eval/ctx
+                                             '(def $
+                                                   (deploy $))))
+                        :sym->dep  {'$ "src/convex/break/util.cvx"}})
+         $.watch/start))
 
 
-;; Dereferencing returns a fork of an always updated context
-;;
-($.clj.eval/result* @w*ctx
+($.clj.eval/result* ($.watch/ctx a*env)
                     $/foo)
 
-;; When done:
-;;
-(.close w*ctx)
 
-;; Or
-;;
-($.disk/watch-stop w*ctx)
+($.watch/stop a*env)
 ```
 
 
