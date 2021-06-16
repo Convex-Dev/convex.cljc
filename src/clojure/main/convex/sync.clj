@@ -27,7 +27,7 @@
 
 (defn assoc-code
 
-  "Associates the given `code` to `input` in `env`."
+  "Associates the given `code` to `input` in `env` under `:convex.sync/input->code`."
 
   [env input code]
 
@@ -40,7 +40,7 @@
 
 (defn assoc-err-read
 
-  "Adds `err` as a read error that occured when reading `input`."
+  "In `env` under `:convex.sync/error`, adds `err` as a read error that occured when reading `input`."
 
   [env input err]
 
@@ -63,9 +63,9 @@
 
 (defn load
 
-  "Reads the given `input` (or all `:inputs+` in `env`).
+  "Reads the given `input` (or all `:convex.sync/inputs+` in `env`).
   
-   Essentially does `((env :read) env input)`, which means that the `:read` function in `env`
+   Essentially does `((env :convex.sync/read) env input)`, which means that the `:convex.sync/read` function in `env`
    must appropriately handle read errors using [[assoc-err-read]].
 
    Even in case of errors, all inputs are processed."
@@ -134,7 +134,7 @@
 
 (defn patch
 
-  "Looks for changes in `:input->change` (map of `input` -> `One of #{:create :delete :modify}`) and
+  "Looks for changes in `:convex.sync/input->change` (map of `input` -> `One of #{:create :delete :modify}`) and
    applies them by using [[reload]] and [[unload]] as needed."
 
   ([env]
@@ -181,9 +181,9 @@
 
   (defn eval
 
-    "Evaluates the code for all `:input+` in `env` on `:ctx`, unless there is an `:error` attached.
+    "Evaluates the code for all `:convex.sync/input+` in `env` on `:convex.sync/ctx`, unless there is a `:convex.sync/error` attached.
     
-      If `ctx` is not explicitly provided, it is fetched and forked from `:ctx-base` in the given `env`."
+      If `ctx` is not explicitly provided, it is fetched and forked from `:convex.sync/ctx-base` in the given `env`."
 
 
     ([env]
