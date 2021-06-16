@@ -19,13 +19,13 @@
 
 
   (def a*env
-       (-> ($.watch/init {:on-change (fn [env]
-                                       (update env
-                                               :ctx
-                                               $.clj.eval/ctx
-                                               '(def trust
-                                                     (deploy trust))))
-                          :sym->dep {'trust "src/convex/lib/trust.cvx"}})
+       (-> ($.watch/init {:convex.watch/on-change (fn [env]
+                                                    (update env
+                                                            :convex.sync/ctx
+                                                            $.clj.eval/ctx
+                                                            '(def trust
+                                                                  (deploy trust))))
+                          :convex.watch/sym->dep  {'trust "src/convex/lib/trust.cvx"}})
            $.watch/start))
 
 

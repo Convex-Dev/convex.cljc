@@ -32,13 +32,13 @@
   ;; Similar  example but live-reloads the file on change.
   ;;
   (def a*env
-       (-> ($.watch/init {:on-change (fn [env]
-                                       (update env
-                                               :ctx
-                                               $.clj.eval/ctx
-                                               '(def $
-                                                     (deploy $))))
-                          :sym->dep  {'$ "src/convex/break/util.cvx"}})
+       (-> ($.watch/init {:convex.watch/on-change (fn [env]
+                                                    (update env
+                                                            :convex.sync/ctx
+                                                            $.clj.eval/ctx
+                                                            '(def $
+                                                                  (deploy $))))
+                          :convex.watch/sym->dep  {'$ "src/convex/break/util.cvx"}})
            $.watch/start))
 
 

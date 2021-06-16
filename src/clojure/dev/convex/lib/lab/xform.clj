@@ -19,17 +19,17 @@
 
 
   (def a*env
-       (-> ($.watch/init {:on-change (fn [env]
-                                       (update env
-                                               :ctx
-                                               $.clj.eval/ctx
-                                               '(do
-                                                  (def store
-                                                       (deploy store))
-                                                  (def xform
-                                                       (deploy xform)))))
-                          :sym->dep  {'store "src/convex/lib/lab/xform/store.cvx"
-                                      'xform "src/convex/lib/lab/xform.cvx"}})
+       (-> ($.watch/init {:convex.watch/on-change (fn [env]
+                                                    (update env
+                                                            :convex.sync/ctx
+                                                            $.clj.eval/ctx
+                                                            '(do
+                                                               (def store
+                                                                    (deploy store))
+                                                               (def xform
+                                                                    (deploy xform)))))
+                          :convex.watch/sym->dep  {'store "src/convex/lib/lab/xform/store.cvx"
+                                                   'xform "src/convex/lib/lab/xform.cvx"}})
            $.watch/start))
 
 

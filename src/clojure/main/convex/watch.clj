@@ -24,7 +24,7 @@
 
   [a*env]
 
-  (some-> (@a*env :ctx)
+  (some-> (@a*env :convex.sync/ctx)
           $.cvm/fork))
 
 
@@ -39,17 +39,17 @@
 
    | Key | Value |
    |---|---|
-   | `:on-change` | Function `env` -> `env` called after initial load and after each update |
+   | `:convex.watch/on-change` | Function `env` -> `env` called after initial load and after each update |
 
    It **MAY** contain:
 
    | Key | Value | Default | Can be altered later |
    |---|---|---|---|
-   | `:ctx-base` | Base context forked before each evaluation | Result of [[convex.cvm/ctx]] | Yes |
-   | `:cycle` | Is incremented each time prior to running `:on-change` | 0 | Yes |
-   | `:extra+` | List of files that ought to be monitored as well | `nil` | No |
-   | `:ms-debounce` | Milliseconds, changes  debounced for better behavior with editors and OS | 20 (minimum is 1) | Yes |
-   | `:sym->dep | Map of `symbol` -> `path to dependency file` | `nil` | No |
+   | `:convex.sync/ctx-base` | Base context forked before each evaluation | Result of [[convex.cvm/ctx]] | Yes |
+   | `:convex.watch/cycle` | Is incremented each time prior to running `:on-change` | 0 | Yes |
+   | `:convex.watch/extra+` | List of files that ought to be monitored as well | `nil` | No |
+   | `:convex.watch/ms-debounce` | Milliseconds, changes  debounced for better behavior with editors and OS | 20 (minimum is 1) | Yes |
+   | `:convex.watch/sym->dep | Map of `symbol` -> `path to dependency file` | `nil` | No |
 
    Just like in [[convex.sync/disk]], files from `:sym->dep` will be loaded in [[start]], interned under their respective symbols.
 
@@ -59,13 +59,13 @@
   [env]
 
   (agent (-> env
-             (update :ctx-base
+             (update :convex.sync/ctx-base
                      #(or %
                           ($.cvm/ctx)))
-             (update :cycle
+             (update :convex.watch/cycle
                      #(or %
                           0))
-             (update :extra+
+             (update :convex.watch/extra+
                      #(into #{}
                             (map (fn [^String path]
                                    (.getCanonicalPath (File. path))))
@@ -83,11 +83,11 @@
 
   [a*env env]
 
-  (let [sym->dep (env :sym->dep)]
-    (-> ($.sync/disk ($.cvm/fork (env :ctx-base))
+  (let [sym->dep (env :convex.watch/sym->dep)]
+    (-> ($.sync/disk ($.cvm/fork (env :convex.sync/ctx-base))
                      sym->dep)
         (merge env)
-        (assoc :watcher
+        (assoc :convex.watch/watcher
                (watcher/watch! [{:handler (fn [_ {:keys [^File file
                                                          kind]}]
                                             (let [nano-change (System/nanoTime)
@@ -95,38 +95,38 @@
                                               (send-off a*env
                                                         (fn [env]
                                                           (-> env
-                                                              (assoc :nano-change
+                                                              (assoc :convex.watch/nano-change
                                                                      nano-change)
-                                                              (assoc-in [(if (contains? (env :extra+)
+                                                              (assoc-in [(if (contains? (env :convex.watch/extra+)
                                                                                         path)
-                                                                           :extra->change
-                                                                           :input->change)
+                                                                           :convex.watch/extra->change
+                                                                           :convex.sync/input->change)
                                                                          path]
                                                                         kind)
-                                                              (update :f*debounce
+                                                              (update :convex.watch/f*debounce
                                                                       (fn [f*debounce]
                                                                         (some-> f*debounce
                                                                                 future-cancel)
                                                                         (future
-                                                                          (Thread/sleep (or (env :ms-debounce)
+                                                                          (Thread/sleep (or (env :convex.watch/ms-debounce)
                                                                                             20))
                                                                           (send a*env
                                                                                 (fn [env]
-                                                                                  (if (= (env :nano-change)
+                                                                                  (if (= (env :convex.watch/nano-change)
                                                                                          nano-change)
-                                                                                    (-> (if (seq (env :extra->change))
+                                                                                    (-> (if (seq (env :convex.watch/extra->change))
                                                                                           env
                                                                                           (-> env
                                                                                               $.sync/patch
                                                                                               $.sync/eval))
-                                                                                        (dissoc :f*debounce)
-                                                                                        (update :cycle
+                                                                                        (dissoc :convex.watch/f*debounce)
+                                                                                        (update :convex.watch/cycle
                                                                                                 inc)
-                                                                                        ((env :on-change)))
+                                                                                        ((env :convex.watch/on-change)))
                                                                                     env)))))))))))
-                                 :paths   (concat (env :extra+)
+                                 :paths   (concat (env :convex.watch/extra+)
                                                   (vals sym->dep))}]))
-        ((env :on-change)))))
+        ((env :convex.watch/on-change)))))
 
 
 
@@ -139,10 +139,10 @@
 
    | Key | Value |
    |---|---|
-   | `:extra->change` | A map of `extra path` to one of `#{:create :delete :modify} if any extra path changed |
-   | `:input->change` | Like `:extra->change` but for inputs that were not automatically processed |
-   | `:nano-change` | Last time change has been detected (uses `System/nanoTime`) |
-   | `:watcher` | Actual watcher object, not a user concern |
+   | `:convex.sync/input->change` | Like `:extra->change` but for inputs that were not automatically processed |
+   | `:convex.watch/extra->change` | A map of `extra path` to one of `#{:create :delete :modify} if any extra path changed |
+   | `:convex.watch/nano-change` | Last time change has been detected (uses `System/nanoTime`) |
+   | `:convex.watch/watcher` | Actual watcher object, not a user concern |
   
    See [[stop]]."
 
@@ -162,7 +162,7 @@
 
   [env]
 
-  (some-> (env :watcher)
+  (some-> (env :convex.watch/watcher)
           watcher/stop!)
   env)
 
