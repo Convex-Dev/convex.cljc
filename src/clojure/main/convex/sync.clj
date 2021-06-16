@@ -32,7 +32,7 @@
   [env input code]
 
   (assoc-in env
-            [:input->code
+            [:convex.sync/input->code
              input]
             code))
 
@@ -45,7 +45,7 @@
   [env input err]
 
   (update env
-          :error
+          :convex.sync/error
           (fn [error]
             (if (identical? (first error)
                             :load)
@@ -72,14 +72,14 @@
 
   ([env]
 
-   (reduce (env :read)
+   (reduce (env :convex.sync/read)
            env
-           (env :input+)))
+           (env :convex.sync/input+)))
 
 
   ([env input]
 
-   ((env :read)
+   ((env :convex.sync/read)
     env
     input)))
 
@@ -93,7 +93,7 @@
 
   [env input]
 
-  (-> (let [error        (env :error)
+  (-> (let [error        (env :convex.sync/error)
             input->error (when (and error
                                     (identical? (first error)
                                                 :load))
@@ -101,12 +101,12 @@
                                               input)))]
         (if input->error
           (assoc env
-                 :error
+                 :convex.sync/error
                  [:load
                   input->error])
           (dissoc env
-                  :error)))
-      (update :input->code
+                  :convex.sync/error)))
+      (update :convex.sync/input->code
               dissoc
               input)
       (load input)))
@@ -122,7 +122,7 @@
   [env input]
 
   (-> env
-      (update :input->code
+      (update :convex.sync/input->code
               dissoc
               input)
       (assoc-err-read input
@@ -141,8 +141,8 @@
 
    (reduce-kv patch
               (dissoc env
-                      :input->change)
-              (env :input->change)))
+                      :convex.sync/input->change)
+              (env :convex.sync/input->change)))
 
 
   ([env path change]
@@ -159,25 +159,25 @@
 
 
 (let [-eval (fn [env ctx]
-              (reduce (let [{:keys [input->code]} env]
+              (reduce (let [{:convex.sync/keys [input->code]} env]
                         (fn [env-2 input]
                           (try
                             (update env-2
-                                    :ctx
+                                    :convex.sync/ctx
                                     (fn [ctx]
                                       ($.cvm/eval ctx
                                                   (input->code input))))
                             (catch Throwable err
                               (reduced (-> env-2
-                                           (assoc :error
+                                           (assoc :convex.sync/error
                                                   [:eval
                                                    {:exception err
                                                     :input     input}])
-                                           (dissoc :ctx)))))))
+                                           (dissoc :convex.sync/ctx)))))))
                       (assoc env
-                             :ctx
+                             :convex.sync/ctx
                              ctx)
-                      (env :input+)))]
+                      (env :convex.sync/input+)))]
 
   (defn eval
 
@@ -188,15 +188,15 @@
 
     ([env]
 
-     (if (env :error)
+     (if (env :convex.sync/error)
        env
        (-eval env
-              ($.cvm/fork (env :ctx-base)))))
+              ($.cvm/fork (env :convex.sync/ctx-base)))))
 
 
     ([env ctx]
 
-     (if (env :error)
+     (if (env :convex.sync/error)
        env
        (-eval env
               ctx)))))
@@ -220,12 +220,12 @@
 
    | Key | Value |
    |---|---|
-   | `:ctx` | If there is no `:error`, the prepared context |
-   | `:error` | Signals an error and the absence of `:ctx` (see below) |
-   | `:input+` | Vector of requested input file paths |
-   | `:input->code` | Map of `input file path` -> `CVM code`, uses `:read` |
-   | `:path->cvm-symbol` | Map of `file path` -> `CVM symbol used for interning` |
-   | `:read` | Read function used by the [[convex.sync]] namespace, not a user concern |
+   | `:convex.sync/ctx` | If there is no `:error`, the prepared context |
+   | `:convex.sync/error` | Signals an error and the absence of `:ctx` (see below) |
+   | `:convex.sync/input+` | Vector of requested input file paths |
+   | `:convex.sync/input->code` | Map of `input file path` -> `CVM code`, uses `:read` |
+   | `:convex.sync/input->cvm-symbol` | Map of `file path` -> `CVM symbol used for interning` |
+   | `:convex.sync/read` | Read function used by the [[convex.sync]] namespace, not a user concern |
 
    This interned code can they be used as needed through the power of Lisp. Typically, either `deploy` or `eval` is used.
 
@@ -274,9 +274,9 @@
                              (assoc-err-read env
                                              path
                                              ex))))]
-     (-> {:input+        (mapv first
-                               input+)
-          :path->cvm-sym path->cvm-sym
-          :read          read-input}
+     (-> {:convex.sync/input+         (mapv first
+                                            input+)
+          :convex.sync/input->cvm-sym path->cvm-sym
+          :convex.sync/read           read-input}
          load
          (eval ctx)))))

@@ -79,7 +79,7 @@
   (def ctx
        (-> ($.sync/disk {'store "src/convex/lib/lab/xform/store.cvx"
                          'xform "src/convex/lib/lab/xform.cvx"})
-           :ctx
+           :convex.sync/ctx
            ($.clj.eval/ctx '(do
                               (eval store)
                               (def xform

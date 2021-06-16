@@ -22,7 +22,7 @@
 
   (-> ($.sync/disk {'$     "src/convex/break/util.cvx"
                     'trust "src/convex/lib/trust.cvx"})
-      :ctx
+      :convex.sync/ctx
       ($.clj.eval/ctx '(do
                          (def $
                               (deploy $))

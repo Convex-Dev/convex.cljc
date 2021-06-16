@@ -20,7 +20,7 @@
   ;;
   (def ctx
        (-> ($.sync/disk {'$ "src/convex/break/util.cvx"})
-           :ctx
+           :convex.sync/ctx
            ($.clj.eval/ctx '(def $
                                  (deploy $)))))
 
