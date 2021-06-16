@@ -76,9 +76,9 @@
                type]
               (some? arg)
               (conj arg))]
-    ((:out env) err)
+    ((:convex.run/out env) err)
     (assoc env
-           ::error
+           :convex.run/error
            err)))
 
 
@@ -104,10 +104,10 @@
 
   (let [env-2 (eval-form env
                          (second form))]
-    (if (env-2 ::error)
+    (if (env-2 :convex.run/error)
       env-2
       (do
-        ((env-2 :out) ($.cvm/result (env-2 :ctx)))
+        ((env-2 :convex.run/out) ($.cvm/result (env-2 :convex.sync/ctx)))
         env-2))))
 
 
@@ -121,7 +121,7 @@
   (let [cvm-sym (second form)]
     (eval-form env
                ($.code/def cvm-sym
-                           ($.cvm/log (env :ctx))))))
+                           ($.cvm/log (env :convex.sync/ctx))))))
 
 
 
@@ -132,7 +132,7 @@
   [env form]
 
   (assoc env
-         :map-trx
+         :convex.run/map-trx
          (second form)))
 
 
@@ -182,7 +182,7 @@
 
   [env form]
 
-  (let [ctx-2     ($.cvm/expand (env :ctx)
+  (let [ctx-2     ($.cvm/expand (env :convex.sync/ctx)
                                 form)
         exception ($.cvm/exception ctx-2)]
     (if exception
@@ -191,7 +191,7 @@
              [form
               exception])
       (assoc env
-             :ctx
+             :convex.sync/ctx
              ctx-2))))
 
 
@@ -202,18 +202,18 @@
 
   [env]
 
-  (let [ctx       ($.cvm/eval (env :ctx)
+  (let [ctx       ($.cvm/eval (env :convex.sync/ctx)
                               ($.code/do [($.code/def ($.code/symbol "*cvm.juice.last*")
-                                                      ($.code/long (env :juice-last)))
+                                                      ($.code/long (env :convex.run/juice-last)))
                                           ($.code/def ($.code/symbol "*cvm.trx.id*")
-                                                      ($.code/long (env :i-trx)))]))
+                                                      ($.code/long (env :convex.run/i-trx)))]))
         exception ($.cvm/exception ctx)]
     (if exception
       (error env
              :inject-value+
              exception)
       (assoc env
-             :ctx
+             :convex.sync/ctx
              ctx))))
 
 
@@ -226,7 +226,7 @@
 
   [env form]
 
-  (let [ctx       ($.cvm/juice-refill (env :ctx))
+  (let [ctx       ($.cvm/juice-refill (env :convex.sync/ctx))
         juice     ($.cvm/juice ctx)
         ctx-2     ($.cvm/eval ctx
                               form)
@@ -236,10 +236,10 @@
              :eval.trx
              exception)
       (-> env
-          (assoc :ctx        ctx-2
-                 :juice-last (- juice
-                                ($.cvm/juice ctx-2)))
-          (update :i-trx
+          (assoc :convex.run/juice-last (- juice
+                                           ($.cvm/juice ctx-2))
+                 :convex.sync/ctx       ctx-2)
+          (update :convex.run/i-trx
                   inc)))))
 
 
@@ -251,24 +251,24 @@
   [env trx]
 
   (let [env-2 (inject-value+ env)]
-    (if (env-2 ::error)
+    (if (env-2 :convex.run/error)
       env-2
       (let [env-3 (expand env-2
                           trx)]
-        (if (env-3 ::error)
+        (if (env-3 :convex.run/error)
           env-3
           (let [trx-2 (-> env-3
-                          :ctx
+                          :convex.sync/ctx
                           $.cvm/result)]
             (if-some [f (cvm-command trx-2)]
               (f env-2
                  trx-2)
-              (if-some [map-trx (env :map-trx)]
+              (if-some [map-trx (env :convex.run/map-trx)]
                 (-> env-2
-                    (dissoc :map-trx)
+                    (dissoc :convex.run/map-trx)
                     (eval-trx ($.code/list [map-trx
                                             trx-2]))
-                    (assoc :map-trx
+                    (assoc :convex.run/map-trx
                            map-trx))
                 (eval-form env-2
                            trx-2)))))))))
@@ -283,7 +283,7 @@
   ([env]
 
    (eval-trx+ env
-              (env :trx+)))
+              (env :convex.run/trx+)))
 
 
   ([env trx+]
@@ -291,7 +291,7 @@
    (reduce (fn [env-2 trx]
              (let [env-3 (eval-trx env-2
                                    trx)]
-               (if (env-3 ::error)
+               (if (env-3 :convex.run/error)
                  (reduced env-3)
                  env-3)))
            env
@@ -306,10 +306,10 @@
   [env]
 
   (-> env
-      (assoc :i-trx      0
-             :juice-last 0)
+      (assoc :convex.run/i-trx      0
+             :convex.run/juice-last 0)
       eval-trx+
-      (dissoc :map-trx)))
+      (dissoc :convex.run/map-trx)))
 
 
 ;;;;;;;;;; 
@@ -322,7 +322,7 @@
   [env]
 
   (update env
-          :out
+          :convex.run/out
           #(or %
                out-default)))
 
@@ -347,7 +347,7 @@
              [path
               err])
       (assoc env
-             :src
+             :convex.run/src
              src))))
 
 
@@ -361,7 +361,7 @@
   (let [[err
          trx+] (try
                  [nil
-                  ($.cvm/read-many (env :src))]
+                  ($.cvm/read-many (env :convex.run/src))]
                  (catch Throwable err
                    [err
                     nil]))]
@@ -371,12 +371,12 @@
              err)
       (let [dep+' (dep+ trx+)]
         (-> env
-            (assoc :dep+ dep+'
-                   :trx+ (cond->
-                           trx+
-                           (seq dep+')
-                           rest))
-            (dissoc :src))))))
+            (assoc :convex.run/dep+ dep+'
+                   :convex.run/trx+ (cond->
+                                      trx+
+                                      (seq dep+')
+                                      rest))
+            (dissoc :convex.run/src))))))
 
 
 
@@ -389,7 +389,7 @@
   (let [env-2 (-> env
                   init
                   (read-src path))]
-    (if (env-2 ::error)
+    (if (env-2 :convex.run/error)
       env-2
       (process-src env-2))))
 
@@ -401,20 +401,20 @@
 
   [env]
 
-  (if (env ::error)
+  (if (env :convex.run/error)
     env
-    (if-some [dep+' (env :dep+)]
-      (let [env-2 (merge env
-                         ($.sync/disk ($.cvm/fork @d*ctx-base)
-                                      dep+'))
-            err   (env-2 ::error)]
-        (if err
+    (if-some [dep+' (env :convex.run/dep+)]
+      (let [env-2    (merge env
+                            ($.sync/disk ($.cvm/fork @d*ctx-base)
+                                         dep+'))
+            err-sync (env-2 :convex.sync/error)]
+        (if err-sync
           (error env-2
-                 :dep+
-                 err)
+                 :sync-dep+
+                 err-sync)
           (exec-trx+ env-2)))
       (-> env
-          (assoc :ctx
+          (assoc :convex.sync/ctx
                  ($.cvm/fork @d*ctx-base))
           exec-trx+))))
 
@@ -437,7 +437,7 @@
 
    (-> env
        init
-       (assoc :src
+       (assoc :convex.run/src
               src)
        process-src
        once)))
@@ -481,32 +481,32 @@
   ([env ^String path]
 
    (let [a*env ($.watch/init (assoc env
-                                    :extra+
+                                    :convex.watch/extra+
                                     #{(.getCanonicalPath (File. path))}))]
      (send a*env
            (fn [env]
              (assoc env
-                    :on-change
-                    (fn on-change [{:as       env-2
-                                    dep-old+  :dep+
-                                    error-dep :error}]
+                    :convex.watch/on-change
+                    (fn on-change [{:as      env-2
+                                    dep-old+ :convex.run/dep+
+                                    err-sync :convex.sync/error}]
                       (let [env-3 (dissoc env-2
-                                          ::error)]
-                        (if error-dep
+                                          :convex.run/error)]
+                        (if err-sync
                           (error env-3
-                                 :dep
-                                 error-dep)
+                                 :sync-dep+
+                                 err-sync)
                           (if (or (nil? dep-old+)
-                                  (seq (env-3 :extra->change)))
+                                  (seq (env-3 :convex.watch/extra->change)))
                             (let [env-4 (main-file env-3
                                                    path)]
-                              (if (env-4 ::error)
+                              (if (env-4 :convex.error/error)
                                 env-4
-                                (let [dep-new+ (env-4 :dep+)]
+                                (let [dep-new+ (env-4 :convex.run/dep+)]
                                   (if (= (not-empty dep-new+)
                                          dep-old+)
                                     (-> env-4
-                                        (dissoc :extra->change)
+                                        (dissoc :convex.watch/extra->change)
                                         $.sync/patch
                                         $.sync/eval
                                         exec-trx+)
@@ -514,15 +514,15 @@
                                       ($.watch/-stop env-4)
                                       ($.watch/-start a*env
                                                       (-> (select-keys env-4
-                                                                       [:cycle
-                                                                        :ctx-base
-                                                                        :dep+
-                                                                        :ms-debounce
-                                                                        :on-change
-                                                                        :out
-                                                                        :extra+
-                                                                        :trx+])
-                                                          (assoc :sym->dep
+                                                                       [:convex.run/dep+
+                                                                        :convex.run/out
+                                                                        :convex.run/trx+
+                                                                        :convex.sync/ctx-base
+                                                                        :convex.watch/cycle
+                                                                        :convex.watch/extra+
+                                                                        :convex.watch/ms-debounce
+                                                                        :convex.watch/on-change])
+                                                          (assoc :convex.watch/sym->dep
                                                                  dep-new+))))))))
                             (exec-trx+ env-3))))))))
      ($.watch/start a*env)
