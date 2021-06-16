@@ -11,7 +11,8 @@
 
   {:author "Adam Helinski"}
 
-  (:import (java.io File))
+  (:import (java.io File
+                    FileNotFoundException))
   (:refer-clojure :exclude [eval
                             load])
   (:require [convex.code :as $.code]
@@ -44,18 +45,19 @@
 
   [env input err]
 
-  (update env
-          :convex.sync/error
-          (fn [error]
-            (if (identical? (first error)
-                            :load)
-              (update error
-                      1
-                      assoc
-                      input
-                      err)
-              [:load
-               {input err}]))))
+  (-> env
+      (dissoc :convex.sync/ctx)
+      (update :convex.sync/error
+              (fn [error]
+                (if (identical? (first error)
+                                :load)
+                  (update error
+                          1
+                          assoc
+                          input
+                          err)
+                  [:load
+                   {input err}])))))
 
 
 ;;;;;;;;;; Dealing with inputs
@@ -161,19 +163,19 @@
 (let [-eval (fn [env ctx]
               (reduce (let [{:convex.sync/keys [input->code]} env]
                         (fn [env-2 input]
-                          (try
-                            (update env-2
-                                    :convex.sync/ctx
-                                    (fn [ctx]
-                                      ($.cvm/eval ctx
-                                                  (input->code input))))
-                            (catch Throwable err
+                          (let [ctx-2     ($.cvm/eval (env-2 :convex.sync/ctx)
+                                                      (input->code input))
+                                exception ($.cvm/exception ctx-2)]
+                            (if exception
                               (reduced (-> env-2
                                            (assoc :convex.sync/error
                                                   [:eval
-                                                   {:exception err
-                                                    :input     input}])
-                                           (dissoc :convex.sync/ctx)))))))
+                                                   input
+                                                   exception])
+                                           (dissoc :convex.sync/ctx)))
+                              (assoc env-2
+                                     :convex.sync/ctx
+                                     ctx-2)))))
                       (assoc env
                              :convex.sync/ctx
                              ctx)
@@ -181,9 +183,13 @@
 
   (defn eval
 
-    "Evaluates the code for all `:convex.sync/input+` in `env` on `:convex.sync/ctx`, unless there is a `:convex.sync/error` attached.
+    "Evaluates the code for all `:convex.sync/input+` in `env` on `:convex.sync/ctx`.
     
-      If `ctx` is not explicitly provided, it is fetched and forked from `:convex.sync/ctx-base` in the given `env`."
+     If `ctx` is not explicitly provided, it is fetched and forked from `:convex.sync/ctx-base` in the given `env`.
+
+     In case of of CVM exception, removes the `:convex.sync/ctx`` and attach an error under `:convex.sync/error` such as:
+     
+       `[:eval input cvm-exception]`"
 
 
     ([env]
@@ -238,12 +244,12 @@
                                   (deploy my-lib))))
    ```
 
-   An `:error` is a 2-tuple vector where the first item is a keyword indicating an error type and second item is information:
+   In case of an error occuring during reading, attaches under `:convex.sync/error` a tuple such as (where `Path` is the file path):
 
-   | Position 0 | Position 1 |
+   | Value | Meaning |
    |---|---|
-   | `:load`` | Map of `file path` -> `Java exception occured during reading` |
-   | `:eval` | Map with `:exception` (either Java or CVM exception) and `:input` (which input caused this evaluation error) |"
+   | `[:load [:not-found Path]]` | File does not exist |
+   | `[:load [:parse Path]]` | CVM reader could not parse the source |"
 
 
   ([sym->dep]
@@ -262,21 +268,38 @@
                                sym->dep)
          path->cvm-sym (into {}
                              input+)
-         read-input    (fn [env path]
-                         (try
-                           (assoc-code env
-                                       path
-                                       ($.code/def (path->cvm-sym path)
-                                                   ($.code/quote (-> path
-                                                                     slurp
-                                                                     $.cvm/read))))
-                           (catch Throwable ex
+         read-dep      (fn [env path]
+                         (let [[err
+                                src] (try
+                                       [nil
+                                        (slurp path)]
+                                       (catch FileNotFoundException _e
+                                         [[:not-found path]
+                                          nil]))]
+                           (if err
                              (assoc-err-read env
                                              path
-                                             ex))))]
+                                             err)
+                             (let [[err
+                                    code] (try
+                                            [nil
+                                             ($.cvm/read src)]
+                                            (catch Throwable err
+                                              [[:parse
+                                                path
+                                                err]
+                                               nil]))]
+                               (if err
+                                 (assoc-err-read env
+                                                 path
+                                                 err)
+                                 (assoc-code env
+                                             path
+                                             ($.code/def (path->cvm-sym path)
+                                                         ($.code/quote code))))))))]
      (-> {:convex.sync/input+         (mapv first
                                             input+)
           :convex.sync/input->cvm-sym path->cvm-sym
-          :convex.sync/read           read-input}
+          :convex.sync/read           read-dep}
          load
          (eval ctx)))))
