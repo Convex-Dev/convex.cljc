@@ -16,12 +16,12 @@
 (cvm.out)
 
 
-;(cvm.hook.trx (fn [code]
-;               `(cvm.out [:HOOK.trx ~code])))
-;
-;
-;(cvm.hook.out (fn [x]
-;                [:HOOK.out x]))
+(cvm.hook.trx (fn [code]
+               `(cvm.out [:HOOK.trx ~code])))
+
+
+(cvm.hook.out (fn [x]
+                [:HOOK.out x]))
 
 
 
@@ -41,17 +41,13 @@
 
 
 
-(defmacro bar [form]
-
-  (fail :failure))
-
 
 
 (cvm.try
 
   (cvm.out "test")
 
-  (bar (+ 2 2))
+  (+ 2 [])
 
   (cvm.out "retest")
 

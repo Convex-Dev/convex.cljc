@@ -16,6 +16,7 @@
 
 
 (declare eval-form
+         eval-trx
          eval-trx+
          out)
 
@@ -267,7 +268,9 @@
   [env x]
 
   (let [out' (env :convex.run/out)
-        hook (env :convex.run.hook/out)]
+        hook (get-in env
+                     [:convex.run/hook+
+                      :out])]
     (if hook
       (let [env-2        (eval-form env
                                     ($.code/list [hook
@@ -308,11 +311,14 @@
     (if (and form+
              (not= form+
                    [nil]))
-      (assoc env
-             :convex.run.hook/end
-             form+)
-      (dissoc env
-              :convex.run.hook/end))))
+      (assoc-in env
+                [:convex.run/hook+
+                 :end]
+                form+)
+      (update env
+              :convex.run/hook+
+              dissoc
+              :end))))
 
 
 
@@ -323,11 +329,14 @@
   [env form]
 
   (if-some [hook (second form)]
-    (assoc env
-           :convex.run.hook/out
-           hook)
-    (dissoc env
-            :convex.run.hook/out)))
+    (assoc-in env
+              [:convex.run/hook+
+               :out]
+              hook)
+    (update env
+            :convex.run/hook+
+            dissoc
+            :out)))
 
 
 
@@ -337,9 +346,15 @@
 
   [env form]
 
-  (assoc env
-         :convex.run.hook/trx
-         (second form)))
+  (if-some [hook (second form)]
+    (assoc-in env
+              [:convex.run/hook+
+               :trx]
+              hook)
+    (update env
+            :convex.run/hook+
+            dissoc
+            :trx)))
 
 
 
@@ -553,19 +568,24 @@
             (let [trx-2 (-> env-3
                             :convex.sync/ctx
                             $.cvm/result)]
-              (if-some [hook-trx (env :convex.run.hook/trx)]
+              (if-some [hook-trx (get-in env
+                                         [:convex.run/hook+
+                                          :trx])]
                 (let [env-4 (eval-form env-3
                                        ($.code/list [hook-trx
                                                      ($.code/quote trx-2)]))]
                   (if (env-4 :convex.run/error)
                     env-4
                     (-> env-4
-                        (dissoc :convex.run.hook/trx)
+                        (update :convex.run/hook+
+                                dissoc
+                                :trx)
                         (eval-trx (-> env-4
                                       :convex.sync/ctx
                                       $.cvm/result))
-                        (assoc :convex.run.hook/trx
-                               hook-trx))))
+                        (assoc-in [:convex.run/hook+
+                                   :trx]
+                                  hook-trx))))
                 (eval-form env-3
                            trx-2)))))))))
 
@@ -611,7 +631,9 @@
                                                        ($.code/long (or (env :convex.watch/cycle)
                                                                         0))))))
                      eval-trx+)
-        hook-end (env-2 :convex.run.hook/end)]
+        hook-end (get-in env-2 
+                         [:convex.run/hook+
+                          :end])]
     (-> (if hook-end
           (let [env-3 (eval-trx+ (dissoc env-2
                                          :convex.run/error)
@@ -621,9 +643,7 @@
                    ($.code/string "Fatal error: end hook"))
               env-3))
           env-2)
-        (dissoc :convex.run.hook/end
-                :convex.run.hook/out
-                :convex.run.hook/out))))
+        (dissoc :convex.run/hook+))))
 
 
 ;;;;;;;;;; 
