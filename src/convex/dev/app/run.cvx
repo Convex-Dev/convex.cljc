@@ -2,6 +2,8 @@
            store "src/convex/lib/lab/xform/store.cvx"})
 
 
+(cvm.out.clear)
+
 
 (eval store)
 

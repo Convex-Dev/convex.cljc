@@ -197,6 +197,17 @@
 
 
 
+(defn cvm-out-clear
+
+  ""
+
+  [env _form]
+
+  (print "\033[H\033[2J")
+  env)
+
+
+
 (defn cvm-log
 
   ""
@@ -247,11 +258,12 @@
       (when (clojure.string/starts-with? sym-string
                                          "cvm.")
         (case sym-string
-          "cvm.do"      cvm-do
-          "cvm.log"     cvm-log
-          "cvm.out"     cvm-out
-          "cvm.read"    cvm-read
-          "cvm.trx.map" cvm-trx-map
+          "cvm.do"        cvm-do
+          "cvm.log"       cvm-log
+          "cvm.out"       cvm-out
+          "cvm.out.clear" cvm-out-clear
+          "cvm.read"      cvm-read
+          "cvm.trx.map"   cvm-trx-map
           (fn [env _trx]
             (error env
                    kw-strx-unknown
