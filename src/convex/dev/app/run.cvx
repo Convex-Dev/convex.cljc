@@ -16,12 +16,14 @@
 (cvm.out)
 
 
-(cvm.hook.trx (fn [code]
-               `(cvm.out [:HOOK.trx ~code])))
+(cvm.hook.trx (fail :failure "shame"))
 
-
-(cvm.hook.out (fn [x]
-                [:HOOK.out x]))
+;(cvm.hook.trx (fn [code]
+;               `(cvm.out [:HOOK.trx ~code])))
+;
+;
+;(cvm.hook.out (fn [x]
+;                [:HOOK.out x]))
 
 
 
@@ -55,6 +57,8 @@
     (cvm.out [:catch *cvm.error*])))
 
 
+
+;(cvm.hook.out (fail :failure "shame"))
 
 
 

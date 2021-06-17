@@ -220,6 +220,31 @@
                                (second trx-first)))))))))
 
 
+
+(defn update-hook-fn
+
+
+  ""
+
+  [env kw form]
+
+  (if-some [hook (second form)]
+    (let [env-2 (eval-trx env
+                          hook)]
+      (if (env-2 :convex.run/error)
+        env-2
+        (assoc-in env-2
+                  [:convex.run/hook+
+                   kw]
+                  (-> env-2
+                      :convex.sync/ctx
+                      $.cvm/result))))
+    (update env
+            :convex.run/hook+
+            dissoc
+            kw)))
+
+
 ;;;;;;;;;; Output
 
 
@@ -272,16 +297,24 @@
                      [:convex.run/hook+
                       :out])]
     (if hook
-      (let [env-2        (eval-form env
-                                    ($.code/list [hook
+      (let [on-error (env :convex.run/on-error)
+            env-2    (-> env
+                         (assoc :convex.run/on-error
+                                identity)
+                         (eval-form ($.code/list [hook
                                                   ($.code/quote x)]))
-            error (env-2 :convex.run/error)]
-        (when error
-          (out' ($.code/string "Fatal error: output hook")))
-        (out' (-> env-2
-                  :convex.sync/ctx
-                  $.cvm/result))
-        env-2)
+                         (assoc :convex.run/on-error
+                                on-error))
+            error    (env-2 :convex.run/error)]
+        (if error
+          (do
+            (out' ($.code/string "Fatal error: output hook"))
+            env-2)
+          (do
+            (out' (-> env-2
+                      :convex.sync/ctx
+                      $.cvm/result))
+            env-2)))
       (do
         (out' x)
         env))))
@@ -328,15 +361,9 @@
 
   [env form]
 
-  (if-some [hook (second form)]
-    (assoc-in env
-              [:convex.run/hook+
-               :out]
-              hook)
-    (update env
-            :convex.run/hook+
-            dissoc
-            :out)))
+  (update-hook-fn env
+                  :out
+                  form))
 
 
 
@@ -346,15 +373,9 @@
 
   [env form]
 
-  (if-some [hook (second form)]
-    (assoc-in env
-              [:convex.run/hook+
-               :trx]
-              hook)
-    (update env
-            :convex.run/hook+
-            dissoc
-            :trx)))
+  (update-hook-fn env
+                  :trx
+                  form))
 
 
 
