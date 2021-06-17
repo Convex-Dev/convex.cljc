@@ -22,7 +22,7 @@
 101
 
 
-;(fail :failure)
+(fail :failure)
 
 :here-3
 

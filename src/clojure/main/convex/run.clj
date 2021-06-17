@@ -4,7 +4,8 @@
 
   {:author "Adam Helinski"}
 
-  (:import (java.io File))
+  (:import (convex.core.lang.impl ErrorValue)
+           (java.io File))
   (:refer-clojure :exclude [eval
                             load])
   (:require [clojure.string]
@@ -19,6 +20,18 @@
 
 
 ;;;;;;;;;; Miscellaneous
+
+
+(defn datafy-exception
+
+  ""
+
+  [^ErrorValue exception]
+
+  ($.code/map {($.code/keyword "code")    (.getCode exception)
+               ($.code/keyword "message") (.getMessage exception)
+               ($.code/keyword "trace")   ($.code/vector (.getTrace exception))}))
+
 
 
 (def d*ctx-base
@@ -234,7 +247,7 @@
     (if exception
       (error env
              :eval.trx
-             exception)
+             (str (datafy-exception exception)))
       (-> env
           (assoc :convex.run/juice-last (- juice
                                            ($.cvm/juice ctx-2))
