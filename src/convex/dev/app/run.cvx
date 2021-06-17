@@ -33,7 +33,10 @@
 
 (cvm.out (def xform (deploy xform)))
 
-:here-4
+
+[:a {:b #{:c}}]
+
+
 
 ; (def xform
 ;      (deploy xform))

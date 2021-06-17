@@ -19,6 +19,80 @@
          eval-trx+)
 
 
+;;;;;;;;;; CVM keywords
+
+
+(def kw-error
+
+  ""
+
+  ($.code/keyword "cvm.error"))
+
+
+
+(def kw-eval-trx
+
+  ""
+
+  ($.code/keyword "eval.trx"))
+
+
+
+(def kw-expansion
+
+  ""
+
+  ($.code/keyword "expansion"))
+
+
+
+(def kw-inject-value+
+
+  ""
+
+  ($.code/keyword "inject-value+"))
+
+
+
+(def kw-main-src
+
+  ""
+
+  ($.code/keyword "main.src"))
+
+
+
+(def kw-read-illegal
+
+  ""
+
+  ($.code/keyword "read.illegal"))
+
+
+
+(def kw-read-src
+
+  ""
+
+  ($.code/keyword "read.src"))
+
+
+
+(def kw-strx-unknown
+
+  ""
+
+  ($.code/keyword "cvm.unknown"))
+
+
+
+(def kw-sync-dep+
+
+  ""
+
+  ($.code/keyword "sync-dep+"))
+
+
 ;;;;;;;;;; Miscellaneous
 
 
@@ -82,13 +156,11 @@
 
   ""
 
-  [env type arg]
+  [env cvm-kw-type cvm-data]
 
-  (let [err (cond->
-              [:cvm.error
-               type]
-              (some? arg)
-              (conj arg))]
+  (let [err ($.code/vector [kw-error
+                            cvm-kw-type
+                            cvm-data])]
     ((:convex.run/out env) err)
     (assoc env
            :convex.run/error
@@ -157,8 +229,8 @@
   [env _form]
 
   (error env
-         :read.forbidden
-         "CVM special command 'cvm.read' can only be used as first transaction"))
+         kw-read-illegal
+         ($.code/string "CVM special command 'cvm.read' can only be used as first transaction")))
 
 
 ;;;;;
@@ -182,8 +254,8 @@
           "cvm.trx.map" cvm-trx-map
           (fn [env _trx]
             (error env
-                   :cvm.unknown
-                   sym-string)))))))
+                   kw-strx-unknown
+                   ($.code/string sym-string))))))))
 
 
 ;;;;;;;;;; Preparing transactions
@@ -200,9 +272,9 @@
         exception ($.cvm/exception ctx-2)]
     (if exception
       (error env
-             :expansion
-             [form
-              exception])
+             kw-expansion
+             ($.code/vector [form
+                             (datafy-exception exception)]))
       (assoc env
              :convex.sync/ctx
              ctx-2))))
@@ -223,8 +295,8 @@
         exception ($.cvm/exception ctx)]
     (if exception
       (error env
-             :inject-value+
-             exception)
+             kw-inject-value+
+             (datafy-exception exception))
       (assoc env
              :convex.sync/ctx
              ctx))))
@@ -246,8 +318,8 @@
         exception ($.cvm/exception ctx-2)]
     (if exception
       (error env
-             :eval.trx
-             (str (datafy-exception exception)))
+             kw-eval-trx
+             (datafy-exception exception))
       (-> env
           (assoc :convex.run/juice-last (- juice
                                            ($.cvm/juice ctx-2))
@@ -362,9 +434,10 @@
                    nil]))]
     (if err
       (error env
-             :main.src
-             [path
-              err])
+             kw-main-src
+             ($.code/vector [($.code/string path)
+                             ;; TODO. Datafy JVM exception.
+                             err]))
       (assoc env
              :convex.run/src
              src))))
@@ -386,7 +459,8 @@
                     nil]))]
     (if err
       (error env
-             :read.src
+             kw-read-src
+             ;; TODO. Datafy JVM exception.
              err)
       (let [dep+' (dep+ trx+)]
         (-> env
@@ -429,7 +503,8 @@
             err-sync (env-2 :convex.sync/error)]
         (if err-sync
           (error env-2
-                 :sync-dep+
+                 kw-sync-dep+
+                 ;; TODO. Datafy JVM exception.
                  err-sync)
           (exec-trx+ env-2)))
       (-> env
@@ -513,7 +588,8 @@
                                           :convex.run/error)]
                         (if err-sync
                           (error env-3
-                                 :sync-dep+
+                                 kw-sync-dep+
+                                 ;; TODO. Datafy JVM exception.
                                  err-sync)
                           (if (or (nil? dep-old+)
                                   (seq (env-3 :convex.watch/extra->change)))
