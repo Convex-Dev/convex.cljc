@@ -338,6 +338,17 @@
          x]))
 
 
+
+(defn undef
+
+  ""
+
+  [sym]
+
+  (list [Symbols/UNDEF
+         sym]))
+
+
 ;;;;;;;;; Type predicates
 
 

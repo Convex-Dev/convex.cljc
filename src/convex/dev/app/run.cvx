@@ -5,6 +5,18 @@
 (cvm.out.clear)
 
 
+(cvm.out (str "RUN N°"
+              (inc *cvm.cycle*)))
+
+(cvm.out)
+
+(cvm.out "OUTPUT:")
+
+(cvm.out)
+
+
+
+
 (eval store)
 
 
@@ -20,23 +32,22 @@
  (foo form))
 
 
-(cvm.trx.map foo)
-
-(+ 2 3)
-
-(foo* :foo)
-
-101
 
 
-;(fail :failure)
+(cvm.try
 
-:here-3
+  (cvm.out "test")
 
-(cvm.out (def xform (deploy xform)))
+  (+ 2 [])
+
+  (cvm.out "retest")
+
+  (cvm.catch
+    (cvm.out [:catch *cvm.error*])))
 
 
-[:a {:b #{:c}}]
+
+(cvm.out 42)
 
 
 

@@ -64,7 +64,7 @@
 
   [x]
 
-  (println [:tap x]))
+  (println x))
 
 
 (add-tap tap)

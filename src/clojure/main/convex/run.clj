@@ -22,6 +22,22 @@
 ;;;;;;;;;; CVM keywords
 
 
+(def kw-arity
+
+  ""
+
+  ($.code/keyword "arity"))
+
+
+
+(def kw-code
+
+  ""
+
+  ($.code/keyword "code"))
+
+
+
 (def kw-error
 
   ""
@@ -62,6 +78,14 @@
 
 
 
+(def kw-message
+
+  ""
+
+  ($.code/keyword "message"))
+
+
+
 (def kw-read-illegal
 
   ""
@@ -93,6 +117,56 @@
   ($.code/keyword "sync-dep+"))
 
 
+
+(def kw-trace
+
+  ""
+
+  ($.code/keyword "trace"))
+
+
+;;;;;;;;;; CVM symbols
+
+
+(def sym-catch
+
+  ""
+
+  ($.code/symbol "cvm.catch"))
+
+
+
+(def sym-cycle
+
+  ""
+
+  ($.code/symbol "*cvm.cycle*"))
+
+
+
+(def sym-error
+
+  ""
+
+  ($.code/symbol "*cvm.error*"))
+
+
+
+(def sym-juice-last
+
+  ""
+
+  ($.code/symbol "*cvm.juice.last*"))
+
+
+
+(def sym-trx-id
+
+  ""
+
+  ($.code/symbol "*cvm.trx.id*"))
+
+
 ;;;;;;;;;; Miscellaneous
 
 
@@ -102,9 +176,9 @@
 
   [^ErrorValue exception]
 
-  ($.code/map {($.code/keyword "code")    (.getCode exception)
-               ($.code/keyword "message") (.getMessage exception)
-               ($.code/keyword "trace")   ($.code/vector (.getTrace exception))}))
+  ($.code/map {kw-code    (.getCode exception)
+               kw-message (.getMessage exception)
+               kw-trace   ($.code/vector (.getTrace exception))}))
 
 
 
@@ -201,6 +275,8 @@
 
   ""
 
+  ;; https://www.delftstack.com/howto/java/java-clear-console/
+
   [env _form]
 
   (print "\033[H\033[2J")
@@ -221,6 +297,18 @@
 
 
 
+(defn cvm-read
+
+  ""
+
+  [env _form]
+
+  (error env
+         kw-read-illegal
+         ($.code/string "CVM special command 'cvm.read' can only be used as first transaction")))
+
+
+
 (defn cvm-trx-map
 
   ""
@@ -233,15 +321,38 @@
 
 
 
-(defn cvm-read
+(defn cvm-try
 
   ""
 
-  [env _form]
+  [env form]
 
-  (error env
-         kw-read-illegal
-         ($.code/string "CVM special command 'cvm.read' can only be used as first transaction")))
+  (let [form-last    (last form)
+        catch?       ($.code/call? form-last
+                                   sym-catch)
+        on-exception (env :convex.run/on-exception)]
+    (-> env
+        (assoc :convex.run/on-exception
+               (fn on-exception [env-2 exception]
+                 (-> env-2
+                     (cond->
+                       catch?
+                       (-> (assoc :convex.run/on-exception
+                                  on-exception)
+                           (eval-form ($.code/def sym-error
+                                                  (datafy-exception exception)))
+                           (eval-trx+ (rest form-last))
+                           (eval-form ($.code/undef sym-error))))
+                     (assoc :convex.run/error
+                            :try))))
+        (eval-trx+ (-> form
+                       rest
+                       (cond->
+                         catch?
+                         butlast)))
+        (assoc :convex.run/on-exception
+               on-exception)
+        (dissoc :convex.run/error))))
 
 
 ;;;;;
@@ -264,6 +375,7 @@
           "cvm.out.clear" cvm-out-clear
           "cvm.read"      cvm-read
           "cvm.trx.map"   cvm-trx-map
+          "cvm.try"       cvm-try
           (fn [env _trx]
             (error env
                    kw-strx-unknown
@@ -300,9 +412,9 @@
   [env]
 
   (let [ctx       ($.cvm/eval (env :convex.sync/ctx)
-                              ($.code/do [($.code/def ($.code/symbol "*cvm.juice.last*")
+                              ($.code/do [($.code/def sym-juice-last
                                                       ($.code/long (env :convex.run/juice-last)))
-                                          ($.code/def ($.code/symbol "*cvm.trx.id*")
+                                          ($.code/def sym-trx-id
                                                       ($.code/long (env :convex.run/i-trx)))]))
         exception ($.cvm/exception ctx)]
     (if exception
@@ -328,16 +440,16 @@
         ctx-2     ($.cvm/eval ctx
                               form)
         exception ($.cvm/exception ctx-2)]
-    (if exception
-      (error env
-             kw-eval-trx
-             (datafy-exception exception))
+    (cond->
       (-> env
           (assoc :convex.run/juice-last (- juice
                                            ($.cvm/juice ctx-2))
                  :convex.sync/ctx       ctx-2)
           (update :convex.run/i-trx
-                  inc)))))
+                  inc))
+      exception
+      ((env :convex.run/on-exception)
+       exception))))
 
 
 
@@ -411,6 +523,12 @@
   (-> env
       (assoc :convex.run/i-trx      0
              :convex.run/juice-last 0)
+      (update :convex.sync/ctx
+              (fn [ctx]
+                ($.cvm/eval ctx
+                            ($.code/def sym-cycle
+                                        ($.code/long (or (env :convex.watch/cycle)
+                                                         0))))))
       eval-trx+
       (dissoc :convex.run/map-trx)))
 
@@ -424,10 +542,16 @@
 
   [env]
 
-  (update env
-          :convex.run/out
-          #(or %
-               out-default)))
+  (-> env
+      (update :convex.run/on-exception
+              #(or %
+                   (fn on-exception [env-2 exception]
+                     (error env-2
+                            kw-eval-trx
+                            (datafy-exception exception)))))
+      (update :convex.run/out
+              #(or %
+                   out-default))))
 
 
 
