@@ -15,6 +15,8 @@
 (cvm.out)
 
 
+(cvm.hook.out (fn [code]
+                [:HOOK code]))
 
 
 (eval store)
@@ -34,6 +36,7 @@
 
 
 
+
 (cvm.try
 
   (cvm.out "test")
@@ -46,6 +49,7 @@
     (cvm.out [:catch *cvm.error*])))
 
 
+(cvm.hook.out nil)
 
 (cvm.out 42)
 

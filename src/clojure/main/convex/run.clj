@@ -16,7 +16,8 @@
 
 
 (declare eval-form
-         eval-trx+)
+         eval-trx+
+         out)
 
 
 ;;;;;;;;;; CVM keywords
@@ -214,6 +215,25 @@
 ;;;;;;;;;; Output
 
 
+(defn error
+
+  ""
+
+  [env cvm-kw-type cvm-data]
+
+  (let [err  ($.code/vector [kw-error
+                             cvm-kw-type
+                             cvm-data])
+        env-2 (out env
+                   err)]
+    (if (env-2 :convex.run/error)
+      env-2
+      (assoc env-2
+             :convex.run/error
+             err))))
+
+
+
 (defn out-default
 
   ""
@@ -226,19 +246,28 @@
 
 
 
-(defn error
+(defn out
 
   ""
 
-  [env cvm-kw-type cvm-data]
+  [env x]
 
-  (let [err ($.code/vector [kw-error
-                            cvm-kw-type
-                            cvm-data])]
-    ((:convex.run/out env) err)
-    (assoc env
-           :convex.run/error
-           err)))
+  (let [out' (env :convex.run/out)
+        hook (env :convex.run.hook/out)]
+    (if hook
+      (let [env-2        (eval-form env
+                                    ($.code/list [hook
+                                                  ($.code/quote x)]))
+            error (env-2 :convex.run/error)]
+        (when error
+          (out' ($.code/string "Fatal error: output hook")))
+        (out' (-> env-2
+                  :convex.sync/ctx
+                  $.cvm/result))
+        env-2)
+      (do
+        (out' x)
+        env))))
 
 
 ;;;;;;;;;; Special transactions
@@ -255,6 +284,21 @@
 
 
 
+(defn cvm-hook-out
+
+  ""
+
+  [env form]
+
+  (if-some [hook (second form)]
+    (assoc env
+           :convex.run.hook/out
+           hook)
+    (dissoc env
+            :convex.run.hook/out)))
+
+
+
 (defn cvm-out
 
   ""
@@ -265,9 +309,10 @@
                          (second form))]
     (if (env-2 :convex.run/error)
       env-2
-      (do
-        ((env-2 :convex.run/out) ($.cvm/result (env-2 :convex.sync/ctx)))
-        env-2))))
+      (out env-2
+           (-> env-2
+               :convex.sync/ctx
+               $.cvm/result)))))
 
 
 
@@ -370,6 +415,7 @@
                                          "cvm.")
         (case sym-string
           "cvm.do"        cvm-do
+          "cvm.hook.out"  cvm-hook-out
           "cvm.log"       cvm-log
           "cvm.out"       cvm-out
           "cvm.out.clear" cvm-out-clear
