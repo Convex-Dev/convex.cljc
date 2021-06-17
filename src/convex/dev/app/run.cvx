@@ -16,7 +16,7 @@
 (cvm.out)
 
 
-(cvm.hook.trx (fail :failure "shame"))
+;(cvm.hook.trx (fail :failure "shame"))
 
 ;(cvm.hook.trx (fn [code]
 ;               `(cvm.out [:HOOK.trx ~code])))

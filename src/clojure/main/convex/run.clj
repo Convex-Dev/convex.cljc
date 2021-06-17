@@ -278,11 +278,12 @@
 
   ""
 
-  [x]
+  [env x]
 
   (-> x
       str
-      tap>))
+      tap>)
+  env)
 
 
 
@@ -306,18 +307,14 @@
                          (assoc :convex.run/on-error
                                 on-error))
             error    (env-2 :convex.run/error)]
-        (if error
-          (do
-            (out' ($.code/string "Fatal error: output hook"))
-            env-2)
-          (do
-            (out' (-> env-2
-                      :convex.sync/ctx
-                      $.cvm/result))
-            env-2)))
-      (do
-        (out' x)
-        env))))
+        (out' env-2
+              (if error
+                ($.code/string "Fatal error: output hook")
+                (-> env-2
+                    :convex.sync/ctx
+                    $.cvm/result))))
+      (out' env
+            x))))
 
 
 ;;;;;;;;;; Special transactions
@@ -728,7 +725,7 @@
       (error env
              kw-read-src
              ;; TODO. Datafy JVM exception.
-             err)
+             nil)
       (let [dep+' (dep+ trx+)]
         (-> env
             (assoc :convex.run/dep+ dep+'
@@ -772,7 +769,7 @@
           (error env-2
                  kw-sync-dep+
                  ;; TODO. Datafy JVM exception.
-                 err-sync)
+                 nil)
           (exec-trx+ env-2)))
       (-> env
           (assoc :convex.sync/ctx
@@ -857,7 +854,7 @@
                           (error env-3
                                  kw-sync-dep+
                                  ;; TODO. Datafy JVM exception.
-                                 err-sync)
+                                 nil)
                           (if (or (nil? dep-old+)
                                   (seq (env-3 :convex.watch/extra->change)))
                             (let [env-4 (main-file env-3
