@@ -65,6 +65,24 @@
 (cvm.out (cvm.do 42 21 24))
 
 
+(cvm.hook.error (fn [err]
+                  `(cvm.out [:ERROOOOR ~err])))
+
+
+#_(cvm.try
+  (fail :failure "shame")
+  (cvm.catch
+   (cvm.out :catch)))
+
+
+;(cvm.hook.error (fn [_code] nil))
+
+(fail :failure "shame")
+
+(cvm.out :ok)
+
+
+
 
 ;(cvm.hook.out nil)
 ;

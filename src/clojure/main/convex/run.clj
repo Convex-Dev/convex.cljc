@@ -352,6 +352,64 @@
 
 
 
+(defn cvm-hook-error
+
+  ""
+
+  [env form]
+
+  (if-some [hook (second form)]
+    (let [env-2 (eval-trx env
+                          hook)]
+      (if (env-2 :convex.run/error)
+        env-2
+        (-> env-2
+            (update-in [:convex.run/restore
+                        :convex.run/on-error]
+                       #(or %
+                            (env :convex.run/on-error)))
+            (assoc :convex.run/on-error
+                   (let [hook-2 (-> env-2
+                                    :convex.sync/ctx
+                                    $.cvm/result)]
+                     (fn on-error [env-3]
+                       (let [error-original (env-3 :convex.run/error)
+                             env-4          (-> env-3
+                                                (dissoc :convex.run/error)
+                                                (assoc :convex.run/on-error
+                                                       (get-in env-3
+                                                               [:convex.run/restore
+                                                                :convex.run/on-error]))
+                                                (eval-form ($.code/list [hook-2
+                                                                         ($.code/quote (env-3 :convex.run/error))]))
+                                                (assoc :convex.run/on-error
+                                                       on-error))
+                             error          (env-4 :convex.run/error)]
+                         (if error
+                           (out env
+                                ($.code/string "Fatal error: error hook"))
+                           (let [env-4 (eval-trx env-4
+                                                 (-> env-4
+                                                     :convex.sync/ctx
+                                                     $.cvm/result))]
+                             (if (env-4 :convex.run/error)
+                               env-4
+                               (assoc env-4
+                                      :convex.run/error
+                                      error-original)))))))))))
+    (if-some [restore (get-in env
+                              [:convex.run/restore
+                               :convex.run/on-error])]
+      (-> env
+          (assoc :convex.run/on-error
+                 restore)
+          (update :convex.run/restore
+                  dissoc
+                  :convex.run/on-error))
+      env)))
+
+
+
 (defn cvm-hook-out
 
   ""
@@ -480,15 +538,16 @@
       (when (clojure.string/starts-with? sym-string
                                          "cvm.")
         (case sym-string
-          "cvm.do"        cvm-do
-          "cvm.hook.end"  cvm-hook-end
-          "cvm.hook.out"  cvm-hook-out
-          "cvm.hook.trx"  cvm-hook-trx
-          "cvm.log"       cvm-log
-          "cvm.out"       cvm-out
-          "cvm.out.clear" cvm-out-clear
-          "cvm.read"      cvm-read
-          "cvm.try"       cvm-try
+          "cvm.do"         cvm-do
+          "cvm.hook.end"   cvm-hook-end
+          "cvm.hook.error" cvm-hook-error
+          "cvm.hook.out"   cvm-hook-out
+          "cvm.hook.trx"   cvm-hook-trx
+          "cvm.log"        cvm-log
+          "cvm.out"        cvm-out
+          "cvm.out.clear"  cvm-out-clear
+          "cvm.read"       cvm-read
+          "cvm.try"        cvm-try
           (fn [env _trx]
             (error env
                    kw-strx-unknown
@@ -661,7 +720,12 @@
                    ($.code/string "Fatal error: end hook"))
               env-3))
           env-2)
-        (dissoc :convex.run/hook+))))
+        (dissoc :convex.run/hook+)
+        (as->
+          env-3
+          (merge env-3
+                 (env-3 :convex.run/restore)))
+        (dissoc :convex.run/restore))))
 
 
 ;;;;;;;;;; 
