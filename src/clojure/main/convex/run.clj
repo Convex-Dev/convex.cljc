@@ -349,8 +349,8 @@
 
   [env form]
 
-  (let [env-2 (eval-form env
-                         (second form))]
+  (let [env-2 (eval-trx env
+                        (second form))]
     (if (env-2 :convex.run/error)
       env-2
       (out env-2
@@ -411,7 +411,6 @@
     (-> env
         (assoc :convex.run/on-error
                (fn [env-2]
-                 (tap> [:on-error (env-2 :convex.run/error)])
                  (-> env-2
                      (dissoc :convex.run/error)
                      (cond->
@@ -437,7 +436,7 @@
 ;;;;;
 
 
-(defn cvm-command
+(defn strx
 
   "Special transaction"
 
@@ -478,8 +477,8 @@
     (if exception
       (error env
              kw-expansion
-             ($.code/vector [form
-                             (datafy-exception exception)]))
+             ($.code/vector [(datafy-exception exception)
+                             ($.code/quote form)]))
       (assoc env
              :convex.sync/ctx
              ctx-2))))
@@ -541,19 +540,19 @@
 
   [env trx]
 
-  (let [env-2 (inject-value+ env)]
-    (if (env-2 :convex.run/error)
-      env-2
-      (let [env-3 (expand env-2
-                          trx)]
-        (if (env-3 :convex.run/error)
-          env-3
-          (let [trx-2 (-> env-3
-                          :convex.sync/ctx
-                          $.cvm/result)]
-            (if-some [f (cvm-command trx-2)]
-              (f env-3
-                 trx-2)
+  (if-some [f-strx (strx trx)]
+    (f-strx env
+            trx)
+    (let [env-2 (inject-value+ env)]
+      (if (env-2 :convex.run/error)
+        env-2
+        (let [env-3 (expand env-2
+                            trx)]
+          (if (env-3 :convex.run/error)
+            env-3
+            (let [trx-2 (-> env-3
+                            :convex.sync/ctx
+                            $.cvm/result)]
               (if-some [hook-trx (env :convex.run.hook/trx)]
                 (let [env-4 (eval-form env-3
                                        ($.code/list [hook-trx

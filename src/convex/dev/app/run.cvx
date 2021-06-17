@@ -62,7 +62,8 @@
 
 
 
-(cvm.out 42)
+(cvm.out (cvm.do 42 21 24))
+
 
 
 ;(cvm.hook.out nil)
