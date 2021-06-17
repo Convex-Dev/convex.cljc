@@ -274,16 +274,22 @@
                           :convex.sync/ctx
                           $.cvm/result)]
             (if-some [f (cvm-command trx-2)]
-              (f env-2
+              (f env-3
                  trx-2)
               (if-some [map-trx (env :convex.run/map-trx)]
-                (-> env-2
-                    (dissoc :convex.run/map-trx)
-                    (eval-trx ($.code/list [map-trx
-                                            trx-2]))
-                    (assoc :convex.run/map-trx
-                           map-trx))
-                (eval-form env-2
+                (let [env-4 (eval-form env-3
+                                       ($.code/list [map-trx
+                                                     ($.code/quote trx-2)]))]
+                  (if (env-4 :convex.run/error)
+                    env-4
+                    (-> env-4
+                        (dissoc :convex.run/map-trx)
+                        (eval-trx (-> env-4
+                                      :convex.sync/ctx
+                                      $.cvm/result))
+                        (assoc :convex.run/map-trx
+                               map-trx))))
+                (eval-form env-3
                            trx-2)))))))))
 
 

@@ -8,21 +8,26 @@
 
 
 
-(defmacro foo [form]
+(defn foo [form]
 
   `(cvm.out [[:trx *cvm.trx.id*] (quote ~form) ~form]))
+
+
+(defmacro foo* [form]
+
+ (foo form))
 
 
 (cvm.trx.map foo)
 
 (+ 2 3)
 
-(foo :foo)
+(foo* :foo)
 
 101
 
 
-(fail :failure)
+;(fail :failure)
 
 :here-3
 
