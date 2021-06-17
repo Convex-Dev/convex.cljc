@@ -299,6 +299,18 @@
 
 
 
+(defn cvm-hook-trx
+
+  ""
+
+  [env form]
+
+  (assoc env
+         :convex.run.hook/trx
+         (second form)))
+
+
+
 (defn cvm-out
 
   ""
@@ -354,18 +366,6 @@
 
 
 
-(defn cvm-trx-map
-
-  ""
-
-  [env form]
-
-  (assoc env
-         :convex.run/map-trx
-         (second form)))
-
-
-
 (defn cvm-try
 
   ""
@@ -416,11 +416,11 @@
         (case sym-string
           "cvm.do"        cvm-do
           "cvm.hook.out"  cvm-hook-out
+          "cvm.hook.trx"  cvm-hook-trx
           "cvm.log"       cvm-log
           "cvm.out"       cvm-out
           "cvm.out.clear" cvm-out-clear
           "cvm.read"      cvm-read
-          "cvm.trx.map"   cvm-trx-map
           "cvm.try"       cvm-try
           (fn [env _trx]
             (error env
@@ -518,19 +518,19 @@
             (if-some [f (cvm-command trx-2)]
               (f env-3
                  trx-2)
-              (if-some [map-trx (env :convex.run/map-trx)]
+              (if-some [hook-trx (env :convex.run.hook/trx)]
                 (let [env-4 (eval-form env-3
-                                       ($.code/list [map-trx
+                                       ($.code/list [hook-trx
                                                      ($.code/quote trx-2)]))]
                   (if (env-4 :convex.run/error)
                     env-4
                     (-> env-4
-                        (dissoc :convex.run/map-trx)
+                        (dissoc :convex.run.hook/trx)
                         (eval-trx (-> env-4
                                       :convex.sync/ctx
                                       $.cvm/result))
-                        (assoc :convex.run/map-trx
-                               map-trx))))
+                        (assoc :convex.run.hook/trx
+                               hook-trx))))
                 (eval-form env-3
                            trx-2)))))))))
 
@@ -576,7 +576,8 @@
                                         ($.code/long (or (env :convex.watch/cycle)
                                                          0))))))
       eval-trx+
-      (dissoc :convex.run/map-trx)))
+      (dissoc :convex.run.hook/out
+              :convex.run.hook/out)))
 
 
 ;;;;;;;;;; 

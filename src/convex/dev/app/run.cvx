@@ -15,8 +15,13 @@
 (cvm.out)
 
 
-(cvm.hook.out (fn [code]
-                [:HOOK code]))
+(cvm.hook.trx (fn [code]
+               `(cvm.out [:HOOK.trx ~code])))
+
+
+(cvm.hook.out (fn [x]
+                [:HOOK.out x]))
+
 
 
 (eval store)
@@ -51,7 +56,7 @@
 
 (cvm.hook.out nil)
 
-(cvm.out 42)
+42
 
 
 
