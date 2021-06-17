@@ -55,6 +55,13 @@
 
 
 
+(def kw-exception
+
+  ""
+
+  ($.code/keyword "exception"))
+
+
 (def kw-expansion
 
   ""
@@ -221,16 +228,23 @@
 
   [env cvm-kw-type cvm-data]
 
-  (let [err  ($.code/vector [kw-error
-                             cvm-kw-type
-                             cvm-data])
-        env-2 (out env
-                   err)]
-    (if (env-2 :convex.run/error)
-      env-2
-      (assoc env-2
-             :convex.run/error
-             err))))
+  ((env :convex.run/on-error)
+   (assoc env
+          :convex.run/error
+          ($.code/vector [cvm-kw-type
+                          cvm-data]))))
+
+
+
+(defn error-default
+
+  ""
+
+  [env]
+
+  (out env
+       ($.code/vector [kw-error
+                       (env :convex.run/error)])))
 
 
 
@@ -390,20 +404,22 @@
 
   [env form]
 
-  (let [form-last    (last form)
-        catch?       ($.code/call? form-last
-                                   sym-catch)
-        on-exception (env :convex.run/on-exception)]
+  (let [form-last (last form)
+        catch?    ($.code/call? form-last
+                                sym-catch)
+        on-error  (env :convex.run/on-error)]
     (-> env
-        (assoc :convex.run/on-exception
-               (fn on-exception [env-2 exception]
+        (assoc :convex.run/on-error
+               (fn [env-2]
+                 (tap> [:on-error (env-2 :convex.run/error)])
                  (-> env-2
+                     (dissoc :convex.run/error)
                      (cond->
                        catch?
-                       (-> (assoc :convex.run/on-exception
-                                  on-exception)
+                       (-> (assoc :convex.run/on-error
+                                  on-error)
                            (eval-form ($.code/def sym-error
-                                                  (datafy-exception exception)))
+                                                  (env-2 :convex.run/error)))
                            (eval-trx+ (rest form-last))
                            (eval-form ($.code/undef sym-error))))
                      (assoc :convex.run/error
@@ -413,8 +429,8 @@
                        (cond->
                          catch?
                          butlast)))
-        (assoc :convex.run/on-exception
-               on-exception)
+        (assoc :convex.run/on-error
+               on-error)
         (dissoc :convex.run/error))))
 
 
@@ -513,8 +529,9 @@
           (update :convex.run/i-trx
                   inc))
       exception
-      ((env :convex.run/on-exception)
-       exception))))
+      (error kw-exception
+             ($.code/vector [(datafy-exception exception)
+                             ($.code/quote form)])))))
 
 
 
@@ -620,12 +637,9 @@
   [env]
 
   (-> env
-      (update :convex.run/on-exception
+      (update :convex.run/on-error
               #(or %
-                   (fn on-exception [env-2 exception]
-                     (error env-2
-                            kw-eval-trx
-                            (datafy-exception exception)))))
+                   error-default))
       (update :convex.run/out
               #(or %
                    out-default))))
@@ -823,6 +837,7 @@
                                       ($.watch/-start a*env
                                                       (-> (select-keys env-4
                                                                        [:convex.run/dep+
+                                                                        :convex.run/on-error
                                                                         :convex.run/out
                                                                         :convex.run/trx+
                                                                         :convex.sync/ctx-base
