@@ -5,6 +5,7 @@
 (cvm.out.clear)
 
 
+
 (cvm.out (str "RUN N°"
               (inc *cvm.cycle*)))
 
@@ -58,6 +59,10 @@
 
 42
 
+(cvm.hook.end
+  (cvm.out "END")
+  (fail :failure)
+  (cvm.out 42))
 
 
 ; (def xform

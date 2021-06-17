@@ -284,6 +284,24 @@
 
 
 
+(defn cvm-hook-end
+
+  ""
+
+  [env form]
+
+  (let [form+ (next form)]
+    (if (and form+
+             (not= form+
+                   [nil]))
+      (assoc env
+             :convex.run.hook/end
+             form+)
+      (dissoc env
+              :convex.run.hook/end))))
+
+
+
 (defn cvm-hook-out
 
   ""
@@ -415,6 +433,7 @@
                                          "cvm.")
         (case sym-string
           "cvm.do"        cvm-do
+          "cvm.hook.end"  cvm-hook-end
           "cvm.hook.out"  cvm-hook-out
           "cvm.hook.trx"  cvm-hook-trx
           "cvm.log"       cvm-log
@@ -566,18 +585,29 @@
 
   [env]
 
-  (-> env
-      (assoc :convex.run/i-trx      0
-             :convex.run/juice-last 0)
-      (update :convex.sync/ctx
-              (fn [ctx]
-                ($.cvm/eval ctx
-                            ($.code/def sym-cycle
-                                        ($.code/long (or (env :convex.watch/cycle)
-                                                         0))))))
-      eval-trx+
-      (dissoc :convex.run.hook/out
-              :convex.run.hook/out)))
+  (let [env-2    (-> env
+                     (assoc :convex.run/i-trx      0
+                            :convex.run/juice-last 0)
+                     (update :convex.sync/ctx
+                             (fn [ctx]
+                               ($.cvm/eval ctx
+                                           ($.code/def sym-cycle
+                                                       ($.code/long (or (env :convex.watch/cycle)
+                                                                        0))))))
+                     eval-trx+)
+        hook-end (env-2 :convex.run.hook/end)]
+    (-> (if hook-end
+          (let [env-3 (eval-trx+ (dissoc env-2
+                                         :convex.run/error)
+                                 hook-end)]
+            (if (env-3 :convex.run/error)
+              (out env-3
+                   ($.code/string "Fatal error: end hook"))
+              env-3))
+          env-2)
+        (dissoc :convex.run.hook/end
+                :convex.run.hook/out
+                :convex.run.hook/out))))
 
 
 ;;;;;;;;;; 
