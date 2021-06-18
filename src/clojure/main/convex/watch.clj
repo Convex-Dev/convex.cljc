@@ -84,6 +84,8 @@
   
    Kept public since it is useful for building more complex features (see [[convex.run]] namespace)."
 
+  ;; TODO. Error handling when paths do not exist (starting the watcher throws).
+
   [a*env env]
 
   (let [sym->dep (env :convex.watch/sym->dep)]
