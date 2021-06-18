@@ -913,7 +913,10 @@
   (let [[err
          trx+] (try
                  [nil
-                  ($.cvm/read-many (env :convex.run/src))]
+                  (-> env
+                      :convex.run/src
+                      $.cvm/read
+                      vec)]
                  (catch Throwable err
                    [err
                     nil]))]

@@ -21,8 +21,10 @@
         ;; Converting Clojure data to source code (a string)
         source ($.clj/src form)
         
-        ;; Reading source code as Convex object
-        code   ($.cvm/read source)
+        ;; Reading source code, getting a CVM list of forms, but using `first` since we know there is only one
+        code   (-> source
+                   $.cvm/read
+                   first)
         
         ;; Creating a test context
         ctx    ($.cvm/ctx)

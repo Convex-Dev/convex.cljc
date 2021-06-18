@@ -81,8 +81,10 @@ First, for thorough understanding, going through all 4 operations one by one:
       ;; Converting Clojure data to source code (a string)
       source ($.clj/src form)
       
-      ;; Reading source code as Convex object
-      code   ($.cvm/read source)
+      ;; Reading source code, getting a CVM list of forms, but using `first` since we know there is only one
+      code   (-> source
+                 $.cvm/read
+                 first)
       
       ;; Creating a test context
       ctx    ($.cvm/ctx)
@@ -186,8 +188,10 @@ the following is possible:
 Writing Convex Lisp code as Clojure or in any programmatic way is convenient during development and testing. However, any non-trivial source should be written in proper
 `.cvx` files.
 
-In the following example, starting from a new context, each file is read and interned under its related symbol as unevaluated code. Then, through the power of Lisp,
-all this code can be handled exactly as needed once the context is ready. Often, `eval` or `deploy` are involved.
+In the following example, starting from a new context, each file is read and interned under its related symbol as unevaluated code, a list of forms. Most Convex Lisp files
+will have one top-level `do` form as it is customary to bundle several forms together meant to be executed as a single transaction.
+
+Then, through the power of Lisp, all this code can be handled exactly as needed once the context is ready. Often, `eval` or `deploy` are involved.
 
 Without error checking:
 
@@ -196,7 +200,7 @@ Without error checking:
      (-> ($.sync/disk {'$ "src/convex/break/util.cvx"})
          :convex.sync/ctx
          ($.clj.eval/ctx '(def $
-                               (deploy $)))))
+                               (deploy (first $))))))
 
 
 ($.clj.eval/result* ctx
@@ -222,7 +226,7 @@ In essence:
                                                           :convex.sync/ctx
                                                           $.clj.eval/ctx
                                                           '(def $
-                                                                (deploy $))))
+                                                                (deploy (first $)))))
                         :convex.watch/sym->dep  {'$ "src/convex/break/util.cvx"}})
          $.watch/start))
 

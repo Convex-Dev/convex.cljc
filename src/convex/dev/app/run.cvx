@@ -13,15 +13,6 @@
 ; (cvm.out.clear)
 
 
-(def x [])
-
-(def x
-     (conj x 42))
-
-(def x (conj x `(cvm.out (inc ~(+ 2 2)))))
-
-(cvm.splice x)
-
 
 ;; Prints nice information at the start of a run using special transaction `cvm.out`
 ;;
@@ -120,35 +111,35 @@
 
 ;; The store file can be evaluated in place
 ;;
-; (eval store)
+(eval (first store))
 
 
 
 ;; Deploys transducers file as a library
 ;,
-; (def xform
-;      (deploy xform))
+(def xform
+     (deploy (first xform)))
 
 
 
 ;; Transducer example ; functions `available?`, `code`, `price`, and `tag+` were defined in the evaluated "store" file
 ;;
-; (cvm.out [:query-veggies
-;           (xform/transduce ;; Processing, composition of "transducers" which filter and map items
-;                            (comp (xform/filter (fn [item]
-;                                                  (contains-key? (tag+ item)
-;                                                                 :fruit)))
-;                                  (xform/filter (fn [item]
-;                                                  (< (price item)
-;                                                     600)))
-;                                  (xform/filter available?)
-;                                  (xform/map code)
-;                                  )
-;                            ;; Output, each item that survives processing is `conj`ed to the given vector (empty at the beginning)
-;                            conj
-;                            []
-;                            ;; Input, declared in the "store" file, a vector where an item is a fruit or vegetable with a price, some quantity, tags, ...
-;                            inventory)])
+(cvm.out [:query-veggies
+          (xform/transduce ;; Processing, composition of "transducers" which filter and map items
+                           (comp (xform/filter (fn [item]
+                                                 (contains-key? (tag+ item)
+                                                                :fruit)))
+                                 (xform/filter (fn [item]
+                                                 (< (price item)
+                                                    600)))
+                                 (xform/filter available?)
+                                 (xform/map code)
+                                 )
+                           ;; Output, each item that survives processing is `conj`ed to the given vector (empty at the beginning)
+                           conj
+                           []
+                           ;; Input, declared in the "store" file, a vector where an item is a fruit or vegetable with a price, some quantity, tags, ...
+                           inventory)])
 
 
 ;;;;;;;;; BUILDING ABSTRACTIONS

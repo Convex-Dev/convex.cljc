@@ -216,6 +216,9 @@
   "Into the given CVM `ctx` (or a newly created one if not provided), reads the given files and interns them as unevaluted code
    under their respective symbols. Conceptually, they can be considered as dependency files.
   
+   Unevaluated code is a list of raw quoted forms. Often, Convex Lisp files have only one top-level `do` form bundling several forms
+   meant to be executed as a single transaction. However, it could be useful for a dependency file to have several top-level forms.
+  
    Only IO utility from this namespaces.
 
    Returns a map which shall be called an \"environment\" map. For simply loading files, only the prepared `:ctx` or the possible
@@ -281,14 +284,14 @@
                                              path
                                              err)
                              (let [[err
-                                    code] (try
-                                            [nil
-                                             ($.cvm/read src)]
-                                            (catch Throwable err
-                                              [[:parse
-                                                path
-                                                err]
-                                               nil]))]
+                                    form+] (try
+                                             [nil
+                                              ($.cvm/read src)]
+                                             (catch Throwable err
+                                               [[:parse
+                                                 path
+                                                 err]
+                                                nil]))]
                                (if err
                                  (assoc-err-read env
                                                  path
@@ -296,7 +299,7 @@
                                  (assoc-code env
                                              path
                                              ($.code/def (path->cvm-sym path)
-                                                         ($.code/quote code))))))))]
+                                                         ($.code/quote form+))))))))]
      (-> {:convex.sync/input+         (mapv first
                                             input+)
           :convex.sync/input->cvm-sym path->cvm-sym

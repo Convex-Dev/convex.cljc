@@ -25,9 +25,9 @@
       :convex.sync/ctx
       ($.clj.eval/ctx '(do
                          (def $
-                              (deploy $))
+                              (deploy (first $)))
                          (def trust
-                              (deploy trust))))
+                              (deploy (first trust)))))
       $.cvm/juice-refill))
 
 

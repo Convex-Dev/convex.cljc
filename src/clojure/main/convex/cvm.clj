@@ -292,22 +292,16 @@
 
 (defn read
 
-  "Converts Convex Lisp source to a Convex object.
+  "Converts Convex Lisp source to CVM list of top-level CVM forms.
 
-   Such an object can be used as is, using its Java API. More often, is it converted to Clojure (see [[as-clojure]])
-   or executed on the CVM (eg.. see [[eval]]).
+   If needed, that CVM list can be converted to a Clojure vector using `vec`.
 
-   If the source contains more than one form, those formss are wrapped in `do`.
-
-   See [[read-many]]."
+   Those CVM forms can be used either via their Java API (also see [[convex.code]] namespace) or converted to a Clojure
+   representation via [[as-clojure]]."
 
   [string]
 
-  (let [parsed (Reader/readAll string)]
-    (if (second parsed)
-      (.cons parsed
-             (Symbol/create "do"))
-      (first parsed))))
+  (Reader/readAll string))
 
 
 
@@ -319,17 +313,8 @@
 
   (-> form
       $.clj/src
-      read))
-
-
-
-(defn read-many
-
-  "Like [[read]] but returns a vector of read forms as opposed to wrapping them in an implicit `do`."
-
-  [string]
-
-  (vec (Reader/readAll string)))
+      read
+      first))
 
 
 ;;;;;;;;;; Phase 2 & 3 - Expanding Convex objects and compiling into operations

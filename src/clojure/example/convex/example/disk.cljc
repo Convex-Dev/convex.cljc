@@ -37,7 +37,7 @@
                                                             :convex.sync/ctx
                                                             $.clj.eval/ctx
                                                             '(def $
-                                                                  (deploy $))))
+                                                                  (deploy (first $)))))
                           :convex.watch/sym->dep  {'$ "src/convex/break/util.cvx"}})
            $.watch/start))
 

@@ -15,8 +15,8 @@
 
 (t/deftest execution
 
-  (let [form ($.cvm/read "(if true 42 0)")]
-    (t/is (= ($.cvm/read "42")
+  (let [form (first ($.cvm/read "(if true 42 0)"))]
+    (t/is (= (first ($.cvm/read "42"))
              (->> form
                   ($.cvm/eval ($.cvm/ctx))
                   $.cvm/result)
@@ -46,7 +46,8 @@
                              ($.cvm/as-clojure (cond->
                                                  target-convex
                                                  (string? target-convex)
-                                                 $.cvm/read)))
+                                                 (-> $.cvm/read
+                                                     first))))
                           message))]
   (t/deftest as-clojure
 
@@ -108,8 +109,8 @@
 
     (-as-clojure '(syntax [:a 42]
                           {:foo :bar})
-                 (Syntax/create ($.cvm/read "[:a 42]")
-                                ($.cvm/read "{:foo :bar}"))
+                 (Syntax/create (first ($.cvm/read "[:a 42]"))
+                                (first ($.cvm/read "{:foo :bar}")))
                  "Syntax")
     
     (-as-clojure true
@@ -136,8 +137,8 @@
                   :convex.exception/message [:foo]
                   :convex.exception/trace   '("test-1"
                                               "test-2")}
-                 (doto (ErrorValue/createRaw ($.cvm/read "{:a 42}")
-                                             ($.cvm/read "[:foo]"))
+                 (doto (ErrorValue/createRaw (first ($.cvm/read "{:a 42}"))
+                                             (first ($.cvm/read "[:foo]")))
                    (.addTrace "test-1")
                    (.addTrace "test-2"))
                  "Error")
@@ -165,5 +166,6 @@
                (-> code
                    $.clj/src
                    $.cvm/read
+                   first
                    $.cvm/as-clojure))
             "Stress test"))))

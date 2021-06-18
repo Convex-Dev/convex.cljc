@@ -21,7 +21,7 @@
   (-> ($.sync/disk {'$ "src/convex/break/util.cvx"})
       :convex.sync/ctx
       ($.clj.eval/ctx '(def $
-                            (deploy $)))
+                            (deploy (first $))))
       $.cvm/juice-refill))
 
 

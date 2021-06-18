@@ -81,9 +81,9 @@
                          'xform "src/convex/lib/lab/xform.cvx"})
            :convex.sync/ctx
            ($.clj.eval/ctx '(do
-                              (eval store)
+                              (eval (first store))
                               (def xform
-                                   (deploy xform))))))
+                                   (deploy (first xform)))))))
 
   ($.cvm/exception ctx)
 
@@ -103,7 +103,7 @@
                                                               :convex.sync/ctx
                                                               $.clj.eval/ctx
                                                               '(def $
-                                                                    (deploy $))))
+                                                                    (deploy (first $)))))
                           :convex.watch/sym->dep    {'$ "src/convex/break/util.cvx"}})
            $.watch/start))
 
