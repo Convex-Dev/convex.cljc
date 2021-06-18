@@ -11,8 +11,7 @@
 ;; Clears the terminal using special transaction `cvm.out.clear`
 ;;
 ; (cvm.out.clear)
-
-
+; (cvm.out)
 
 ;; Prints nice information at the start of a run using special transaction `cvm.out`
 ;;
