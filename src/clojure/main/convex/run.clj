@@ -645,26 +645,29 @@
             (let [trx-2 (-> env-3
                             :convex.sync/ctx
                             $.cvm/result)]
-              (if-some [hook-trx (get-in env
-                                         [:convex.run/hook+
-                                          :trx])]
-                (let [env-4 (eval-form env-3
-                                       ($.code/list [hook-trx
-                                                     ($.code/quote trx-2)]))]
-                  (if (env-4 :convex.run/error)
-                    env-4
-                    (-> env-4
-                        (update :convex.run/hook+
-                                dissoc
-                                :trx)
-                        (eval-trx (-> env-4
-                                      :convex.sync/ctx
-                                      $.cvm/result))
-                        (assoc-in [:convex.run/hook+
-                                   :trx]
-                                  hook-trx))))
-                (eval-form env-3
-                           trx-2)))))))))
+              (if-some [f-strx-2 (strx trx-2)]
+                (f-strx-2 env-3
+                         trx-2)
+                (if-some [hook-trx (get-in env
+                                           [:convex.run/hook+
+                                            :trx])]
+                  (let [env-4 (eval-form env-3
+                                         ($.code/list [hook-trx
+                                                       ($.code/quote trx-2)]))]
+                    (if (env-4 :convex.run/error)
+                      env-4
+                      (-> env-4
+                          (update :convex.run/hook+
+                                  dissoc
+                                  :trx)
+                          (eval-trx (-> env-4
+                                        :convex.sync/ctx
+                                        $.cvm/result))
+                          (assoc-in [:convex.run/hook+
+                                     :trx]
+                                    hook-trx))))
+                  (eval-form env-3
+                             trx-2))))))))))
 
 
 
@@ -963,12 +966,12 @@
 
 
 
-  (load "src/convex/dev/app/run.cvx")
+  (load "src/convex/example/app/run.cvx")
 
 
 
   (def a*env
-       (watch "src/convex/dev/app/run.cvx"))
+       (watch "src/convex/example/app/run.cvx"))
 
   (clojure.pprint/pprint (dissoc @a*env
                                  :input->code))
