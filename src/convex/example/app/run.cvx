@@ -11,15 +11,16 @@
 ;; Clears the terminal using special transaction `cvm.out.clear`
 ;;
 ; (cvm.out.clear)
-; (cvm.out)
+
+
 
 ;; Prints nice information at the start of a run using special transaction `cvm.out`
 ;;
-; (cvm.out (str "RUN N°"
-;               (inc *cvm.cycle*)))
-; (cvm.out)
-; (cvm.out "OUTPUT:")
-; (cvm.out)
+; (cvm.out (str "Run N°" (inc *cvm.cycle*)
+;               \newline
+;               \newline
+;               "OUTPUT:"
+;               \newline))
 
 
 ;;;;;;;;;; SPECIAL TRANSACTIONS
@@ -163,13 +164,13 @@
 ; 
 ;   `(cvm.do
 ;      (cvm.out "===")
-;      (cvm.out)
+;      (cvm.out \newline)
 ;      (cvm.out (str "TRANSACTION: "
 ;                    (quote ~trx)))
-;      (cvm.out)
+;      (cvm.out \newline)
 ;      (cvm.out (str "RESULT: "
 ;                    ~trx))
-;      (cvm.out)
+;      (cvm.out \newline)
 ;      (cvm.out "===")))
 
 

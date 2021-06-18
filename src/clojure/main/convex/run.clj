@@ -307,12 +307,15 @@
                          (assoc :convex.run/on-error
                                 on-error))
             error    (env-2 :convex.run/error)]
-        (out' env-2
-              (if error
-                ($.code/string "Fatal error: output hook")
-                (-> env-2
-                    :convex.sync/ctx
-                    $.cvm/result))))
+        (if error
+          (out' env-2
+                ($.code/string "Fatal error: output hook"))
+          (if-some [result (-> env-2
+                               :convex.sync/ctx
+                               $.cvm/result)]
+            (out' env-2
+                  result)
+            env-2)))
       (out' env
             x))))
 
@@ -440,14 +443,18 @@
 
   [env form]
 
-  (let [env-2 (eval-trx env
-                        (second form))]
-    (if (env-2 :convex.run/error)
-      env-2
-      (out env-2
-           (-> env-2
-               :convex.sync/ctx
-               $.cvm/result)))))
+  (if-some [form-2 (second form)]
+    (let [env-2 (eval-trx env
+                          form-2)]
+      (if (env-2 :convex.run/error)
+        env-2
+        (if-some [x (-> env-2
+                        :convex.sync/ctx
+                        $.cvm/result)]
+          (out env-2
+               x)
+          env-2)))
+    env))
 
 
 
@@ -966,12 +973,12 @@
 
 
 
-  (load "src/convex/example/app/run.cvx")
+  (load "src/convex/dev/app/run.cvx")
 
 
 
   (def a*env
-       (watch "src/convex/example/app/run.cvx"))
+       (watch "src/convex/dev/app/run.cvx"))
 
   (clojure.pprint/pprint (dissoc @a*env
                                  :input->code))
