@@ -5,6 +5,7 @@
   {:author "Adam Helinski"}
 
   (:import (convex.core ErrorCodes)
+           (convex.core.lang Reader)
            (convex.core.lang.impl ErrorValue)
            (java.io File))
   (:refer-clojure :exclude [eval
@@ -546,6 +547,51 @@
 
 
 
+(defn cvm-read
+
+  ""
+
+  [env form]
+
+  (if-some [sym (second form)]
+    (if ($.code/symbol? sym)
+      (if-some [src (nth (seq form)
+                         2)]
+        (if ($.code/string? src)
+          (try
+            (eval-form env
+                       ($.code/def sym
+                                   (-> src
+                                       str
+                                       Reader/readAll
+                                       $.code/vector
+                                       $.code/quote)))
+            (catch Throwable _err
+              (error env
+                     kw-exception
+                     (datafy-exception ErrorCodes/ARGUMENT
+                                       ($.code/string "Cannot read source")))))
+          (error env
+                 kw-exception
+                 (datafy-exception ErrorCodes/CAST
+                                   ($.code/string (str "Second argument to 'cvm.read' must be source code (a string), not: "
+                                                       src)))))
+        (error env
+               kw-exception
+               (datafy-exception ErrorCodes/ARGUMENT
+                                 ($.code/string "'cvm.read' is missing an source string"))))
+      (error env
+             kw-exception
+             (datafy-exception ErrorCodes/CAST
+                               ($.code/string (str "First argument to 'cvm.read' must be a symbol, not: "
+                                                   sym)))))
+    (error env
+           kw-exception
+           (datafy-exception ErrorCodes/ARGUMENT
+                             ($.code/string "'cvm.read' is missing a symbol to define")))))
+
+
+
 (defn cvm-try
 
   ""
@@ -605,6 +651,7 @@
           "cvm.log"        cvm-log
           "cvm.out"        cvm-out
           "cvm.out.clear"  cvm-out-clear
+          "cvm.read"       cvm-read
           "cvm.try"        cvm-try
           (fn [env _trx]
             (error env

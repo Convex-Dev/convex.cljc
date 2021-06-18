@@ -13,6 +13,11 @@
 ; (cvm.out.clear)
 
 
+(cvm.read x
+          "(+ 2 3)")
+
+(cvm.out [:code x])
+
 
 ;; Prints nice information at the start of a run using special transaction `cvm.out`
 ;;
