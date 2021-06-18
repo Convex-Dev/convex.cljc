@@ -7,8 +7,6 @@
           store "src/convex/lib/lab/xform/store.cvx"})
 
 
-(cvm.out store)
-
 
 ;; Clears the terminal using special transaction `cvm.out.clear`
 ;;
@@ -43,9 +41,9 @@
 ;; - `cvm.out.clear` - Clears the screen (useful when output is printing to the terminal)
 ;; - `cvm.try` - Try-catch mechanism
 ;;
-;; Those special transaction are demonstrated in this file.
+;; Those special transactions are demonstrated in this file.
 ;;
-;; Since they are "transactions", one CANNOT do:
+;; Since they are "transactions", one CANNOT nest them in regular transactions:
 ;;
 ;; (+ 2 (cvm.do 2))
 ;;

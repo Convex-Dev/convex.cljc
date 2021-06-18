@@ -4,7 +4,8 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.lang.impl ErrorValue)
+  (:import (convex.core ErrorCodes)
+           (convex.core.lang.impl ErrorValue)
            (java.io File))
   (:refer-clojure :exclude [eval
                             load])
@@ -183,11 +184,26 @@
 
   ""
 
-  [^ErrorValue exception]
 
-  ($.code/map {kw-code    (.getCode exception)
-               kw-message (.getMessage exception)
-               kw-trace   ($.code/vector (.getTrace exception))}))
+  ([^ErrorValue exception]
+
+   (datafy-exception (.getCode exception)
+                     (.getMessage exception)
+                     ($.code/vector (.getTrace exception))))
+
+
+  ([code message]
+
+   (datafy-exception code
+                     message
+                     nil))
+
+
+  ([code message trace]
+
+   ($.code/map {kw-code    code
+                kw-message message
+                kw-trace   trace})))
 
 
 
@@ -346,6 +362,40 @@
 
 
 
+(defn cvm-env
+
+
+  ""
+
+  [env form]
+
+  (let [sym (second form)]
+    (if ($.code/symbol? sym)
+      (if-some [k (nth (seq form)
+                       2)]
+        (if ($.code/string? k)
+          (eval-form env
+                     ($.code/def sym
+                                 ($.code/string (System/getenv (str k)))))
+          (error env
+                 kw-exception
+                 (datafy-exception ErrorCodes/CAST
+                                   ($.code/string (str "Second argument to 'cvm.env' must be a string, not: "
+                                                       k)))))
+        (eval-form env
+                   ($.code/def sym
+                               ($.code/map (map (fn [[k v]]
+                                                  [($.code/string k)
+                                                   ($.code/string v)])
+                                                (System/getenv))))))
+      (error env
+             kw-exception
+             (datafy-exception ErrorCodes/CAST
+                               ($.code/string (str "First argument to 'cvm.env' must be a symbol, not: "
+                                                   sym)))))))
+
+
+
 (defn cvm-hook-end
 
   ""
@@ -449,6 +499,19 @@
 
 
 
+(defn cvm-log
+
+  ""
+
+  [env form]
+
+  (let [cvm-sym (second form)]
+    (eval-form env
+               ($.code/def cvm-sym
+                           ($.cvm/log (env :convex.sync/ctx))))))
+
+
+
 (defn cvm-out
 
   ""
@@ -480,19 +543,6 @@
 
   (print "\033[H\033[2J")
   env)
-
-
-
-(defn cvm-log
-
-  ""
-
-  [env form]
-
-  (let [cvm-sym (second form)]
-    (eval-form env
-               ($.code/def cvm-sym
-                           ($.cvm/log (env :convex.sync/ctx))))))
 
 
 
@@ -547,6 +597,7 @@
         (case sym-string
           "cvm.dep"        cvm-dep
           "cvm.do"         cvm-do
+          "cvm.env"        cvm-env
           "cvm.hook.end"   cvm-hook-end
           "cvm.hook.error" cvm-hook-error
           "cvm.hook.out"   cvm-hook-out
