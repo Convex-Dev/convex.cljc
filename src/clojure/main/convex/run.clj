@@ -181,30 +181,15 @@
 ;;;;;;;;;; Miscellaneous
 
 
-(defn datafy-exception
+(defn datafy-error
 
   ""
 
+  [^ErrorValue exception]
 
-  ([^ErrorValue exception]
-
-   (datafy-exception (.getCode exception)
-                     (.getMessage exception)
-                     ($.code/vector (.getTrace exception))))
-
-
-  ([code message]
-
-   (datafy-exception code
-                     message
-                     nil))
-
-
-  ([code message trace]
-
-   ($.code/map {kw-code    code
-                kw-message message
-                kw-trace   trace})))
+  ($.code/error (.getCode exception)
+                (.getMessage exception)
+                ($.code/vector (.getTrace exception))))
 
 
 
@@ -380,9 +365,9 @@
                                  ($.code/string (System/getenv (str k)))))
           (error env
                  kw-exception
-                 (datafy-exception ErrorCodes/CAST
-                                   ($.code/string (str "Second argument to 'cvm.env' must be a string, not: "
-                                                       k)))))
+                 ($.code/error ErrorCodes/CAST
+                               ($.code/string (str "Second argument to 'cvm.env' must be a string, not: "
+                                                   k)))))
         (eval-form env
                    ($.code/def sym
                                ($.code/map (map (fn [[k v]]
@@ -391,9 +376,9 @@
                                                 (System/getenv))))))
       (error env
              kw-exception
-             (datafy-exception ErrorCodes/CAST
-                               ($.code/string (str "First argument to 'cvm.env' must be a symbol, not: "
-                                                   sym)))))))
+             ($.code/error ErrorCodes/CAST
+                           ($.code/string (str "First argument to 'cvm.env' must be a symbol, not: "
+                                               sym)))))))
 
 
 
@@ -569,26 +554,26 @@
             (catch Throwable _err
               (error env
                      kw-exception
-                     (datafy-exception ErrorCodes/ARGUMENT
-                                       ($.code/string "Cannot read source")))))
+                     ($.code/error ErrorCodes/ARGUMENT
+                                   ($.code/string "Cannot read source")))))
           (error env
                  kw-exception
-                 (datafy-exception ErrorCodes/CAST
-                                   ($.code/string (str "Second argument to 'cvm.read' must be source code (a string), not: "
-                                                       src)))))
+                 ($.code/error ErrorCodes/CAST
+                               ($.code/string (str "Second argument to 'cvm.read' must be source code (a string), not: "
+                                                   src)))))
         (error env
                kw-exception
-               (datafy-exception ErrorCodes/ARGUMENT
-                                 ($.code/string "'cvm.read' is missing an source string"))))
+               ($.code/error ErrorCodes/ARGUMENT
+                             ($.code/string "'cvm.read' is missing an source string"))))
       (error env
              kw-exception
-             (datafy-exception ErrorCodes/CAST
-                               ($.code/string (str "First argument to 'cvm.read' must be a symbol, not: "
-                                                   sym)))))
+             ($.code/error ErrorCodes/CAST
+                           ($.code/string (str "First argument to 'cvm.read' must be a symbol, not: "
+                                               sym)))))
     (error env
            kw-exception
-           (datafy-exception ErrorCodes/ARGUMENT
-                             ($.code/string "'cvm.read' is missing a symbol to define")))))
+           ($.code/error ErrorCodes/ARGUMENT
+                         ($.code/string "'cvm.read' is missing a symbol to define")))))
 
 
 
@@ -610,8 +595,8 @@
                      result)
           (error env-2
                  kw-exception
-                 (datafy-exception ErrorCodes/CAST
-                                   ($.code/string "In 'cvm.splice', argument must evaluate to a vector of transactions"))))))))
+                 ($.code/error ErrorCodes/CAST
+                               ($.code/string "In 'cvm.splice', argument must evaluate to a vector of transactions"))))))))
 
 
 
@@ -698,7 +683,7 @@
     (if exception
       (error env
              kw-expansion
-             ($.code/vector [(datafy-exception exception)
+             ($.code/vector [(datafy-error exception)
                              ($.code/quote form)]))
       (assoc env
              :convex.sync/ctx
@@ -721,7 +706,7 @@
     (if exception
       (error env
              kw-inject-value+
-             (datafy-exception exception))
+             (datafy-error exception))
       (assoc env
              :convex.sync/ctx
              ctx))))
@@ -750,7 +735,7 @@
                   inc))
       exception
       (error kw-exception
-             ($.code/vector [(datafy-exception exception)
+             ($.code/vector [(datafy-error exception)
                              ($.code/quote form)])))))
 
 

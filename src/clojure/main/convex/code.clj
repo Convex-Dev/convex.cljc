@@ -4,7 +4,8 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.data Address
+  (:import (convex.core ErrorCodes)
+           (convex.core.data Address
                              ABlob
                              AList
                              AMap
@@ -13,6 +14,7 @@
                              AVector
                              Blob
                              Keyword
+                             Keywords
                              Lists
                              MapEntry
                              Maps
@@ -25,7 +27,7 @@
                                   CVMChar
                                   CVMDouble
                                   CVMLong)
-           convex.core.lang.Symbols
+           (convex.core.lang Symbols)
            (java.util Collection
                       List))
   (:refer-clojure :exclude [boolean
@@ -62,6 +64,8 @@
 
 (declare do
          import
+         keyword
+         map
          quote
          vector)
 
@@ -151,6 +155,36 @@
 
   (Keyword/create string))
 
+
+
+(let [kw-message (keyword "message")]
+
+  (defn error
+  
+    "An error value as Convex data.
+
+     `code` is often a CVM keyword (`:ASSERT` by default), `message` could be any CVM value, and `trace` is
+     an optional stacktrace (CVM vector of CVM strings)."
+  
+  
+    ([message]
+  
+     (map [[Keywords/CODE ErrorCodes/ASSERT]
+           [kw-message    message]]))
+  
+
+    ([code message]
+
+     (map [[Keywords/CODE code]
+           [kw-message    message]]))
+  
+
+    ([code message trace]
+
+     (map [[Keywords/CODE  code]
+           [kw-message     message]
+           [Keywords/TRACE trace]]))))
+  
 
 
 (defn list
