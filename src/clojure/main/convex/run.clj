@@ -338,6 +338,8 @@
 (defn out
 
   ""
+  
+  ;; TODO. Ensure behaves well when hook fails.
 
   [env x]
 
@@ -635,10 +637,14 @@
 
   [env trx]
 
-  (let [cvm-sym (second trx)]
+  (if-some [cvm-sym (second trx)]
     (eval-form env
                ($.code/def cvm-sym
-                           ($.cvm/log (env :convex.sync/ctx))))))
+                           ($.cvm/log (env :convex.sync/ctx))))
+    (error env
+           (ex-strx ErrorCodes/ARGUMENT
+                    trx
+                    ($.code/string "Argument for 'cvm.log' must be symbol for defining the log")))))
 
 
 
