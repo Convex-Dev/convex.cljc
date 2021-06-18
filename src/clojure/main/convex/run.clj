@@ -254,13 +254,27 @@
 
   ""
 
-  [env cvm-kw-type cvm-data]
+  ([env exception]
 
-  ((env :convex.run/on-error)
-   (assoc env
-          :convex.run/error
-          ($.code/vector [cvm-kw-type
-                          cvm-data]))))
+   ((env :convex.run/on-error)
+    (assoc env
+           :convex.run/error
+           exception)))
+
+
+  ([env code message]
+
+   (error env
+          ($.code/error code
+                        message)))
+
+
+  ([env code message trace]
+
+   (error env
+          ($.code/error code
+                        message
+                        trace))))
 
 
 
@@ -332,7 +346,7 @@
   [env _form]
 
   (error env
-         kw-read-illegal
+         ErrorCodes/STATE
          ($.code/string "CVM special command 'cvm.def' can only be used as first transaction")))
 
 
@@ -364,10 +378,9 @@
                      ($.code/def sym
                                  ($.code/string (System/getenv (str k)))))
           (error env
-                 kw-exception
-                 ($.code/error ErrorCodes/CAST
-                               ($.code/string (str "Second argument to 'cvm.env' must be a string, not: "
-                                                   k)))))
+                 ErrorCodes/CAST
+                 ($.code/string (str "Second argument to 'cvm.env' must be a string, not: "
+                                     k))))
         (eval-form env
                    ($.code/def sym
                                ($.code/map (map (fn [[k v]]
@@ -375,10 +388,9 @@
                                                    ($.code/string v)])
                                                 (System/getenv))))))
       (error env
-             kw-exception
-             ($.code/error ErrorCodes/CAST
-                           ($.code/string (str "First argument to 'cvm.env' must be a symbol, not: "
-                                               sym)))))))
+             ErrorCodes/CAST
+             ($.code/string (str "First argument to 'cvm.env' must be a symbol, not: "
+                                 sym))))))
 
 
 
@@ -553,27 +565,22 @@
                                        $.code/quote)))
             (catch Throwable _err
               (error env
-                     kw-exception
-                     ($.code/error ErrorCodes/ARGUMENT
-                                   ($.code/string "Cannot read source")))))
+                     ErrorCodes/ARGUMENT
+                     ($.code/string "Cannot read source"))))
           (error env
-                 kw-exception
-                 ($.code/error ErrorCodes/CAST
-                               ($.code/string (str "Second argument to 'cvm.read' must be source code (a string), not: "
-                                                   src)))))
+                 ErrorCodes/CAST
+                 ($.code/string (str "Second argument to 'cvm.read' must be source code (a string), not: "
+                                     src))))
         (error env
-               kw-exception
-               ($.code/error ErrorCodes/ARGUMENT
-                             ($.code/string "'cvm.read' is missing an source string"))))
+               ErrorCodes/ARGUMENT
+               ($.code/string "'cvm.read' is missing an source string")))
       (error env
-             kw-exception
-             ($.code/error ErrorCodes/CAST
-                           ($.code/string (str "First argument to 'cvm.read' must be a symbol, not: "
-                                               sym)))))
+             ErrorCodes/CAST
+             ($.code/string (str "First argument to 'cvm.read' must be a symbol, not: "
+                                 sym))))
     (error env
-           kw-exception
-           ($.code/error ErrorCodes/ARGUMENT
-                         ($.code/string "'cvm.read' is missing a symbol to define")))))
+           ErrorCodes/ARGUMENT
+           ($.code/string "'cvm.read' is missing a symbol to define"))))
 
 
 
@@ -594,9 +601,8 @@
           (eval-trx+ env-2
                      result)
           (error env-2
-                 kw-exception
-                 ($.code/error ErrorCodes/CAST
-                               ($.code/string "In 'cvm.splice', argument must evaluate to a vector of transactions"))))))))
+                 ErrorCodes/CAST
+                 ($.code/string "In 'cvm.splice', argument must evaluate to a vector of transactions")))))))
 
 
 
@@ -664,8 +670,9 @@
           "cvm.try"        cvm-try
           (fn [env _trx]
             (error env
-                   kw-strx-unknown
-                   ($.code/string sym-string))))))))
+                   ErrorCodes/ARGUMENT
+                   ($.code/string (str "Unsupported special transaction: "
+                                       sym-string)))))))))
 
 
 ;;;;;;;;;; Preparing transactions
@@ -682,9 +689,7 @@
         exception ($.cvm/exception ctx-2)]
     (if exception
       (error env
-             kw-expansion
-             ($.code/vector [(datafy-error exception)
-                             ($.code/quote form)]))
+             (datafy-error exception))
       (assoc env
              :convex.sync/ctx
              ctx-2))))
@@ -705,7 +710,6 @@
         exception ($.cvm/exception ctx)]
     (if exception
       (error env
-             kw-inject-value+
              (datafy-error exception))
       (assoc env
              :convex.sync/ctx
@@ -735,8 +739,7 @@
                   inc))
       exception
       (error kw-exception
-             ($.code/vector [(datafy-error exception)
-                             ($.code/quote form)])))))
+             (datafy-error exception)))))
 
 
 
@@ -879,10 +882,8 @@
                    nil]))]
     (if err
       (error env
-             kw-main-src
-             ($.code/vector [($.code/string path)
-                             ;; TODO. Datafy JVM exception.
-                             err]))
+             ErrorCodes/ARGUMENT
+             ($.code/string path))
       (assoc env
              :convex.run/src
              src))))
@@ -895,21 +896,18 @@
 
   [env]
 
-  (let [[err
+  (let [src    (env :convex.run/src)
+        [err
          trx+] (try
                  [nil
-                  (-> env
-                      :convex.run/src
-                      $.cvm/read
-                      vec)]
+                  (vec ($.cvm/read src))]
                  (catch Throwable err
                    [err
                     nil]))]
     (if err
       (error env
-             kw-read-src
-             ;; TODO. Datafy JVM exception.
-             nil)
+             ErrorCodes/ARGUMENT
+             ($.code/string  src))
       (let [dep+' (dep+ trx+)]
         (-> env
             (assoc :convex.run/dep+ dep+'
@@ -951,8 +949,7 @@
             err-sync (env-2 :convex.sync/error)]
         (if err-sync
           (error env-2
-                 kw-sync-dep+
-                 ;; TODO. Datafy JVM exception.
+                 ErrorCodes/STATE
                  nil)
           (exec-trx+ env-2)))
       (-> env
@@ -1036,8 +1033,7 @@
                                           :convex.run/error)]
                         (if err-sync
                           (error env-3
-                                 kw-sync-dep+
-                                 ;; TODO. Datafy JVM exception.
+                                 ErrorCodes/STATE
                                  nil)
                           (if (or (nil? dep-old+)
                                   (seq (env-3 :convex.watch/extra->change)))

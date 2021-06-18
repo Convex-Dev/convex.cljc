@@ -7,11 +7,10 @@
           store "src/convex/lib/lab/xform/store.cvx"})
 
 
-(cvm.env :foo)
 
 ;; Clears the terminal using special transaction `cvm.out.clear`
 ;;
-; (cvm.out.clear)
+(cvm.out.clear)
 
 
 

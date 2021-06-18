@@ -159,7 +159,7 @@
 
 (let [kw-message (keyword "message")]
 
-  (defn error
+  (defn ^AMap error
   
     "An error value as Convex data.
 
