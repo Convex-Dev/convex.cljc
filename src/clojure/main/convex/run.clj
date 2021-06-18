@@ -592,6 +592,29 @@
 
 
 
+(defn cvm-splice
+
+  "Like [[cvm-do]] but dynamic, evaluates its argument to a vector of transactions."
+
+  [env form]
+
+  (let [env-2 (eval-trx env
+                        (second form))]
+    (if (env-2 :convex.run/error)
+      env-2
+      (let [result (-> env-2
+                       :convex.sync/ctx
+                       $.cvm/result)]
+        (if ($.code/vector? result)
+          (eval-trx+ env-2
+                     result)
+          (error env-2
+                 kw-exception
+                 (datafy-exception ErrorCodes/CAST
+                                   ($.code/string "In 'cvm.splice', argument must evaluate to a vector of transactions"))))))))
+
+
+
 (defn cvm-try
 
   ""
@@ -652,6 +675,7 @@
           "cvm.out"        cvm-out
           "cvm.out.clear"  cvm-out-clear
           "cvm.read"       cvm-read
+          "cvm.splice"     cvm-splice
           "cvm.try"        cvm-try
           (fn [env _trx]
             (error env

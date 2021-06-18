@@ -13,10 +13,14 @@
 ; (cvm.out.clear)
 
 
-(cvm.read x
-          "(+ 2 3)")
+(def x [])
 
-(cvm.out [:code x])
+(def x
+     (conj x 42))
+
+(def x (conj x `(cvm.out (inc ~(+ 2 2)))))
+
+(cvm.splice x)
 
 
 ;; Prints nice information at the start of a run using special transaction `cvm.out`
