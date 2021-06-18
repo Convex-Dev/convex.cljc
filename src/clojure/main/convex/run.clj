@@ -211,7 +211,7 @@
       (let [item (first trx-first)]
         (when ($.code/symbol? item)
           (when (= (str item)
-                   "cvm.read")
+                   "cvm.dep")
             (not-empty (reduce (fn [hmap x]
                                  (assoc hmap
                                         (str (first x))
@@ -321,6 +321,18 @@
 
 
 ;;;;;;;;;; Special transactions
+
+
+(defn cvm-dep
+
+  ""
+
+  [env _form]
+
+  (error env
+         kw-read-illegal
+         ($.code/string "CVM special command 'cvm.def' can only be used as first transaction")))
+
 
 
 (defn cvm-do
@@ -484,18 +496,6 @@
 
 
 
-(defn cvm-read
-
-  ""
-
-  [env _form]
-
-  (error env
-         kw-read-illegal
-         ($.code/string "CVM special command 'cvm.read' can only be used as first transaction")))
-
-
-
 (defn cvm-try
 
   ""
@@ -545,6 +545,7 @@
       (when (clojure.string/starts-with? sym-string
                                          "cvm.")
         (case sym-string
+          "cvm.dep"        cvm-dep
           "cvm.do"         cvm-do
           "cvm.hook.end"   cvm-hook-end
           "cvm.hook.error" cvm-hook-error
@@ -553,7 +554,6 @@
           "cvm.log"        cvm-log
           "cvm.out"        cvm-out
           "cvm.out.clear"  cvm-out-clear
-          "cvm.read"       cvm-read
           "cvm.try"        cvm-try
           (fn [env _trx]
             (error env

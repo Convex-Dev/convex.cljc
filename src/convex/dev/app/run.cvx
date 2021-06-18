@@ -3,9 +3,11 @@
 
 ;; Reads those files and binds the unevaluated code to the given symbols using special transaction `cvm.read`
 ;;
-; (cvm.read {xform "src/convex/lib/lab/xform.cvx"
-;            store "src/convex/lib/lab/xform/store.cvx"})
+(cvm.dep {xform "src/convex/lib/lab/xform.cvx"
+          store "src/convex/lib/lab/xform/store.cvx"})
 
+
+(cvm.out store)
 
 
 ;; Clears the terminal using special transaction `cvm.out.clear`
@@ -30,6 +32,7 @@
 ;;
 ;; Currently:
 ;;
+;; - `cvm.dep` - Given a map of `symbol` -> `file path`, reads each file and binds the unevaluated code its requested symbol
 ;; - `cvm.do` - Similar to `do`, executes each form as an individual transaction
 ;; - `cvm.hook.end` - Executes the given code at the end of a run, even if an error occured
 ;; - `cvm.hook.error` - When an errors occurs, calls the given function with the error and then executes the returned code (default is outputting with `cvm.out`)
@@ -38,7 +41,6 @@
 ;; - `cvm.log` - Binds the current state of the CVM log to the given symbol
 ;; - `cvm.out` - Outputs the given item
 ;; - `cvm.out.clear` - Clears the screen (useful when output is printing to the terminal)
-;; - `cvm.read` - Given a map of `symbol` -> `file path`, reads each file and binds the unevaluated code its requested symbol
 ;; - `cvm.try` - Try-catch mechanism
 ;;
 ;; Those special transaction are demonstrated in this file.
