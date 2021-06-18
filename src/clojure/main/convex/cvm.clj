@@ -535,7 +535,17 @@
 
 (defn as-clojure
 
-  "Converts a Convex object into Clojure data."
+  "Converts a Convex object into Clojure data.
+  
+   See [[convex.clj]] namespace for more information on how objects that do not translate directly to Clojure look like (eg. addresses).
+
+   Attention, one rare but existing pitfall has been detected: in Clojure, sequential data structures are comparable, not in Convex. In other words,
+   the following map has 2 key-values in Convex but only 1 in Clojure (second eplaces the first one):
+
+   ```clojure
+   {[1]  :vector
+    '(1) :list}}
+   ```"
 
   [object]
 
