@@ -13,10 +13,16 @@
 (cvm.out.clear)
 
 
-; (cvm.hook.error (fn [err] `(cvm.out [:ERRROR ~err])))
-; 
-;(+ 2 [])
+ 
 
+(cvm.hook.out (fn [x] (fail :a :b)))
+
+(cvm.hook.error (fn [x] 'fdfsf))
+
+(/ 2 [])
+
+
+(cvm.out 42)
 
 ;; Prints nice information at the start of a run using special transaction `cvm.out`
 ;;

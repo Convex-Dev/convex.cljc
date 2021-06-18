@@ -64,7 +64,8 @@
 
   [x]
 
-  (println x))
+  (println x)
+  (flush))
 
 
 (add-tap tap)
