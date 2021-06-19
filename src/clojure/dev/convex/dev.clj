@@ -78,7 +78,7 @@
 
 
   (def ctx
-       (-> ($.sync/disk {'store "src/convex/lib/lab/xform/store.cvx"
+       (-> ($.sync/disk {'store "src/convex/lib/lab/xform/store.cvx2"
                          'xform "src/convex/lib/lab/xform.cvx"})
            :convex.sync/ctx
            ($.clj.eval/ctx '(do
@@ -99,17 +99,20 @@
   (def a*env
        (-> ($.watch/init {:convex.watch/ms-debounce 1000
                           :convex.watch/on-change   (fn [env]
-                                                      (ppr [:env (dissoc env :convex.sync/input->code)])
+                                                      (tap> [:on-change
+                                                             (with-out-str (ppr (dissoc env
+                                                                                        :convex.sync/input->code)))])
                                                       (update env
                                                               :convex.sync/ctx
                                                               $.clj.eval/ctx
                                                               '(def $
                                                                     (deploy (first $)))))
-                          :convex.watch/sym->dep    {'$ "src/convex/break/util.cvx"}})
+                          :convex.watch/sym->dep    {'$ "src/convex/break/util.cvx2"}})
            $.watch/start))
 
   (ppr @a*env)
   (agent-error a*env)
+
 
   ($.watch/stop a*env)
 
@@ -119,5 +122,21 @@
   ($.clj.eval/result* ($.watch/ctx a*env)
                       $/foo)
 
+
+
+
+  (def a* (agent [:a :b]
+                 :error-mode :fail))
+
+  (set-error-handler! a*
+                 (fn [a e]
+                   (tap> [:e e])))
+  (send a*
+        (fn [_]
+          (tap> :ok)
+          (throw (ex-info "foo" {}))))
+
+  (deref a*)
+  (agent-error a*)
 
   )

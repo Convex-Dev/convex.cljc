@@ -88,50 +88,68 @@
 
   [a*env env]
 
-  (let [sym->dep (env :convex.watch/sym->dep)]
-    (-> ($.sync/disk ($.cvm/fork (env :convex.sync/ctx-base))
-                     sym->dep)
-        (merge env)
-        (assoc :convex.watch/watcher
-               (watcher/watch! [{:handler (fn [_ {:keys [^File file
-                                                         kind]}]
-                                            (let [nano-change (System/nanoTime)
-                                                  path        (.getCanonicalPath file)]
-                                              (send-off a*env
-                                                        (fn [env]
-                                                          (-> env
-                                                              (assoc :convex.watch/nano-change
-                                                                     nano-change)
-                                                              (assoc-in [(if (contains? (env :convex.watch/extra+)
-                                                                                        path)
-                                                                           :convex.watch/extra->change
-                                                                           :convex.sync/input->change)
-                                                                         path]
-                                                                        kind)
-                                                              (update :convex.watch/f*debounce
-                                                                      (fn [f*debounce]
-                                                                        (some-> f*debounce
-                                                                                future-cancel)
-                                                                        (future
-                                                                          (Thread/sleep (or (env :convex.watch/ms-debounce)
-                                                                                            20))
-                                                                          (send a*env
-                                                                                (fn [env]
-                                                                                  (if (= (env :convex.watch/nano-change)
-                                                                                         nano-change)
-                                                                                    (-> (if (seq (env :convex.watch/extra->change))
-                                                                                          env
-                                                                                          (-> env
-                                                                                              $.sync/patch
-                                                                                              $.sync/eval))
-                                                                                        (dissoc :convex.watch/f*debounce)
-                                                                                        (update :convex.watch/cycle
-                                                                                                inc)
-                                                                                        ((env :convex.watch/on-change)))
-                                                                                    env)))))))))))
-                                 :paths   (concat (env :convex.watch/extra+)
-                                                  (vals sym->dep))}]))
-        ((env :convex.watch/on-change)))))
+  (let [sym->dep (env :convex.watch/sym->dep)
+        [err
+         watcher] (try
+
+                    [nil
+                     (watcher/watch! [{:handler (fn [_ {:keys [^File file
+                                                               kind]}]
+                                                  (let [nano-change (System/nanoTime)
+                                                        path        (.getCanonicalPath file)]
+                                                    (send-off a*env
+                                                              (fn [env]
+                                                                (-> env
+                                                                    (assoc :convex.watch/nano-change
+                                                                           nano-change)
+                                                                    (assoc-in [(if (contains? (env :convex.watch/extra+)
+                                                                                              path)
+                                                                                 :convex.watch/extra->change
+                                                                                 :convex.sync/input->change)
+                                                                               path]
+                                                                              kind)
+                                                                    (update :convex.watch/f*debounce
+                                                                            (fn [f*debounce]
+                                                                              (some-> f*debounce
+                                                                                      future-cancel)
+                                                                              (future
+                                                                                (Thread/sleep (or (env :convex.watch/ms-debounce)
+                                                                                                  20))
+                                                                                (send a*env
+                                                                                      (fn [env]
+                                                                                        (if (= (env :convex.watch/nano-change)
+                                                                                               nano-change)
+                                                                                          (-> (if (seq (env :convex.watch/extra->change))
+                                                                                                env
+                                                                                                (-> env
+                                                                                                    $.sync/patch
+                                                                                                    $.sync/eval))
+                                                                                              (dissoc :convex.watch/f*debounce)
+                                                                                              (update :convex.watch/cycle
+                                                                                                      inc)
+                                                                                              ((env :convex.watch/on-change)))
+                                                                                          env)))))))))))
+                                       :paths   (concat (env :convex.watch/extra+)
+                                                        (vals sym->dep))}])]
+
+                    (catch java.nio.file.NoSuchFileException ex
+                      [[:not-found
+                        (.getMessage ex)]
+                       nil])
+
+                    (catch Throwable ex
+                      [[:exception ex]
+                       nil]))]
+    (->> (if watcher
+           (-> ($.sync/disk ($.cvm/fork (env :convex.sync/ctx-base))
+                            sym->dep)
+               (merge env)
+               (assoc :convex.watch/watcher
+                      watcher))
+           (assoc env
+                  :convex.watch/error
+                  err))
+         ((env :convex.watch/on-change)))))
 
 
 
