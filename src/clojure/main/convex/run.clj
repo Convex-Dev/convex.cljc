@@ -77,6 +77,13 @@
 
 
 
+(def kw-exception?
+
+  ""
+
+  ($.code/keyword "exception?"))
+
+
 (def kw-expand
 
   ""
@@ -429,7 +436,9 @@
    ((env :convex.run/on-error)
     (assoc env
            :convex.run/error
-           exception)))
+           (.assoc exception
+                   kw-exception?
+                   ($.code/boolean true)))))
 
 
   ([env code message]
@@ -455,8 +464,7 @@
   [env]
 
   (out env
-       ($.code/vector [kw-error
-                       (env :convex.run/error)])))
+       (env :convex.run/error)))
 
 
 
@@ -491,8 +499,7 @@
    (f-out (assoc env
                  :convex.run/error
                  ex)
-          ($.code/vector [ErrorCodes/FATAL
-                          ex])))
+          ex))
 
 
   ([env form message cause]
@@ -1349,12 +1356,12 @@
 
 
 
-  (load "src/convex/dev/app/run.cvx")
+  (load "src/convex/dev/app/run.cvx2")
 
 
 
   (def a*env
-       (watch "src/convex/dev/app/run.cvx"))
+       (watch "src/convex/dev/app/run.cvx2"))
 
   (clojure.pprint/pprint (dissoc @a*env
                                  :convex.sync/input->code))
