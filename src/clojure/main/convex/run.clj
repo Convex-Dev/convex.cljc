@@ -15,6 +15,7 @@
   (:require [clojure.string]
             [convex.code     :as $.code]
             [convex.cvm      :as $.cvm]
+            [convex.run.kw   :as $.run.kw]
             [convex.sync     :as $.sync]
             [convex.watch    :as $.watch]))
 
@@ -24,214 +25,6 @@
          eval-trx+
          fatal
          out)
-
-
-;;;;;;;;;; CVM keywords
-
-
-(def kw-arity
-
-  ""
-
-  ($.code/keyword "arity"))
-
-
-
-(def kw-cause
-
-  ""
-
-  ($.code/keyword "cause"))
-
-
-
-(def kw-code
-
-  ""
-
-  ($.code/keyword "code"))
-
-
-
-(def kw-error
-
-  ""
-
-  ($.code/keyword "cvm.error"))
-
-
-
-(def kw-eval-trx
-
-  ""
-
-  ($.code/keyword "eval.trx"))
-
-
-
-(def kw-exception
-
-  ""
-
-  ($.code/keyword "exception"))
-
-
-
-(def kw-exception?
-
-  ""
-
-  ($.code/keyword "exception?"))
-
-
-(def kw-expand
-
-  ""
-
-  ($.code/keyword "expand"))
-
-
-
-(def kw-file-open
-
-  ""
-
-  ($.code/keyword "file.open"))
-
-
-
-(def kw-form
-
-  ""
-  
-  ($.code/keyword "form"))
-
-
-
-(def kw-inject-value+
-
-  ""
-
-  ($.code/keyword "inject-value+"))
-
-
-
-(def kw-main-src
-
-  ""
-
-  ($.code/keyword "main.src"))
-
-
-
-(def kw-message
-
-  ""
-
-  ($.code/keyword "message"))
-
-
-
-(def kw-path
-
-  ""
-
-  ($.code/keyword "path"))
-
-
-
-(def kw-phase
-
-  ""
-
-  ($.code/keyword "phase"))
-
-
-
-(def kw-read
-
-  ""
-
-  ($.code/keyword "read"))
-
-
-
-(def kw-read-illegal
-
-  ""
-
-  ($.code/keyword "read.illegal"))
-
-
-
-(def kw-read-src
-
-  ""
-
-  ($.code/keyword "read.src"))
-
-
-
-(def kw-src
-
-  ""
-
-  ($.code/keyword "src"))
-
-
-
-(def kw-strx
-
-  ""
-
-  ($.code/keyword "special-trx"))
-
-
-
-(def kw-strx-unknown
-
-  ""
-
-  ($.code/keyword "cvm.unknown"))
-
-
-
-(def kw-sync-dep+
-
-  ""
-
-  ($.code/keyword "sync-dep+"))
-
-
-
-(def kw-trx
-
-  ""
-
-  ($.code/keyword "trx"))
-
-
-
-(def kw-trx-eval
-
-  ""
-
-  ($.code/keyword "trx.eval"))
-
-
-
-(def kw-trx-prepare
-
-  ""
-
-  ($.code/keyword "trx/prepare"))
-
-
-(def kw-trace
-
-  ""
-
-  ($.code/keyword "trace"))
 
 
 ;;;;;;;;;; CVM symbols
@@ -400,7 +193,7 @@
   [error phase]
 
   (.assoc error
-          kw-phase
+          $.run.kw/phase
           phase))
 
 
@@ -421,7 +214,7 @@
 
    (-> ex
        datafy-error
-       (.assoc kw-trx
+       (.assoc $.run.kw/trx
                ($.code/quote trx))
        (add-error-phase phase))))
 
@@ -437,7 +230,7 @@
     (assoc env
            :convex.run/error
            (.assoc exception
-                   kw-exception?
+                   $.run.kw/exception?
                    ($.code/boolean true)))))
 
 
@@ -476,9 +269,9 @@
 
   (-> ($.code/error code
                     message)
-      (.assoc kw-trx
+      (.assoc $.run.kw/trx
               trx)
-      (add-error-phase kw-strx)))
+      (add-error-phase $.run.kw/strx)))
 
 
 
@@ -515,9 +308,9 @@
 
    (let [ex (-> ($.code/error ErrorCodes/FATAL
                               message)
-                (.assoc kw-form
+                (.assoc $.run.kw/form
                         form)
-                (.assoc kw-cause
+                (.assoc $.run.kw/cause
                         cause))]
      (fatal f-out
             env
@@ -904,7 +697,7 @@
              ctx)
       ex
       (error (datafy-error ex
-                           kw-expand
+                           $.run.kw/expand
                            form)))))
 
 
@@ -928,7 +721,7 @@
              ctx)
       ex
       (error (datafy-error ex
-                           kw-trx-prepare
+                           $.run.kw/trx-prepare
                            form)))))
 
 
@@ -955,7 +748,7 @@
                   inc))
       ex
       (error (datafy-error ex
-                           kw-trx-eval
+                           $.run.kw/trx-eval
                            form)))))
 
 
@@ -1101,9 +894,9 @@
       (error env
              (-> ($.code/error ErrorCodes/ARGUMENT
                                ($.code/string "Unable to open file"))
-                 (.assoc kw-path
+                 (.assoc $.run.kw/path
                          ($.code/string path))
-                 (add-error-phase kw-file-open)))
+                 (add-error-phase $.run.kw/file-open)))
       (assoc env
              :convex.run/src
              src))))
@@ -1128,9 +921,9 @@
       (error env
              (-> ($.code/error ErrorCodes/ARGUMENT
                                ($.code/string "Unable to parse source code"))
-                 (.assoc kw-src
+                 (.assoc $.run.kw/src
                          ($.code/string src))
-                 (add-error-phase kw-read)))
+                 (add-error-phase $.run.kw/read)))
       (let [sym->dep' (sym->dep trx+)]
         (-> env
             (assoc :convex.run/sym->dep sym->dep'
@@ -1297,7 +1090,7 @@
                                                                             :convex.watch/sym->dep))
                                                                 (-> ($.code/error ErrorCodes/FATAL
                                                                                   ($.code/string "Missing file for requested dependency"))
-                                                                    (.assoc kw-path
+                                                                    (.assoc $.run.kw/path
                                                                             ($.code/string arg))))))))
                               ;;
                               ;; Handles sync error if any.

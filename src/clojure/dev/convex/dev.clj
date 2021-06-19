@@ -42,6 +42,7 @@
             [convex.lib.trust]
             [convex.lib.test.trust]
             [convex.run                    :as $.run]
+            [convex.run.kw                 :as $.run.kw]
             [convex.sync                   :as $.sync]
             [convex.watch                  :as $.watch]
             [clojure.test.check.generators :as TC.gen]))
