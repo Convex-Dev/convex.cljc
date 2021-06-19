@@ -4,6 +4,7 @@
 
   {:author "Adam Helinski"}
 
+  (:refer-clojure :exclude [read])
   (:require [convex.code :as $.code]))
 
 

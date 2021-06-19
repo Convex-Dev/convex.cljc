@@ -16,6 +16,7 @@
             [convex.code     :as $.code]
             [convex.cvm      :as $.cvm]
             [convex.run.kw   :as $.run.kw]
+            [convex.run.sym  :as $.run.sym]
             [convex.sync     :as $.sync]
             [convex.watch    :as $.watch]))
 
@@ -25,48 +26,6 @@
          eval-trx+
          fatal
          out)
-
-
-;;;;;;;;;; CVM symbols
-
-
-(def sym-catch
-
-  ""
-
-  ($.code/symbol "cvm.catch"))
-
-
-
-(def sym-cycle
-
-  ""
-
-  ($.code/symbol "*cvm.cycle*"))
-
-
-
-(def sym-error
-
-  ""
-
-  ($.code/symbol "*cvm.error*"))
-
-
-
-(def sym-juice-last
-
-  ""
-
-  ($.code/symbol "*cvm.juice.last*"))
-
-
-
-(def sym-trx-id
-
-  ""
-
-  ($.code/symbol "*cvm.trx.id*"))
 
 
 ;;;;;;;;;; Miscellaneous
@@ -618,7 +577,7 @@
 
   (let [trx-last (last trx)
         catch?   ($.code/call? trx-last
-                               sym-catch)
+                               $.run.sym/catch)
         on-error (env :convex.run/on-error)]
     (-> env
         (assoc :convex.run/on-error
@@ -629,10 +588,10 @@
                        catch?
                        (-> (assoc :convex.run/on-error
                                   on-error)
-                           (eval-form ($.code/def sym-error
+                           (eval-form ($.code/def $.run.sym/error
                                                   (env-2 :convex.run/error)))
                            (eval-trx+ (rest trx-last))
-                           (eval-form ($.code/undef sym-error))))
+                           (eval-form ($.code/undef $.run.sym/error))))
                      (assoc :convex.run/error
                             :try))))
         (eval-trx+ (-> trx
@@ -708,9 +667,9 @@
 
   [env]
 
-  (let [form  ($.code/do [($.code/def sym-juice-last
+  (let [form  ($.code/do [($.code/def $.run.sym/juice-last
                                       ($.code/long (env :convex.run/juice-last)))
-                          ($.code/def sym-trx-id
+                          ($.code/def $.run.sym/trx-id
                                       ($.code/long (env :convex.run/i-trx)))])
         ctx   ($.cvm/eval (env :convex.sync/ctx)  
                           form)
@@ -834,7 +793,7 @@
                      (update :convex.sync/ctx
                              (fn [ctx]
                                ($.cvm/eval ctx
-                                           ($.code/def sym-cycle
+                                           ($.code/def $.run.sym/cycle
                                                        ($.code/long (or (env :convex.watch/cycle)
                                                                         0))))))
                      eval-trx+)
