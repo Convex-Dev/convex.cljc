@@ -479,6 +479,22 @@
   ""
 
 
+  ([env ex]
+
+   (fatal out
+          env
+          ex))
+
+
+  ([f-out env ex]
+   
+   (f-out (assoc env
+                 :convex.run/error
+                 ex)
+          ($.code/vector [ErrorCodes/FATAL
+                          ex])))
+
+
   ([env form message cause]
 
    (fatal out
@@ -490,18 +506,15 @@
 
   ([f-out env form message cause]
 
-   (println :got form message cause)
    (let [ex (-> ($.code/error ErrorCodes/FATAL
                               message)
                 (.assoc kw-form
                         form)
                 (.assoc kw-cause
                         cause))]
-     (f-out (assoc env
-                   :convex.run/error
-                   ex)
-            ($.code/vector [ErrorCodes/FATAL
-                            ex])))))
+     (fatal f-out
+            env
+            ex))))
 
 
 ;;;;;;;;;; Special transactions
@@ -1080,7 +1093,7 @@
     (if err
       (error env
              (-> ($.code/error ErrorCodes/ARGUMENT
-                               "Unable to open file")
+                               ($.code/string "Unable to open file"))
                  (.assoc kw-path
                          ($.code/string path))
                  (add-error-phase kw-file-open)))
@@ -1107,7 +1120,7 @@
     (if err
       (error env
              (-> ($.code/error ErrorCodes/ARGUMENT
-                               "Unable to parse source code")
+                               ($.code/string "Unable to parse source code"))
                  (.assoc kw-src
                          ($.code/string src))
                  (add-error-phase kw-read)))
@@ -1128,9 +1141,8 @@
 
   [env path]
 
-  (let [env-2 (-> env
-                  init
-                  (slurp-file path))]
+  (let [env-2 (slurp-file env
+                          path)]
     (if (env-2 :convex.run/error)
       env-2
       (process-src env-2))))
@@ -1202,76 +1214,117 @@
 
   ([env path]
 
-   (-> (main-file env
-                  path)
+   (-> env
+       init
+       (main-file path)
        once)))
 
 
 ;;;;;;;;;; Watch files
 
 
-(defn watch
+(let [-ex-dep-missing (fn [path]
+                        (-> ($.code/error ErrorCodes/FATAL
+                                          ($.code/string "Missing file for requested dependency"))
+                            (.assoc kw-path
+                                    ($.code/string path))))
+      -restart        (fn [a*env env dep+]
+                        ($.watch/-stop env)
+                        ($.watch/-start a*env
+                                        (-> (select-keys env
+                                                         [:convex.run/dep+
+                                                          :convex.run/dep-lock
+                                                          :convex.run/on-error
+                                                          :convex.run/out
+                                                          :convex.run/trx+
+                                                          :convex.sync/ctx-base
+                                                          :convex.watch/cycle
+                                                          :convex.watch/extra+
+                                                          :convex.watch/ms-debounce
+                                                          :convex.watch/on-change])
+                                            (assoc :convex.watch/sym->dep
+                                                   dep+))))]
+  (defn watch
 
-  ""
+    ""
 
 
-  ([path]
+    ([path]
 
-   (watch nil
-          path))
+     (watch nil
+            path))
 
 
-  ([env ^String path]
+    ([env ^String path]
 
-   (let [a*env ($.watch/init (assoc env
-                                    :convex.watch/extra+
-                                    #{(.getCanonicalPath (File. path))}))]
-     (send a*env
-           (fn [env]
-             (assoc env
-                    :convex.watch/on-change
-                    (fn on-change [{:as      env-2
-                                    dep-old+ :convex.run/dep+
-                                    err-sync :convex.sync/error}]
-                      (let [env-3 (dissoc env-2
-                                          :convex.run/error)]
-                        (if err-sync
-                          ;; TODO. Better error.
-                          (error env-3
-                                 ErrorCodes/STATE
-                                 nil)
-                          (if (or (nil? dep-old+)
-                                  (seq (env-3 :convex.watch/extra->change)))
-                            (let [env-4 (main-file env-3
-                                                   path)]
-                              (if (env-4 :convex.error/error)
-                                env-4
-                                (let [dep-new+ (env-4 :convex.run/dep+)]
-                                  (if (= (not-empty dep-new+)
-                                         dep-old+)
-                                    (-> env-4
-                                        (dissoc :convex.watch/extra->change)
-                                        $.sync/patch
-                                        $.sync/eval
-                                        exec-trx+)
-                                    (do
-                                      ($.watch/-stop env-4)
-                                      ($.watch/-start a*env
-                                                      (-> (select-keys env-4
-                                                                       [:convex.run/dep+
-                                                                        :convex.run/on-error
-                                                                        :convex.run/out
-                                                                        :convex.run/trx+
-                                                                        :convex.sync/ctx-base
-                                                                        :convex.watch/cycle
-                                                                        :convex.watch/extra+
-                                                                        :convex.watch/ms-debounce
-                                                                        :convex.watch/on-change])
-                                                          (assoc :convex.watch/sym->dep
-                                                                 dep-new+))))))))
-                            (exec-trx+ env-3))))))))
-     ($.watch/start a*env)
-     a*env)))
+     (let [a*env ($.watch/init (-> env
+                                   init
+                                   (assoc :convex.watch/extra+
+                                          #{(.getCanonicalPath (File. path))})))]
+       (send a*env
+             (fn [env]
+               (assoc env
+                      :convex.watch/on-change
+                      (fn on-change [{:as       env-2
+                                      dep-old+  :convex.run/dep+
+                                      err-sync  :convex.sync/error}]
+                        (if-some [[etype
+                                   arg]  (env-2 :convex.watch/error)]
+                          (case etype
+                            :exception (fatal env-2
+                                              ($.code/error ErrorCodes/FATAL
+                                                            ($.code/string "Unknown fatal error occured when setting up the file watcher")))
+                            :not-found (if (= arg
+                                              (first (env-2 :convex.watch/extra+)))
+                                         (fatal env-2
+                                                ($.code/error ErrorCodes/FATAL
+                                                              ($.code/string "Main file does not exist")))
+                                         (-restart a*env
+                                                   (fatal (assoc env-2
+                                                                 :convex.run/dep+     nil
+                                                                 :convex.run/dep-lock dep-old+)
+                                                          (-> ($.code/error ErrorCodes/FATAL
+                                                                            ($.code/string "Missing file for requested dependency"))
+                                                              (.assoc kw-path
+                                                                      ($.code/string arg))))
+                                                   nil)))
+                          (let [env-3 (dissoc env-2
+                                              :convex.run/error)]
+                            (if err-sync
+                              ;; TODO. Better error.
+                              (error env-3
+                                     ErrorCodes/STATE
+                                     nil)
+                              (let [dep-lock (env-3 :convex.run/dep-lock)]
+                                (if (or dep-lock
+                                        (nil? dep-old+)
+                                        (seq (env-3 :convex.watch/extra->change)))
+                                  (let [env-4 (main-file env-3
+                                                         path)]
+                                    (if (env-4 :convex.error/error)
+                                      env-4
+                                      (let [dep-new+ (env-4 :convex.run/dep+)]
+                                        (if (= (not-empty dep-new+)
+                                               dep-old+)
+                                          (-> env-4
+                                              (dissoc :convex.watch/dep-lock
+                                                      :convex.watch/extra->change)
+                                              $.sync/patch
+                                              $.sync/eval
+                                              exec-trx+)
+                                          (if (= dep-new+
+                                                 dep-lock)
+                                            (dissoc env-4
+                                                    :convex.run/dep+
+                                                    :convex.run/dep-lock
+                                                    :convex.run/extra->change)
+                                            (-restart a*env
+                                                      (dissoc env-4
+                                                              :convex.run/dep-lock)
+                                                      dep-new+))))))
+                                  (exec-trx+ env-3))))))))))
+       ($.watch/start a*env)
+       a*env))))
 
 
 ;;;;;;;;;;

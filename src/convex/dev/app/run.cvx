@@ -15,14 +15,9 @@
 
  
 
-(cvm.hook.out (fn [x] (fail :a :b)))
+(cvm.out [:xform xform])
 
-(cvm.hook.error (fn [x] 'fdfsf))
-
-(/ 2 [])
-
-
-(cvm.out 42)
+(cvm.out 424)
 
 ;; Prints nice information at the start of a run using special transaction `cvm.out`
 ;;
