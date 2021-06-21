@@ -6,7 +6,6 @@
 ;;
 ;;
 
-
 (do
 
   (call *registry*

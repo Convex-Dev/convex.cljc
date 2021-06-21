@@ -8,24 +8,22 @@
 
   (:import (convex.core ErrorCodes)
            (convex.core.lang Reader)
-           (convex.core.lang.impl ErrorValue)
            (java.io File))
   (:refer-clojure :exclude [eval
                             load])
   (:require [clojure.string]
-            [convex.code     :as $.code]
-            [convex.cvm      :as $.cvm]
-            [convex.run.kw   :as $.run.kw]
-            [convex.run.sym  :as $.run.sym]
-            [convex.sync     :as $.sync]
-            [convex.watch    :as $.watch]))
+            [convex.code      :as $.code]
+            [convex.cvm       :as $.cvm]
+            [convex.run.err   :as $.run.err]
+            [convex.run.kw    :as $.run.kw]
+            [convex.run.sym   :as $.run.sym]
+            [convex.sync      :as $.sync]
+            [convex.watch     :as $.watch]))
 
 
 (declare eval-form
          eval-trx
-         eval-trx+
-         fatal
-         out)
+         eval-trx+)
 
 
 ;;;;;;;;;; Miscellaneous
@@ -87,195 +85,6 @@
             kw)))
 
 
-;;;;;;;;;; Output
-
-
-(defn out-default
-
-  ""
-
-  [env x]
-
-  (-> x
-      str
-      tap>)
-  env)
-
-
-
-(defn out
-
-  ""
-  
-  ;; TODO. Ensure behaves well when hook fails.
-
-  [env x]
-
-  (let [out' (env :convex.run/out)
-        hook (get-in env
-                     [:convex.run/hook+
-                      :out])]
-    (if hook
-      (let [on-error (env :convex.run/on-error)
-            form     ($.code/list [hook
-                                   ($.code/quote x)])
-            env-2    (-> env
-                         (assoc :convex.run/on-error
-                                identity)
-                         (eval-form form)
-                         (assoc :convex.run/on-error
-                                on-error))
-            err      (env-2 :convex.run/error)]
-        (if err
-          (fatal out'
-                 env-2
-                 form
-                 ($.code/string "Calling output hook failed, using default output")
-                 err)
-          (if-some [result (-> env-2
-                               :convex.sync/ctx
-                               $.cvm/result)]
-            (out' env-2
-                  result)
-            env-2)))
-      (out' env
-            x))))
-
-
-;;;;;;;;;; Error handling
-
-
-(defn add-error-phase
-
-  ""
-
-  [error phase]
-
-  (.assoc error
-          $.run.kw/phase
-          phase))
-
-
-
-(defn datafy-error
-
-  ""
-
-
-  ([^ErrorValue ex]
-
-   ($.code/error (.getCode ex)
-                 (.getMessage ex)
-                 ($.code/vector (.getTrace ex))))
-
-
-  ([ex phase trx]
-
-   (-> ex
-       datafy-error
-       (.assoc $.run.kw/trx
-               ($.code/quote trx))
-       (add-error-phase phase))))
-
-
-
-(defn error
-
-  ""
-
-  ([env exception]
-
-   ((env :convex.run/on-error)
-    (assoc env
-           :convex.run/error
-           (.assoc exception
-                   $.run.kw/exception?
-                   ($.code/boolean true)))))
-
-
-  ([env code message]
-
-   (error env
-          ($.code/error code
-                        message)))
-
-
-  ([env code message trace]
-
-   (error env
-          ($.code/error code
-                        message
-                        trace))))
-
-
-
-(defn error-default
-
-  ""
-
-  [env]
-
-  (out env
-       (env :convex.run/error)))
-
-
-
-(defn ex-strx
-
-  ""
-
-  [code trx message]
-
-  (-> ($.code/error code
-                    message)
-      (.assoc $.run.kw/trx
-              trx)
-      (add-error-phase $.run.kw/strx)))
-
-
-
-(defn fatal
-
-  ""
-
-
-  ([env ex]
-
-   (fatal out
-          env
-          ex))
-
-
-  ([f-out env ex]
-   
-   (f-out (assoc env
-                 :convex.run/error
-                 ex)
-          ex))
-
-
-  ([env form message cause]
-
-   (fatal out
-          env
-          form
-          message
-          cause))
-
-
-  ([f-out env form message cause]
-
-   (let [ex (-> ($.code/error ErrorCodes/FATAL
-                              message)
-                (.assoc $.run.kw/form
-                        form)
-                (.assoc $.run.kw/cause
-                        cause))]
-     (fatal f-out
-            env
-            ex))))
-
-
 ;;;;;;;;;; Special transactions
 
 
@@ -285,10 +94,10 @@
 
   [env trx]
 
-  (error env
-         (ex-strx ErrorCodes/STATE
-                  trx
-                  ($.code/string "CVM special command 'cvm.dep' can only be used as the very first transaction"))))
+  ($.run.err/signal env
+                    ($.run.err/strx ErrorCodes/STATE
+                                    trx
+                                    ($.code/string "CVM special command 'cvm.dep' can only be used as the very first transaction"))))
 
 
 
@@ -320,20 +129,20 @@
           (eval-form env
                      ($.code/def sym
                                  ($.code/string (System/getenv (str k)))))
-          (error env
-                 (ex-strx ErrorCodes/CAST
-                          trx
-                          ($.code/string "Second argument to 'cvm.env' must be a string"))))
+          ($.run.err/signal env
+                            ($.run.err/strx ErrorCodes/CAST
+                                            trx
+                                            ($.code/string "Second argument to 'cvm.env' must be a string"))))
         (eval-form env
                    ($.code/def sym
                                ($.code/map (map (fn [[k v]]
                                                   [($.code/string k)
                                                    ($.code/string v)])
                                                 (System/getenv))))))
-      (error env
-             (ex-strx ErrorCodes/CAST
-                      trx
-                      ($.code/string "First argument to 'cvm.env' must be a symbol"))))))
+      ($.run.err/signal env
+                        ($.run.err/strx ErrorCodes/CAST
+                                        trx
+                                        ($.code/string "First argument to 'cvm.env' must be a symbol"))))))
 
 
 
@@ -391,20 +200,20 @@
                                        (eval-form form))
                              err   (env-4 :convex.run/error)]
                          (-> (if err
-                               (fatal env-4
-                                      form
-                                      ($.code/string "Calling error hook failed")
-                                      cause)
+                               ($.run.err/fatal env-4
+                                                form
+                                                ($.code/string "Calling error hook failed")
+                                                cause)
                                (let [form-2 (-> env-4
                                                 :convex.sync/ctx
                                                 $.cvm/result)
                                      env-5  (eval-trx env-4
                                                       form-2)]
                                  (if (env-5 :convex.run/error)
-                                   (fatal env-5
-                                          form-2
-                                          ($.code/string "Evaluating output from error hook failed")
-                                          cause)
+                                   ($.run.err/fatal env-5
+                                                    form-2
+                                                    ($.code/string "Evaluating output from error hook failed")
+                                                    cause)
                                    (assoc env-5
                                           :convex.run/error
                                           cause))))
@@ -459,10 +268,10 @@
     (eval-form env
                ($.code/def cvm-sym
                            ($.cvm/log (env :convex.sync/ctx))))
-    (error env
-           (ex-strx ErrorCodes/ARGUMENT
-                    trx
-                    ($.code/string "Argument for 'cvm.log' must be symbol for defining the log")))))
+    ($.run.err/signal env
+                      ($.run.err/strx ErrorCodes/ARGUMENT
+                                      trx
+                                      ($.code/string "Argument for 'cvm.log' must be symbol for defining the log")))))
 
 
 
@@ -480,8 +289,9 @@
         (if-some [x (-> env-2
                         :convex.sync/ctx
                         $.cvm/result)]
-          (out env-2
-               x)
+          ((env :convex.run/out)
+           env-2
+           x)
           env-2)))
     env))
 
@@ -523,26 +333,26 @@
                                        $.code/vector
                                        $.code/quote)))
             (catch Throwable _err
-              (error env
-                     (ex-strx ErrorCodes/ARGUMENT
-                              trx
-                              ($.code/string "Cannot read source")))))
-          (error env
-                 (ex-strx ErrorCodes/CAST
-                          trx
-                          ($.code/string "Second argument to 'cvm.read' must be source code (a string)"))))
-        (error env
-               (ex-strx ErrorCodes/ARGUMENT
-                        trx
-                        ($.code/string "'cvm.read' is missing a source string"))))
-      (error env
-             (ex-strx ErrorCodes/CAST
-                      trx
-                      ($.code/string "First argument to 'cvm.read' must be a symbol"))))
-    (error env
-           (ex-strx ErrorCodes/ARGUMENT
-                    trx
-                    ($.code/string "'cvm.read' is missing a symbol to define")))))
+              ($.run.err/signal env
+                                ($.run.err/strx ErrorCodes/ARGUMENT
+                                                trx
+                                                ($.code/string "Cannot read source")))))
+          ($.run.err/signal env
+                            ($.run.err/strx ErrorCodes/CAST
+                                            trx
+                                            ($.code/string "Second argument to 'cvm.read' must be source code (a string)"))))
+        ($.run.err/signal env
+                          ($.run.err/strx ErrorCodes/ARGUMENT
+                                          trx
+                                          ($.code/string "'cvm.read' is missing a source string"))))
+      ($.run.err/signal env
+                        ($.run.err/strx ErrorCodes/CAST
+                                        trx
+                                        ($.code/string "First argument to 'cvm.read' must be a symbol"))))
+    ($.run.err/signal env
+                      ($.run.err/strx ErrorCodes/ARGUMENT
+                                      trx
+                                      ($.code/string "'cvm.read' is missing a symbol to define")))))
 
 
 
@@ -562,10 +372,10 @@
         (if ($.code/vector? result)
           (eval-trx+ env-2
                      result)
-          (error env-2
-                 (ex-strx ErrorCodes/CAST
-                          trx
-                          ($.code/string "In 'cvm.splice', argument must evaluate to a vector of transactions"))))))))
+          ($.run.err/signal env-2
+                            ($.run.err/strx ErrorCodes/CAST
+                                            trx
+                                            ($.code/string "In 'cvm.splice', argument must evaluate to a vector of transactions"))))))))
 
 
 
@@ -632,10 +442,10 @@
           "cvm.splice"     cvm-splice
           "cvm.try"        cvm-try
           (fn [env _trx]
-            (error env
-                   (ex-strx ErrorCodes/ARGUMENT
-                            trx
-                            ($.code/string "Unsupported special transaction")))))))))
+            ($.run.err/signal env
+                              ($.run.err/strx ErrorCodes/ARGUMENT
+                                              trx
+                                              ($.code/string "Unsupported special transaction")))))))))
 
 
 ;;;;;;;;;; Preparing transactions
@@ -655,9 +465,9 @@
              :convex.sync/ctx
              ctx)
       ex
-      (error (datafy-error ex
-                           $.run.kw/expand
-                           form)))))
+      ($.run.err/signal ($.run.err/error ex
+                                         $.run.kw/expand
+                                         form)))))
 
 
 
@@ -679,9 +489,9 @@
              :convex.sync/ctx
              ctx)
       ex
-      (error (datafy-error ex
-                           $.run.kw/trx-prepare
-                           form)))))
+      ($.run.err/signal ($.run.err/error ex
+                                         $.run.kw/trx-prepare
+                                         form)))))
 
 
 ;;;;;;;;;; Evaluation
@@ -706,9 +516,9 @@
           (update :convex.run/i-trx
                   inc))
       ex
-      (error (datafy-error ex
-                           $.run.kw/trx-eval
-                           form)))))
+      ($.run.err/signal ($.run.err/error ex
+                                         $.run.kw/trx-eval
+                                         form)))))
 
 
 
@@ -805,8 +615,10 @@
                                          :convex.run/error)
                                  hook-end)]
             (if (env-3 :convex.run/error)
-              (out env-3
-                   ($.code/string "Fatal error: end hook"))
+              ((env-3 :convex.run/out)
+               env-3
+               ;; TODO. A proper exception.
+               ($.code/string "Fatal error: end hook"))
               env-3))
           env-2)
         (dissoc :convex.run/hook+)
@@ -829,10 +641,46 @@
   (-> env
       (update :convex.run/on-error
               #(or %
-                   error-default))
+                   (fn [env-2]
+                     ((env-2 :convex.run/out)
+                      env-2
+                      (env-2 :convex.run/error)))))
       (update :convex.run/out
-              #(or %
-                   out-default))))
+              (fn [out]
+                (let [out-2 (or out
+                                (fn default [env-2 x]
+                                  (-> x
+                                      str
+                                      tap>)
+                                  env-2))]
+                  (fn out-3 [env-2 x]
+                    (let [hook (get-in env-2
+                                       [:convex.run/hook+
+                                        :out])]
+                      (if hook
+                        (let [on-error (env-2 :convex.run/on-error)
+                              form     ($.code/list [hook
+                                                     ($.code/quote x)])
+                              env-3    (-> env
+                                           (assoc :convex.run/on-error
+                                                  identity)
+                                           (eval-form form)
+                                           (assoc :convex.run/on-error
+                                                  on-error))
+                              err      (env-3 :convex.run/error)]
+                          (if err
+                            ($.run.err/fatal env-3
+                                             form
+                                             ($.code/string "Calling output hook failed, using default output")
+                                             err)
+                            (if-some [result (-> env-3
+                                                 :convex.sync/ctx
+                                                 $.cvm/result)]
+                              (out-2 env-3
+                                     result)
+                              env-3)))
+                        (out-2 env-2
+                               x)))))))))
 
 
 
@@ -850,12 +698,12 @@
                   [err
                    nil]))]
     (if err
-      (error env
-             (-> ($.code/error ErrorCodes/ARGUMENT
-                               ($.code/string "Unable to open file"))
-                 (.assoc $.run.kw/path
-                         ($.code/string path))
-                 (add-error-phase $.run.kw/file-open)))
+      ($.run.err/signal env
+                        (-> ($.code/error ErrorCodes/ARGUMENT
+                                          ($.code/string "Unable to open file"))
+                            (.assoc $.run.kw/path
+                                    ($.code/string path))
+                            ($.run.err/assoc-phase $.run.kw/file-open)))
       (assoc env
              :convex.run/src
              src))))
@@ -877,12 +725,12 @@
                    [err
                     nil]))]
     (if err
-      (error env
-             (-> ($.code/error ErrorCodes/ARGUMENT
-                               ($.code/string "Unable to parse source code"))
-                 (.assoc $.run.kw/src
-                         ($.code/string src))
-                 (add-error-phase $.run.kw/read)))
+      ($.run.err/signal env
+                        (-> ($.code/error ErrorCodes/ARGUMENT
+                                          ($.code/string "Unable to parse source code"))
+                            (.assoc $.run.kw/src
+                                    ($.code/string src))
+                            ($.run.err/assoc-phase $.run.kw/read)))
       (let [sym->dep' (sym->dep trx+)]
         (-> env
             (assoc :convex.run/sym->dep sym->dep'
@@ -923,9 +771,9 @@
             err-sync (env-2 :convex.sync/error)]
         (if err-sync
           ;; TODO. Better error.
-          (error env-2
-                 ErrorCodes/STATE
-                 nil)
+          ($.run.err/signal env-2
+                            ErrorCodes/STATE
+                            nil)
           (exec-trx+ env-2)))
       (-> env
           (assoc :convex.sync/ctx
@@ -1029,36 +877,36 @@
                               (when-some [[etype
                                            arg]  (env-3 :convex.watch/error)]
                                 (case etype
-                                  :exception (fatal env-3
-                                                    ($.code/error ErrorCodes/FATAL
-                                                                  ($.code/string "Unknown fatal error occured when setting up the file watcher")))
+                                  :exception ($.run.err/fatal env-3
+                                                              ($.code/error ErrorCodes/FATAL
+                                                                            ($.code/string "Unknown fatal error occured when setting up the file watcher")))
                                   :not-found (if (= arg
                                                     (first (env-3 :convex.watch/extra+)))
-                                               (fatal env-3
-                                                      ($.code/error ErrorCodes/FATAL
-                                                                    ($.code/string "Main file does not exist")))
+                                               ($.run.err/fatal env-3
+                                                                ($.code/error ErrorCodes/FATAL
+                                                                              ($.code/string "Main file does not exist")))
                                                ;;
                                                ;; Dependency is missing, restart watching only main file for retrying on new changes.
                                                ;; A "dep-lock" is used so that a new watcher with the same failing dependencies is not restarted right away.
                                                ;;
                                                (-restart a*env
-                                                         (fatal (-> (assoc env-3
-                                                                           :convex.run/dep-lock
-                                                                           dep-old+)
-                                                                    (dissoc :convex.run/dep+
-                                                                            :convex.watch/sym->dep))
-                                                                (-> ($.code/error ErrorCodes/FATAL
-                                                                                  ($.code/string "Missing file for requested dependency"))
-                                                                    (.assoc $.run.kw/path
-                                                                            ($.code/string arg))))))))
+                                                         ($.run.err/fatal (-> (assoc env-3
+                                                                                     :convex.run/dep-lock
+                                                                                     dep-old+)
+                                                                              (dissoc :convex.run/dep+
+                                                                                      :convex.watch/sym->dep))
+                                                                          (-> ($.code/error ErrorCodes/FATAL
+                                                                                            ($.code/string "Missing file for requested dependency"))
+                                                                              (.assoc $.run.kw/path
+                                                                                      ($.code/string arg))))))))
                               ;;
                               ;; Handles sync error if any.
                               ;;
                               (when-some [_err (env-3 :convex.sync/error)]
                                 ;; TODO. Better error.
-                                (error env-3
-                                       ErrorCodes/STATE
-                                       nil))
+                                ($.run.err/signal env-3
+                                                  ErrorCodes/STATE
+                                                  nil))
                               ;;
                               ;; No significant errors were detected so try evaluation.
                               ;;
@@ -1108,12 +956,12 @@
 
 
 
-  (load "src/convex/dev/app/run.cvx2")
+  (load "src/convex/dev/app/run.cvx")
 
 
 
   (def a*env
-       (watch "src/convex/dev/app/run.cvx2"))
+       (watch "src/convex/dev/app/run.cvx"))
 
   (clojure.pprint/pprint (dissoc @a*env
                                  :convex.sync/input->code))

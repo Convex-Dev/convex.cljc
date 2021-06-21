@@ -47,11 +47,12 @@
    |---|---|---|---|
    | `:convex.sync/ctx-base` | Base context forked before each evaluation | Result of [[convex.cvm/ctx]] | Yes |
    | `:convex.watch/cycle` | Is incremented each time prior to running `:on-change` | 0 | Yes |
+   | `:convex.watch/f*debounce | If present, future that is used for debouncing file changes (not a user concern) |
    | `:convex.watch/extra+` | List of files that ought to be monitored as well | `nil` | No |
    | `:convex.watch/ms-debounce` | Milliseconds, changes  debounced for better behavior with editors and OS | 20 (minimum is 1) | Yes |
    | `:convex.watch/sym->dep | Map of `symbol` -> `path to dependency file` | `nil` | No |
 
-   Just like in [[convex.sync/disk]], files from `:convex.watch/sym->dep` will be loaded in [[start]], interned under their respective symbols.
+   Just like in [[convex.sync/disk]], files from `:sym->dep` will be loaded in [[start]], interned under their respective symbols.
 
    Extra files will not be read, only monitored for change. However, in case of change, dependencies will not update and the user
    will be in charge of what should be done. This feature looks peculiar at first but it is used wisely by the [[convex.run]] namespace.
@@ -163,7 +164,6 @@
    |---|---|
    | `:convex.sync/input->change` | Like `:extra->change` but for inputs that were not automatically processed |
    | `:convex.watch/extra->change` | A map of `extra path` to one of `#{:create :delete :modify} if any extra path changed |
-   | `:convex.watch/f*debounce | If present, future that is used for debouncing file changes (not a user concern) |
    | `:convex.watch/nano-change` | Last time change has been detected (uses `System/nanoTime`) |
    | `:convex.watch/watcher` | Actual watcher object, not a user concern |
   
