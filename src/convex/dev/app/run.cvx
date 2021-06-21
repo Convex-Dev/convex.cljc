@@ -13,11 +13,19 @@
 (cvm.out.clear)
 
 
+(cvm.hook.out (fn [x] [x x]))
+
 (cvm.out 42)
+
+(cvm.hook.out nil)
+
+(cvm.out :foo)
  
 
-(fail :failure "fail")
 
+(cvm.hook.end
+  (cvm.out "okay")
+  )
 
 ;; Prints nice information at the start of a run using special transaction `cvm.out`
 ;;

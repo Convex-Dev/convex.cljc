@@ -238,9 +238,57 @@
 
   [env trx]
 
-  (update-hook-fn env
-                  :out
-                  trx))
+  (let [path-restore [:convex.run/restore
+                      :convex.run/out]
+        restore      (get-in env
+                             path-restore)
+        hook         (second trx)]
+    (if hook
+      (let [env-2 (eval-trx env
+                            hook)]
+        (if (env-2 :convex.run/error)
+          env-2
+          (let [out (or restore
+                        (env-2 :convex.run/out))]
+            (-> env-2
+                (cond->
+                  (not restore)
+                  (assoc-in path-restore
+                            out))
+                (assoc :convex.run/out
+                       (fn out-2 [env-3 x]
+                         (let [on-error (env-3 :convex.run/on-error)
+                               form     ($.code/list [hook
+                                                      ($.code/quote x)])
+                               env-4    (-> env-3
+                                            (assoc :convex.run/on-error
+                                                   identity)
+                                            (eval-form form)
+                                            (assoc :convex.run/on-error
+                                                   on-error))
+                               err      (env-4 :convex.run/error)]
+                           (if (identical? err
+                                           (env-3 :convex.run/error))
+                             (out env-4
+                                  (-> env-4
+                                      :convex.sync/ctx
+                                      $.cvm/result))
+                             (-> env-4
+                                 (assoc :convex.run/out
+                                        out)
+                                 ($.run.err/fatal form
+                                                  ($.code/string "Calling output hook failed, using default output")
+                                                  err)
+                                 (assoc :convex.run/out
+                                        out-2))))))))))
+      (if restore
+        (-> env
+            (assoc :convex.run/out
+                   restore)
+            (update :convex.run/restore
+                    dissoc
+                    :convex.run/out))
+        env))))
 
 
 
@@ -286,13 +334,11 @@
                           form-2)]
       (if (env-2 :convex.run/error)
         env-2
-        (if-some [x (-> env-2
-                        :convex.sync/ctx
-                        $.cvm/result)]
-          ((env :convex.run/out)
-           env-2
-           x)
-          env-2)))
+        ((env-2 :convex.run/out)
+         env-2
+         (-> env-2
+             :convex.sync/ctx
+             $.cvm/result))))
     env))
 
 
@@ -611,15 +657,9 @@
                          [:convex.run/hook+
                           :end])]
     (-> (if hook-end
-          (let [env-3 (eval-trx+ (dissoc env-2
-                                         :convex.run/error)
-                                 hook-end)]
-            (if (env-3 :convex.run/error)
-              ((env-3 :convex.run/out)
-               env-3
-               ;; TODO. A proper exception.
-               ($.code/string "Fatal error: end hook"))
-              env-3))
+          (eval-trx+ (dissoc env-2
+                             :convex.run/error)
+                     hook-end)
           env-2)
         (dissoc :convex.run/hook+)
         (as->
@@ -646,41 +686,13 @@
                       env-2
                       (env-2 :convex.run/error)))))
       (update :convex.run/out
-              (fn [out]
-                (let [out-2 (or out
-                                (fn default [env-2 x]
-                                  (-> x
-                                      str
-                                      tap>)
-                                  env-2))]
-                  (fn out-3 [env-2 x]
-                    (let [hook (get-in env-2
-                                       [:convex.run/hook+
-                                        :out])]
-                      (if hook
-                        (let [on-error (env-2 :convex.run/on-error)
-                              form     ($.code/list [hook
-                                                     ($.code/quote x)])
-                              env-3    (-> env
-                                           (assoc :convex.run/on-error
-                                                  identity)
-                                           (eval-form form)
-                                           (assoc :convex.run/on-error
-                                                  on-error))
-                              err      (env-3 :convex.run/error)]
-                          (if err
-                            ($.run.err/fatal env-3
-                                             form
-                                             ($.code/string "Calling output hook failed, using default output")
-                                             err)
-                            (if-some [result (-> env-3
-                                                 :convex.sync/ctx
-                                                 $.cvm/result)]
-                              (out-2 env-3
-                                     result)
-                              env-3)))
-                        (out-2 env-2
-                               x)))))))))
+              #(or %
+                   (fn [env-2 x]
+                     (when x
+                       (-> x
+                           str
+                           tap>))
+                     env-2)))))
 
 
 
@@ -831,6 +843,9 @@
 
 
 (let [-restart  (fn [a*env env]
+                  ;;
+                  ;; Restart watcher whenever a change in dependency is detected.
+                  ;;
                   ($.watch/-stop env)
                   ($.watch/-start a*env
                                   (select-keys env
