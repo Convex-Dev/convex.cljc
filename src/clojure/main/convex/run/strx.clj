@@ -92,7 +92,7 @@
   [env trx]
 
   (let [path-restore [:convex.run/restore
-                      :convex.run/end]
+                      :convex.run.hook/end]
         restore      (get-in env
                              path-restore)
         trx+         (next trx)]
@@ -100,13 +100,13 @@
              (not= trx+
                    [nil]))
       (let [end (or restore
-                    (env :convex.run/end))]
+                    (env :convex.run.hook/end))]
         (-> env
             (cond->
               (not restore)
               (assoc-in path-restore
                         end))
-            (assoc :convex.run/end
+            (assoc :convex.run.hook/end
                    (fn end-2 [env-2]
                      (end ($.run.exec/trx+ (dissoc env-2
                                                    :convex.run/error)
@@ -114,11 +114,11 @@
       (cond->
         env
         restore
-        (-> (assoc :convex.run/end
+        (-> (assoc :convex.run.hook/end
                    restore)
             (update :convex.run/restore
                     dissoc
-                    :convex.run/end))))))
+                    :convex.run.hook/end))))))
 
 
 
@@ -129,7 +129,7 @@
   [env trx]
 
   (let [path-restore [:convex.run/restore
-                      :convex.run/on-error]
+                      :convex.run.hook/error]
         restore      (get-in env
                              path-restore)
         hook         (second trx)]
@@ -142,8 +142,8 @@
               (cond->
                 (not restore)
                 (assoc-in path-restore
-                          (env-2 :convex.run/on-error)))
-              (assoc :convex.run/on-error
+                          (env-2 :convex.run.hook/error)))
+              (assoc :convex.run.hook/error
                      (let [hook-2 ($.run.exec/result env-2)]
                        (fn on-error [env-3]
                          (let [cause (env-3 :convex.run/error)
@@ -151,7 +151,7 @@
                                                    ($.code/quote (env-3 :convex.run/error))])
                                env-4 (-> env-3
                                          (dissoc :convex.run/error)
-                                         (assoc :convex.run/on-error
+                                         (assoc :convex.run.hook/error
                                                 identity)
                                          ($.run.exec/trx form))
                                err   (env-4 :convex.run/error)]
@@ -171,16 +171,16 @@
                                      (assoc env-5
                                             :convex.run/error
                                             cause))))
-                               (assoc :convex.run/on-error
+                               (assoc :convex.run.hook/error
                                       on-error)))))))))
       (cond->
         env
         restore
-        (-> (assoc :convex.run/on-error
+        (-> (assoc :convex.run.hook/error
                    restore)
             (update :convex.run/restore
                     dissoc
-                    :convex.run/on-error))))))
+                    :convex.run.hook/error))))))
 
 
 
@@ -189,7 +189,7 @@
   [env trx]
 
   (let [path-restore [:convex.run/restore
-                      :convex.run/out]
+                      :convex.run.hook/out]
         restore      (get-in env
                              path-restore)
         hook         (second trx)]
@@ -199,22 +199,22 @@
         (if (env-2 :convex.run/error)
           env-2
           (let [out (or restore
-                        (env-2 :convex.run/out))]
+                        (env-2 :convex.run.hook/out))]
             (-> env-2
                 (cond->
                   (not restore)
                   (assoc-in path-restore
                             out))
-                (assoc :convex.run/out
+                (assoc :convex.run.hook/out
                        (fn out-2 [env-3 x]
-                         (let [on-error (env-3 :convex.run/on-error)
+                         (let [on-error (env-3 :convex.run.hook/error)
                                form     ($.code/list [hook
                                                       ($.code/quote x)])
                                env-4    (-> env-3
-                                            (assoc :convex.run/on-error
+                                            (assoc :convex.run.hook/error
                                                    identity)
                                             ($.run.exec/trx form)
-                                            (assoc :convex.run/on-error
+                                            (assoc :convex.run.hook/error
                                                    on-error))
                                err      (env-4 :convex.run/error)]
                            (if (identical? err
@@ -222,21 +222,21 @@
                              (out env-4
                                   ($.run.exec/result env-4))
                              (-> env-4
-                                 (assoc :convex.run/out
+                                 (assoc :convex.run.hook/out
                                         out)
                                  ($.run.err/fatal form
                                                   ($.code/string "Calling output hook failed, using default output")
                                                   err)
-                                 (assoc :convex.run/out
+                                 (assoc :convex.run.hook/out
                                         out-2))))))))))
       (cond->
         env
         restore
-        (-> (assoc :convex.run/out
+        (-> (assoc :convex.run.hook/out
                    restore)
             (update :convex.run/restore
                     dissoc
-                    :convex.run/out))))))
+                    :convex.run.hook/out))))))
 
 
 
@@ -279,7 +279,7 @@
                                 form-2)]
       (if (env-2 :convex.run/error)
         env-2
-        ((env-2 :convex.run/out)
+        ((env-2 :convex.run.hook/out)
          env-2
          ($.run.exec/result env-2))))
     env))
@@ -367,15 +367,15 @@
   (let [trx-last (last trx)
         catch?   ($.code/call? trx-last
                                $.run.sym/catch)
-        on-error (env :convex.run/on-error)]
+        on-error (env :convex.run.hook/error)]
     (-> env
-        (assoc :convex.run/on-error
+        (assoc :convex.run.hook/error
                (fn [env-2]
                  (-> env-2
                      (dissoc :convex.run/error)
                      (cond->
                        catch?
-                       (-> (assoc :convex.run/on-error
+                       (-> (assoc :convex.run.hook/error
                                   on-error)
                            ($.run.exec/trx ($.code/def $.run.sym/error
                                                        (env-2 :convex.run/error)))
@@ -389,7 +389,7 @@
                              (cond->
                                catch?
                                butlast)))
-        (assoc :convex.run/on-error
+        (assoc :convex.run.hook/error
                on-error)
         (update :convex.run/error
                 (fn [err]

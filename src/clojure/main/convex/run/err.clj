@@ -54,7 +54,7 @@
 
   ([env exception]
 
-   ((env :convex.run/on-error)
+   ((env :convex.run.hook/error)
     (-> env
         (assoc :convex.run/error
                (.assoc exception
@@ -101,7 +101,7 @@
 
   ([env err]
 
-   ((env :convex.run/out)
+   ((env :convex.run.hook/out)
     (assoc env
            :convex.run/error
            err)

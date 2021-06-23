@@ -21,9 +21,9 @@
 
 
 ;
-;(+ 2 3)
-;
-;(cvm.out [:juice *cvm.juice.last*])
+(+ 2 3)
+
+(cvm.out [:juice *cvm.juice.last*])
 
 
 

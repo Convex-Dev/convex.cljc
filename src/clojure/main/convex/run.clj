@@ -64,27 +64,27 @@
   [env]
 
   (-> env
-      (update :convex.run.hook/trx
-              #(or %
-                   (fn [_env-2 trx]
-                     trx)))
-      (update :convex.run/end
+      (update :convex.run.hook/end
               #(or %
                    identity))
-      (update :convex.run/on-error
+      (update :convex.run.hook/error
               #(or %
                    (fn [env-2]
-                     ((env-2 :convex.run/out)
+                     ((env-2 :convex.run.hook/out)
                       env-2
                       (env-2 :convex.run/error)))))
-      (update :convex.run/out
+      (update :convex.run.hook/out
               #(or %
                    (fn [env-2 x]
                      (when x
                        (-> x
                            str
                            tap>))
-                     env-2)))))
+                     env-2)))
+      (update :convex.run.hook/trx
+              #(or %
+                   (fn [_env-2 trx]
+                     trx)))))
 
 
 
