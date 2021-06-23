@@ -25,7 +25,9 @@
     (cvm.out [:CATCH *cvm.error*])))
 
 
-(cvm.out (+ 2 3))
+(+ 2 3)
+
+(cvm.out [:juice *cvm.juice.last*])
 
 
 

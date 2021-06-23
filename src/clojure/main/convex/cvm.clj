@@ -14,7 +14,7 @@
    Such operations consume juice and lead either to a successful [[result]] or to an [[error]]. Functions that
    do not return a context (eg. [[env]], [[juice]]) do not consume juice.
 
-   Result objects (Convex objects) can be datafied with [[convex.clj/datafy]] for easy consumption from Clojure."
+   Result objects (Convex objects) can be datafied with [[as-clojure]] for easy consumption from Clojure."
 
   {:author "Adam Helinski"}
 
@@ -22,8 +22,7 @@
            (convex.core.data AccountStatus
                              ACell
                              Address
-                             AHashMap
-                             Symbol)
+                             AHashMap)
            (convex.core.lang Context
                              Reader))
   (:refer-clojure :exclude [compile
@@ -288,13 +287,13 @@
 
 (defn juice-set
 
-  "Forks and sets the juice of the copied context to the requested amount.
+  "Sets the juice of the copied context to the requested amount.
   
    Also see [[juice-refill]]."
 
   [^Context ctx amount]
 
-  (.withJuice (fork ctx)
+  (.withJuice ctx
               amount))
 
 
