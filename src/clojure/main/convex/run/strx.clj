@@ -135,9 +135,7 @@
                 (assoc-in path-restore
                           (env-2 :convex.run/on-error)))
               (assoc :convex.run/on-error
-                     (let [hook-2 (-> env-2
-                                      :convex.sync/ctx
-                                      $.cvm/result)]
+                     (let [hook-2 ($.run.exec/result env-2)]
                        (fn on-error [env-3]
                          (let [cause (env-3 :convex.run/error)
                                form  ($.code/list [hook-2
@@ -153,9 +151,7 @@
                                                   form
                                                   ($.code/string "Calling error hook failed")
                                                   cause)
-                                 (let [form-2 (-> env-4
-                                                  :convex.sync/ctx
-                                                  $.cvm/result)
+                                 (let [form-2 ($.run.exec/result env-4)
                                        env-5  ($.run.exec/trx env-4
                                                               form-2)]
                                    (if (env-5 :convex.run/error)
@@ -217,9 +213,7 @@
                            (if (identical? err
                                            (env-3 :convex.run/error))
                              (out env-4
-                                  (-> env-4
-                                      :convex.sync/ctx
-                                      $.cvm/result))
+                                  ($.run.exec/result env-4))
                              (-> env-4
                                  (assoc :convex.run/out
                                         out)
@@ -286,9 +280,7 @@
         env-2
         ((env-2 :convex.run/out)
          env-2
-         (-> env-2
-             :convex.sync/ctx
-             $.cvm/result))))
+         ($.run.exec/result env-2))))
     env))
 
 
@@ -362,9 +354,7 @@
                               (second trx))]
     (if (env-2 :convex.run/error)
       env-2
-      (let [result (-> env-2
-                       :convex.sync/ctx
-                       $.cvm/result)]
+      (let [result ($.run.exec/result env-2)]
         (if ($.code/vector? result)
           ($.run.exec/trx+ env-2
                            result)

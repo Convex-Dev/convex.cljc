@@ -16,6 +16,18 @@
 ;;;;;;;;;; Miscellaneous
 
 
+(defn result
+
+  ""
+
+  [env]
+
+  (-> env
+      :convex.sync/ctx
+      $.cvm/result))
+
+
+
 (defn strx
 
   "Special transaction"
@@ -127,9 +139,7 @@
                             trx)]
           (if (env-3 :convex.run/error)
             env-3
-            (let [trx-2 (-> env-3
-                            :convex.sync/ctx
-                            $.cvm/result)]
+            (let [trx-2 (result env-3)]
               (if-some [f-strx-2 (strx env-3
                                        trx-2)]
                 (f-strx-2 env-3
@@ -141,9 +151,7 @@
                     (if (env-4 :convex.run/error)
                       env-4
                       (form env-4
-                            (-> env-4
-                                :convex.sync/ctx
-                                $.cvm/result))))
+                            (result env-4))))
                   (form env-3
                         trx-2))))))))))
 
