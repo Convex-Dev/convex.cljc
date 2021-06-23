@@ -13,6 +13,29 @@
             [convex.run.sym  :as $.run.sym]))
 
 
+;;;;;;;;;; Miscellaneous
+
+
+(defn strx
+
+  "Special transaction"
+
+  [env trx]
+
+  (when ($.code/list? trx)
+    (let [sym-string (str (first trx))]
+      (when (clojure.string/starts-with? sym-string
+                                         "cvm.")
+        (or (get-in env
+                    [:convex.run/strx
+                     sym-string])
+            (fn [env _trx]
+              ($.run.err/signal env
+                                ($.run.err/strx ErrorCodes/ARGUMENT
+                                                trx
+                                                ($.code/string "Unsupported special transaction")))))))))
+
+
 ;;;;;;;;;; Preparation
 
 
@@ -62,26 +85,7 @@
 ;;;;;;;;;; Evaluation
 
 
-(defn strx
-
-  "Special transaction"
-
-  [env trx]
-
-  (when ($.code/list? trx)
-    (let [sym-string (str (first trx))]
-      (when (clojure.string/starts-with? sym-string
-                                         "cvm.")
-        (or (get-in env
-                    [:convex.run/strx
-                     sym-string])
-            (fn [env _trx]
-              ($.run.err/signal env
-                                ($.run.err/strx ErrorCodes/ARGUMENT
-                                                trx
-                                                ($.code/string "Unsupported special transaction")))))))))
-
-(defn eval-form
+(defn form
 
   ""
 
@@ -106,7 +110,7 @@
 
 
 
-(defn eval-trx
+(defn trx
 
   ""
 
@@ -131,36 +135,36 @@
                 (f-strx-2 env-3
                           trx-2)
                 (if-some [hook (env-3 :convex.run.hook/trx)]
-                  (let [env-4 (eval-form env-3
-                                         ($.code/list [hook
-                                                       ($.code/quote trx-2)]))]
+                  (let [env-4 (form env-3
+                                    ($.code/list [hook
+                                                  ($.code/quote trx-2)]))]
                     (if (env-4 :convex.run/error)
                       env-4
-                      (eval-form env-4
-                                 (-> env-4
-                                     :convex.sync/ctx
-                                     $.cvm/result))))
-                  (eval-form env-3
-                             trx-2))))))))))
+                      (form env-4
+                            (-> env-4
+                                :convex.sync/ctx
+                                $.cvm/result))))
+                  (form env-3
+                        trx-2))))))))))
 
 
 
-(defn eval-trx+
+(defn trx+
 
   ""
 
   
   ([env]
 
-   (eval-trx+ env
-              (env :convex.run/trx+)))
+   (trx+ env
+         (env :convex.run/trx+)))
 
 
   ([env trx+]
 
-   (reduce (fn [env-2 trx]
-             (let [env-3 (eval-trx env-2
-                                   trx)]
+   (reduce (fn [env-2 form]
+             (let [env-3 (trx env-2
+                              form)]
                (if (env-3 :convex.run/error)
                  (reduced env-3)
                  env-3)))
@@ -169,7 +173,7 @@
 
 
 
-(defn exec-trx+
+(defn run
 
   ""
 
@@ -187,11 +191,8 @@
                             ($.code/def $.run.sym/cycle
                                         ($.code/long (or (env :convex.watch/cycle)
                                                          0))))))
-      eval-trx+
+      trx+
       (as->
         env-2
         ((env-2 :convex.run/end)
          env-2))))
-
-
-

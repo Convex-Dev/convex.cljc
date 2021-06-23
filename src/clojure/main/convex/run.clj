@@ -182,11 +182,11 @@
           ($.run.err/signal env-2
                             ErrorCodes/STATE
                             nil)
-          ($.run.exec/exec-trx+ env-2)))
+          ($.run.exec/run env-2)))
       (-> env
           (assoc :convex.sync/ctx
                  ($.cvm/fork @d*ctx-base))
-          $.run.exec/exec-trx+))))
+          $.run.exec/run))))
 
 
 ;;;;;;;;;; Evaluating a given source string
@@ -344,7 +344,7 @@
                                                     :convex.watch/extra->change)
                                             $.sync/patch
                                             $.sync/eval
-                                            $.run.exec/exec-trx+)
+                                            $.run.exec/run)
                                         (if (= dep-new+
                                                dep-lock)
                                           (dissoc env-5
@@ -354,7 +354,7 @@
                                           (-restart a*env
                                                     (dissoc env-5
                                                             :convex.run/dep-lock))))))
-                                  ($.run.exec/exec-trx+ env-3)))))))))
+                                  ($.run.exec/run env-3)))))))))
        ($.watch/start a*env)
        a*env))))
 
