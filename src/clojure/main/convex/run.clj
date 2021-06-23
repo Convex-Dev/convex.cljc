@@ -244,20 +244,15 @@
                   ;;
                   ($.watch/-stop env)
                   ($.watch/-start a*env
-                                  (select-keys env
-                                               [:convex.run/dep+
-                                                :convex.run/dep-lock
-                                                :convex.run/end
-                                                :convex.run/on-error
-                                                :convex.run/out
-                                                :convex.run/strx
-                                                :convex.run/trx+
-                                                :convex.sync/ctx-base
-                                                :convex.watch/cycle
-                                                :convex.watch/extra+
-                                                :convex.watch/ms-debounce
-                                                :convex.watch/on-change
-                                                :convex.watch/sym->dep])))]
+                                  (dissoc env
+                                          :convex.run/error
+                                          :convex.run/i-trx
+                                          :convex.run/juice-last
+                                          :convex.sync/ctx
+                                          :convex.sync/input+
+                                          :convex.sync/input->code
+                                          :convex.sync/input->cvm-sym
+                                          :convex.watch/watcher)))]
 
   (defn watch
 
@@ -379,6 +374,8 @@
   (clojure.pprint/pprint (dissoc @a*env
                                  :convex.sync/input->code))
 
+
+  
   ($.watch/stop a*env)
 
 
