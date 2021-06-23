@@ -244,12 +244,45 @@
 
   [env trx]
 
-  (if-some [hook (second trx)]
-    (assoc env
-           :convex.run.hook/trx
-           hook)
-    (dissoc env
-            :convex.run.hook/trx)))
+  (let [path-restore [:convex.run/restore
+                      :convex.run.hook/trx]
+        restore      (get-in env
+                             path-restore)
+        form-hook    (second trx)
+        env-2        (cond->
+                       env
+                       restore
+                       (-> (assoc :convex.run.hook/trx
+                                  restore)
+                           (update :convex.run/restore
+                                   dissoc
+                                   :convex.run.hook/trx)))]
+    (if (some? form-hook)
+      (let [env-3 ($.run.exec/trx env-2
+                                  form-hook)]
+        (if (env-3 :convex.run/error)
+          env-3
+          (let [hook-old (or restore
+                             (env-3 :convex.run.hook/trx))]
+            (-> env-3
+                (cond->
+                  (not restore)
+                  (assoc-in path-restore
+                            hook-old))
+                (assoc :convex.run.hook/trx
+                       (let [form-hook-2 ($.run.exec/result env-3)]
+                         (fn hook-new [env-4 form]
+                           (let [env-5 (-> env-4
+                                           (assoc :convex.run.hook/trx
+                                                  hook-old)
+                                           ($.run.exec/trx ($.code/list [form-hook-2
+                                                                         ($.code/quote form)])))]
+                             (-> (if (env-5 :convex.run/error)
+                                   env-5
+                                   ($.run.exec/trx env-5))
+                                 (assoc :convex.run.hook/trx
+                                        hook-new))))))))))
+      env-2)))
 
 
 

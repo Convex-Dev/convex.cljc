@@ -104,7 +104,7 @@
   ([env]
 
    (compile-run env
-                (env :convex.run/error)))
+                (result env)))
 
 
   ([env form]
@@ -187,33 +187,30 @@
 
   ""
 
-  [env form]
 
-  (or (strx env
-            form)
-      (let [env-2 (inject-value+ env)]
-        (if (env-2 :convex.run/error)
-          env-2
-          (let [env-3 (expand env-2
-                              form)]
-            (if (env-3 :convex.run/error)
-              env-3
-              (let [form-2 (result env-3)]
-                (or (strx env-3
-                          form-2)
-                    (if-some [hook (env-3 :convex.run.hook/trx)]
-                      (let [env-4 (form env-3
-                                        ($.code/list [hook
-                                                      ($.code/quote form-2)]))]
-                        (if (env-4 :convex.run/error)
-                          env-4
-                          (-> env-4
-                              (dissoc :convex.run.hook/trx)
-                              (trx form-2)
-                              (assoc :convex.run.hook/trx
-                                     hook))))
-                      (compile-run env-3
-                                   form-2))))))))))
+  ([env]
+
+   (trx env
+        (result env)))
+
+
+  ([env form]
+
+   (or (strx env
+             form)
+       (let [env-2 (inject-value+ env)]
+         (if (env-2 :convex.run/error)
+           env-2
+           (let [env-3 (expand env-2
+                               form)]
+             (if (env-3 :convex.run/error)
+               env-3
+               (let [form-2 (result env-3)]
+                 (or (strx env-3
+                           form-2)
+                     ((env-3 :convex.run.hook/trx)
+                      env-3
+                      form-2))))))))))
 
 
 
@@ -254,8 +251,7 @@
   [env]
 
   (-> env
-      (dissoc :convex.run/restore
-              :convex.run.hook/trx)
+      (dissoc :convex.run/restore)
       (merge (env :convex.run/restore))
       (assoc :convex.run/i-trx      0
              :convex.run/juice-last 0)

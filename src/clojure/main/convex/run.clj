@@ -83,8 +83,7 @@
                      env-2)))
       (update :convex.run.hook/trx
               #(or %
-                   (fn [_env-2 trx]
-                     trx)))))
+                   $.run.exec/compile-run))))
 
 
 
