@@ -16,11 +16,11 @@
 
 ;(cvm.hook.error (fn [err] [:ERRROOOR err]))
 
+:foo
+
 (cvm.hook.trx (fn [x] `(cvm.out (let [x ~x]  [x x]))))
 
 42
-
-(cvm.hook.trx (fn [x] `(cvm.out (let [x ~x] [x x x]))))
 
 (cvm.do 1 2 3)
 

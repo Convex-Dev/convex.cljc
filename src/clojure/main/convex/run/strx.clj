@@ -265,10 +265,8 @@
           (let [hook-old (or restore
                              (env-3 :convex.run.hook/trx))]
             (-> env-3
-                (cond->
-                  (not restore)
-                  (assoc-in path-restore
-                            hook-old))
+                (assoc-in path-restore
+                          hook-old)
                 (assoc :convex.run.hook/trx
                        (let [form-hook-2 ($.run.exec/result env-3)]
                          (fn hook-new [env-4 form]
