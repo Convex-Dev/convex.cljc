@@ -60,31 +60,6 @@
                                (second trx-first)))))))))
 
 
-
-(defn update-hook-fn
-
-
-  ""
-
-  [env kw form]
-
-  (if-some [hook (second form)]
-    (let [env-2 (eval-trx env
-                          hook)]
-      (if (env-2 :convex.run/error)
-        env-2
-        (assoc-in env-2
-                  [:convex.run/hook+
-                   kw]
-                  (-> env-2
-                      :convex.sync/ctx
-                      $.cvm/result))))
-    (update env
-            :convex.run/hook+
-            dissoc
-            kw)))
-
-
 ;;;;;;;;;; Special transactions
 
 
@@ -317,9 +292,12 @@
 
   [env trx]
 
-  (update-hook-fn env
-                  :trx
-                  trx))
+  (if-some [hook (second trx)]
+    (assoc env
+           :convex.run.hook/trx
+           hook)
+    (dissoc env
+            :convex.run.hook/trx)))
 
 
 
@@ -608,25 +586,17 @@
                             $.cvm/result)]
               (if-some [f-strx-2 (strx trx-2)]
                 (f-strx-2 env-3
-                         trx-2)
-                (if-some [hook-trx (get-in env
-                                           [:convex.run/hook+
-                                            :trx])]
+                          trx-2)
+                (if-some [hook (env-3 :convex.run.hook/trx)]
                   (let [env-4 (eval-form env-3
-                                         ($.code/list [hook-trx
+                                         ($.code/list [hook
                                                        ($.code/quote trx-2)]))]
                     (if (env-4 :convex.run/error)
                       env-4
-                      (-> env-4
-                          (update :convex.run/hook+
-                                  dissoc
-                                  :trx)
-                          (eval-trx (-> env-4
-                                        :convex.sync/ctx
-                                        $.cvm/result))
-                          (assoc-in [:convex.run/hook+
-                                     :trx]
-                                    hook-trx))))
+                      (eval-form env-4
+                                 (-> env-4
+                                     :convex.sync/ctx
+                                     $.cvm/result))))
                   (eval-form env-3
                              trx-2))))))))))
 
@@ -663,7 +633,8 @@
   [env]
 
   (-> env
-      (dissoc :convex.run/restore)
+      (dissoc :convex.run/restore
+              :convex.run.hook/trx)
       (merge (env :convex.run/restore))
       (assoc :convex.run/i-trx      0
              :convex.run/juice-last 0)
@@ -690,6 +661,10 @@
   [env]
 
   (-> env
+      (update :convex.run.hook/trx
+              #(or %
+                   (fn [_env-2 trx]
+                     trx)))
       (update :convex.run/end
               #(or %
                    identity))
