@@ -388,9 +388,9 @@
                                                        (env-2 :convex.run/error)))
                            ($.run.exec/trx+ (rest trx-last))
                            ($.run.exec/trx ($.code/undef $.run.sym/error))))
-                     ;; TODO. What if an error occurs during 
-                     (assoc :convex.run/error
-                            :try))))
+                     (update :convex.run/error
+                             #(or %
+                                  ::try)))))
         ($.run.exec/trx+ (-> trx
                              rest
                              (cond->
@@ -398,7 +398,12 @@
                                butlast)))
         (assoc :convex.run/on-error
                on-error)
-        (dissoc :convex.run/error))))
+        (update :convex.run/error
+                (fn [err]
+                  (if (identical? err
+                                  ::try)
+                    nil
+                    err))))))
 
 
 ;;;;;;;;;;
