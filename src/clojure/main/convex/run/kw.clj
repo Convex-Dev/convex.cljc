@@ -4,7 +4,8 @@
 
   {:author "Adam Helinski"}
 
-  (:refer-clojure :exclude [read])
+  (:refer-clojure :exclude [compile
+                            read])
   (:require [convex.code :as $.code]))
 
 
@@ -16,6 +17,14 @@
   ""
 
   ($.code/keyword "cause"))
+
+
+
+(def compile
+
+  ""
+
+  ($.code/keyword "compile"))
 
 
 
@@ -75,6 +84,14 @@
 
 
 
+(def run
+
+  ""
+
+  ($.code/keyword "run"))
+
+
+
 (def src
 
   ""
@@ -111,4 +128,4 @@
 
   ""
 
-  ($.code/keyword "trx/prepare"))
+  ($.code/keyword "trx.prepare"))

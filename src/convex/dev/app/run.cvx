@@ -14,11 +14,18 @@
 
 
 
-(cvm.hook.trx (fn [trx] [trx trx]))
-
-
 
 (cvm.out 42)
+
+
+(cvm.try
+  ;(fail :failure)
+  (cvm.catch
+    (cvm.out [:FAIL *cvm.error*])))
+
+
+(cvm.out (+ 2 2))
+
 
 
 ;; Prints nice information at the start of a run using special transaction `cvm.out`

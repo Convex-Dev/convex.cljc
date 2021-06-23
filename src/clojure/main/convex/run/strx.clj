@@ -54,19 +54,19 @@
                     (nth (seq trx)
                          2))]
         (if ($.code/string? k)
-          ($.run.exec/form env
-                           ($.code/def sym
-                                       ($.code/string (System/getenv (str k)))))
+          ($.run.exec/trx env
+                          ($.code/def sym
+                                      ($.code/string (System/getenv (str k)))))
           ($.run.err/signal env
                             ($.run.err/strx ErrorCodes/CAST
                                             trx
                                             ($.code/string "Second argument to 'cvm.env' must be a string"))))
-        ($.run.exec/form env
-                         ($.code/def sym
-                                     ($.code/map (map (fn [[k v]]
-                                                        [($.code/string k)
-                                                         ($.code/string v)])
-                                                      (System/getenv))))))
+        ($.run.exec/trx env
+                        ($.code/def sym
+                                    ($.code/map (map (fn [[k v]]
+                                                       [($.code/string k)
+                                                        ($.code/string v)])
+                                                     (System/getenv))))))
       ($.run.err/signal env
                         ($.run.err/strx ErrorCodes/CAST
                                         trx
@@ -144,7 +144,7 @@
                                          (dissoc :convex.run/error)
                                          (assoc :convex.run/on-error
                                                 identity)
-                                         ($.run.exec/form form))
+                                         ($.run.exec/trx form))
                                err   (env-4 :convex.run/error)]
                            (-> (if err
                                  ($.run.err/fatal env-4
@@ -206,7 +206,7 @@
                                env-4    (-> env-3
                                             (assoc :convex.run/on-error
                                                    identity)
-                                            ($.run.exec/form form)
+                                            ($.run.exec/trx form)
                                             (assoc :convex.run/on-error
                                                    on-error))
                                err      (env-4 :convex.run/error)]
@@ -257,9 +257,9 @@
   [env trx]
 
   (if-some [cvm-sym (second trx)]
-    ($.run.exec/form env
-                     ($.code/def cvm-sym
-                                 ($.cvm/log (env :convex.sync/ctx))))
+    ($.run.exec/trx env
+                    ($.code/def cvm-sym
+                                ($.cvm/log (env :convex.sync/ctx))))
     ($.run.err/signal env
                       ($.run.err/strx ErrorCodes/ARGUMENT
                                       trx
@@ -313,13 +313,13 @@
                            2))]
         (if ($.code/string? src)
           (try
-            ($.run.exec/form env
-                             ($.code/def sym
-                                         (-> src
-                                             str
-                                             Reader/readAll
-                                             $.code/vector
-                                             $.code/quote)))
+            ($.run.exec/trx env
+                            ($.code/def sym
+                                        (-> src
+                                            str
+                                            Reader/readAll
+                                            $.code/vector
+                                            $.code/quote)))
             (catch Throwable _err
               ($.run.err/signal env
                                 ($.run.err/strx ErrorCodes/ARGUMENT
@@ -384,10 +384,11 @@
                        catch?
                        (-> (assoc :convex.run/on-error
                                   on-error)
-                           ($.run.exec/form ($.code/def $.run.sym/error
-                                                        (env-2 :convex.run/error)))
+                           ($.run.exec/trx ($.code/def $.run.sym/error
+                                                      (env-2 :convex.run/error)))
                            ($.run.exec/trx+ (rest trx-last))
-                           ($.run.exec/form ($.code/undef $.run.sym/error))))
+                           ($.run.exec/trx ($.code/undef $.run.sym/error))))
+                     ;; TODO. What if an error occurs during 
                      (assoc :convex.run/error
                             :try))))
         ($.run.exec/trx+ (-> trx
