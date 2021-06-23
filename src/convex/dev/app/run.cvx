@@ -13,21 +13,17 @@
 (cvm.out.clear)
 
 
+
 ;(cvm.hook.error (fn [err] [:ERRROOOR err]))
 
-
+;(cvm.hook.out (fn [x] `(let [x ~x] [x x])))
 (cvm.out 42)
 
 
-(cvm.try
-   (fail :failure)
-  (cvm.catch
-    (cvm.out [:CATCH *cvm.error*])))
-
-
-(+ 2 3)
-
-(cvm.out [:juice *cvm.juice.last*])
+;
+;(+ 2 3)
+;
+;(cvm.out [:juice *cvm.juice.last*])
 
 
 

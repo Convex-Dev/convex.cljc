@@ -10,15 +10,14 @@
            (java.io File))
   (:refer-clojure :exclude [eval
                             load])
-  (:require [clojure.string]
-            [convex.code     :as $.code]
-            [convex.cvm      :as $.cvm]
-            [convex.run.err  :as $.run.err]
-            [convex.run.exec :as $.run.exec]
-            [convex.run.kw   :as $.run.kw]
-            [convex.run.strx :as $.run.strx]
-            [convex.sync     :as $.sync]
-            [convex.watch    :as $.watch]))
+  (:require [convex.code      :as $.code]
+            [convex.cvm       :as $.cvm]
+            [convex.run.err   :as $.run.err]
+            [convex.run.exec  :as $.run.exec]
+            [convex.run.kw    :as $.run.kw]
+            [convex.run.strx]
+            [convex.sync      :as $.sync]
+            [convex.watch     :as $.watch]))
 
 
 ;;;;;;;;;; Miscellaneous
@@ -85,10 +84,7 @@
                        (-> x
                            str
                            tap>))
-                     env-2)))
-      (update :convex.run/strx
-              #(merge $.run.strx/registry
-                      %))))
+                     env-2)))))
 
 
 

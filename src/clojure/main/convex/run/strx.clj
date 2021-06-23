@@ -13,12 +13,30 @@
             [convex.run.sym  :as $.run.sym]))
 
 
-;;;;;;;;;;
+;;;;;;;;;; Setup
 
 
-(defn dep
+(defmethod $.run.exec/strx nil
 
-  ""
+  [_env _form]
+
+  nil)
+
+
+
+(defmethod $.run.exec/strx :unknown
+
+  [env form]
+
+  ($.run.err/signal env
+                    ($.run.err/strx ErrorCodes/ARGUMENT
+                                    form
+                                    ($.code/string "Unsupported special transaction"))))
+
+;;;;;;;;;; Implementations
+
+
+(defmethod $.run.exec/strx "cvm.dep"
 
   [env trx]
 
@@ -29,9 +47,7 @@
 
 
 
-(defn do'
-
-  ""
+(defmethod $.run.exec/strx "cvm.do"
 
   [env trx]
 
@@ -40,10 +56,7 @@
 
 
 
-(defn env
-
-
-  ""
+(defmethod $.run.exec/strx "cvm.env"
 
   [env trx]
 
@@ -74,9 +87,7 @@
 
 
 
-(defn hook-end
-
-  ""
+(defmethod $.run.exec/strx "cvm.hook.end"
 
   [env trx]
 
@@ -111,9 +122,7 @@
 
 
 
-(defn hook-error
-
-  ""
+(defmethod $.run.exec/strx "cvm.hook.error"
 
   ;; TODO. Ensure failing hook is handled properly.
 
@@ -175,9 +184,7 @@
 
 
 
-(defn hook-out
-
-  ""
+(defmethod $.run.exec/strx "cvm.hook.out"
 
   [env trx]
 
@@ -233,9 +240,7 @@
 
 
 
-(defn hook-trx
-
-  ""
+(defmethod $.run.exec/strx "cvm.hook.trx"
 
   [env trx]
 
@@ -248,9 +253,7 @@
 
 
 
-(defn log
-
-  ""
+(defmethod $.run.exec/strx "cvm.log"
 
   ;; TODO. Error handling.
 
@@ -267,9 +270,7 @@
 
 
 
-(defn out
-
-  ""
+(defmethod $.run.exec/strx "cvm.out"
 
   [env trx]
 
@@ -285,9 +286,7 @@
 
 
 
-(defn out-clear
-
-  ""
+(defmethod $.run.exec/strx "cvm.out.clear"
 
   ;; https://www.delftstack.com/howto/java/java-clear-console/
 
@@ -299,9 +298,7 @@
 
 
 
-(defn read'
-
-  ""
+(defmethod $.run.exec/strx "cvm.read"
 
   [env trx]
 
@@ -344,9 +341,7 @@
 
 
 
-(defn splice
-
-  "Like [[do']] but dynamic, evaluates its argument to a vector of transactions."
+(defmethod $.run.exec/strx "cvm.splice"
 
   [env trx]
 
@@ -365,9 +360,7 @@
 
 
 
-(defn try'
-
-  ""
+(defmethod $.run.exec/strx "cvm.try"
 
   [env trx]
 
@@ -404,25 +397,3 @@
                                   ::try)
                     nil
                     err))))))
-
-
-;;;;;;;;;;
-
-
-(def registry
-
-  ""
-
-  {"cvm.dep"        dep
-   "cvm.do"         do'
-   "cvm.env"        env
-   "cvm.hook.end"   hook-end
-   "cvm.hook.error" hook-error
-   "cvm.hook.out"   hook-out
-   "cvm.hook.trx"   hook-trx
-   "cvm.log"        log
-   "cvm.out"        out
-   "cvm.out.clear"  out-clear
-   "cvm.read"       read'
-   "cvm.splice"     splice
-   "cvm.try"        try'})
