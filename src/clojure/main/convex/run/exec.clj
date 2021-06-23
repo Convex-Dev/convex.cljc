@@ -152,15 +152,10 @@
 
   ([env form]
 
-   (let [env-2 (update-ctx env
-                           $.run.kw/run
-                           $.cvm/run
-                           form)]
-     (-> env-2
-         (assoc :convex.run/juice-last (- Long/MAX_VALUE ;; Juice set by [[update-ctx]].
-                                          ($.cvm/juice (env-2 :convex.sync/ctx))))
-         (update :convex.run/i-trx
-                 inc)))))
+   (update-ctx env
+               $.run.kw/run
+               $.cvm/run
+               form)))
 
 
 ;;;;;;;;;; Transactions

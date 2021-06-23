@@ -13,15 +13,17 @@
 (cvm.out.clear)
 
 
+;(cvm.hook.error (fn [err] [:ERRROOOR err]))
 
 
 (cvm.out 42)
 
 
 (cvm.try
-  ;(fail :failure)
+  (fail :failure)
   (cvm.catch
-    (cvm.out [:FAIL *cvm.error*])))
+    (cvm.out [:CATCH *cvm.error*])
+    (fail :failure-2)))
 
 
 (cvm.out (+ 2 2))

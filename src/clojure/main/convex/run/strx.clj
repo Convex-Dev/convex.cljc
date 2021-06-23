@@ -385,7 +385,7 @@
                        (-> (assoc :convex.run/on-error
                                   on-error)
                            ($.run.exec/trx ($.code/def $.run.sym/error
-                                                      (env-2 :convex.run/error)))
+                                                       (env-2 :convex.run/error)))
                            ($.run.exec/trx+ (rest trx-last))
                            ($.run.exec/trx ($.code/undef $.run.sym/error))))
                      ;; TODO. What if an error occurs during 

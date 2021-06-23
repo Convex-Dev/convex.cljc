@@ -7,6 +7,7 @@
   (:import (convex.core ErrorCodes)
            (convex.core.lang.impl ErrorValue))
   (:require [convex.code   :as $.code]
+            [convex.cvm    :as $.cvm]
             [convex.run.kw :as $.run.kw]))
 
 
@@ -54,11 +55,13 @@
   ([env exception]
 
    ((env :convex.run/on-error)
-    (assoc env
-           :convex.run/error
-           (.assoc exception
-                   $.run.kw/exception?
-                   ($.code/boolean true)))))
+    (-> env
+        (assoc :convex.run/error
+               (.assoc exception
+                       $.run.kw/exception?
+                       ($.code/boolean true)))
+        (update :convex.sync/ctx
+                $.cvm/exception-clear))))
 
 
   ([env code message]

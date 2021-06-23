@@ -245,7 +245,18 @@
   (.getState ctx))
 
 
-;;;;;;;;;; Modifying context properties after fork
+;;;;;;;;;; Modifying context properties
+
+
+(defn exception-clear
+
+  "Removes the currently attached exception from the given `ctx`."
+
+  [^Context ctx]
+
+  (.withException ctx
+                  nil))
+
 
 
 (defn juice-preserve
