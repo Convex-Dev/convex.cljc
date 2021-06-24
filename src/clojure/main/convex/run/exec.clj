@@ -233,11 +233,16 @@
                               form)]
                (if (env-3 :convex.run/error)
                  (reduced env-3)
-                 (-> env-3
-                     (assoc :convex.run/juice-last (- Long/MAX_VALUE ;; Juice set by [[update-ctx]].
-                                                      ($.cvm/juice (env-2 :convex.sync/ctx))))
-                     (update :convex.run/i-trx
-                             inc)))))
+                 (let [juice-last (- Long/MAX_VALUE ;; Juice set by [[update-ctx]].
+                                     ($.cvm/juice (env-2 :convex.sync/ctx)))]
+                   (-> env-3
+                       (assoc :convex.run/juice-last
+                              juice-last)
+                       (update :convex.run/juice-total
+                               +
+                               juice-last)
+                       (update :convex.run/i-trx
+                               inc))))))
            env
            trx+)))
 
@@ -254,8 +259,9 @@
   (-> env
       (dissoc :convex.run/restore)
       (merge (env :convex.run/restore))
-      (assoc :convex.run/i-trx      0
-             :convex.run/juice-last 0)
+      (assoc :convex.run/i-trx       0
+             :convex.run/juice-last  0
+             :convex.run/juice-total 0)
       $.run.ctx/cycle
       trx+
       (as->

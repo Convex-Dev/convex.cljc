@@ -12,10 +12,14 @@
 ;;
 (strx/screen.clear)
 
+(strx/out [:total 1 strx/*juice.total*])
+10
+20
+
+(strx/out [:total strx/*juice.total*])
 
 (strx/out [:file strx/*file*])
 
-10
 
 (strx/out [strx/*trx.form* (+ 4 4)])
 

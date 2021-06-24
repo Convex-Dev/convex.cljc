@@ -111,6 +111,14 @@
 
 
 
+(def juice-total
+
+  ""
+
+  ($.code/symbol "*juice.total*"))
+
+
+
 (def log
 
   ""

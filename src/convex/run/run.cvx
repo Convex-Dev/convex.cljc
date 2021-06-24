@@ -63,6 +63,14 @@
 
 
 
+                  (def *juice.total*
+
+                    ^{:doc {:description "Total amount of juice consumed up to now."}}
+
+                    nil)
+
+
+
                   (def *trx.form*
 
                     ^{:doc {:description "Form representing the current transaction."}}
