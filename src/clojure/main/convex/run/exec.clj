@@ -63,19 +63,24 @@
   
   ""
 
-  ;; TODO. Optimize.
-
   ([trx]
 
    (when ($.code/list? trx)
      (let [form (first trx)]
        (when (and ($.code/list? form)
-                  (= (first form)
+                  (= (count form)
+                     3)
+                  (= (.get form
+                           0)
                      Symbols/LOOKUP)
-                  (= (second form)
-                     $.run.sym/strx))
-         (nth (seq form)
-              2)))))
+                  (let [nspace (.get form
+                                     1)]
+                    (or (= nspace
+                           $.run.sym/strx)
+                        (= nspace
+                           $.run.ctx/addr-strx))))
+         (.get form
+               2)))))
 
 
   ([_env trx]
@@ -88,7 +93,7 @@
 
   ""
 
-  ;; Implentations are in the [[convex.run.strx]] namespace.
+  ;; Implentation of special transactions is in the [[convex.run.strx]] namespace.
 
   strx-dispatch
 
