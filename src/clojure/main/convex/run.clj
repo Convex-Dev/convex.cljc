@@ -10,12 +10,14 @@
            (java.io File))
   (:refer-clojure :exclude [eval
                             load])
-  (:require [convex.code      :as $.code]
+  (:require [clojure.java.io]
+            [convex.code      :as $.code]
             [convex.cvm       :as $.cvm]
             [convex.run.err   :as $.run.err]
             [convex.run.exec  :as $.run.exec]
             [convex.run.kw    :as $.run.kw]
             [convex.run.strx]
+            [convex.run.sym   :as $.run.sym]
             [convex.sync      :as $.sync]
             [convex.watch     :as $.watch]))
 
@@ -23,12 +25,24 @@
 ;;;;;;;;;; Miscellaneous
 
 
-(def d*ctx-base
+(def ctx-base
 
   ""
 
-  (delay
-    ($.cvm/juice-refill ($.cvm/ctx))))
+  (if-some [resource (clojure.java.io/resource "run.cvx")]
+    (let [ctx ($.cvm/deploy ($.cvm/ctx)
+                            (first ($.cvm/read (slurp resource))))
+          ex  ($.cvm/exception ctx)]
+      (if ex
+        (throw (ex-info "Unable to deploy 'run.cvx'"
+                        {::base :deply
+                         ::ex   ex}))
+        (-> ctx
+            ($.cvm/def $.run.sym/cvm
+                       ($.cvm/result ctx))
+            $.cvm/juice-refill)))
+    (throw (ex-info "Mandatory 'run.cvx' file is not on classpath"
+                    {::base :not-found}))))
 
 
 
@@ -83,7 +97,10 @@
                      env-2)))
       (update :convex.run.hook/trx
               #(or %
-                   $.run.exec/compile-run))))
+                   $.run.exec/compile-run))
+      (update :convex.sync/ctx-base
+              #(or %
+                   ctx-base))))
 
 
 
@@ -169,7 +186,7 @@
     env
     (if-some [sym->dep' (env :convex.run/sym->dep)]
       (let [env-2    (merge env
-                            ($.sync/disk ($.cvm/fork @d*ctx-base)
+                            ($.sync/disk ($.cvm/fork (env :convex.sync/ctx-base))
                                          sym->dep'))
             err-sync (env-2 :convex.sync/error)]
         (if err-sync
@@ -180,7 +197,7 @@
           ($.run.exec/cycle env-2)))
       (-> env
           (assoc :convex.sync/ctx
-                 ($.cvm/fork @d*ctx-base))
+                 ($.cvm/fork (env :convex.sync/ctx-base)))
           $.run.exec/cycle))))
 
 

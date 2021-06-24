@@ -34,6 +34,7 @@
 ;(cvm.out [:juice *cvm.juice.last*])
 
 
+(cvm.out cvm/bar)
 
 ;; Prints nice information at the start of a run using special transaction `cvm.out`
 ;;

@@ -283,6 +283,22 @@
 
 
 
+(defn deploy
+
+  "Deploys the given `code` as an actor.
+  
+   Returns a context that is either exceptional or has the address of the successfully created actor
+   attached as a result."
+
+  ^Context
+
+  [^Context ctx code]
+
+  (.deployActor ctx
+                code))
+
+
+
 (defn exception-clear
 
   "Removes the currently attached exception from the given `ctx`."

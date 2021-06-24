@@ -19,6 +19,14 @@
 
 
 
+(def cvm
+
+  ""
+
+  ($.code/symbol "cvm"))
+
+
+
 (def cycle
 
   ""

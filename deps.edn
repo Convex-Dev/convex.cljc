@@ -53,4 +53,5 @@
   world.convex/convex      {:local/root "cvm/f1fb2cf1929cdebf99c0940742881ef842047339.jar"}}
 
  :paths
- ["src/clojure/main"]}
+ ["src/convex/run"
+  "src/clojure/main"]}
