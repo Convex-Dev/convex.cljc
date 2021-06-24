@@ -159,6 +159,14 @@
 
 
 
+(def trx-form
+
+  ""
+
+  ($.code/symbol "*trx.form*"))
+
+
+
 (def trx-id
 
   ""

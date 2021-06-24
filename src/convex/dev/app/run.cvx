@@ -17,6 +17,7 @@
 
 10
 
+(strx/out [strx/*trx.form* (+ 4 4)])
 
 (strx/out [strx/*cycle* strx/*juice.last* strx/*trx.id*])
 

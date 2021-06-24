@@ -63,6 +63,14 @@
 
 
 
+                  (def *trx.form*
+
+                    ^{:doc {:description "Form representing the current transaction."}}
+
+                    nil)
+
+
+
                   (def *trx.id*
 
                     ^{:doc {:description ["Starting at 0, is incremented on every transaction."

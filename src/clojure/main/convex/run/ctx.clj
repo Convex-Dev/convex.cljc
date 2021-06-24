@@ -112,8 +112,9 @@
 
   ""
 
-  [env]
+  [env form]
 
   (def-special env
                {$.run.sym/juice-last ($.code/long (env :convex.run/juice-last))
+                $.run.sym/trx-form   form
                 $.run.sym/trx-id     ($.code/long (env :convex.run/i-trx))}))

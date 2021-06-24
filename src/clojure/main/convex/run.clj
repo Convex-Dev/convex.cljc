@@ -320,8 +320,7 @@
                                 (if (or dep-lock
                                         (nil? dep-old+)
                                         (seq (env-3 :convex.watch/extra->change)))
-                                  (let [env-4     (main-file env-3
-                                                             path)
+                                  (let [env-4     (main-file env-3)
                                         sym->dep' (env-4 :convex.run/sym->dep)
                                         dep-new+  (set (vals sym->dep'))
                                         env-5     (-> env-4

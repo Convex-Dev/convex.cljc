@@ -202,7 +202,7 @@
    (or (strx env
              form)
        (let [env-2 (-> env
-                       $.run.ctx/trx
+                       ($.run.ctx/trx form)
                        (expand form))]
          (if (env-2 :convex.run/error)
            env-2
