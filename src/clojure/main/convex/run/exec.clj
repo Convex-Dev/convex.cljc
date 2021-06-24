@@ -4,7 +4,8 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core ErrorCodes))
+  (:import (convex.core ErrorCodes)
+           (convex.core.lang Symbols))
   (:refer-clojure :exclude [compile
                             cycle])
   (:require [clojure.string]
@@ -57,18 +58,37 @@
 ;;;;;;;;;; Special transactions
 
 
+(defn strx-dispatch
+  
+  ""
+
+
+  ([trx]
+
+   (when ($.code/list? trx)
+     (let [form (first trx)]
+       (when (and ($.code/list? form)
+                  (= (first form)
+                     Symbols/LOOKUP)
+                  (= (second form)
+                     $.run.sym/cvm))
+         (nth (seq form)
+              2)))))
+
+
+  ([_env trx]
+
+   (strx-dispatch trx)))
+
+
+
 (defmulti strx
 
   ""
 
   ;; Implentations are in the [[convex.run.strx]] namespace.
 
-  (fn disptach [_env trx]
-    (when ($.code/list? trx)
-      (let [sym-string (str (first trx))]
-        (when (clojure.string/starts-with? sym-string
-                                           "cvm.")
-          sym-string))))
+  strx-dispatch
 
   :default :unknown)
 

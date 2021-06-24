@@ -54,18 +54,15 @@
 
   [trx+]
 
-  (let [trx-first (first trx+)]
-    (when ($.code/list? trx-first)
-      (let [item (first trx-first)]
-        (when ($.code/symbol? item)
-          (when (= (str item)
-                   "cvm.dep")
-            (not-empty (reduce (fn [sym->dep x]
-                                 (assoc sym->dep
-                                        (str (first x))
-                                        (.getCanonicalPath (File. (str (second x))))))
-                               {}
-                               (second trx-first)))))))))
+  (when-some [trx-first (first trx+)]
+    (when (= ($.run.exec/strx-dispatch trx-first)
+             $.run.sym/dep)
+      (not-empty (reduce (fn [sym->dep x]
+                           (assoc sym->dep
+                                  (str (first x))
+                                  (.getCanonicalPath (File. (str (second x))))))
+                         {}
+                         (second trx-first))))))
 
 
 ;;;;;;;;;; 

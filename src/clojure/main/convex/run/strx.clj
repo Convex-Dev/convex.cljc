@@ -36,7 +36,9 @@
 ;;;;;;;;;; Implementations
 
 
-(defmethod $.run.exec/strx "cvm.dep"
+(defmethod $.run.exec/strx
+
+  $.run.sym/dep
 
   [env trx]
 
@@ -47,7 +49,9 @@
 
 
 
-(defmethod $.run.exec/strx "cvm.do"
+(defmethod $.run.exec/strx
+
+  $.run.sym/do
 
   [env trx]
 
@@ -56,7 +60,9 @@
 
 
 
-(defmethod $.run.exec/strx "cvm.env"
+(defmethod $.run.exec/strx
+
+  $.run.sym/env
 
   [env trx]
 
@@ -87,7 +93,9 @@
 
 
 
-(defmethod $.run.exec/strx "cvm.hook.end"
+(defmethod $.run.exec/strx
+  
+  $.run.sym/hook-end
 
   [env trx]
 
@@ -122,7 +130,9 @@
 
 
 
-(defmethod $.run.exec/strx "cvm.hook.error"
+(defmethod $.run.exec/strx
+  
+  $.run.sym/hook-error
 
   ;; TODO. Ensure failing hook is handled properly.
 
@@ -184,7 +194,9 @@
 
 
 
-(defmethod $.run.exec/strx "cvm.hook.out"
+(defmethod $.run.exec/strx
+  
+  $.run.sym/hook-out
 
   [env trx]
 
@@ -240,7 +252,9 @@
 
 
 
-(defmethod $.run.exec/strx "cvm.hook.trx"
+(defmethod $.run.exec/strx
+  
+  $.run.sym/hook-trx
 
   [env trx]
 
@@ -284,7 +298,9 @@
 
 
 
-(defmethod $.run.exec/strx "cvm.log"
+(defmethod $.run.exec/strx
+  
+  $.run.sym/log
 
   ;; TODO. Error handling.
 
@@ -301,13 +317,15 @@
 
 
 
-(defmethod $.run.exec/strx "cvm.out"
+(defmethod $.run.exec/strx
+
+  $.run.sym/out
 
   [env trx]
 
-  (if-some [form-2 (second trx)]
+  (if-some [form (second trx)]
     (let [env-2 ($.run.exec/trx env
-                                form-2)]
+                                form)]
       (if (env-2 :convex.run/error)
         env-2
         ((env-2 :convex.run.hook/out)
@@ -317,19 +335,9 @@
 
 
 
-(defmethod $.run.exec/strx "cvm.out.clear"
-
-  ;; https://www.delftstack.com/howto/java/java-clear-console/
-
-  [env _trx]
-
-  (print "\033[H\033[2J")
-  (flush)
-  env)
-
-
-
-(defmethod $.run.exec/strx "cvm.read"
+(defmethod $.run.exec/strx
+  
+  $.run.sym/read
 
   [env trx]
 
@@ -372,7 +380,9 @@
 
 
 
-(defmethod $.run.exec/strx "cvm.splice"
+(defmethod $.run.exec/strx
+  
+  $.run.sym/splice
 
   [env trx]
 
@@ -391,7 +401,23 @@
 
 
 
-(defmethod $.run.exec/strx "cvm.try"
+(defmethod $.run.exec/strx
+  
+  $.run.sym/screen-clear
+
+  ;; https://www.delftstack.com/howto/java/java-clear-console/
+
+  [env _trx]
+
+  (print "\033[H\033[2J")
+  (flush)
+  env)
+
+
+
+(defmethod $.run.exec/strx
+  
+  $.run.sym/try
 
   [env trx]
 
