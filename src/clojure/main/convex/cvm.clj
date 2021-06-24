@@ -38,7 +38,8 @@
 
 
 (declare juice-set
-         run)
+         run
+         state-set)
 
 
 ;;;;;;;;;; Creating a new context
@@ -273,13 +274,31 @@
 
   "Like calling `(def sym value)` in Convex Lisp."
 
-  ^Context
 
-  [^Context ctx sym value]
+  (^Context [ctx sym->value]
 
-  (.define ctx
-           sym
-           value))
+   (convex.cvm/def ctx
+                   (address ctx)
+                   sym->value))
+
+
+  (^Context [^Context ctx addr sym->value]
+
+   (let [s (state ctx)
+         a (.getAccount s
+                        addr)]
+     (if a
+       (state-set ctx
+                  (.putAccount s
+                               addr
+                               (.withEnvironment a
+                                                 (reduce (fn [env [sym value]]
+                                                           (.assoc env
+                                                                   sym
+                                                                   value))
+                                                         (.getEnvironment a)
+                                                         sym->value))))
+       ctx))))
 
 
 
@@ -353,6 +372,19 @@
 
   (.withJuice ctx
               amount))
+
+
+
+(defn state-set
+
+  ""
+
+  ^Context
+
+  [^Context ctx state]
+
+  (.withState ctx
+              state))
 
 
 
