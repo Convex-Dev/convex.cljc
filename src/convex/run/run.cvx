@@ -287,53 +287,63 @@
 
 
 
-                  (defn doc
+                  (let [-doc (fn [target meta]
+                               (let [doc         (:doc meta)
+                                     description (:description doc)
+                                     example+    (:examples doc)
+                                     signature   (:signature doc)
+                                     type        (:type doc)
+                                     target-sym  (symbol target)
+                                     section+    [["HELP"
+                                                   [target]]]
+                                     section-2+  (if type
+                                                   (conj section+
+                                                         ["TYPE"
+                                                          [type]])
+                                                   section+)
+                                     section-3+  (if signature
+                                                   (conj section-2+
+                                                         ["SIGNATURE"
+                                                          (map (fn [sign]
+                                                                 (cons target-sym
+                                                                       (:params sign)))
+                                                               signature)])
+                                                   section-2+)
+                                     section-4+  (if description
+                                                   (conj section-3+
+                                                         ["DESCRIPTION"
+                                                          (cond
+                                                            (str? description)    [description]
+                                                            (vector? description) description
+                                                            :else                 ["Malformed, description must be a string or a vector or strings."])])
+                                                   section-3+)
+                                     section-5+  (if example+
+                                                   (conj section-4+
+                                                         ["EXAMPLES"
+                                                          (map :code
+                                                               example+)])
+                                                   section-4+)]
+                                 (line+ section-5+)))]
 
-                    [addr sym]
-
-                    (let [doc         (:doc (lookup-meta addr
-                                                         sym))
-                          description (:description doc)
-                          example+    (:examples doc)
-                          signature   (:signature doc)
-                          type        (:type doc)
-                          target      (str (address addr)
-                                           "/"
-                                           sym)
-                          target-sym  (symbol target)
-                          section+    [["HELP"
-                                        [target]]]
-                          section-2+  (if type
-                                        (conj section+
-                                              ["TYPE"
-                                               [type]])
-                                        section+)
-                          section-3+  (if signature
-                                        (conj section-2+
-                                              ["SIGNATURE"
-                                               (map (fn [sign]
-                                                      (cons target-sym
-                                                            (:params sign)))
-                                                    signature)])
-                                        section-2+)
-                          section-4+  (if description
-                                        (conj section-3+
-                                              ["DESCRIPTION"
-                                               (cond
-                                                 (str? description)    [description]
-                                                 (vector? description) description
-                                                 :else                 ["Malformed, description must be a string or a vector or strings."])])
-                                        section-3+)
-                          section-5+  (if example+
-                                        (conj section-4+
-                                              ["EXAMPLES"
-                                               (map :code
-                                                    example+)])
-                                        section-4+)]
-                      (line+ section-5+)))
+                      (defn doc
 
 
-                )))  ;; End - HELP
+                        ([sym]
+
+                         (-doc (str sym)
+                               (lookup-meta sym)))
+
+
+                        ([addr sym]
+
+                         (-doc (str (address addr)
+                                             "/"
+                                             sym)
+                               (lookup-meta addr
+                                            sym)))))
+
+
+                    )))  ;; End - HELP
 
 
   ) ;; END 
