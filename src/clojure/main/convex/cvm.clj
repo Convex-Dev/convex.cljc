@@ -17,11 +17,14 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core Init)
-           (convex.core.data AccountStatus
+  (:import (convex.core Init
+                        State)
+           (convex.core.data ABlobMap
+                             AccountStatus
                              ACell
                              Address
-                             AHashMap)
+                             AHashMap
+                             AVector)
            (convex.core.lang Context
                              Reader))
   (:refer-clojure :exclude [compile
@@ -212,12 +215,12 @@
    If an address is provided, returns the vector entry for that address only."
 
 
-  ([^Context ctx]
+  (^ABlobMap [^Context ctx]
 
    (.getLog ctx))
 
 
-  ([^Context ctx address]
+  (^AVector [^Context ctx address]
 
    (.getLog ctx
             (-wrap-address address))))
@@ -239,6 +242,8 @@
 (defn state
 
   "Returns the whole CVM state associated with `ctx`."
+
+  ^State
 
   [^Context ctx]
 
@@ -292,7 +297,7 @@
                   (.putAccount s
                                addr
                                (.withEnvironment a
-                                                 (reduce (fn [env [sym value]]
+                                                 (reduce (fn [^AHashMap env [^ACell sym ^ACell value]]
                                                            (.assoc env
                                                                    sym
                                                                    value))
@@ -410,7 +415,7 @@
                   (.putAccount s
                                addr
                                (.withEnvironment a
-                                                 (reduce (fn [env sym]
+                                                 (reduce (fn [^AHashMap env ^ACell sym]
                                                            (.dissoc env
                                                                     sym))
                                                          (.getEnvironment a)
