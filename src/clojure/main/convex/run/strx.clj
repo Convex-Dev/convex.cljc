@@ -463,5 +463,5 @@
                           ::try)
             (-> env-2
                 (dissoc :convex.run/error)
-                ($.run.ctx/def-error nil))
+                ($.run.ctx/error nil))
             env-2)))))

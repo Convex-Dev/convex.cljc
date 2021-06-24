@@ -63,6 +63,14 @@
 
 
 
+(def file
+
+  ""
+
+  ($.code/symbol "*file*"))
+
+
+
 (def hook-end
 
   ""

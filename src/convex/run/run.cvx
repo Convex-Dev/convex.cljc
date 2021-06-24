@@ -47,6 +47,14 @@
 
 
 
+                  (def *file*
+
+                    ^{:doc {:description "Canonical path of the invoked main file."}}
+
+                    nil)
+
+
+
                   (def *juice.last*
 
                     ^{:doc {:description "The amount of juice consumed by the previous transaction."}}

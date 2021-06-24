@@ -55,6 +55,10 @@
   [env]
 
   (-> env
+      (update :convex.run/path
+              (fn [^String path]
+                (when path
+                  (.getCanonicalPath (File. path)))))
       (update :convex.run.hook/end
               #(or %
                    identity))
@@ -77,7 +81,8 @@
                    $.run.exec/compile-run))
       (update :convex.sync/ctx-base
               #(or %
-                   $.run.ctx/base))))
+                   $.run.ctx/base))
+      $.run.ctx/init))
 
 
 
@@ -85,9 +90,10 @@
 
   ""
 
-  [env path]
+  [env]
 
-  (let [[err
+  (let [path  (env :convex.run/path)
+        [err
          src] (try
                 [nil
                  (slurp path)]
@@ -143,10 +149,9 @@
 
   ""
 
-  [env path]
-
-  (let [env-2 (slurp-file env
-                          path)]
+  [env]
+    
+  (let [env-2 (slurp-file env)]
     (if (env-2 :convex.run/error)
       env-2
       (process-src env-2))))
@@ -219,8 +224,10 @@
   ([env path]
 
    (-> env
+       (assoc :convex.run/path
+              path)
        init
-       (main-file path)
+       main-file
        once)))
 
 
@@ -257,6 +264,8 @@
     ([env ^String path]
 
      (let [a*env ($.watch/init (-> env
+                                   (assoc :convex.run/path
+                                          path)
                                    init
                                    (assoc :convex.watch/extra+
                                           #{(.getCanonicalPath (File. path))})))]

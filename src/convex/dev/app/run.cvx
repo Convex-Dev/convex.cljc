@@ -13,6 +13,7 @@
 (strx/screen.clear)
 
 
+(strx/out [:file strx/*file*])
 
 10
 

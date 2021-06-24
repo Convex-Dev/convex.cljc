@@ -28,7 +28,7 @@
                      ($.code/boolean true)))
       (update :convex.sync/ctx
               $.cvm/exception-clear)
-      ($.run.ctx/def-error err)))
+      ($.run.ctx/error err)))
 
 
 

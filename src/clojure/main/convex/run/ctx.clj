@@ -11,6 +11,9 @@
             [convex.run.sym   :as $.run.sym]))
 
 
+(declare def-special)
+
+
 ;;;;;;;;;;
 
 
@@ -31,6 +34,7 @@
                     {::base :not-found}))))
 
 
+
 ;;;;;;;;;; Miscellaneous values
 
 
@@ -42,6 +46,7 @@
   (get ($.cvm/env base)
        $.run.sym/strx))
 
+
 ;;;;;;;;;; Miscellaneous utilities
 
 
@@ -51,28 +56,55 @@
 
   [env]
 
-  (update env
-          :convex.sync/ctx
-          (fn [ctx]
-            ($.cvm/def ctx
-                       addr-strx
-                       {$.run.sym/cycle ($.code/long (or (env :convex.watch/cycle)
-                                                         0))}))))
+  (def-special env
+               {$.run.sym/cycle ($.code/long (or (env :convex.watch/cycle)
+                                                 0))}))
 
 
 
-(defn def-error
+(defn error
 
   ""
 
   [env err]
 
-  (update env
-          :convex.sync/ctx
-          (fn [ctx]
-            ($.cvm/def ctx
-                       addr-strx
-                       {$.run.sym/error err}))))
+  (def-special env
+               {$.run.sym/error err}))
+
+
+
+(defn def-special
+
+  ""
+
+
+  ([env sym->value]
+
+   (def-special env
+                :convex.sync/ctx
+                sym->value))
+
+
+  ([env kw-ctx sym->value]
+
+   (update env
+           kw-ctx
+           (fn [ctx]
+             ($.cvm/def ctx
+                        addr-strx
+                        sym->value)))))
+
+
+
+(defn init
+
+  ""
+
+  [env]
+
+  (def-special env
+               :convex.sync/ctx-base
+               {$.run.sym/file ($.code/string (env :convex.run/path))}))
 
 
 
@@ -82,10 +114,6 @@
 
   [env]
 
-  (update env
-          :convex.sync/ctx
-          (fn [ctx]
-            ($.cvm/def ctx
-                       addr-strx
-                       {$.run.sym/juice-last ($.code/long (env :convex.run/juice-last))
-                        $.run.sym/trx-id     ($.code/long (env :convex.run/i-trx))}))))
+  (def-special env
+               {$.run.sym/juice-last ($.code/long (env :convex.run/juice-last))
+                $.run.sym/trx-id     ($.code/long (env :convex.run/i-trx))}))
