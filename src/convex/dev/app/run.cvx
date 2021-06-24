@@ -13,17 +13,20 @@
 (cvm.out.clear)
 
 
+(cvm.out [:cycle *cvm.cycle*])
 
 ;(cvm.hook.error (fn [err] [:ERRROOOR err]))
 
 :foo
 
-(cvm.hook.trx (fn [x] `(cvm.out (let [x ~x]  [x x]))))
+;(cvm.hook.trx (fn [x] `(cvm.out (let [x ~x]  [x x]))))
 
 42
 
-(cvm.do 1 2 3)
+(cvm.do 1 2 3 4 5)
 
+
+(cvm.out [*cvm.trx.id* *cvm.juice.last*])
 ;(cvm.hook.trx (fn [trx] `(cvm.out ~trx)))
 ;
 ;(+ 2 3 4)

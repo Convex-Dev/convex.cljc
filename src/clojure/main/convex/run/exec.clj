@@ -165,22 +165,14 @@
 
   [env]
 
-  (let [form  ($.code/do [($.code/def $.run.sym/juice-last
-                                      ($.code/long (env :convex.run/juice-last)))
-                          ($.code/def $.run.sym/trx-id
-                                      ($.code/long (env :convex.run/i-trx)))])
-        ctx   ($.cvm/eval (env :convex.sync/ctx)  
-                          form)
-        ex    ($.cvm/exception ctx)]
-    (cond->
-      (assoc env
-             :convex.sync/ctx
-             ctx)
-      ex
-      ($.run.err/signal ($.run.err/error ex
-                                         $.run.kw/trx-prepare
-                                         form)))))
-
+  (update env
+          :convex.sync/ctx
+          (fn [ctx]
+            (-> ctx
+                ($.cvm/def $.run.sym/juice-last
+                           ($.code/long (env :convex.run/juice-last)))
+                ($.cvm/def $.run.sym/trx-id
+                           ($.code/long (env :convex.run/i-trx)))))))
 
 
 (defn trx
@@ -198,19 +190,17 @@
 
    (or (strx env
              form)
-       (let [env-2 (inject-value+ env)]
+       (let [env-2 (-> env
+                       inject-value+
+                       (expand form))]
          (if (env-2 :convex.run/error)
            env-2
-           (let [env-3 (expand env-2
-                               form)]
-             (if (env-3 :convex.run/error)
-               env-3
-               (let [form-2 (result env-3)]
-                 (or (strx env-3
-                           form-2)
-                     ((env-3 :convex.run.hook/trx)
-                      env-3
-                      form-2))))))))))
+           (let [form-2 (result env-2)]
+             (or (strx env-2
+                       form-2)
+                 ((env-2 :convex.run.hook/trx)
+                  env-2
+                  form-2))))))))
 
 
 
@@ -257,10 +247,10 @@
              :convex.run/juice-last 0)
       (update :convex.sync/ctx
               (fn [ctx]
-                ($.cvm/eval ctx
-                            ($.code/def $.run.sym/cycle
-                                        ($.code/long (or (env :convex.watch/cycle)
-                                                         0))))))
+                ($.cvm/def ctx
+                           $.run.sym/cycle
+                                    ($.code/long (or (env :convex.watch/cycle)
+                                                     0)))))
       trx+
       (as->
         env-2
