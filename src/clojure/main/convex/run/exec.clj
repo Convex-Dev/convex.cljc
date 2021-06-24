@@ -186,21 +186,6 @@
 ;;;;;;;;;; Transactions
 
 
-(defn inject-value+
-
-  ""
-
-  [env]
-
-  (update env
-          :convex.sync/ctx
-          (fn [ctx]
-            ($.cvm/def ctx
-                       $.run.ctx/addr-strx
-                       {$.run.sym/juice-last ($.code/long (env :convex.run/juice-last))
-                        $.run.sym/trx-id     ($.code/long (env :convex.run/i-trx))}))))
-
-
 (defn trx
 
   ""
@@ -217,7 +202,7 @@
    (or (strx env
              form)
        (let [env-2 (-> env
-                       inject-value+
+                       $.run.ctx/trx
                        (expand form))]
          (if (env-2 :convex.run/error)
            env-2
@@ -271,12 +256,7 @@
       (merge (env :convex.run/restore))
       (assoc :convex.run/i-trx      0
              :convex.run/juice-last 0)
-      (update :convex.sync/ctx
-              (fn [ctx]
-                ($.cvm/def ctx
-                           $.run.ctx/addr-strx
-                           {$.run.sym/cycle ($.code/long (or (env :convex.watch/cycle)
-                                                             0))})))
+      $.run.ctx/cycle
       trx+
       (as->
         env-2

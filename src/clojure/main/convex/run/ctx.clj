@@ -4,7 +4,9 @@
 
   {:author "Adam Helinski"}
 
+  (:refer-clojure :exclude [cycle])
   (:require [clojure.java.io]
+            [convex.code      :as $.code]
             [convex.cvm       :as $.cvm]
             [convex.run.sym   :as $.run.sym]))
 
@@ -43,6 +45,22 @@
 ;;;;;;;;;; Miscellaneous utilities
 
 
+(defn cycle
+
+  ""
+
+  [env]
+
+  (update env
+          :convex.sync/ctx
+          (fn [ctx]
+            ($.cvm/def ctx
+                       addr-strx
+                       {$.run.sym/cycle ($.code/long (or (env :convex.watch/cycle)
+                                                         0))}))))
+
+
+
 (defn def-error
 
   ""
@@ -55,3 +73,19 @@
             ($.cvm/def ctx
                        addr-strx
                        {$.run.sym/error err}))))
+
+
+
+(defn trx
+
+  ""
+
+  [env]
+
+  (update env
+          :convex.sync/ctx
+          (fn [ctx]
+            ($.cvm/def ctx
+                       addr-strx
+                       {$.run.sym/juice-last ($.code/long (env :convex.run/juice-last))
+                        $.run.sym/trx-id     ($.code/long (env :convex.run/i-trx))}))))
