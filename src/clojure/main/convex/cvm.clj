@@ -26,6 +26,7 @@
            (convex.core.lang Context
                              Reader))
   (:refer-clojure :exclude [compile
+                            def
                             eval
                             read])
   (:require [clojure.core.protocols]
@@ -247,9 +248,25 @@
 ;;;;;;;;;; Modifying context properties
 
 
+(defn def
+
+  "Like calling `(def sym value)` in Convex Lisp."
+
+  ^Context
+
+  [^Context ctx sym value]
+
+  (.define ctx
+           sym
+           value))
+
+
+
 (defn exception-clear
 
   "Removes the currently attached exception from the given `ctx`."
+
+  ^Context
 
   [^Context ctx]
 
@@ -263,6 +280,8 @@
   "Executes `(f ctx)`, `f` being a function `ctx` -> `ctx`.
   
    The returned `ctx` will have the same amount of juice as the original."
+
+  ^Context
 
   [ctx f]
 
@@ -278,6 +297,8 @@
 
    Also see [[juice-set]]."
 
+  ^Context
+
   [^Context ctx]
 
   (juice-set ctx
@@ -287,7 +308,7 @@
 
 (defn juice-set
 
-  "Sets the juice of the copied context to the requested amount.
+  "Sets the juice of the given `ctx` to the requested `amount`.
   
    Also see [[juice-refill]]."
 
@@ -295,6 +316,19 @@
 
   (.withJuice ctx
               amount))
+
+
+
+(defn undef
+
+  "Like calling `(undef sym)` in Convex Lisp."
+
+  ^Context
+
+  [^Context ctx sym]
+
+  (.undefine ctx
+             sym))
 
 
 ;;;;;;;;;; Phase 1 - Reading Convex Lisp 
