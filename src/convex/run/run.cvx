@@ -31,11 +31,17 @@
 
                   (def *cycle*
 
+                    ^{:doc {:description ["Starting at 0, is incremented every time the main file is run."
+                                          "Potentially useful for watch mode."]}}
+
                     nil)
 
 
 
                   (def *error*
+
+                    ^{:doc {:description ["Any thrown exception is defined under this symbol."
+                                          "Notably useful in try-catch (see `try`)"]}}
 
                     nil)
 
@@ -43,11 +49,16 @@
 
                   (def *juice.last*
 
+                    ^{:doc {:description "The amount of juice consumed by the previous transaction."}}
+
                     nil)
 
 
 
                   (def *trx.id*
+
+                    ^{:doc {:description ["Starting at 0, is incremented on every transaction."
+                                          "Resets on each run in watch mode."]}}
 
                     nil)
 
