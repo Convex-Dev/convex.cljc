@@ -17,21 +17,6 @@
 ;;;;;;;;;; Miscellaneous
 
 
-(defn def-error
-
-  ""
-
-  [env err]
-
-  (update env
-          :convex.sync/ctx
-          (fn [ctx]
-            ($.cvm/def ctx
-                       $.run.ctx/addr-strx
-                       {$.run.sym/error err}))))
-
-
-
 (defn screen-clear
 
   ""
@@ -462,9 +447,7 @@
                        catch?
                        (-> (assoc :convex.run.hook/error
                                   on-error)
-                           (def-error (env-2 :convex.run/error))
-                           ($.run.exec/trx+ (rest trx-last))
-                           (def-error nil)))
+                           ($.run.exec/trx+ (rest trx-last))))
                      (update :convex.run/error
                              #(or %
                                   ::try)))))
@@ -475,9 +458,11 @@
                                butlast)))
         (assoc :convex.run.hook/error
                on-error)
-        (update :convex.run/error
-                (fn [err]
-                  (if (identical? err
-                                  ::try)
-                    nil
-                    err))))))
+        (as->
+          env-2
+          (if (identical? (env-2 :convex.run/error)
+                          ::try)
+            (-> env-2
+                (dissoc :convex.run/error)
+                ($.run.ctx/def-error nil))
+            env-2)))))

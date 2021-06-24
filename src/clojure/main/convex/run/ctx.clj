@@ -39,3 +39,19 @@
 
   (get ($.cvm/env base)
        $.run.sym/strx))
+
+;;;;;;;;;; Miscellaneous utilities
+
+
+(defn def-error
+
+  ""
+
+  [env err]
+
+  (update env
+          :convex.sync/ctx
+          (fn [ctx]
+            ($.cvm/def ctx
+                       addr-strx
+                       {$.run.sym/error err}))))

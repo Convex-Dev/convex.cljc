@@ -29,6 +29,16 @@
 
 (strx/out [:err strx/*error*])
 
+
+(strx/hook.end
+  (strx/out [:end strx/*error*]))
+
+
+
+(fail :failure)
+
+
+
 ;; Prints nice information at the start of a run using special transaction `cvm.out`
 ;;
 ; (cvm.out (str "Run N°" (inc *cvm.cycle*)

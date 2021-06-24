@@ -6,12 +6,30 @@
 
   (:import (convex.core ErrorCodes)
            (convex.core.lang.impl ErrorValue))
-  (:require [convex.code   :as $.code]
-            [convex.cvm    :as $.cvm]
-            [convex.run.kw :as $.run.kw]))
+  (:require [convex.code    :as $.code]
+            [convex.cvm     :as $.cvm]
+            [convex.run.ctx :as $.run.ctx]
+            [convex.run.kw  :as $.run.kw]))
 
 
 ;;;;;;;;;;
+
+
+(defn attach
+
+  ""
+
+  [env err]
+
+  (-> env
+      (assoc :convex.run/error
+             (.assoc err
+                     $.run.kw/exception?
+                     ($.code/boolean true)))
+      (update :convex.sync/ctx
+              $.cvm/exception-clear)
+      ($.run.ctx/def-error err)))
+
 
 
 (defn assoc-phase
@@ -52,16 +70,11 @@
 
   ""
 
-  ([env exception]
+  ([env err]
 
    ((env :convex.run.hook/error)
-    (-> env
-        (assoc :convex.run/error
-               (.assoc exception
-                       $.run.kw/exception?
-                       ($.code/boolean true)))
-        (update :convex.sync/ctx
-                $.cvm/exception-clear))))
+    (attach env
+            err)))
 
 
   ([env code message]
@@ -102,9 +115,8 @@
   ([env err]
 
    ((env :convex.run.hook/out)
-    (assoc env
-           :convex.run/error
-           err)
+    (attach env
+            err)
     err))
 
 
