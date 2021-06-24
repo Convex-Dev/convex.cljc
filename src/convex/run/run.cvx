@@ -337,8 +337,9 @@
                              (let [allowance   (acc :allowance)
                                    balance     (acc :balance)
                                    controller  (acc :controller)
-                                   environment (acc :environment)
+                                   env         (acc :environment)
                                    key         (acc :key)
+                                   meta        (acc :metadata)
                                    section+    [["ACCOUNT"
                                                  [addr-or-sym]]
                                                 ["KEY"
@@ -351,11 +352,25 @@
                                                 ["CONTROLLER"
                                                  [(or controller
                                                       "None")]]]]
-                               (line+ (if (> (count environment)
+                               (line+ (if (> (count env)
                                              0)
                                         (conj section+
                                               ["ENVIRONMENT"
-                                               (keys environment)])
+                                               (reduce (fn [line+ [k _v]]
+                                                         (if-let [desc (get-in meta
+                                                                               [k
+                                                                                :doc
+                                                                                :description])]
+                                                           (conj line+
+                                                                 k
+                                                                 (str "  "
+                                                                      (if (str? desc)
+                                                                        desc
+                                                                        (first desc))))
+                                                           (conj line+
+                                                                 k)))
+                                                       []
+                                                       env)])
                                         section+)))
                              (str "Account "
                                   addr-of-sym
