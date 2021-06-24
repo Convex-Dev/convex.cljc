@@ -71,7 +71,7 @@
                   (= (first form)
                      Symbols/LOOKUP)
                   (= (second form)
-                     $.run.sym/cvm))
+                     $.run.sym/strx))
          (nth (seq form)
               2)))))
 

@@ -3,22 +3,22 @@
 
 ;; Reads those files and binds the unevaluated code to the given symbols using special transaction `cvm.read`
 ;;
-(cvm/dep {xform "src/convex/lib/lab/xform.cvx"
-          store "src/convex/lib/lab/xform/store.cvx"})
+(strx/dep {xform "src/convex/lib/lab/xform.cvx"
+           store "src/convex/lib/lab/xform/store.cvx"})
 
 
 
 ;; Clears the terminal using special transaction `cvm.out.clear`
 ;;
-(cvm/screen.clear)
+(strx/screen.clear)
 
 
-(cvm/out [:cycle *cvm.cycle*])
+(strx/out [:cycle *cvm.cycle*])
 
 
 
-(cvm/out (:doc (lookup-meta cvm 'try)))
 
+(strx/out (help/doc strx 'try))
 
 
 

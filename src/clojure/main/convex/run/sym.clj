@@ -23,14 +23,6 @@
 
 
 
-(def cvm
-
-  ""
-
-  ($.code/symbol "cvm"))
-
-
-
 (def cycle
 
   ""
@@ -148,6 +140,14 @@
   ""
 
   ($.code/symbol "splice"))
+
+
+
+(def strx
+
+  ""
+
+  ($.code/symbol "strx"))
 
 
 

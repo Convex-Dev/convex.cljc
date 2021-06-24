@@ -30,17 +30,14 @@
   ""
 
   (if-some [resource (clojure.java.io/resource "run.cvx")]
-    (let [ctx ($.cvm/deploy ($.cvm/ctx)
-                            (first ($.cvm/read (slurp resource))))
+    (let [ctx ($.cvm/eval ($.cvm/ctx)
+                          (first ($.cvm/read (slurp resource))))
           ex  ($.cvm/exception ctx)]
-      (if ex
-        (throw (ex-info "Unable to deploy 'run.cvx'"
-                        {::base :deply
-                         ::ex   ex}))
-        (-> ctx
-            ($.cvm/def $.run.sym/cvm
-                       ($.cvm/result ctx))
-            $.cvm/juice-refill)))
+      (when ex
+        (throw (ex-info "Unable to execute 'run.cvx'"
+                        {::base :eval
+                         ::ex   ex})))
+      ($.cvm/juice-refill ctx))
     (throw (ex-info "Mandatory 'run.cvx' file is not on classpath"
                     {::base :not-found}))))
 
@@ -369,7 +366,7 @@
 (comment
 
 
-  (eval "(cvm.out (+ 2 2))")
+  (eval "(strx/out (help/doc strx 'out))")
 
 
 
