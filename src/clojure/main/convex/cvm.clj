@@ -6,11 +6,10 @@
   
    This namespace provide all needed utilities for such endeavours as well few functions for
    querying useful properties, such as [[juice]].
-  
-   A context is mostly immutable, albeit some aspects such as juice tracking are mutable for performance
-   reason. Operations that modifies a context (expansion, compilation, or any form of execution) returns
-   a new instance and the old one should be discarded
 
+   While the design of a context is mostly immutable, quite a few operations are mutable. Each function from this namespace
+   which returns a context means that the input context must be discarded (besides [[fork]] for obvious reasons).
+  
    Such operations consume juice and lead either to a successful [[result]] or to an [[error]]. Functions that
    do not return a context (eg. [[env]], [[juice]]) do not consume juice.
 
@@ -246,6 +245,28 @@
 
 
 ;;;;;;;;;; Modifying context properties
+
+
+(defn account-create
+
+  "Creates an new account, with a `key` (user) or without (actor).
+
+   See [[convex.code/key]].
+  
+   Address is attached as a result in the returned context."
+
+
+  (^Context [^Context ctx]
+
+   (.createAccount ctx
+                   nil))
+
+
+  (^Context [^Context ctx key]
+
+   (.createAccount ctx
+                   key)))
+
 
 
 (defn def

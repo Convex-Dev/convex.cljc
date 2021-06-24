@@ -5,7 +5,8 @@
   {:author "Adam Helinski"}
 
   (:import (convex.core ErrorCodes)
-           (convex.core.data Address
+           (convex.core.data AccountKey
+                             Address
                              ABlob
                              AList
                              AMap
@@ -40,6 +41,7 @@
                             double
                             double?
                             import
+                            key
                             keyword
                             keyword?
                             list
@@ -142,6 +144,20 @@
   [x]
 
   (CVMDouble/create x))
+
+
+
+(defn key
+
+  "Creates an account key from a 32-byte `blob`.
+
+   Returns nil if the given `blob` is of wrong size."
+
+  ^AccountKey
+
+  [^ABlob blob]
+
+  (AccountKey/create blob))
 
 
 
