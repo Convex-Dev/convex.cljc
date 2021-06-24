@@ -20,6 +20,11 @@
 (strx/out [strx/*cycle* strx/*juice.last* strx/*trx.id*])
 
 
+(strx/hook.out (fn [x] [:OUT x]))
+
+(strx/hook.error (fn [err] `(strx/out [:ERROR ~err])))
+
+
 (strx/try
   (strx/out "coucou")
   (fail :failure)
