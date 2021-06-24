@@ -11,9 +11,6 @@
             [convex.run.sym   :as $.run.sym]))
 
 
-(declare def-special)
-
-
 ;;;;;;;;;;
 
 
@@ -47,29 +44,20 @@
        $.run.sym/strx))
 
 
-;;;;;;;;;; Miscellaneous utilities
+;;;;;;;;;;
 
 
-(defn cycle
-
-  ""
-
-  [env]
-
-  (def-special env
-               {$.run.sym/cycle ($.code/long (or (env :convex.watch/cycle)
-                                                 0))}))
-
-
-
-(defn error
+(defn def-current
 
   ""
 
-  [env err]
+  [env sym->value]
 
-  (def-special env
-               {$.run.sym/error err}))
+  (update env
+          :convex.sync/ctx
+          (fn [ctx]
+            ($.cvm/def ctx
+                       sym->value))))
 
 
 
@@ -93,6 +81,30 @@
              ($.cvm/def ctx
                         addr-strx
                         sym->value)))))
+
+;;;;;;;;;; Miscellaneous utilities
+
+
+(defn cycle
+
+  ""
+
+  [env]
+
+  (def-special env
+               {$.run.sym/cycle ($.code/long (or (env :convex.watch/cycle)
+                                                 0))}))
+
+
+
+(defn error
+
+  ""
+
+  [env err]
+
+  (def-special env
+               {$.run.sym/error err}))
 
 
 

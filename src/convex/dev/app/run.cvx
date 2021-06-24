@@ -12,42 +12,16 @@
 ;;
 (strx/screen.clear)
 
-(strx/out [:total 1 strx/*juice.total*])
-10
-20
 
-(strx/out [:total strx/*juice.total*])
+(strx/env e
+        "HOMEBREW_PREFIX")
 
-(strx/out [:file strx/*file*])
+(strx/out e)
 
 
-(strx/out [strx/*trx.form* (+ 4 4)])
+(strx/read src (str "(+ 2 " "2)"))
 
-(strx/out [strx/*cycle* strx/*juice.last* strx/*trx.id*])
-
-
-(strx/hook.out (fn [x] [:OUT x]))
-
-(strx/hook.error (fn [err] `(strx/out [:ERROR ~err])))
-
-
-(strx/try
-  (strx/out "coucou")
-  (fail :failure)
-  (strx/catch
-    (strx/out [:catch strx/*error*])))
-
-
-(strx/out [:err strx/*error*])
-
-
-(strx/hook.end
-  (strx/out [:end strx/*error*]))
-
-
-
-(fail :failure)
-
+(strx/out [:eval (eval src)])
 
 
 ;; Prints nice information at the start of a run using special transaction `cvm.out`

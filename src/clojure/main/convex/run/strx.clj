@@ -4,8 +4,7 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core ErrorCodes)
-           (convex.core.lang Reader))
+  (:import (convex.core ErrorCodes))
   (:require [convex.code     :as $.code]
             [convex.cvm      :as $.cvm]
             [convex.run.ctx  :as $.run.ctx]
@@ -79,7 +78,7 @@
   ($.run.err/signal env
                     ($.run.err/strx ErrorCodes/STATE
                                     trx
-                                    ($.code/string "CVM special command 'cvm.dep' can only be used as the very first transaction"))))
+                                    ($.code/string "CVM special command 'strx/dep' can only be used as the very first transaction"))))
 
 
 
@@ -104,16 +103,15 @@
     (if ($.code/symbol? sym)
       (if-some [k (when (= (count trx)
                            3)
-                    (nth (seq trx)
-                         2))]
+                    (.get trx
+                          2))]
         (if ($.code/string? k)
-          ($.run.exec/trx env
-                          ($.code/def sym
-                                      ($.code/string (System/getenv (str k)))))
+          ($.run.ctx/def-current env
+                                 {sym ($.code/string (System/getenv (str k)))})
           ($.run.err/signal env
                             ($.run.err/strx ErrorCodes/CAST
                                             trx
-                                            ($.code/string "Second argument to 'cvm.env' must be a string"))))
+                                            ($.code/string "Second argument to 'strx/env' must be a string"))))
         ($.run.exec/trx env
                         ($.code/def sym
                                     ($.code/map (map (fn [[k v]]
@@ -123,7 +121,7 @@
       ($.run.err/signal env
                         ($.run.err/strx ErrorCodes/CAST
                                         trx
-                                        ($.code/string "First argument to 'cvm.env' must be a symbol"))))))
+                                        ($.code/string "First argument to 'strx/env' must be a symbol"))))))
 
 
 
@@ -321,14 +319,13 @@
 
   [env trx]
 
-  (if-some [cvm-sym (second trx)]
-    ($.run.exec/trx env
-                    ($.code/def cvm-sym
-                                ($.cvm/log (env :convex.sync/ctx))))
+  (if-some [sym (second trx)]
+    ($.run.ctx/def-current env
+                           {sym ($.cvm/log (env :convex.sync/ctx))})
     ($.run.err/signal env
                       ($.run.err/strx ErrorCodes/ARGUMENT
                                       trx
-                                      ($.code/string "Argument for 'cvm.log' must be symbol for defining the log")))))
+                                      ($.code/string "Argument for 'strx/log' must be symbol for defining the log")))))
 
 
 
@@ -358,40 +355,43 @@
 
   (if-some [sym (second trx)]
     (if ($.code/symbol? sym)
-      (if-some [src (when (= (count trx)
-                             3)
-                      (nth (seq trx)
-                           2))]
-        (if ($.code/string? src)
-          (try
-            ($.run.exec/trx env
-                            ($.code/def sym
-                                        (-> src
-                                            str
-                                            Reader/readAll
-                                            $.code/vector
-                                            $.code/quote)))
-            (catch Throwable _err
-              ($.run.err/signal env
-                                ($.run.err/strx ErrorCodes/ARGUMENT
-                                                trx
-                                                ($.code/string "Cannot read source")))))
-          ($.run.err/signal env
-                            ($.run.err/strx ErrorCodes/CAST
-                                            trx
-                                            ($.code/string "Second argument to 'cvm.read' must be source code (a string)"))))
+      (if-some [form-src (when (= (count trx)
+                                  3)
+                           (.get trx
+                                 2))]
+        (let [env-2 ($.run.exec/trx env
+                                    form-src)]
+          (if (env-2 :convex.run/error)
+            env-2
+            (let [src ($.run.exec/result env-2)]
+              (if ($.code/string? src)
+                (try
+                  ($.run.ctx/def-current env
+                                         {sym (-> src
+                                                  str
+                                                  $.cvm/read
+                                                  $.code/vector)})
+                  (catch Throwable _err
+                    ($.run.err/signal env
+                                      ($.run.err/strx ErrorCodes/ARGUMENT
+                                                      trx
+                                                      ($.code/string "Unable to read source")))))
+                ($.run.err/signal env
+                                  ($.run.err/strx ErrorCodes/CAST
+                                                  trx
+                                                  ($.code/string "Second argument to 'strx/read' must evaluate to source code (a string)")))))))
         ($.run.err/signal env
                           ($.run.err/strx ErrorCodes/ARGUMENT
                                           trx
-                                          ($.code/string "'cvm.read' is missing a source string"))))
+                                          ($.code/string "'strx/read' is missing the source argument"))))
       ($.run.err/signal env
                         ($.run.err/strx ErrorCodes/CAST
                                         trx
-                                        ($.code/string "First argument to 'cvm.read' must be a symbol"))))
+                                        ($.code/string "First argument to 'strx/read' must be a symbol"))))
     ($.run.err/signal env
                       ($.run.err/strx ErrorCodes/ARGUMENT
                                       trx
-                                      ($.code/string "'cvm.read' is missing a symbol to define")))))
+                                      ($.code/string "'strx/read' is missing a symbol to define")))))
 
 
 
@@ -412,7 +412,7 @@
           ($.run.err/signal env-2
                             ($.run.err/strx ErrorCodes/CAST
                                             trx
-                                            ($.code/string "In 'cvm.splice', argument must evaluate to a vector of transactions"))))))))
+                                            ($.code/string "In 'strx/splice', argument must evaluate to a vector of transactions"))))))))
 
 
 
