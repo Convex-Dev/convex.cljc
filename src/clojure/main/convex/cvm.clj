@@ -392,12 +392,30 @@
 
   "Like calling `(undef sym)` in Convex Lisp."
 
-  ^Context
 
-  [^Context ctx sym]
+  (^Context [ctx sym+]
 
-  (.undefine ctx
-             sym))
+   (undef ctx
+          (address ctx)
+          sym+))
+
+
+  (^Context [^Context ctx addr sym+]
+
+   (let [s (state ctx)
+         a (.getAccount s
+                        addr)]
+     (if a
+       (state-set ctx
+                  (.putAccount s
+                               addr
+                               (.withEnvironment a
+                                                 (reduce (fn [env sym]
+                                                           (.dissoc env
+                                                                    sym))
+                                                         (.getEnvironment a)
+                                                         sym+))))
+       ctx))))
 
 
 ;;;;;;;;;; Phase 1 - Reading Convex Lisp 
