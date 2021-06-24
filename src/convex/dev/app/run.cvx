@@ -17,7 +17,7 @@
 
 
 
-(cvm/out (lookup-meta cvm 'out))
+(cvm/out (:doc (lookup-meta cvm 'try)))
 
 
 
