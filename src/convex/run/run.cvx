@@ -328,10 +328,38 @@
                       (defn doc
 
 
-                        ([sym]
+                        ([addr-or-sym]
 
-                         (-doc (str sym)
-                               (lookup-meta sym)))
+                         (if (symbol? addr-or-sym)
+                           (-doc (str addr-or-sym)
+                                 (lookup-meta addr-or-sym))
+                           (if-let [acc (account addr-or-sym)]
+                             (let [allowance   (acc :allowance)
+                                   balance     (acc :balance)
+                                   controller  (acc :controller)
+                                   environment (acc :environment)
+                                   key         (acc :key)
+                                   section+    [["ACCOUNT"
+                                                 [addr-or-sym]]
+                                                ["KEY"
+                                                 [(or key
+                                                      "None (this is an actor)")]]
+                                                ["ALLOWANCE"
+                                                 [allowance]]
+                                                ["BALANCE"
+                                                 [balance]]
+                                                ["CONTROLLER"
+                                                 [(or controller
+                                                      "None")]]]]
+                               (line+ (if (> (count environment)
+                                             0)
+                                        (conj section+
+                                              ["ENVIRONMENT"
+                                               (keys environment)])
+                                        section+)))
+                             (str "Account "
+                                  addr-of-sym
+                                  " does not exist."))))
 
 
                         ([addr sym]
