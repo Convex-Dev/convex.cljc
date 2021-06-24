@@ -8,9 +8,38 @@
            (convex.core.lang Reader))
   (:require [convex.code     :as $.code]
             [convex.cvm      :as $.cvm]
+            [convex.run.ctx  :as $.run.ctx]
             [convex.run.err  :as $.run.err]
             [convex.run.exec :as $.run.exec]
             [convex.run.sym  :as $.run.sym]))
+
+
+;;;;;;;;;; Miscellaneous
+
+
+(defn def-error
+
+  ""
+
+  [env err]
+
+  (update env
+          :convex.sync/ctx
+          (fn [ctx]
+            ($.cvm/def ctx
+                       $.run.ctx/addr-strx
+                       {$.run.sym/error err}))))
+
+
+
+(defn screen-clear
+
+  ""
+
+  []
+
+  (print "\033[H\033[2J")
+  (flush))
 
 
 ;;;;;;;;;; Setup
@@ -409,8 +438,7 @@
 
   [env _trx]
 
-  (print "\033[H\033[2J")
-  (flush)
+  (screen-clear)
   env)
 
 
@@ -422,8 +450,8 @@
   [env trx]
 
   (let [trx-last (last trx)
-        catch?   ($.code/call? trx-last
-                               $.run.sym/catch)
+        catch?   (= ($.run.exec/strx-dispatch trx-last)
+                    $.run.sym/catch)
         on-error (env :convex.run.hook/error)]
     (-> env
         (assoc :convex.run.hook/error
@@ -434,10 +462,9 @@
                        catch?
                        (-> (assoc :convex.run.hook/error
                                   on-error)
-                           ($.run.exec/trx ($.code/def $.run.sym/error
-                                                       (env-2 :convex.run/error)))
+                           (def-error (env-2 :convex.run/error))
                            ($.run.exec/trx+ (rest trx-last))
-                           ($.run.exec/trx ($.code/undef $.run.sym/error))))
+                           (def-error nil)))
                      (update :convex.run/error
                              #(or %
                                   ::try)))))

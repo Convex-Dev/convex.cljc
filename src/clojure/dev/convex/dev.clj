@@ -42,6 +42,7 @@
             [convex.lib.trust]
             [convex.lib.test.trust]
             [convex.run                    :as $.run]
+            [convex.run.ctx                :as $.run.ctx]
             [convex.run.err                :as $.run.err]
             [convex.run.exec               :as $.run.exec]
             [convex.run.kw                 :as $.run.kw]

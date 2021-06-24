@@ -26,6 +26,31 @@
                     (fail :FATAL
                           "Special transaction cannot be used as a regular function"))
                 
+
+                  ;; SPECIAL VALUES
+
+                  (def *cycle*
+
+                    nil)
+
+
+
+                  (def *error*
+
+                    nil)
+
+
+
+                  (def *juice.last*
+
+                    nil)
+
+
+
+                  (def *trx.id*
+
+                    nil)
+
                 
                   ;; SPECIAL TRANSACTIONS
                 

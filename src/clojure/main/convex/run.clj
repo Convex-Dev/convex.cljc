@@ -13,6 +13,7 @@
   (:require [clojure.java.io]
             [convex.code      :as $.code]
             [convex.cvm       :as $.cvm]
+            [convex.run.ctx   :as $.run.ctx]
             [convex.run.err   :as $.run.err]
             [convex.run.exec  :as $.run.exec]
             [convex.run.kw    :as $.run.kw]
@@ -23,24 +24,6 @@
 
 
 ;;;;;;;;;; Miscellaneous
-
-
-(def ctx-base
-
-  ""
-
-  (if-some [resource (clojure.java.io/resource "run.cvx")]
-    (let [ctx ($.cvm/eval ($.cvm/ctx)
-                          (first ($.cvm/read (slurp resource))))
-          ex  ($.cvm/exception ctx)]
-      (when ex
-        (throw (ex-info "Unable to execute 'run.cvx'"
-                        {::base :eval
-                         ::ex   ex})))
-      ($.cvm/juice-refill ctx))
-    (throw (ex-info "Mandatory 'run.cvx' file is not on classpath"
-                    {::base :not-found}))))
-
 
 
 (defn sym->dep
@@ -94,7 +77,7 @@
                    $.run.exec/compile-run))
       (update :convex.sync/ctx-base
               #(or %
-                   ctx-base))))
+                   $.run.ctx/base))))
 
 
 

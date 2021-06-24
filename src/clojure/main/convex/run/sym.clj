@@ -19,7 +19,7 @@
 
   ""
 
-  ($.code/symbol "cvm.catch"))
+  ($.code/symbol "catch"))
 
 
 
@@ -27,7 +27,7 @@
 
   ""
 
-  ($.code/symbol "*cvm.cycle*"))
+  ($.code/symbol "*cycle*"))
 
 
 
@@ -51,7 +51,7 @@
 
   ""
 
-  ($.code/symbol "*cvm.error*"))
+  ($.code/symbol "*error*"))
 
 
 
@@ -99,7 +99,7 @@
 
   ""
 
-  ($.code/symbol "*cvm.juice.last*"))
+  ($.code/symbol "*juice.last*"))
 
 
 
@@ -155,7 +155,7 @@
 
   ""
 
-  ($.code/symbol "*cvm.trx.id*"))
+  ($.code/symbol "*trx.id*"))
 
 
 

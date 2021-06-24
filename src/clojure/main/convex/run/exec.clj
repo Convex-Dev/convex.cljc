@@ -11,6 +11,7 @@
   (:require [clojure.string]
             [convex.code     :as $.code]
             [convex.cvm      :as $.cvm]
+            [convex.run.ctx  :as $.run.ctx]
             [convex.run.err  :as $.run.err]
             [convex.run.kw   :as $.run.kw]
             [convex.run.sym  :as $.run.sym]))
@@ -62,6 +63,7 @@
   
   ""
 
+  ;; TODO. Optimize.
 
   ([trx]
 
@@ -188,11 +190,10 @@
   (update env
           :convex.sync/ctx
           (fn [ctx]
-            (-> ctx
-                ($.cvm/def $.run.sym/juice-last
-                           ($.code/long (env :convex.run/juice-last)))
-                ($.cvm/def $.run.sym/trx-id
-                           ($.code/long (env :convex.run/i-trx)))))))
+            ($.cvm/def ctx
+                       $.run.ctx/addr-strx
+                       {$.run.sym/juice-last ($.code/long (env :convex.run/juice-last))
+                        $.run.sym/trx-id     ($.code/long (env :convex.run/i-trx))}))))
 
 
 (defn trx
@@ -268,9 +269,9 @@
       (update :convex.sync/ctx
               (fn [ctx]
                 ($.cvm/def ctx
-                           $.run.sym/cycle
-                                    ($.code/long (or (env :convex.watch/cycle)
-                                                     0)))))
+                           $.run.ctx/addr-strx
+                           {$.run.sym/cycle ($.code/long (or (env :convex.watch/cycle)
+                                                             0))})))
       trx+
       (as->
         env-2

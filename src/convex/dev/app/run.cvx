@@ -13,16 +13,21 @@
 (strx/screen.clear)
 
 
-(strx/out [:cycle *cvm.cycle*])
+
+10
 
 
+(strx/out [strx/*cycle* strx/*juice.last* strx/*trx.id*])
 
 
-(strx/out (help/doc #8))
+(strx/try
+  (strx/out "coucou")
+  (fail :failure)
+  (strx/catch
+    (strx/out [:catch strx/*error*])))
 
 
-
-
+(strx/out [:err strx/*error*])
 
 ;; Prints nice information at the start of a run using special transaction `cvm.out`
 ;;
