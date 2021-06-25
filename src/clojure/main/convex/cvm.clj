@@ -596,20 +596,40 @@
 ;;;;;;;;;; Functions
 
 
+(defmacro arg+*
+
+  "See [[invoke]]."
+
+  [& arg+]
+
+  (let [sym-arr (gensym)]
+    `(let [~sym-arr ^"[Lconvex.core.data.ACell;" (make-array ACell
+                                                             ~(count arg+))]
+       ~@(map (fn [i arg]
+                `(aset ~sym-arr
+                       ~i
+                       ~arg))
+              (range)
+              arg+)
+       ~sym-arr)))
+
+
+
 (defn invoke
 
   "Invokes the given CVM `f`unction using the given `ctx`.
+
+   `arg+` is a Java array of CVM objects. See [[arg+*]] for easily and efficiently creating one.
   
    Like other code-related functions, return a context with either a [[result]] or an [[exception]] attached."
 
   ^Context
 
-  [^Context ctx ^AFn f & arg+]
+  [^Context ctx ^AFn f arg+]
 
   (let [ctx-2 (.invoke ctx
                        f
-                       (into-array ACell
-                                   arg+))
+                       arg+)
         ex    (exception ctx-2)]
     (if ex
       (if (instance? ErrorValue
