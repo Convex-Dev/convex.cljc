@@ -4,26 +4,15 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.lang Symbols))
-  (:refer-clojure :exclude [cycle
-                            do
-                            read
-                            try])
+  (:import (convex.core.data Symbol))
+  (:refer-clojure :exclude [cycle])
   (:require [convex.code :as $.code]))
 
 
 ;;;;;;;;;;
 
 
-(def catch
-
-  ""
-
-  ($.code/symbol "catch"))
-
-
-
-(def cycle
+(def ^Symbol cycle
 
   ""
 
@@ -31,23 +20,7 @@
 
 
 
-(def do
-
-  ""
-
-  Symbols/DO)
-
-
-
-(def dep
-
-  ""
-
-  ($.code/symbol "dep"))
-
-
-
-(def error
+(def ^Symbol error
 
   ""
 
@@ -55,15 +28,7 @@
 
 
 
-(def env
-
-  ""
-
-  ($.code/symbol "env"))
-
-
-
-(def file
+(def ^Symbol file
 
   ""
 
@@ -71,39 +36,7 @@
 
 
 
-(def hook-end
-
-  ""
-
-  ($.code/symbol "hook.end"))
-
-
-
-(def hook-error
-
-  ""
-
-  ($.code/symbol "hook.error"))
-
-
-
-(def hook-out
-
-  ""
-
-  ($.code/symbol "hook.out"))
-
-
-
-(def hook-trx
-
-  ""
-
-  ($.code/symbol "hook.trx"))
-
-
-
-(def juice-last
+(def ^Symbol juice-last
 
   ""
 
@@ -111,7 +44,7 @@
 
 
 
-(def juice-total
+(def ^Symbol juice-total
 
   ""
 
@@ -119,55 +52,7 @@
 
 
 
-(def log
-
-  ""
-
-  Symbols/LOG)
-
-
-
-(def out
-
-  ""
-
-  ($.code/symbol "out"))
-
-
-
-(def read
-
-  ""
-
-  ($.code/symbol "read"))
-
-
-
-(def screen-clear
-
-  ""
-
-  ($.code/symbol "screen.clear"))
-
-
-
-(def splice
-
-  ""
-
-  ($.code/symbol "splice"))
-
-
-
-(def strx
-
-  ""
-
-  ($.code/symbol "strx"))
-
-
-
-(def trx-form
+(def ^Symbol trx-form
 
   ""
 
@@ -175,16 +60,8 @@
 
 
 
-(def trx-id
+(def ^Symbol trx-id
 
   ""
 
   ($.code/symbol "*trx.id*"))
-
-
-
-(def try
-
-  ""
-
-  ($.code/symbol "try"))
