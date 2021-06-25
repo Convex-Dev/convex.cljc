@@ -19,13 +19,14 @@
 ;(strx/out (+ 2 2))
 
 
-[:cvm.strx :do '[[:cvm.strx :read 'x (str "(+ 2 " "4)")]
-                 [:cvm.strx :out [:eval (eval x)]]]]
+;[:cvm.strx :hook.out (fn [x] [:OUT x])]
+[:cvm.strx :hook.error (fn [err] [:cvm.strx :out [:ERR #_err]])]
 
+[:cvm.strx :out :foo]
+[:cvm.strx :out :bar]
 
-'[:cvm.strx :try [(def foo 42)
-                  (fail :failure)]
-                 [[:cvm.strx :out [:catch foo strx/*error*]]]]
+(fail :failure)
+
 
 ;; Prints nice information at the start of a run using special transaction `cvm.out`
 ;;

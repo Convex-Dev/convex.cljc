@@ -168,33 +168,40 @@
                       (env :convex.run.hook/error)))
           (assoc :convex.run.hook/error
                  (fn hook [env-2]
-                   (let [cause (env-2 :convex.run/error)
-                         form  ($.code/list [f
-                                             ($.code/quote (env-2 :convex.run/error))])
-                         env-3 (-> env-2
-                                   (dissoc :convex.run/error)
-                                   (assoc :convex.run.hook/error
-                                          identity)
-                                   ($.run.exec/trx form))
-                         err   (env-3 :convex.run/error)]
-                     (-> (if err
-                           ($.run.err/fatal env-3
+                   (let [err   (env-2 :convex.run/error)
+                         ctx   ($.cvm/invoke (-> env-2
+                                                 :convex.sync/ctx
+                                                 $.cvm/juice-refill)
+                                             f
+                                             ($.cvm/arg+* err))
+                         env-3 (assoc env-2
+                                      :convex.sync/ctx
+                                      ctx)
+                         ex    ($.cvm/exception ctx)]
+                     (if ex
+                       ($.run.err/fatal env-3
+                                        ($.run.err/error ex)
+                                        ;err
+                                        ($.code/string "Calling error hook failed")
+                                        (env-2 :convex.run/error))
+                       (let [form  ($.cvm/result ctx)
+                             env-4 (-> env-3
+                                       (assoc :convex.run.hook/error
+                                              identity)
+                                       (dissoc :convex.run/error)
+                                       ($.run.exec/strx form)
+                                       (assoc :convex.run.hook/error
+                                              hook))
+                             err-2 (env-4 :convex.run/error)]
+                         (tap> [:err-2 err-2])
+                         (if err-2
+                           ($.run.err/fatal env-4
                                             form
-                                            ($.code/string "Calling error hook failed")
-                                            cause)
-                           (let [form-2 ($.run.exec/result env-3)
-                                 env-4  ($.run.exec/trx env-3
-                                                        form-2)]
-                             (if (env-4 :convex.run/error)
-                               ($.run.err/fatal env-4
-                                                form-2
-                                                ($.code/string "Evaluating output from error hook failed")
-                                                cause)
-                               (assoc env-4
-                                      :convex.run/error
-                                      cause))))
-                         (assoc :convex.run.hook/error
-                                hook))))))
+                                            ($.code/string "Evaluating output from error hook failed")
+                                            err)
+                           (assoc env-4
+                                  :convex.run/error
+                                  err))))))))
       (restore env
                :convex.run.hook/error
                hook-restore))))
@@ -223,28 +230,26 @@
                         hook-old))
             (assoc :convex.run.hook/out
                    (fn hook-new [env-2 x]
-                     (let [hook-error (env-2 :convex.run.hook/error)
-                           form       ($.code/list [f
-                                                    ($.code/quote x)])
-                           env-3      (-> env-2
-                                          (assoc :convex.run.hook/error
-                                                 identity)
-                                          ($.run.exec/trx form)
-                                          (assoc :convex.run.hook/error
-                                                 hook-error))
-                           err        (env-3 :convex.run/error)]
-                       (if (identical? err
-                                       (env-2 :convex.run/error))
-                         (hook-old env-3
-                                   ($.run.exec/result env-3))
+                     (let [form-2 ($.code/quote x)
+                           ctx    ($.cvm/invoke (env-2 :convex.sync/ctx)
+                                                f
+                                                ($.cvm/arg+* form-2))
+                           env-3  (assoc env-2
+                                         :convex.sync/ctx
+                                         ctx)
+                           ex     ($.cvm/exception ctx)]
+                       (if ex
                          (-> env-3
                              (assoc :convex.run.hook/out
                                     hook-old)
-                             ($.run.err/fatal form
+                             ($.run.err/fatal ($.code/list [f
+                                                            form-2])
                                               ($.code/string "Calling output hook failed, using default output")
-                                              err)
+                                              ($.run.err/error ex))
                              (assoc :convex.run.hook/out
-                                    hook-new))))))))
+                                    hook-new))
+                         (hook-old env-3
+                                   ($.cvm/result ctx))))))))
       (restore env
                :convex.run.hook/out
                hook-restore))))

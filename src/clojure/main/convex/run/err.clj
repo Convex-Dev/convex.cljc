@@ -61,7 +61,7 @@
    (-> ex
        error
        (.assoc $.run.kw/trx
-               ($.code/quote trx))
+               trx)
        (assoc-phase phase))))
 
 
@@ -128,4 +128,4 @@
               (.assoc $.run.kw/form
                       form)
               (.assoc $.run.kw/cause
-                                cause)))))
+                      cause)))))

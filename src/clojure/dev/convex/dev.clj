@@ -141,6 +141,6 @@
 
   ($.cvm/result ($.cvm/invoke ctx
                               f
-                              ($.code/keyword "ok")))
+                              ($.code/long 42)))
 
   )

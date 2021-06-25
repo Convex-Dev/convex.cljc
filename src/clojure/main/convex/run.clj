@@ -18,7 +18,6 @@
             [convex.run.exec  :as $.run.exec]
             [convex.run.kw    :as $.run.kw]
             [convex.run.strx]
-            [convex.run.sym   :as $.run.sym]
             [convex.sync      :as $.sync]
             [convex.watch     :as $.watch]))
 
