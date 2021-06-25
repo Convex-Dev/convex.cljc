@@ -183,7 +183,9 @@
                                         ($.run.err/error ex)
                                         ;err
                                         ($.code/string "Calling error hook failed")
-                                        (env-2 :convex.run/error))
+                                        (-> ex
+                                            $.run.err/error
+                                            ($.run.err/assoc-cause (env-2 :convex.run/error))))
                        (let [form  ($.cvm/result ctx)
                              env-4 (-> env-3
                                        (assoc :convex.run.hook/error
@@ -193,12 +195,12 @@
                                        (assoc :convex.run.hook/error
                                               hook))
                              err-2 (env-4 :convex.run/error)]
-                         (tap> [:err-2 err-2])
                          (if err-2
                            ($.run.err/fatal env-4
                                             form
                                             ($.code/string "Evaluating output from error hook failed")
-                                            err)
+                                            ($.run.err/assoc-cause err-2
+                                                                   err))
                            (assoc env-4
                                   :convex.run/error
                                   err))))))))
@@ -231,7 +233,9 @@
             (assoc :convex.run.hook/out
                    (fn hook-new [env-2 x]
                      (let [form-2 ($.code/quote x)
-                           ctx    ($.cvm/invoke (env-2 :convex.sync/ctx)
+                           ctx    ($.cvm/invoke (-> env-2
+                                                    :convex.sync/ctx
+                                                    $.cvm/juice-refill)
                                                 f
                                                 ($.cvm/arg+* form-2))
                            env-3  (assoc env-2

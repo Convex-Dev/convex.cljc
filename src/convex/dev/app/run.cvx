@@ -19,8 +19,8 @@
 ;(strx/out (+ 2 2))
 
 
-;[:cvm.strx :hook.out (fn [x] [:OUT x])]
-[:cvm.strx :hook.error (fn [err] [:cvm.strx :out [:ERR #_err]])]
+[:cvm.strx :hook.out (fn [x] (fail :baz :bouz))]
+[:cvm.strx :hook.error (fn [err] (fail :foo :bar))]
 
 [:cvm.strx :out :foo]
 [:cvm.strx :out :bar]

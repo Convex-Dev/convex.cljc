@@ -147,6 +147,6 @@
    (fatal env
           (-> ($.code/error ErrorCodes/FATAL
                             message)
-              (.assoc $.run.kw/form
-                      form)
+              ;(.assoc $.run.kw/form
+              ;        form)
               (assoc-cause cause)))))
