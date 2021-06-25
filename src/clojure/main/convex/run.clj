@@ -34,7 +34,7 @@
 
   [trx+]
 
-  (when-some [trx-first (first trx+)]
+  #_(when-some [trx-first (first trx+)]
     (when (= ($.run.exec/strx-dispatch trx-first)
              $.run.sym/dep)
       (not-empty (reduce (fn [sym->dep x]

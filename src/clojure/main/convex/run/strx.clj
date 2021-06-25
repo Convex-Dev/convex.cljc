@@ -4,13 +4,14 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core ErrorCodes))
+  (:import (convex.core ErrorCodes)
+           (convex.core.data AVector))
   (:require [convex.code     :as $.code]
             [convex.cvm      :as $.cvm]
             [convex.run.ctx  :as $.run.ctx]
             [convex.run.err  :as $.run.err]
             [convex.run.exec :as $.run.exec]
-            [convex.run.sym  :as $.run.sym]))
+            [convex.run.kw   :as $.run.kw]))
 
 ;;;;;;;;;; Miscellaneous
 
@@ -51,9 +52,9 @@
 
 (defmethod $.run.exec/strx nil
 
-  [_env _form]
+  [env _tuple]
 
-  nil)
+  env)
 
 
 
@@ -71,7 +72,7 @@
 
 (defmethod $.run.exec/strx
 
-  $.run.sym/dep
+  $.run.kw/dep
 
   [env trx]
 
@@ -84,33 +85,33 @@
 
 (defmethod $.run.exec/strx
 
-  $.run.sym/do
+  $.run.kw/do
 
-  [env trx]
+  [env tuple]
 
   ($.run.exec/trx+ env
-                   (rest trx)))
+                   (.get tuple
+                         2)))
 
 
 
 (defmethod $.run.exec/strx
 
-  $.run.sym/env
+  $.run.kw/env
 
-  [env trx]
+  [env tuple]
 
-  (let [sym (second trx)]
+  (let [sym (.get tuple
+                  2)]
     (if ($.code/symbol? sym)
-      (if-some [k (when (= (count trx)
-                           3)
-                    (.get trx
-                          2))]
+      (if-some [k (.get tuple
+                        3)]
         (if ($.code/string? k)
           ($.run.ctx/def-current env
                                  {sym ($.code/string (System/getenv (str k)))})
           ($.run.err/signal env
                             ($.run.err/strx ErrorCodes/CAST
-                                            trx
+                                            tuple
                                             ($.code/string "Second argument to 'strx/env' must be a string"))))
         ($.run.exec/trx env
                         ($.code/def sym
@@ -120,22 +121,23 @@
                                                      (System/getenv))))))
       ($.run.err/signal env
                         ($.run.err/strx ErrorCodes/CAST
-                                        trx
+                                        tuple
                                         ($.code/string "First argument to 'strx/env' must be a symbol"))))))
 
 
 
 (defmethod $.run.exec/strx
   
-  $.run.sym/hook-end
+  $.run.kw/hook-end
 
-  [env trx]
+  [env tuple]
 
   (let [path-restore [:convex.run/restore
                       :convex.run.hook/end]
         hook-restore (get-in env
                              path-restore)
-        trx+         (next trx)]
+        trx+         (.get tuple
+                           2)]
     (if (and trx+
              (not= trx+
                    [nil]))
@@ -159,17 +161,18 @@
 
 (defmethod $.run.exec/strx
   
-  $.run.sym/hook-error
+  $.run.kw/hook-error
 
   ;; TODO. Ensure failing hook is handled properly.
 
-  [env trx]
+  [env tuple]
 
   (let [path-restore [:convex.run/restore
                       :convex.run.hook/error]
         hook-restore (get-in env
                              path-restore)
-        form-hook    (second trx)]
+        form-hook    (.get tuple
+                           2)]
     (if form-hook
       (let [env-2 ($.run.exec/trx env
                                   form-hook)]
@@ -218,15 +221,16 @@
 
 (defmethod $.run.exec/strx
   
-  $.run.sym/hook-out
+  $.run.kw/hook-out
 
-  [env trx]
+  [env tuple]
 
   (let [path-restore [:convex.run/restore
                       :convex.run.hook/out]
         hook-restore (get-in env
                              path-restore)
-        form-hook    (second trx)]
+        form-hook    (.get tuple
+                           2)]
     (if form-hook
       (let [env-2 ($.run.exec/trx env
                                   form-hook)]
@@ -272,15 +276,16 @@
 
 (defmethod $.run.exec/strx
   
-  $.run.sym/hook-trx
+  $.run.kw/hook-trx
 
-  [env trx]
+  [env tuple]
 
   (let [path-restore [:convex.run/restore
                       :convex.run.hook/trx]
         hook-restore (get-in env
                              path-restore)
-        form-hook    (second trx)
+        form-hook    (.get tuple
+                           2)
         env-2        (restore env
                               :convex.run.hook/trx
                               hook-restore)]
@@ -313,96 +318,92 @@
 
 (defmethod $.run.exec/strx
   
-  $.run.sym/log
+  $.run.kw/log
 
   ;; TODO. Error handling.
 
-  [env trx]
+  [env tuple]
 
-  (if-some [sym (second trx)]
+  (if-some [sym (.get tuple
+                      2)]
     ($.run.ctx/def-current env
                            {sym ($.cvm/log (env :convex.sync/ctx))})
     ($.run.err/signal env
                       ($.run.err/strx ErrorCodes/ARGUMENT
-                                      trx
+                                      tuple
                                       ($.code/string "Argument for 'strx/log' must be symbol for defining the log")))))
 
 
 
 (defmethod $.run.exec/strx
 
-  $.run.sym/out
+  $.run.kw/out
 
-  [env trx]
+  [env ^AVector tuple]
 
-  (if-some [form (second trx)]
-    (let [env-2 ($.run.exec/trx env
-                                form)]
-      (if (env-2 :convex.run/error)
-        env-2
-        ((env-2 :convex.run.hook/out)
-         env-2
-         ($.run.exec/result env-2))))
-    env))
+  ((env :convex.run.hook/out)
+   env
+   (.get tuple
+         2)))
 
 
 
 (defmethod $.run.exec/strx
+
+  $.run.kw/read
   
-  $.run.sym/read
-
-  [env trx]
-
-  (if-some [sym (second trx)]
-    (if ($.code/symbol? sym)
-      (if-some [form-src (when (= (count trx)
-                                  3)
-                           (.get trx
-                                 2))]
-        (let [env-2 ($.run.exec/trx env
-                                    form-src)]
-          (if (env-2 :convex.run/error)
-            env-2
-            (let [src ($.run.exec/result env-2)]
-              (if ($.code/string? src)
-                (try
-                  ($.run.ctx/def-current env
-                                         {sym (-> src
-                                                  str
-                                                  $.cvm/read
-                                                  $.code/vector)})
-                  (catch Throwable _err
-                    ($.run.err/signal env
-                                      ($.run.err/strx ErrorCodes/ARGUMENT
-                                                      trx
-                                                      ($.code/string "Unable to read source")))))
-                ($.run.err/signal env
-                                  ($.run.err/strx ErrorCodes/CAST
-                                                  trx
-                                                  ($.code/string "Second argument to 'strx/read' must evaluate to source code (a string)")))))))
+  [env tuple]
+  
+  (if-some [sym (.get tuple
+                      2)]
+      (if ($.code/symbol? sym)
+        (if-some [form-src (.get tuple
+                                 3)]
+          (let [env-2 ($.run.exec/trx env
+                                      form-src)]
+            (if (env-2 :convex.run/error)
+              env-2
+              (let [src ($.run.exec/result env-2)]
+                (if ($.code/string? src)
+                  (try
+                    ($.run.ctx/def-current env
+                                           {sym (-> src
+                                                    str
+                                                    $.cvm/read
+                                                    $.code/vector)})
+                    (catch Throwable _err
+                      ($.run.err/signal env
+                                        ($.run.err/strx ErrorCodes/ARGUMENT
+                                                        tuple
+                                                        ($.code/string "Unable to read source")))))
+                  ($.run.err/signal env
+                                    ($.run.err/strx ErrorCodes/CAST
+                                                    tuple
+                                                    ($.code/string "Second argument to 'strx/read' must evaluate to source code (a string)")))))))
+          ($.run.err/signal env
+                            ($.run.err/strx ErrorCodes/ARGUMENT
+                                            tuple
+                                            ($.code/string "'strx/read' is missing the source argument"))))
         ($.run.err/signal env
-                          ($.run.err/strx ErrorCodes/ARGUMENT
-                                          trx
-                                          ($.code/string "'strx/read' is missing the source argument"))))
+                          ($.run.err/strx ErrorCodes/CAST
+                                          tuple
+                                          ($.code/string "First argument to 'strx/read' must be a symbol"))))
       ($.run.err/signal env
-                        ($.run.err/strx ErrorCodes/CAST
-                                        trx
-                                        ($.code/string "First argument to 'strx/read' must be a symbol"))))
-    ($.run.err/signal env
-                      ($.run.err/strx ErrorCodes/ARGUMENT
-                                      trx
-                                      ($.code/string "'strx/read' is missing a symbol to define")))))
+                        ($.run.err/strx ErrorCodes/ARGUMENT
+                                        tuple
+                                        ($.code/string "'strx/read' is missing a symbol to define")))))
 
 
 
 (defmethod $.run.exec/strx
   
-  $.run.sym/splice
+  $.run.kw/splice
 
-  [env trx]
+  [env tuple]
 
   (let [env-2 ($.run.exec/trx env
-                              (second trx))]
+                              (.get tuple
+                                    2))]
     (if (env-2 :convex.run/error)
       env-2
       (let [result ($.run.exec/result env-2)]
@@ -411,16 +412,16 @@
                            result)
           ($.run.err/signal env-2
                             ($.run.err/strx ErrorCodes/CAST
-                                            trx
+                                            tuple
                                             ($.code/string "In 'strx/splice', argument must evaluate to a vector of transactions"))))))))
 
 
 
 (defmethod $.run.exec/strx
   
-  $.run.sym/screen-clear
+  $.run.kw/screen-clear
 
-  [env _trx]
+  [env _tuple]
 
   (screen-clear)
   env)
@@ -429,34 +430,30 @@
 
 (defmethod $.run.exec/strx
   
-  $.run.sym/try
+  $.run.kw/try
 
-  [env trx]
+  [env tuple]
 
-  (let [trx-last (last trx)
-        catch?   (= ($.run.exec/strx-dispatch trx-last)
-                    $.run.sym/catch)
-        on-error (env :convex.run.hook/error)]
+  (let [trx-catch+ (.get tuple
+                         3)
+        hook-error (env :convex.run.hook/error)]
     (-> env
         (assoc :convex.run.hook/error
                (fn [env-2]
                  (-> env-2
                      (dissoc :convex.run/error)
                      (cond->
-                       catch?
+                       trx-catch+
                        (-> (assoc :convex.run.hook/error
-                                  on-error)
-                           ($.run.exec/trx+ (rest trx-last))))
+                                  hook-error)
+                           ($.run.exec/trx+ trx-catch+)))
                      (update :convex.run/error
                              #(or %
                                   ::try)))))
-        ($.run.exec/trx+ (-> trx
-                             rest
-                             (cond->
-                               catch?
-                               butlast)))
+        ($.run.exec/trx+ (.get tuple
+                               2))
         (assoc :convex.run.hook/error
-               on-error)
+               hook-error)
         (as->
           env-2
           (if (identical? (env-2 :convex.run/error)

@@ -1,28 +1,27 @@
 ;;;;;;;;;; INIIALIZING A RUN
 
 
+
+
+
+
 ;; Reads those files and binds the unevaluated code to the given symbols using special transaction `cvm.read`
 ;;
-(strx/dep {xform "src/convex/lib/lab/xform.cvx"
-           store "src/convex/lib/lab/xform/store.cvx"})
+;(strx/dep {xform "src/convex/lib/lab/xform.cvx"
+;           store "src/convex/lib/lab/xform/store.cvx"})
 
 
 
 ;; Clears the terminal using special transaction `cvm.out.clear`
 ;;
-(strx/screen.clear)
+;(strx/screen.clear)
+[:cvm.strx :screen.clear]
 
 
-(strx/env e
-        "HOMEBREW_PREFIX")
-
-(strx/out e)
+(conj [:cvm.strx :out] 442)
 
 
-(strx/read src (str "(+ 2 " "2)"))
-
-(strx/out [:eval (eval src)])
-
+[:cvm.strx :try '[(def foo 42) (fail :failure)] '[[:cvm.strx :out [:foo foo strx/*error*]]]]
 
 ;; Prints nice information at the start of a run using special transaction `cvm.out`
 ;;

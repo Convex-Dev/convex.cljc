@@ -5,11 +5,20 @@
   {:author "Adam Helinski"}
 
   (:refer-clojure :exclude [compile
+                            do
                             read])
   (:require [convex.code :as $.code]))
 
 
 ;;;;;;;;;;
+
+
+(def catch
+  
+  ""
+
+  ($.code/keyword "catch"))
+
 
 
 (def cause
@@ -27,12 +36,43 @@
   ($.code/keyword "compile"))
 
 
+(def cvm-strx
+
+  ""
+
+  ($.code/keyword "cvm.strx"))
+
+
+
+(def dep
+
+  ""
+
+  ($.code/keyword "dep"))
+
+
+
+(def do
+
+  ""
+
+  ($.code/keyword "do"))
+
+
 
 (def exception?
 
   ""
 
   ($.code/keyword "exception?"))
+
+
+
+(def env
+
+  ""
+
+  ($.code/keyword "env"))
 
 
 
@@ -57,6 +97,54 @@
   ""
   
   ($.code/keyword "form"))
+
+
+
+(def hook-end
+
+  ""
+
+  ($.code/keyword "hook.end"))
+
+
+
+(def hook-error
+
+  ""
+
+  ($.code/keyword "hook.error"))
+
+
+
+(def hook-out
+
+  ""
+
+  ($.code/keyword "hook.out"))
+
+
+
+(def hook-trx
+
+  ""
+
+  ($.code/keyword "hook.trx"))
+
+
+
+(def log
+
+  ""
+
+  ($.code/keyword "log"))
+
+
+
+(def out
+
+  ""
+
+  ($.code/keyword "out"))
 
 
 
@@ -89,6 +177,22 @@
   ""
 
   ($.code/keyword "run"))
+
+
+
+(def screen-clear
+
+  ""
+
+  ($.code/keyword "screen.clear"))
+
+
+
+(def splice
+
+  ""
+
+  ($.code/keyword "splice"))
 
 
 
@@ -129,3 +233,11 @@
   ""
 
   ($.code/keyword "trx.prepare"))
+
+
+
+(def try
+
+  ""
+
+  ($.code/keyword "try"))

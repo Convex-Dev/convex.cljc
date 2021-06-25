@@ -5,9 +5,11 @@
   {:author "Adam Helinski"}
 
   (:import (convex.core ErrorCodes)
+           (convex.core.data AHashMap)
            (convex.core.lang Symbols))
   (:refer-clojure :exclude [compile
-                            cycle])
+                            cycle
+                            eval])
   (:require [clojure.string]
             [convex.code     :as $.code]
             [convex.cvm      :as $.cvm]
@@ -63,29 +65,21 @@
   
   ""
 
-  ([trx]
+  ([result]
 
-   (when ($.code/list? trx)
-     (let [form (first trx)]
-       (when (and ($.code/list? form)
-                  (= (count form)
-                     3)
-                  (= (.get form
-                           0)
-                     Symbols/LOOKUP)
-                  (let [nspace (.get form
-                                     1)]
-                    (or (= nspace
-                           $.run.sym/strx)
-                        (= nspace
-                           $.run.ctx/addr-strx))))
-         (.get form
-               2)))))
+   (when (and ($.code/vector? result)
+              (>= (count result)
+                  2)
+              (= (.get result
+                       0)
+                 $.run.kw/cvm-strx))
+     (.get result
+           1)))
 
 
-  ([_env trx]
+  ([_env result]
 
-   (strx-dispatch trx)))
+   (strx-dispatch result)))
 
 
 
@@ -183,6 +177,29 @@
                form)))
 
 
+;;;
+
+
+(defn eval
+
+  ""
+
+
+  ([env]
+
+   (eval env
+         (result env)))
+
+
+  ([env form]
+
+   (let [env-2 (expand env
+                       form)]
+     (if (env-2 :convex.run/error)
+       env-2
+       (compile-run env-2)))))
+
+
 ;;;;;;;;;; Transactions
 
 
@@ -199,19 +216,12 @@
 
   ([env form]
 
-   (or (strx env
-             form)
-       (let [env-2 (-> env
-                       ($.run.ctx/trx form)
-                       (expand form))]
-         (if (env-2 :convex.run/error)
-           env-2
-           (let [form-2 (result env-2)]
-             (or (strx env-2
-                       form-2)
-                 ((env-2 :convex.run.hook/trx)
-                  env-2
-                  form-2))))))))
+   (let [env-2 (eval env
+                     form)]
+     (if (env-2 :convex.run/error)
+       env-2
+       (strx env-2
+             (result env-2))))))
 
 
 
@@ -234,7 +244,7 @@
                (if (env-3 :convex.run/error)
                  (reduced env-3)
                  (let [juice-last (- Long/MAX_VALUE ;; Juice set by [[update-ctx]].
-                                     ($.cvm/juice (env-2 :convex.sync/ctx)))]
+                                     ($.cvm/juice (env-3 :convex.sync/ctx)))]
                    (-> env-3
                        (assoc :convex.run/juice-last
                               juice-last)
