@@ -37,11 +37,11 @@
 
 (def addr-strx
 
-
   ""
 
-  (get ($.cvm/env base)
-       $.run.sym/strx))
+  ;; Last form of the 'run.cvx' file is the address ofr the STRX library.
+
+  ($.cvm/result base))
 
 
 ;;;;;;;;;;
