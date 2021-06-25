@@ -131,19 +131,16 @@
 
 
 
-  (def a* (agent [:a :b]
-                 :error-mode :fail))
 
-  (set-error-handler! a*
-                 (fn [a e]
-                   (tap> [:e e])))
-  (send a*
-        (fn [_]
-          (tap> :ok)
-          (throw (ex-info "foo" {}))))
+  (def f ($.cvm/result ($.cvm/eval ($.cvm/ctx)
+                                   (first ($.cvm/read "inc")))))
 
-  (deref a*)
-  (agent-error a*)
+  (def ctx ($.cvm/ctx))
 
+  ($.cvm/juice ctx)
+
+  ($.cvm/result ($.cvm/invoke ctx
+                              f
+                              ($.code/keyword "ok")))
 
   )

@@ -25,8 +25,10 @@
                              Address
                              AHashMap
                              AVector)
-           (convex.core.lang Context
-                             Reader))
+           (convex.core.lang AFn
+                             Context
+                             Reader)
+           (convex.core.lang.impl ErrorValue))
   (:refer-clojure :exclude [compile
                             def
                             eval
@@ -589,6 +591,32 @@
 
    (.run ctx
          compiled)))
+
+
+;;;;;;;;;; Functions
+
+
+(defn invoke
+
+  "Invokes the given CVM `f`unction using the given `ctx`.
+  
+   Like other code-related functions, return a context with either a [[result]] or an [[exception]] attached."
+
+  ^Context
+
+  [^Context ctx ^AFn f & arg+]
+
+  (let [ctx-2 (.invoke ctx
+                       f
+                       (into-array ACell
+                                   arg+))
+        ex    (exception ctx-2)]
+    (if ex
+      (if (instance? ErrorValue
+                     ex)
+        ctx-2
+        (exception-clear ctx-2))
+      ctx-2)))
 
 
 ;;;;;;;;;; Miscellaneous
