@@ -5,11 +5,17 @@
   {:author "Adam Helinski"}
 
   (:import (convex.core ErrorCodes)
+           (convex.core.data ACell
+                             AMap)
            (convex.core.lang.impl ErrorValue))
   (:require [convex.code    :as $.code]
             [convex.cvm     :as $.cvm]
             [convex.run.ctx :as $.run.ctx]
             [convex.run.kw  :as $.run.kw]))
+
+
+(set! *warn-on-reflection*
+      true)
 
 
 ;;;;;;;;;;
@@ -19,7 +25,7 @@
 
   ""
 
-  [env err]
+  [env ^AMap err]
 
   (-> env
       (assoc :convex.run/error
@@ -32,19 +38,35 @@
 
 
 
+(defn assoc-cause
+
+  ""
+
+  ^AMap
+
+  [^AMap err ^ACell cause]
+
+  (.assoc err
+          $.run.kw/cause
+          cause))
+
+
+
 (defn assoc-phase
 
   ""
 
-  [error phase]
+  ^AMap
 
-  (.assoc error
+  [^AMap err ^ACell phase]
+
+  (.assoc err
           $.run.kw/phase
           phase))
 
 
 
-(defn error
+(defn ^AMap error
 
   ""
 
@@ -97,7 +119,7 @@
 
   ""
 
-  [code trx message]
+  [code ^ACell trx message]
 
   (-> ($.code/error code
                     message)
@@ -120,12 +142,11 @@
     err))
 
 
-  ([env form message cause]
+  ([env ^ACell form message cause]
 
    (fatal env
           (-> ($.code/error ErrorCodes/FATAL
                             message)
               (.assoc $.run.kw/form
                       form)
-              (.assoc $.run.kw/cause
-                      cause)))))
+              (assoc-cause cause)))))
