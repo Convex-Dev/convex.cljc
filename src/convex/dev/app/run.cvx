@@ -18,8 +18,9 @@
 
 ;(strx/out (+ 2 2))
 
-[:cvm.strx :out (+ 2 2)]
-[:cvm.strx :out strx/out]
+
+[:cvm.strx :do '[[:cvm.strx :read 'x (str "(+ 2 " "4)")]
+                 [:cvm.strx :out [:eval (eval x)]]]]
 
 
 '[:cvm.strx :try [(def foo 42)

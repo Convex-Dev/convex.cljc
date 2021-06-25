@@ -145,7 +145,7 @@
                     ([sym env-var]
 
                      `(let [env-var ~env-var
-                            sym     ~sym]
+                            sym     (quote ~sym)]
                         (assert (symbol? sym))
                         (assert (or (str? env-var)
                                     (nil? env-var)))
@@ -231,7 +231,7 @@
                 
                     [sym]
                 
-                    `(let [sym ~sym]
+                    `(let [sym (quote ~sym)]
                        (assert (symbol? sym))
                        [:cvm.strx :log sym]))
                 
@@ -258,10 +258,12 @@
                             :signature   [{:params [string]}]
                             :type        :macro}}
                 
-                    [src]
+                    [sym src]
                 
-                    `(let [src ~src]
+                    `(let [src ~src
+                           sym (quote ~sym)]
                        (assert (str? src))
+                       (assert (symbol? sym))
                        [:cvm.strx :read src]))
                 
 

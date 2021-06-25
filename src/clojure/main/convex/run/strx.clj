@@ -74,11 +74,11 @@
 
   $.run.kw/dep
 
-  [env trx]
+  [env ^AVector tuple]
 
   ($.run.err/signal env
                     ($.run.err/strx ErrorCodes/STATE
-                                    trx
+                                    tuple
                                     ($.code/string "CVM special command 'strx/dep' can only be used as the very first transaction"))))
 
 
@@ -87,7 +87,7 @@
 
   $.run.kw/do
 
-  [env tuple]
+  [env ^AVector tuple]
 
   ($.run.exec/trx+ env
                    (.get tuple
@@ -99,38 +99,25 @@
 
   $.run.kw/env
 
-  [env tuple]
+  [env ^AVector tuple]
 
-  (let [sym (.get tuple
-                  2)]
-    (if ($.code/symbol? sym)
-      (if-some [k (.get tuple
-                        3)]
-        (if ($.code/string? k)
-          ($.run.ctx/def-current env
-                                 {sym ($.code/string (System/getenv (str k)))})
-          ($.run.err/signal env
-                            ($.run.err/strx ErrorCodes/CAST
-                                            tuple
-                                            ($.code/string "Second argument to 'strx/env' must be a string"))))
-        ($.run.exec/trx env
-                        ($.code/def sym
-                                    ($.code/map (map (fn [[k v]]
-                                                       [($.code/string k)
-                                                        ($.code/string v)])
-                                                     (System/getenv))))))
-      ($.run.err/signal env
-                        ($.run.err/strx ErrorCodes/CAST
-                                        tuple
-                                        ($.code/string "First argument to 'strx/env' must be a symbol"))))))
-
+  ($.run.ctx/def-current env
+                         {(.get tuple
+                                2)
+                          (if-some [env-var (.get tuple
+                                                  3)]
+                            ($.code/string (System/getenv (str env-var)))
+                            ($.code/map (map (fn [[k v]]
+                                               [($.code/string k)
+                                                ($.code/string v)])
+                                             (System/getenv))))}))
 
 
 (defmethod $.run.exec/strx
   
   $.run.kw/hook-end
 
-  [env tuple]
+  [env ^AVector tuple]
 
   (let [path-restore [:convex.run/restore
                       :convex.run.hook/end]
@@ -165,54 +152,49 @@
 
   ;; TODO. Ensure failing hook is handled properly.
 
-  [env tuple]
+  [env ^AVector tuple]
 
   (let [path-restore [:convex.run/restore
                       :convex.run.hook/error]
         hook-restore (get-in env
                              path-restore)
-        form-hook    (.get tuple
+        f            (.get tuple
                            2)]
-    (if form-hook
-      (let [env-2 ($.run.exec/trx env
-                                  form-hook)]
-        (if (env-2 :convex.run/error)
-          env-2
-          (-> env-2
-              (cond->
-                (not hook-restore)
-                (assoc-in path-restore
-                          (env-2 :convex.run.hook/error)))
-              (assoc :convex.run.hook/error
-                     (let [form-hook-2 ($.run.exec/result env-2)]
-                       (fn hook [env-3]
-                         (let [cause (env-3 :convex.run/error)
-                               form  ($.code/list [form-hook-2
-                                                   ($.code/quote (env-3 :convex.run/error))])
-                               env-4 (-> env-3
-                                         (dissoc :convex.run/error)
-                                         (assoc :convex.run.hook/error
-                                                identity)
-                                         ($.run.exec/trx form))
-                               err   (env-4 :convex.run/error)]
-                           (-> (if err
-                                 ($.run.err/fatal env-4
-                                                  form
-                                                  ($.code/string "Calling error hook failed")
-                                                  cause)
-                                 (let [form-2 ($.run.exec/result env-4)
-                                       env-5  ($.run.exec/trx env-4
-                                                              form-2)]
-                                   (if (env-5 :convex.run/error)
-                                     ($.run.err/fatal env-5
-                                                      form-2
-                                                      ($.code/string "Evaluating output from error hook failed")
-                                                      cause)
-                                     (assoc env-5
-                                            :convex.run/error
-                                            cause))))
-                               (assoc :convex.run.hook/error
-                                      hook)))))))))
+    (if f
+      (-> env
+          (cond->
+            (not hook-restore)
+            (assoc-in path-restore
+                      (env :convex.run.hook/error)))
+          (assoc :convex.run.hook/error
+                 (fn hook [env-2]
+                   (let [cause (env-2 :convex.run/error)
+                         form  ($.code/list [f
+                                             ($.code/quote (env-2 :convex.run/error))])
+                         env-3 (-> env-2
+                                   (dissoc :convex.run/error)
+                                   (assoc :convex.run.hook/error
+                                          identity)
+                                   ($.run.exec/trx form))
+                         err   (env-3 :convex.run/error)]
+                     (-> (if err
+                           ($.run.err/fatal env-3
+                                            form
+                                            ($.code/string "Calling error hook failed")
+                                            cause)
+                           (let [form-2 ($.run.exec/result env-3)
+                                 env-4  ($.run.exec/trx env-3
+                                                        form-2)]
+                             (if (env-4 :convex.run/error)
+                               ($.run.err/fatal env-4
+                                                form-2
+                                                ($.code/string "Evaluating output from error hook failed")
+                                                cause)
+                               (assoc env-4
+                                      :convex.run/error
+                                      cause))))
+                         (assoc :convex.run.hook/error
+                                hook))))))
       (restore env
                :convex.run.hook/error
                hook-restore))))
@@ -223,51 +205,46 @@
   
   $.run.kw/hook-out
 
-  [env tuple]
+  [env ^AVector tuple]
 
   (let [path-restore [:convex.run/restore
                       :convex.run.hook/out]
         hook-restore (get-in env
                              path-restore)
-        form-hook    (.get tuple
+        f            (.get tuple
                            2)]
-    (if form-hook
-      (let [env-2 ($.run.exec/trx env
-                                  form-hook)]
-        (if (env-2 :convex.run/error)
-          env-2
-          (let [hook-old (or hook-restore
-                             (env-2 :convex.run.hook/out))]
-            (-> env-2
-                (cond->
-                  (not hook-restore)
-                  (assoc-in path-restore
-                            hook-old))
-                (assoc :convex.run.hook/out
-                       (let [form-hook-2 ($.run.exec/result env-2)]
-                         (fn hook-new [env-3 x]
-                           (let [hook-error (env-3 :convex.run.hook/error)
-                                 form       ($.code/list [form-hook-2
-                                                          ($.code/quote x)])
-                                 env-4      (-> env-3
-                                                (assoc :convex.run.hook/error
-                                                       identity)
-                                                ($.run.exec/trx form)
-                                                (assoc :convex.run.hook/error
-                                                       hook-error))
-                                 err        (env-4 :convex.run/error)]
-                             (if (identical? err
-                                             (env-3 :convex.run/error))
-                               (hook-old env-4
-                                         ($.run.exec/result env-4))
-                               (-> env-4
-                                   (assoc :convex.run.hook/out
-                                          hook-old)
-                                   ($.run.err/fatal form
-                                                    ($.code/string "Calling output hook failed, using default output")
-                                                    err)
-                                   (assoc :convex.run.hook/out
-                                          hook-new)))))))))))
+    (if f
+      (let [hook-old (or hook-restore
+                         (env :convex.run.hook/out))]
+        (-> env
+            (cond->
+              (not hook-restore)
+              (assoc-in path-restore
+                        hook-old))
+            (assoc :convex.run.hook/out
+                   (fn hook-new [env-2 x]
+                     (let [hook-error (env-2 :convex.run.hook/error)
+                           form       ($.code/list [f
+                                                    ($.code/quote x)])
+                           env-3      (-> env-2
+                                          (assoc :convex.run.hook/error
+                                                 identity)
+                                          ($.run.exec/trx form)
+                                          (assoc :convex.run.hook/error
+                                                 hook-error))
+                           err        (env-3 :convex.run/error)]
+                       (if (identical? err
+                                       (env-2 :convex.run/error))
+                         (hook-old env-3
+                                   ($.run.exec/result env-3))
+                         (-> env-3
+                             (assoc :convex.run.hook/out
+                                    hook-old)
+                             ($.run.err/fatal form
+                                              ($.code/string "Calling output hook failed, using default output")
+                                              err)
+                             (assoc :convex.run.hook/out
+                                    hook-new))))))))
       (restore env
                :convex.run.hook/out
                hook-restore))))
@@ -278,40 +255,35 @@
   
   $.run.kw/hook-trx
 
-  [env tuple]
+  [env ^AVector tuple]
 
   (let [path-restore [:convex.run/restore
                       :convex.run.hook/trx]
         hook-restore (get-in env
                              path-restore)
-        form-hook    (.get tuple
+        f            (.get tuple
                            2)
         env-2        (restore env
                               :convex.run.hook/trx
                               hook-restore)]
-    (if (some? form-hook)
-      (let [env-3 ($.run.exec/trx env-2
-                                  form-hook)]
-        (if (env-3 :convex.run/error)
-          env-3
-          (let [hook-old (or hook-restore
-                             (env-3 :convex.run.hook/trx))]
-            (-> env-3
-                (assoc-in path-restore
-                          hook-old)
-                (assoc :convex.run.hook/trx
-                       (let [form-hook-2 ($.run.exec/result env-3)]
-                         (fn hook-new [env-4 form]
-                           (let [env-5 (-> env-4
-                                           (assoc :convex.run.hook/trx
-                                                  hook-old)
-                                           ($.run.exec/trx ($.code/list [form-hook-2
-                                                                         ($.code/quote form)])))]
-                             (-> (if (env-5 :convex.run/error)
-                                   env-5
-                                   ($.run.exec/trx env-5))
-                                 (assoc :convex.run.hook/trx
-                                        hook-new))))))))))
+    (if f
+      (let [hook-old (or hook-restore
+                         (env-2 :convex.run.hook/trx))]
+        (-> env-2
+            (assoc-in path-restore
+                      hook-old)
+            (assoc :convex.run.hook/trx
+                   (fn hook-new [env-3 form]
+                     (let [env-4 (-> env-3
+                                     (assoc :convex.run.hook/trx
+                                            hook-old)
+                                     ($.run.exec/trx ($.code/list [f
+                                                                   ($.code/quote form)])))]
+                       (-> (if (env-4 :convex.run/error)
+                             env-4
+                             ($.run.exec/trx env-4))
+                           (assoc :convex.run.hook/trx
+                                  hook-new)))))))
       env-2)))
 
 
@@ -320,18 +292,12 @@
   
   $.run.kw/log
 
-  ;; TODO. Error handling.
+  [env ^AVector tuple]
 
-  [env tuple]
-
-  (if-some [sym (.get tuple
-                      2)]
-    ($.run.ctx/def-current env
-                           {sym ($.cvm/log (env :convex.sync/ctx))})
-    ($.run.err/signal env
-                      ($.run.err/strx ErrorCodes/ARGUMENT
-                                      tuple
-                                      ($.code/string "Argument for 'strx/log' must be symbol for defining the log")))))
+  ($.run.ctx/def-current env
+                         {(.get tuple
+                                2)
+                          ($.cvm/log (env :convex.sync/ctx))}))
 
 
 
@@ -352,68 +318,28 @@
 
   $.run.kw/read
   
-  [env tuple]
-  
-  (if-some [sym (.get tuple
-                      2)]
-      (if ($.code/symbol? sym)
-        (if-some [form-src (.get tuple
-                                 3)]
-          (let [env-2 ($.run.exec/trx env
-                                      form-src)]
-            (if (env-2 :convex.run/error)
-              env-2
-              (let [src ($.run.exec/result env-2)]
-                (if ($.code/string? src)
-                  (try
-                    ($.run.ctx/def-current env
-                                           {sym (-> src
-                                                    str
-                                                    $.cvm/read
-                                                    $.code/vector)})
-                    (catch Throwable _err
-                      ($.run.err/signal env
-                                        ($.run.err/strx ErrorCodes/ARGUMENT
-                                                        tuple
-                                                        ($.code/string "Unable to read source")))))
-                  ($.run.err/signal env
-                                    ($.run.err/strx ErrorCodes/CAST
-                                                    tuple
-                                                    ($.code/string "Second argument to 'strx/read' must evaluate to source code (a string)")))))))
-          ($.run.err/signal env
-                            ($.run.err/strx ErrorCodes/ARGUMENT
-                                            tuple
-                                            ($.code/string "'strx/read' is missing the source argument"))))
-        ($.run.err/signal env
-                          ($.run.err/strx ErrorCodes/CAST
-                                          tuple
-                                          ($.code/string "First argument to 'strx/read' must be a symbol"))))
+  [env ^AVector tuple]
+
+  (let [[err
+         code] (try
+                 [nil
+                  (-> (.get tuple
+                            3)
+                      str
+                      $.cvm/read
+                      $.code/vector)]
+                  (catch Throwable _err
+                    [($.run.err/strx ErrorCodes/ARGUMENT
+                                     tuple
+                                     ($.code/string "Unable to read source"))
+                     nil]))]
+    (if err
       ($.run.err/signal env
-                        ($.run.err/strx ErrorCodes/ARGUMENT
-                                        tuple
-                                        ($.code/string "'strx/read' is missing a symbol to define")))))
-
-
-
-(defmethod $.run.exec/strx
-  
-  $.run.kw/splice
-
-  [env tuple]
-
-  (let [env-2 ($.run.exec/trx env
-                              (.get tuple
-                                    2))]
-    (if (env-2 :convex.run/error)
-      env-2
-      (let [result ($.run.exec/result env-2)]
-        (if ($.code/vector? result)
-          ($.run.exec/trx+ env-2
-                           result)
-          ($.run.err/signal env-2
-                            ($.run.err/strx ErrorCodes/CAST
-                                            tuple
-                                            ($.code/string "In 'strx/splice', argument must evaluate to a vector of transactions"))))))))
+                        err)
+      ($.run.ctx/def-current env
+                             {(.get tuple
+                                    2)
+                              code}))))
 
 
 
@@ -432,7 +358,7 @@
   
   $.run.kw/try
 
-  [env tuple]
+  [env ^AVector tuple]
 
   (let [trx-catch+ (.get tuple
                          3)
