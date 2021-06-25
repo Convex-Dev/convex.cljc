@@ -4,6 +4,7 @@
 
   {:author "Adam Helinski"}
 
+  (:import (convex.core.data Keyword))
   (:refer-clojure :exclude [compile
                             do
                             read])
@@ -13,7 +14,7 @@
 ;;;;;;;;;;
 
 
-(def catch
+(def ^Keyword catch
   
   ""
 
@@ -21,7 +22,7 @@
 
 
 
-(def cause
+(def ^Keyword cause
 
   ""
 
@@ -29,14 +30,15 @@
 
 
 
-(def compile
+(def ^Keyword compile
 
   ""
 
   ($.code/keyword "compile"))
 
 
-(def cvm-strx
+
+(def ^Keyword cvm-strx
 
   ""
 
@@ -44,7 +46,7 @@
 
 
 
-(def dep
+(def ^Keyword dep
 
   ""
 
@@ -52,7 +54,7 @@
 
 
 
-(def do
+(def ^Keyword do
 
   ""
 
@@ -60,7 +62,7 @@
 
 
 
-(def exception?
+(def ^Keyword exception?
 
   ""
 
@@ -68,7 +70,7 @@
 
 
 
-(def env
+(def ^Keyword env
 
   ""
 
@@ -76,7 +78,7 @@
 
 
 
-(def expand
+(def ^Keyword expand
 
   ""
 
@@ -84,7 +86,7 @@
 
 
 
-(def file-open
+(def ^Keyword file-open
 
   ""
 
@@ -92,7 +94,7 @@
 
 
 
-(def form
+(def ^Keyword form
 
   ""
   
@@ -100,7 +102,7 @@
 
 
 
-(def hook-end
+(def ^Keyword hook-end
 
   ""
 
@@ -108,7 +110,7 @@
 
 
 
-(def hook-error
+(def ^Keyword hook-error
 
   ""
 
@@ -116,7 +118,7 @@
 
 
 
-(def hook-out
+(def ^Keyword hook-out
 
   ""
 
@@ -124,7 +126,7 @@
 
 
 
-(def hook-trx
+(def ^Keyword hook-trx
 
   ""
 
@@ -132,7 +134,7 @@
 
 
 
-(def log
+(def ^Keyword log
 
   ""
 
@@ -140,7 +142,7 @@
 
 
 
-(def out
+(def ^Keyword out
 
   ""
 
@@ -148,7 +150,7 @@
 
 
 
-(def path
+(def ^Keyword path
 
   ""
 
@@ -156,7 +158,7 @@
 
 
 
-(def phase
+(def ^Keyword phase
 
   ""
 
@@ -164,7 +166,7 @@
 
 
 
-(def read
+(def ^Keyword read
 
   ""
 
@@ -172,7 +174,7 @@
 
 
 
-(def run
+(def ^Keyword run
 
   ""
 
@@ -180,7 +182,7 @@
 
 
 
-(def screen-clear
+(def ^Keyword screen-clear
 
   ""
 
@@ -188,7 +190,7 @@
 
 
 
-(def splice
+(def ^Keyword splice
 
   ""
 
@@ -196,7 +198,7 @@
 
 
 
-(def src
+(def ^Keyword src
 
   ""
 
@@ -204,7 +206,7 @@
 
 
 
-(def strx
+(def ^Keyword strx
 
   ""
 
@@ -212,7 +214,7 @@
 
 
 
-(def trx
+(def ^Keyword trx
 
   ""
 
@@ -220,7 +222,7 @@
 
 
 
-(def trx-eval
+(def ^Keyword trx-eval
 
   ""
 
@@ -228,7 +230,7 @@
 
 
 
-(def trx-prepare
+(def ^Keyword trx-prepare
 
   ""
 
@@ -236,7 +238,7 @@
 
 
 
-(def try
+(def ^Keyword try
 
   ""
 
