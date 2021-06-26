@@ -18,14 +18,24 @@
 
 ;(strx/out (+ 2 2))
 
+#_[:cvm.strx :hook.trx [:cvm.strx :do '[[:cvm.strx :out [:juice strx/*juice.last*]]
+                                      (+ 2 2)
+                                     ; [:cvm.strx :try [(fail :foo :bar)]
+                                     ;                 [[:cvm.strx :out [:catch strx/*error*]]]]
+                                      [:cvm.strx :out :foo]]]]
 
-[:cvm.strx :hook.out (fn [x] (fail :baz :bouz))]
-[:cvm.strx :hook.error (fn [err] (fail :foo :bar))]
+[:cvm.strx :do [10 20]]
 
-[:cvm.strx :out :foo]
-[:cvm.strx :out :bar]
 
-(fail :failure)
+
+[:cvm.strx :do '[[:cvm.strx :out :foo]
+                 (+ 2 2)
+                 [:cvm.strx :try '[[:cvm.strx :try '[(fail :foo :bar)]
+                                                   '[[:cvm.strx :out [:catch strx/*error*]]]]
+                                   (fail :baz :boz)]
+                                 '[[:cvm.strx :out [:catch-outside strx/*error*]]]]
+                 [:cvm.strx :out :bar]]]
+
 
 
 ;; Prints nice information at the start of a run using special transaction `cvm.out`

@@ -4,19 +4,15 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core ErrorCodes)
-           (convex.core.data AHashMap)
-           (convex.core.lang Symbols))
+  (:import (convex.core.data AVector))
   (:refer-clojure :exclude [compile
                             cycle
                             eval])
-  (:require [clojure.string]
-            [convex.code     :as $.code]
-            [convex.cvm      :as $.cvm]
-            [convex.run.ctx  :as $.run.ctx]
-            [convex.run.err  :as $.run.err]
-            [convex.run.kw   :as $.run.kw]
-            [convex.run.sym  :as $.run.sym]))
+  (:require [convex.code    :as $.code]
+            [convex.cvm     :as $.cvm]
+            [convex.run.ctx :as $.run.ctx]
+            [convex.run.err :as $.run.err]
+            [convex.run.kw  :as $.run.kw]))
 
 
 (declare run)
@@ -70,10 +66,10 @@
    (when (and ($.code/vector? result)
               (>= (count result)
                   2)
-              (= (.get result
+              (= (.get ^AVector result
                        0)
                  $.run.kw/cvm-strx))
-     (.get result
+     (.get ^AVector result
            1)))
 
 
@@ -216,8 +212,9 @@
 
   ([env form]
 
-   (let [env-2 (eval env
-                     form)]
+   (let [env-2 (-> env
+                   ($.run.ctx/trx form)
+                   (eval form))]
      (if (env-2 :convex.run/error)
        env-2
        (strx env-2
@@ -243,16 +240,7 @@
                               form)]
                (if (env-3 :convex.run/error)
                  (reduced env-3)
-                 (let [juice-last (- Long/MAX_VALUE ;; Juice set by [[update-ctx]].
-                                     ($.cvm/juice (env-3 :convex.sync/ctx)))]
-                   (-> env-3
-                       (assoc :convex.run/juice-last
-                              juice-last)
-                       (update :convex.run/juice-total
-                               +
-                               juice-last)
-                       (update :convex.run/i-trx
-                               inc))))))
+                 env-3)))
            env
            trx+)))
 

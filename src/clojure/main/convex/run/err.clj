@@ -78,7 +78,7 @@
                  ($.code/vector (.getTrace ex))))
 
 
-  ([ex phase trx]
+  ([ex phase ^ACell trx]
 
    (-> ex
        error

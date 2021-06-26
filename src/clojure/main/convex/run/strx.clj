@@ -52,19 +52,40 @@
 
 (defmethod $.run.exec/strx nil
 
-  [env _tuple]
+  ;; No special request, simply finalize a regular transaction.
 
-  env)
+  [env _result]
+
+  (let [juice-last (- Long/MAX_VALUE  ;; Juice is always refilled to max prior to evaluation.
+                      ($.cvm/juice (env :convex.sync/ctx)))
+        env-2      (-> env
+                       (assoc :convex.run/juice-last
+                              juice-last)
+                       (update :convex.run/juice-total
+                               +
+                               juice-last)
+                       (update :convex.run/i-trx
+                               inc))
+        hook       (env-2 :convex.run.hook/trx)]
+    (if hook
+      (-> env-2
+          (dissoc :convex.run.hook/trx)
+          ($.run.exec/trx hook)
+          (assoc :convex.run.hook/trx
+                 hook))
+      env-2)))
 
 
 
 (defmethod $.run.exec/strx :unknown
 
-  [env form]
+  ;; Unknown special request.
+
+  [env tuple]
 
   ($.run.err/signal env
                     ($.run.err/strx ErrorCodes/ARGUMENT
-                                    form
+                                    tuple
                                     ($.code/string "Unsupported special transaction"))))
 
 ;;;;;;;;;; Implementations
@@ -232,12 +253,11 @@
                         hook-old))
             (assoc :convex.run.hook/out
                    (fn hook-new [env-2 x]
-                     (let [form-2 ($.code/quote x)
-                           ctx    ($.cvm/invoke (-> env-2
+                     (let [ctx    ($.cvm/invoke (-> env-2
                                                     :convex.sync/ctx
                                                     $.cvm/juice-refill)
                                                 f
-                                                ($.cvm/arg+* form-2))
+                                                ($.cvm/arg+* x))
                            env-3  (assoc env-2
                                          :convex.sync/ctx
                                          ctx)
@@ -247,7 +267,7 @@
                              (assoc :convex.run.hook/out
                                     hook-old)
                              ($.run.err/fatal ($.code/list [f
-                                                            form-2])
+                                                            x])
                                               ($.code/string "Calling output hook failed, using default output")
                                               ($.run.err/error ex))
                              (assoc :convex.run.hook/out
@@ -268,32 +288,21 @@
 
   (let [path-restore [:convex.run/restore
                       :convex.run.hook/trx]
-        hook-restore (get-in env
+        trx-restore  (get-in env
                              path-restore)
-        f            (.get tuple
-                           2)
-        env-2        (restore env
-                              :convex.run.hook/trx
-                              hook-restore)]
-    (if f
-      (let [hook-old (or hook-restore
-                         (env-2 :convex.run.hook/trx))]
-        (-> env-2
+        trx-new      (.get tuple
+                           2)]
+    (if trx-new
+      (-> env
+          (cond->
+            (not trx-restore)
             (assoc-in path-restore
-                      hook-old)
-            (assoc :convex.run.hook/trx
-                   (fn hook-new [env-3 form]
-                     (let [env-4 (-> env-3
-                                     (assoc :convex.run.hook/trx
-                                            hook-old)
-                                     ($.run.exec/trx ($.code/list [f
-                                                                   ($.code/quote form)])))]
-                       (-> (if (env-4 :convex.run/error)
-                             env-4
-                             ($.run.exec/trx env-4))
-                           (assoc :convex.run.hook/trx
-                                  hook-new)))))))
-      env-2)))
+                      (env :convex.run.hook/trx)))
+          (assoc :convex.run.hook/trx
+                 trx-new))
+      (restore env
+               :convex.run.hook/trx
+               trx-restore))))
 
 
 

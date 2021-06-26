@@ -75,9 +75,6 @@
                            str
                            tap>))
                      env-2)))
-      (update :convex.run.hook/trx
-              #(or %
-                   $.run.exec/compile-run))
       (update :convex.sync/ctx-base
               #(or %
                    $.run.ctx/base))
