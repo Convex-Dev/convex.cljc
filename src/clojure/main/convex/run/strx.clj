@@ -282,7 +282,7 @@
 
 (defmethod $.run.exec/strx
   
-  $.run.kw/hook-trx
+  $.run.kw/hook-result
 
   [env ^AVector tuple]
 

@@ -18,11 +18,11 @@
 
 ;(strx/out (+ 2 2))
 
-#_[:cvm.strx :hook.trx [:cvm.strx :do '[[:cvm.strx :out [:juice strx/*juice.last*]]
+[:cvm.strx :hook.result [:cvm.strx :do '[[:cvm.strx :out [:juice strx/*juice.last*]]
                                       (+ 2 2)
                                      ; [:cvm.strx :try [(fail :foo :bar)]
                                      ;                 [[:cvm.strx :out [:catch strx/*error*]]]]
-                                      [:cvm.strx :out :foo]]]]
+                                      [:cvm.strx :out :azer]]]]
 
 [:cvm.strx :do [10 20]]
 

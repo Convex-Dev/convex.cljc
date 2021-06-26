@@ -126,11 +126,11 @@
 
 
 
-(def ^Keyword hook-trx
+(def ^Keyword hook-result
 
   ""
 
-  ($.code/keyword "hook.trx"))
+  ($.code/keyword "hook.result"))
 
 
 
