@@ -35,16 +35,25 @@
 
   ""
 
-  [env kw hook]
 
-  (cond->
-    env
-    hook
-    (-> (assoc kw
-               hook)
-        (update :convex.run/restore
-                dissoc
-                kw))))
+  ([env kw hook]
+
+   (restore env
+            kw
+            hook
+            hook))
+
+
+  ([env kw restore? hook]
+
+   (cond->
+     env
+     restore?
+     (-> (assoc kw
+                hook)
+         (update :convex.run/restore
+                 dissoc
+                 kw)))))
 
 
 ;;;;;;;;;; Setup
@@ -289,19 +298,23 @@
   (let [path-restore [:convex.run/restore
                       :convex.run.hook/trx]
         trx-restore  (get-in env
-                             path-restore)
+                             path-restore
+                             ::nil)
+        trx-restore? (not (identical? trx-restore
+                                      ::nil))
         trx-new      (.get tuple
                            2)]
     (if trx-new
       (-> env
           (cond->
-            (not trx-restore)
+            (not trx-restore?)
             (assoc-in path-restore
                       (env :convex.run.hook/trx)))
           (assoc :convex.run.hook/trx
                  trx-new))
       (restore env
                :convex.run.hook/trx
+               trx-restore?
                trx-restore))))
 
 
