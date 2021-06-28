@@ -17,7 +17,7 @@
 
 
 
-(help/about sreq 'advance)
+(help/about sreq)
 
 
 ;; Prints nice information at the start of a run using special transaction `cvm.out`

@@ -15,6 +15,13 @@
                         (cns-update 'convex.run.sreq 
                                     *address*))
 
+
+                  (call *registry*
+                        (register {:doc {:description ["Special requests are vectors of data which instruct the Convex Lisp Runner to perform useful actions such as outputting values."
+                                                       "Those actions are not implemented by the CVM, they are only understood by Runner."
+                                                       "After each transaction in the main file has been executed, the Runner checks if the result is any supported special request."
+                                                       "Such vectors are created by calling functions from this address."]}}))
+
                 
                   ;; SPECIAL REQUESTS
                 
@@ -257,6 +264,16 @@
                                     *address*))
 
 
+                  (call *registry*
+                        (register {:doc {:description ["Help library for the Convex Lisp Runner."
+                                                       "The Runner executes each top-level form as a transaction."
+                                                       "This library provides a series of special values named `*xxx*` which hold commonly useful information, such as juice consumption."
+                                                       "Also provide the `about` function for printing a description of any account or any symbol defined in an account."
+                                                       "For more information, run `(help/about help 'about)`."
+                                                       "The Convex Lisp Runner can understand \"special requests\" which can be build using the SReq library."
+                                                       "For more information, run `(help/about sreq)`."
+                                                       "The Help and the SReq library are respectively defined in the default account as `help` and `sreq`."]}}))
+
                   (import convex.run.sreq :as sreq)
 
 
@@ -348,7 +365,13 @@
                   ;; FUNCTIONS
 
 
-                  (defn line+
+                  (defn str-line+
+
+                    ^{:doc {:description ["Returns a unique string which lays out text sections in a way that is easy to read for humans."
+                                          "Used by `str-about`"]
+                            :examples    [{:code "(str-line+ [[\"My section\" [\"Line 1\" \"Line 2\"]]])"}]
+                            :signature   [{:params [section+]}]
+                            :type        :function}}
 
                     [section+]
 
@@ -416,10 +439,17 @@
                                                           (map :code
                                                                example+)])
                                                    section-4+)]
-                                 (line+ section-5+)))]
+                                 (str-line+ section-5+)))]
 
                       (defn str-about
 
+                        ^{:doc {:description ["Using `str-line+`, prepares a string for displaying useful information about an account or a symbol defined in any account."
+                                              "Used by `about`"]
+                                :examples    [{:code "(help/str-about sreq)"}
+                                              {:code "(help/str-about sreq 'out)"}]
+                                :signature   [{:params [addr-or-sym]}
+                                              {:params [addr sym]}]
+                                :type        :function}}
 
                         ([addr-or-sym]
 
@@ -433,6 +463,8 @@
                                    env         (acc :environment)
                                    key         (acc :key)
                                    meta        (acc :metadata)
+                                   overview    (:description (:doc (call *registry*
+                                                                         (lookup addr-or-sym))))
                                    section+    [["ACCOUNT"
                                                  [addr-or-sym]]
                                                 ["KEY"
@@ -444,27 +476,35 @@
                                                  [balance]]
                                                 ["CONTROLLER"
                                                  [(or controller
-                                                      "None")]]]]
-                               (line+ (if (> (count env)
-                                             0)
-                                        (conj section+
-                                              ["ENVIRONMENT"
-                                               (reduce (fn [line+ [k _v]]
-                                                         (if-let [desc (get-in meta
-                                                                               [k
-                                                                                :doc
-                                                                                :description])]
-                                                           (conj line+
-                                                                 k
-                                                                 (str "  "
-                                                                      (if (str? desc)
-                                                                        desc
-                                                                        (first desc))))
-                                                           (conj line+
-                                                                 k)))
-                                                       []
-                                                       env)])
-                                        section+)))
+                                                      "None")]]]
+                                  section-2+    (if overview
+                                                  (conj section+
+                                                        ["OVERVIEW"
+                                                         (if (str? overview)
+                                                           [overview]
+                                                           overview)])
+                                                  section+)
+                                  section-3+    (if (> (count env)
+                                                       0)
+                                                  (conj section-2+
+                                                        ["ENVIRONMENT (simplified)"
+                                                         (reduce (fn [line+ [k _v]]
+                                                                   (if-let [desc (get-in meta
+                                                                                         [k
+                                                                                          :doc
+                                                                                          :description])]
+                                                                     (conj line+
+                                                                           k
+                                                                           (str "  "
+                                                                                (if (str? desc)
+                                                                                  desc
+                                                                                  (first desc))))
+                                                                     (conj line+
+                                                                           k)))
+                                                                 []
+                                                                 env)])
+                                                  section-2+)]
+                               (str-line+ section-3+))
                              (str "Account "
                                   addr-of-sym
                                   " does not exist."))))
@@ -481,6 +521,13 @@
 
 
                     (defn about
+
+                      ^{:doc {:description "Prepares a special request for outputting useful information about an account or a symbol defined in any account."
+                              :examples    [{:code "(help/str-about sreq)"}
+                                            {:code "(help/str-about sreq 'out)"}]
+                              :signature   [{:params [addr-or-sym]}
+                                            {:params [addr sym]}]
+                              :type        :function}}
 
 
                       ([addr-or-sym]

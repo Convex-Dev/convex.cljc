@@ -433,7 +433,7 @@
 (comment
 
 
-  (eval "(help/about sreq 'out)")
+  (eval "(help/about sreq)")
 
 
 
