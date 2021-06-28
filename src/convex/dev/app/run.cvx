@@ -17,17 +17,11 @@
 
 
 
-;(help/about sreq 'out)
+10
 
+20
 
-(sreq/try '[(sreq/out :hello)
-            (fail :foo :bar)
-            (sreq/out :bye)]
-          '[(sreq/out [:catch help/*error*])])
-
-
-(sreq/do '[10
-           (sreq/out [:juice help/*juice.last*])])
+(sreq/out [help/*juice* help/*trx.last.juice*])
 
 
 

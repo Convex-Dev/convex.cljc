@@ -44,19 +44,11 @@
 
 
 
-(def ^Symbol juice-last
-
-  ""
-
-  ($.code/symbol "*juice.last*"))
-
-
-
 (def ^Symbol juice-total
 
   ""
 
-  ($.code/symbol "*juice.total*"))
+  ($.code/symbol "*juice*"))
 
 
 
@@ -81,3 +73,11 @@
   ""
 
   ($.code/symbol "*trx.id*"))
+
+
+
+(def ^Symbol trx-last-juice
+
+  ""
+
+  ($.code/symbol "*trx.last.juice*"))

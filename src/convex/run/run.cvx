@@ -271,15 +271,7 @@
 
 
 
-                  (def *juice.last*
-
-                    ^{:doc {:description "The amount of juice consumed by the previous transaction."}}
-
-                    nil)
-
-
-
-                  (def *juice.total*
+                  (def *juice*
 
                     ^{:doc {:description "Total amount of juice consumed up to now."}}
 
@@ -297,8 +289,41 @@
 
                   (def *trx.id*
 
-                    ^{:doc {:description ["Starting at 0, is incremented on every transaction."
+                    ^{:doc {:description ["Id of the current transaction."
+                                          "Starting at 0, is incremented on every transaction."
                                           "Resets on each run in watch mode."]}}
+
+                    nil)
+
+
+
+                  (def *trx.last.form*
+
+                    ^{:doc {:description "Like `*trx.form*` but represents the previous transaction."}}
+
+                    nil)
+
+
+
+                  (def *trx.last.id*
+
+                    ^{:doc {:description "Like `*trx.id*` but represents the previous transaction."}}
+
+                    nil)
+
+
+
+                  (def *trx.last.juice*
+
+                    ^{:doc {:description "Amount of juice consumed by the previous transaction."}}
+
+                    nil)
+
+
+
+                  (def *trx.last.result*
+
+                    ^{:doc {:description "Result of the previous transaction."}}
 
                     nil)
 

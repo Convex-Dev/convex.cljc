@@ -132,20 +132,13 @@
 
 
 
-  (def f ($.cvm/result ($.cvm/eval ($.cvm/ctx)
-                                   (first ($.cvm/read "inc")))))
-
-  (def ctx ($.cvm/ctx))
-
-  ($.cvm/juice ctx)
-
-  ($.cvm/result ($.cvm/invoke ctx
-                              f
-                              ($.code/long 42)))
+  (def log ($.cvm/log ($.cvm/eval ($.cvm/ctx)
+                                  (first ($.cvm/read "(log :foo)")))))
 
 
 
-  ($.clj.eval/result ($.cvm/ctx)
+
+  ($.clj.eval/log ($.cvm/ctx)
                      '(do
                         (defmacro bar [a b] (+ a b))
                         (bar 2 3)))
