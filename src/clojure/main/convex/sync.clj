@@ -247,12 +247,14 @@
                                   (deploy my-lib))))
    ```
 
-   In case of an error occuring during reading, attaches under `:convex.sync/error` a tuple such as (where `Path` is the file path):
+   In case of an error occuring during reading, attaches under `:convex.sync/error` a tuple `[:load {Path Reason}]` where `Path` is a
+   file path and `Reason` is one of:
 
-   | Value | Meaning |
+   | Reason | Meaning |
    |---|---|
-   | `[:load [:not-found Path]]` | File does not exist |
-   | `[:load [:parse Path]]` | CVM reader could not parse the source |"
+   | `[:not-found]` | File does not exist or is not accessible |
+   | `[:parse Exception]` | CVM reader could not parse the source |
+   | `[:unknown Exception]]` | Unknown exception while loading file |"
 
 
   ([sym->dep]
@@ -274,10 +276,17 @@
          read-dep      (fn [env path]
                          (let [[err
                                 src] (try
+
                                        [nil
                                         (slurp path)]
-                                       (catch FileNotFoundException _e
-                                         [[:not-found path]
+
+                                       (catch FileNotFoundException _ex
+                                         [[:not-found]
+                                          nil])
+
+                                       (catch Throwable ex
+                                         [[:unknown
+                                           ex]
                                           nil]))]
                            (if err
                              (assoc-err-read env
@@ -287,10 +296,9 @@
                                     form+] (try
                                              [nil
                                               ($.cvm/read src)]
-                                             (catch Throwable err
+                                             (catch Throwable ex
                                                [[:parse
-                                                 path
-                                                 err]
+                                                 ex]
                                                 nil]))]
                                (if err
                                  (assoc-err-read env
