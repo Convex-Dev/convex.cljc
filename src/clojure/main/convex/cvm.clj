@@ -213,20 +213,14 @@
 
 (defn log
 
-  "Returns the log of `ctx` (a CVM map of `address` -> `vector of values).
+  "Returns the log of `ctx` (a CVM vector of CVM tuple `[Address LoggedValue]`)."
+
+
+  ^ABlobMap
   
-   If an address is provided, returns the vector entry for that address only."
+  [^Context ctx]
 
-
-  (^ABlobMap [^Context ctx]
-
-   (.getLog ctx))
-
-
-  (^AVector [^Context ctx address]
-
-   (.getLog ctx
-            (-wrap-address address))))
+  (.getLog ctx))
 
 
 
