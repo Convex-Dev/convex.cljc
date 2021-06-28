@@ -7,6 +7,8 @@
   {:author "Adam Helinski"}
 
   (:import (convex.core ErrorCodes)
+           (convex.core.data AList)
+           (convex.core.lang Symbols)
            (java.io File))
   (:refer-clojure :exclude [eval
                             load])
@@ -17,6 +19,7 @@
             [convex.run.err   :as $.run.err]
             [convex.run.exec  :as $.run.exec]
             [convex.run.kw    :as $.run.kw]
+            [convex.run.sym   :as $.run.sym]
             [convex.run.strx]
             [convex.sync      :as $.sync]
             [convex.watch     :as $.watch]))
@@ -31,18 +34,56 @@
 
   ;; TODO. Error if invalid format.
 
-  [trx+]
+  [env]
 
-  #_(when-some [trx-first (first trx+)]
-    (when (= ($.run.exec/strx-dispatch trx-first)
-             $.run.sym/dep)
-      (not-empty (reduce (fn [sym->dep x]
-                           (assoc sym->dep
-                                  (str (first x))
-                                  (.getCanonicalPath (File. (str (second x))))))
-                         {}
-                         (second trx-first))))))
-
+  (or (when-some [trx (first (env :convex.run/trx+))]
+        (when ($.code/list? trx)
+          (let [^AList form (first trx)]
+            (when (and ($.code/list? form)
+                       (= (count form)
+                          3)
+                       (= (.get form
+                                0)
+                          Symbols/LOOKUP)
+                       (let [addr (.get form
+                                        1)]
+                         (or (= addr
+                                $.run.sym/strx)
+                             (= addr
+                                $.run.ctx/addr-strx)))
+                       (= (.get form
+                                2)
+                          $.run.sym/dep))
+              (let [sym->dep (second trx)]
+                (if ($.code/map? sym->dep)
+                  (reduce (fn [env-2 [cvm-sym cvm-str-dep]]
+                            (if-some [err-message (cond
+                                                    (not ($.code/string? cvm-str-dep)) (str "Dependency must be a path to a file (string), not: "
+                                                                                            cvm-str-dep)
+                                                    (not ($.code/symbol? cvm-sym))     (format "Dependency '%s' must be defined under a symbol, not: %s"
+                                                                                               cvm-str-dep
+                                                                                               cvm-sym))]
+                              (reduced ($.run.err/signal env
+                                                         (-> ($.code/error ErrorCodes/CAST
+                                                                           ($.code/string err-message))
+                                                             ($.run.err/assoc-phase $.run.kw/dep))))
+                              (assoc-in env-2
+                                        [:convex.run/sym->dep
+                                         (str cvm-sym)]
+                                        (-> cvm-str-dep
+                                            str
+                                            File.
+                                            .getCanonicalPath))))
+                          (update env
+                                  :convex.run/trx+
+                                  rest)
+                          sym->dep)
+                  ($.run.err/signal env
+                                    (-> ($.code/error ErrorCodes/CAST
+                                                      ($.code/string "Dependencies must but a map of 'symbol' -> 'file path (string)'"))
+                                        ($.run.err/assoc-phase $.run.kw/dep)))))))))
+      env))
+          
 
 ;;;;;;;;;; 
 
@@ -130,14 +171,10 @@
                             (.assoc $.run.kw/src
                                     ($.code/string src))
                             ($.run.err/assoc-phase $.run.kw/read)))
-      (let [sym->dep' (sym->dep trx+)]
-        (-> env
-            (assoc :convex.run/sym->dep sym->dep'
-                   :convex.run/trx+     (cond->
-                                          trx+
-                                          sym->dep'
-                                          rest))
-            (dissoc :convex.run/src))))))
+      (-> env
+          (assoc :convex.run/trx+ trx+)
+          (dissoc :convex.run/src)
+          sym->dep))))
 
 
 
@@ -316,32 +353,34 @@
                                 (if (or dep-lock
                                         (nil? dep-old+)
                                         (seq (env-3 :convex.watch/extra->change)))
-                                  (let [env-4     (main-file env-3)
-                                        sym->dep' (env-4 :convex.run/sym->dep)
-                                        dep-new+  (set (vals sym->dep'))
-                                        env-5     (-> env-4
-                                                      (assoc :convex.run/dep+       dep-new+
-                                                             :convex.watch/sym->dep sym->dep')
-                                                      (dissoc :convex.run/sym->dep))]
-                                    (if (env-5 :convex.error/error)
-                                      env-5
-                                      (if (= (not-empty dep-new+)
-                                             dep-old+)
-                                        (-> env-5
-                                            (dissoc :convex.watch/dep-lock
-                                                    :convex.watch/extra->change)
-                                            $.sync/patch
-                                            $.sync/eval
-                                            $.run.exec/cycle)
-                                        (if (= dep-new+
-                                               dep-lock)
-                                          (dissoc env-5
-                                                  :convex.run/dep+
-                                                  :convex.run/dep-lock
-                                                  :convex.run/extra->change)
-                                          (-restart a*env
-                                                    (dissoc env-5
-                                                            :convex.run/dep-lock))))))
+                                  (let [env-4 (main-file env-3)]
+                                    (if (env-4 :convex.run/error)
+                                      env-4
+                                      (let [sym->dep' (env-4 :convex.run/sym->dep)
+                                            dep-new+  (set (vals sym->dep'))
+                                            env-5     (-> env-4
+                                                          (assoc :convex.run/dep+       dep-new+
+                                                                 :convex.watch/sym->dep sym->dep')
+                                                          (dissoc :convex.run/sym->dep))]
+                                        (if (env-5 :convex.run/error)
+                                          env-5
+                                          (if (= (not-empty dep-new+)
+                                                 dep-old+)
+                                            (-> env-5
+                                                (dissoc :convex.watch/dep-lock
+                                                        :convex.watch/extra->change)
+                                                $.sync/patch
+                                                $.sync/eval
+                                                $.run.exec/cycle)
+                                            (if (= dep-new+
+                                                   dep-lock)
+                                              (dissoc env-5
+                                                      :convex.run/dep+
+                                                      :convex.run/dep-lock
+                                                      :convex.run/extra->change)
+                                              (-restart a*env
+                                                        (dissoc env-5
+                                                                :convex.run/dep-lock))))))))
                                   ($.run.exec/cycle env-3)))))))))
        ($.watch/start a*env)
        a*env))))

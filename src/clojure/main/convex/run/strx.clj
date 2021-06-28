@@ -346,8 +346,7 @@
                   (-> (.get tuple
                             3)
                       str
-                      $.cvm/read
-                      $.code/vector)]
+                      $.cvm/read)]
                   (catch Throwable _err
                     [($.run.err/strx ErrorCodes/ARGUMENT
                                      tuple

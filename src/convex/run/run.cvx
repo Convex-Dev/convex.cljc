@@ -252,7 +252,7 @@
                 
                   (defmacro read
                 
-                    ^{:doc {:description ["Passes the given string through the Convex Lisp reader and returns a vector of forms."
+                    ^{:doc {:description ["Passes the given string through the Convex Lisp reader and returns a list of forms."
                                           "Those forms can be compiled, evaluated, ..."]
                             :examples    [{:code "(strx/read \"(+ 2 2)\")"}]
                             :signature   [{:params [string]}]

@@ -6,8 +6,8 @@
 
 ;; Reads those files and binds the unevaluated code to the given symbols using special transaction `cvm.read`
 ;;
-;(strx/dep {xform "src/convex/lib/lab/xform.cvx"
-;           store "src/convex/lib/lab/xform/store.cvx"})
+(strx/dep {xform "src/convex/lib/lab/xform.cvx"
+           store "src/convex/lib/lab/xform/store.cvx"})
 
 
 
@@ -18,19 +18,8 @@
 
 ;(strx/out (+ 2 2))
 
-[:cvm.strx :hook.result nil]
+[:cvm.strx :out xform]
 
-[:cvm.strx :hook.result [:cvm.strx :do '[[:cvm.strx :out [:juice strx/*juice.last*]]]]]
-
-[:cvm.strx :do [10 20]]
-
-[:cvm.strx :out :out]
-
-[:cvm.strx :out [:out strx/*juice.last*]]
-
-[:cvm.strx :hook.result nil]
-
-30
 
 ;; Prints nice information at the start of a run using special transaction `cvm.out`
 ;;

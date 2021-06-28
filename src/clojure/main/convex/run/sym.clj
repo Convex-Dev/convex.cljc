@@ -20,6 +20,14 @@
 
 
 
+(def ^Symbol dep
+
+  ""
+
+  ($.code/symbol "dep"))
+
+
+
 (def ^Symbol error
 
   ""
@@ -49,6 +57,14 @@
   ""
 
   ($.code/symbol "*juice.total*"))
+
+
+
+(def ^Symbol strx
+
+  ""
+
+  ($.code/symbol "strx"))
 
 
 
