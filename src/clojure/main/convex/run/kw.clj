@@ -38,11 +38,11 @@
 
 
 
-(def ^Keyword cvm-strx
+(def ^Keyword cvm-sreq
 
   ""
 
-  ($.code/keyword "cvm.strx"))
+  ($.code/keyword "cvm.sreq"))
 
 
 
@@ -206,7 +206,7 @@
 
 
 
-(def ^Keyword strx
+(def ^Keyword sreq
 
   ""
 

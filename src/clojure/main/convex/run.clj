@@ -20,7 +20,7 @@
             [convex.run.exec  :as $.run.exec]
             [convex.run.kw    :as $.run.kw]
             [convex.run.sym   :as $.run.sym]
-            [convex.run.strx]
+            [convex.run.sreq]
             [convex.sync      :as $.sync]
             [convex.watch     :as $.watch]))
 
@@ -48,9 +48,9 @@
                        (let [addr (.get form
                                         1)]
                          (or (= addr
-                                $.run.sym/strx)
+                                $.run.sym/sreq)
                              (= addr
-                                $.run.ctx/addr-strx)))
+                                $.run.ctx/addr-sreq)))
                        (= (.get form
                                 2)
                           $.run.sym/dep))
@@ -393,8 +393,7 @@
 (comment
 
 
-  (eval "(help/about strx 'out)")
-
+  (eval "(help/about sreq 'out)")
 
 
 

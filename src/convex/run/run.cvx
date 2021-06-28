@@ -8,11 +8,11 @@
 ;;
 (do
 
-  (def strx
+  (def sreq
        (deploy '(do
 
                   (call *registry*
-                        (cns-update 'convex.run.strx 
+                        (cns-update 'convex.run.sreq 
                                     *address*))
 
 
@@ -85,7 +85,7 @@
                                           "If needed, MUST be written as the very first transaction found in the main file."
                                           "Takes a map of `symbol` -> `path to file`. Files are read as vectors of Convex Lisp forms and then defined under their corresponding symbol."
                                           "Then, those forms can be used as needed. It is common to use `deploy` or `eval`, depending on the purpose of a given file."]
-                            :examples    [{:code "(strx/dep {my-lib \"path/to/lib.cvx\"})"}]
+                            :examples    [{:code "(sreq/dep {my-lib \"path/to/lib.cvx\"})"}]
                             :signature   [{:params [sym->file]}]
                             :type        :function}}
                 
@@ -99,7 +99,7 @@
                 
                     ^{:doc {:description ["Executes each argument as a transaction."
                                           "Useful when composing special transactions in some way"]
-                            :examples    [{:code "(strx/do (def foo 42) (strx/out foo))"}]
+                            :examples    [{:code "(sreq/do (def foo 42) (sreq/out foo))"}]
                             :signature   [{:params [& trx+]}]
                             :type        :function}}
                 
@@ -107,7 +107,7 @@
 
                     (assert (or (list? trx+)
                                 (vector? trx+)))
-                    [:cvm.strx :do trx+])
+                    [:cvm.sreq :do trx+])
                 
 
 
@@ -116,8 +116,8 @@
                     ^{:doc {:description ["Retrieves environment variable from the current process. Useful when some information must be passed to the runner from the outside."
                                           "When a symbol is given, defines under that symbol the entire map of `env property (string)` -> `env value (string)`."
                                           "When a env variable is given as well, defines only the value for that variable"]
-                            :examples    [{:code "(strx/env env-map"}
-                                          {:code "(strx/env my-x-value \"MY_X\")"}]
+                            :examples    [{:code "(sreq/env env-map"}
+                                          {:code "(sreq/env my-x-value \"MY_X\")"}]
                             :signature   [{:params [sym]}
                                           {:params [sym env-var]}]
                             :type        :function}}
@@ -134,7 +134,7 @@
                      (assert (symbol? sym))
                      (assert (or (str? env-var)
                                  (nil? env-var)))
-                     [:cvm.strx :env sym env-var]))
+                     [:cvm.sreq :env sym env-var]))
                 
                 
                 
@@ -143,8 +143,8 @@
                     ^{:doc {:description ["Registers the given transactions to be executed at the end, even if an error occured."
                                           "Overwrites what was previously registers."
                                           "Providing no transaction cancels what was previously registered."]
-                            :examples    [{:code "(strx/hook.end)"}
-                                          {:code "(strx/hook.end (def foo 42) (strx/out [:end :foo foo]))}"}]
+                            :examples    [{:code "(sreq/hook.end)"}
+                                          {:code "(sreq/hook.end (def foo 42) (sreq/out [:end :foo foo]))}"}]
                             :signature   [{:params [& trx+]}]
                             :type        :function}}
                 
@@ -152,7 +152,7 @@
                 
                     (assert (or (list? trx+)
                                 (vector? trx+)))
-                    [:cvm.strx :hook.end trx+])
+                    [:cvm.sreq :hook.end trx+])
                 
                 
                 
@@ -162,14 +162,14 @@
                                           "Returned code can be a special transaction."
                                           "Default is outputting the error without any modification"
                                           "Overwrites any previously registered function, `nil` removes it."]
-                            :examples    [{:code "(strx/hook.error (fn [ex] `(strx/out [:EXCEPTION ~ex])))"}]
+                            :examples    [{:code "(sreq/hook.error (fn [ex] `(sreq/out [:EXCEPTION ~ex])))"}]
                             :signature   [{:params [f]}]
                             :type        :function}}
                 
                     [f]
                 
                     (assert (fn? f))
-                    [:cvm.strx :hook.error f])
+                    [:cvm.sreq :hook.error f])
                 
                 
                 
@@ -179,14 +179,14 @@
                                           "Default is `identity`"
                                           "If the function returns nil, then nothing is outputted."
                                           "Overwrites any previously registered function, `nil` removes it."]
-                            :examples    [{:code "(strx/hook.out (fn [x] (when-not (:foo x) x)))"}]
+                            :examples    [{:code "(sreq/hook.out (fn [x] (when-not (:foo x) x)))"}]
                             :signature   [{:params [f]}]
                             :type        :function}}
                 
                     [f]
 
                     (assert (fn? f))
-                    [:cvm.strx :hook.out f])
+                    [:cvm.sreq :hook.out f])
                 
                 
                 
@@ -195,40 +195,40 @@
                     ^{:doc {:description ["Registers a function that modifies a regular transaction (not any special one)."
                                           "Useful for decorating all subsequent transactions or filtering them based on metadata."
                                           "Overwrites any previously registered function, `nil` removes it."]
-                            :examples    [{:code "(strx/hook.trx (fn [trx] `(strx/out [(quote ~trx) ~trx])))"}]
+                            :examples    [{:code "(sreq/hook.trx (fn [trx] `(sreq/out [(quote ~trx) ~trx])))"}]
                             :signature   [{:params [f]}]
                             :type        :function}}
                 
                     [f]
 
-                    [:cvm.strx :hook.trx f])
+                    [:cvm.sreq :hook.trx f])
                 
                                                                         
                 
                   (defn log
                 
                     ^{:doc {:description "Defines the current CVM log under the given symbol"
-                            :examples    [{:code "(strx/do (log :foo) (strx/log l) (strx/out l))"}]
+                            :examples    [{:code "(sreq/do (log :foo) (sreq/log l) (sreq/out l))"}]
                             :signature   [{:params [sym]}]
                             :type        :function}}
                 
                     [sym]
                 
                     (assert (symbol? sym))
-                    [:cvm.strx :log sym])
+                    [:cvm.sreq :log sym])
                 
                 
                 
                   (defn out
                 
                     ^{:doc {:description "Special transaction which outputs the given argument."
-                            :examples    [{:code "(strx/out 42)"}]
+                            :examples    [{:code "(sreq/out 42)"}]
                             :signature   [{:params [x]}]
                             :type        :function}}
                 
                     [x]
 
-                    [:cvm.strx :out x])
+                    [:cvm.sreq :out x])
                 
                 
                 
@@ -236,7 +236,7 @@
                 
                     ^{:doc {:description ["Passes the given string through the Convex Lisp reader and returns a list of forms."
                                           "Those forms can be compiled, evaluated, ..."]
-                            :examples    [{:code "(strx/read \"(+ 2 2)\")"}]
+                            :examples    [{:code "(sreq/read \"(+ 2 2)\")"}]
                             :signature   [{:params [string]}]
                             :type        :function}}
                 
@@ -244,7 +244,7 @@
                 
                     (assert (str? src))
                     (assert (symbol? sym))
-                    [:cvm.strx :read src])
+                    [:cvm.sreq :read src])
                 
 
                 
@@ -252,13 +252,13 @@
                 
                     ^{:doc {:description ["Clears the screen."
                                           "Useful only if the output is printed in the terminal."]
-                            :examples    [{:code "(strx/clear.screen)"}]
+                            :examples    [{:code "(sreq/clear.screen)"}]
                             :signature   [{:params []}]
                             :type        :function}}
                 
                     []
 
-                    [:cvm.strx :screen.clear])
+                    [:cvm.sreq :screen.clear])
                 
                 
 
@@ -267,7 +267,7 @@
                     ^{:doc {:description ["Given transactions are executed one by one until an exception is thrown."
                                           "In such case, the exception is defined under `*cvm.error*` and transactions in the catch form are executed (see `catch`)."
                                           "With or without a catch form, execution outside of `try` continues."]
-                            :examples    [{:code "(strx/try (def foo 42) (fail \"Oops\") (strx/catch (strx/out [:error *cvm.error*])))"}]
+                            :examples    [{:code "(sreq/try (def foo 42) (fail \"Oops\") (sreq/catch (sreq/out [:error *cvm.error*])))"}]
                             :signature   [{:params [& trx+]}]
                             :type        :function}}
                                         
@@ -285,7 +285,7 @@
                      (assert (or (nil? catch-trx+)
                                  (list? catch-trx+)
                                  (vector? catch-trx+)))
-                     [:cvm.strx :try try-trx+ catch-trx+]))
+                     [:cvm.sreq :try try-trx+ catch-trx+]))
                               
                 
                   ))) ;; END - STRX
@@ -300,7 +300,7 @@
                                     *address*))
 
 
-                  (import convex.run.strx :as strx)
+                  (import convex.run.sreq :as sreq)
 
 
 
@@ -441,12 +441,12 @@
 
                       ([addr-or-sym]
 
-                       (strx/out (about-str addr-or-sym)))
+                       (sreq/out (about-str addr-or-sym)))
 
 
                       ([addr sym]
 
-                       (strx/out (about-str addr
+                       (sreq/out (about-str addr
                                             sym))))
 
 
@@ -454,9 +454,9 @@
 
 
 
-  ;; CVM result, needed for easily getting the address of the strx library.
+  ;; CVM result, needed for easily getting the address of the sreq library.
   ;;
-  strx
+  sreq
 
 
   ) ;; END 

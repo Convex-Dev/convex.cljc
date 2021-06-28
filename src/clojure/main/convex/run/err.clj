@@ -117,7 +117,7 @@
 
 
 
-(defn strx
+(defn sreq
 
   ""
 
@@ -127,7 +127,7 @@
                     message)
       (.assoc $.run.kw/trx
               trx)
-      (assoc-phase $.run.kw/strx)))
+      (assoc-phase $.run.kw/sreq)))
 
 
 

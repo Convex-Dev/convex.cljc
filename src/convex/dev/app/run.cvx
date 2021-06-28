@@ -6,24 +6,24 @@
 
 ;; Reads those files and binds the unevaluated code to the given symbols using special transaction `cvm.read`
 ;;
-(strx/dep {xform "src/convex/lib/lab/xform.cvx"
+(sreq/dep {xform "src/convex/lib/lab/xform.cvx"
            store "src/convex/lib/lab/xform/store.cvx"})
 
 
 
 ;; Clears the terminal using special transaction `cvm.out.clear`
 ;;
-(strx/screen.clear)
+(sreq/screen.clear)
 
 
 
-;(help/about strx 'out)
+;(help/about sreq 'out)
 
 
-(strx/try '[(strx/out [:xform xform])
+(sreq/try '[(sreq/out [:xform xform])
             (fail :foo :bar)
-            (strx/out :again)]
-          '[(strx/out [:catch strx/*error*])])
+            (sreq/out :again)]
+          '[(sreq/out [:catch sreq/*error*])])
 
 
 

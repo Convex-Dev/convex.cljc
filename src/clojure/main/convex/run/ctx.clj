@@ -35,7 +35,7 @@
 ;;;;;;;;;; Miscellaneous values
 
 
-(def addr-strx
+(def addr-sreq
 
   ""
 
@@ -79,7 +79,7 @@
            kw-ctx
            (fn [ctx]
              ($.cvm/def ctx
-                        addr-strx
+                        addr-sreq
                         sym->value)))))
 
 ;;;;;;;;;; Miscellaneous utilities

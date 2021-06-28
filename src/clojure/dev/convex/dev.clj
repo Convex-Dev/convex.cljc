@@ -46,7 +46,7 @@
             [convex.run.err                :as $.run.err]
             [convex.run.exec               :as $.run.exec]
             [convex.run.kw                 :as $.run.kw]
-            [convex.run.strx               :as $.run.strx]
+            [convex.run.sreq               :as $.run.sreq]
             [convex.run.sym                :as $.run.sym]
             [convex.sync                   :as $.sync]
             [convex.watch                  :as $.watch]

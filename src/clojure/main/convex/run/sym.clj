@@ -60,11 +60,11 @@
 
 
 
-(def ^Symbol strx
+(def ^Symbol sreq
 
   ""
 
-  ($.code/symbol "strx"))
+  ($.code/symbol "sreq"))
 
 
 

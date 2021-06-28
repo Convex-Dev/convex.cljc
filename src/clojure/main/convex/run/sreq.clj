@@ -1,4 +1,4 @@
-(ns convex.run.strx
+(ns convex.run.sreq
 
   "Special transactions interpreted by the runner."
 
@@ -59,7 +59,7 @@
 ;;;;;;;;;; Setup
 
 
-(defmethod $.run.exec/strx nil
+(defmethod $.run.exec/sreq nil
 
   ;; No special request, simply finalize a regular transaction.
 
@@ -75,34 +75,34 @@
 
 
 
-(defmethod $.run.exec/strx :unknown
+(defmethod $.run.exec/sreq :unknown
 
   ;; Unknown special request.
 
   [env tuple]
 
   ($.run.err/signal env
-                    ($.run.err/strx ErrorCodes/ARGUMENT
+                    ($.run.err/sreq ErrorCodes/ARGUMENT
                                     tuple
                                     ($.code/string "Unsupported special transaction"))))
 
 ;;;;;;;;;; Implementations
 
 
-(defmethod $.run.exec/strx
+(defmethod $.run.exec/sreq
 
   $.run.kw/dep
 
   [env ^AVector tuple]
 
   ($.run.err/signal env
-                    ($.run.err/strx ErrorCodes/STATE
+                    ($.run.err/sreq ErrorCodes/STATE
                                     tuple
-                                    ($.code/string "CVM special command 'strx/dep' can only be used as the very first transaction"))))
+                                    ($.code/string "CVM special command 'sreq/dep' can only be used as the very first transaction"))))
 
 
 
-(defmethod $.run.exec/strx
+(defmethod $.run.exec/sreq
 
   $.run.kw/do
 
@@ -114,7 +114,7 @@
 
 
 
-(defmethod $.run.exec/strx
+(defmethod $.run.exec/sreq
 
   $.run.kw/env
 
@@ -132,7 +132,7 @@
                                              (System/getenv))))}))
 
 
-(defmethod $.run.exec/strx
+(defmethod $.run.exec/sreq
   
   $.run.kw/hook-end
 
@@ -165,7 +165,7 @@
 
 
 
-(defmethod $.run.exec/strx
+(defmethod $.run.exec/sreq
   
   $.run.kw/hook-error
 
@@ -210,7 +210,7 @@
                                        (assoc :convex.run.hook/error
                                               identity)
                                        (dissoc :convex.run/error)
-                                       ($.run.exec/strx form)
+                                       ($.run.exec/sreq form)
                                        (assoc :convex.run.hook/error
                                               hook))
                              err-2 (env-4 :convex.run/error)]
@@ -229,7 +229,7 @@
 
 
 
-(defmethod $.run.exec/strx
+(defmethod $.run.exec/sreq
   
   $.run.kw/hook-out
 
@@ -278,7 +278,7 @@
 
 
 
-(defmethod $.run.exec/strx
+(defmethod $.run.exec/sreq
   
   $.run.kw/hook-result
 
@@ -308,7 +308,7 @@
 
 
 
-(defmethod $.run.exec/strx
+(defmethod $.run.exec/sreq
   
   $.run.kw/log
 
@@ -321,7 +321,7 @@
 
 
 
-(defmethod $.run.exec/strx
+(defmethod $.run.exec/sreq
 
   $.run.kw/out
 
@@ -334,7 +334,7 @@
 
 
 
-(defmethod $.run.exec/strx
+(defmethod $.run.exec/sreq
 
   $.run.kw/read
   
@@ -348,7 +348,7 @@
                       str
                       $.cvm/read)]
                   (catch Throwable _err
-                    [($.run.err/strx ErrorCodes/ARGUMENT
+                    [($.run.err/sreq ErrorCodes/ARGUMENT
                                      tuple
                                      ($.code/string "Unable to read source"))
                      nil]))]
@@ -362,7 +362,7 @@
 
 
 
-(defmethod $.run.exec/strx
+(defmethod $.run.exec/sreq
   
   $.run.kw/screen-clear
 
@@ -373,7 +373,7 @@
 
 
 
-(defmethod $.run.exec/strx
+(defmethod $.run.exec/sreq
   
   $.run.kw/try
 

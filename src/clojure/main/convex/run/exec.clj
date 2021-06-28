@@ -57,7 +57,7 @@
 ;;;;;;;;;; Special transactions
 
 
-(defn strx-dispatch
+(defn sreq-dispatch
   
   ""
 
@@ -68,24 +68,24 @@
                   2)
               (= (.get ^AVector result
                        0)
-                 $.run.kw/cvm-strx))
+                 $.run.kw/cvm-sreq))
      (.get ^AVector result
            1)))
 
 
   ([_env result]
 
-   (strx-dispatch result)))
+   (sreq-dispatch result)))
 
 
 
-(defmulti strx
+(defmulti sreq
 
   ""
 
-  ;; Implentation of special transactions is in the [[convex.run.strx]] namespace.
+  ;; Implentation of special transactions is in the [[convex.run.sreq]] namespace.
 
-  strx-dispatch
+  sreq-dispatch
 
   :default :unknown)
 
@@ -227,7 +227,7 @@
                      juice-last)
              (update :convex.run/i-trx
                      inc)
-             (strx (result env-2))))))))
+             (sreq (result env-2))))))))
 
 
 
