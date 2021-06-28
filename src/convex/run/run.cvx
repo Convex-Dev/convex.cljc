@@ -78,27 +78,25 @@
                   (defn env
                 
                     ^{:doc {:description ["Retrieves environment variable from the current process. Useful when some information must be passed to the runner from the outside."
-                                          "When a symbol is given, defines under that symbol the entire map of `env property (string)` -> `env value (string)`."
-                                          "When a env variable is given as well, defines only the value for that variable"]
-                            :examples    [{:code "(sreq/env 'env-map"}
-                                          {:code "(sreq/env 'my-x-value \"MY_X\")"}]
+                                          "When a env variable is given as well, defines only the value for that variable"
+                                          "Result is temporarily stored in `help/*trx.last.result* and is accessible during the next transaction."]
+                            :examples    [{:code "(sreq/env}"}
+                                          {:code "(sreq/env \"MY_X\")"}]
                             :signature   [{:params [sym]}
                                           {:params [sym env-var]}]
                             :type        :function}}
                 
                 
-                    ([sym]
+                    ([]
 
-                     (-env sym
-                           nil))
+                     (env nil))
                 
                 
-                    ([sym env-var]
+                    ([env-var]
 
-                     (assert (symbol? sym))
                      (assert (or (str? env-var)
                                  (nil? env-var)))
-                     [:cvm.sreq :env sym env-var]))
+                     [:cvm.sreq :env env-var]))
                 
                 
                 
@@ -172,15 +170,15 @@
                 
                   (defn log
                 
-                    ^{:doc {:description "Defines the current CVM log under the given symbol."
+                    ^{:doc {:description ["Retrieves the current CVM log."
+                                          "Result is temporarily stored in `help/*trx.last.result* and is accessible during the next transaction."]
                             :examples    [{:code "(sreq/do '[(log :foo) (sreq/log l) (sreq/out l))"}]
-                            :signature   [{:params [sym]}]
+                            :signature   [{:params []}]
                             :type        :function}}
                 
-                    [sym]
+                    []
                 
-                    (assert (symbol? sym))
-                    [:cvm.sreq :log sym])
+                    [:cvm.sreq :log])
                 
                 
                 
@@ -199,16 +197,16 @@
                 
                   (defn read
                 
-                    ^{:doc {:description ["Passes the given string through the Convex Lisp reader and returns a list of forms."
-                                          "Those forms can be compiled, evaluated, ..."]
+                    ^{:doc {:description ["Passes the given string through the Convex Lisp reader and produces a list of forms."
+                                          "Those forms can be compiled, evaluated, ..."
+                                          "Result is temporarily stored in `help/*trx.last.result* and is accessible during the next transaction."]
                             :examples    [{:code "(sreq/read \"(+ 2 2)\")"}]
                             :signature   [{:params [string]}]
                             :type        :function}}
                 
-                    [sym src]
+                    [src]
                 
                     (assert (str? src))
-                    (assert (symbol? sym))
                     [:cvm.sreq :read src])
                 
 

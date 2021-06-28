@@ -93,6 +93,18 @@
                         addr-help
                         sym->value)))))
 
+
+
+(defn def-result
+
+  ""
+
+  [env result]
+
+  (def-help env
+            {$.run.sym/trx-last-result result}))
+
+
 ;;;;;;;;;; Miscellaneous utilities
 
 

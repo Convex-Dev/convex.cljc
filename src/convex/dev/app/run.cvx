@@ -17,7 +17,12 @@
 
 
 
-(help/about sreq)
+;(help/about sreq)
+
+
+(sreq/do '[(def foo "4)")
+           (sreq/read (str "(+ 3 " foo))
+           (sreq/out [:result (eval (first help/*trx.last.result*))])])
 
 
 ;; Prints nice information at the start of a run using special transaction `cvm.out`

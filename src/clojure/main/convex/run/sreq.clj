@@ -13,6 +13,7 @@
             [convex.run.exec :as $.run.exec]
             [convex.run.kw   :as $.run.kw]))
 
+
 ;;;;;;;;;; Miscellaneous
 
 
@@ -135,16 +136,14 @@
 
   [env ^AVector tuple]
 
-  ($.run.ctx/def-current env
-                         {(.get tuple
-                                2)
-                          (if-some [env-var (.get tuple
-                                                  3)]
-                            ($.code/string (System/getenv (str env-var)))
-                            ($.code/map (map (fn [[k v]]
-                                               [($.code/string k)
-                                                ($.code/string v)])
-                                             (System/getenv))))}))
+  ($.run.ctx/def-result env
+                        (if-some [env-var (.get tuple
+                                                2)]
+                          ($.code/string (System/getenv (str env-var)))
+                          ($.code/map (map (fn [[k v]]
+                                             [($.code/string k)
+                                              ($.code/string v)])
+                                           (System/getenv))))))
 
 
 (defmethod $.run.exec/sreq
@@ -327,12 +326,10 @@
   
   $.run.kw/log
 
-  [env ^AVector tuple]
+  [env _tuple]
 
-  ($.run.ctx/def-current env
-                         {(.get tuple
-                                2)
-                          ($.cvm/log (env :convex.sync/ctx))}))
+  ($.run.ctx/def-result env
+                        ($.cvm/log (env :convex.sync/ctx))))
 
 
 
@@ -359,7 +356,7 @@
          code] (try
                  [nil
                   (-> (.get tuple
-                            3)
+                            2)
                       str
                       $.cvm/read)]
                   (catch Throwable _err
@@ -370,10 +367,8 @@
     (if err
       ($.run.err/signal env
                         err)
-      ($.run.ctx/def-current env
-                             {(.get tuple
-                                    2)
-                              code}))))
+      ($.run.ctx/def-result env
+                            code))))
 
 
 
