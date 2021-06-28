@@ -6,7 +6,8 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.data AList)
+  (:import (convex.core.data AList
+                             AMap)
            (convex.core.lang Symbols)
            (java.io File))
   (:refer-clojure :exclude [eval
@@ -161,7 +162,6 @@
                  [nil
                   (vec ($.cvm/read src))]
                  (catch Throwable err
-                   (tap> [:ERR err])
                    [err
                     nil]))]
     (if err
@@ -191,6 +191,32 @@
 
 
 
+(defn check-err-sync
+
+  ""
+
+  [env]
+
+  (when-some [[kind
+               path->reason] (env :convex.sync/error)]
+    ($.run.err/signal env
+                      ($.cvm/code-std* :FATAL)
+                      (reduce-kv (fn [^AMap path->reason--2 path reason]
+                                   (.assoc path->reason--2
+                                           ($.code/string path)
+                                           ($.code/string (case kind
+                                                            :load
+                                                            (case (first reason)
+                                                              :not-found "Dependency not found or inaccessible"
+                                                              :parse     "Dependency cannot be parsed"
+                                                              :unknown   "Unknown error while loading and parsing dependency")
+
+                                                            "Unknown error while loading dependency file"))))
+                                 ($.code/map)
+                                 path->reason))))
+
+
+
 (defn once
 
   ""
@@ -202,14 +228,9 @@
     (if-some [sym->dep' (env :convex.run/sym->dep)]
       (let [env-2    (merge env
                             ($.sync/disk ($.cvm/fork (env :convex.sync/ctx-base))
-                                         sym->dep'))
-            err-sync (env-2 :convex.sync/error)]
-        (if err-sync
-          ;; TODO. Better error.
-          ($.run.err/signal env-2
-                            ($.cvm/code-std* :STATE)
-                            nil)
-          ($.run.exec/cycle env-2)))
+                                         sym->dep'))]
+        (or (check-err-sync env-2)
+            ($.run.exec/cycle env-2)))
       (-> env
           (assoc :convex.sync/ctx
                  ($.cvm/fork (env :convex.sync/ctx-base)))
@@ -310,6 +331,7 @@
                                       dep-old+ :convex.run/dep+}]
                         (let [env-3 (dissoc env-2
                                             :convex.run/error)]
+                          (tap> [:dep-lock (env-3 :convex.run/dep-lock)])
                           (or ;;
                               ;; Handles watcher error if any.
                               ;;
@@ -329,23 +351,19 @@
                                                ;; A "dep-lock" is used so that a new watcher with the same failing dependencies is not restarted right away.
                                                ;;
                                                (-restart a*env
-                                                         ($.run.err/fatal (-> (assoc env-3
-                                                                                     :convex.run/dep-lock
-                                                                                     dep-old+)
-                                                                              (dissoc :convex.run/dep+
-                                                                                      :convex.watch/sym->dep))
-                                                                          (-> ($.code/error ($.cvm/code-std* :FATAL)
-                                                                                            ($.code/string "Missing file for requested dependency"))
-                                                                              (.assoc $.run.kw/path
-                                                                                      ($.code/string arg))))))))
+                                                         (-> env-3
+                                                             (assoc :convex.run/dep-lock
+                                                                    dep-old+)
+                                                             (dissoc :convex.run/dep+
+                                                                     :convex.watch/sym->dep)
+                                                             ($.run.err/fatal (-> ($.code/error ($.cvm/code-std* :FATAL)
+                                                                                                ($.code/string "Missing file for requested dependency"))
+                                                                                  (.assoc $.run.kw/path
+                                                                                          ($.code/string arg)))))))))
                               ;;
                               ;; Handles sync error if any.
                               ;;
-                              (when-some [_err (env-3 :convex.sync/error)]
-                                ;; TODO. Better error.
-                                ($.run.err/signal env-3
-                                                  ($.cvm/code-std* :STATE)
-                                                  nil))
+                              (check-err-sync env-3)
                               ;;
                               ;; No significant errors were detected so try evaluation.
                               ;;
