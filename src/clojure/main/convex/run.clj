@@ -6,8 +6,7 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core ErrorCodes)
-           (convex.core.data AList)
+  (:import (convex.core.data AList)
            (convex.core.lang Symbols)
            (java.io File))
   (:refer-clojure :exclude [eval
@@ -64,7 +63,7 @@
                                                                                                cvm-str-dep
                                                                                                cvm-sym))]
                               (reduced ($.run.err/signal env
-                                                         (-> ($.code/error ErrorCodes/CAST
+                                                         (-> ($.code/error ($.cvm/code-std* :CAST)
                                                                            ($.code/string err-message))
                                                              ($.run.err/assoc-phase $.run.kw/dep))))
                               (assoc-in env-2
@@ -79,7 +78,7 @@
                                   rest)
                           sym->dep)
                   ($.run.err/signal env
-                                    (-> ($.code/error ErrorCodes/CAST
+                                    (-> ($.code/error ($.cvm/code-std* :CAST)
                                                       ($.code/string "Dependencies must but a map of 'symbol' -> 'file path (string)'"))
                                         ($.run.err/assoc-phase $.run.kw/dep)))))))))
       env))
@@ -139,7 +138,7 @@
                    nil]))]
     (if err
       ($.run.err/signal env
-                        (-> ($.code/error ErrorCodes/ARGUMENT
+                        (-> ($.code/error ($.cvm/code-std* :ARGUMENT)
                                           ($.code/string "Unable to open file"))
                             (.assoc $.run.kw/path
                                     ($.code/string path))
@@ -167,7 +166,7 @@
                     nil]))]
     (if err
       ($.run.err/signal env
-                        (-> ($.code/error ErrorCodes/ARGUMENT
+                        (-> ($.code/error ($.cvm/code-std* :ARGUMENT)
                                           ($.code/string "Unable to parse source code"))
                             (.assoc $.run.kw/src
                                     ($.code/string src))
@@ -208,7 +207,7 @@
         (if err-sync
           ;; TODO. Better error.
           ($.run.err/signal env-2
-                            ErrorCodes/STATE
+                            ($.cvm/code-std* :STATE)
                             nil)
           ($.run.exec/cycle env-2)))
       (-> env
@@ -318,12 +317,12 @@
                                            arg]  (env-3 :convex.watch/error)]
                                 (case etype
                                   :exception ($.run.err/fatal env-3
-                                                              ($.code/error ErrorCodes/FATAL
+                                                              ($.code/error ($.cvm/code-std* :FATAL)
                                                                             ($.code/string "Unknown fatal error occured when setting up the file watcher")))
                                   :not-found (if (= arg
                                                     (first (env-3 :convex.watch/extra+)))
                                                ($.run.err/fatal env-3
-                                                                ($.code/error ErrorCodes/FATAL
+                                                                ($.code/error ($.cvm/code-std* :FATAL)
                                                                               ($.code/string "Main file does not exist")))
                                                ;;
                                                ;; Dependency is missing, restart watching only main file for retrying on new changes.
@@ -335,7 +334,7 @@
                                                                                      dep-old+)
                                                                               (dissoc :convex.run/dep+
                                                                                       :convex.watch/sym->dep))
-                                                                          (-> ($.code/error ErrorCodes/FATAL
+                                                                          (-> ($.code/error ($.cvm/code-std* :FATAL)
                                                                                             ($.code/string "Missing file for requested dependency"))
                                                                               (.assoc $.run.kw/path
                                                                                       ($.code/string arg))))))))
@@ -345,7 +344,7 @@
                               (when-some [_err (env-3 :convex.sync/error)]
                                 ;; TODO. Better error.
                                 ($.run.err/signal env-3
-                                                  ErrorCodes/STATE
+                                                  ($.cvm/code-std* :STATE)
                                                   nil))
                               ;;
                               ;; No significant errors were detected so try evaluation.

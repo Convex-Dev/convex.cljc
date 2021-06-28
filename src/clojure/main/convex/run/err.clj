@@ -4,8 +4,7 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core ErrorCodes)
-           (convex.core.data ACell
+  (:import (convex.core.data ACell
                              AMap)
            (convex.core.lang.impl ErrorValue))
   (:require [convex.code    :as $.code]
@@ -147,7 +146,7 @@
   ([env ^ACell form message cause]
 
    (fatal env
-          (-> ($.code/error ErrorCodes/FATAL
+          (-> ($.code/error ($.cvm/code-std* :FATAL)
                             message)
               ;(.assoc $.run.kw/form
               ;        form)

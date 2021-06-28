@@ -4,8 +4,7 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core ErrorCodes)
-           (convex.core.data AVector))
+  (:import (convex.core.data AVector))
   (:require [convex.code     :as $.code]
             [convex.cvm      :as $.cvm]
             [convex.run.ctx  :as $.run.ctx]
@@ -82,7 +81,7 @@
   [env tuple]
 
   ($.run.err/signal env
-                    ($.run.err/sreq ErrorCodes/ARGUMENT
+                    ($.run.err/sreq ($.cvm/code-std* :ARGUMENT)
                                     tuple
                                     ($.code/string "Unsupported special transaction"))))
 
@@ -96,7 +95,7 @@
   [env ^AVector tuple]
 
   ($.run.err/signal env
-                    ($.run.err/sreq ErrorCodes/STATE
+                    ($.run.err/sreq ($.cvm/code-std* :STATE)
                                     tuple
                                     ($.code/string "CVM special command 'sreq/dep' can only be used as the very first transaction"))))
 
@@ -348,7 +347,7 @@
                       str
                       $.cvm/read)]
                   (catch Throwable _err
-                    [($.run.err/sreq ErrorCodes/ARGUMENT
+                    [($.run.err/sreq ($.cvm/code-std* :ARGUMENT)
                                      tuple
                                      ($.code/string "Unable to read source"))
                      nil]))]
