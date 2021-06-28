@@ -17,10 +17,11 @@
 
 
                   (call *registry*
-                        (register {:doc {:description ["Special requests are vectors of data which instruct the Convex Lisp Runner to perform useful actions such as outputting values."
-                                                       "Those actions are not implemented by the CVM, they are only understood by Runner."
-                                                       "After each transaction in the main file has been executed, the Runner checks if the result is any supported special request."
-                                                       "Such vectors are created by calling functions from this address."]}}))
+                        (register {:doc  {:description ["Special requests are vectors of data which instruct the Convex Lisp Runner to perform useful actions such as outputting values."
+                                                        "Those actions are not implemented by the CVM, they are only understood by Runner."
+                                                        "After each transaction in the main file has been executed, the Runner checks if the result is any supported special request."
+                                                        "Such vectors are created by calling functions from this address."]}
+                                   :name "Convex Lisp Runner Special Requests"}))
 
                 
                   ;; SPECIAL REQUESTS
@@ -265,14 +266,16 @@
 
 
                   (call *registry*
-                        (register {:doc {:description ["Help library for the Convex Lisp Runner."
-                                                       "The Runner executes each top-level form as a transaction."
-                                                       "This library provides a series of special values named `*xxx*` which hold commonly useful information, such as juice consumption."
-                                                       "Also provide the `about` function for printing a description of any account or any symbol defined in an account."
-                                                       "For more information, run `(help/about help 'about)`."
-                                                       "The Convex Lisp Runner can understand \"special requests\" which can be build using the SReq library."
-                                                       "For more information, run `(help/about sreq)`."
-                                                       "The Help and the SReq library are respectively defined in the default account as `help` and `sreq`."]}}))
+                        (register {:doc  {:description ["Help library for the Convex Lisp Runner."
+                                                        "The Runner executes each top-level form as a transaction."
+                                                        "This library provides a series of special values named `*xxx*` which hold commonly useful information, such as juice consumption."
+                                                        "It also provide the `about` function for printing a description of any account or any symbol defined in an account."
+                                                        "For more information, run `(help/about help 'about)`."
+                                                        "The Runner is able to understand a series of \"special requests\" which perform commonly useful actions such as outputting values."
+                                                        "Those \"special requests\" are merely vectors built using the SReq library."
+                                                        "The Help and the SReq libraries are respectively defined in the default account as `help` and `sreq`."]}
+                                   :name "Convex Lisp Runner Help and Miscelleneous Utilities"}))
+
 
                   (import convex.run.sreq :as sreq)
 
@@ -463,8 +466,10 @@
                                    env         (acc :environment)
                                    key         (acc :key)
                                    meta        (acc :metadata)
-                                   overview    (:description (:doc (call *registry*
-                                                                         (lookup addr-or-sym))))
+                                   meta-reg    (call *registry*
+                                                     (lookup addr-or-sym))
+                                   name        (:name meta-reg)
+                                   overview    (:description (:doc meta-reg))
                                    section+    [["ACCOUNT"
                                                  [addr-or-sym]]
                                                 ["KEY"
@@ -477,16 +482,21 @@
                                                 ["CONTROLLER"
                                                  [(or controller
                                                       "None")]]]
-                                  section-2+    (if overview
+                                  section-2+    (if name
                                                   (conj section+
+                                                        ["NAME"
+                                                         [name]])
+                                                  section+)
+                                  section-3+    (if overview
+                                                  (conj section-2+
                                                         ["OVERVIEW"
                                                          (if (str? overview)
                                                            [overview]
                                                            overview)])
-                                                  section+)
-                                  section-3+    (if (> (count env)
+                                                  section-2+)
+                                  section-4+    (if (> (count env)
                                                        0)
-                                                  (conj section-2+
+                                                  (conj section-3+
                                                         ["ENVIRONMENT (simplified)"
                                                          (reduce (fn [line+ [k _v]]
                                                                    (if-let [desc (get-in meta
@@ -503,8 +513,8 @@
                                                                            k)))
                                                                  []
                                                                  env)])
-                                                  section-2+)]
-                               (str-line+ section-3+))
+                                                  section-3+)]
+                               (str-line+ section-4+))
                              (str "Account "
                                   addr-of-sym
                                   " does not exist."))))
