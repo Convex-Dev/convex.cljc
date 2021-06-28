@@ -6,6 +6,8 @@
    :clj-kondo/config '{:linters {:unused-import    {:level :off}
                                  :unused-namespace {:level :off}}}}
 
+  (:import (convex.core Block)
+           (convex.core.data AccountKey))
   (:require [clojure.data]
             [clojure.pprint]
             [convex.app.fuzz]
@@ -142,8 +144,6 @@
                      '(do
                         (defmacro bar [a b] (+ a b))
                         (bar 2 3)))
-
-
 
   
   )

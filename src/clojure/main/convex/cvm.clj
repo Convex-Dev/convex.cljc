@@ -17,13 +17,14 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core State)
+  (:import (convex.core Block
+                        State)
            (convex.core.data ABlobMap
                              AccountStatus
                              ACell
                              Address
-                             AHashMap
-                             AVector)
+                             AHashMap)
+           (convex.core.data.prim CVMLong)
            (convex.core.init Init
                              InitConfig)
            (convex.core.lang AFn
@@ -33,7 +34,8 @@
   (:refer-clojure :exclude [compile
                             def
                             eval
-                            read])
+                            read
+                            time])
   (:require [clojure.core.protocols]
             [convex.code             :as $.code]
             [convex.clj              :as $.clj]))
@@ -203,7 +205,7 @@
 
   "Returns the remaining amount of juice available for the executing account.
   
-   See [[juice-set]]."
+   Also see [[juice-set]]."
 
   [^Context ctx]
 
@@ -238,13 +240,31 @@
 
 (defn state
 
-  "Returns the whole CVM state associated with `ctx`."
+  "Returns the whole CVM state associated with `ctx`.
+  
+   Also see [[state-set]]."
 
   ^State
 
   [^Context ctx]
 
   (.getState ctx))
+
+
+
+(defn time
+
+  "Returns the current timestamp (long) assigned to the state in the given `ctx`.
+  
+   Also see [[timestamp-set]]."
+
+  ^CVMLong
+
+  [^Context ctx]
+
+  (-> ctx
+      state
+      .getTimeStamp))
 
 
 ;;;;;;;;;; Modifying context properties
@@ -379,7 +399,7 @@
 
 (defn state-set
 
-  ""
+  "Replaces the state in the `ctx` with the given one."
 
   ^Context
 
@@ -387,6 +407,27 @@
 
   (.withState ctx
               state))
+
+
+
+(defn time-advance
+
+  "Advances the timestamp in the state of `ctx` by `millis` milliseconds.
+  
+   Does not do anything if `millis` is < 0."
+
+  ^Context
+
+  [^Context ctx millis]
+
+  (state-set ctx
+             (-> ctx
+                 state
+                 (.applyBlock (Block/create (long (+ (.longValue (time ctx))
+                                                     millis))
+                                            ($.code/key ($.code/blob (byte-array 32)))
+                                            ($.code/vector [])))
+                 .getState)))
 
 
 

@@ -28,6 +28,7 @@
 (trace (+ 10 10))
 
 
+(sreq/out [:ts *timestamp*])
 
 
 ;; Prints nice information at the start of a run using special transaction `cvm.out`
