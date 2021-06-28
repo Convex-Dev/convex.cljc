@@ -32,9 +32,11 @@
              (.assoc err
                      $.run.kw/exception?
                      ($.code/boolean true)))
-      (update :convex.sync/ctx
-              $.cvm/exception-clear)
-      ($.run.ctx/error err)))
+      (cond->
+        (env :convex.sync/ctx)
+        (-> (update :convex.sync/ctx
+                    $.cvm/exception-clear)
+            ($.run.ctx/error err)))))
 
 
 

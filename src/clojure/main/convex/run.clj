@@ -162,6 +162,7 @@
                  [nil
                   (vec ($.cvm/read src))]
                  (catch Throwable err
+                   (tap> [:ERR err])
                    [err
                     nil]))]
     (if err
@@ -392,7 +393,7 @@
 (comment
 
 
-  (eval "(help/about strx 'out))")
+  (eval "(help/about strx 'out)")
 
 
 
