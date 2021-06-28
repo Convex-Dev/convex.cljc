@@ -392,7 +392,8 @@
 (comment
 
 
-  (eval "(strx/out (help/doc strx 'out))")
+  (eval "(help/about strx 'out))")
+
 
 
 

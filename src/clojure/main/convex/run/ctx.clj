@@ -114,9 +114,11 @@
 
   [env]
 
-  (def-special env
-               :convex.sync/ctx-base
-               {$.run.sym/file ($.code/string (env :convex.run/path))}))
+  (if-some [path (env :convex.run/path)]
+    (def-special env
+                 :convex.sync/ctx-base
+                 {$.run.sym/file ($.code/string path)})
+    env))
 
 
 

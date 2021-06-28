@@ -17,14 +17,15 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core Init
-                        State)
+  (:import (convex.core State)
            (convex.core.data ABlobMap
                              AccountStatus
                              ACell
                              Address
                              AHashMap
                              AVector)
+           (convex.core.init Init
+                             InitConfig)
            (convex.core.lang AFn
                              Context
                              Reader)
@@ -63,9 +64,9 @@
   (^Context [option+]
 
    (Context/createFake (or (:convex.cvm/state option+)
-                           (Init/createState))
+                           (Init/createState (InitConfig/create)))
                        (or (:convex.cvm/address option+)
-                           Init/HERO))))
+                           Init/RESERVED_ADDRESS))))
 
 
 

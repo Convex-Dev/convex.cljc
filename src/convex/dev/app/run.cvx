@@ -13,12 +13,19 @@
 
 ;; Clears the terminal using special transaction `cvm.out.clear`
 ;;
-;(strx/screen.clear)
+(strx/screen.clear)
 
 
-;(strx/out (+ 2 2))
 
-[:cvm.strx :out xform]
+;(help/about strx 'out)
+
+
+(strx/try '[(strx/out [:xform xform])
+            (fail :foo :bar)
+            (strx/out :again)]
+          '[(strx/out [:catch strx/*error*])])
+
+
 
 
 ;; Prints nice information at the start of a run using special transaction `cvm.out`

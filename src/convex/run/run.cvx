@@ -79,7 +79,7 @@
                   ;; SPECIAL TRANSACTIONS
                 
                 
-                  (defmacro dep
+                  (defn dep
                 
                     ^{:doc {:description ["Special transaction which loads Convex Lisp dependencies files. During watch mode, those files are live-reloaded as well."
                                           "If needed, MUST be written as the very first transaction found in the main file."
@@ -87,7 +87,7 @@
                                           "Then, those forms can be used as needed. It is common to use `deploy` or `eval`, depending on the purpose of a given file."]
                             :examples    [{:code "(strx/dep {my-lib \"path/to/lib.cvx\"})"}]
                             :signature   [{:params [sym->file]}]
-                            :type        :macro}}
+                            :type        :function}}
                 
                     [sym->file]
                 
@@ -95,36 +95,23 @@
                 
                 
                 
-                  (defmacro do
+                  (defn do
                 
                     ^{:doc {:description ["Executes each argument as a transaction."
                                           "Useful when composing special transactions in some way"]
                             :examples    [{:code "(strx/do (def foo 42) (strx/out foo))"}]
                             :signature   [{:params [& trx+]}]
-                            :type        :macro}}
+                            :type        :function}}
                 
                     [& trx+]
 
-                    [:cvm.strx :do `(quote ~trx+)])
-                
-
-
-                  (defn do-splice
-                
-                    ^{:doc {:description ["Evaluates the given argument, result must be a vector of transactions."
-                                          "Executes those transactions one by one."
-                                          "Similar to `do` but more dynamic."]
-                            :examples    [{:code "(strx/do (def x (quote [(def foo 42) (strx/out foo)])) (strx/splice x))"}]
-                            :signature   [{:params [trx+]}]
-                            :type        :macro}}
-                
-                    [trx+]
-
+                    (assert (or (list? trx+)
+                                (vector? trx+)))
                     [:cvm.strx :do trx+])
                 
 
 
-                  (defmacro env
+                  (defn env
                 
                     ^{:doc {:description ["Retrieves environment variable from the current process. Useful when some information must be passed to the runner from the outside."
                                           "When a symbol is given, defines under that symbol the entire map of `env property (string)` -> `env value (string)`."
@@ -133,27 +120,25 @@
                                           {:code "(strx/env my-x-value \"MY_X\")"}]
                             :signature   [{:params [sym]}
                                           {:params [sym env-var]}]
-                            :type        :macro}}
+                            :type        :function}}
                 
                 
                     ([sym]
 
-                     `(*address*/env ~sym
-                                     nil))
+                     (-env sym
+                           nil))
                 
                 
                     ([sym env-var]
 
-                     `(let [env-var ~env-var
-                            sym     (quote ~sym)]
-                        (assert (symbol? sym))
-                        (assert (or (str? env-var)
-                                    (nil? env-var)))
-                        [:cvm.strx :env sym env-var])))
+                     (assert (symbol? sym))
+                     (assert (or (str? env-var)
+                                 (nil? env-var)))
+                     [:cvm.strx :env sym env-var]))
                 
                 
                 
-                  (defmacro hook.end
+                  (defn hook.end
                 
                     ^{:doc {:description ["Registers the given transactions to be executed at the end, even if an error occured."
                                           "Overwrites what was previously registers."
@@ -161,15 +146,17 @@
                             :examples    [{:code "(strx/hook.end)"}
                                           {:code "(strx/hook.end (def foo 42) (strx/out [:end :foo foo]))}"}]
                             :signature   [{:params [& trx+]}]
-                            :type        :macro}}
+                            :type        :function}}
                 
-                    [& trx+]
+                    [trx+]
                 
-                    [:cvm.strx :hook.end `(quote ~trx+)])
+                    (assert (or (list? trx+)
+                                (vector? trx+)))
+                    [:cvm.strx :hook.end trx+])
                 
                 
                 
-                  (defmacro hook.error
+                  (defn hook.error
                 
                     ^{:doc {:description ["When an exception occurs, the given function is called with that exception. The result is code that is interpreted."
                                           "Returned code can be a special transaction."
@@ -177,17 +164,16 @@
                                           "Overwrites any previously registered function, `nil` removes it."]
                             :examples    [{:code "(strx/hook.error (fn [ex] `(strx/out [:EXCEPTION ~ex])))"}]
                             :signature   [{:params [f]}]
-                            :type        :macro}}
+                            :type        :function}}
                 
                     [f]
                 
-                    `(let [f ~f]
-                       (assert (fn? f))
-                       [:cvm.strx :hook.error f]))
+                    (assert (fn? f))
+                    [:cvm.strx :hook.error f])
                 
                 
                 
-                  (defmacro hook.out
+                  (defn hook.out
                 
                     ^{:doc {:description ["Registers a function that modifies any value prior to being outputted with `out`"
                                           "Default is `identity`"
@@ -195,54 +181,50 @@
                                           "Overwrites any previously registered function, `nil` removes it."]
                             :examples    [{:code "(strx/hook.out (fn [x] (when-not (:foo x) x)))"}]
                             :signature   [{:params [f]}]
-                            :type        :macro}}
+                            :type        :function}}
                 
                     [f]
 
-                    `(let [f ~f]
-                       (assert (fn? f))
-                       [:cvm.strx :hook.out f]))
+                    (assert (fn? f))
+                    [:cvm.strx :hook.out f])
                 
                 
                 
-                  (defmacro hook.trx
+                  (defn hook.trx
                 
                     ^{:doc {:description ["Registers a function that modifies a regular transaction (not any special one)."
                                           "Useful for decorating all subsequent transactions or filtering them based on metadata."
                                           "Overwrites any previously registered function, `nil` removes it."]
                             :examples    [{:code "(strx/hook.trx (fn [trx] `(strx/out [(quote ~trx) ~trx])))"}]
                             :signature   [{:params [f]}]
-                            :type        :macro}}
+                            :type        :function}}
                 
                     [f]
 
-                    `(let [f ~f]
-                       (assert (fn? f))
-                       [:cvm.strx :hook.trx f]))
+                    [:cvm.strx :hook.trx f])
                 
                                                                         
                 
-                  (defmacro log
+                  (defn log
                 
                     ^{:doc {:description "Defines the current CVM log under the given symbol"
                             :examples    [{:code "(strx/do (log :foo) (strx/log l) (strx/out l))"}]
                             :signature   [{:params [sym]}]
-                            :type        :macro}}
+                            :type        :function}}
                 
                     [sym]
                 
-                    `(let [sym (quote ~sym)]
-                       (assert (symbol? sym))
-                       [:cvm.strx :log sym]))
+                    (assert (symbol? sym))
+                    [:cvm.strx :log sym])
                 
                 
                 
-                  (defmacro out
+                  (defn out
                 
                     ^{:doc {:description "Special transaction which outputs the given argument."
                             :examples    [{:code "(strx/out 42)"}]
                             :signature   [{:params [x]}]
-                            :type        :macro}}
+                            :type        :function}}
                 
                     [x]
 
@@ -250,61 +232,61 @@
                 
                 
                 
-                  (defmacro read
+                  (defn read
                 
                     ^{:doc {:description ["Passes the given string through the Convex Lisp reader and returns a list of forms."
                                           "Those forms can be compiled, evaluated, ..."]
                             :examples    [{:code "(strx/read \"(+ 2 2)\")"}]
                             :signature   [{:params [string]}]
-                            :type        :macro}}
+                            :type        :function}}
                 
                     [sym src]
                 
-                    `(let [src ~src
-                           sym (quote ~sym)]
-                       (assert (str? src))
-                       (assert (symbol? sym))
-                       [:cvm.strx :read src]))
+                    (assert (str? src))
+                    (assert (symbol? sym))
+                    [:cvm.strx :read src])
                 
 
                 
-                  (defmacro screen.clear
+                  (defn screen.clear
                 
                     ^{:doc {:description ["Clears the screen."
                                           "Useful only if the output is printed in the terminal."]
                             :examples    [{:code "(strx/clear.screen)"}]
                             :signature   [{:params []}]
-                            :type        :macro}}
+                            :type        :function}}
                 
                     []
 
                     [:cvm.strx :screen.clear])
                 
                 
-                
-                  (defmacro try
+
+                  (defn try
                 
                     ^{:doc {:description ["Given transactions are executed one by one until an exception is thrown."
                                           "In such case, the exception is defined under `*cvm.error*` and transactions in the catch form are executed (see `catch`)."
                                           "With or without a catch form, execution outside of `try` continues."]
                             :examples    [{:code "(strx/try (def foo 42) (fail \"Oops\") (strx/catch (strx/out [:error *cvm.error*])))"}]
                             :signature   [{:params [& trx+]}]
-                            :type        :macro}}
+                            :type        :function}}
                                         
                 
                     ([try-trx+]
 
-                     `(*address*/try try-trx+
-                                     nil))
+                     (try try-trx+
+                          nil))
 
 
                     ([try-trx+ catch-trx+]
 
-                     (assert (vector? try-trx+))
+                     (assert (or (list? try-trx+)
+                                 (vector? try-trx+)))
                      (assert (or (nil? catch-trx+)
+                                 (list? catch-trx+)
                                  (vector? catch-trx+)))
-                     [:cvm.try :try try-trx+ catch-trx+]))
-                                
+                     [:cvm.strx :try try-trx+ catch-trx+]))
+                              
                 
                   ))) ;; END - STRX
 
@@ -316,6 +298,9 @@
                   (call *registry*
                         (cns-update 'convex.run.help
                                     *address*))
+
+
+                  (import convex.run.strx :as strx)
 
 
 
@@ -389,7 +374,7 @@
                                                    section-4+)]
                                  (line+ section-5+)))]
 
-                      (defn doc
+                      (defn about-str
 
 
                         ([addr-or-sym]
@@ -448,6 +433,21 @@
                                              sym)
                                (lookup-meta addr
                                             sym)))))
+
+
+
+                    (defn about
+
+
+                      ([addr-or-sym]
+
+                       (strx/out (about-str addr-or-sym)))
+
+
+                      ([addr sym]
+
+                       (strx/out (about-str addr
+                                            sym))))
 
 
                     )))  ;; End - HELP

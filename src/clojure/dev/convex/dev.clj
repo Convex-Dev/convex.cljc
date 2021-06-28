@@ -143,4 +143,11 @@
                               f
                               ($.code/long 42)))
 
+
+
+  ($.clj.eval/result ($.cvm/ctx)
+                     '(do
+                        (defmacro bar [a b] (+ a b))
+                        (bar 2 3)))
+
   )

@@ -50,7 +50,7 @@
   hawk/hawk                {:mvn/version "0.2.11"}
   org.clojure/tools.cli    {:mvn/version "1.0.206"}
   org.clojure/test.check   {:mvn/version "1.1.0"}
-  world.convex/convex      {:local/root "cvm/f1fb2cf1929cdebf99c0940742881ef842047339.jar"}}
+  world.convex/convex      {:local/root "cvm/0373e815b38de5cca4ce41929145692f08d4e88a.jar"}}
 
  :paths
  ["src/convex/run"
