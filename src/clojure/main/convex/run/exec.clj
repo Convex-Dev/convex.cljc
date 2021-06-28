@@ -83,7 +83,7 @@
 
   ""
 
-  ;; Implentation of special transactions is in the [[convex.run.sreq]] namespace.
+  ;; Implentation of special requests is in the [[convex.run.sreq]] namespace.
 
   sreq-dispatch
 

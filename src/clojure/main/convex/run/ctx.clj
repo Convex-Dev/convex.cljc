@@ -4,6 +4,7 @@
 
   {:author "Adam Helinski"}
 
+  (:import (convex.core.data AVector))
   (:refer-clojure :exclude [cycle])
   (:require [clojure.java.io]
             [convex.code      :as $.code]
@@ -35,13 +36,23 @@
 ;;;;;;;;;; Miscellaneous values
 
 
-(def addr-sreq
+(let [^AVector -result ($.cvm/result base)]
 
-  ""
+  (def addr-help
 
-  ;; Last form of the 'run.cvx' file is the address ofr the STRX library.
+    ""
 
-  ($.cvm/result base))
+    (.get -result
+          0))
+
+
+
+  (def addr-sreq
+  
+    ""
+
+    (.get -result
+          1)))
 
 
 ;;;;;;;;;;
@@ -61,16 +72,16 @@
 
 
 
-(defn def-special
+(defn def-help
 
   ""
 
 
   ([env sym->value]
 
-   (def-special env
-                :convex.sync/ctx
-                sym->value))
+   (def-help env
+             :convex.sync/ctx
+             sym->value))
 
 
   ([env kw-ctx sym->value]
@@ -79,7 +90,7 @@
            kw-ctx
            (fn [ctx]
              ($.cvm/def ctx
-                        addr-sreq
+                        addr-help
                         sym->value)))))
 
 ;;;;;;;;;; Miscellaneous utilities
@@ -91,9 +102,9 @@
 
   [env]
 
-  (def-special env
-               {$.run.sym/cycle ($.code/long (or (env :convex.watch/cycle)
-                                                 0))}))
+  (def-help env
+            {$.run.sym/cycle ($.code/long (or (env :convex.watch/cycle)
+                                              0))}))
 
 
 
@@ -103,8 +114,8 @@
 
   [env err]
 
-  (def-special env
-               {$.run.sym/error err}))
+  (def-help env
+            {$.run.sym/error err}))
 
 
 
@@ -115,9 +126,9 @@
   [env]
 
   (if-some [path (env :convex.run/path)]
-    (def-special env
-                 :convex.sync/ctx-base
-                 {$.run.sym/file ($.code/string path)})
+    (def-help env
+              :convex.sync/ctx-base
+              {$.run.sym/file ($.code/string path)})
     env))
 
 
@@ -128,8 +139,8 @@
 
   [env form]
 
-  (def-special env
-               {$.run.sym/juice-last  ($.code/long (env :convex.run/juice-last))
-                $.run.sym/juice-total ($.code/long (env :convex.run/juice-total))
-                $.run.sym/trx-form    form
-                $.run.sym/trx-id      ($.code/long (env :convex.run/i-trx))}))
+  (def-help env
+            {$.run.sym/juice-last  ($.code/long (env :convex.run/juice-last))
+             $.run.sym/juice-total ($.code/long (env :convex.run/juice-total))
+             $.run.sym/trx-form    form
+             $.run.sym/trx-id      ($.code/long (env :convex.run/i-trx))}))

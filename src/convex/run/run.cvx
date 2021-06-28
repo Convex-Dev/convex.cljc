@@ -15,68 +15,8 @@
                         (cns-update 'convex.run.sreq 
                                     *address*))
 
-
-                  ;; SPECIAL VALUES
-
-                  (def *cycle*
-
-                    ^{:doc {:description ["Starting at 0, is incremented every time the main file is run."
-                                          "Potentially useful for watch mode."]}}
-
-                    nil)
-
-
-
-                  (def *error*
-
-                    ^{:doc {:description ["Any thrown exception is defined under this symbol."
-                                          "Notably useful in try-catch (see `try`)"]}}
-
-                    nil)
-
-
-
-                  (def *file*
-
-                    ^{:doc {:description "Canonical path of the invoked main file."}}
-
-                    nil)
-
-
-
-                  (def *juice.last*
-
-                    ^{:doc {:description "The amount of juice consumed by the previous transaction."}}
-
-                    nil)
-
-
-
-                  (def *juice.total*
-
-                    ^{:doc {:description "Total amount of juice consumed up to now."}}
-
-                    nil)
-
-
-
-                  (def *trx.form*
-
-                    ^{:doc {:description "Form representing the current transaction."}}
-
-                    nil)
-
-
-
-                  (def *trx.id*
-
-                    ^{:doc {:description ["Starting at 0, is incremented on every transaction."
-                                          "Resets on each run in watch mode."]}}
-
-                    nil)
-
                 
-                  ;; SPECIAL TRANSACTIONS
+                  ;; SPECIAL REQUESTS
                 
                 
                   (defn dep
@@ -103,7 +43,7 @@
                             :signature   [{:params [& trx+]}]
                             :type        :function}}
                 
-                    [& trx+]
+                    [trx+]
 
                     (assert (or (list? trx+)
                                 (vector? trx+)))
@@ -303,6 +243,68 @@
                   (import convex.run.sreq :as sreq)
 
 
+                  ;; SPECIAL VALUES
+
+                  (def *cycle*
+
+                    ^{:doc {:description ["Starting at 0, is incremented every time the main file is run."
+                                          "Potentially useful for watch mode."]}}
+
+                    nil)
+
+
+
+                  (def *error*
+
+                    ^{:doc {:description ["Any thrown exception is defined under this symbol."
+                                          "Notably useful in try-catch (see `try`)"]}}
+
+                    nil)
+
+
+
+                  (def *file*
+
+                    ^{:doc {:description "Canonical path of the invoked main file."}}
+
+                    nil)
+
+
+
+                  (def *juice.last*
+
+                    ^{:doc {:description "The amount of juice consumed by the previous transaction."}}
+
+                    nil)
+
+
+
+                  (def *juice.total*
+
+                    ^{:doc {:description "Total amount of juice consumed up to now."}}
+
+                    nil)
+
+
+
+                  (def *trx.form*
+
+                    ^{:doc {:description "Form representing the current transaction."}}
+
+                    nil)
+
+
+
+                  (def *trx.id*
+
+                    ^{:doc {:description ["Starting at 0, is incremented on every transaction."
+                                          "Resets on each run in watch mode."]}}
+
+                    nil)
+
+
+                  ;; FUNCTIONS
+
 
                   (defn line+
 
@@ -454,9 +456,10 @@
 
 
 
-  ;; CVM result, needed for easily getting the address of the sreq library.
+  ;; CVM result, needed for easily getting the addresses of the libraries.
   ;;
-  sreq
+  [help
+   sreq]
 
 
   ) ;; END 

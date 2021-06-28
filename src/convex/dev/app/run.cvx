@@ -20,12 +20,14 @@
 ;(help/about sreq 'out)
 
 
-(sreq/try '[(sreq/out [:xform xform])
+(sreq/try '[(sreq/out :hello)
             (fail :foo :bar)
-            (sreq/out :again)]
-          '[(sreq/out [:catch sreq/*error*])])
+            (sreq/out :bye)]
+          '[(sreq/out [:catch help/*error*])])
 
 
+(sreq/do '[10
+           (sreq/out [:juice help/*juice.last*])])
 
 
 ;; Prints nice information at the start of a run using special transaction `cvm.out`

@@ -1,6 +1,6 @@
 (ns convex.run.sreq
 
-  "Special transactions interpreted by the runner."
+  "Special requests interpreted by the runner."
 
   {:author "Adam Helinski"}
 
