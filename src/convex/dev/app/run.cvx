@@ -17,18 +17,7 @@
 
 
 
-(schedule (+ *timestamp*
-             10)
-          (def foo
-               :foo))
-
-(sreq/out [:ts *timestamp*])
-
-(sreq/advance 11)
-
-(sreq/out [:ts *timestamp*])
-
-(sreq/out [:foo foo])
+(help/about sreq 'advance)
 
 
 ;; Prints nice information at the start of a run using special transaction `cvm.out`

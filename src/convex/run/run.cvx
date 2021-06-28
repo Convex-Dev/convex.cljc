@@ -21,6 +21,12 @@
 
                   (defn advance
 
+                    ^{:doc {:description ["Advances the current timestamp by `millis` milliseconds."
+                                          "Argument must be > 0."]
+                            :examples    [{:code "(sreq/advance (* 60 60 1000))"}]
+                            :signature   [{:params [millis]}]
+                            :type        :function}}
+
                     [millis]
 
                     (assert (>= millis
@@ -31,11 +37,11 @@
                 
                   (defn dep
                 
-                    ^{:doc {:description ["Special transaction which loads Convex Lisp dependencies files. During watch mode, those files are live-reloaded as well."
-                                          "If needed, MUST be written as the very first transaction found in the main file."
-                                          "Takes a map of `symbol` -> `path to file`. Files are read as vectors of Convex Lisp forms and then defined under their corresponding symbol."
+                    ^{:doc {:description ["Loads Convex Lisp dependency files. During watch mode, those files are live-reloaded as well."
+                                          "If used, MUST be written as the very first transaction found in the main file."
+                                          "Takes a map of `symbol` -> `path to file`. Files are read as lists of Convex Lisp forms and then defined under their corresponding symbol."
                                           "Then, those forms can be used as needed. It is common to use `deploy` or `eval`, depending on the purpose of a given file."]
-                            :examples    [{:code "(sreq/dep {my-lib \"path/to/lib.cvx\"})"}]
+                            :examples    [{:code "(sreq/dep {'my-lib \"path/to/lib.cvx\"})"}]
                             :signature   [{:params [sym->file]}]
                             :type        :function}}
                 
@@ -47,10 +53,10 @@
                 
                   (defn do
                 
-                    ^{:doc {:description ["Executes each argument as a transaction."
-                                          "Useful when composing special transactions in some way"]
-                            :examples    [{:code "(sreq/do (def foo 42) (sreq/out foo))"}]
-                            :signature   [{:params [& trx+]}]
+                    ^{:doc {:description ["Given a sequence of quoted transactions, executes them one by one."
+                                          "Useful when composing special requests in some way."]
+                            :examples    [{:code "(sreq/do '[(def foo 42) (sreq/out foo)])"}]
+                            :signature   [{:params [trx+]}]
                             :type        :function}}
                 
                     [trx+]
@@ -66,8 +72,8 @@
                     ^{:doc {:description ["Retrieves environment variable from the current process. Useful when some information must be passed to the runner from the outside."
                                           "When a symbol is given, defines under that symbol the entire map of `env property (string)` -> `env value (string)`."
                                           "When a env variable is given as well, defines only the value for that variable"]
-                            :examples    [{:code "(sreq/env env-map"}
-                                          {:code "(sreq/env my-x-value \"MY_X\")"}]
+                            :examples    [{:code "(sreq/env 'env-map"}
+                                          {:code "(sreq/env 'my-x-value \"MY_X\")"}]
                             :signature   [{:params [sym]}
                                           {:params [sym env-var]}]
                             :type        :function}}
@@ -90,17 +96,18 @@
                 
                   (defn hook.end
                 
-                    ^{:doc {:description ["Registers the given transactions to be executed at the end, even if an error occured."
+                    ^{:doc {:description ["Registers the given sequence of quoted transactions to be executed at the end, even if an error occured."
                                           "Overwrites what was previously registers."
                                           "Providing no transaction cancels what was previously registered."]
-                            :examples    [{:code "(sreq/hook.end)"}
-                                          {:code "(sreq/hook.end (def foo 42) (sreq/out [:end :foo foo]))}"}]
-                            :signature   [{:params [& trx+]}]
+                            :examples    [{:code "(sreq/hook.end nil)"}
+                                          {:code "(sreq/hook.end '[(def foo 42) (sreq/out [:end :foo foo])])"}]
+                            :signature   [{:params [trx+]}]
                             :type        :function}}
                 
                     [trx+]
                 
                     (assert (or (list? trx+)
+                                (nil? trx+)
                                 (vector? trx+)))
                     [:cvm.sreq :hook.end trx+])
                 
@@ -109,10 +116,10 @@
                   (defn hook.error
                 
                     ^{:doc {:description ["When an exception occurs, the given function is called with that exception. The result is code that is interpreted."
-                                          "Returned code can be a special transaction."
+                                          "Returned code can be a special request."
                                           "Default is outputting the error without any modification"
                                           "Overwrites any previously registered function, `nil` removes it."]
-                            :examples    [{:code "(sreq/hook.error (fn [ex] `(sreq/out [:EXCEPTION ~ex])))"}]
+                            :examples    [{:code "(sreq/hook.error (fn [ex] (sreq/out [:EXCEPTION ex])))"}]
                             :signature   [{:params [f]}]
                             :type        :function}}
                 
@@ -126,7 +133,7 @@
                   (defn hook.out
                 
                     ^{:doc {:description ["Registers a function that modifies any value prior to being outputted with `out`"
-                                          "Default is `identity`"
+                                          "Default is `identity`, meaning values are not modified."
                                           "If the function returns nil, then nothing is outputted."
                                           "Overwrites any previously registered function, `nil` removes it."]
                             :examples    [{:code "(sreq/hook.out (fn [x] (when-not (:foo x) x)))"}]
@@ -140,25 +147,25 @@
                 
                 
                 
-                  (defn hook.trx
+                  (defn hook.result
                 
-                    ^{:doc {:description ["Registers a function that modifies a regular transaction (not any special one)."
-                                          "Useful for decorating all subsequent transactions or filtering them based on metadata."
-                                          "Overwrites any previously registered function, `nil` removes it."]
-                            :examples    [{:code "(sreq/hook.trx (fn [trx] `(sreq/out [(quote ~trx) ~trx])))"}]
+                    ^{:doc {:description ["Registers a quoted transaction meant to be executed after transaction with the purpose of doing some post-processing."
+                                          "Useful for things like displaying juice consumption, tracing transactions, etc."
+                                          "Overwrites any previously registered quoted transaction, `nil` removes it."]
+                            :examples    [{:code "(sreq/hook.trx '(sreq/out [:result help/*trx.last.result* :juice help/*trx.last.juice*]))"}]
                             :signature   [{:params [f]}]
                             :type        :function}}
                 
                     [f]
 
-                    [:cvm.sreq :hook.trx f])
+                    [:cvm.sreq :hook.result f])
                 
                                                                         
                 
                   (defn log
                 
-                    ^{:doc {:description "Defines the current CVM log under the given symbol"
-                            :examples    [{:code "(sreq/do (log :foo) (sreq/log l) (sreq/out l))"}]
+                    ^{:doc {:description "Defines the current CVM log under the given symbol."
+                            :examples    [{:code "(sreq/do '[(log :foo) (sreq/log l) (sreq/out l))"}]
                             :signature   [{:params [sym]}]
                             :type        :function}}
                 
@@ -171,7 +178,7 @@
                 
                   (defn out
                 
-                    ^{:doc {:description "Special transaction which outputs the given argument."
+                    ^{:doc {:description "Outputs the given argument."
                             :examples    [{:code "(sreq/out 42)"}]
                             :signature   [{:params [x]}]
                             :type        :function}}
@@ -214,11 +221,11 @@
 
                   (defn try
                 
-                    ^{:doc {:description ["Given transactions are executed one by one until an exception is thrown."
-                                          "In such case, the exception is defined under `*cvm.error*` and transactions in the catch form are executed (see `catch`)."
-                                          "With or without a catch form, execution outside of `try` continues."]
-                            :examples    [{:code "(sreq/try (def foo 42) (fail \"Oops\") (sreq/catch (sreq/out [:error *cvm.error*])))"}]
-                            :signature   [{:params [& trx+]}]
+                    ^{:doc {:description ["First argument is a sequence of quoted transactions executed one by one until an exception is throw."
+                                          "In such case, the exception is defined under `help/*cvm.error*` and optional quoted transactions from the second argument are executed."
+                                          "With or without \"catch\" transactions, execution in the main file continues."]
+                            :examples    [{:code "(sreq/try '[(def foo 42) (fail \"Oops\")] '[(sreq/out [:error *cvm.error*)])"}]
+                            :signature   [{:params [try-trx+ catch-trx+]}]
                             :type        :function}}
                                         
                 
@@ -267,7 +274,7 @@
                   (def *error*
 
                     ^{:doc {:description ["Any thrown exception is defined under this symbol."
-                                          "Notably useful in try-catch (see `try`)"]}}
+                                          "Notably useful in try-catch (see `sreq/try`)"]}}
 
                     nil)
 
@@ -411,7 +418,7 @@
                                                    section-4+)]
                                  (line+ section-5+)))]
 
-                      (defn about-str
+                      (defn str-about
 
 
                         ([addr-or-sym]
@@ -478,12 +485,12 @@
 
                       ([addr-or-sym]
 
-                       (sreq/out (about-str addr-or-sym)))
+                       (sreq/out (str-about addr-or-sym)))
 
 
                       ([addr sym]
 
-                       (sreq/out (about-str addr
+                       (sreq/out (str-about addr
                                             sym))))
 
 
