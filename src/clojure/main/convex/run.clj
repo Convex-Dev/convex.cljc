@@ -123,6 +123,30 @@
 
 
 
+(defn err-main
+
+  ""
+
+  [env message]
+
+  ($.run.err/signal env
+                    (-> ($.code/error ($.cvm/code-std* :FATAL)
+                                      ($.code/string message))
+                        ($.run.err/assoc-phase $.run.kw/main))))
+
+
+
+(defn err-main-access
+
+  ""
+
+  [env]
+
+  (err-main env
+            "Main file not found or not accessible"))
+
+
+
 (defn slurp-file
 
   ""
@@ -130,20 +154,15 @@
   [env]
 
   (let [path  (env :convex.run/path)
-        [err
+        [ex
          src] (try
                 [nil
                  (slurp path)]
-                (catch Throwable err
-                  [err
+                (catch Throwable ex
+                  [ex
                    nil]))]
-    (if err
-      ($.run.err/signal env
-                        (-> ($.code/error ($.cvm/code-std* :ARGUMENT)
-                                          ($.code/string "Unable to open file"))
-                            (.assoc $.run.kw/path
-                                    ($.code/string path))
-                            ($.run.err/assoc-phase $.run.kw/file-open)))
+    (if ex
+      (err-main-access env)
       (assoc env
              :convex.run/src
              src))))
@@ -165,12 +184,8 @@
                    [err
                     nil]))]
     (if err
-      ($.run.err/signal env
-                        (-> ($.code/error ($.cvm/code-std* :ARGUMENT)
-                                          ($.code/string "Unable to parse source code"))
-                            (.assoc $.run.kw/src
-                                    ($.code/string src))
-                            ($.run.err/assoc-phase $.run.kw/read)))
+      (err-main env
+                "Main file cannot be parsed as Convex Lisp")
       (-> env
           (assoc :convex.run/trx+ trx+)
           (dissoc :convex.run/src)
@@ -191,30 +206,41 @@
 
 
 
+(defn err-sync
+
+  ""
+
+  [env [kind path->reason]]
+
+  ($.run.err/signal env
+                    (-> ($.code/error ($.cvm/code-std* :FATAL)
+                                      (reduce-kv (fn [^AMap path->reason--2 path reason]
+                                                   (.assoc path->reason--2
+                                                           ($.code/string path)
+                                                           ($.code/string (case kind
+
+                                                                            :load
+                                                                            (case (first reason)
+                                                                              :not-found "Dependency file not found or inaccessible"
+                                                                              :parse     "Dependency file cannot be parsed as Convex Lisp"
+                                                                              :unknown   "Unknown error while loading and parsing dependency file")
+
+                                                                            "Unknown error while loading dependency file"))))
+                                                 ($.code/map)
+                                                 path->reason))
+                        ($.run.err/assoc-phase $.run.kw/dep))))
+
+
+
 (defn check-err-sync
 
   ""
 
   [env]
 
-  (when-some [[kind
-               path->reason] (env :convex.sync/error)]
-    ($.run.err/signal env
-                      ($.cvm/code-std* :FATAL)
-                      (reduce-kv (fn [^AMap path->reason--2 path reason]
-                                   (.assoc path->reason--2
-                                           ($.code/string path)
-                                           ($.code/string (case kind
-
-                                                            :load
-                                                            (case (first reason)
-                                                              :not-found "File not found or inaccessible"
-                                                              :parse     "File cannot be parsed"
-                                                              :unknown   "Unknown error while loading and parsing file")
-
-                                                            "Unknown error while loading dependency file"))))
-                                 ($.code/map)
-                                 path->reason))))
+  (when-some [err (env :convex.sync/error)]
+    (err-sync env
+              err)))
 
 
 
@@ -341,9 +367,7 @@
                                 (case etype
                                   :not-found (if (= arg
                                                     (first (env-3 :convex.watch/extra+)))
-                                               ($.run.err/fatal env-3
-                                                                ($.code/error ($.cvm/code-std* :FATAL)
-                                                                              ($.code/string "Main file does not exist")))
+                                               (err-main-access env-3)
                                                ;;
                                                ;; Dependency is missing, restart watching only main file for retrying on new changes.
                                                ;; A "dep-lock" is used so that a new watcher with the same failing dependencies is not restarted right away.
@@ -354,14 +378,11 @@
                                                                     dep-old+)
                                                              (dissoc :convex.run/dep+
                                                                      :convex.watch/sym->dep)
-                                                             ($.run.err/fatal (-> ($.code/error ($.cvm/code-std* :FATAL)
-                                                                                                ($.code/string "Missing file for requested dependency"))
-                                                                                  (.assoc $.run.kw/path
-                                                                                          ($.code/string arg)))))))
-                                   
-                                  :unknown   ($.run.err/fatal env-3
-                                                              ($.code/error ($.cvm/code-std* :FATAL)
-                                                                            ($.code/string "Unknown fatal error occured when setting up the file watcher")))))
+                                                             (err-sync [:load {arg [:not-found]}]))))
+                                  :unknown   ($.run.err/signal env
+                                                               (-> ($.code/error ($.cvm/code-std* :FATAL)
+                                                                                 ($.code/string "Unknown error occured while setting up the file watcher"))
+                                                                   ($.run.err/assoc-phase $.run.kw/watch)))))
                               ;;
                               ;; Handles sync error if any.
                               ;;
@@ -423,13 +444,10 @@
   (def a*env
        (watch "src/convex/dev/app/run.cvx"))
 
-  (clojure.pprint/pprint (dissoc @a*env
-                                 :convex.sync/input->code))
-
-
-  
   ($.watch/stop a*env)
 
+  (clojure.pprint/pprint (dissoc @a*env
+                                 :convex.sync/input->code))
 
   (agent-error a*env)
 

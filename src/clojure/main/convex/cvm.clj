@@ -213,7 +213,7 @@
 
 (defn log
 
-  "Returns the log of `ctx` (a map of `address` -> `vector of values).
+  "Returns the log of `ctx` (a CVM map of `address` -> `vector of values).
   
    If an address is provided, returns the vector entry for that address only."
 

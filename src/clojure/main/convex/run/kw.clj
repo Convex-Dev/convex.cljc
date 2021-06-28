@@ -142,6 +142,14 @@
 
 
 
+(def ^Keyword main
+
+  ""
+
+  ($.code/keyword "main"))
+
+
+
 (def ^Keyword out
 
   ""
@@ -243,3 +251,11 @@
   ""
 
   ($.code/keyword "try"))
+
+
+
+(def ^Keyword watch
+
+  ""
+
+  ($.code/keyword "watch"))
