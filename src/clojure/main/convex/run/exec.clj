@@ -217,8 +217,17 @@
                    (eval form))]
      (if (env-2 :convex.run/error)
        env-2
-       (strx env-2
-             (result env-2))))))
+       (let [juice-last (- Long/MAX_VALUE  ;; Juice is always refilled to max prior to evaluation.
+                           ($.cvm/juice (env :convex.sync/ctx)))]
+         (-> env-2
+             (assoc :convex.run/juice-last
+                    juice-last)
+             (update :convex.run/juice-total
+                     +
+                     juice-last)
+             (update :convex.run/i-trx
+                     inc)
+             (strx (result env-2))))))))
 
 
 

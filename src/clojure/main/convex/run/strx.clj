@@ -65,24 +65,13 @@
 
   [env _result]
 
-  (let [juice-last (- Long/MAX_VALUE  ;; Juice is always refilled to max prior to evaluation.
-                      ($.cvm/juice (env :convex.sync/ctx)))
-        env-2      (-> env
-                       (assoc :convex.run/juice-last
-                              juice-last)
-                       (update :convex.run/juice-total
-                               +
-                               juice-last)
-                       (update :convex.run/i-trx
-                               inc))
-        hook       (env-2 :convex.run.hook/trx)]
-    (if hook
-      (-> env-2
-          (dissoc :convex.run.hook/trx)
-          ($.run.exec/trx hook)
-          (assoc :convex.run.hook/trx
-                 hook))
-      env-2)))
+  (if-some [hook (env :convex.run.hook/trx)]
+    (-> env
+        (dissoc :convex.run.hook/trx)
+        ($.run.exec/trx hook)
+        (assoc :convex.run.hook/trx
+               hook))
+    env))
 
 
 

@@ -66,19 +66,19 @@
 
 
 
-(defn ^AMap error
+(defn error
 
   ""
 
 
-  ([^ErrorValue ex]
+  (^AMap [^ErrorValue ex]
 
    ($.code/error (.getCode ex)
                  (.getMessage ex)
                  ($.code/vector (.getTrace ex))))
 
 
-  ([ex phase ^ACell trx]
+  (^AMap [ex phase ^ACell trx]
 
    (-> ex
        error
