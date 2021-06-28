@@ -218,16 +218,22 @@
      (if (env-2 :convex.run/error)
        env-2
        (let [juice-last (- Long/MAX_VALUE  ;; Juice is always refilled to max prior to evaluation.
-                           ($.cvm/juice (env :convex.sync/ctx)))]
-         (-> env-2
-             (assoc :convex.run/juice-last
-                    juice-last)
-             (update :convex.run/juice-total
-                     +
-                     juice-last)
-             (update :convex.run/i-trx
-                     inc)
-             (sreq (result env-2))))))))
+                           ($.cvm/juice (env :convex.sync/ctx)))
+             env-3      (-> env-2
+                            (assoc :convex.run/juice-last
+                                   juice-last)
+                            (update :convex.run/juice-total
+                                    +
+                                    juice-last)
+                            (update :convex.run/i-trx
+                                    inc))]
+         (try
+           (sreq env-3
+                 (result env-3))
+           (catch Throwable _ex
+             ($.run.err/signal env-3
+                               ($.cvm/code-std* :FATAL)
+                               ($.code/string "Unknown error happened while finalizing transaction")))))))))
 
 
 
