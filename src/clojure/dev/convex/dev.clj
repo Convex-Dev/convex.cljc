@@ -131,19 +131,5 @@
                       $/foo)
 
 
-
-
-
-  (def log ($.cvm/log ($.cvm/eval ($.cvm/ctx)
-                                  (first ($.cvm/read "(log :foo)")))))
-
-
-
-
-  ($.clj.eval/log ($.cvm/ctx)
-                     '(do
-                        (defmacro bar [a b] (+ a b))
-                        (bar 2 3)))
-
   
   )

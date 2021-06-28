@@ -18,6 +18,16 @@
                 
                   ;; SPECIAL REQUESTS
                 
+
+                  (defn advance
+
+                    [millis]
+
+                    (assert (>= millis
+                                0))
+                    [:cvm.sreq :advance millis])
+
+
                 
                   (defn dep
                 

@@ -16,19 +16,19 @@
 (sreq/screen.clear)
 
 
-(defmacro trace
- 
-  [trx]
 
-  `(sreq/do '[~trx
-              (sreq/out [:result help/*trx.last.result* :form help/*trx.last.form* :juice help/*juice* help/*trx.last.juice*])]))
-  
-
-
-(trace (+ 10 10))
-
+(schedule (+ *timestamp*
+             10)
+          (def foo
+               :foo))
 
 (sreq/out [:ts *timestamp*])
+
+(sreq/advance 11)
+
+(sreq/out [:ts *timestamp*])
+
+(sreq/out [:foo foo])
 
 
 ;; Prints nice information at the start of a run using special transaction `cvm.out`

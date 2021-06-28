@@ -4,7 +4,8 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.data AVector))
+  (:import (convex.core.data AVector)
+           (convex.core.data.prim CVMLong))
   (:require [convex.code     :as $.code]
             [convex.cvm      :as $.cvm]
             [convex.run.ctx  :as $.run.ctx]
@@ -86,6 +87,21 @@
                                     ($.code/string "Unsupported special transaction"))))
 
 ;;;;;;;;;; Implementations
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/advance
+
+  [env ^AVector tuple]
+
+  (update env
+          :convex.sync/ctx
+          (fn [ctx]
+            ($.cvm/time-advance ctx
+                                (.longValue ^CVMLong (.get tuple
+                                                           2))))))
+
 
 
 (defmethod $.run.exec/sreq
