@@ -16,12 +16,17 @@
 (sreq/screen.clear)
 
 
+(defmacro trace
+ 
+  [trx]
 
-10
+  `(sreq/do '[~trx
+              (sreq/out [:result help/*trx.last.result* :form help/*trx.last.form* :juice help/*juice* help/*trx.last.juice*])]))
+  
 
-20
 
-(sreq/out [help/*juice* help/*trx.last.juice*])
+(trace (+ 10 10))
+
 
 
 

@@ -76,8 +76,32 @@
 
 
 
+(def ^Symbol trx-last-form
+
+  ""
+
+  ($.code/symbol "*trx.last.form*"))
+
+
+
+(def ^Symbol trx-last-id
+
+  ""
+
+  ($.code/symbol "*trx.last.id*"))
+
+
+
 (def ^Symbol trx-last-juice
 
   ""
 
   ($.code/symbol "*trx.last.juice*"))
+
+
+
+(def ^Symbol trx-last-result
+
+  ""
+
+  ($.code/symbol "*trx.last.result*"))

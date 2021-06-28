@@ -213,23 +213,26 @@
   ([env form]
 
    (let [env-2 (-> env
-                   ($.run.ctx/trx form)
+                   (update :convex.run/i-trx
+                           inc)
+                   ($.run.ctx/trx-begin form)
                    (eval form))]
      (if (env-2 :convex.run/error)
        env-2
-       (let [juice-last (- Long/MAX_VALUE  ;; Juice is always refilled to max prior to evaluation.
-                           ($.cvm/juice (env :convex.sync/ctx)))
+       (let [ctx        (env :convex.sync/ctx)
+             res        ($.cvm/result ctx)
+             juice-last (- Long/MAX_VALUE  ;; Juice is always refilled to max prior to evaluation.
+                           ($.cvm/juice ctx))
              env-3      (-> env-2
-                            (assoc :convex.run/juice-last
-                                   juice-last)
                             (update :convex.run/juice-total
                                     +
                                     juice-last)
-                            (update :convex.run/i-trx
-                                    inc))]
+                            ($.run.ctx/trx-end form
+                                               juice-last
+                                               res))]
          (try
            (sreq env-3
-                 (result env-3))
+                 res)
            (catch Throwable _ex
              ($.run.err/signal env-3
                                ($.cvm/code-std* :FATAL)
@@ -272,8 +275,7 @@
   (-> env
       (dissoc :convex.run/restore)
       (merge (env :convex.run/restore))
-      (assoc :convex.run/i-trx       0
-             :convex.run/juice-last  0
+      (assoc :convex.run/i-trx       -1
              :convex.run/juice-total 0)
       $.run.ctx/cycle
       trx+

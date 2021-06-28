@@ -133,14 +133,29 @@
 
 
 
-(defn trx
+(defn trx-begin
 
   ""
 
   [env form]
 
   (def-help env
-            {$.run.sym/juice-total    ($.code/long (env :convex.run/juice-total))
-             $.run.sym/trx-form       form
-             $.run.sym/trx-id         ($.code/long (env :convex.run/i-trx))
-             $.run.sym/trx-last-juice ($.code/long (env :convex.run/juice-last))}))
+            {$.run.sym/trx-form form
+             $.run.sym/trx-id   ($.code/long (env :convex.run/i-trx))}))
+
+
+
+(defn trx-end
+
+  ""
+
+  [env form juice-last result]
+
+  (def-help env
+            {$.run.sym/juice-total     ($.code/long (env :convex.run/juice-total))
+             $.run.sym/trx-form        nil
+             $.run.sym/trx-id          nil
+             $.run.sym/trx-last-form   form
+             $.run.sym/trx-last-id     ($.code/long (env :convex.run/i-trx))
+             $.run.sym/trx-last-juice  ($.code/long juice-last)
+             $.run.sym/trx-last-result result}))
