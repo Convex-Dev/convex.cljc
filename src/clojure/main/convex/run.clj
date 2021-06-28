@@ -205,11 +205,12 @@
                                    (.assoc path->reason--2
                                            ($.code/string path)
                                            ($.code/string (case kind
+
                                                             :load
                                                             (case (first reason)
-                                                              :not-found "Dependency not found or inaccessible"
-                                                              :parse     "Dependency cannot be parsed"
-                                                              :unknown   "Unknown error while loading and parsing dependency")
+                                                              :not-found "File not found or inaccessible"
+                                                              :parse     "File cannot be parsed"
+                                                              :unknown   "Unknown error while loading and parsing file")
 
                                                             "Unknown error while loading dependency file"))))
                                  ($.code/map)
@@ -302,6 +303,7 @@
                                           :convex.sync/input+
                                           :convex.sync/input->code
                                           :convex.sync/input->cvm-sym
+                                          :convex.watch/error
                                           :convex.watch/watcher)))]
 
   (defn watch
@@ -331,16 +333,12 @@
                                       dep-old+ :convex.run/dep+}]
                         (let [env-3 (dissoc env-2
                                             :convex.run/error)]
-                          (tap> [:dep-lock (env-3 :convex.run/dep-lock)])
                           (or ;;
                               ;; Handles watcher error if any.
                               ;;
                               (when-some [[etype
                                            arg]  (env-3 :convex.watch/error)]
                                 (case etype
-                                  :exception ($.run.err/fatal env-3
-                                                              ($.code/error ($.cvm/code-std* :FATAL)
-                                                                            ($.code/string "Unknown fatal error occured when setting up the file watcher")))
                                   :not-found (if (= arg
                                                     (first (env-3 :convex.watch/extra+)))
                                                ($.run.err/fatal env-3
@@ -359,7 +357,11 @@
                                                              ($.run.err/fatal (-> ($.code/error ($.cvm/code-std* :FATAL)
                                                                                                 ($.code/string "Missing file for requested dependency"))
                                                                                   (.assoc $.run.kw/path
-                                                                                          ($.code/string arg)))))))))
+                                                                                          ($.code/string arg)))))))
+                                   
+                                  :unknown   ($.run.err/fatal env-3
+                                                              ($.code/error ($.cvm/code-std* :FATAL)
+                                                                            ($.code/string "Unknown fatal error occured when setting up the file watcher")))))
                               ;;
                               ;; Handles sync error if any.
                               ;;

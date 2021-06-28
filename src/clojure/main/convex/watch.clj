@@ -138,7 +138,7 @@
                        nil])
 
                     (catch Throwable ex
-                      [[:exception ex]
+                      [[:unknown ex]
                        nil]))]
     (->> (if watcher
            (-> ($.sync/disk ($.cvm/fork (env :convex.sync/ctx-base))
@@ -158,7 +158,7 @@
   "After [[init]], actually starts the file watcher.
   
    The environment will contain all key-values that [[convex.sync/disk]] provides since it is being used under the hood.
-   In addition, it will also hold (besides what [[init]] describes):
+   In addition, if no error occurs it will also hold (besides what [[init]] describes):
 
    | Key | Value |
    |---|---|
@@ -166,6 +166,13 @@
    | `:convex.watch/extra->change` | A map of `extra path` to one of `#{:create :delete :modify} if any extra path changed |
    | `:convex.watch/nano-change` | Last time change has been detected (uses `System/nanoTime`) |
    | `:convex.watch/watcher` | Actual watcher object, not a user concern |
+
+   If an error occur, only a `:convex.watch/error` key is added and value can tuple such as:
+
+   | Tuple | Meaning |
+   |---|---|
+   | `[:not-found Path]` | File under `Path` not found or not accessible |
+   | `[:unknown Exception]` | `Exception` occured when setting up the file watcher |
   
    See [[stop]]."
 
