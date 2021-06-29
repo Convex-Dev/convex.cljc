@@ -268,14 +268,17 @@
                                                         "The Runner executes each top-level form as a transaction."
                                                         "This library provides a series of special values named `*xxx*` which hold commonly useful information, such as juice consumption."
                                                         "It also provide the `about` function for printing a description of any account or any symbol defined in an account."
-                                                        "For more information, run `(help/about help 'about)`."
-                                                        "The Runner is able to understand a series of \"special requests\" which perform commonly useful actions such as outputting values."
-                                                        "Those \"special requests\" are merely vectors built using the SReq library."
-                                                        "The Help and the SReq libraries are respectively defined in the default account as `help` and `sreq`."]}
+                                                        "For more information, evalute `(help/about help 'about)`."]}
                                    :name "Convex Lisp Runner Help and Miscelleneous Utilities"}))
 
 
-                  (import convex.run.sreq :as sreq)
+
+                  (def sreq
+
+                   ^{:doc {:description "Alias to the SReq library."}}
+
+                   (call *registry*
+                         (cns-resolve 'convex.run.sreq)))
 
 
                   ;; SPECIAL VALUES
@@ -530,7 +533,8 @@
 
                     (defn about
 
-                      ^{:doc {:description "Prepares a special request for outputting useful information about an account or a symbol defined in any account."
+                      ^{:doc {:description ["Prepares a special request for outputting useful information about an account or a symbol defined in any account."
+                                            "Note: if present, the environment description is simplified. More information about each symbol can be queried."]
                               :examples    [{:code "(help/str-about sreq)"}
                                             {:code "(help/str-about sreq 'out)"}]
                               :signature   [{:params [addr-or-sym]}

@@ -29,6 +29,24 @@
 ;;;;;;;;;; Commands
 
 
+(defn describe
+
+  ""
+
+  [arg+ _option+]
+
+  (case (count arg+)
+    1 ($.run/eval env
+                  (format "(help/about %s)"
+                          (first arg+)))
+    2 ($.run/eval env
+                  (format "(help/about %s '%s)"
+                          (first arg+)
+                          (second arg+)))
+    (println "Describe command expects 1 or 2 arguments.")))
+
+
+
 (defn eval
 
   ""
@@ -48,10 +66,11 @@
 
   (if-some [command (first arg+)]
     (case command
-      "eval"  ($.app.run.help/eval)
-      "help"  ($.app.run.help/help)
-      "load"  ($.app.run.help/load)
-      "watch" ($.app.run.help/watch)
+      "describe" ($.app.run.help/describe)
+      "eval"     ($.app.run.help/eval)
+      "help"     ($.app.run.help/help)
+      "load"     ($.app.run.help/load)
+      "watch"    ($.app.run.help/watch)
       (str "Unknown command: "
            command))
     ($.app.run.help/main)))
@@ -112,11 +131,12 @@
                                                             cli-option+)
           command             (first arg+)
           f                   (case command
-                               "eval"  eval
-                               "help"  help
-                               "load"  load
-                               "watch" watch
-                               nil)]
+                                "describe" describe
+                                "eval"     eval
+                                "help"     help
+                                "load"     load
+                                "watch"    watch
+                                nil)]
       (if f
         (f (rest arg+)
            option+)
@@ -145,8 +165,10 @@
 
   (-main)
 
+  (-main "describe" "#8" "+")
+
   (-main "eval" "(help/about sreq 'dep)")
 
-  (-main "help" "watch")
+  (-main "help" "describe")
 
   )

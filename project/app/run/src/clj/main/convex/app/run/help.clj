@@ -25,6 +25,31 @@
 ;;;;;;;;;; Description
 
 
+(defn describe
+
+  ""
+
+  []
+
+  (-print
+    ["Shortcut for calling the `about` function from the Help library."
+     ""
+     ""
+     "Usage:"
+     ""
+     "  describe ADDRESS-OR-SYMBOL"
+     "  describe ADDRESS SYMBOL"
+     ""
+     ""
+     "Examples:"
+     ""
+     "  describe help"
+     "  describe help about"
+     "  describe sreq"
+     "  describe #8 +"]))
+
+
+
 (defn eval
 
   ""
