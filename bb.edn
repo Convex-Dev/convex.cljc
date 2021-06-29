@@ -133,6 +133,17 @@
 
 
 
+         uberjar:app
+
+         {:doc  "Given the name of a CLI app (eg. 'fuzz', 'run'), compile an uberjar to './compiled/uberjar/app'"
+          :task (clojure (let [app (first *command-line-args*)]
+                           (format "-X:uberjar :aliases '[:project.app.%s]' :jar compiled/uberjar/app/%s.jar :main-class convex.app.%s"
+                                   app
+                                   app
+                                   app
+                                   app)))}
+
+
          :requires ([babashka.fs :as fs])
 
 

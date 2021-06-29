@@ -41,6 +41,11 @@
    :replace-deps {seancorfield/depstar {:mvn/version "2.0.171"}}}
 
 
+  :uberjar
+  {:exec-args    {:aot true}
+   :exec-fn      hf.depstar/uberjar
+   :replace-deps {com.github.seancorfield/depstar {:mvn/version "2.1.245"}}}
+
 
 
   ;; DEV
