@@ -9,7 +9,8 @@
                             load])
   (:require [clojure.string]
             [clojure.tools.cli]
-            [convex.run         :as $.run]))
+            [convex.app.run.help :as $.app.run.help]
+            [convex.run          :as $.run]))
 
 
 ;;;;;;;;;; Miscellaneous
@@ -25,38 +26,6 @@
                           env-2)})
 
 
-(def help
-
-  ""
-
-  (->> ["Convex Lisp Runner"
-        ""
-        "Execute code locally, without any server setup."
-        ""
-        ""
-        "Commands:"
-        ""
-        "  eval   Execute the given string"
-        "  help   Provide a description of the given command"
-        "  load   Execute the given main file"
-        "  watch  Live reloads the given main file"
-        ""
-        ""
-        "This runner aliases 2 useful libraries."
-        ""
-        "The Help library, aliased as `help`, provides a series of useful dynamic values and a generic `about` function which outputs"
-        "information about any account or symbol."
-        ""
-        "The SReq library, aliased as `sreq`, provides \"special requests\" that this runner understands: useful actions such as producing"
-        "an output or advancing the timestamp."
-
-        "For more information, run:"
-        ""
-        "  eval '(help/about help)'"
-        "  eval '(help/about sreq)'"]
-       (clojure.string/join \newline)))
-
-
 ;;;;;;;;;; Commands
 
 
@@ -68,6 +37,24 @@
 
   ($.run/eval env
               (first arg+)))
+
+
+
+(defn help
+
+  ""
+
+  [arg+ _option+]
+
+  (if-some [command (first arg+)]
+    (case command
+      "eval"  ($.app.run.help/eval)
+      "help"  ($.app.run.help/help)
+      "load"  ($.app.run.help/load)
+      "watch" ($.app.run.help/watch)
+      (str "Unknown command: "
+           command))
+    ($.app.run.help/main)))
 
 
 
@@ -126,13 +113,14 @@
           command             (first arg+)
           f                   (case command
                                "eval"  eval
+                               "help"  help
                                "load"  load
                                "watch" watch
                                nil)]
       (if f
         (f (rest arg+)
            option+)
-        (println help)))
+        ($.app.run.help/main)))
 
 
     (catch clojure.lang.ExceptionInfo err
@@ -157,6 +145,8 @@
 
   (-main)
 
-  (-main "eval" "(help/about help)")
+  (-main "eval" "(help/about sreq 'dep)")
+
+  (-main "help" "watch")
 
   )

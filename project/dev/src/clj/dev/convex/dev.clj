@@ -12,6 +12,7 @@
             [clojure.pprint]
             [convex.app.fuzz]
             [convex.app.run]
+            [convex.app.run.help]
             [convex.break]
             [convex.break.gen]
             [convex.break.test.account]

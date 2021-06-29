@@ -18,8 +18,8 @@
 
                   (call *registry*
                         (register {:doc  {:description ["Special requests are vectors of data which instruct the Convex Lisp Runner to perform useful actions such as outputting values."
-                                                        "Those actions are not implemented by the CVM, they are only understood by Runner."
-                                                        "After each transaction in the main file has been executed, the Runner checks if the result is any supported special request."
+                                                        "Those actions are not implemented by the CVM, they are only understood by the runner."
+                                                        "After each transaction in the main file has been executed, the runner checks if the result is any supported special request."
                                                         "Such vectors are created by calling functions from this address."]}
                                    :name "Convex Lisp Runner Special Requests"}))
 
