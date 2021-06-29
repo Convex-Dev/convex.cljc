@@ -11,6 +11,19 @@
             [convex.run         :as $.run]))
 
 
+;;;;;;;;;; Miscellaneous
+
+
+(def env
+
+  ""
+
+  {:convex.run.hook/out (fn [env-2 x]
+                          (println (str x))
+                          (flush)
+                          env-2)})
+
+
 ;;;;;;;;;; Commands
 
 
@@ -20,7 +33,8 @@
 
   [arg+ _option+]
 
-  ($.run/eval (first arg+)))
+  ($.run/eval env
+              (first arg+)))
 
 
 
@@ -30,7 +44,8 @@
 
   [arg+ _option+]
 
-  ($.run/load (first arg+)))
+  ($.run/load env
+              (first arg+)))
 
 
 
@@ -40,7 +55,8 @@
 
   [arg+ _option+]
 
-  ($.run/watch (first arg+)))
+  ($.run/watch env
+               (first arg+)))
 
 
 ;;;;;;;;;; Main command
@@ -52,7 +68,6 @@
 
   [err]
 
-  ;(*output* [:exception.java err])
   (throw err))
 
 

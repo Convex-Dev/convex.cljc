@@ -1,7 +1,14 @@
 {:tasks {app:fuzz
 
          {:doc  "Run base fuzzy tester with random forms, in an infinite loop"
-          :task (clojure "-X:app.fuzz")}
+          :task (clojure "-X:project.app.fuzz:app.fuzz")}
+
+
+
+         app:run
+         {:doc  "Start Convex Lisp Runner ; needs all CLI arguments to be quoted together"
+          :task (clojure (format "-M:project.app.run:app.run %s"
+                                 (first *command-line-args*)))}
 
 
 
@@ -9,7 +16,6 @@
 
          {:doc  "Print the classpath"
           :task (do
-                  (println "Computing and printing classpath...\n")
                   (doseq [line (sort (clojure.string/split (cp-string)
                                                            (re-pattern ":")))]
                     (println line)))}
@@ -168,7 +174,7 @@
 
              ([profile+ command]
 
-              (clojure-2 (str "-M:app.fuzz:app.run:dev:test"
+              (clojure-2 (str "-M:project.app.fuzz:project.app.run:dev:test"
                               profile+
                               " "
                               command))))
