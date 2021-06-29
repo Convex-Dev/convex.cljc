@@ -1,13 +1,28 @@
 {:aliases
- {:app-fuzz
-  {:exec-args   {:max-size 200
-                 :root     "report/fuzz"}
-   :exec-fn     convex.app.fuzz/random
-   :extra-paths ["src/clojure/app"
-                 "src/clojure/test"]}
+ {
+
+
+  ;; MISCELLANEOUS
+  
+
   :cljs
   {:extra-deps {thheller/shadow-cljs {:mvn/version "2.11.23"}}
    :main-opts  ["-m" "shadow.cljs.devtools.cli"]}
+
+
+  :kaocha
+  {:extra-deps {lambdaisland/kaocha {:mvn/version "1.0.829"}}}
+
+
+  :nrepl
+  {:extra-deps {nrepl/nrepl {:mvn/version "RELEASE"}}
+   :main-opts  ["-m" "nrepl.cmdline" "--port" "14563"]}
+
+
+
+
+  ;; INSTALL, JAR, DEPLOY, ...
+
 
   :deploy
   {:exec-args  {:artifact  "compiled/jvm/release.jar"
@@ -15,12 +30,13 @@
    :exec-fn    deps-deploy.deps-deploy/deploy
    :extra-deps {slipset/deps-deploy {:mvn/version "0.1.5"}}}
 
-  :dev
-  {:extra-deps  {org.clojure/tools.reader {:mvn/version "1.3.4"}}
-   :extra-paths ["src/clojure/app"
-                 "src/clojure/dev"
-                 "src/clojure/example"
-                 "src/clojure/test"]}
+
+  :install
+  {:exec-args  {:artifact  "compiled/jvm/release.jar"
+                :installer :local}
+   :exec-fn    deps-deploy.deps-deploy/deploy
+   :extra-deps {slipset/deps-deploy {:mvn/version "0.1.5"}}}
+    
 
   :jar
   {:exec-args    {:jar      "compiled/jvm/release.jar"
@@ -28,22 +44,96 @@
    :exec-fn      hf.depstar/jar
    :replace-deps {seancorfield/depstar {:mvn/version "2.0.171"}}}
 
-  :install
-  {:exec-args  {:artifact  "compiled/jvm/release.jar"
-                :installer :local}
-   :exec-fn    deps-deploy.deps-deploy/deploy
-   :extra-deps {slipset/deps-deploy {:mvn/version "0.1.5"}}}
 
-  :kaocha
-  {:extra-deps {lambdaisland/kaocha {:mvn/version "1.0.829"}}}
 
-  :nrepl
-  {:extra-deps {nrepl/nrepl {:mvn/version "RELEASE"}}
-   :main-opts  ["-m" "nrepl.cmdline" "--port" "14563"]}
+
+  ;; PROJECTS PATHS
+
+
+  :dev
+  {:extra-deps  {org.clojure/tools.reader {:mvn/version "1.3.4"}}
+   :extra-paths [;; app/fuzz
+                 "project/app/fuzz/src/clj/main"
+
+                 ;; app/run
+                 "project/app/run/src/clj/main"
+                 "project/app/run/src/cvx/main"
+                 "project/app/run/src/cvx/example"
+
+                 ;; break
+                 "project/break/src/clj/main"
+                 "project/break/src/clj/test"
+                 "project/break/src/cvx/main"
+
+                 ;; clojurify
+                 "project/clojurify/src/cljc/main"
+                 "project/clojurify/src/cljc/test"
+
+                 ;; CVM
+                 "project/cvm/src/clj/main"
+                 "project/cvm/src/clj/test"
+
+                 ;; deploy/lib/actor
+                 "project/deploy/actor/oracle-trusted/src/cvx/main"
+                 "project/deploy/actor/prediction-market/src/cvx/main"
+                 "project/deploy/actor/registry/src/cvx/main"
+                 "project/deploy/actor/secured-loan/src/cvx/main"
+                 "project/deploy/actor/torus/src/cvx/main"
+
+                 ;; deploy/lab/lib/xform
+                 "project/deploy/lab/lib/xform/src/clj/dev"
+                 "project/deploy/lab/lib/xform/src/cvx/dev/convex/xform/store.cvx"
+                 "project/deploy/lab/lib/xform/src/cvx/main/convex/xform.cvx"
+
+                 ;; deploy/lib
+                 "project/deploy/lib/asset/src/cvx/main"
+                 "project/deploy/lib/box/src/cvx/main"
+                 "project/deploy/lib/core/src/cvx/main"
+                 "project/deploy/lib/fungible/src/cvx/main"
+                 "project/deploy/lib/nft-tokens/src/cvx/main"
+                 "project/deploy/lib/simple-nft/src/cvx/main"
+                 "project/deploy/lib/trust/src/clj/main"
+                 "project/deploy/lib/trust/src/clj/test"
+                 "project/deploy/lib/trust/src/cvx/main"
+
+                 ;; dev
+                 "project/dev/src/clj/dev"
+
+                 ;; example
+                 "project/example/src/clj"
+
+                 ;; run
+                 "project/run/src/clj/main"
+                 "project/run/src/cvx/main"
+
+                 ;; sync
+                 "project/sync/src/clj/main"
+
+                 ;;watch
+                 "project/watch/src/clj/main"
+                 ]}
+
+
+
+  ;; RUNNING APPS
+
+  :app.fuzz
+  {:exec-args   {:max-size 200
+                 :root     "report/fuzz"}
+   :exec-fn     convex.app.fuzz/random
+   :extra-paths ["src/clojure/app"
+                 "src/clojure/test"]}
+
+
+
+
 
   :test
   {:extra-deps  {io.helins/mprop {:mvn/version "0.0.1"}}
    :extra-paths ["src/clojure/test"]}}
+
+
+
 
  :deps
  {;cljs-ajax/cljs-ajax  {:mvn/version "0.8.3"}
@@ -53,5 +143,4 @@
   world.convex/convex      {:local/root "cvm/0373e815b38de5cca4ce41929145692f08d4e88a.jar"}}
 
  :paths
- ["src/convex/run"
-  "src/clojure/main"]}
+ []}
