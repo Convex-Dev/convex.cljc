@@ -155,20 +155,28 @@
 
              ;; Like `clojure` but prepares environment for `test.check` and appends additional CLI arguments.
 
-             [command]
 
-             (let [{:keys [extra+
-                           max-size
-                           n-test]} (-> *command-line-args*
-                                        first
-                                        clojure.edn/read-string )]
-               (clojure {:extra-env {"CVM_CTX"        "convex.break/ctx"
-                                     "MPROP_MAX_SIZE"  max-size
-                                     "MPROP_NUM_TESTS" n-test}}
-                        (str command
-                             " "
-                             (clojure.string/join " "
-                                                  extra+)))))
+             ([command]
+
+              (clojure-2 command
+                         nil))
+
+
+             ([command env]
+
+              (let [{:keys [extra+
+                            max-size
+                            n-test]} (-> *command-line-args*
+                                         first
+                                         clojure.edn/read-string )]
+                (clojure {:extra-env (merge env
+                                            {"CVM_CTX"        "convex.break/ctx"
+                                             "MPROP_MAX_SIZE"  max-size
+                                             "MPROP_NUM_TESTS" n-test})}
+                         (str command
+                              " "
+                              (clojure.string/join " "
+                                                   extra+))))))
 
 
 
@@ -188,7 +196,8 @@
               (clojure-2 (str "-M:project.app.fuzz:project.app.run:dev:test"
                               profile+
                               " "
-                              command))))
+                              command)
+                         {"CONVEX_DEV" "true"})))
 
 
 

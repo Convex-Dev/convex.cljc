@@ -26,6 +26,40 @@
                           env-2)})
 
 
+
+(defn error
+
+  ""
+
+
+  ([message]
+
+   (error message
+          nil))
+
+
+  ([message _exception]
+
+   (println message)
+   (flush)
+   (when (not= (System/getenv "CONVEX_DEV")
+               "true")
+     (System/exit 42))))
+
+
+
+(defn ensure-path
+
+  ""
+
+  [f arg+]
+
+  (if-some [path (first arg+)]
+    (f env
+       path)
+    (error "Path fo main file is missing.")))
+
+
 ;;;;;;;;;; Commands
 
 
@@ -62,7 +96,7 @@
                   (format "(help/about %s '%s)"
                           (first arg+)
                           (second arg+)))
-    (println "Describe command expects 1 or 2 arguments.")))
+    (error "Describe command expects 1 or 2 arguments.")))
 
 
 
@@ -72,8 +106,10 @@
 
   [arg+ _option+]
 
-  ($.run/eval env
-              (first arg+)))
+  (if-some [string (first arg+)]
+    ($.run/eval env
+                string)
+    (error "No code to evaluate.")))
 
 
 
@@ -83,8 +119,8 @@
 
   [arg+ _option+]
 
-  ($.run/load env
-              (first arg+)))
+  (ensure-path $.run/load
+               arg+))
 
 
 
@@ -94,21 +130,11 @@
 
   [arg+ _option+]
 
-  ($.run/watch env
-               (first arg+)))
+  (ensure-path $.run/watch
+               arg+))
 
 
 ;;;;;;;;;; Main command
-
-
-(defn handle-exception
-
-  ""
-
-  [err]
-
-  (throw err))
-
 
 
 (def cli-option+
@@ -143,18 +169,9 @@
         ($.app.run.help/main)))
 
 
-    (catch clojure.lang.ExceptionInfo err
-      (let [data (ex-data err)]
-        (if (::error? data)
-          (do
-            (println [:error (.getMessage err)])
-            ;(System/exit 42)
-            )
-          (handle-exception err))))
-
-
-    (catch Throwable err
-      (handle-exception err))))
+    (catch Throwable ex
+      (error "An unknown exception happened."
+             ex))))
 
 
 ;;;;;;;;;; Dev
