@@ -265,9 +265,8 @@
 
                   (call *registry*
                         (register {:doc  {:description ["Help library for the Convex Lisp Runner."
-                                                        "The Runner executes each top-level form as a transaction."
-                                                        "This library provides a series of special values named `*xxx*` which hold commonly useful information, such as juice consumption."
-                                                        "It also provide the `about` function for printing a description of any account or any symbol defined in an account."
+                                                        "Provides a series of special values named `*xxx*` which hold commonly useful information, such as juice consumption."
+                                                        "Also provides the `about` function for printing a description of any account or any symbol defined in any account."
                                                         "For more information, evalute `(help/about help 'about)`."]}
                                    :name "Convex Lisp Runner Help and Miscelleneous Utilities"}))
 
@@ -534,9 +533,9 @@
                     (defn about
 
                       ^{:doc {:description ["Prepares a special request for outputting useful information about an account or a symbol defined in any account."
-                                            "Note: if present, the environment description is simplified. More information about each symbol can be queried."]
-                              :examples    [{:code "(help/str-about sreq)"}
-                                            {:code "(help/str-about sreq 'out)"}]
+                                            "Note: if present, the environment description is simplified one. More information about each symbol can be queried."]
+                              :examples    [{:code "(help/str sreq)"}
+                                            {:code "(help/str sreq 'out)"}]
                               :signature   [{:params [addr-or-sym]}
                                             {:params [addr sym]}]
                               :type        :function}}

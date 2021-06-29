@@ -29,6 +29,25 @@
 ;;;;;;;;;; Commands
 
 
+(defn command
+
+  ""
+
+  [arg+ _option+]
+
+  (if-some [command (first arg+)]
+    (case command
+      "command"  ($.app.run.help/command)
+      "describe" ($.app.run.help/describe)
+      "eval"     ($.app.run.help/eval)
+      "load"     ($.app.run.help/load)
+      "watch"    ($.app.run.help/watch)
+      (str "Unknown command: "
+           command))
+    ($.app.run.help/main)))
+
+
+
 (defn describe
 
   ""
@@ -55,25 +74,6 @@
 
   ($.run/eval env
               (first arg+)))
-
-
-
-(defn help
-
-  ""
-
-  [arg+ _option+]
-
-  (if-some [command (first arg+)]
-    (case command
-      "describe" ($.app.run.help/describe)
-      "eval"     ($.app.run.help/eval)
-      "help"     ($.app.run.help/help)
-      "load"     ($.app.run.help/load)
-      "watch"    ($.app.run.help/watch)
-      (str "Unknown command: "
-           command))
-    ($.app.run.help/main)))
 
 
 
@@ -129,11 +129,11 @@
     (let [{arg+    :arguments
            option+ :options}  (clojure.tools.cli/parse-opts arg+
                                                             cli-option+)
-          command             (first arg+)
-          f                   (case command
+          cmd      (first arg+)
+          f                   (case cmd
+                                "command"  command
                                 "describe" describe
                                 "eval"     eval
-                                "help"     help
                                 "load"     load
                                 "watch"    watch
                                 nil)]
@@ -165,10 +165,10 @@
 
   (-main)
 
-  (-main "describe" "#8" "+")
+  (-main "describe" "help" "about")
 
   (-main "eval" "(help/about sreq 'dep)")
 
-  (-main "help" "describe")
+  (-main "command" "eval")
 
   )

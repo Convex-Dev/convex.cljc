@@ -25,6 +25,27 @@
 ;;;;;;;;;; Description
 
 
+(defn command
+
+  ""
+
+  []
+
+  (-print
+    ["Print out a complete description of the given command."
+     ""
+     ""
+     "Usage:"
+     ""
+     "    command COMMAND"
+     ""
+     ""
+     "Example:"
+     ""
+     "    command watch"]))
+
+
+
 (defn describe
 
   ""
@@ -34,19 +55,21 @@
   (-print
     ["Shortcut for calling the `about` function from the Help library."
      ""
+     "Print a human-readable description of any account or any symbol defined in any account."
+     ""
      ""
      "Usage:"
      ""
-     "  describe ADDRESS-OR-SYMBOL"
-     "  describe ADDRESS SYMBOL"
+     "    describe ADDRESS-OR-SYMBOL"
+     "    describe ADDRESS SYMBOL"
      ""
      ""
      "Examples:"
      ""
-     "  describe help"
-     "  describe help about"
-     "  describe sreq"
-     "  describe #8 +"]))
+     "    describe help"
+     "    describe help about"
+     "    describe sreq"
+     "    describe #8 +"]))
 
 
 
@@ -62,40 +85,20 @@
      ""
      "Usage:"
      ""
-     "  eval STRING"
+     "    eval STRING"
      ""
      ""
      "Example:"
      ""
-     "  eval \"(sreq/out (+ 2 3))\""
+     "    eval \"(sreq/out (+ 2 3))\""
      ""
      ""
-     "This example uses a special request for outputting the result."
+     "This example uses a \"special request\" for outputting the result."
      ""
      "For more information, run:"
      ""
-     "  eval \"(help/about sreq 'out)\""]))
-
-
-
-(defn help
-
-  ""
-
-  []
-
-  (-print
-    ["Print out a complete description of the given command."
-     ""
-     ""
-     "Usage:"
-     ""
-     "  help COMMAND"
-     ""
-     ""
-     "Example:"
-     ""
-     "  help watch"]))
+     "    describe sreq"
+     "    describe sreq out"]))
 
 
 
@@ -113,7 +116,7 @@
      ""
      "Usage:"
      ""
-     "  load path/to/file.cvx"
+     "    load path/to/file.cvx"
      ""
      ""
      "Help and SReq libraries described in the general help are crucial in order to produce any"
@@ -135,26 +138,22 @@
      ""
      "Commands:"
      ""
-     "  eval   Execute the given string"
-     "  help   Provide a description of the given command"
-     "  load   Execute the given main file"
-     "  watch  Live reloads the given main file"
+     "    command   Provide details regarding the given command"
+     "    describe  Describe an account or any defined symbol"
+     "    eval      Execute the given string"
+     "    load      Execute the given main file"
+     "    watch     Live reloads the given main file"
      ""
      ""
      "Each form is executed as a transaction."
      ""
-     "This runner aliases 2 useful libraries."
-     ""
-     "The Help library, aliased as `help`, provides a series of useful dynamic values and a generic `about` function which outputs"
-     "information about any account or symbol."
-     ""
-     "The SReq library, aliased as `sreq`, provides \"special requests\" that this runner understands: useful actions such as producing"
-     "an output or advancing the timestamp."
+     "Two libraries are aliased by default as `help` and `sreq`. Understanding them is crucial for"
+     "producing usefl work."
      ""
      "For more information, run:"
      ""
-     "  eval '(help/about help)'"
-     "  eval '(help/about sreq)'"]))
+     "    describe help"
+     "    describe sreq"]))
 
 
 
@@ -178,4 +177,4 @@
      ""
      "Usage:"
      ""
-     "  watch path/to/file.cvx"]))
+     "    watch path/to/file.cvx"]))
