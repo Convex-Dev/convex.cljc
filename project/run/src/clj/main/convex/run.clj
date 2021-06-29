@@ -406,7 +406,7 @@
                                         (if (env-5 :convex.run/error)
                                           env-5
                                           (if (= (not-empty dep-new+)
-                                                 dep-old+)
+                                                 (not-empty dep-old+))
                                             (-> env-5
                                                 (dissoc :convex.watch/dep-lock
                                                         :convex.watch/extra->change)
