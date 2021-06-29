@@ -7,7 +7,8 @@
   (:gen-class)
   (:refer-clojure :exclude [eval
                             load])
-  (:require [clojure.tools.cli]
+  (:require [clojure.string]
+            [clojure.tools.cli]
             [convex.run         :as $.run]))
 
 
@@ -22,6 +23,38 @@
                           (println (str x))
                           (flush)
                           env-2)})
+
+
+(def help
+
+  ""
+
+  (->> ["Convex Lisp Runner"
+        ""
+        "Execute code locally, without any server setup."
+        ""
+        ""
+        "Commands:"
+        ""
+        "  eval   Execute the given string"
+        "  help   Provide a description of the given command"
+        "  load   Execute the given main file"
+        "  watch  Live reloads the given main file"
+        ""
+        ""
+        "This runner aliases 2 useful libraries."
+        ""
+        "The Help library, aliased as `help`, provides a series of useful dynamic values and a generic `about` function which outputs"
+        "information about any account or symbol."
+        ""
+        "The SReq library, aliased as `sreq`, provides \"special requests\" that this runner understands: useful actions such as producing"
+        "an output or advancing the timestamp."
+
+        "For more information, run:"
+        ""
+        "  eval '(help/about help)'"
+        "  eval '(help/about sreq)'"]
+       (clojure.string/join \newline)))
 
 
 ;;;;;;;;;; Commands
@@ -99,8 +132,7 @@
       (if f
         (f (rest arg+)
            option+)
-        (println (format "Unknown command: %s"
-                         command))))
+        (println help)))
 
 
     (catch clojure.lang.ExceptionInfo err
@@ -115,3 +147,16 @@
 
     (catch Throwable err
       (handle-exception err))))
+
+
+;;;;;;;;;; Dev
+
+
+(comment
+
+
+  (-main)
+
+  (-main "eval" "(help/about help)")
+
+  )
