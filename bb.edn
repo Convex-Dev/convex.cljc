@@ -1,7 +1,7 @@
 {:tasks {app:fuzz
 
          {:doc  "Run base fuzzy tester with random forms, in an infinite loop"
-          :task (clojure "-X:app-fuzz")}
+          :task (clojure "-X:app.fuzz")}
 
 
 
@@ -36,14 +36,15 @@
          dev:clojure
 
          {:doc  "Start Clojure JVM dev environment (NREPL on port 14563)"
-          :task (clojure-2 "-M:dev:test:nrepl")}
+          :task (clojure-dev ":nrepl")}
 
 
 
          dev:cljs
 
          {:doc  "Start CLJS dev environment (NREPL on port 14563, server on port 8000)"
-          :task (clojure-2 "-M:cljs:dev:test watch dev")}
+          :task (clojure-dev ":cljs"
+                             "watch dev")}
 
 
 
@@ -154,6 +155,27 @@
 
 
 
+           (defn clojure-dev
+
+             ;; Like `clojure-2` but imports mandatory Deps profiles besides what is given.
+
+
+             ([profile+]
+
+              (clojure-dev profile+
+                           nil))
+
+
+             ([profile+ command]
+
+              (clojure-2 (str "-M:app.fuzz:app.run:dev:test"
+                              profile+
+                              " "
+                              command))))
+
+
+
+
            (defn cp-string
 
              ;; Returns the classpath as a string, reading profiles from CLI args.
@@ -188,7 +210,7 @@
 
              [arg+]
 
-             (clojure-2 "-M:kaocha:test -m kaocha.runner --config-file kaocha.edn :jvm "))
+             (clojure-2 "-M:test -m kaocha.runner --config-file kaocha.edn :jvm "))
 
 
 

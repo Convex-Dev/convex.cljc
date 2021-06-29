@@ -131,5 +131,7 @@
                       $/foo)
 
 
+  ($.clj.eval/result ($.cvm/ctx)
+                     '(+ 2 2))
   
   )

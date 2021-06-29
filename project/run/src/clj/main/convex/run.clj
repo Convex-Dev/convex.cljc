@@ -437,12 +437,12 @@
 
 
 
-  (load "src/convex/dev/app/run.cvx")
+  (load "project/run/src/cvx/dev/convex/app/run/dev.cvx")
 
 
 
   (def a*env
-       (watch "src/convex/dev/app/run.cvx"))
+       (watch "project/run/src/cvx/dev/convex/app/run/dev.cvx"))
 
   ($.watch/stop a*env)
 

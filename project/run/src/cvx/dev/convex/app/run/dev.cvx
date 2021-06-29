@@ -6,8 +6,8 @@
 
 ;; Reads those files and binds the unevaluated code to the given symbols using special transaction `cvm.read`
 ;;
-(sreq/dep {xform "src/convex/lib/lab/xform.cvx"
-           store "src/convex/lib/lab/xform/store.cvx"})
+(sreq/dep {store "project/deploy/lab/lib/xform/src/cvx/dev/convex/xform/store.cvx"
+           xform "project/deploy/lab/lib/xform/src/cvx/main/convex/xform.cvx"})
 
 
 

@@ -10,10 +10,6 @@
    :main-opts  ["-m" "shadow.cljs.devtools.cli"]}
 
 
-  :kaocha
-  {:extra-deps {lambdaisland/kaocha {:mvn/version "1.0.829"}}}
-
-
   :nrepl
   {:extra-deps {nrepl/nrepl {:mvn/version "RELEASE"}}
    :main-opts  ["-m" "nrepl.cmdline" "--port" "14563"]}
@@ -47,45 +43,19 @@
 
 
 
-  ;; PROJECTS PATHS
+  ;; DEV
 
 
   :dev
   {:extra-deps  {org.clojure/tools.reader {:mvn/version "1.3.4"}}
-   :extra-paths [;; app/fuzz
-                 "project/app/fuzz/src/clj/main"
-
-                 ;; app/run
-                 "project/app/run/src/clj/main"
-                 "project/app/run/src/cvx/main"
-                 "project/app/run/src/cvx/example"
-
-                 ;; break
-                 "project/break/src/clj/main"
-                 "project/break/src/clj/test"
-                 "project/break/src/cvx/main"
-
-                 ;; clojurify
-                 "project/clojurify/src/cljc/main"
-                 "project/clojurify/src/cljc/test"
-
-                 ;; CVM
-                 "project/cvm/src/clj/main"
-                 "project/cvm/src/clj/test"
-
-                 ;; deploy/lib/actor
-                 "project/deploy/actor/oracle-trusted/src/cvx/main"
+   :extra-paths ["project/deploy/actor/oracle-trusted/src/cvx/main"
                  "project/deploy/actor/prediction-market/src/cvx/main"
                  "project/deploy/actor/registry/src/cvx/main"
                  "project/deploy/actor/secured-loan/src/cvx/main"
                  "project/deploy/actor/torus/src/cvx/main"
-
-                 ;; deploy/lab/lib/xform
                  "project/deploy/lab/lib/xform/src/clj/dev"
                  "project/deploy/lab/lib/xform/src/cvx/dev/convex/xform/store.cvx"
                  "project/deploy/lab/lib/xform/src/cvx/main/convex/xform.cvx"
-
-                 ;; deploy/lib
                  "project/deploy/lib/asset/src/cvx/main"
                  "project/deploy/lib/box/src/cvx/main"
                  "project/deploy/lib/core/src/cvx/main"
@@ -95,23 +65,11 @@
                  "project/deploy/lib/trust/src/clj/main"
                  "project/deploy/lib/trust/src/clj/test"
                  "project/deploy/lib/trust/src/cvx/main"
-
-                 ;; dev
                  "project/dev/src/clj/dev"
-
-                 ;; example
                  "project/example/src/clj"
+                 "project/run/src/cvx/dev"
+                 "project/run/src/cvx/example"]}
 
-                 ;; run
-                 "project/run/src/clj/main"
-                 "project/run/src/cvx/main"
-
-                 ;; sync
-                 "project/sync/src/clj/main"
-
-                 ;;watch
-                 "project/watch/src/clj/main"
-                 ]}
 
 
 
@@ -121,17 +79,27 @@
   {:exec-args   {:max-size 200
                  :root     "report/fuzz"}
    :exec-fn     convex.app.fuzz/random
-   :extra-paths ["src/clojure/app"
-                 "src/clojure/test"]}
+   :extra-paths ["project/app/fuzz/src/clj/main"]}
 
 
+  :app.run
+  {:extra-paths ["project/app/run/src/clj/main"]}
+
+
+
+  ;; TESTING
 
 
 
   :test
-  {:extra-deps  {io.helins/mprop {:mvn/version "0.0.1"}}
-   :extra-paths ["src/clojure/test"]}}
-
+  {:extra-deps  {io.helins/mprop {:mvn/version "0.0.1"}
+                 lambdaisland/kaocha {:mvn/version "1.0.829"}}
+   :extra-paths ["project/break/src/clj/test"
+                 "project/clojurify/src/cljc/test"
+                 "project/cvm/src/clj/test"]}
+  }
+ ;;
+ ;; ALIAS END
 
 
 
@@ -142,5 +110,16 @@
   org.clojure/test.check   {:mvn/version "1.1.0"}
   world.convex/convex      {:local/root "cvm/0373e815b38de5cca4ce41929145692f08d4e88a.jar"}}
 
+
+
+
  :paths
- []}
+ ["project/break/src/clj/main"
+  "project/break/src/cvx/main"
+  "project/clojurify/src/cljc/main"
+  "project/cvm/src/clj/main"
+  "project/run/src/clj/main"
+  "project/run/src/cvx/main"
+  "project/sync/src/clj/main"
+  "project/watch/src/clj/main"]
+}
