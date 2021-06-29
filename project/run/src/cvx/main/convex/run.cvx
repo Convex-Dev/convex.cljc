@@ -159,12 +159,12 @@
                                           "Useful for things like displaying juice consumption, tracing transactions, etc."
                                           "Overwrites any previously registered quoted transaction, `nil` removes it."]
                             :examples    [{:code "(sreq/hook.trx '(sreq/out [:result help/*trx.last.result* :juice help/*trx.last.juice*]))"}]
-                            :signature   [{:params [f]}]
+                            :signature   [{:params [trx]}]
                             :type        :function}}
                 
-                    [f]
+                    [trx]
 
-                    [:cvm.sreq :hook.result f])
+                    [:cvm.sreq :hook.result trx])
                 
                                                                         
                 

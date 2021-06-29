@@ -188,4 +188,14 @@
 
   (-main "command" "eval")
 
+
+
+  (def a*
+       (-main "watch" "project/run/src/cvx/dev/convex/app/run/dev.cvx"))
+
+  (require '[convex.watch])
+
+  (convex.watch/stop a*)
+
+
   )

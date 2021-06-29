@@ -1,200 +1,213 @@
+;;
+;;
+;; Example of a Convex Lisp main file.
+;;
+;; Each form is evaluated as a transaction until a CVM exception is thrown.
+;;
+;; Lines starting with ";;" are comments.
+;; Lines starting with ";" can be uncommented for learning and testing features.
+;;
+;;
+
 ;;;;;;;;;; INIIALIZING A RUN
 
 
-;; Reads those files and binds the unevaluated code to the given symbols using special transaction `cvm.read`
+;; Reads those files and binds the unevaluated code (list of forms) to the given symbols.
 ;;
-; (cvm.read {xform "src/convex/lib/lab/xform.cvx"
-;            store "src/convex/lib/lab/xform/store.cvx"})
+;; If used, MUST be at the beginning of the main file as first transaction.
+;; In watch mode, those files are live-reloaded as well.
+;;
+;; Ensure file paths are correct when testing this.
+;;
+; (sreq/dep {store "project/deploy/lab/lib/xform/src/cvx/dev/convex/xform/store.cvx"
+;            xform "project/deploy/lab/lib/xform/src/cvx/main/convex/xform.cvx"})
 
 
 
-;; Clears the terminal using special transaction `cvm.out.clear`
+;; Clears the terminal.
 ;;
-; (cvm.out.clear)
+(sreq/screen.clear)
 
 
 
-;; Prints nice information at the start of a run using special transaction `cvm.out`
+;; Prints nice information at the start of a run.
 ;;
-; (cvm.out (str "Run N°" (inc *cvm.cycle*)
-;               \newline
-;               \newline
-;               "OUTPUT:"
-;               \newline))
+(sreq/out (str "Run N°" (inc help/*cycle*)
+               \newline
+               \newline
+               "OUTPUT:"
+               \newline))
 
 
-;;;;;;;;;; SPECIAL TRANSACTIONS
+;;;;;;;;;; HELP LIBRARY
 
 
-;; Special transactions are interpreted by the runner in order to produce useful side-effects.
+;; The Help library is a special address only available when using the runner.
 ;;
-;; Currently:
+;; Notably, it provides an `about` function which can be used to describe any address or any symbol defined
+;; in any address
+
+; (help/about help)
+
+; (help/about help 'about)
+
+
+;; It also contains dynamic values commonly useful.
 ;;
-;; - `cvm.do` - Similar to `do`, executes each form as an individual transaction
-;; - `cvm.hook.end` - Executes the given code at the end of a run, even if an error occured
-;; - `cvm.hook.error` - When an errors occurs, calls the given function with the error and then executes the returned code (default is outputting with `cvm.out`)
-;; - `cvm.hook.out` - On each output, maps the data using the given function (default is `identity`, no alteration)
-;; - `cvm.hook.trx` - Before each transaction, uses the given function for mapping transaction code (eg. output the result, do not execute if some metadata, ...)
-;; - `cvm.log` - Binds the current state of the CVM log to the given symbol
-;; - `cvm.out` - Outputs the given item
-;; - `cvm.out.clear` - Clears the screen (useful when output is printing to the terminal)
-;; - `cvm.read` - Given a map of `symbol` -> `file path`, reads each file and binds the unevaluated code its requested symbol
-;; - `cvm.try` - Try-catch mechanism
+;; For example:
 ;;
-;; Those special transaction are demonstrated in this file.
+; (+ 10 20)
+; (sreq/out {:juice  help/*trx.last.juice*
+;            :result help/*trx.last.result*})
+
+
+;;;;;;;;;; SPECIAL REQUESTS
+
+
+;; Special requests are interpreted by the runner in order to produce useful side-effects.
 ;;
-;; Since they are "transactions", one CANNOT do:
+;; They are simply vectors produced using the `sreq` library. The runner checks each transaction result for those.
 ;;
-;; (+ 2 (cvm.do 2))
+;; It is important understanding that calling those functions only returns a vector.
 ;;
-;; However, some special transaction CAN contain other special transaction, for instance:
+;; Only then side-effects are performed by the runner.
 ;;
-;; (cvm.do (cvm.out "Hello world"))
+;; The rest of this file shows examples of such special requests.
+
+; (help/about sreq)
+
+; (help/about sreq 'out)
 
 
 ;;;;;;;;;; PRODUCING AN OUTPUT
 
 
-;; Each form is a separate transaction ; each transaction is executed but no output is produced
+;; Returns a vector which requests the runner to output a given value.
 ;;
-; 42
-; (+ 2 2)
-; (first [:a :b :c])
-
-
-;; Produces an output by wrapping code in the `cvm.out` special transaction
-;;
-; (cvm.out (+ 2 2))
+; (sreq/out [:output "any value" {'foo 42}])
 
 
 ;;;;;;;;;; HOOKS (code executed at particular moments)
 
 
-;; Registers code that is executed at the end, no matter if any error occured or not
+;; Registers transactions to be executed at the end of the run, even if a CVM exception was thrown.
 ;;
-;(cvm.hook.end
-;  (cvm.out "END"))
+; (sreq/hook.end '[(def foo 42)
+;                  (sreq/out [:end :foo foo])])
 
 
-
-;; Hook which maps errors to code (default is outputting them)
+;; Registers a function which maps a thrown CVM exception to a transaction.
+;; Default is to output them.
 ;;
-; (cvm.hook.error (fn [error]
-;                   `(cvm.out [:error ~error])))
+;(sreq/hook.error (fn [err]
+;                   (sreq/out (str "An error occured: " err))))
+;(fail :foo :bar)
 
 
-
-;; Hook which maps transaction code ; `*cvm.trx.id*` is a special value incremented on each new transaction in this file
+;; Registers a function which maps any value to be output right before being so.
+;; Allows for implementing things like pretty-printing.
 ;;
-; (cvm.hook.trx (fn [trx]
-;                 `(cvm.out [:trx *cvm.trx.id* (quote ~trx) ~trx])))
+; (sreq/hook.out (fn [x]
+;                  (if (and (map? x)
+;                           (:foo x))
+;                    (str "This value contains `:foo`: " x)
+;                    x)))
+; (sreq/out 42)
+; (sreq/out {:foo 1, :bar 2})
 
 
-
-;; Hook which maps what is being output
+;; Registers a transaction to perform after each transaction in this main file.
+;; Useful for providing feedback on what is happening.
 ;;
-;(cvm.hook.out (fn [x]
-;                [:HOOK.out x]))
+;(sreq/hook.result '(sreq/out {:form   help/*trx.last.form*
+;                              :juice  help/*trx.last.juice*
+;                              :result help/*trx.last.result*}))
+;(+ 10 20)
 
-
-
-;; Removing hooks
+;(sreq/hook.result nil)
 ;;
-; (cvm.hook.end nil)
-; (cvm.hook.error nil)
-; (cvm.hook.out nil)
-; (cvm.hook.trx nil)
+;; Any registered can be overwritten or canceled with nil
+;;
 
 
-;;;;;;;;;; WORKING WITH FILES (read at the beginning of this file in the special transaction `cvm.read`)
+;;;;;;;;;; DEPENDENCIES (uncomment first transction in this main file `(sreq/dep ...)`
 
 
 ;; The store file can be evaluated in place
 ;;
-; (eval store)
+; (eval (first store))
+; (sreq/out [:inventory inventory])
 
 
 
 ;; Deploys transducers file as a library
 ;,
 ; (def xform
-;      (deploy xform))
+;      (deploy (first xform)))
 
 
 
 ;; Transducer example ; functions `available?`, `code`, `price`, and `tag+` were defined in the evaluated "store" file
 ;;
-; (cvm.out [:query-veggies
-;           (xform/transduce ;; Processing, composition of "transducers" which filter and map items
-;                            (comp (xform/filter (fn [item]
-;                                                  (contains-key? (tag+ item)
-;                                                                 :fruit)))
-;                                  (xform/filter (fn [item]
-;                                                  (< (price item)
-;                                                     600)))
-;                                  (xform/filter available?)
-;                                  (xform/map code)
-;                                  )
-;                            ;; Output, each item that survives processing is `conj`ed to the given vector (empty at the beginning)
-;                            conj
-;                            []
-;                            ;; Input, declared in the "store" file, a vector where an item is a fruit or vegetable with a price, some quantity, tags, ...
-;                            inventory)])
+; (sreq/out [:query-veggies
+;            (xform/transduce ;; Processing, composition of "transducers" which filter and map items
+;                             (comp (xform/filter (fn [item]
+;                                                   (contains-key? (tag+ item)
+;                                                                  :fruit)))
+;                                   (xform/filter (fn [item]
+;                                                   (< (price item)
+;                                                      600)))
+;                                   (xform/filter available?)
+;                                   (xform/map code)
+;                                   )
+;                             ;; Output, each item that survives processing is `conj`ed to the given vector (empty at the beginning)
+;                             conj
+;                             []
+;                             ;; Input, declared in the "store" file, a vector where an item is a fruit or vegetable with a price, some quantity, tags, ...
+;                             inventory)])
 
 
 ;;;;;;;;; BUILDING ABSTRACTIONS
 
 
-;; Simple special transaction which in turn run each given form as a separate transaction
+;; Creating transactions dynamically is easy.
 ;;
-; (cvm.do
-;   (cvm.out "First")
-;   (cvm.out "Second"))
+;(def trx+
+;     '[(def foo 42)
+;       (sreq/out [:foo foo])])
+;
+;(sreq/do trx+)
 
 
-
-;; Each new transaction is always expanded prior to checking if it is a special one or not.
-;; This means that abstraction can be built using regular macros.
-
-;; Macro for tracing a transaction (produces a nice output of what happens)
+;; Hence, regular functions and macros can be used to build any abstraction.
 ;;
 ; (defmacro trace
 ;  
 ;   [trx]
 ; 
-;   `(cvm.do
-;      (cvm.out "===")
-;      (cvm.out \newline)
-;      (cvm.out (str "TRANSACTION: "
-;                    (quote ~trx)))
-;      (cvm.out \newline)
-;      (cvm.out (str "RESULT: "
-;                    ~trx))
-;      (cvm.out \newline)
-;      (cvm.out "===")))
-
-
-
+;   (sreq/do `[(sreq/out "===")
+;              (sreq/out \newline)
+;              (sreq/out (str "TRANSACTION: "
+;                             (quote ~trx)))
+;              (sreq/out \newline)
+;              (sreq/out (str "RESULT: "
+;                             ~trx))
+;              (sreq/out \newline)
+;              (sreq/out "===")]))
+; 
 ; (trace (+ 2 2))
 
 
 ;;;;;;;;;; TRY-CATCH
 
 
-;; Special transaction where each form is run as an individual transaction.
-;; `(+ 2 [])` thows an exception, hence execution stops.
-;; Last form is a special transaction `cvm.catch` which is evaluated when an error is indeed catched ; error is then accessible under `*cvm.error*`
+;; Transactions from the first "try" vector are executed one by one until an error occurs, like `sreq/do`.
 ;;
-; (cvm.try
-; 
-;   (cvm.out "Try 1")
-; 
-;   (+ 2 [])
-; 
-;   (cvm.out "Try 2")
-; 
-;   (cvm.catch
-;     (cvm.out [:catch *cvm.error*])))
+;; If an error does occur, execution jumps to the second "catch" vector for error handling.
+;;
+; (sreq/try '[(def foo 42)
+;             (fail :bar :baz)]
+;           '[(sreq/out [:catch :foo foo :caught help/*error*])])
 
 
 ;;;;;;;;;; ACCESSING THE CVM LOG
@@ -205,10 +218,68 @@
 ; (log [:a :b :c])
 
 
-;; Interns the CVM log under the given `LOG` symbol
+;; Retrieves the current log.
 ;;
-; (cvm.log LOG)
+; (sreq/log)
+
+;; For the next transaction, it is available as last transaction's result.
+;;
+; (sreq/out [:log help/*trx.last.result*])
 
 
-; (cvm.out [:my-log (get LOG
-;                        *address*)])
+;;;;;;;;;; READING SOURCE
+
+
+;; Any string representing Convex Lisp code can be read.
+;; Code is available as a list of forms in last transaction's result.
+;;
+; (sreq/read (str "(+ 2 " "3)"))
+; (let [form (first help/*trx.last.result*)]
+;   (sreq/out (list '= form (eval form))))
+
+
+;;;;;;;;;; ACCESSING PROCESS ENVIRONMENT
+
+
+;; Storing whole process environment map.
+;;
+; (sreq/env)
+; (sreq/out [:whole-env help/*trx.last.result*])
+
+
+;; Storing only one env property.
+;;
+; (sreq/env "SOME_ENV") ;; Should be a property spotted in previous example
+; (sreq/out [:one-prop help/*trx.last.result*])
+
+
+;;;;;;;;;; SCHEDULING AND ADVANCING TIMESTAMP
+
+
+;; Unless requested, the CVM timestamp never changes.
+;;
+;; For testing scheduling, it can be advanced.
+
+; (def happened?
+;      false)
+
+;; Scheduling this in 10 milliseconds
+;;
+; (schedule (+ *timestamp*
+;              10)
+;           (def happened?
+;                true))
+
+;; Not yet.
+;;
+; (sreq/out [:happened? happened? *timestamp*])
+
+
+;; Advancing the timestamp by 10 milliseconds.
+;;
+; (sreq/advance 10)
+
+
+;; Done!
+;;
+; (sreq/out [:happened? happened? *timestamp*])

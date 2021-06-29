@@ -139,7 +139,8 @@
   ($.run.ctx/def-result env
                         (if-some [env-var (.get tuple
                                                 2)]
-                          ($.code/string (System/getenv (str env-var)))
+                          (some-> (System/getenv (str env-var))
+                                  $.code/string)
                           ($.code/map (map (fn [[k v]]
                                              [($.code/string k)
                                               ($.code/string v)])
