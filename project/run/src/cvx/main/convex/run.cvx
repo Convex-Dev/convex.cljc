@@ -1,12 +1,20 @@
 ;;
 ;;
-;; Special transactions supported by the runner.
+;; Deploys and aliases 2 crucial libraries for the runner.
 ;;
-;; Defined as function but they throw a fatal error when used as regular Convex Lisp code.
-;; Also act as documentation holders.
+;; The SReq library offers functions for creating vectors that the runner interperts as special requests
+;; for doing side-effects such as outputting a value.
+;;
+;; The Help library offers a series of values dynamically set by the runner (eg. `help/*error*` when a CVM error occurs) and the `about`
+;; function for navigating documentation metadata.
 ;;
 ;;
+
+
 (do
+
+  ;; DEPLOYING AND ALIASING SREQ LIBRARY
+
 
   (def sreq
        (deploy '(do
@@ -251,9 +259,12 @@
                      [:cvm.sreq :try try-trx+ catch-trx+]))
                               
                 
-                  ))) ;; END - STRX
+                  ))) ;; END - SREQ LIBRARY
 
 
+
+
+  ;; DEPLOYING AND ALIASING HELP LIBRARY
 
   (def help
        (deploy '(do
@@ -552,7 +563,7 @@
                                             sym))))
 
 
-                    )))  ;; End - HELP
+                    )))  ;; END - HELP LIBRARY
 
 
 
@@ -562,4 +573,4 @@
    sreq]
 
 
-  ) ;; END 
+  ) ;; END

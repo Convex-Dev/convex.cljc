@@ -1,11 +1,14 @@
 (ns convex.watch
 
-  "Builds on [[convex.sync/disk]] and [[convex.sync]] utilities for providing a live-reloading example.
+  "Builds on [[convex.sync/disk]] and [[convex.sync]] utilities for providing a live-reloading experience.
 
-   A watcher is a Clojure agent which tracks involved files and always keeps a context in sync. The data it holds is an environemnt
+   A watcher is a Clojure agent which tracks involved files and always keeps a CVM context in sync. The data it holds is an environemnt
    map akin to what [[convex.sync/disk]] describes. However, it contains more data.
 
-   See [[init]], [[start]]."
+   See [[init]], [[start]].
+  
+   A prime example leveraging this namespace is the [[convex.run]] namespace from the 'run' project and the CLI Convex Lisp Runner implemented
+   in the [[convex.app.run]] namespace from the 'app/run' project."
 
   {:author "Adam Helinski"}
 
@@ -20,7 +23,7 @@
 
 (defn ctx
 
-  ""
+  "Given a watcher, forks and returns the context it holds. Nil if no context is available."
 
   [a*env]
 

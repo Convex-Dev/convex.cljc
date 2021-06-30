@@ -1,8 +1,78 @@
 (ns convex.run
 
-  ""
+  "Core namespace implementing a Convex Lisp runner.
 
-  ;; TOOD. Reader errors cannot be very meaningful as long as Parboiled is used.
+   The purpose of a runner is to provide a convenient framework for evaluating a Convex Lisp main file and
+   related dependencies.
+
+
+   ENV
+   ===
+
+   Those utilities are built using the 'sync' project and the 'watch' project. Just as in those project, a runner
+   operates over an \"environment\" map. See [[init]].
+
+   In a main file, each form is evaluated as a transaction and gradually modifies an environment.
+
+
+   EVALUATION
+   ==========
+
+   [[eval]] serves to evaluate a given string as if it was a main file ; [[load]] reads and executes a main file ;
+   [[watch]] behaves like [[load]] but provides a live-reloading experience.
+
+
+   SPECIAL REQUESTS
+   ================
+
+   A runner can do useful side-effects on-demand called \"special requests\", such as outputting a value. Those special
+   requests are nothing more than vector that the runner interprets at runtime.
+  
+    See the [[convex.run.sreq]] namespace.
+
+  
+   DYNAMIC VALUES AND HELP
+   =======================
+
+   A runner maintains a set of dynamic values that users can access in the address aliased by default as `help`. For more
+   information, use [[eval]] to evaluate `(help/about help)`.
+
+
+   OUTPUT
+   ======
+
+   Any value that is requested to be outputted (by the `(sreq/out ...)` special request) goes through the output hook.
+   See hook section.
+
+   ERRORS
+   ======
+
+   When a CVM exception or any other error occurs, it is being signaled using the error hook. See hook section.
+
+   HOOKS
+   =====
+
+   Hooks are functions or transactions executed by the runner at key moments.
+
+   They are specified in the environment:
+
+   | When | What | Default behavior |
+   |---|---|---|
+   | `:convex.run.hook/end` | A function `env` -> `env` called after all transactions have been processed | Nothing |
+   | `:convex.run.hook/error` | A function `env` -> `env` called when an error occurs | Passing the error to the output hook |
+   | `:convex.run.hook/out` | A function `env`, `value` -> `env` called when a value must be outputted | Printing to terminal using `println` |
+   | `:convex.run.hook/result | A transaction executed after every transaction provided by the user | Nothing |
+
+
+   CLI APP
+   =======
+
+   The CLI Convex Lisp Runner is a light layer built on top of this project. It is not much more than a CLI interface with
+   description.
+
+   See 'app/run' project."
+
+  ;; TODO. Reader errors cannot be very meaningful as long as Parboiled is used.
 
   {:author "Adam Helinski"}
 
@@ -25,14 +95,13 @@
             [convex.watch     :as $.watch]))
 
 
-;;;;;;;;;; Miscellaneous
+;;;;;;;;;; Computing dependencies
 
 
 (defn sym->dep
 
-  ""
-
-  ;; TODO. Error if invalid format.
+  "Used when a main file is read. Looks at the first transaction under `:convex.run/trx+` and computes
+   dependencies if it is a `(sreq/dep ...)` form."
 
   [env]
 
@@ -85,12 +154,98 @@
       env))
           
 
-;;;;;;;;;; 
+;;;;;;;;;; Error handling
+
+
+(defn err-main
+
+  "Called with an error message whenever an error involving the main file occur.
+  
+   Attaches the error to `env` and ensures it has been forwarded to the error hook."
+
+  [env message]
+
+  ($.run.err/signal env
+                    (-> ($.code/error ($.cvm/code-std* :FATAL)
+                                      ($.code/string message))
+                        ($.run.err/assoc-phase $.run.kw/main))))
+
+
+
+(defn err-main-access
+
+  "Uses [[err-main]] to signal that the main file is not accessible."
+
+  [env]
+
+  (err-main env
+            "Main file not found or not accessible"))
+
+
+
+(defn err-sync
+
+  "Called with a sync error whenever it happens.
+
+   Handles and forwards it to the error hook.
+  
+   See the [[convex.sync]] namespace."
+
+  [env [kind path->reason]]
+
+  ($.run.err/signal env
+                    (-> ($.code/error ($.cvm/code-std* :FATAL)
+                                      (reduce-kv (fn [^AMap path->reason--2 path reason]
+                                                   (.assoc path->reason--2
+                                                           ($.code/string path)
+                                                           ($.code/string (case kind
+
+                                                                            :load
+                                                                            (case (first reason)
+                                                                              :not-found "Dependency file not found or inaccessible"
+                                                                              :parse     "Dependency file cannot be parsed as Convex Lisp"
+                                                                              :unknown   "Unknown error while loading and parsing dependency file")
+
+                                                                            "Unknown error while loading dependency file"))))
+                                                 ($.code/map)
+                                                 path->reason))
+                        ($.run.err/assoc-phase $.run.kw/dep))))
+
+
+;;;
+
+
+(defn check-err-sync
+
+  "Uses [[err-sync]] if needed.
+  
+   Returns nil otherwise, meaning no sync error has been detected and handled."
+
+  [env]
+
+  (when-some [err (env :convex.sync/error)]
+    (err-sync env
+              err)))
+
+
+;;;;;;;;;; Preparing an environment prior to executing transactions
 
 
 (defn init
 
-  ""
+  "Initializes important functions and values in the given `env`, using defaults when relevant.
+
+   Must be used prior to other preparatory functions such as [[slurp-file]].
+  
+   Operates over:
+  
+   | Key | Action |
+   |---|---|
+   | `:convex.run/path` | If present, ensures the path to the main file is canonical |
+   | `:convex.run.hook/end` | Ensures a default end hook, see namespace description |
+   | `:convex.run.hook/error` | Ensures a default error hook, see namespace description |
+   | `:convex.run.hook/out` | Ensures a default output hook, see namespace description |
+   | `:convex.sync/cx-base | Ensures a default base context, see [[convex.run.ctx/base]] |"
 
   [env]
 
@@ -123,33 +278,11 @@
 
 
 
-(defn err-main
-
-  ""
-
-  [env message]
-
-  ($.run.err/signal env
-                    (-> ($.code/error ($.cvm/code-std* :FATAL)
-                                      ($.code/string message))
-                        ($.run.err/assoc-phase $.run.kw/main))))
-
-
-
-(defn err-main-access
-
-  ""
-
-  [env]
-
-  (err-main env
-            "Main file not found or not accessible"))
-
-
-
 (defn slurp-file
 
-  ""
+  "Gets the source for the main file mentioned under `:convex.run/path`.
+  
+   Uses [[err-main-access]] if while is not accessible."
 
   [env]
 
@@ -171,7 +304,11 @@
 
 (defn process-src
 
-  ""
+  "Processes (and removes) source string located under `:convex.run/src`.
+
+   Reads it, associates the transactions under `:convex.run/trx+`, and computes dependencies using [[sym->dep]].
+
+   Uses [[err-main]] in case of error."
 
   [env]
 
@@ -195,7 +332,7 @@
 
 (defn main-file
 
-  ""
+  "Successively calls [[slurp-file]] and [[process-src]], checking for errors."
 
   [env]
     
@@ -205,48 +342,19 @@
       (process-src env-2))))
 
 
-
-(defn err-sync
-
-  ""
-
-  [env [kind path->reason]]
-
-  ($.run.err/signal env
-                    (-> ($.code/error ($.cvm/code-std* :FATAL)
-                                      (reduce-kv (fn [^AMap path->reason--2 path reason]
-                                                   (.assoc path->reason--2
-                                                           ($.code/string path)
-                                                           ($.code/string (case kind
-
-                                                                            :load
-                                                                            (case (first reason)
-                                                                              :not-found "Dependency file not found or inaccessible"
-                                                                              :parse     "Dependency file cannot be parsed as Convex Lisp"
-                                                                              :unknown   "Unknown error while loading and parsing dependency file")
-
-                                                                            "Unknown error while loading dependency file"))))
-                                                 ($.code/map)
-                                                 path->reason))
-                        ($.run.err/assoc-phase $.run.kw/dep))))
-
-
-
-(defn check-err-sync
-
-  ""
-
-  [env]
-
-  (when-some [err (env :convex.sync/error)]
-    (err-sync env
-              err)))
-
+;;;;;;;;;; Executing source once
 
 
 (defn once
 
-  ""
+  "Assuming `env` has been properly initialized (eg. see [[init]]) and no error occured, executes transactions once to
+   completion.
+
+   Takes care of preparing dependencies.
+
+   Built on top of the 'sync' project (see the [[convex.sync]] namespace).
+
+   Used by [[eval]] and [[load]]."
 
   [env]
 
@@ -269,7 +377,7 @@
 
 (defn eval
 
-  ""
+  "Like [[load]] but evaluates a given string as opposed to a file."
 
 
   ([src]
@@ -288,12 +396,12 @@
        once)))
 
 
-;;;;;;;;;; Load files
+;;;;;;;;;; Loading a main file and its dependencies
 
 
 (defn load
 
-  ""
+  "Reads and executes the main file under `path` by using [[once]]."
 
 
   ([path]
@@ -334,8 +442,19 @@
 
   (defn watch
 
-    ""
+    "Executes a main file just like [[load]] but provides a live-reloading experience.
 
+     Whenever the main file or any of its dependencies changes, relevant assets are reloaded and
+     the whole is rexecuted anew.
+   
+     Built on top of the 'watch' project (see the [[convex.watch]] namespace)."
+
+    ;; Implementation of the `:convex.watch/on-change` is a tad convoluted because it handles various kind of errors
+    ;; and dependency changes.
+    ;;
+    ;; Essentially, it first checks for errors at the level of the watcher, then errors at the level of the syncing,
+    ;; then checks if dependencies changed, and ultimately run transactions unless it waits for a correction in dependencies
+    ;; given that an error occured at that level (eg. requesting an nonexistent file).
 
     ([path]
 
@@ -427,7 +546,7 @@
        a*env))))
 
 
-;;;;;;;;;;
+;;;;;;;;;; During dev
 
 
 (comment
@@ -437,12 +556,12 @@
 
 
 
-  (load "project/run/src/cvx/dev/convex/app/run/dev.cvx")
+  (load "project/run/src/cvx/dev/convex/run/dev.cvx")
 
 
 
   (def a*env
-       (watch "project/run/src/cvx/dev/convex/app/run/dev.cvx"))
+       (watch "project/run/src/cvx/dev/convex/run/dev.cvx"))
 
   ($.watch/stop a*env)
 

@@ -220,11 +220,11 @@
 
 
   (def a*
-       (-main "watch" "project/run/src/cvx/dev/convex/app/run/dev.cvx"))
+       (-main "watch" "project/run/src/cvx/dev/convex/run/dev.cvx"))
 
-  (require '[convex.watch])
-
-  (convex.watch/stop a*)
+  (do
+    (require '[convex.watch])
+    (convex.watch/stop a*))
 
 
   )
