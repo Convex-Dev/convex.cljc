@@ -1,6 +1,9 @@
 (ns convex.run.sreq
 
-  "Special requests interpreted by the runner."
+  "Implemetation of special requests interpreted by the runner.
+  
+   A special requestion is merely a CVM vector respecting some particular shape that the
+   runner follows typically for producing useful side-effects."
 
   {:author "Adam Helinski"}
 
@@ -19,7 +22,7 @@
 
 (defn screen-clear
 
-  ""
+  "VT100 way of clearing a terminal screen."
 
   ;; https://www.delftstack.com/howto/java/java-clear-console/
 
@@ -34,7 +37,9 @@
 
 (defn restore
 
-  ""
+  "Used in some hook implementations.
+  
+   Helps in restoring a default hook."
 
 
   ([env kw hook]
@@ -60,25 +65,29 @@
 ;;;;;;;;;; Setup
 
 
-(defmethod $.run.exec/sreq nil
+(defmethod $.run.exec/sreq
+  
+  nil
 
-  ;; No special request, simply finalize a regular transaction.
+  ;; No special request, simply finalizes a regular transaction and evaluates result hook (if present).
 
   [env _result]
 
-  (if-some [hook (env :convex.run.hook/trx)]
+  (if-some [hook (env :convex.run.hook/result)]
     (-> env
-        (dissoc :convex.run.hook/trx)
+        (dissoc :convex.run.hook/result)
         ($.run.exec/trx hook)
-        (assoc :convex.run.hook/trx
+        (assoc :convex.run.hook/result
                hook))
     env))
 
 
 
-(defmethod $.run.exec/sreq :unknown
+(defmethod $.run.exec/sreq
+  
+  :unknown
 
-  ;; Unknown special request.
+  ;; Unknown special request, forwards an error to the error hook.
 
   [env tuple]
 
@@ -93,6 +102,8 @@
 (defmethod $.run.exec/sreq
 
   $.run.kw/advance
+
+  ;; Advances the timestamp.
 
   [env ^AVector tuple]
 
@@ -109,10 +120,14 @@
 
   $.run.kw/dep
 
+  ;; Specifying dependency receives special treatment at the beginning of source.
+  ;;
+  ;; It is illegal everywhere else.
+
   [env ^AVector tuple]
 
   ($.run.err/signal env
-                    ($.run.err/sreq ($.cvm/code-std* :STATE)
+                    ($.run.err/sreq ($.cvm/code-std* :FATAL)
                                     tuple
                                     ($.code/string "CVM special command 'sreq/dep' can only be used as the very first transaction"))))
 
@@ -121,6 +136,8 @@
 (defmethod $.run.exec/sreq
 
   $.run.kw/do
+
+  ;; Executes a user given vector of transactions.
 
   [env ^AVector tuple]
 
@@ -133,6 +150,8 @@
 (defmethod $.run.exec/sreq
 
   $.run.kw/env
+  
+  ;; Interns as result the process environment map or a single request property.
 
   [env ^AVector tuple]
 
@@ -150,6 +169,10 @@
 (defmethod $.run.exec/sreq
   
   $.run.kw/hook-end
+
+  ;; Registers or removes a vector of transactions that will be executed after all transactions from source have been executed.
+  ;;
+  ;; Even if an error occured.
 
   [env ^AVector tuple]
 
@@ -184,7 +207,9 @@
   
   $.run.kw/hook-error
 
-  ;; TODO. Ensure failing hook is handled properly.
+  ;; Registers a function called with an error whenever one occurs. Must returns a transaction to execute.
+  ;;
+  ;; Restores default hook on nil.
 
   [env ^AVector tuple]
 
@@ -248,6 +273,10 @@
   
   $.run.kw/hook-out
 
+  ;; Registers a function called with a value whenever it has to be outputted. Returns a possibly modified value.
+  ;;
+  ;; Restores default hook on nil.
+
   [env ^AVector tuple]
 
   (let [path-restore [:convex.run/restore
@@ -297,10 +326,15 @@
   
   $.run.kw/hook-result
 
+  ;; Registers a transaction that will be executed after every transaction in source that does not result
+  ;; in a special request.
+  ;;
+  ;; Removes hook on nil.
+
   [env ^AVector tuple]
 
   (let [path-restore [:convex.run/restore
-                      :convex.run.hook/trx]
+                      :convex.run.hook/result]
         trx-restore  (get-in env
                              path-restore
                              ::nil)
@@ -313,11 +347,11 @@
           (cond->
             (not trx-restore?)
             (assoc-in path-restore
-                      (env :convex.run.hook/trx)))
-          (assoc :convex.run.hook/trx
+                      (env :convex.run.hook/result)))
+          (assoc :convex.run.hook/result
                  trx-new))
       (restore env
-               :convex.run.hook/trx
+               :convex.run.hook/result
                trx-restore?
                trx-restore))))
 
@@ -326,6 +360,8 @@
 (defmethod $.run.exec/sreq
   
   $.run.kw/log
+
+  ;; Interns as result the current CVM log.
 
   [env _tuple]
 
@@ -337,6 +373,8 @@
 (defmethod $.run.exec/sreq
 
   $.run.kw/out
+
+  ;; Outputs the given value.
 
   [env ^AVector tuple]
 

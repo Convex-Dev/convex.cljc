@@ -217,6 +217,7 @@
 
   (-main "command" "eval")
 
+  (-main "load" "project/run/src/cvx/dev/convex/run/dev.cvx")
 
 
   (def a*
