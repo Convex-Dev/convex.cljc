@@ -1,6 +1,6 @@
 (ns convex.run.kw
 
-  "CVM keywords used by the [[convex.run]] namespace."
+  "CVM keywords used by the [[convex.run]] namespace and its children."
 
   {:author "Adam Helinski"}
 
@@ -15,247 +15,149 @@
 
 
 (def ^Keyword advance
-
-  ""
-
-  ($.code/keyword "advance"))
+              ($.code/keyword "advance"))
 
 
 
 (def ^Keyword cause
-
-  ""
-
-  ($.code/keyword "cause"))
+              ($.code/keyword "cause"))
 
 
 
 (def ^Keyword compile
-
-  ""
-
-  ($.code/keyword "compile"))
+              ($.code/keyword "compile"))
 
 
 
 (def ^Keyword cvm-sreq
-
-  ""
-
-  ($.code/keyword "cvm.sreq"))
+              ($.code/keyword "cvm.sreq"))
 
 
 
 (def ^Keyword dep
-
-  ""
-
-  ($.code/keyword "dep"))
+              ($.code/keyword "dep"))
 
 
 
 (def ^Keyword do
-
-  ""
-
-  ($.code/keyword "do"))
+              ($.code/keyword "do"))
 
 
 
 (def ^Keyword exception?
-
-  ""
-
-  ($.code/keyword "exception?"))
+              ($.code/keyword "exception?"))
 
 
 
 (def ^Keyword env
-
-  ""
-
-  ($.code/keyword "env"))
+              ($.code/keyword "env"))
 
 
 
 (def ^Keyword expand
-
-  ""
-
-  ($.code/keyword "expand"))
-
-
-
-(def ^Keyword file-open
-
-  ""
-
-  ($.code/keyword "file.open"))
+              ($.code/keyword "expand"))
 
 
 
 (def ^Keyword form
-
-  ""
-  
-  ($.code/keyword "form"))
+              ($.code/keyword "form"))
 
 
 
 (def ^Keyword hook-end
-
-  ""
-
-  ($.code/keyword "hook.end"))
+              ($.code/keyword "hook.end"))
 
 
 
 (def ^Keyword hook-error
-
-  ""
-
-  ($.code/keyword "hook.error"))
+              ($.code/keyword "hook.error"))
 
 
 
 (def ^Keyword hook-out
-
-  ""
-
-  ($.code/keyword "hook.out"))
+              ($.code/keyword "hook.out"))
 
 
 
 (def ^Keyword hook-result
-
-  ""
-
-  ($.code/keyword "hook.result"))
+              ($.code/keyword "hook.result"))
 
 
 
 (def ^Keyword log
-
-  ""
-
-  ($.code/keyword "log"))
+              ($.code/keyword "log"))
 
 
 
 (def ^Keyword main
-
-  ""
-
-  ($.code/keyword "main"))
+              ($.code/keyword "main"))
 
 
 
 (def ^Keyword out
-
-  ""
-
-  ($.code/keyword "out"))
+              ($.code/keyword "out"))
 
 
 
 (def ^Keyword path
-
-  ""
-
-  ($.code/keyword "path"))
+              ($.code/keyword "path"))
 
 
 
 (def ^Keyword phase
-
-  ""
-
-  ($.code/keyword "phase"))
+              ($.code/keyword "phase"))
 
 
 
 (def ^Keyword read
-
-  ""
-
-  ($.code/keyword "read"))
+              ($.code/keyword "read"))
 
 
 
 (def ^Keyword run
-
-  ""
-
-  ($.code/keyword "run"))
+              ($.code/keyword "run"))
 
 
 
 (def ^Keyword screen-clear
-
-  ""
-
-  ($.code/keyword "screen.clear"))
+              ($.code/keyword "screen.clear"))
 
 
 
 (def ^Keyword splice
-
-  ""
-
-  ($.code/keyword "splice"))
+              ($.code/keyword "splice"))
 
 
 
 (def ^Keyword src
-
-  ""
-
-  ($.code/keyword "src"))
+              ($.code/keyword "src"))
 
 
 
 (def ^Keyword sreq
-
-  ""
-
-  ($.code/keyword "special-trx"))
+              ($.code/keyword "special-trx"))
 
 
 
 (def ^Keyword trx
-
-  ""
-
-  ($.code/keyword "trx"))
+              ($.code/keyword "trx"))
 
 
 
 (def ^Keyword trx-eval
-
-  ""
-
-  ($.code/keyword "trx.eval"))
+              ($.code/keyword "trx.eval"))
 
 
 
 (def ^Keyword trx-prepare
-
-  ""
-
-  ($.code/keyword "trx.prepare"))
+              ($.code/keyword "trx.prepare"))
 
 
 
 (def ^Keyword try
-
-  ""
-
-  ($.code/keyword "try"))
+              ($.code/keyword "try"))
 
 
 
 (def ^Keyword watch
-
-  ""
-
-  ($.code/keyword "watch"))
+              ($.code/keyword "watch"))
