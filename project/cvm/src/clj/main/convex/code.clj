@@ -1,6 +1,6 @@
 (ns convex.code
 
-  "Constructing CVM objects + related type predicates."
+  "Constructors for CVM objects and predicate functions for those objects."
 
   {:author "Adam Helinski"}
 

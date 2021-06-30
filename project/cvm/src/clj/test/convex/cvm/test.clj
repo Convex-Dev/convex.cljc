@@ -42,6 +42,8 @@
 
 
 (defn -as-clojure
+
+  ;; Used by [[as-clojure]].
   
   [target-clojure target-convex message]
 

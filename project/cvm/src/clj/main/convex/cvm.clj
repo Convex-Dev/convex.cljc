@@ -4,16 +4,16 @@
 
    It can be created using [[ctx]].
   
-   This namespace provide all needed utilities for such endeavours as well few functions for
-   querying useful properties, such as [[juice]].
+   This namespace provide all needed utilities for such endeavours as well functions for querying and altering useful properties. 
 
-   While the design of a context is mostly immutable, quite a few operations are mutable. Each function from this namespace
-   which returns a context means that the input context must be discarded (besides [[fork]] for obvious reasons).
+   While the design of a context is mostly immutable, quite a few operations are mutable. Whenever a function takes a context and
+   returns one, the original one must be discarded (besides in [[fork]] for obvious reasons).
   
-   Such operations consume juice and lead either to a successful [[result]] or to an [[error]]. Functions that
+   Such operations consume juice and lead either to a successful [[result]] or to an [[exception]]. Functions that
    do not return a context (eg. [[env]], [[juice]]) do not consume juice.
 
-   Result objects (Convex objects) can be datafied with [[as-clojure]] for easy consumption from Clojure."
+   CVM objects (eg. results, exceptions) can be translated into Clojure data structure using [[as-clojure]]. Especially useful during
+   development and testing."
 
   {:author "Adam Helinski"}
 
@@ -158,9 +158,9 @@
    can be safely used.
   
    An exception code can be provided as a filter, meaning that even if an exception occured, this
-   functions will return nil unless that exception had the given `code`.
+   functions will return nil unless that exception has the given `code`.
   
-   Also see [[code-std*]] for easily retrieving an official error code. Note that in practise, unlike the CVM
+   Also see [[code-std*]] for easily retrieving an official error code. Note that in practice, unlike the CVM
    itself or any of the core function, a user Convex function can return anything as a code."
 
 
@@ -215,7 +215,8 @@
 
 (defn log
 
-  "Returns the log of `ctx` (a CVM vector of CVM tuple `[Address LoggedValue]`)."
+  "Returns the log of `ctx` (a CVM vector of size 2 vectors containing a logging address
+   and a logged value)."
 
 
   ^ABlobMap
@@ -254,7 +255,7 @@
 
 (defn time
 
-  "Returns the current timestamp (long) assigned to the state in the given `ctx`.
+  "Returns the current timestamp (Unix epoch in milliseconds as CVM long) assigned to the state in the given `ctx`.
   
    Also see [[timestamp-set]]."
 
@@ -294,7 +295,9 @@
 
 (defn def
 
-  "Like calling `(def sym value)` in Convex Lisp."
+  "Like calling `(def sym value)` in Convex Lisp, either in the current address of the given one.
+
+   Argument is a map of `CVM symbol` -> `CVM value`."
 
 
   (^Context [ctx sym->value]
@@ -328,8 +331,8 @@
 
   "Deploys the given `code` as an actor.
   
-   Returns a context that is either exceptional or has the address of the successfully created actor
-   attached as a result."
+   Returns a context that is either [[exception]]al or has the address of the successfully created actor
+   attached as a [[result]]."
 
   ^Context
 
@@ -371,7 +374,7 @@
 
 (defn juice-refill
 
-  "Forks the given context and refills juice to maximum.
+  "Refills juice to maximum.
 
    Also see [[juice-set]]."
 
@@ -388,7 +391,7 @@
 
   "Sets the juice of the given `ctx` to the requested `amount`.
   
-   Also see [[juice-refill]]."
+   Also see [[juice]], [[juice-refill]]."
 
   [^Context ctx amount]
 
@@ -399,7 +402,9 @@
 
 (defn state-set
 
-  "Replaces the state in the `ctx` with the given one."
+  "Replaces the CVM state in the `ctx` with the given one.
+  
+   See [[state]]."
 
   ^Context
 
@@ -414,7 +419,9 @@
 
   "Advances the timestamp in the state of `ctx` by `millis` milliseconds.
   
-   Does not do anything if `millis` is < 0."
+   Does not do anything if `millis` is < 0.
+  
+   See [[time]]."
 
   ^Context
 
@@ -433,7 +440,8 @@
 
 (defn undef
 
-  "Like calling `(undef sym)` in Convex Lisp."
+  "Like calling `(undef sym)` in Convex Lisp, either in the current account or the given one, repeatedly
+   on any CVM symbol in `sym+`."
 
 
   (^Context [ctx sym+]
@@ -466,7 +474,7 @@
 
 (defn read
 
-  "Converts Convex Lisp source to CVM list of top-level CVM forms.
+  "Converts Convex Lisp source (string) to a CVM list of top-level CVM forms.
 
    If needed, that CVM list can be converted to a Clojure vector using `vec`.
 
@@ -498,11 +506,11 @@
 
   "Compiles an expanded Convex object using the given `ctx`.
 
-   Object must be canonical (all items are fully expanded). See [[expand]].
+   Object must be canonical (all items must be fully expanded). See [[expand]].
   
    See [[run]] for execution after compilation.
 
-   Returns `ctx`, result being the compiled object."
+   Returns `ctx`, attached [[result]] being the compiled object."
 
 
   (^Context [ctx]
@@ -524,7 +532,7 @@
 
    Usually run before [[compile]] with the result from [[read]].
   
-   Returns `ctx`, result being the expanded object."
+   Returns `ctx`, attached [[result]] being the expanded object."
 
 
   (^Context [ctx]
@@ -546,7 +554,7 @@
   
    See [[run]] for execution after compilation.
 
-   Returns `ctx`, result being the compiled object."
+   Returns `ctx`, attached [[result]] being the compiled object."
 
   
   (^Context [ctx]
@@ -568,7 +576,7 @@
 
   "Evaluates the given form after fully expanding and compiling it.
   
-   Returns `ctx`, result being the evaluated object."
+   Returns `ctx`, attached [[result]] being the evaluated object."
 
 
   (^Context [ctx]
@@ -586,9 +594,9 @@
 
 (defn query
 
-  "Like [[run]] but the resulting state is discarded.
+  "Like [[run]] but the resulting state is discarded, as if nothing happened.
 
-   Returns `ctx`, result being the evaluated object in query mode."
+   Returns `ctx`, attached [[result]] being the evaluated object in query mode."
 
 
   (^Context [ctx]
@@ -612,7 +620,7 @@
   
    Usually run after [[compile]].
   
-   Returns `ctx`, result being the evaluated object."
+   Returns `ctx`, attached [[result]] being the evaluated object."
 
 
   (^Context [ctx]
@@ -657,7 +665,7 @@
 
    `arg+` is a Java array of CVM objects. See [[arg+*]] for easily and efficiently creating one.
   
-   Like other code-related functions, return a context with either a [[result]] or an [[exception]] attached."
+   Like other code-related functions, returns a context with either a [[result]] or an [[exception]] attached."
 
   ^Context
 
@@ -713,7 +721,7 @@
   
    Throws if keyword does not match any of those.
   
-   Note that in user functions, codes can be anything, any type."
+   Note that in user functions, codes can be anything, any type, using those codes is not at all mandatory."
 
   [kw]
 
@@ -760,7 +768,7 @@
    See [[convex.clj]] namespace for more information on how objects that do not translate directly to Clojure look like (eg. addresses).
 
    Attention, one rare but existing pitfall has been detected: in Clojure, sequential data structures are comparable, not in Convex. In other words,
-   the following map has 2 key-values in Convex but only 1 in Clojure (second eplaces the first one):
+   the following map has 2 key-values in Convex but only 1 in Clojure (second replaces the first one):
 
    ```clojure
    {[1]  :vector
