@@ -42,15 +42,26 @@
          dev:clojure
 
          {:doc  "Start Clojure JVM dev environment (NREPL on port 14563)"
-          :task (clojure-dev ":nrepl")}
+          :task (clojure-dev (update (edn-arg+)
+                                     :profile+
+                                     (fnil conj
+                                           [])
+                                     :nrepl))}
 
 
 
          dev:cljs
 
          {:doc  "Start CLJS dev environment (NREPL on port 14563, server on port 8000)"
-          :task (clojure-dev ":cljs"
-                             "watch dev")}
+          :task (clojure-dev (-> (edn-arg+)
+                                 (update :arg+
+                                         (fnil conj
+                                               [])
+                                         "watch dev")
+                                 (update :profile+
+                                         (fnil conj
+                                               [])
+                                         :cljs)))}
 
 
 
@@ -112,10 +123,11 @@
           :task (test-jvm nil)}
 
 
+
          test:jvm:watch
 
          {:doc "Run tests on the JVM everytime a file is changed ; accepts Kaocha CLI arguments"
-          :task (test-node ["--watch"])}
+          :task (test-jvm ["--watch"])}
 
 
 
@@ -151,54 +163,45 @@
          :init
 
          (do
-           (defn clojure-2
 
-             ;; Like `clojure` but prepares environment for `test.check` and appends additional CLI arguments.
+           (defn edn-arg+
 
+             ;; Parses command line arguments as EDN.
 
-             ([command]
+             []
 
-              (clojure-2 command
-                         nil))
-
-
-             ([command env]
-
-              (let [{:keys [extra+
-                            max-size
-                            n-test]} (-> *command-line-args*
-                                         first
-                                         clojure.edn/read-string )]
-                (clojure {:extra-env (merge env
-                                            {"CVM_CTX"        "convex.break/ctx"
-                                             "MPROP_MAX_SIZE"  max-size
-                                             "MPROP_NUM_TESTS" n-test})}
-                         (str command
-                              " "
-                              (clojure.string/join " "
-                                                   extra+))))))
+             (-> *command-line-args*
+                 first
+                 clojure.edn/read-string))
 
 
 
            (defn clojure-dev
 
-             ;; Like `clojure-2` but imports mandatory Deps profiles besides what is given.
+             ;; Like default `clojure` but prepares environment for `test.check` and appends additional CLI arguments.
 
+             [{:keys [arg+
+                      env
+                      max-size
+                      n-test
+                      profile+]}]
 
-             ([profile+]
+             (println :command (format "-M:project.app.fuzz:project.app.run:dev:test%s %s"
+                              (clojure.string/join " "
+                                                   profile+)
+                              (clojure.string/join " "
+                                                   arg+)))
 
-              (clojure-dev profile+
-                           nil))
-
-
-             ([profile+ command]
-
-              (clojure-2 (str "-M:project.app.fuzz:project.app.run:dev:test"
-                              profile+
-                              " "
-                              command)
-                         {"CONVEX_DEV" "true"})))
-
+             (clojure {:extra-env (merge {"CONVEX_DEV"     "true"
+                                          "CVM_CTX"        "convex.break/ctx"
+                                          "MPROP_MAX_SIZE"  max-size
+                                          "MPROP_NUM_TESTS" n-test}
+                                         env)}
+                      (format "-M:project.app.fuzz:project.app.run:dev:test%s %s"
+                              (clojure.string/join " "
+                                                   profile+)
+                              (clojure.string/join " "
+                                                   arg+))))
 
 
 
@@ -236,9 +239,12 @@
 
              [arg+]
 
-             ;(clojure-2 "-M:test -m kaocha.runner --config-file kaocha.edn :jvm ")
-             (clojure-dev nil
-                          "-m kaocha.runner --config-file kaocha.edn :jvm "))
+             (let [option+ (edn-arg+)]
+               (clojure-dev (update option+
+                                    :arg+
+                                    concat
+                                    ["-m kaocha.runner --config-file kaocha.edn"]
+                                    (:id+ option+)))))
 
 
 
@@ -246,11 +252,12 @@
 
              [optimize?]
 
-             (clojure-2 (format "-M:cljs:test %s test-node"
-                               (if optimize?
-                                 "release"
-                                 "compile")))
-             (shell "node ./compiled/node/test.js"))
+             ;(clojure-2 (format "-M:cljs:test %s test-node"
+             ;                (if optimize?
+             ;                  "release"
+             ;                  "compile")))
+             ;(shell "node ./compiled/node/test.js")
+             )
 
 
            )}}

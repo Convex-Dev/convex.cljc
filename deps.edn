@@ -68,7 +68,6 @@
                  "project/deploy/lib/nft-tokens/src/cvx/main"
                  "project/deploy/lib/simple-nft/src/cvx/main"
                  "project/deploy/lib/trust/src/clj/main"
-                 "project/deploy/lib/trust/src/clj/test"
                  "project/deploy/lib/trust/src/cvx/main"
                  "project/dev/src/clj/dev"
                  "project/example/src/clj"
@@ -115,9 +114,8 @@
                  lambdaisland/kaocha {:mvn/version "1.0.829"}}
    :extra-paths ["project/break/src/clj/test"
                  "project/clojurify/src/cljc/test"
-                 "project/cvm/src/clj/test"]}
-
-
+                 "project/cvm/src/clj/test"
+                 "project/deploy/lib/trust/src/clj/test"]}
   }
  ;;
  ;; ALIAS END
