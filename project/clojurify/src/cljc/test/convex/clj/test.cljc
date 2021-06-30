@@ -5,7 +5,7 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.test :as T]
-            [convex.clj  :as $.clj]))
+            [convex.clj   :as $.clj]))
 
 
 ;;;;;;;;;;

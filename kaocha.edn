@@ -4,10 +4,10 @@
           :kaocha/source-paths ["project/break/src/clj/main"]
           :kaocha/test-paths   ["project/break/src/clj/test"]}
 
-         {:id                  :clojurify
-          :kaocha/ns-patterns  [".+"]
-          :kaocha/source-paths ["project/clojurify/src/clj/main"]
-          :kaocha/test-paths   ["project/clojurify/src/clj/test"]}
+         ; {:id                  :clojurify
+         ;  :kaocha/ns-patterns  [".+"]
+         ;  :kaocha/source-paths ["project/clojurify/src/clj/main"]
+         ;  :kaocha/test-paths   ["project/clojurify/src/clj/test"]}
 
          {:id                  :cvm
           :kaocha/ns-patterns  [".+"]
