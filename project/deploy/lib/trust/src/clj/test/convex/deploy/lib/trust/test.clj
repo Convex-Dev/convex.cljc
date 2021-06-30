@@ -24,6 +24,7 @@
                     'trust "project/deploy/lib/trust/src/cvx/main/convex/trust.cvx"}) ;; TODO. Load from classpath.
       :convex.sync/ctx
       ($.clj.eval/ctx '(do
+                         (set-key (blob "0000000000000000000000000000000000000000000000000000000000000000"))
                          (def $
                               (deploy (first $)))
                          (def trust
@@ -52,7 +53,7 @@
 
       ($.clj.eval/result* ctx-2
                           (= (lookup actor
-                                     'controller)
+                                     controller)
                              ~controller))
       
 
@@ -90,7 +91,7 @@
 
 (defn suite-list
 
-  "Suite used by [[blacklist]] and [[white-list]]."
+  "Suite used by [[blacklist]] and [[whitelist]]."
 
   [ctx not-caller f-list-set]
 
@@ -187,7 +188,7 @@
                                                                             false)))
                                                        addr-allow+)
                                             (= (lookup actor-controlled
-                                                       'blacklist)
+                                                       blacklist)
                                                addr-all+)))
                       
 
@@ -201,7 +202,7 @@
                                                                             true)))
                                                        addr-forbid+)
                                             (= (lookup actor-controlled
-                                                       'blacklist)
+                                                       blacklist)
                                                #{})))
                 
 
@@ -210,7 +211,7 @@
                       ($.clj.eval/result ctx-3
                                          '(do
                                             (let [listing-before (lookup actor-controlled
-                                                                         'blacklist)]
+                                                                         blacklist)]
                                               ($/foreach (fn [addr]
                                                            (call actor-controlled
                                                                  (set-trusted addr
@@ -222,7 +223,7 @@
                                                                               false)))
                                                          addr-forbid+)
                                               (= (lookup actor-controlled
-                                                         'blacklist)
+                                                         blacklist)
                                                  listing-before))))))))))
 
 
@@ -263,7 +264,7 @@
                                                                             false)))
                                                        addr-allow+)
                                             (= (lookup actor-controlled
-                                                       'whitelist)
+                                                       whitelist)
                                                #{})))
                       
 
@@ -277,7 +278,7 @@
                                                                             true)))
                                                        addr-forbid+)
                                             (= (lookup actor-controlled
-                                                       'whitelist)
+                                                       whitelist)
                                                addr-all+)))
                 
 
@@ -286,7 +287,7 @@
                       ($.clj.eval/result ctx-3
                                          '(do
                                             (let [listing-before (lookup actor-controlled
-                                                                         'whitelist)]
+                                                                         whitelist)]
                                               ($/foreach (fn [addr]
                                                            (call actor-controlled
                                                                  (set-trusted addr
@@ -298,7 +299,7 @@
                                                                               false)))
                                                          addr-forbid+)
                                               (= (lookup actor-controlled
-                                                         'whitelist)
+                                                         whitelist)
                                                  listing-before))))))))))
 
 
@@ -333,7 +334,7 @@
         ($.clj.eval/result ctx-2
                            '(= *address*
                                (lookup actor-controlled
-                                       'upgradable-root)))
+                                       upgradable-root)))
 
 
         "Root can be set via options"
@@ -341,7 +342,7 @@
         ($.clj.eval/result ctx-2
                            '(= blacklist
                                (lookup actor-uncontrolled
-                                       'upgradable-root)))
+                                       upgradable-root)))
 
 
         "Can eval code in controlled actor"
@@ -351,7 +352,7 @@
                               (upgrade actor-controlled)
                               (= ~upgrade-data
                                  (lookup actor-controlled
-                                         (quote ~upgrade-sym)))))
+                                         ~upgrade-sym))))
 
 
         "Cannot eval code after giving up root access"

@@ -23,8 +23,10 @@
                                                     (update env
                                                             :convex.sync/ctx
                                                             $.clj.eval/ctx
-                                                            '(def trust
-                                                                  (deploy trust))))
+                                                            '(do
+                                                               (set-key (blob "0000000000000000000000000000000000000000000000000000000000000000"))
+                                                               (def trust
+                                                                    (deploy (first trust))))))
                           :convex.watch/sym->dep  {'trust "project/deploy/lib/trust/src/cvx/main/convex/trust.cvx"}})
            $.watch/start))
 

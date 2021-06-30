@@ -186,12 +186,6 @@
                       n-test
                       profile+]}]
 
-             (println :command (format "-M:project.app.fuzz:project.app.run:dev:test%s %s"
-                              (clojure.string/join " "
-                                                   profile+)
-                              (clojure.string/join " "
-                                                   arg+)))
-
              (clojure {:extra-env (merge {"CONVEX_DEV"     "true"
                                           "CVM_CTX"        "convex.break/ctx"
                                           "MPROP_MAX_SIZE"  max-size
