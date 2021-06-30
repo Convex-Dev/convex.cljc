@@ -34,10 +34,6 @@ package.json
 !/cljs/index.html
 
 
-// Wasmer
-
-./wasmer/runtime/*
-
 
 // Misc
 /.clj-kondo/*
@@ -46,3 +42,4 @@ package.json
 /cvm
 /report
 /private
+project/dev/src/clj/dev/dev.clj

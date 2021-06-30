@@ -1,13 +1,11 @@
 (ns convex.dev
 
-  "Dev playground."
+  "Requires all useful namespaces from all projects for development."
 
   {:author           "Adam Helinski"
    :clj-kondo/config '{:linters {:unused-import    {:level :off}
                                  :unused-namespace {:level :off}}}}
 
-  (:import (convex.core Block)
-           (convex.core.data AccountKey))
   (:require [clojure.data]
             [clojure.pprint]
             [convex.app.fuzz]
@@ -85,54 +83,5 @@
 
 (comment
 
-
-  (def ctx
-       (-> ($.sync/disk {'store "src/convex/lib/lab/xform/store.cvx2"
-                         'xform "src/convex/lib/lab/xform.cvx"})
-           :convex.sync/ctx
-           ($.clj.eval/ctx '(do
-                              (eval (first store))
-                              (def xform
-                                   (deploy (first xform)))))))
-
-  ($.cvm/exception ctx)
-
-
-
-  ($.clj.eval/result* ctx
-                      inventory)
-
-
-
-
-  (def a*env
-       (-> ($.watch/init {:convex.watch/ms-debounce 1000
-                          :convex.watch/on-change   (fn [env]
-                                                      (tap> [:on-change
-                                                             (with-out-str (ppr (dissoc env
-                                                                                        :convex.sync/input->code)))])
-                                                      (update env
-                                                              :convex.sync/ctx
-                                                              $.clj.eval/ctx
-                                                              '(def $
-                                                                    (deploy (first $)))))
-                          :convex.watch/sym->dep    {'$ "src/convex/break/util.cvx2"}})
-           $.watch/start))
-
-  (ppr @a*env)
-  (agent-error a*env)
-
-
-  ($.watch/stop a*env)
-
-
-  ($.cvm/exception ($.watch/ctx a*env))
-
-  ($.clj.eval/result* ($.watch/ctx a*env)
-                      $/foo)
-
-
-  ($.clj.eval/result ($.cvm/ctx)
-                     '(+ 2 2))
   
   )
