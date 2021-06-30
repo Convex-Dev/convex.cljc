@@ -1,6 +1,6 @@
 (ns convex.run.exec
 
-  "All aspects of executing transactions in the runner."
+  "All aspects of executing transactions for the [[convex.run]] namespace.."
 
   {:author "Adam Helinski"}
 
@@ -23,7 +23,7 @@
 
 (defn result
 
-  ""
+  "Extracts a result from the current context attached to `env`."
 
   [env]
 
@@ -35,7 +35,11 @@
 
 (defn update-ctx
 
-  ""
+  "Refills the current context with maximum juice and calls `f` with that context and `form`.
+  
+   The context is then reattached to `env`.
+  
+   In case of a CVM exception, a descriptive error map is created passed to [[convex.run.err/signal]]."
 
   [env kw-phase f form]
 
@@ -59,7 +63,9 @@
 
 (defn sreq-dispatch
   
-  ""
+  "Dispatch function used by the [[sreq]] multimethod.
+  
+   Returns nil if the given result is not a special request."
 
   ([result]
 
@@ -81,9 +87,13 @@
 
 (defmulti sreq
 
-  ""
+  "After evaluating a transaction, the runner must check if the result is a special request.
+  
+   It uses [[sreq-dispatch]] to forward the result to the appropriate special request implementation, an \"unknown\"
+   implementation if it looks like a special request but is not implemented, or the \"nil\" implementation if it is not
+   a special request.
 
-  ;; Implentation of special requests is in the [[convex.run.sreq]] namespace.
+   Implentations of special requests are in the [[convex.run.sreq]] namespace."
 
   sreq-dispatch
 
@@ -95,7 +105,9 @@
 
 (defn compile
 
-  ""
+  "Compiles the given, previously expandend `form` using the current context.
+
+   See [[expand]]."
 
 
   ([env]
@@ -115,7 +127,7 @@
 
 (defn compile-run
 
-  ""
+  "Successively runs [[compile]] and [[run]], stopping in case of error."
 
 
   ([env]
@@ -136,7 +148,7 @@
 
 (defn expand
 
-  ""
+  "Expands the given `form` using the current context."
 
 
   ([env]
@@ -156,7 +168,9 @@
 
 (defn run
 
-  ""
+  "Runs the given, previously compiled `form` using the current context.
+  
+   See [[compile]]."
 
 
   ([env]
@@ -178,7 +192,7 @@
 
 (defn eval
 
-  ""
+  "Successively runs [[expand]], [[compile]], and [[run]] on the given `form`."
 
 
   ([env]
@@ -201,7 +215,12 @@
 
 (defn trx
 
-  ""
+  "Evaluates the given `form` as a transaction.
+  
+   Result from current context is used if not provided.
+  
+   Essentially, setups the situation with [[convex.run.ctx/trx-begin]], runs [[eval]], updates important
+   definitions using [[convex.run.ctx/trx-end]] and processes special request if needed."
 
 
   ([env]
@@ -242,7 +261,9 @@
 
 (defn trx+
 
-  ""
+  "Processes all transactions under `:convex.run/trx+` using [[trx]].
+  
+   Stops when any of them results in an error."
 
   
   ([env]
@@ -268,7 +289,10 @@
 
 (defn cycle
 
-  ""
+  "Runs a whole cycle of transactions using [[trx+]].
+  
+   Does some preparatory work such as calling [[convex.run.ctx/cycle]] and finally calls
+   the end hook."
 
   [env]
 
