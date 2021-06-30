@@ -236,7 +236,9 @@
 
              [arg+]
 
-             (clojure-2 "-M:test -m kaocha.runner --config-file kaocha.edn :jvm "))
+             ;(clojure-2 "-M:test -m kaocha.runner --config-file kaocha.edn :jvm ")
+             (clojure-dev nil
+                          "-m kaocha.runner --config-file kaocha.edn :jvm "))
 
 
 

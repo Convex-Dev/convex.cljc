@@ -1,5 +1,5 @@
 #kaocha/v1
 {:tests [{:id                  :jvm
           :kaocha/ns-patterns  [".+"]
-          :kaocha/source-paths ["src/clojure/main"]
-          :kaocha/test-paths   ["src/clojure/test"]}]}
+          :kaocha/source-paths ["project/break/src/clj/main"]
+          :kaocha/test-paths   ["project/break/src/clj/test"]}]}

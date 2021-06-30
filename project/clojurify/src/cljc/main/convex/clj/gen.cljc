@@ -308,24 +308,10 @@
 
 (def symbol
 
-  "Any unqualified symbol."
+  "Any symbol."
 
   (TC.gen/fmap clojure.core/symbol
                string-symbolic))
-
-
-
-(def symbol-ns
-
-  "Any qualified symbol where namespace can be either an address or an unqualified symbol."
-
-  (TC.gen/fmap (fn [[namespace- name-]]
-                 (clojure.core/symbol namespace-
-                                      name-))
-               (TC.gen/tuple (TC.gen/one-of [(TC.gen/fmap str
-                                                          address)
-                                              string-symbolic])
-                             string-symbolic)))
 
 
 
@@ -334,14 +320,6 @@
   "Like [[symbol]] but the output is quoted."
 
   (quoted symbol))
-
-
-
-(def symbol-ns-quoted
-
-  "Like [[symbol-ns]] but the output is quoted."
-
-  (quoted symbol-ns))
 
 
 ;;;;;;;;;; Recursive definition of Convex types
@@ -360,8 +338,7 @@
    - [[long]]
    - [[nothing]]
    - [[string]]
-   - [[symbol-quoted]]
-   - [[symbol-ns-quoted]]"
+   - [[symbol-quoted]]"
 
   (TC.gen/one-of [address
                   blob
@@ -372,8 +349,7 @@
                   long
                   nothing
                   string
-                  (TC.gen/one-of [symbol-quoted
-                                  symbol-ns-quoted])]))
+                  symbol-quoted]))
 
 
 
@@ -512,7 +488,6 @@
                                                 set
                                                 string
                                                 symbol-quoted
-                                                symbol-ns-quoted
                                                 vector}
                                               exclusion-set))))
 
@@ -607,7 +582,7 @@
 (comment
 
 
-  (TC.gen/generate list
+  (TC.gen/generate symbol
                    30)
 
 

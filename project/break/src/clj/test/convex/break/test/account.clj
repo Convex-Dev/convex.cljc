@@ -706,11 +706,11 @@
 
        ($.clj.eval/code?* :NOBODY
                           (transfer ~addr
-                                    42))
+                                    0))
 
 
       "Transfering allowance to unused address"
 
       ($.clj.eval/code?* :NOBODY
                          (transfer-memory ~addr
-                                          42)))))
+                                          0)))))

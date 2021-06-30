@@ -165,8 +165,7 @@
 
   {:ratio-num 100}
 
-  (TC.prop/for-all [x (TC.gen/one-of [$.clj.gen/symbol
-                                      $.clj.gen/symbol-ns])]
+  (TC.prop/for-all [x $.clj.gen/symbol]
     ($.clj/= x
               ($.clj.eval/result* (identity (quote ~x))))))
 

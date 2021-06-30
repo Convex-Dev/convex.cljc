@@ -20,6 +20,5 @@
   {:ratio-num 10}
 
   (TC.prop/for-all [x (TC.gen/one-of [$.clj.gen/keyword
-                                      $.clj.gen/symbol-quoted
-                                      $.clj.gen/symbol-ns-quoted])]
+                                      $.clj.gen/symbol-quoted])]
     ($.clj.eval/like-clojure?* (name ~x))))

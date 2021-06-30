@@ -18,9 +18,7 @@
                             list
                             list?
                             read])
-  (:require [clojure.core]
-            [clojure.core.protocols]
-            [clojure.string])
+  (:require [clojure.core])
   #?(:cljs (:require-macros [convex.clj :refer [templ*]])))
 
 
@@ -165,7 +163,7 @@
 
 (defn address?
 
-  "Is `x` a symbol produced by [[symbol]]?"
+  "Is `x` an address symbol produced by [[address]]?"
 
   [x]
 
@@ -176,7 +174,7 @@
 
 (defn blob?
 
-  "Is `x` a symbol that ressembles a Convex blob?"
+  "Is `x` a blob symbol produced by [[blob]]?"
 
   [x]
 
@@ -190,8 +188,8 @@
   "Is `x` a form calling `sym`?
   
    ```clojure
-   (call? 'double
-          '(quot 2 3))  ;; False
+   (call? '-
+          '(+ 2 3))  ;; False
    ```"
 
   [sym x]

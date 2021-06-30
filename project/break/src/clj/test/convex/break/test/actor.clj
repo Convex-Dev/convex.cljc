@@ -65,28 +65,28 @@
 
                      ($.clj.eval/result ctx-2
                                         '(lookup addr
-                                                 '-accept))
+                                                 -accept))
 
 
                      "Caller argument"
 
                      ($.clj.eval/result ctx-2
                                         '(lookup addr
-                                                 '-caller))
+                                                 -caller))
 
 
                      "Offer argument"
 
                      ($.clj.eval/result ctx-2
                                         '(lookup addr
-                                                 '-offer))
+                                                 -offer))
 
 
                      "Third argument is nil"
 
                      ($.clj.eval/result ctx-2
                                         '(lookup addr
-                                                 '-nil-arg-2))))))))
+                                                 -nil-arg-2))))))))
 
 
 ;;;;;;;;;; Tests

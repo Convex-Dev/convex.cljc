@@ -78,7 +78,7 @@
                                          ~x))
                           (= ~x
                              (lookup addr
-                                     (quote ~sym)))))))
+                                     ~sym))))))
 
 
 ;; TODO. When expanders are stabilized.

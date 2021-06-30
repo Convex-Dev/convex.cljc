@@ -111,11 +111,13 @@
 
 
   :test
-  {:extra-deps  {io.helins/mprop {:mvn/version "0.0.1"}
+  {:extra-deps  {io.helins/mprop     {:mvn/version "0.0.1"}
                  lambdaisland/kaocha {:mvn/version "1.0.829"}}
    :extra-paths ["project/break/src/clj/test"
                  "project/clojurify/src/cljc/test"
                  "project/cvm/src/clj/test"]}
+
+
   }
  ;;
  ;; ALIAS END
@@ -126,7 +128,7 @@
  {;cljs-ajax/cljs-ajax  {:mvn/version "0.8.3"}
   hawk/hawk                {:mvn/version "0.2.11"}
   org.clojure/test.check   {:mvn/version "1.1.0"}
-  world.convex/convex      {:local/root "cvm/0373e815b38de5cca4ce41929145692f08d4e88a.jar"}}
+  world.convex/convex      {:local/root  "cvm/c08c8231fcecabc2ab6c8e0a856f8c1b72965385.jar"}}
 
 
 

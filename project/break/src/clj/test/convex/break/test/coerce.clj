@@ -243,8 +243,7 @@
                keyword?
                (TC.gen/one-of [$.clj.gen/keyword
                                $.clj.gen/string-symbolic
-                               $.clj.gen/symbol-quoted
-                               $.clj.gen/symbol-ns-quoted])))
+                               $.clj.gen/symbol-quoted])))
 
 
 
@@ -301,8 +300,7 @@
                symbol?
                (TC.gen/one-of [$.clj.gen/keyword
                                $.clj.gen/string-symbolic
-                               $.clj.gen/symbol-quoted
-                               $.clj.gen/symbol-ns-quoted])))
+                               $.clj.gen/symbol-quoted])))
 
 
 
