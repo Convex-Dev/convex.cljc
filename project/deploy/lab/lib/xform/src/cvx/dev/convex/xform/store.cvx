@@ -1,3 +1,13 @@
+;;
+;;
+;;
+;; Very basic example of store with an inventory of fruits and vegetables.
+;;
+;; Intended for development and testing.
+;;
+;;
+
+
 (do
 
   (def inventory
@@ -58,4 +68,4 @@
     (not (available? x)))
 
 
-  )
+  )  ;; End of (do)

@@ -17,8 +17,6 @@
 ;;
 ;;   (trust/trusted? trust-store address)                        
 ;;   Checks if subject is trusted
-
-;; save current actor address, we will want it later to give to new actors
 ;;
 ;;
 
