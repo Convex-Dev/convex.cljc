@@ -1,6 +1,12 @@
 (ns convex.run.err
 
-  "Error handling for the [[convex.run]] namespace."
+  "Error handling for the [[convex.run]] namespace.
+  
+   When any exception (CVM or Java) or other error occurs, it is turned into a descriptive CVM map.
+
+   This map is passed to [[signal]] so that it becomes attached to the current environment and forwarded to the error hook.
+  
+   In some extreme case where normal error reporting does not work (eg. user output hook failing), the error is passed to [[fatal]]."
 
   {:author "Adam Helinski"}
 
@@ -22,7 +28,9 @@
 
 (defn attach
 
-  ""
+  "Attaches the given `err` under `:convex.run/error`.
+  
+   Also clears the CVM execption of the current context (if present)."
 
   [env ^AMap err]
 
@@ -41,7 +49,9 @@
 
 (defn assoc-cause
 
-  ""
+  "Associates a `cause` to the given `err`.
+  
+   Ressembling Java exceptions, a cause is another error that preceded `err`."
 
   ^AMap
 
@@ -55,7 +65,9 @@
 
 (defn assoc-phase
 
-  ""
+  "Associates a `phase` to the given `err`.
+  
+   A `phase` is a CVM keyword which provides an idea of what stage the error occured in."
 
   ^AMap
 
@@ -69,7 +81,9 @@
 
 (defn error
 
-  ""
+  "Transforms the given CVM error value into a CVM map meant to be ultimately used with [[signal]].
+  
+   If prodived, associates to the resulting error map a [[phase]] and the current, responsible transaction."
 
 
   (^AMap [^ErrorValue ex]
@@ -91,7 +105,9 @@
 
 (defn signal
 
-  ""
+  "Uses [[attach] and ultimately passes the environment to the error hook.
+  
+   Arity 2 and 3 are shortcuts to [[convex.code/error]] for building an error map on the spot."
 
   ([env err]
 
@@ -118,7 +134,7 @@
 
 (defn sreq
 
-  ""
+  "Prepares an error map describing an error that occured when performing an operation for a special request."
 
   [code ^ACell trx message]
 
@@ -132,7 +148,11 @@
 
 (defn fatal
 
-  ""
+  "In some extreme cases, normal error reporting via [[signal]] does not work or cannot be done.
+  
+   For instance, user provided error hook failed, no way to actually report the error.
+  
+   In that case the error os forwarded directly to the output hook after using [[attach]]."
 
 
   ([env err]
