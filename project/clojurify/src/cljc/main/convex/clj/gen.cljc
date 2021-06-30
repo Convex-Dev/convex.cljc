@@ -1,6 +1,10 @@
 (ns convex.clj.gen
 
-  "Generators for Convex Lisp types and constructs."
+  "Generators for `test.check`.
+
+   Convex Lisp types and constructs expressed as Clojure data structures.
+  
+   Useful for quickly writing sophisticated generative tests with the [[convex.clj]] namespace."
 
   {:author "Adam Helinski"}
 

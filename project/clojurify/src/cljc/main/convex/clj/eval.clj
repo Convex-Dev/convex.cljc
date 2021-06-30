@@ -24,16 +24,11 @@
 
 (def ^:dynamic *ctx-default*
 
-  "Holder for a default context which can set at start-up or dynamically with Clojure's `binding`.
+  "Holder for a default context which can set whenever suited or dynamically with Clojure's `binding`.
 
-   For preparing one at start-up, set the `CVM_CTX` environment variable to a qualified symbol which points to a
-   context producing function. This function is called without argument when this namespace is required.
+   Nil by default.
 
-   For instance, [[convex.cvm/ctx]] creates a basic context. Hence, if it does not need further preparation:
-
-   ```bash
-   $ env CVM_CTX='convex.cvm/ctx'  clojure ...
-   ```"
+   See [[alter-ctx-default]]."
 
   nil)
 
@@ -41,7 +36,7 @@
 
 (defn alter-ctx-default
 
-  ""
+  "Sets the value of *ctx-default*."
 
   [ctx]
 

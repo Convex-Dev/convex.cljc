@@ -1,6 +1,8 @@
 (ns convex.break.gen
 
-  "Generators used throughout this test suite."
+  "Generators for `test.check` used throughout the Break test suite.
+  
+   Complements generators from the [[convex.clj.gen]] namespace."
 
   {:author "Adam Helinski"}
 
