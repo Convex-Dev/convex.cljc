@@ -1,6 +1,6 @@
 (ns convex.app.run.help
 
-  "Printing help description for the CLI runner."
+  "Printing help description for the CLI Convex Lisp Runner."
 
   {:author "Adam Helinski"}
   
@@ -14,7 +14,7 @@
 
 (defn- -print
 
-  ;;
+  ;; Prints the given lines.
 
   [line+]
 
@@ -27,7 +27,7 @@
 
 (defn command
 
-  ""
+  "Prints help description for the 'command' CLI command."
 
   []
 
@@ -48,7 +48,7 @@
 
 (defn describe
 
-  ""
+  "Prints help description for the 'describe' CLI command."
 
   []
 
@@ -75,7 +75,7 @@
 
 (defn eval
 
-  ""
+  "Prints help description for the 'eval' CLI command."
 
   []
 
@@ -104,7 +104,7 @@
 
 (defn load
 
-  ""
+  "Prints help description for the 'load' CLI command."
 
   []
 
@@ -126,7 +126,7 @@
 
 (defn main
 
-  ""
+  "Prints help description for the CLI app."
 
   []
 
@@ -159,7 +159,7 @@
 
 (defn watch
 
-  ""
+  "Prints help description for the 'watch' CLI command."
 
   []
 

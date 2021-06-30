@@ -1,6 +1,8 @@
 (ns convex.app.run
 
-  ""
+  "Convex Lisp Runner.
+
+   CLI app on top of the [[convex.run]] namespace."
 
   {:author "Adam Helinski"}
 
@@ -18,7 +20,9 @@
 
 (def env
 
-  ""
+  "Base environment map used in this app.
+  
+   See [[convex.run]] namespace."
 
   {:convex.run.hook/out (fn [env-2 x]
                           (println (str x))
@@ -29,7 +33,10 @@
 
 (defn error
 
-  ""
+  "In production, exits the application printing the given `message` with an error code
+   of 42.
+
+   In dev, only prints the message."
 
 
   ([message]
@@ -50,7 +57,11 @@
 
 (defn ensure-path
 
-  ""
+  "Given `arg+` (CLI arguments to a command) contains a file `path`, call `(f env path)`.
+
+   If not, terminates with [[error]].
+  
+   See [[env]]."
 
   [f arg+]
 
@@ -65,7 +76,9 @@
 
 (defn command
 
-  ""
+  "Implementation for the 'command' CLI command.
+  
+   Prints a description of the user given command."
 
   [arg+ _option+]
 
@@ -84,7 +97,9 @@
 
 (defn describe
 
-  ""
+  "Implementation for the 'describe' CLI command.
+
+   Uses the Convex Lisp Help library for printing information about the user given account or symbol."
 
   [arg+ _option+]
 
@@ -102,7 +117,9 @@
 
 (defn eval
 
-  ""
+  "Implementation for the 'eval' CLI command.
+  
+   Evaluatues the user given string."
 
   [arg+ _option+]
 
@@ -115,7 +132,9 @@
 
 (defn load
 
-  ""
+  "Implementation for the 'load' CLI command.
+  
+   Loads and executes the user given main file."
 
   [arg+ _option+]
 
@@ -126,7 +145,9 @@
 
 (defn watch
 
-  ""
+  "Implementation for the 'watch' CLI command.
+  
+   Like [[load]] but provides live-reloading of main file and its declared dependencies."
 
   [arg+ _option+]
 
@@ -139,7 +160,7 @@
 
 (def cli-option+
 
-  ""
+  "CLI options for `clojure.tools.cli`."
 
   [])
 
@@ -147,7 +168,15 @@
 
 (defn -main
 
-  ""
+  "Main function.
+  
+   Executes a CLI command:
+ 
+   - [[command]]
+   - [[describe]]
+   - [[eval]]
+   - [[load]]
+   - [[watch]]"
 
   [& arg+]
 
