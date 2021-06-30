@@ -1,15 +1,24 @@
+;;
+;;
+;; Helper functions for the Break project. Also useful in dev mode.
+;;
+;;
+
+
 (do
 
 
   (def foo
 
-    ;; For checking if loading or watching works properly.
+    ^{:doc {:description "For checking if loading or watching works properly."}}
 
     24)
 
 
 
   (defn allowance
+
+    ^{:doc {:description "Returns the memory allowance of the current or given address."}}
 
     ([]
 
@@ -23,6 +32,9 @@
 
   (defn env
 
+    ^{:doc {:description "Returns the environment of the current or given address."}}
+
+
     ([]
 
      (env *address*))
@@ -35,6 +47,8 @@
 
   (defn every?
 
+    ^{:doc {:description "Returns true if all items in `coll` returns a truthy value on `f`. False otherwise."}}
+
     [f coll]
 
     (boolean (reduce (fn [_acc x]
@@ -46,6 +60,8 @@
 
 
   (defn every-index?
+
+    ^{:doc {:description "Like `every?` but for indices."}}
 
     [f sequential]
 
@@ -62,6 +78,8 @@
 
   (defn foreach
 
+    ^{:doc {:description "Executes `f` on each item in `coll`. Only useful for producing side-effects."}}
+
     [f coll]
 
     (reduce (fn [_acc x]
@@ -75,6 +93,8 @@
 
   (defn long-percentage
 
+    ^{:doc {:description "Maps a percentage (double between 0 and 1) to a long between 0 and `n`."}}
+
     [percent n]
 
     (long (floor (* percent
@@ -83,6 +103,8 @@
 
 
   (defn some
+
+    ^{:doc {:description "Returns true if any item in `coll` returns true on `f`. False otherwise."}}
 
     [f coll]
 
@@ -98,9 +120,14 @@
 
   (defn unused-address
 
+    ^{:doc {:description "Starting from `addr`, search the next unused address."}}
+
     [addr]
 
     (if (account addr)
       (recur (address (inc (long addr))))
       addr))
-  )
+
+
+
+  ) ;; End of (do)
