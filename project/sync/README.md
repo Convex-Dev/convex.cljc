@@ -1,5 +1,7 @@
 # Project 'Sync'
 
+**Namespaces of interest:** `$.sync`
+
 While [project 'CVM'](../cvm) offers a low-level API for evaluating Convex Lisp, there exists a higher-level
 concern for integrating source code from different sources and syncing everything into a context.
 
