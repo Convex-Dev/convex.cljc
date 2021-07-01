@@ -215,14 +215,17 @@
 
   "Into the given CVM `ctx` (or a newly created one if not provided), reads the given files and interns them as unevaluted code
    under their respective symbols. Conceptually, they can be considered as dependency files.
+
+   A dependency is anything that returns source code (a string) on Clojure's `slurp`: strings to file paths, resources, etc. In case of a mere
+   string, the file path is turned into a canonical one.
   
    Unevaluated code is a list of raw quoted forms. Often, Convex Lisp files have only one top-level `do` form bundling several forms
    meant to be executed as a single transaction. However, it could be useful for a dependency file to have several top-level forms.
   
    Only IO utility from this namespaces.
 
-   Returns a map which shall be called an \"environment\" map. For simply loading files, only the prepared `:ctx` or the possible
-   `:error` are really needed. However, it contains other key-values which can be used with utilities from this namespace for further
+   Returns a map which shall be called an \"environment\" map. For simply loading files, only the prepared `:convex.sync/ctx` or the possible
+   `:convex.sync/error` are really needed. However, it contains other key-values which can be used with utilities from this namespace for further
    processing, like [[convex.watch/start]] does.
 
    An environment map contains:
@@ -265,9 +268,13 @@
 
   ([ctx sym->dep]
 
-   (let [input+        (reduce (fn [input+ [sym ^String path]]
+   (let [input+        (reduce (fn [input+ [sym path]]
                                  (conj input+
-                                       [(.getCanonicalPath (File. path))
+                                       [(cond
+                                          (string? path)   (.getCanonicalPath (File. ^String path))
+                                          (instance? File
+                                                     path) (.getCanonicalPath ^File path)
+                                          :else            path)
                                         ($.code/symbol (str sym))]))
                                []
                                sym->dep)
