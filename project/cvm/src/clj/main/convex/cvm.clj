@@ -487,7 +487,7 @@
 
 
 
-(defn read-form
+(defn read-clojure
 
   "Stringifies the given Clojure form to Convex Lisp source and applies the result to [[read]]."
 
