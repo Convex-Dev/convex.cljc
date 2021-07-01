@@ -245,7 +245,7 @@ In essence:
 
 Reusing Clojure tooling provides a productive experience for testing Convex Lisp. The plethora of tests in the `$.break.test.*` namespaces provide a good example.
 
-Generative testing with [test.check](https://github.com/clojure/test.check) is highly recommended, especially when testing smart contracts or Convex libraries that
+Generative testing with [test.check](https://github.com/clojure/test.check) is highly recommended, especially when testing smart contracts  
 need to be extremely secure. For that effect, the `$.clj.gen` namespace offers a variety of generators for producing random Convex Lisp forms. Combined with the
 `$.clj/templ*` macro and the `$.clj.eval` namespace, powerful tests are easily written.
 
