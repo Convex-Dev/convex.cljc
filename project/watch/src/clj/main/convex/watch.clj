@@ -55,7 +55,11 @@
    | `:convex.watch/ms-debounce` | Milliseconds, changes  debounced for better behavior with editors and OS | 20 (minimum is 1) | Yes |
    | `:convex.watch/sym->dep | Map of `symbol` -> `path to dependency file` | `nil` | No |
 
-   Just like in [[convex.sync/disk]], files from `:sym->dep` will be loaded in [[start]], interned under their respective symbols.
+   Just like in [[convex.sync/disk]] from the 'sync' project, files from `:sym->dep` will be loaded in [[start]], interned under their
+   respective symbols.
+
+   However, unlike [[convex.sync/disk]] which accepts anything that Clojure's `slurp accepts (eg. resources), dependencies **MUST** be
+   paths to files (strings).
 
    Extra files will not be read, only monitored for change. However, in case of change, dependencies will not update and the user
    will be in charge of what should be done. This feature looks peculiar at first but it is used wisely by the [[convex.run]] namespace.

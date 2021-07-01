@@ -4,7 +4,8 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.test.check.generators :as TC.gen]
+  (:require [clojure.java.io]
+            [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
             [convex.clj.eval               :as $.clj.eval]
             [convex.clj.gen                :as $.clj.gen]
@@ -20,8 +21,8 @@
 
   "Base context for this namespace."
 
-  (-> ($.sync/disk {'$     "project/break/src/cvx/main/convex/break.cvx"
-                    'trust "project/deploy/lib/trust/src/cvx/main/convex/trust.cvx"}) ;; TODO. Load from classpath.
+  (-> ($.sync/disk {'$     (clojure.java.io/resource "convex/break.cvx")
+                    'trust (clojure.java.io/resource "convex/trust.cvx")})
       :convex.sync/ctx
       ($.clj.eval/ctx '(do
                          (set-key (blob "0000000000000000000000000000000000000000000000000000000000000000"))

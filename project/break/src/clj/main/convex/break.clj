@@ -4,9 +4,10 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.clj.eval :as $.clj.eval]
-            [convex.cvm      :as $.cvm]
-            [convex.sync     :as $.sync]))
+  (:require [clojure.java.io]
+            [convex.clj.eval  :as $.clj.eval]
+            [convex.cvm       :as $.cvm]
+            [convex.sync      :as $.sync]))
 
 
 ;;;;;;;;;;
@@ -18,7 +19,7 @@
 
   []
 
-  (-> ($.sync/disk {'$ "project/break/src/cvx/main/convex/break.cvx"}) ;; TODO. Load from classpath.
+  (-> ($.sync/disk {'$ (clojure.java.io/resource "convex/break.cvx")})
       :convex.sync/ctx
       ($.clj.eval/ctx '(def $
                             (deploy (first $))))
