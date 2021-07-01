@@ -374,7 +374,7 @@
 
   $.run.kw/out
 
-  ;; Outputs the given value.
+  ;; Outputs the given value using the output hook.
 
   [env ^AVector tuple]
 
@@ -388,6 +388,8 @@
 (defmethod $.run.exec/sreq
 
   $.run.kw/read
+
+  ;; Reads the given string and parses to a list of forms.
   
   [env ^AVector tuple]
 
@@ -415,6 +417,8 @@
   
   $.run.kw/screen-clear
 
+  ;; Clears the terminal screen.
+
   [env _tuple]
 
   (screen-clear)
@@ -425,6 +429,12 @@
 (defmethod $.run.exec/sreq
   
   $.run.kw/try
+
+  ;; Provides a try-catch mechanism.
+  ;;
+  ;; First vector of transaction if for trying and stops as soon as an error occurs.
+  ;; In that case, the error is interned under `help/*error*` and transactions from the "catch" vector are
+  ;; executed.
 
   [env ^AVector tuple]
 

@@ -44,10 +44,14 @@
    Any value that is requested to be outputted (by the `(sreq/out ...)` special request) goes through the output hook.
    See hook section.
 
+
    ERRORS
    ======
 
    When a CVM exception or any other error occurs, it is being signaled using the error hook. See hook section.
+
+   Errors are usually signaled to the user with [[convex.run.err/signal]] and [[convex.run.err/fatal]] in extreme cases.
+
 
    HOOKS
    =====
@@ -154,78 +158,20 @@
       env))
           
 
-;;;;;;;;;; Error handling
-
-
-(defn err-main
-
-  "Called with an error message whenever an error involving the main file occur.
-  
-   Attaches the error to `env` and ensures it has been forwarded to the error hook."
-
-  [env message]
-
-  ($.run.err/signal env
-                    (-> ($.code/error ($.cvm/code-std* :FATAL)
-                                      ($.code/string message))
-                        ($.run.err/assoc-phase $.run.kw/main))))
-
-
-
-(defn err-main-access
-
-  "Uses [[err-main]] to signal that the main file is not accessible."
-
-  [env]
-
-  (err-main env
-            "Main file not found or not accessible"))
-
-
-
-(defn err-sync
-
-  "Called with a sync error whenever it happens.
-
-   Handles and forwards it to the error hook.
-  
-   See the [[convex.sync]] namespace."
-
-  [env [kind path->reason]]
-
-  ($.run.err/signal env
-                    (-> ($.code/error ($.cvm/code-std* :FATAL)
-                                      (reduce-kv (fn [^AMap path->reason--2 path reason]
-                                                   (.assoc path->reason--2
-                                                           ($.code/string path)
-                                                           ($.code/string (case kind
-
-                                                                            :load
-                                                                            (case (first reason)
-                                                                              :not-found "Dependency file not found or inaccessible"
-                                                                              :parse     "Dependency file cannot be parsed as Convex Lisp"
-                                                                              :unknown   "Unknown error while loading and parsing dependency file")
-
-                                                                            "Unknown error while loading dependency file"))))
-                                                 ($.code/map)
-                                                 path->reason))
-                        ($.run.err/assoc-phase $.run.kw/dep))))
-
-
-;;;
+;;;;;;;;;; Error handling aspects
 
 
 (defn check-err-sync
 
-  "Uses [[err-sync]] if needed.
+  "Signals a sync error if needed (see [[convex.run.err/sync]]).
   
    Returns nil otherwise, meaning no sync error has been detected and handled."
 
   [env]
 
   (when-some [err (env :convex.sync/error)]
-    (err-sync env
-              err)))
+    ($.run.err/signal env
+                      ($.run.err/sync err))))
 
 
 ;;;;;;;;;; Preparing an environment prior to executing transactions
@@ -282,7 +228,7 @@
 
   "Gets the source for the main file mentioned under `:convex.run/path`.
   
-   Uses [[err-main-access]] if while is not accessible."
+   Signals an error if not accessible (see [[convex.run.err/main-src-access]])."
 
   [env]
 
@@ -295,7 +241,8 @@
                   [ex
                    nil]))]
     (if ex
-      (err-main-access env)
+      ($.run.err/signal env
+                        ($.run.err/main-src-access))
       (assoc env
              :convex.run/src
              src))))
@@ -308,7 +255,7 @@
 
    Reads it, associates the transactions under `:convex.run/trx+`, and computes dependencies using [[sym->dep]].
 
-   Uses [[err-main]] in case of error."
+   In case of errors, uses [[convex.run.err/main]]."
 
   [env]
 
@@ -321,8 +268,8 @@
                    [err
                     nil]))]
     (if err
-      (err-main env
-                "Main file cannot be parsed as Convex Lisp")
+      ($.run.err/signal env
+                        ($.run.err/main-src "Main source cannot be parsed as Convex Lisp"))
       (-> env
           (assoc :convex.run/trx+ trx+)
           (dissoc :convex.run/src)
@@ -422,23 +369,24 @@
 
 ;;;;;;;;;; Watch files
 
+(def foo nil)
 
-(let [-restart  (fn [a*env env]
-                  ;;
-                  ;; Restart watcher whenever a change in dependency is detected.
-                  ;;
-                  ($.watch/-stop env)
-                  ($.watch/-start a*env
-                                  (dissoc env
-                                          :convex.run/error
-                                          :convex.run/i-trx
-                                          :convex.run/juice-last
-                                          :convex.sync/ctx
-                                          :convex.sync/input+
-                                          :convex.sync/input->code
-                                          :convex.sync/input->cvm-sym
-                                          :convex.watch/error
-                                          :convex.watch/watcher)))]
+(let [-restart (fn [a*env env]
+                 ;;
+                 ;; Restart watcher whenever a change in dependency is detected.
+                 ;;
+                 ($.watch/-stop env)
+                 ($.watch/-start a*env
+                                 (dissoc env
+                                         :convex.run/error
+                                         :convex.run/i-trx
+                                         :convex.run/juice-last
+                                         :convex.sync/ctx
+                                         :convex.sync/input+
+                                         :convex.sync/input->code
+                                         :convex.sync/input->cvm-sym
+                                         :convex.watch/error
+                                         :convex.watch/watcher)))]
 
   (defn watch
 
@@ -486,7 +434,8 @@
                                 (case etype
                                   :not-found (if (= arg
                                                     (first (env-3 :convex.watch/extra+)))
-                                               (err-main-access env-3)
+                                               ($.run.err/signal env-3
+                                                                 ($.run.err/main-src-access))
                                                ;;
                                                ;; Dependency is missing, restart watching only main file for retrying on new changes.
                                                ;; A "dep-lock" is used so that a new watcher with the same failing dependencies is not restarted right away.
@@ -497,11 +446,10 @@
                                                                     dep-old+)
                                                              (dissoc :convex.run/dep+
                                                                      :convex.watch/sym->dep)
-                                                             (err-sync [:load {arg [:not-found]}]))))
+                                                             ($.run.err/signal ($.run.err/sync :load
+                                                                                               {arg [:not-found]})))))
                                   :unknown   ($.run.err/signal env
-                                                               (-> ($.code/error ($.cvm/code-std* :FATAL)
-                                                                                 ($.code/string "Unknown error occured while setting up the file watcher"))
-                                                                   ($.run.err/assoc-phase $.run.kw/watch)))))
+                                                               ($.run.err/watcher-setup))))
                               ;;
                               ;; Handles sync error if any.
                               ;;
