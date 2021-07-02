@@ -211,11 +211,11 @@
 
   (-main)
 
+  (-main "command" "eval")
+
   (-main "describe" "help" "about")
 
   (-main "eval" "(help/about sreq 'dep)")
-
-  (-main "command" "eval")
 
   (-main "load" "project/run/src/cvx/dev/convex/run/dev.cvx")
 
