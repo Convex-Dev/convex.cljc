@@ -1,0 +1,190 @@
+{:tasks {
+         
+         
+         
+         app:fuzz
+
+         {:doc  "Run base fuzzy tester with random forms, in an infinite loop"
+          :task (clojure "-X:project.app.fuzz:app.fuzz")}
+
+
+
+         app:run
+         {:doc  "Start Convex Lisp Runner ; needs all CLI arguments to be quoted together"
+          :task (clojure (format "-M:project.app.run:app.run %s"
+                                 (first *command-line-args*)))}
+
+
+
+
+
+
+
+         dev:cljs
+
+         {:doc  "Start CLJS dev environment (NREPL on port 14563, server on port 8000)"
+          :task (clojure-dev (-> (edn-arg+)
+                                 (update :arg+
+                                         (fnil conj
+                                               [])
+                                         "watch dev")
+                                 (update :profile+
+                                         (fnil conj
+                                               [])
+                                         :cljs)))}
+
+
+
+
+
+         shadow:clean
+
+         {:doc  "Remove the given profile from Shadow-CLJS cache (for full recompilation)"
+          :task (shadow-clean (first *command-line-args*))}
+
+
+
+         shadow:clean-test
+
+         {:doc  "Like 'shadow:clean' but for the ':test-node' profile"
+          :task (shadow-clean "test-node")}
+
+
+
+         test:jvm
+
+         {:doc  "Run tests on the JVM once ; accepts Kaocha CLI arguments"
+          :task (test-jvm nil)}
+
+
+
+         test:jvm:watch
+
+         {:doc "Run tests on the JVM everytime a file is changed ; accepts Kaocha CLI arguments"
+          :task (test-jvm ["--watch"])}
+
+
+
+         test:node
+
+         {:doc  "Run tests on NodeJS after unoptimized compilation"
+          :task (test-node false)}
+
+
+
+         test:node:optimize
+
+         {:doc  "Run tests on NodeJS after advanced compilation"
+          :task (test-node true)}
+
+
+
+         uberjar:app
+
+         {:doc  "Given the name of a CLI app (eg. 'fuzz', 'run'), compile an uberjar to './compiled/uberjar/app'"
+          :task (clojure (let [app (first *command-line-args*)]
+                           (format "-X:uberjar :aliases '[:project.app.%s]' :jar compiled/uberjar/app/%s.jar :main-class convex.app.%s"
+                                   app
+                                   app
+                                   app
+                                   app)))}
+
+
+         :requires ([babashka.fs :as fs])
+
+
+
+         :init
+
+         (do
+
+           (defn edn-arg+
+
+             ;; Parses command line arguments as EDN.
+
+             []
+
+             (-> *command-line-args*
+                 first
+                 clojure.edn/read-string))
+
+
+
+           (defn clojure-dev
+
+             ;; Like default `clojure` but prepares environment for `test.check` and appends additional CLI arguments.
+
+             [{:keys [arg+
+                      env
+                      max-size
+                      n-test
+                      profile+]}]
+
+             (clojure {:extra-env (merge {"CONVEX_DEV"     "true"
+                                          "MPROP_MAX_SIZE"  max-size
+                                          "MPROP_NUM_TESTS" n-test}
+                                         env)}
+                      (format "-M:project.app.fuzz:project.app.run:dev:test%s %s"
+                              (clojure.string/join " "
+                                                   profile+)
+                              (clojure.string/join " "
+                                                   arg+))))
+
+
+
+           (defn cp-string
+
+             ;; Returns the classpath as a string, reading profiles from CLI args.
+
+             []
+
+             (with-out-str (clojure (str "-Spath "
+                                         (when (some? *command-line-args*)
+                                           (str "-A"
+                                                (clojure.string/join ""
+                                                                     *command-line-args*)))))))
+
+
+
+           (defn shadow-clean
+             
+             ;; Deletes a Shadow-CLJS profile.
+
+             [profile]
+
+             (when (empty? profile)
+               (println "A Shadow-CLJS profile must be provided")
+               (System/exit 42))
+             (fs/delete-tree (str ".shadow-cljs/builds/"
+                                  profile)))
+
+
+
+           (defn test-jvm
+
+             ;; Concats CLI args with the given ones.
+
+             [arg+]
+
+             (let [option+ (edn-arg+)]
+               (clojure-dev (update option+
+                                    :arg+
+                                    concat
+                                    ["-m kaocha.runner --config-file kaocha.edn"]
+                                    (:id+ option+)))))
+
+
+
+           (defn test-node
+
+             [optimize?]
+
+             ;(clojure-2 (format "-M:cljs:test %s test-node"
+             ;                (if optimize?
+             ;                  "release"
+             ;                  "compile")))
+             ;(shell "node ./compiled/node/test.js")
+             )
+
+
+           )}}

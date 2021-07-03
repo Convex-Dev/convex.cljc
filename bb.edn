@@ -1,257 +1,46 @@
-{:tasks {app:fuzz
-
-         {:doc  "Run base fuzzy tester with random forms, in an infinite loop"
-          :task (clojure "-X:project.app.fuzz:app.fuzz")}
+{:paths ["bb"]
 
 
 
-         app:run
-         {:doc  "Start Convex Lisp Runner ; needs all CLI arguments to be quoted together"
-          :task (clojure (format "-M:project.app.run:app.run %s"
-                                 (first *command-line-args*)))}
-
-
-
-         cp
-
-         {:doc  "Print the classpath"
-          :task (do
-                  (doseq [line (sort (clojure.string/split (cp-string)
-                                                           (re-pattern ":")))]
-                    (println line)))}
-
+ :tasks {cp
+         {:doc      "Prints the class path ; extra profiles given as arguments"
+          :requires ([script.cp :as $.cp])
+          :task     ($.cp/print)}
 
 
          cp:del
 
-         {:doc  "Delete cached classpath"
-          :task (fs/delete-tree ".cpcache")}
+         {:doc      "Deletes the cached classpath of the given project"
+          :requires ([script.cp :as $.cp])
+          :task     ($.cp/delete)}
 
 
+         dev
 
-         deploy
-
-         {:depends [jar]
-          :doc     "Deploy this project to Clojars ; need username and path to file with Clojars token"
-          :task    (clojure {:extra-env {"CLOJARS_USERNAME" (first *command-line-args*)
-                                         "CLOJARS_PASSWORD" (slurp (second *command-line-args*))}}
-                            "-X:deploy")}
-         
-
-
-         dev:clojure
-
-         {:doc  "Start Clojure JVM dev environment (NREPL on port 14563)"
-          :task (clojure-dev (update (edn-arg+)
-                                     :profile+
-                                     (fnil conj
-                                           [])
-                                     :nrepl))}
-
-
-
-         dev:cljs
-
-         {:doc  "Start CLJS dev environment (NREPL on port 14563, server on port 8000)"
-          :task (clojure-dev (-> (edn-arg+)
-                                 (update :arg+
-                                         (fnil conj
-                                               [])
-                                         "watch dev")
-                                 (update :profile+
-                                         (fnil conj
-                                               [])
-                                         :cljs)))}
-
-
-
-         install
-
-         {:depends [jar]
-          :doc     "Install jar to local Maven repo"
-          :task    (clojure "-X:install")}
-
-
-
-         jar
-
-         {:doc  "Build a jar for this project"
-          :task (clojure "-X:jar")}
-
+         {:doc      "Starts dev mode using '-M' ; project, extra profiles, and extra arguments"
+          :requires ([script.run :as $.run])
+          :task     ($.run/dev)}
 
 
          lint
 
-         {:doc "Start Clj-kondo on './src' (further path can be provided as command-line argument)"
-          :task (shell (str "clj-kondo --lint src/"
-                                               (first *command-line-args*)))}
-
+         {:doc "Starts Clj-kondo on './src' (further path can be provided as command-line argument)"
+          :task (shell (str "clj-kondo --lint "
+                            (first *command-line-args*)))}
 
 
          lint:import
 
-         {:doc  "Initialize Clj-kondo and copy configuration files from dependencies"
-          :task (shell (format "clj-kondo --lint '%s' --dependencies --parallel --copy-configs"
-                               (cp-string)))}
+         {:doc      "Initializes Clj-kondo and copies configuration files from dependencies"
+          :requires ([script.cp :as $.cp])
+          :task     (shell (format "clj-kondo --lint '%s' --dependencies --parallel --copy-configs"
+                                   ($.cp/string)))}
 
 
+         test
 
-         pom
+         {:doc      "Runs tests on the JVM  ; project, extra profiles, and arguments for Kaocha CLI"
+          :requires ([script.run :as $.run])
+          :task     ($.run/test)}
 
-         {:doc  "Sync POM file with deps.edn"
-          :task (clojure "-Spom")}
-
-
-
-         shadow:clean
-
-         {:doc  "Remove the given profile from Shadow-CLJS cache (for full recompilation)"
-          :task (shadow-clean (first *command-line-args*))}
-
-
-
-         shadow:clean-test
-
-         {:doc  "Like 'shadow:clean' but for the ':test-node' profile"
-          :task (shadow-clean "test-node")}
-
-
-
-         test:jvm
-
-         {:doc  "Run tests on the JVM once ; accepts Kaocha CLI arguments"
-          :task (test-jvm nil)}
-
-
-
-         test:jvm:watch
-
-         {:doc "Run tests on the JVM everytime a file is changed ; accepts Kaocha CLI arguments"
-          :task (test-jvm ["--watch"])}
-
-
-
-         test:node
-
-         {:doc  "Run tests on NodeJS after unoptimized compilation"
-          :task (test-node false)}
-
-
-
-         test:node:optimize
-
-         {:doc  "Run tests on NodeJS after advanced compilation"
-          :task (test-node true)}
-
-
-
-         uberjar:app
-
-         {:doc  "Given the name of a CLI app (eg. 'fuzz', 'run'), compile an uberjar to './compiled/uberjar/app'"
-          :task (clojure (let [app (first *command-line-args*)]
-                           (format "-X:uberjar :aliases '[:project.app.%s]' :jar compiled/uberjar/app/%s.jar :main-class convex.app.%s"
-                                   app
-                                   app
-                                   app
-                                   app)))}
-
-
-         :requires ([babashka.fs :as fs])
-
-
-
-         :init
-
-         (do
-
-           (defn edn-arg+
-
-             ;; Parses command line arguments as EDN.
-
-             []
-
-             (-> *command-line-args*
-                 first
-                 clojure.edn/read-string))
-
-
-
-           (defn clojure-dev
-
-             ;; Like default `clojure` but prepares environment for `test.check` and appends additional CLI arguments.
-
-             [{:keys [arg+
-                      env
-                      max-size
-                      n-test
-                      profile+]}]
-
-             (clojure {:extra-env (merge {"CONVEX_DEV"     "true"
-                                          "CVM_CTX"        "convex.break/ctx"
-                                          "MPROP_MAX_SIZE"  max-size
-                                          "MPROP_NUM_TESTS" n-test}
-                                         env)}
-                      (format "-M:project.app.fuzz:project.app.run:dev:test%s %s"
-                              (clojure.string/join " "
-                                                   profile+)
-                              (clojure.string/join " "
-                                                   arg+))))
-
-
-
-           (defn cp-string
-
-             ;; Returns the classpath as a string, reading profiles from CLI args.
-
-             []
-
-             (with-out-str (clojure (str "-Spath "
-                                         (when (some? *command-line-args*)
-                                           (str "-A"
-                                                (clojure.string/join ""
-                                                                     *command-line-args*)))))))
-
-
-
-           (defn shadow-clean
-             
-             ;; Deletes a Shadow-CLJS profile.
-
-             [profile]
-
-             (when (empty? profile)
-               (println "A Shadow-CLJS profile must be provided")
-               (System/exit 42))
-             (fs/delete-tree (str ".shadow-cljs/builds/"
-                                  profile)))
-
-
-
-           (defn test-jvm
-
-             ;; Concats CLI args with the given ones.
-
-             [arg+]
-
-             (let [option+ (edn-arg+)]
-               (clojure-dev (update option+
-                                    :arg+
-                                    concat
-                                    ["-m kaocha.runner --config-file kaocha.edn"]
-                                    (:id+ option+)))))
-
-
-
-           (defn test-node
-
-             [optimize?]
-
-             ;(clojure-2 (format "-M:cljs:test %s test-node"
-             ;                (if optimize?
-             ;                  "release"
-             ;                  "compile")))
-             ;(shell "node ./compiled/node/test.js")
-             )
-
-
-           )}}
+         }}
