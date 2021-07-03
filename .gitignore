@@ -6,16 +6,13 @@
 .hg/
 .hgignore
 /.cpcache
+/**/.cpcache
+/*/.
 /.nrepl-history
 /.nrepl-port
 /checkouts
 /classes
 /target
-
-
-// Compilation
-
-compiled
 
 
 // CLJS utilities
@@ -34,12 +31,27 @@ package.json
 !/cljs/index.html
 
 
+// Compilation
+
+compiled
+
+
+// CLJS utilities
+
+.cljs
+.cljs_node_repl/
+.shadow-cljs/
+node_modules/
+out
+
 
 // Misc
-/.clj-kondo/*
+
 !/.clj-kondo/config.edn
 !/.clj-kondo/hooks
+/**/dev.clj
+!/bb/script/dev.clj
+/.clj-kondo/*
 /cvm
-/report
 /private
-project/dev/src/clj/dev/dev.clj
+/report

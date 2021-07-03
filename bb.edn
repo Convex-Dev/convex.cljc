@@ -22,6 +22,20 @@
           :task     ($.run/dev)}
 
 
+         dev:templ
+
+         {:doc      "In project directory where Clojure dev files are located, copies `./templ.clj` (public) to `./dev.clj` (private)"
+          :requires ([script.dev :as $.dev])
+          :task     ($.dev/templ-copy)}
+
+
+         dev:templ:del
+
+         {:doc      "In project directory where Clojure dev files are located, deletes `./dev.clj`"
+          :requires ([script.dev :as $.dev])
+          :task     ($.dev/templ-del)}
+
+
          lint
 
          {:doc "Starts Clj-kondo on './src' (further path can be provided as command-line argument)"

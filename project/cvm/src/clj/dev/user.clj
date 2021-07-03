@@ -1,6 +1,11 @@
 (ns user
 
-  (:require [convex.cvm :as $.cvm])
-  )
+  "Require `./dev.clj` if it exists.")
 
-(println :foo)
+
+;;;;;;;;;;
+
+
+(try
+  (require 'dev)
+  (catch Throwable _ex))
