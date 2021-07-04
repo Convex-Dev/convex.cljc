@@ -24,6 +24,21 @@
 
 
 
+  :module/all
+  {:extra-paths     ["project/all/src/clj/dev"]
+   :maestro/require [:external/hawk
+                     :external/test.check
+                     :module/app.fuzz
+                     :module/app.run
+                     :module/break
+                     :module/cvm
+                     :module/clojurify
+                     :module/run
+                     :module/sync
+                     :module/watch]}
+
+
+
   :module/app.fuzz
   {:extra-paths     ["project/app/fuzz/src/clj/main"]
    :maestro/require [:external/test.check

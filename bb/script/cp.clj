@@ -37,9 +37,12 @@
                           (str "-A"
                                (clojure.string/join ""
                                                     (let [deps-edn (maestro/deps-edn)]
-                                                      (if-some [module (first *command-line-args*)]
+                                                      (if-some [alias+ (seq *command-line-args*)]
                                                         (-> (maestro/walk maestro/aggr-alias
-                                                                          [(keyword module)]
+                                                                          (map (fn [^String alias]
+                                                                                 (keyword (.substring alias
+                                                                                                      1)))
+                                                                               alias+)
                                                                           deps-edn)
                                                             :maestro/require)
                                                         (filter (fn [kw]
