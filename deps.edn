@@ -2,15 +2,13 @@
  {
 
 
-  :module/maestro
-  {:maestro/require [:external/convex
-                     :external/test.check
-                     :module/cvm
-                     :module/clojurify]}
-
 
   :external/convex
   {:extra-deps {world.convex/convex {:local/root "cvm/c08c8231fcecabc2ab6c8e0a856f8c1b72965385.jar"}}}
+
+
+  :external/hawk
+  {:extra-deps {hawk/hawk {:mvn/version "0.2.11"}}}
 
 
   :external/test.check
@@ -61,9 +59,19 @@
 
   :module/sync.dev
   {:extra-paths      ["project/sync/src/clj/dev"]
-   :maestro/env {"adam" "cool"}
    :maestro/require  [:module/break
                       :module/sync]}
+
+
+  :module/watch
+  {:extra-paths     ["project/watch/src/clj/main"]
+   :maestro/require [:external/hawk
+                     :module/sync]}
+
+
+  :module/watch.dev
+  {:extra-paths     ["project/watch/src/clj/dev"]
+   :maestro/require [:module/watch]}
 
 
 

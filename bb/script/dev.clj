@@ -30,10 +30,15 @@
   "Given a project as CLI argument, returns the directory where Clojure dev files are located."
 
   []
-
-  (format "%s/src/clj/dev/"
-          (:dir ($.input/project))))
-
+  
+  (let [project (first *command-line-args*)]
+    (when-not (and project
+                   (bb.fs/directory? (str "project/"
+                                          project)))
+      (println "Must provide one directory from './project'")
+      (System/exit 42))
+    (format "project/%s/src/clj/dev/"
+            project)))
 
 
 (defn templ-copy

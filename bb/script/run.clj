@@ -43,12 +43,12 @@
 
 (defn dev
 
-  "Starts dev mode using [[-dev]], applying default profiles `:dev` and `:test`."
+  ""
 
   []
 
   (clojure "M"
-           (update ($.input/prepare-module)
+           (update ($.input/prepare)
                    :extra-env
                    assoc
                    "CONVEX_DEV"
@@ -64,7 +64,7 @@
   []
 
   (clojure "M"
-           (-> ($.input/prepare-module)
+           (-> ($.input/prepare)
                (update :arg+
                        (fn [arg+]
                          (concat ["-m kaocha.runner"

@@ -9,34 +9,6 @@
             [helins.maestro  :as maestro]))
 
 
-;;;;;;;;;;
-
-
-(defn kw-module
-
-  ""
-
-  [module]
-
-  (keyword (str "module."
-                module)))
-
-
-
-(defn module
-
-  "Returns a map with command-line arguments under `:arg+` and module under `:module`."
-
-  []
-
-  (if-some [module (first *command-line-args*)]
-    {:arg+   (rest *command-line-args*)
-     :module (keyword module)}
-    (do
-      (println "Module must be provided")
-      (System/exit 42))))
-
-
 ;;;
 
 
@@ -62,7 +34,8 @@
                             arg))]
       (recur (rest arg+)
              (conj cli-alias+
-                   cli-alias))
+                   (keyword (.substring ^String cli-alias
+                                        1))))
       (as-> hmap
             hmap-2
 
@@ -82,17 +55,9 @@
                       (dissoc hmap-2
                               :alias+)
                       (concat (:alias+ hmap-2)
-                              cli-alias+
-                              (some-> (:module hmap-2)
-                                      vector))
-                      (maestro/deps-edn)))))))
+                              cli-alias+)
+                      (maestro/deps-edn))
 
-
-
-(defn prepare-module
-
-  "Effectively `(prepare (module))`."
-
-  []
-
-  (prepare (module)))
+        (assoc hmap-2
+               :arg+
+               arg+))))))
