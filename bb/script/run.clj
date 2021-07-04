@@ -51,12 +51,14 @@
              (-> input
                  (update :alias+
                          (partial concat
-                                  (cons :dev
-                                        (get-in deps-edn
-                                                [:aliases
-                                                 (first (input :alias-cli+))
-                                                 :maestro/dev]))))
-                 $.input/expand))))
+                                  [:dev
+                                   :test]
+                                  (get-in deps-edn
+                                          [:aliases
+                                           (first (input :alias-cli+))
+                                           :maestro/dev])))
+                 $.input/expand
+                 ($.input/require-test-all deps-edn)))))
 
 
 

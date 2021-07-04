@@ -63,6 +63,14 @@
 
   ([input deps-edn]
 
+   (expand (dissoc input
+                   :alias+)
+           (input :alias+)
+           deps-edn))
+
+
+  ([input alias+ deps-edn]
+
    (maestro/walk (fn [acc alias config]
                         (-> acc
                             (maestro/aggr-alias :alias+
@@ -71,7 +79,28 @@
                             (maestro/aggr-env :env-extra
                                               alias
                                               config)))
-                      (dissoc input
-                              :alias+)
-                      (input :alias+)
-                      deps-edn)))
+                 input
+                 alias+
+                 deps-edn)))
+
+
+
+(defn require-test-all
+
+  ""
+
+  [input deps-edn]
+
+  (let [deps-alias (deps-edn :aliases)]
+    (-> input
+        (dissoc :alias+)
+        (expand (into []
+                      (mapcat (fn [alias]
+                                (get-in deps-alias
+                                        [alias
+                                         :maestro/test])))
+                      (input :alias+))
+                deps-edn)
+        (update :alias+
+                concat
+                (input :alias+)))))
