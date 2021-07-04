@@ -14,6 +14,10 @@
   :external/test.check
   {:extra-deps {org.clojure/test.check {:mvn/version "1.1.0"}}}
 
+  :external/tools.reader
+  {:extra-deps {org.clojure/tools.reader {:mvn/version "1.3.4"}}}
+
+
 
 
 
@@ -52,6 +56,20 @@
    :maestro/require  [:module/clojurify]}
 
 
+  :module/run
+  {:extra-paths     ["project/run/src/clj/main"
+                     "project/run/src/cvx/main"]
+   :maestro/require [:module/cvm
+                     :module/sync
+                     :module/watch]}
+
+
+  :module/run.dev
+  {:extra-paths     ["project/run/src/clj/dev"
+                     "project/run/src/cvx/dev"]
+   :maestro/require [:module/run]}
+
+
   :module/sync
   {:extra-paths      ["project/sync/src/clj/main"]
    :maestro/require  [:module/cvm]}
@@ -77,6 +95,9 @@
 
 
 
+  :dev
+  {:extra-paths     ["dev"]
+   :maestro/require [:external/tools.reader]}
 
 
 
@@ -138,29 +159,6 @@
 
   ;; DEV
 
-
-  :dev
-  {:extra-deps  {org.clojure/tools.reader {:mvn/version "1.3.4"}}
-   :extra-paths ["project/deploy/actor/oracle-trusted/src/cvx/main"
-                 "project/deploy/actor/prediction-market/src/cvx/main"
-                 "project/deploy/actor/registry/src/cvx/main"
-                 "project/deploy/actor/secured-loan/src/cvx/main"
-                 "project/deploy/actor/torus/src/cvx/main"
-                 "project/deploy/lab/lib/xform/src/clj/dev"
-                 "project/deploy/lab/lib/xform/src/cvx/dev/"
-                 "project/deploy/lab/lib/xform/src/cvx/main/"
-                 "project/deploy/lib/asset/src/cvx/main"
-                 "project/deploy/lib/box/src/cvx/main"
-                 "project/deploy/lib/core/src/cvx/main"
-                 "project/deploy/lib/fungible/src/cvx/main"
-                 "project/deploy/lib/nft-tokens/src/cvx/main"
-                 "project/deploy/lib/simple-nft/src/cvx/main"
-                 "project/deploy/lib/trust/src/clj/dev"
-                 "project/deploy/lib/trust/src/cvx/main"
-                 "project/dev/src/clj/dev"
-                 "project/example/src/clj"
-                 "project/run/src/cvx/dev"
-                 "project/run/src/cvx/example"]}
 
 
 

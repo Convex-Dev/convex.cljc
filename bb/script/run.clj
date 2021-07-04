@@ -48,11 +48,14 @@
   []
 
   (clojure "M"
-           (update ($.input/prepare)
-                   :extra-env
-                   assoc
-                   "CONVEX_DEV"
-                   "true")))
+           (-> ($.input/prepare)
+               (update :alias+
+                       (partial cons
+                                :dev))
+               (update :extra-env
+                       assoc
+                       "CONVEX_DEV"
+                       "true"))))
 
 
 
