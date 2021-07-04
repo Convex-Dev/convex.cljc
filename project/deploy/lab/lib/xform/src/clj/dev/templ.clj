@@ -1,9 +1,9 @@
-(ns convex.deploy.lib.xform
+(ns dev
 
-  "Dev environment for prototyping transducers."
+  "Daydreaming at the REPL."
 
-  {:author           "Adam Helinski"
-   :clj-kondo/config '{:linters {:unused-namespace {:level :off}}}}
+  {:clj-kondo/config '{:linters {:unused-import    {:level :off}
+                                 :unused-namespace {:level :off}}}}
 
   (:require [clojure.pprint]
             [convex.clj      :as $.clj]
@@ -25,11 +25,11 @@
                                                             $.clj.eval/ctx
                                                             '(do
                                                                (def store
-                                                                    (deploy store))
+                                                                    (deploy (first store)))
                                                                (def xform
-                                                                    (deploy xform)))))
-                          :convex.watch/sym->dep  {'store "project/deploy/lab/lib/xform/src/cvx/convex/xform/store.cvx"
-                                                   'xform "project/deploy/lab/lib/xform/src/cvx/convex/xform.cvx"}})
+                                                                    (deploy (first xform))))))
+                          :convex.watch/sym->dep  {'store "project/deploy/lab/lib/xform/src/cvx/dev/convex/xform/store.cvx"
+                                                   'xform "project/deploy/lab/lib/xform/src/cvx/main/convex/xform.cvx"}})
            $.watch/start))
 
 
@@ -53,43 +53,14 @@
                         (xform/transduce (xform/comp (xform/filter (fn [item]
                                                                      (contains-key? (store/tag+ item)
                                                                                     :fruit)))
-                                                     ;(xform/filter (fn [item]
-                                                     ;                (< (store/price item)
-                                                     ;                   600)))
-                                                     ;(xform/filter store/available?)
-                                                     ;(xform/map store/code)
+                                                     (xform/filter (fn [item]
+                                                                     (< (store/price item)
+                                                                        600)))
+                                                     (xform/filter store/available?)
+                                                     (xform/map store/code)
                                                      )
                                          xform/first
                                          store/inventory)))
 
 
   )
-
-
-;;;;;;;;;; Clojure transducers
-
-
-; cat
-; dedupe
-; distinct
-; drop
-; drop-while
-; filter
-; halt-when
-; interpose
-; keep
-; keep-indexed
-; map
-; map-indexed
-; mapcat
-; partition-all
-; partition-by
-; random-sample
-; remove
-; replace
-; take
-; take-nth
-; take-while
-
-
-; https://github.com/cgrand/xforms

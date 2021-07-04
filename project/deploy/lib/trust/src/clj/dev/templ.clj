@@ -1,9 +1,9 @@
-(ns convex.deploy.lib.trust
+(ns dev
 
-  "Dev environment for the Trust library."
+  "Daydreaming at the REPL."
 
-  {:author           "Adam Helinski"
-   :clj-kondo/config '{:linters {:unused-namespace {:level :off}}}}
+  {:clj-kondo/config '{:linters {:unused-import    {:level :off}
+                                 :unused-namespace {:level :off}}}}
 
   (:require [convex.code     :as $.code]
             [convex.cvm      :as $.cvm]

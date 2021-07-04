@@ -51,11 +51,7 @@
            (-> ($.input/prepare)
                (update :alias+
                        (partial cons
-                                :dev))
-               (update :extra-env
-                       assoc
-                       "CONVEX_DEV"
-                       "true"))))
+                                :dev)))))
 
 
 
