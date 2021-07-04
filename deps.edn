@@ -26,6 +26,7 @@
 
   :module/all
   {:extra-paths     ["project/all/src/clj/dev"]
+   :maestro/dev     [:module/all]
    :maestro/require [:external/hawk
                      :external/test.check
                      :module/app.fuzz
@@ -41,6 +42,7 @@
 
   :module/app.fuzz
   {:extra-paths     ["project/app/fuzz/src/clj/main"]
+   :maestro/dev     [:module/app.fuzz.dev]  
    :maestro/require [:external/test.check
                      :module/break
                      :module/cvm
@@ -49,27 +51,26 @@
 
 
   :module/app.fuzz.dev
-  {:extra-paths     ["project/app/fuzz/src/clj/dev"]
-   :maestro/require [:module/app.fuzz]}
+  {:extra-paths ["project/app/fuzz/src/clj/dev"]}
 
 
   :module/app.run
   {:extra-paths     ["project/app/run/src/clj/main"]
+   :maestro/dev     [:module.app.fuzz.dev]
    :maestro/require [:external/tools.cli
                      :module/run]}
 
 
   :module/app.run.dev
-  {:extra-paths     ["project/app/run/src/clj/dev"]
-   :maestro/require [:module/app.run]}
+  {:extra-paths ["project/app/run/src/clj/dev"]}
 
 
   :module/break
-  {:extra-paths      ["project/break/src/clj/main"
-                      "project/break/src/cvx/main"]
-   :maestro/require  [:module/clojurify
-                      :module/cvm
-                      :module/sync]}
+  {:extra-paths     ["project/break/src/clj/main"
+                     "project/break/src/cvx/main"]
+   :maestro/require [:module/clojurify
+                     :module/cvm
+                     :module/sync]}
 
 
   :module/break.test
@@ -79,24 +80,24 @@
 
   :module/cvm
   {:extra-paths     ["project/cvm/src/clj/main"]
+   :maestro/dev     [:module/cvm.dev]
    :maestro/require [:external/convex
                      :module/clojurify]}
 
 
   :module/cvm.dev
-  {:extra-paths      ["project/cvm/src/clj/dev"]
-   :maestro/require  [:module/cvm]}
+  {:extra-paths ["project/cvm/src/clj/dev"]}
 
 
   :module/clojurify
   {:extra-paths      ["project/clojurify/src/cljc/main"]
+   :maestro/dev      [:module/clojurify.dev]
    :maestro/require  [:external/test.check
                       :module/cvm]}
 
 
   :module/clojurify.dev
-  {:extra-paths      ["project/clojurify/src/cljc/dev"]
-   :maestro/require  [:module/clojurify]}
+  {:extra-paths ["project/clojurify/src/cljc/dev"]}
 
 
   :module/deploy
@@ -122,6 +123,7 @@
   :module/run
   {:extra-paths     ["project/run/src/clj/main"
                      "project/run/src/cvx/main"]
+   :maestro/dev     [:module/run.dev]
    :maestro/require [:module/cvm
                      :module/sync
                      :module/watch]}
@@ -130,30 +132,28 @@
   :module/run.dev
   {:extra-paths     ["project/run/src/clj/dev"
                      "project/run/src/cvx/dev"]
-   :maestro/require [:module/run
-                     :toggle/tap]}
+   :maestro/require [:toggle/tap]}
 
 
   :module/sync
   {:extra-paths     ["project/sync/src/clj/main"]
+   :maestro/dev     [:module/sync.dev]
    :maestro/require [:module/cvm]}
 
 
   :module/sync.dev
-  {:extra-paths     ["project/sync/src/clj/dev"]
-   :maestro/require [:module/break
-                     :module/sync]}
+  {:extra-paths ["project/sync/src/clj/dev"]}
 
 
   :module/watch
   {:extra-paths     ["project/watch/src/clj/main"]
+   :maestro/dev     [:module/watch.dev]
    :maestro/require [:external/hawk
                      :module/sync]}
 
 
   :module/watch.dev
-  {:extra-paths     ["project/watch/src/clj/dev"]
-   :maestro/require [:module/watch]}
+  {:extra-paths ["project/watch/src/clj/dev"]}
 
 
 

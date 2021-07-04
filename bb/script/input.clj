@@ -27,13 +27,13 @@
   ([hmap]
 
   (loop [arg+       (:arg+ hmap)
-         cli-alias+ []]
+         alias-cli+ []]
     (if-some [cli-alias (when-some [arg (first arg+)]
                           (when (clojure.string/starts-with? arg
                                                              ":")
                             arg))]
       (recur (rest arg+)
-             (conj cli-alias+
+             (conj alias-cli+
                    (keyword (.substring ^String cli-alias
                                         1))))
       (-> hmap
@@ -43,9 +43,10 @@
           (as->
             hmap-2
             (assoc hmap-2
-                   :alias+ (concat (:alias+ hmap-2)
-                                   cli-alias+)
-                   :arg+   arg+)))))))
+                   :alias+     (concat (:alias+ hmap-2)
+                                       alias-cli+)
+                   :alias-cli+ alias-cli+
+                   :arg+       arg+)))))))
 
 
 
@@ -53,17 +54,24 @@
 
   ""
 
-  [input]
 
-  (maestro/walk (fn [acc alias config]
-                       (-> acc
-                           (maestro/aggr-alias :alias+
-                                               alias
-                                               config)
-                           (maestro/aggr-env :env-extra
-                                             alias
-                                             config)))
-                     (dissoc input
-                             :alias+)
-                     (input :alias+)
-                     (maestro/deps-edn)))
+  ([input]
+
+   (expand input
+           (maestro/deps-edn)))
+
+
+  ([input deps-edn]
+
+   (maestro/walk (fn [acc alias config]
+                        (-> acc
+                            (maestro/aggr-alias :alias+
+                                                alias
+                                                config)
+                            (maestro/aggr-env :env-extra
+                                              alias
+                                              config)))
+                      (dissoc input
+                              :alias+)
+                      (input :alias+)
+                      deps-edn)))

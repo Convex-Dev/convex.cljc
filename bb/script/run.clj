@@ -8,6 +8,7 @@
   (:require [babashka.tasks  :as bb.task]
             [clojure.edn]
             [clojure.string]
+            [helins.maestro  :as maestro]
             [script.input    :as $.input]))
 
 
@@ -20,13 +21,10 @@
 
   [letter {:keys [alias+
                   arg+
-                  config
                   debug?
                   env-extra]}]
 
-  (let [command (format "clojure %s -%s%s %s"
-                        (or config
-                            "")
+  (let [command (format "clojure -%s%s %s"
                         letter
                         (clojure.string/join ""
                                              alias+)
@@ -48,11 +46,17 @@
   []
 
   (clojure "M"
-           (-> ($.input/prepare)
-               (update :alias+
-                       (partial cons
-                                :dev))
-               $.input/expand)))
+           (let [deps-edn (maestro/deps-edn)
+                 input    ($.input/prepare)]
+             (-> input
+                 (update :alias+
+                         (partial concat
+                                  (cons :dev
+                                        (get-in deps-edn
+                                                [:aliases
+                                                 (first (input :alias-cli+))
+                                                 :maestro/dev]))))
+                 $.input/expand))))
 
 
 
