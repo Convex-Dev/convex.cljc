@@ -14,6 +14,9 @@
   :external/test.check
   {:extra-deps {org.clojure/test.check {:mvn/version "1.1.0"}}}
 
+  :external/tools.cli
+  {:extra-deps {org.clojure/tools.cli {:mvn/version "1.0.206"}}}
+
   :external/tools.reader
   {:extra-deps {org.clojure/tools.reader {:mvn/version "1.3.4"}}}
 
@@ -33,6 +36,17 @@
   :module/app.fuzz.dev
   {:extra-paths     ["project/app/fuzz/src/clj/dev"]
    :maestro/require [:module/app.fuzz]}
+
+
+  :module/app.run
+  {:extra-paths     ["project/app/run/src/clj/main"]
+   :maestro/require [:external/tools.cli
+                     :module/run]}
+
+
+  :module/app.run.dev
+  {:extra-paths     ["project/app/run/src/clj/dev"]
+   :maestro/require [:module/app.run]}
 
 
   :module/break
@@ -213,9 +227,6 @@
   {:extra-paths ["project/app/fuzz/src/clj/main"]}
 
 
-  :project.app.run
-  {:extra-deps  {org.clojure/tools.cli {:mvn/version "1.0.206"}}
-   :extra-paths ["project/app/run/src/clj/main"]}
 
 
 

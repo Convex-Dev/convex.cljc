@@ -201,31 +201,3 @@
     (catch Throwable ex
       (error "An unknown exception happened."
              ex))))
-
-
-;;;;;;;;;; Dev
-
-
-(comment
-
-
-  (-main)
-
-  (-main "command" "eval")
-
-  (-main "describe" "help" "about")
-
-  (-main "eval" "(help/about sreq 'dep)")
-
-  (-main "load" "project/run/src/cvx/dev/convex/run/dev.cvx")
-
-
-  (def a*
-       (-main "watch" "project/run/src/cvx/dev/convex/run/dev.cvx"))
-
-  (do
-    (require '[convex.watch])
-    (convex.watch/stop a*))
-
-
-  )
