@@ -2,6 +2,86 @@
  {
 
 
+  :module/maestro
+  {:maestro/require [:external/convex
+                     :external/test.check
+                     :module/cvm
+                     :module/clojurify]}
+
+
+  :external/convex
+  {:extra-deps {world.convex/convex {:local/root "cvm/c08c8231fcecabc2ab6c8e0a856f8c1b72965385.jar"}}}
+
+
+  :external/test.check
+  {:extra-deps {org.clojure/test.check {:mvn/version "1.1.0"}}}
+
+
+
+
+  :module/break
+  {:extra-paths      ["project/break/src/clj/main"
+                      "project/break/src/cvx/main"]
+   :maestro/require  [:module/clojurify
+                      :module/cvm
+                      :module/sync]}
+
+
+  :module/break.test
+  {:extra-paths      ["project/break/src/clj/test"]
+   :maestro/require  [:module/break]}
+
+
+  :module/cvm
+  {:extra-paths     ["project/cvm/src/clj/main"]
+   :maestro/require [:external/convex
+                     :module/clojurify]}
+
+
+  :module/cvm.dev
+  {:extra-paths      ["project/cvm/src/clj/dev"]
+   :maestro/require  [:module/cvm]}
+
+
+  :module/clojurify
+  {:extra-paths      ["project/clojurify/src/cljc/main"]
+   :maestro/require  [:external/test.check
+                      :module/cvm]}
+
+
+  :module/clojurify.dev
+  {:extra-paths      ["project/clojurify/src/cljc/dev"]
+   :maestro/require  [:module/clojurify]}
+
+
+  :module/sync
+  {:extra-paths      ["project/sync/src/clj/main"]
+   :maestro/require  [:module/cvm]}
+
+
+  :module/sync.dev
+  {:extra-paths      ["project/sync/src/clj/dev"]
+   :maestro/env {"adam" "cool"}
+   :maestro/require  [:module/break
+                      :module/sync]}
+
+
+
+
+
+
+
+
+  :test
+  {:extra-deps  {io.helins/mprop     {:mvn/version "0.0.1"}
+                 lambdaisland/kaocha {:mvn/version "1.0.829"}}}
+
+
+
+
+
+
+
   ;; MISCELLANEOUS
   
 
@@ -105,17 +185,8 @@
 
 
 
-  ;; TESTING
 
 
-
-  :test
-  {:extra-deps  {io.helins/mprop     {:mvn/version "0.0.1"}
-                 lambdaisland/kaocha {:mvn/version "1.0.829"}}
-   :extra-paths ["project/break/src/clj/test"
-                 "project/clojurify/src/cljc/test"
-                 "project/cvm/src/clj/test"
-                 "project/deploy/lib/trust/src/clj/test"]}
   }
  ;;
  ;; ALIAS END
@@ -124,20 +195,22 @@
 
  :deps
  {;cljs-ajax/cljs-ajax  {:mvn/version "0.8.3"}
-  hawk/hawk                {:mvn/version "0.2.11"}
-  org.clojure/test.check   {:mvn/version "1.1.0"}
-  world.convex/convex      {:local/root  "cvm/c08c8231fcecabc2ab6c8e0a856f8c1b72965385.jar"}}
+ ; hawk/hawk                {:mvn/version "0.2.11"}
+ ; org.clojure/test.check   {:mvn/version "1.1.0"}
+ ; world.convex/convex      {:local/root  "cvm/c08c8231fcecabc2ab6c8e0a856f8c1b72965385.jar"}
+  }
 
 
 
 
  :paths
- ["project/break/src/clj/main"
-  "project/break/src/cvx/main"
-  "project/clojurify/src/cljc/main"
-  "project/cvm/src/clj/main"
-  "project/run/src/clj/main"
-  "project/run/src/cvx/main"
-  "project/sync/src/clj/main"
-  "project/watch/src/clj/main"]
+ [;"project/break/src/clj/main"
+  ;"project/break/src/cvx/main"
+  ;"project/clojurify/src/cljc/main"
+  ;"project/cvm/src/clj/main"
+  ;"project/run/src/clj/main"
+  ;"project/run/src/cvx/main"
+  ;"project/sync/src/clj/main"
+  ;"project/watch/src/clj/main"
+  ]
 }

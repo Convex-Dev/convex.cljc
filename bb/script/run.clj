@@ -6,33 +6,35 @@
 
   (:refer-clojure :exclude [test])
   (:require [babashka.tasks  :as bb.task]
+            [clojure.edn]
             [clojure.string]
             [script.input    :as $.input]))
 
 
-;;;;;;;;;; Private
+;;;;;;;;;;
 
 
-(defn- -dev
+(defn clojure
 
   "Starts dev mode, but no default profile is applied."
 
-  [{:keys [arg+
-           debug?
-           dir
-           env-extra
-           profile+]}]
+  [letter {:keys [alias+
+                  arg+
+                  config
+                  debug?
+                  env-extra]}]
 
-  (let [command (format "clojure -M%s %s"
-                         (clojure.string/join ""
-                                              profile+)
-                         (clojure.string/join " "
-                                              arg+))]
+  (let [command (format "clojure %s -%s%s %s"
+                        (or config
+                            "")
+                        letter
+                        (clojure.string/join ""
+                                             alias+)
+                        (clojure.string/join " "
+                                             arg+))]
     (when debug?
       (println command))
-    (bb.task/shell {:dir       dir
-                    :extra-env (merge {"CONVEX_DEV" "true"}
-                                      env-extra)}
+    (bb.task/shell {:extra-env env-extra}
                    command)))
 
 
@@ -41,31 +43,48 @@
 
 (defn dev
 
-  "Starts dev mode, applying default profiles `:dev` and `:test`."
+  "Starts dev mode using [[-dev]], applying default profiles `:dev` and `:test`."
 
   []
 
-  (-dev (-> ($.input/prepare-project)
-            (update :profile+
-                    (fn [profile+]
-                      (concat [:test
-                               :dev]
-                              profile+))))))
+  (clojure "M"
+           (update ($.input/prepare-module)
+                   :extra-env
+                   assoc
+                   "CONVEX_DEV"
+                   "true")))
+
 
 
 
 (defn test
 
-  "Uses [[script.input/prepare-project]] and then run tests using [[-dev]]."
+  "Uses [[script.input/prepare-module]] and then run tests using [[-dev]]."
 
   []
 
-  (-dev (-> ($.input/prepare-project)
-            (update :arg+
-                    (fn [arg+]
-                      (concat ["-m kaocha.runner"
-                               "--config-file kaocha.edn"]
-                              arg+)))
-            (update :profile+
-                    conj
-                    :test))))
+  (clojure "M"
+           (-> ($.input/prepare-module)
+               (update :arg+
+                       (fn [arg+]
+                         (concat ["-m kaocha.runner"
+                                  "--config-file kaocha.edn"]
+                                 arg+)))
+               #_(update-in [:config
+                           :alias
+                           :test]
+                          (fn [config]
+                            (merge-with (fn [a b]
+                                          (cond
+                                            (map? a)    (merge a
+                                                               b)
+                                            (vector? a) (into a
+                                                              b)
+                                            :else       b))
+                                        config
+                                        '{:extra-deps  {io.helins/mprop     {:mvn/version "0.0.1"}
+                                                        lambdaisland/kaocha {:mvn/version "1.0.829"}}
+                                          :extra-paths ["src/clj/test"]})))
+               (update :profile+
+                       conj
+                       :test))))

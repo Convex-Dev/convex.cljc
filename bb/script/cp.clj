@@ -8,7 +8,7 @@
   (:require [babashka.fs     :as bb.fs]
             [babashka.tasks  :as bb.task]
             [clojure.string]
-            [script.input    :as $.input]))
+            [helins.maestro  :as maestro]))
 
 
 ;;;;;;;;;;
@@ -16,12 +16,11 @@
 
 (defn delete
 
-  "Deletes a project's computed classpath."
+  "Deletes the computed classpath."
 
   []
 
-  (bb.fs/delete-tree (format "%s/.cpcache"
-                             (:dir ($.input/project)))))
+  (bb.fs/delete-tree ".cpcache"))
 
 
 
@@ -29,18 +28,24 @@
 
   "Uses Clojure Deps to compute the classpath.
   
-   Profiles can be given as CLI arguments."
+   Aliases can be given as CLI arguments."
 
   []
 
-  (-> (bb.task/shell (assoc ($.input/project)
-                            :out
-                            :string)
+  (-> (bb.task/shell {:out :string}
                      (str "clojure -Spath "
-                          (when-some [profile+ (not-empty (rest *command-line-args*))]
-                            (str "-A"
-                                 (clojure.string/join ""
-                                                      profile+)))))
+                          (str "-A"
+                               (clojure.string/join ""
+                                                    (let [deps-edn (maestro/deps-edn)]
+                                                      (if-some [module (first *command-line-args*)]
+                                                        (-> (maestro/walk maestro/aggr-alias
+                                                                          [(keyword module)]
+                                                                          deps-edn)
+                                                            :maestro/require)
+                                                        (filter (fn [kw]
+                                                                  (= (namespace kw)
+                                                                     "module"))
+                                                                (keys (deps-edn :aliases)))))))))
       :out))
 
 

@@ -5,24 +5,35 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.edn]
-            [clojure.string]))
+            [clojure.string]
+            [helins.maestro  :as maestro]))
 
 
 ;;;;;;;;;;
 
 
-(defn project
+(defn kw-module
 
-  "Returns a map with command-line arguments under `:arg+` and project directory under `:dir`."
+  ""
+
+  [module]
+
+  (keyword (str "module."
+                module)))
+
+
+
+(defn module
+
+  "Returns a map with command-line arguments under `:arg+` and module under `:module`."
 
   []
 
-  (if-some [project (first *command-line-args*)]
-    {:arg+ (rest *command-line-args*)
-     :dir  (str "project/"
-                project)}
+  (if-some [module (first *command-line-args*)]
+    {:arg+   (rest *command-line-args*)
+     :module (keyword module)}
     (do
-      (println "Project name must be provided as argument.")
+      (println "Module must be provided")
       (System/exit 42))))
 
 
@@ -38,40 +49,50 @@
 
   ([]
 
-   (prepare {:arg *command-line-args*}))
+   (prepare {:arg+ *command-line-args*}))
 
 
   ([hmap]
 
-  (loop [arg+     (:arg+ hmap)
-         profile+ []]
-    (if-some [profile (when-some [arg (first arg+)]
-                        (when (clojure.string/starts-with? arg
-                                                           ":")
-                          arg))]
+  (loop [arg+       (:arg+ hmap)
+         cli-alias+ []]
+    (if-some [cli-alias (when-some [arg (first arg+)]
+                          (when (clojure.string/starts-with? arg
+                                                             ":")
+                            arg))]
       (recur (rest arg+)
-             (conj profile+
-                   profile))
-      (-> hmap
-          (cond->
-            (.ready *in*)
-            (merge (clojure.edn/read *in*)))
-          (update :arg+
-                  (fn [x]
-                    (into x
-                          arg+)))
-          (update :profile+
-                  (fn [x]
-                    (into x
-                          profile+))))))))
+             (conj cli-alias+
+                   cli-alias))
+      (as-> hmap
+            hmap-2
+
+        (cond->
+          hmap-2
+          (.ready *in*)
+          (merge (clojure.edn/read *in*)))
+
+        (maestro/walk (fn [acc alias config]
+                        (-> acc
+                            (maestro/aggr-alias :alias+
+                                                alias
+                                                config)
+                            (maestro/aggr-env :env-extra
+                                              alias
+                                              config)))
+                      (dissoc hmap-2
+                              :alias+)
+                      (concat (:alias+ hmap-2)
+                              cli-alias+
+                              (some-> (:module hmap-2)
+                                      vector))
+                      (maestro/deps-edn)))))))
 
 
 
-(defn prepare-project
+(defn prepare-module
 
-  "Effectively `(prepare (project))`."
+  "Effectively `(prepare (module))`."
 
   []
 
-  (prepare (project)))
-
+  (prepare (module)))
