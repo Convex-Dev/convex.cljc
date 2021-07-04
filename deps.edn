@@ -26,7 +26,8 @@
    :maestro/require [:external/test.check
                      :module/break
                      :module/cvm
-                     :module/clojurify]}
+                     :module/clojurify
+                     :toggle/tap]}
 
 
   :module/app.fuzz.dev
@@ -100,18 +101,19 @@
   :module/run.dev
   {:extra-paths     ["project/run/src/clj/dev"
                      "project/run/src/cvx/dev"]
-   :maestro/require [:module/run]}
+   :maestro/require [:module/run
+                     :toggle/tap]}
 
 
   :module/sync
-  {:extra-paths      ["project/sync/src/clj/main"]
-   :maestro/require  [:module/cvm]}
+  {:extra-paths     ["project/sync/src/clj/main"]
+   :maestro/require [:module/cvm]}
 
 
   :module/sync.dev
-  {:extra-paths      ["project/sync/src/clj/dev"]
-   :maestro/require  [:module/break
-                      :module/sync]}
+  {:extra-paths     ["project/sync/src/clj/dev"]
+   :maestro/require [:module/break
+                     :module/sync]}
 
 
   :module/watch
@@ -125,6 +127,10 @@
    :maestro/require [:module/watch]}
 
 
+
+
+  :toggle/tap
+  {:maestro/env {"CONVEX_TAP" "TRUE"}}
 
 
 

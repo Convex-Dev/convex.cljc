@@ -51,7 +51,8 @@
            (-> ($.input/prepare)
                (update :alias+
                        (partial cons
-                                :dev)))))
+                                :dev))
+               $.input/expand)))
 
 
 

@@ -36,28 +36,34 @@
              (conj cli-alias+
                    (keyword (.substring ^String cli-alias
                                         1))))
-      (as-> hmap
+      (-> hmap
+          (cond->
+            (.ready *in*)
+            (merge (clojure.edn/read *in*)))
+          (as->
             hmap-2
+            (assoc hmap-2
+                   :alias+ (concat (:alias+ hmap-2)
+                                   cli-alias+)
+                   :arg+   arg+)))))))
 
-        (cond->
-          hmap-2
-          (.ready *in*)
-          (merge (clojure.edn/read *in*)))
 
-        (maestro/walk (fn [acc alias config]
-                        (-> acc
-                            (maestro/aggr-alias :alias+
-                                                alias
-                                                config)
-                            (maestro/aggr-env :env-extra
-                                              alias
-                                              config)))
-                      (dissoc hmap-2
-                              :alias+)
-                      (concat (:alias+ hmap-2)
-                              cli-alias+)
-                      (maestro/deps-edn))
 
-        (assoc hmap-2
-               :arg+
-               arg+))))))
+(defn expand
+
+  ""
+
+  [input]
+
+  (maestro/walk (fn [acc alias config]
+                       (-> acc
+                           (maestro/aggr-alias :alias+
+                                               alias
+                                               config)
+                           (maestro/aggr-env :env-extra
+                                             alias
+                                             config)))
+                     (dissoc input
+                             :alias+)
+                     (input :alias+)
+                     (maestro/deps-edn)))

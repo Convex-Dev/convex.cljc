@@ -49,11 +49,12 @@
                                          form)
                        true)
         a*print      (agent 0)
-        n-core       (.availableProcessors (Runtime/getRuntime))]
-    (println \newline
-             (format "Starting robustness fuzzy tester on %d core(s), saving errors to '%s'"
-                     n-core
-                     root))
+        n-core       (.availableProcessors (Runtime/getRuntime))
+        out          (or (:out option+)
+                         println)]
+    (out (format "\nStarting robustness fuzzy tester on %d core(s), saving errors to '%s'"
+                 n-core
+                 root))
     (mapv (fn [_i-core]
             (future
               (while true
@@ -64,8 +65,8 @@
                         (fn [n-test]
                           (let [n-test-2 (+ n-test
                                             (long (result :num-tests)))]
-                            (println (format "Total number of tests: %d"
-                                             n-test-2))
+                            (out (format "Total number of tests: %d"
+                                         n-test-2))
                             n-test-2)))
                   (when-not (result :pass?)
                     (let [path (format "%s/%s.edn"
@@ -73,8 +74,8 @@
                                        (System/currentTimeMillis))]
                       (send a*print
                             (fn [n-test]
-                              (println (format "Saving error to '%s'"
-                                               path))
+                              (out (format "Saving error to '%s'"
+                                           path))
                               n-test))
                       @d*ensure-dir
                       (clojure.pprint/pprint result

@@ -22,20 +22,6 @@
 ;;;;;;;;;;
 
 
-(defn tap
-
-  [x]
-
-  (println x)
-  (flush))
-
-
-(add-tap tap)
-
-
-;;;;;;;;;;
-
-
 (comment
 
 
