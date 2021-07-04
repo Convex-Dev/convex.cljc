@@ -54,28 +54,29 @@
              (format "Starting robustness fuzzy tester on %d core(s), saving errors to '%s'"
                      n-core
                      root))
-    (dotimes [_ n-core]
-      (future
-        (while true
-          (let [result (TC/quick-check 1e4
-                                       prop
-                                       :max-size max-size)]
-            (send a*print
-                  (fn [n-test]
-                    (let [n-test-2 (+ n-test
-                                      (long (result :num-tests)))]
-                      (println (format "Total number of tests: %d"
-                                       n-test-2))
-                      n-test-2)))
-            (when-not (result :pass?)
-              (let [path (format "%s/%s.edn"
-                                 root
-                                 (System/currentTimeMillis))]
-                (send a*print
-                      (fn [n-test]
-                        (println (format "Saving error to '%s'"
-                                         path))
-                        n-test))
-                @d*ensure-dir
-                (clojure.pprint/pprint result
-                                       (clojure.java.io/writer path))))))))))
+    (mapv (fn [_i-core]
+            (future
+              (while true
+                (let [result (TC/quick-check 1e4
+                                             prop
+                                             :max-size max-size)]
+                  (send a*print
+                        (fn [n-test]
+                          (let [n-test-2 (+ n-test
+                                            (long (result :num-tests)))]
+                            (println (format "Total number of tests: %d"
+                                             n-test-2))
+                            n-test-2)))
+                  (when-not (result :pass?)
+                    (let [path (format "%s/%s.edn"
+                                       root
+                                       (System/currentTimeMillis))]
+                      (send a*print
+                            (fn [n-test]
+                              (println (format "Saving error to '%s'"
+                                               path))
+                              n-test))
+                      @d*ensure-dir
+                      (clojure.pprint/pprint result
+                                             (clojure.java.io/writer path))))))))
+          (range n-core))))

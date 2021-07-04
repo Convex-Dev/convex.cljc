@@ -21,6 +21,19 @@
 
 
 
+  :module/app.fuzz
+  {:extra-paths     ["project/app/fuzz/src/clj/main"]
+   :maestro/require [:external/test.check
+                     :module/break
+                     :module/cvm
+                     :module/clojurify]}
+
+
+  :module/app.fuzz.dev
+  {:extra-paths     ["project/app/fuzz/src/clj/dev"]
+   :maestro/require [:module/app.fuzz]}
+
+
   :module/break
   {:extra-paths      ["project/break/src/clj/main"
                       "project/break/src/cvx/main"]
