@@ -215,6 +215,24 @@
 
 
 
+  :exec/app.fuzz
+  {:exec-args       {:max-size 200
+                     :root     "report/fuzz"}
+   :exec-fn         convex.app.fuzz/random
+   :maestro/require [:module/app.fuzz]}
+
+
+
+  :cli/app.run
+  {:main-opts       ["-m" "convex.app.run"]
+   :maestro/require [:module/app.run]}
+
+
+
+
+
+
+
 
   ;; MISCELLANEOUS
   
@@ -261,64 +279,4 @@
    :replace-deps {com.github.seancorfield/depstar {:mvn/version "2.1.245"}}}
 
 
-
-  ;; DEV
-
-
-
-
-
-  ;; ADDITIONAL PROFILES FOR CLI APPS
-
-
-  :project.app.fuzz
-  {:extra-paths ["project/app/fuzz/src/clj/main"]}
-
-
-
-
-
-
-  ;; RUNNING CLI APPS
-
-  :app.fuzz
-  {:exec-args {:max-size 200
-               :root     "report/fuzz"}
-   :exec-fn   convex.app.fuzz/random}
-
-
-  :app.run
-  {:main-opts ["-m" "convex.app.run"]}
-
-
-
-
-
-
-  }
- ;;
- ;; ALIAS END
-
-
-
- :deps
- {;cljs-ajax/cljs-ajax  {:mvn/version "0.8.3"}
- ; hawk/hawk                {:mvn/version "0.2.11"}
- ; org.clojure/test.check   {:mvn/version "1.1.0"}
- ; world.convex/convex      {:local/root  "cvm/c08c8231fcecabc2ab6c8e0a856f8c1b72965385.jar"}
-  }
-
-
-
-
- :paths
- [;"project/break/src/clj/main"
-  ;"project/break/src/cvx/main"
-  ;"project/clojurify/src/cljc/main"
-  ;"project/cvm/src/clj/main"
-  ;"project/run/src/clj/main"
-  ;"project/run/src/cvx/main"
-  ;"project/sync/src/clj/main"
-  ;"project/watch/src/clj/main"
-  ]
-}
+  }}

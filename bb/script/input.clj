@@ -40,6 +40,8 @@
           (cond->
             (.ready *in*)
             (merge (clojure.edn/read *in*)))
+          (assoc :deps-edn
+                 (maestro/deps-edn))
           (as->
             hmap-2
             (assoc hmap-2
@@ -57,19 +59,12 @@
 
   ([input]
 
-   (expand input
-           (maestro/deps-edn)))
-
-
-  ([input deps-edn]
-
    (expand (dissoc input
                    :alias+)
-           (input :alias+)
-           deps-edn))
+           (input :alias+)))
 
 
-  ([input alias+ deps-edn]
+  ([input alias+]
 
    (maestro/walk (fn [acc alias config]
                         (-> acc
@@ -81,7 +76,7 @@
                                               config)))
                  input
                  alias+
-                 deps-edn)))
+                 (input :deps-edn))))
 
 
 
@@ -89,9 +84,11 @@
 
   ""
 
-  [input alias+ deps-edn]
+  [input alias+]
 
-  (let [deps-alias  (deps-edn :aliases)
+  (let [deps-alias  (get-in input
+                            [:deps-edn
+                             :aliases])
         alias-main+ (input :alias+)]
     (-> input
         (dissoc :alias+)
@@ -100,8 +97,7 @@
                                 (get-in deps-alias
                                         [alias
                                          :maestro/test])))
-                      alias+)
-                deps-edn)
+                      alias+))
         (as->
           input-2
           (assoc input-2
@@ -119,11 +115,10 @@
 
   ""
 
-  [input deps-edn]
+  [input]
 
   (require-test input
-                (input :alias-cli+)
-                deps-edn))
+                (input :alias-cli+)))
 
 
 
@@ -131,22 +126,7 @@
 
   ""
 
-  [input deps-edn]
+  [input]
 
   (require-test input
-                (input :alias+)
-                deps-edn))
-
-
-
-(defn path+
-
-  ""
-
-  [alias+ deps-edn]
-
-  (into []
-        (comp (map (partial get
-                            (deps-edn :aliases)))
-              (mapcat :extra-paths))
-        alias+))
+                (input :alias+)))

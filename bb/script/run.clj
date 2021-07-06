@@ -67,15 +67,16 @@
 
   ""
 
-  [input deps-edn]
+  [{:as   input
+    :keys [deps-edn]}]
 
   (when-not (bb.fs/exists? "private")
     (bb.fs/create-dir "private"))
   (spit "private/maestro_kaocha.edn"
-        (pr-str {:kaocha/source-paths ($.input/path+ (input :alias-main+)
-                                                     deps-edn)
-                 :kaocha/test-paths   ($.input/path+ (input :alias-test+)
-                                                     deps-edn)}))
+        (pr-str {:kaocha/source-paths (maestro/path+ deps-edn
+                                                     (input :alias-main+))
+                 :kaocha/test-paths   (maestro/path+ deps-edn
+                                                     (input :alias-test+))}))
   input)
 
 
@@ -87,19 +88,18 @@
   [f-require-test]
 
   (clojure "M"
-           (let [deps-edn (maestro/deps-edn)]
-             (-> ($.input/prepare)
-                 (update :alias+
-                         conj
-                         :test)
-                 ($.input/expand deps-edn)
-                 (f-require-test deps-edn)
-                 (kaocha-edn deps-edn)
-                 (update :arg+
-                         (fn [arg+]
-                           (concat ["-m kaocha.runner"
-                                    "--config-file kaocha.edn"]
-                                   arg+)))))))
+           (-> ($.input/prepare)
+               (update :alias+
+                       conj
+                       :test)
+               $.input/expand
+               f-require-test
+               kaocha-edn
+               (update :arg+
+                       (fn [arg+]
+                         (concat ["-m kaocha.runner"
+                                  "--config-file kaocha.edn"]
+                                 arg+))))))
 
 
 
@@ -120,3 +120,26 @@
   []
 
   (test $.input/require-test-global))
+
+
+
+(defn main
+
+  ""
+
+  []
+
+  (clojure "M"
+           (-> ($.input/prepare)
+               $.input/expand)))
+
+
+(defn exec
+
+  ""
+
+  []
+
+  (clojure "X"
+           (-> ($.input/prepare)
+               $.input/expand)))

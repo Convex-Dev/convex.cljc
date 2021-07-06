@@ -116,3 +116,19 @@
            kw
            merge
            (:maestro/env config))))
+
+
+;;;;;;;;;;
+
+
+(defn path+
+
+  ""
+
+  [deps-edn alias+]
+
+  (into []
+        (comp (map (partial get
+                            (deps-edn :aliases)))
+              (mapcat :extra-paths))
+        alias+))

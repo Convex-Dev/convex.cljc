@@ -3,6 +3,7 @@
 
 
  :tasks {cp
+
          {:doc      "Prints the class path ; extra profiles given as arguments"
           :requires ([script.cp :as $.cp])
           :task     ($.cp/print)}
@@ -36,6 +37,14 @@
           :task     ($.dev/templ-del)}
 
 
+         exec
+
+         {:doc      "Executes Clojure using '-X'"
+          :requires ([script.run :as $.run])
+          :task     ($.run/exec)}
+
+
+
          lint
 
          {:doc "Starts Clj-kondo on './src' (further path can be provided as command-line argument)"
@@ -49,6 +58,13 @@
           :requires ([script.cp :as $.cp])
           :task     (shell (format "clj-kondo --lint '%s' --dependencies --parallel --copy-configs"
                                    ($.cp/string)))}
+
+
+         main
+
+         {:doc      "Executes Clojure using '-M'"
+          :requires ([script.run :as $.run])
+          :task     ($.run/main)}
 
 
          test
