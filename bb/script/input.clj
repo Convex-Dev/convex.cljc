@@ -43,8 +43,8 @@
           (as->
             hmap-2
             (assoc hmap-2
-                   :alias+     (concat (:alias+ hmap-2)
-                                       alias-cli+)
+                   :alias+     (vec (concat (:alias+ hmap-2)
+                                            alias-cli+))
                    :alias-cli+ alias-cli+
                    :arg+       arg+)))))))
 
@@ -91,7 +91,8 @@
 
   [input deps-edn]
 
-  (let [deps-alias (deps-edn :aliases)]
+  (let [deps-alias  (deps-edn :aliases)
+        alias-main+ (input :alias+)]
     (-> input
         (dissoc :alias+)
         (expand (into []
@@ -101,6 +102,27 @@
                                          :maestro/test])))
                       (input :alias+))
                 deps-edn)
+        (as->
+          input-2
+          (assoc input-2
+                 :alias-test+
+                 (input-2 :alias+)))
+        (assoc :alias-main+
+               alias-main+)
         (update :alias+
                 concat
-                (input :alias+)))))
+                alias-main+))))
+
+
+
+(defn path+
+
+  ""
+
+  [alias+ deps-edn]
+
+  (into []
+        (comp (map (partial get
+                            (deps-edn :aliases)))
+              (mapcat :extra-paths))
+        alias+))

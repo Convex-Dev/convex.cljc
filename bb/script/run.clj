@@ -5,7 +5,8 @@
   {:author "Adam Helinski"}
 
   (:refer-clojure :exclude [test])
-  (:require [babashka.tasks  :as bb.task]
+  (:require [babashka.fs     :as bb.fs]
+            [babashka.tasks  :as bb.task]
             [clojure.edn]
             [clojure.string]
             [helins.maestro  :as maestro]
@@ -51,46 +52,51 @@
              (-> input
                  (update :alias+
                          (partial concat
-                                  [:dev
-                                   :test]
+                                  [:test
+                                   :dev]
                                   (get-in deps-edn
                                           [:aliases
                                            (first (input :alias-cli+))
                                            :maestro/dev])))
-                 $.input/expand
+                 ($.input/expand deps-edn)
                  ($.input/require-test-all deps-edn)))))
 
+
+
+(defn kaocha-edn
+
+  ""
+
+  [input deps-edn]
+
+  (when-not (bb.fs/exists? "private")
+    (bb.fs/create-dir "private"))
+  (spit "private/maestro_kaocha.edn"
+        (pr-str {:kaocha/source-paths ($.input/path+ (input :alias-main+)
+                                                     deps-edn)
+                 :kaocha/test-paths   ($.input/path+ (input :alias-test+)
+                                                     deps-edn)}))
+  input)
 
 
 
 (defn test
 
-  "Uses [[script.input/prepare-module]] and then run tests using [[-dev]]."
+  ""
 
   []
 
   (clojure "M"
-           (-> ($.input/prepare)
-               (update :arg+
-                       (fn [arg+]
-                         (concat ["-m kaocha.runner"
-                                  "--config-file kaocha.edn"]
-                                 arg+)))
-               #_(update-in [:config
-                           :alias
-                           :test]
-                          (fn [config]
-                            (merge-with (fn [a b]
-                                          (cond
-                                            (map? a)    (merge a
-                                                               b)
-                                            (vector? a) (into a
-                                                              b)
-                                            :else       b))
-                                        config
-                                        '{:extra-deps  {io.helins/mprop     {:mvn/version "0.0.1"}
-                                                        lambdaisland/kaocha {:mvn/version "1.0.829"}}
-                                          :extra-paths ["src/clj/test"]})))
-               (update :profile+
-                       conj
-                       :test))))
+           (let [deps-edn (maestro/deps-edn)]
+             (-> ($.input/prepare)
+                 (update :alias+
+                         conj
+                         :test)
+                 ($.input/expand deps-edn)
+                 ($.input/require-test-all deps-edn)
+                 (kaocha-edn deps-edn)
+                 (update :arg+
+                         (fn [arg+]
+                           (concat ["-m kaocha.runner"
+                                    "--config-file kaocha.edn"]
+                                   arg+)))))))
