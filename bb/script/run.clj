@@ -123,7 +123,7 @@
 
 
 
-(defn main
+(defn run-M
 
   ""
 
@@ -131,10 +131,21 @@
 
   (clojure "M"
            (-> ($.input/prepare)
-               $.input/expand)))
+               $.input/expand
+               (as->
+                 input
+                 (update input
+                         :arg+
+                         (partial cons
+                                  (str "-m "
+                                       (or (maestro/main-class (input :deps-edn)
+                                                               (last (input :alias-cli+)))
+                                           (throw (ex-info "Alias needs `:maestro/main-class` pointing to the class containing the `-main` function"
+                                                           {}))))))))))
 
 
-(defn exec
+
+(defn run-X
 
   ""
 
@@ -143,3 +154,67 @@
   (clojure "X"
            (-> ($.input/prepare)
                $.input/expand)))
+
+
+
+(defn -jar
+
+  ""
+
+  [dir alias f]
+
+  (let [input       (-> ($.input/prepare)
+                        $.input/expand)
+        module-main (last (input :alias-cli+))]
+    (clojure "X"
+             (-> input
+                 (assoc :alias+
+                        [alias])
+                 $.input/expand
+                 (assoc :module-main
+                        module-main)
+                 (update :arg+
+                         (partial cons
+                                  (let [root (or (maestro/root (input :deps-edn)
+                                                               module-main)
+                                                 (throw (ex-info "Alias needs `:maestro/root` pointing to project root directory"
+                                                                 {})))]
+                                    (format ":jar build/%s/%s.jar :aliases '%s' :pom-file '\"%s/pom.xml\"'"
+                                            dir
+                                            root
+                                            (input :alias+)
+                                            root))))
+
+                 f))))
+
+
+
+(defn jar
+
+  ""
+
+  []
+
+  (-jar ":jar"
+        :jar
+        identity))
+
+
+
+(defn uberjar
+
+  ""
+
+  []
+
+  (-jar "uberjar"
+        :uberjar
+        (fn [input]
+          (if-some [main-class (maestro/main-class (input :deps-edn)
+                                                   (input :module-main))]
+            (update input
+                    :arg+
+                    (partial cons
+                             (str ":main-class "
+                                  main-class)))
+            input))))

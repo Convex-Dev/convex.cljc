@@ -3,6 +3,16 @@
 
 
 
+  :external/deploy
+  {:replace-deps {slipset/deps-deploy {:mvn/version "0.1.5"}}}
+
+
+  :external/depstar
+  {:replace-deps {com.github.seancorfield/depstar {:mvn/version "2.1.245"}}}
+
+
+
+
   :external/convex
   {:extra-deps {world.convex/convex {:local/root "cvm/c08c8231fcecabc2ab6c8e0a856f8c1b72965385.jar"}}}
 
@@ -53,13 +63,17 @@
 
 
   :module/app.fuzz
-  {:extra-paths     ["project/app/fuzz/src/clj/main"]
+  {:exec-args       {:max-size 200
+                     :root     "report/fuzz"}
+   :exec-fn         convex.app.fuzz/random
+   :extra-paths     ["project/app/fuzz/src/clj/main"]
    :maestro/dev     [:module/app.fuzz.dev]  
    :maestro/require [:external/test.check
                      :module/break
                      :module/cvm
                      :module/clojurify
-                     :toggle/tap]}
+                     :toggle/tap]
+   :maestro/root    "project/app/fuzz"}
 
 
   :module/app.fuzz.dev
@@ -67,10 +81,12 @@
 
 
   :module/app.run
-  {:extra-paths     ["project/app/run/src/clj/main"]
-   :maestro/dev     [:module.app.fuzz.dev]
-   :maestro/require [:external/tools.cli
-                     :module/run]}
+  {:extra-paths        ["project/app/run/src/clj/main"]
+   :maestro/dev        [:module.app.fuzz.dev]
+   :maestro/main-class convex.app.run
+   :maestro/require    [:external/tools.cli
+                        :module/run]
+   :maestro/root       "project/app/run"}
 
 
   :module/app.run.dev
@@ -83,6 +99,7 @@
    :maestro/require [:module/clojurify
                      :module/cvm
                      :module/sync]
+   :maestro/root    "project/break"
    :maestro/test    [:module/break.test]}
 
 
@@ -95,6 +112,7 @@
    :maestro/dev     [:module/cvm.dev]
    :maestro/require [:external/convex
                      :module/clojurify]
+   :maestro/root    "project/cvm"
    :maestro/test    [:module/cvm.test]}
 
 
@@ -111,6 +129,7 @@
    :maestro/dev     [:module/clojurify.dev]
    :maestro/require [:external/test.check
                      :module/cvm]
+   :maestro/root    "project/clojurify"
    :maestro/test    [:module/clojurify.test]}
 
 
@@ -128,10 +147,23 @@
                      :module/watch]}
 
 
+  :module/deploy.lab.lib.xform
+  {:extra-paths     ["project/deploy/lab/lib/xform/src/cvx/main"]
+   :maestro/dev     [:module/deploy.lab.lib.xform.dev]
+   :maestro/root    "project/lab/lib/xform"
+   :maestro/require [:module/deploy]}
+
+
+  :module/deploy.lab.lib.xform.dev
+  {:extra-paths ["project/deploy/lab/lib/xform/src/clj/dev"
+                 "project/deploy/lab/lib/xform/src/cvx/dev"]}
+
+
   :module/deploy.lib.trust
   {:extra-paths     ["project/deploy/lib/trust/src/cvx/main"]
    :maestro/dev     [:module/deploy.lib.trust.dev]
    :maestro/require [:module/deploy]
+   :maestro/root    "project/lib/trust"
    :maestro/test    [:module/deploy.lib.trust.test]}
 
 
@@ -143,24 +175,14 @@
   {:extra-paths ["project/deploy/lib/trust/src/clj/test"]}
 
 
-  :module/deploy.lab.lib.xform
-  {:extra-paths     ["project/deploy/lab/lib/xform/src/cvx/main"]
-   :maestro/dev     [:module/deploy.lab.lib.xform.dev]
-   :maestro/require [:module/deploy]}
-
-
-  :module/deploy.lab.lib.xform.dev
-  {:extra-paths ["project/deploy/lab/lib/xform/src/clj/dev"
-                 "project/deploy/lab/lib/xform/src/cvx/dev"]}
-
-
   :module/run
   {:extra-paths     ["project/run/src/clj/main"
                      "project/run/src/cvx/main"]
    :maestro/dev     [:module/run.dev]
    :maestro/require [:module/cvm
                      :module/sync
-                     :module/watch]}
+                     :module/watch]
+   :maestro/root    "project/run"}
 
 
   :module/run.dev
@@ -172,7 +194,8 @@
   :module/sync
   {:extra-paths     ["project/sync/src/clj/main"]
    :maestro/dev     [:module/sync.dev]
-   :maestro/require [:module/cvm]}
+   :maestro/require [:module/cvm]
+   :maestro/root    "project/sync"}
 
 
   :module/sync.dev
@@ -183,7 +206,8 @@
   {:extra-paths     ["project/watch/src/clj/main"]
    :maestro/dev     [:module/watch.dev]
    :maestro/require [:external/hawk
-                     :module/sync]}
+                     :module/sync]
+   :maestro/root    "project/watch"}
 
 
   :module/watch.dev
@@ -215,20 +239,6 @@
 
 
 
-  :exec/app.fuzz
-  {:exec-args       {:max-size 200
-                     :root     "report/fuzz"}
-   :exec-fn         convex.app.fuzz/random
-   :maestro/require [:module/app.fuzz]}
-
-
-
-  :cli/app.run
-  {:main-opts       ["-m" "convex.app.run"]
-   :maestro/require [:module/app.run]}
-
-
-
 
 
 
@@ -249,34 +259,27 @@
 
 
 
-  ;; INSTALL, JAR, DEPLOY, ...
+  ;; PACKAGING
 
-
-  :deploy
-  {:exec-args  {:artifact  "compiled/jvm/release.jar"
-                :installer :remote}
-   :exec-fn    deps-deploy.deps-deploy/deploy
-   :extra-deps {slipset/deps-deploy {:mvn/version "0.1.5"}}}
-
-
-  :install
-  {:exec-args  {:artifact  "compiled/jvm/release.jar"
-                :installer :local}
-   :exec-fn    deps-deploy.deps-deploy/deploy
-   :extra-deps {slipset/deps-deploy {:mvn/version "0.1.5"}}}
-    
 
   :jar
-  {:exec-args    {:jar      "compiled/jvm/release.jar"
-                  :sync-pom true}
-   :exec-fn      hf.depstar/jar
-   :replace-deps {seancorfield/depstar {:mvn/version "2.0.171"}}}
+  {:exec-args       {:sync-pom true}
+   :exec-fn         hf.depstar/jar
+   :maestro/require [:external/depstar]}
 
 
   :uberjar
-  {:exec-args    {:aot true}
-   :exec-fn      hf.depstar/uberjar
-   :replace-deps {com.github.seancorfield/depstar {:mvn/version "2.1.245"}}}
+  {:exec-args       {:aot      true
+                     :sync-pom true}
+   :exec-fn         hf.depstar/uberjar
+   :maestro/require [:external/depstar]}
 
 
-  }}
+  }
+ 
+ 
+ ;; Needed by `:external/depstart`.
+ ;;
+ :paths
+ []
+}

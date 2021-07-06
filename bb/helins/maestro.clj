@@ -121,6 +121,28 @@
 ;;;;;;;;;;
 
 
+(defn alias-data
+
+  ""
+
+  [deps-edn alias]
+
+  (get-in deps-edn
+          [:aliases
+           alias]))
+
+
+
+(defn main-class
+
+  ""
+
+  [deps-edn alias]
+
+  (:maestro/main-class (alias-data deps-edn
+                                   alias)))
+
+
 (defn path+
 
   ""
@@ -132,3 +154,14 @@
                             (deps-edn :aliases)))
               (mapcat :extra-paths))
         alias+))
+
+
+
+(defn root
+
+  ""
+
+  [deps-edn alias]
+
+  (:maestro/root (alias-data deps-edn
+                             alias)))

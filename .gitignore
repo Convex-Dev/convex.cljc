@@ -31,11 +31,6 @@ package.json
 !/cljs/index.html
 
 
-// Compilation
-
-compiled
-
-
 // CLJS utilities
 
 .cljs
@@ -49,9 +44,10 @@ out
 
 !/.clj-kondo/config.edn
 !/.clj-kondo/hooks
-/**/dev.clj
 !/bb/script/dev.clj
+/**/dev.clj
 /.clj-kondo/*
+/build
 /cvm
 /private
 /report

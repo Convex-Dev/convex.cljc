@@ -37,17 +37,16 @@
           :task     ($.dev/templ-del)}
 
 
-         exec
+         jar
 
-         {:doc      "Executes Clojure using '-X'"
+         {:doc      "Packages the given aliases in a jar"
           :requires ([script.run :as $.run])
-          :task     ($.run/exec)}
-
+          :task     ($.run/jar)}
 
 
          lint
 
-         {:doc "Starts Clj-kondo on './src' (further path can be provided as command-line argument)"
+         {:doc  "Starts Clj-kondo on './src' (further path can be provided as command-line argument)"
           :task (shell (str "clj-kondo --lint "
                             (first *command-line-args*)))}
 
@@ -60,11 +59,18 @@
                                    ($.cp/string)))}
 
 
-         main
+         run-M
 
          {:doc      "Executes Clojure using '-M'"
           :requires ([script.run :as $.run])
-          :task     ($.run/main)}
+          :task     ($.run/run-M)}
+
+
+         run-X
+
+         {:doc      "Executes Clojure using '-X'"
+          :requires ([script.run :as $.run])
+          :task     ($.run/run-X)}
 
 
          test
@@ -81,4 +87,11 @@
           :requires ([script.run :as $.run])
           :task     ($.run/test-narrow)}
 
+
+
+         uberjar
+
+         {:doc      "Packages the tiven aliases in an uberjar"
+          :requires ([script.run :as $.run])
+          :task     ($.run/uberjar)}
          }}

@@ -1,23 +1,6 @@
 {:tasks {
          
          
-         
-         app:fuzz
-
-         {:doc  "Run base fuzzy tester with random forms, in an infinite loop"
-          :task (clojure "-X:project.app.fuzz:app.fuzz")}
-
-
-
-         app:run
-         {:doc  "Start Convex Lisp Runner ; needs all CLI arguments to be quoted together"
-          :task (clojure (format "-M:project.app.run:app.run %s"
-                                 (first *command-line-args*)))}
-
-
-
-
-
 
 
          dev:cljs
@@ -48,20 +31,6 @@
 
          {:doc  "Like 'shadow:clean' but for the ':test-node' profile"
           :task (shadow-clean "test-node")}
-
-
-
-         test:jvm
-
-         {:doc  "Run tests on the JVM once ; accepts Kaocha CLI arguments"
-          :task (test-jvm nil)}
-
-
-
-         test:jvm:watch
-
-         {:doc "Run tests on the JVM everytime a file is changed ; accepts Kaocha CLI arguments"
-          :task (test-jvm ["--watch"])}
 
 
 
