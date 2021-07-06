@@ -125,7 +125,7 @@
 
 
   :module/clojurify
-  {:extra-paths     ["project/clojurify/src/cljc/main"]
+  {:extra-paths     ["project/clojurify/src/clj/main"]
    :maestro/dev     [:module/clojurify.dev]
    :maestro/require [:external/test.check
                      :module/cvm]
@@ -134,11 +134,11 @@
 
 
   :module/clojurify.dev
-  {:extra-paths ["project/clojurify/src/cljc/dev"]}
+  {:extra-paths ["project/clojurify/src/clj/dev"]}
 
 
   :module/clojurify.test
-  {:extra-paths ["project/clojurify/src/cljc/test"]}
+  {:extra-paths ["project/clojurify/src/clj/test"]}
 
 
   :module/deploy

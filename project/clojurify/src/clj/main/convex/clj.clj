@@ -18,8 +18,7 @@
                             list
                             list?
                             read])
-  (:require [clojure.core])
-  #?(:cljs (:require-macros [convex.clj :refer [templ*]])))
+  (:require [clojure.core]))
 
 
 ;;;;;;;;;; Literal notations for Convex objects that do not map to Clojure but can be expressed as symbols

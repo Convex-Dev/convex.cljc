@@ -52,7 +52,7 @@
                  ($.input/expand (concat [:test
                                           :dev]
                                          (maestro/dev (input :deps-edn)
-                                                      (last (input :alias-cli+)))
+                                                      (first (input :alias-cli+)))
                                          (input :alias+)))
                  $.input/require-test-global))))
 

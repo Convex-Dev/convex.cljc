@@ -15,31 +15,6 @@
 /target
 
 
-// CLJS utilities
-
-.cljs
-.cljs_node_repl/
-.shadow-cljs/
-node_modules/
-out
-package.json
-
-
-// CLJS dev environment
-
-/cljs/*
-!/cljs/index.html
-
-
-// CLJS utilities
-
-.cljs
-.cljs_node_repl/
-.shadow-cljs/
-node_modules/
-out
-
-
 // Misc
 
 !/.clj-kondo/config.edn
