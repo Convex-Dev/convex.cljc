@@ -26,29 +26,31 @@
 
   ([hmap]
 
-  (loop [arg+       (:arg+ hmap)
-         alias-cli+ []]
-    (if-some [cli-alias (when-some [arg (first arg+)]
-                          (when (clojure.string/starts-with? arg
-                                                             ":")
-                            arg))]
-      (recur (rest arg+)
-             (conj alias-cli+
-                   (keyword (.substring ^String cli-alias
-                                        1))))
-      (-> hmap
-          (cond->
-            (.ready *in*)
-            (merge (clojure.edn/read *in*)))
-          (assoc :deps-edn
-                 (maestro/deps-edn))
-          (as->
-            hmap-2
-            (assoc hmap-2
-                   :alias+     (vec (concat (:alias+ hmap-2)
-                                            alias-cli+))
-                   :alias-cli+ alias-cli+
-                   :arg+       arg+)))))))
+  (let [arg+       (:arg+ hmap)
+        alias-cli+ (when-some [arg (first arg+)]
+                     (when (clojure.string/starts-with? arg
+                                                        ":")
+                       (->> (clojure.string/split arg
+                                                  #":")
+                            rest
+                            (mapv keyword)
+                            not-empty)))]
+    (when-not alias-cli+
+      (throw (ex-info "At least one alias must be provided as first argument"
+                      {})))
+    (-> hmap
+        (cond->
+          (.ready *in*)
+          (merge (clojure.edn/read *in*)))
+        (assoc :deps-edn
+               (maestro/deps-edn))
+        (as->
+          hmap-2
+          (assoc hmap-2
+                 :alias+     (vec (concat (:alias+ hmap-2)
+                                          alias-cli+))
+                 :alias-cli+ alias-cli+
+                 :arg+       (rest arg+)))))))
 
 
 

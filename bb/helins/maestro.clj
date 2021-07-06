@@ -133,6 +133,17 @@
 
 
 
+(defn dev
+
+  ""
+
+  [deps-edn alias]
+
+  (:maestro/dev (alias-data deps-edn
+                            alias)))
+
+
+
 (defn main-class
 
   ""

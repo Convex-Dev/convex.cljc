@@ -47,19 +47,14 @@
   []
 
   (clojure "M"
-           (let [deps-edn (maestro/deps-edn)
-                 input    ($.input/prepare)]
+           (let [input ($.input/prepare)]
              (-> input
-                 (update :alias+
-                         (partial concat
-                                  [:test
-                                   :dev]
-                                  (get-in deps-edn
-                                          [:aliases
-                                           (first (input :alias-cli+))
-                                           :maestro/dev])))
-                 ($.input/expand deps-edn)
-                 ($.input/require-test-global deps-edn)))))
+                 ($.input/expand (concat [:test
+                                          :dev]
+                                         (maestro/dev (input :deps-edn)
+                                                      (last (input :alias-cli+)))
+                                         (input :alias+)))
+                 $.input/require-test-global))))
 
 
 
