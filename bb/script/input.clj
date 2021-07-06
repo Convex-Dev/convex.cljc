@@ -85,11 +85,11 @@
 
 
 
-(defn require-test-all
+(defn require-test
 
   ""
 
-  [input deps-edn]
+  [input alias+ deps-edn]
 
   (let [deps-alias  (deps-edn :aliases)
         alias-main+ (input :alias+)]
@@ -100,7 +100,7 @@
                                 (get-in deps-alias
                                         [alias
                                          :maestro/test])))
-                      (input :alias+))
+                      alias+)
                 deps-edn)
         (as->
           input-2
@@ -112,6 +112,30 @@
         (update :alias+
                 concat
                 alias-main+))))
+
+
+
+(defn require-test-narrow
+
+  ""
+
+  [input deps-edn]
+
+  (require-test input
+                (input :alias-cli+)
+                deps-edn))
+
+
+
+(defn require-test-global
+
+  ""
+
+  [input deps-edn]
+
+  (require-test input
+                (input :alias+)
+                deps-edn))
 
 
 

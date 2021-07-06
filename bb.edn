@@ -53,8 +53,16 @@
 
          test
 
-         {:doc      "Runs tests on the JVM  ; project, extra profiles, and arguments for Kaocha CLI"
+         {:doc      "Runs tests on the JVM ; given aliases and required ones ; takes aliases and arguments for Kaocha CLI"
           :requires ([script.run :as $.run])
-          :task     ($.run/test)}
+          :task     ($.run/test-global)}
+
+
+
+         test:narrow
+
+         {:doc      "Runs tests on the JVM ; only specified aliases ; takes aliases and arguments for Kaocha CLI"
+          :requires ([script.run :as $.run])
+          :task     ($.run/test-narrow)}
 
          }}

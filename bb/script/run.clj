@@ -59,7 +59,7 @@
                                            (first (input :alias-cli+))
                                            :maestro/dev])))
                  ($.input/expand deps-edn)
-                 ($.input/require-test-all deps-edn)))))
+                 ($.input/require-test-global deps-edn)))))
 
 
 
@@ -84,7 +84,7 @@
 
   ""
 
-  []
+  [f-require-test]
 
   (clojure "M"
            (let [deps-edn (maestro/deps-edn)]
@@ -93,10 +93,30 @@
                          conj
                          :test)
                  ($.input/expand deps-edn)
-                 ($.input/require-test-all deps-edn)
+                 (f-require-test deps-edn)
                  (kaocha-edn deps-edn)
                  (update :arg+
                          (fn [arg+]
                            (concat ["-m kaocha.runner"
                                     "--config-file kaocha.edn"]
                                    arg+)))))))
+
+
+
+(defn test-narrow
+
+  ""
+
+  []
+
+  (test $.input/require-test-narrow))
+
+
+
+(defn test-global
+
+  ""
+
+  []
+
+  (test $.input/require-test-global))
