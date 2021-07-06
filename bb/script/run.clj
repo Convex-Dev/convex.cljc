@@ -18,23 +18,16 @@
 
 (defn clojure
 
-  "Starts dev mode, but no default profile is applied."
+  ""
 
-  [letter {:keys [alias+
-                  arg+
-                  debug?
-                  env-extra]}]
+  [letter ctx]
 
-  (let [command (format "clojure -%s%s %s"
-                        letter
-                        (clojure.string/join ""
-                                             alias+)
-                        (clojure.string/join " "
-                                             arg+))]
-    (when debug?
+  (let [command (maestro/clojure letter
+                                 ctx)]
+    (when (ctx :maestro/debug?)
       (println command))
-    (bb.task/shell {:extra-env env-extra}
-                   command)))
+    (bb.task/clojure {:extra-env (ctx :maestro/env)}
+                     command)))
 
 
 ;;;;;;;;;; Development
@@ -47,14 +40,16 @@
   []
 
   (clojure "M"
-           (let [input ($.input/prepare)]
-             (-> input
-                 ($.input/expand (concat [:task/test
-                                          :task/dev]
-                                         (maestro/dev (input :deps-edn)
-                                                      (first (input :alias-cli+)))
-                                         (input :alias+)))
-                 $.input/require-test-global))))
+           (-> (maestro/ctx)
+               (as->
+                 ctx
+                 (maestro/walk (dissoc ctx
+                                       :maestro/require)
+                               (concat [:task/test
+                                        :task/dev]
+                                       (maestro/dev ctx)
+                                       (ctx :maestro/require))))
+               maestro/require-test)))
 
 
 
@@ -62,17 +57,16 @@
 
   ""
 
-  [{:as   input
-    :keys [deps-edn]}]
+  [ctx]
 
   (when-not (bb.fs/exists? "private")
     (bb.fs/create-dir "private"))
   (spit "private/maestro_kaocha.edn"
-        (pr-str {:kaocha/source-paths (maestro/path+ deps-edn
-                                                     (input :alias-main+))
-                 :kaocha/test-paths   (maestro/path+ deps-edn
-                                                     (input :alias-test+))}))
-  input)
+        (pr-str {:kaocha/source-paths (maestro/path+ ctx
+                                                     (ctx :maestro/main+))
+                 :kaocha/test-paths   (maestro/path+ ctx
+                                                     (ctx :maestro/test+))}))
+  ctx)
 
 
 
@@ -80,17 +74,19 @@
 
   ""
 
-  [f-require-test]
+  [f-test-alias+]
 
   (clojure "M"
-           (-> ($.input/prepare)
-               (update :alias+
+           (-> (maestro/ctx)
+               (update :maestro/require
                        conj
                        :task/test)
-               $.input/expand
-               f-require-test
+               maestro/walk
+               (as->
+                 ctx
+                 (maestro/require-test (f-test-alias+ ctx)))
                kaocha-edn
-               (update :arg+
+               (update :maestro/arg+
                        (fn [arg+]
                          (concat ["-m kaocha.runner"
                                   "--config-file kaocha.edn"]
@@ -104,7 +100,7 @@
 
   []
 
-  (test $.input/require-test-narrow))
+  (test :maestro/cli+))
 
 
 
@@ -114,7 +110,7 @@
 
   []
 
-  (test $.input/require-test-global))
+  (test :maestro/require))
 
 
 
@@ -125,16 +121,15 @@
   []
 
   (clojure "M"
-           (-> ($.input/prepare)
-               $.input/expand
+           (-> (maestro/ctx)
+               maestro/walk
                (as->
-                 input
-                 (update input
-                         :arg+
+                 ctx
+                 (update ctx
+                         :maestro/arg+
                          (partial cons
                                   (str "-m "
-                                       (or (maestro/main-class (input :deps-edn)
-                                                               (last (input :alias-cli+)))
+                                       (or (maestro/main-class ctx)
                                            (throw (ex-info "Alias needs `:maestro/main-class` pointing to the class containing the `-main` function"
                                                            {}))))))))))
 
@@ -147,8 +142,8 @@
   []
 
   (clojure "X"
-           (-> ($.input/prepare)
-               $.input/expand)))
+           (-> (maestro/ctx)
+               maestro/walk)))
 
 
 
@@ -158,28 +153,30 @@
 
   [dir alias f]
 
-  (let [input       (-> ($.input/prepare)
-                        $.input/expand)
-        module-main (last (input :alias-cli+))]
-    (clojure "X"
-             (-> input
-                 (assoc :alias+
+  (clojure "X"
+           (let [ctx        (-> (maestro/ctx)
+                                 maestro/walk)
+                 alias-main (last (ctx :maestro/cli+))]
+             (-> ctx
+                 (assoc :maestro/require
                         [alias])
-                 $.input/expand
-                 (assoc :module-main
-                        module-main)
-                 (update :arg+
-                         (partial cons
-                                  (let [root (or (maestro/root (input :deps-edn)
-                                                               module-main)
-                                                 (throw (ex-info "Alias needs `:maestro/root` pointing to project root directory"
-                                                                 {})))]
-                                    (format ":jar build/%s/%s.jar :aliases '%s' :pom-file '\"%s/pom.xml\"'"
-                                            dir
-                                            root
-                                            (input :alias+)
-                                            root))))
-
+                 maestro/walk
+                 (assoc :maestro/main
+                        alias-main)
+                 (as->
+                   ctx-2
+                   (update ctx-2
+                           :maestro/arg+
+                           (partial cons
+                                    (let [root (or (maestro/root ctx-2
+                                                                 alias-main)
+                                                   (throw (ex-info "Alias needs `:maestro/root` pointing to project root directory"
+                                                                   {})))]
+                                      (format ":jar build/%s/%s.jar :aliases '%s' :pom-file '\"%s/pom.xml\"'"
+                                              dir
+                                              root
+                                              (ctx-2 :maestro/require)
+                                              root)))))
                  f))))
 
 
@@ -190,7 +187,7 @@
 
   []
 
-  (-jar ":jar"
+  (-jar "jar"
         :task/jar
         identity))
 
@@ -204,12 +201,11 @@
 
   (-jar "uberjar"
         :task/uberjar
-        (fn [input]
-          (if-some [main-class (maestro/main-class (input :deps-edn)
-                                                   (input :module-main))]
-            (update input
-                    :arg+
+        (fn [ctx]
+          (if-some [main-class (maestro/main-class ctx)]
+            (update ctx
+                    :maestro/arg+
                     (partial cons
                              (str ":main-class "
                                   main-class)))
-            input))))
+            ctx))))

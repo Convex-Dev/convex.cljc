@@ -55,7 +55,7 @@
 
   :ext/kaocha
 
-  {:extra-deps {lambdaisland/kaocha {:mvn/version "1.0.829"}}
+  {:extra-deps  {lambdaisland/kaocha {:mvn/version "1.0.829"}}
    :maestro/doc "Testing framework"}
 
 

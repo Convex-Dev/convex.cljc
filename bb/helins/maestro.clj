@@ -5,7 +5,11 @@
   {:author "Adam Helinski"}
 
   (:refer-clojure :exclude [test])
-  (:require [clojure.edn]))
+  (:require [clojure.edn]
+            [clojure.string]))
+
+
+(declare data)
 
 
 ;;;;;;;;;;
@@ -29,49 +33,39 @@
 
 
 
+(defn ctx
 
 
-(defn walk
+  ([]
 
-  ""
-
-
-  ([f alias+]
-
-   (walk f
-         alias+
-         (deps-edn)))
+   (ctx *command-line-args*))
 
 
-  ([f alias+ deps-edn]
+  ([[alias+ & arg+]]
 
-   (walk f
-         {}
-         alias+
-         deps-edn))
+   (if-some [alias-2+ (and alias+
+                           (when (clojure.string/starts-with? alias+
+                                                              ":")
+                             (->> (clojure.string/split alias+
+                                                        #":")
+                                  rest
+                                  (mapv keyword)
+                                  not-empty)))]
+    (-> (deps-edn)
+        (merge (if (.ready *in*)
+                 (clojure.edn/read *in*)
+                 {}))
+        (assoc :maestro/arg+     arg+
+               :maestro/cli+     alias-2+
+               :maestro/require  alias-2+))
+    (throw (ex-info "At least one alias must be provided as first argument"
+                    {})))))
 
 
-  ([f acc alias+ deps-edn]
 
-   (reduce (fn [acc-2 alias]
-             (if (contains? (acc-2 :maestro/seen+)
-                            alias)
-               acc-2
-               (let [config (get-in deps-edn
-                                    [:aliases
-                                     alias])]
-                 (f (walk f
-                          (update acc-2
-                                 :maestro/seen+
-                                 (fnil conj
-                                       #{})
-                                 alias)
-                          (:maestro/require config)
-                          deps-edn)
-                    alias
-                    config))))
-           acc
-           alias+)))
+
+
+
 
 
 
@@ -118,6 +112,62 @@
            (:maestro/env config))))
 
 
+
+(defn aggr
+
+  ""
+
+  [acc alias config]
+
+  (-> acc
+      (aggr-alias alias
+                  config)
+      (aggr-env alias
+                config)))
+
+
+
+
+(defn walk
+
+  ""
+
+
+  ([ctx]
+
+   (walk ctx
+         aggr
+         (ctx :maestro/require)))
+
+  
+  ([ctx alias+]
+
+   (walk ctx
+         aggr
+         alias+))
+
+
+  ([ctx f alias+]
+
+   (reduce (fn [ctx-2 alias]
+             (if (contains? (ctx-2 :maestro/seen+)
+                            alias)
+               ctx-2
+               (let [data' (data ctx
+                                 alias)]
+                 (f (walk (update ctx-2
+                                 :maestro/seen+
+                                 (fnil conj
+                                       #{})
+                                 alias)
+                          f
+                          (:maestro/require data'))
+                    alias
+                    data'))))
+           ctx
+           alias+)))
+
+
 ;;;;;;;;;; Helpers
 
 
@@ -139,13 +189,13 @@
 ;;;;;;;;;;
 
 
-(defn alias-data
+(defn data
 
   ""
 
-  [deps-edn alias]
+  [ctx alias]
 
-  (get-in deps-edn
+  (get-in ctx
           [:aliases
            alias]))
 
@@ -155,12 +205,19 @@
 
   ""
 
-  [deps-edn alias]
 
-  (related-alias+ :maestro/dev
-                  "dev"
-                  deps-edn
-                  alias))
+  ([ctx]
+
+   (dev ctx
+        (first (ctx :maestro/cli+))))
+
+
+  ([ctx alias]
+
+   (related-alias+ :maestro/dev
+                   "dev"
+                   ctx
+                   alias)))
 
 
 
@@ -168,21 +225,28 @@
 
   ""
 
-  [deps-edn alias]
 
-  (:maestro/main-class (alias-data deps-edn
-                                   alias)))
+  ([ctx]
+
+   (main-class ctx
+               (last (ctx :maestro/cli+))))
+
+
+  ([ctx alias]
+
+   (:maestro/main-class (data ctx
+                              alias))))
 
 
 (defn path+
 
   ""
 
-  [deps-edn alias+]
+  [ctx alias+]
 
   (into []
         (comp (map (partial get
-                            (deps-edn :aliases)))
+                            (ctx :aliases)))
               (mapcat :extra-paths))
         alias+))
 
@@ -192,10 +256,10 @@
 
   ""
 
-  [deps-edn alias]
+  [ctx alias]
 
-  (:maestro/root (alias-data deps-edn
-                             alias)))
+  (:maestro/root (data ctx
+                       alias)))
 
 
 
@@ -203,9 +267,80 @@
 
   ""
 
-  [deps-edn alias]
+  [ctx alias]
 
   (related-alias+ :maestro/test
                   "test"
-                  deps-edn
+                  ctx
                   alias))
+
+
+
+(defn test+
+
+  ""
+
+
+  ([ctx]
+
+   (test+ ctx
+          (ctx :maestro/require)))
+
+
+  ([ctx alias+]
+
+   (mapcat (partial test
+                    ctx)
+           alias+)))
+
+
+
+
+
+(defn clojure
+
+  ""
+
+  [letter ctx]
+
+  (format "-%s%s %s"
+          letter
+          (clojure.string/join ""
+                               (ctx :maestro/require))
+          (clojure.string/join " "
+                               (ctx :maestro/arg+))))
+
+
+
+
+
+
+
+(defn require-test
+
+  ""
+
+
+  ([ctx]
+
+   (require-test ctx
+                 (test+ ctx)))
+
+
+  ([ctx alias+]
+
+   (let [required (ctx :maestro/require)]
+   (-> ctx
+       (dissoc :maestro/require)
+       (walk (test+ ctx
+                    alias+))
+       (as->
+         ctx-2
+         (assoc ctx-2
+                :maestro/test+
+                (ctx-2 :maestro/require)))
+       (assoc :maestro/main+
+              required)
+       (update :maestro/require
+               concat
+               required)))))
