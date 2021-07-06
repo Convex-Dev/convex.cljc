@@ -9,6 +9,19 @@
 
 
 
+ :maestro/doc
+
+ {:namespace {"bundle"  "Alias bundling a group of aliases"
+              "dev"     "Alias bringing what is needed for developping a related project"
+              "ext"     "External dependencies"
+              "project" "Project or subproject located in './project' directory"
+              "task"    "Meant to be used in Babashka tasks"
+              "test"    "Alias bringing what is needed for testing a related project"
+              "toggle"  "Alias toggling some actions in `user` namespace (see file './dev/user'"}}
+
+
+
+
  :aliases
  {
 
@@ -18,47 +31,56 @@
 
   :ext/deploy
 
-  {:replace-deps {slipset/deps-deploy {:mvn/version "0.1.5"}}}
+  {:replace-deps {slipset/deps-deploy {:mvn/version "0.1.5"}}
+   :maestro/doc  "Installation and deployment"}
 
 
   :ext/depstar
 
-  {:replace-deps {com.github.seancorfield/depstar {:mvn/version "2.1.245"}}}
+  {:replace-deps {com.github.seancorfield/depstar {:mvn/version "2.1.245"}}
+   :maestro/doc  "Packaging jars and uberjars"}
 
 
   :ext/convex
 
-  {:extra-deps {world.convex/convex {:local/root "cvm/c08c8231fcecabc2ab6c8e0a856f8c1b72965385.jar"}}}
+  {:extra-deps {world.convex/convex {:local/root "cvm/c08c8231fcecabc2ab6c8e0a856f8c1b72965385.jar"}}
+   :maestro/doc "Java implementation of the CVM and related utilities"}
 
 
   :ext/hawk
 
-  {:extra-deps {hawk/hawk {:mvn/version "0.2.11"}}}
+  {:extra-deps  {hawk/hawk {:mvn/version "0.2.11"}}
+   :maestro/doc "File watching"}
 
 
   :ext/kaocha
 
-  {:extra-deps {lambdaisland/kaocha {:mvn/version "1.0.829"}}}
+  {:extra-deps {lambdaisland/kaocha {:mvn/version "1.0.829"}}
+   :maestro/doc "Testing framework"}
 
 
   :ext/mprop
 
-  {:extra-deps {io.helins/mprop {:mvn/version "0.0.1"}}}
+  {:extra-deps  {io.helins/mprop {:mvn/version "0.0.1"}}
+   :maestro/doc "Improves writing complex generative tests with `ext/test.check`."}
 
 
   :ext/test.check
 
-  {:extra-deps {org.clojure/test.check {:mvn/version "1.1.0"}}}
+  {:extra-deps  {org.clojure/test.check {:mvn/version "1.1.0"}}
+   :maestro/doc "Writing generative tests and generators for internal libraries"}
 
 
   :ext/tools.cli
 
-  {:extra-deps {org.clojure/tools.cli {:mvn/version "1.0.206"}}}
+  {:extra-deps  {org.clojure/tools.cli {:mvn/version "1.0.206"}}
+   :maestro/doc "Parsing command-line arguments in apps"}
 
 
   :ext/tools.reader
 
-  {:extra-deps {org.clojure/tools.reader {:mvn/version "1.3.4"}}}
+  {:extra-deps  {org.clojure/tools.reader {:mvn/version "1.3.4"}}
+   :maestro/doc "Reading Convex data as EDN"}
 
 
 
@@ -69,6 +91,7 @@
   :task/dev
 
   {:extra-paths     ["dev"]
+   :maestro/doc     "Mandatory alias for development"
    :maestro/env     {"CONVEX_DEV" "true"}
    :maestro/require [:ext/tools.reader]}
 
@@ -77,11 +100,14 @@
 
   {:exec-args       {:sync-pom true}
    :exec-fn         hf.depstar/jar
+   :maestro/doc     "Setup for creating jar files"
    :maestro/require [:ext/depstar]}
+
 
   :task/test
 
-  {:maestro/require [:ext/kaocha
+  {:maestro/doc     "Mandatory alias for testing"
+   :maestro/require [:ext/kaocha
                      :ext/mprop]}
 
   :task/uberjar
@@ -89,6 +115,7 @@
   {:exec-args       {:aot      true
                      :sync-pom true}
    :exec-fn         hf.depstar/uberjar
+   :maestro/doc     "Setup for creating uberjar files"
    :maestro/require [:ext/depstar]}
 
 
@@ -98,29 +125,34 @@
 
 
   :bundle/deploy
-  {:maestro/require [:project/clj
+
+  {:maestro/doc     "Bundles aliases needed when developping Convex Lisp libraries"
+   :maestro/require [:project/clj
                      :project/cvm
                      :project/watch]}
 
 
 
 
-  ;; TOGGLES, ALIASES WHICH TOGGLE SOME VALUES IN THE PROCESS ENVIRONMENT
+  ;; TOGGLES
 
 
   :toggle/tap
-  {:maestro/env {"CONVEX_TAP" "TRUE"}}
+
+  {:maestro/doc "Toggles printing to terminal on `tap>` in `user` namespace"
+   :maestro/env {"CONVEX_TAP" "TRUE"}}
 
 
 
 
-  ;; DEV
+  ;; GOD MODE
   
 
   :project/all
 
   {:extra-paths     ["project/all/src/clj/dev"]
    :maestro/dev     [:project/all]
+   :maestro/doc     "Dev environment requiring all useful namespaces from this repository"
    :maestro/require [:ext/hawk
                      :ext/test.check
                      :project/app.fuzz
@@ -132,7 +164,8 @@
                      :project/deploy.lib.trust
                      :project/run
                      :project/sync
-                     :project/watch]}
+                     :project/watch]
+   :maestro/root    "project/all"}
 
 
 
@@ -146,6 +179,7 @@
                      :root     "report/fuzz"}
    :exec-fn         convex.app.fuzz/random
    :extra-paths     ["project/app/fuzz/src/clj/main"]
+   :maestro/doc     "Run fuzzy tests against the CVM"
    :maestro/require [:ext/test.check
                      :project/break
                      :project/cvm
@@ -163,6 +197,7 @@
   :project/app.run
 
   {:extra-paths        ["project/app/run/src/clj/main"]
+   :maestro/doc        "Convex Lisp Runner"
    :maestro/main-class convex.app.run
    :maestro/require    [:ext/tools.cli
                         :project/run]
@@ -179,6 +214,7 @@
 
   {:extra-paths     ["project/break/src/clj/main"
                      "project/break/src/cvx/main"]
+   :maestro/doc     "Advanced generative testing against the CVM"
    :maestro/require [:project/clj
                      :project/cvm
                      :project/sync]
@@ -194,6 +230,7 @@
   :project/cvm
 
   {:extra-paths     ["project/cvm/src/clj/main"]
+   :maestro/doc     "Clojure wrapper for CVM contextes"
    :maestro/require [:ext/convex
                      :project/clj]
    :maestro/root    "project/cvm"}
@@ -213,6 +250,7 @@
   :project/clj
 
   {:extra-paths     ["project/clojurify/src/clj/main"]
+   :maestro/doc     "Writing Convex Lisp forms as Clojure data and related utilities"
    :maestro/require [:ext/test.check
                      :project/cvm]
    :maestro/root    "project/clojurify"}
@@ -232,6 +270,7 @@
   :project/deploy.lab.lib.xform
 
   {:extra-paths     ["project/deploy/lab/lib/xform/src/cvx/main"]
+   :maestro/doc     "Experimental transducer library for Convex Lisp"
    :maestro/root    "project/lab/lib/xform"
    :maestro/require [:bundle/deploy]}
 
@@ -246,6 +285,7 @@
   :project/deploy.lib.trust
 
   {:extra-paths     ["project/deploy/lib/trust/src/cvx/main"]
+   :maestro/doc     "Trust library for Convex Lisp"
    :maestro/require [:bundle/deploy]
    :maestro/root    "project/lib/trust"}
 
@@ -265,6 +305,7 @@
 
   {:extra-paths     ["project/run/src/clj/main"
                      "project/run/src/cvx/main"]
+   :maestro/doc     "Core implementation of `:project/app.run`, reusable interface"
    :maestro/require [:project/cvm
                      :project/sync
                      :project/watch]
@@ -283,6 +324,7 @@
 
   {:extra-paths     ["project/sync/src/clj/main"]
    :maestro/require [:project/cvm]
+   :maestro/doc     "Syncing Convex Lisp code into a CVM context, reference implementation of loading files from disk"
    :maestro/root    "project/sync"}
 
 
@@ -295,6 +337,7 @@
   :project/watch
 
   {:extra-paths     ["project/watch/src/clj/main"]
+   :maestro/doc     "Provides a live-reloading experience of Convex Lisp on top of `:project/sync`"
    :maestro/require [:ext/hawk
                      :project/sync]
    :maestro/root    "project/watch"}
