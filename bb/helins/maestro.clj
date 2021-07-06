@@ -4,8 +4,8 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.edn])
-  )
+  (:refer-clojure :exclude [test])
+  (:require [clojure.edn]))
 
 
 ;;;;;;;;;;
@@ -118,6 +118,24 @@
            (:maestro/env config))))
 
 
+;;;;;;;;;; Helpers
+
+
+(defn related-alias+
+
+  ""
+
+  [kw default-ns deps-edn alias]
+
+  (let [deps-alias (deps-edn :aliases)]
+    (kw deps-alias)
+    (let [alias-default (keyword default-ns
+                                 (name alias))]
+      (when (contains? deps-alias
+                       alias-default)
+        [alias-default]))))
+
+
 ;;;;;;;;;;
 
 
@@ -139,8 +157,10 @@
 
   [deps-edn alias]
 
-  (:maestro/dev (alias-data deps-edn
-                            alias)))
+  (related-alias+ :maestro/dev
+                  "dev"
+                  deps-edn
+                  alias))
 
 
 
@@ -176,3 +196,16 @@
 
   (:maestro/root (alias-data deps-edn
                              alias)))
+
+
+
+(defn test
+
+  ""
+
+  [deps-edn alias]
+
+  (related-alias+ :maestro/test
+                  "test"
+                  deps-edn
+                  alias))

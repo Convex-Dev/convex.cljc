@@ -49,8 +49,8 @@
   (clojure "M"
            (let [input ($.input/prepare)]
              (-> input
-                 ($.input/expand (concat [:test
-                                          :dev]
+                 ($.input/expand (concat [:task/test
+                                          :task/dev]
                                          (maestro/dev (input :deps-edn)
                                                       (first (input :alias-cli+)))
                                          (input :alias+)))
@@ -86,7 +86,7 @@
            (-> ($.input/prepare)
                (update :alias+
                        conj
-                       :test)
+                       :task/test)
                $.input/expand
                f-require-test
                kaocha-edn
@@ -191,7 +191,7 @@
   []
 
   (-jar ":jar"
-        :jar
+        :task/jar
         identity))
 
 
@@ -203,7 +203,7 @@
   []
 
   (-jar "uberjar"
-        :uberjar
+        :task/uberjar
         (fn [input]
           (if-some [main-class (maestro/main-class (input :deps-edn)
                                                    (input :module-main))]

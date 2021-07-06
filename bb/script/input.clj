@@ -88,17 +88,12 @@
 
   [input alias+]
 
-  (let [deps-alias  (get-in input
-                            [:deps-edn
-                             :aliases])
-        alias-main+ (input :alias+)]
+  (let [alias-main+ (input :alias+)]
     (-> input
         (dissoc :alias+)
         (expand (into []
-                      (mapcat (fn [alias]
-                                (get-in deps-alias
-                                        [alias
-                                         :maestro/test])))
+                      (mapcat (partial maestro/test
+                                       (input :deps-edn)))
                       alias+))
         (as->
           input-2
