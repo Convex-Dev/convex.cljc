@@ -39,7 +39,7 @@
                                      root
                                      (ctx-2 :maestro/require)
                                      root)))))
-        (assoc :maestro/exec-letter
+        (assoc :maestro/exec-char
                "X")
         f)))
 

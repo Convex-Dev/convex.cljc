@@ -98,22 +98,22 @@
 
   ([deps-edn cli-arg+]
 
-   (let [arg-first (or (first cli-arg+)
-                       (throw (ex-info "No argument provided, requires at least one alias"
-                                       {})))
+   (let [arg-first    (or (first cli-arg+)
+                          (throw (ex-info "No argument provided, requires at least one alias"
+                                          {})))
          [arg-first-2
-          exec-letter] (if (clojure.string/starts-with? arg-first
-                                                        "-")
-                         (try
-                           [(.substring ^String arg-first
-                                        2)
-                            (nth arg-first
-                                 1)]
-                           (catch Throwable _ex
-                             (throw (ex-info "First argument starting with '-' needs a Clojure execution letter (eg. '-M')"
-                                             {:maestro/arg arg-first}))))
-                         [arg-first
-                          nil])]
+          exec-char]  (if (clojure.string/starts-with? arg-first
+                                                       "-")
+                        (try
+                          [(.substring ^String arg-first
+                                       2)
+                           (nth arg-first
+                                1)]
+                          (catch Throwable _ex
+                            (throw (ex-info "First argument starting with '-' needs a Clojure execution letter (eg. '-M')"
+                                            {:maestro/arg arg-first}))))
+                        [arg-first
+                         nil])]
       (-> deps-edn
           (merge (if (.ready *in*)
                    (clojure.edn/read *in*)
@@ -131,8 +131,8 @@
                                                       {:maestro/arg arg-first-2})))
                  :maestro/require [])
           (cond->
-            exec-letter
-            (assoc :maestro/exec-letter exec-letter))))))
+            exec-char
+            (assoc :maestro/exec-char exec-char))))))
 
 
 ;;;;;;;;;; Miscellaneous insigts
@@ -145,7 +145,7 @@
   [ctx]
 
   (format "-%s%s %s"
-          (ctx :maestro/exec-letter)
+          (ctx :maestro/exec-char)
           (clojure.string/join ""
                                (ctx :maestro/require))
           (clojure.string/join " "

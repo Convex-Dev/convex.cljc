@@ -11,6 +11,7 @@
            (convex.core.data.prim CVMLong))
   (:require [convex.code     :as $.code]
             [convex.cvm      :as $.cvm]
+            [convex.read     :as $.read]
             [convex.run.ctx  :as $.run.ctx]
             [convex.run.err  :as $.run.err]
             [convex.run.exec :as $.run.exec]
@@ -390,6 +391,8 @@
   $.run.kw/read
 
   ;; Reads the given string and parses to a list of forms.
+
+  ;; TODO. Improve error reporting.
   
   [env ^AVector tuple]
 
@@ -399,7 +402,7 @@
                   (-> (.get tuple
                             2)
                       str
-                      $.cvm/read)]
+                      $.read/string)]
                   (catch Throwable _err
                     [($.run.err/sreq ($.cvm/code-std* :ARGUMENT)
                                      tuple

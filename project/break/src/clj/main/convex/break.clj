@@ -19,7 +19,9 @@
 
   []
 
-  (-> ($.sync/disk {'$ (clojure.java.io/resource "convex/break.cvx")})
+  (-> ($.sync/disk {'$ (-> "convex/break.cvx"
+                           clojure.java.io/resource
+                           .openStream)})
       :convex.sync/ctx
       ($.clj.eval/ctx '(def $
                             (deploy (first $))))

@@ -12,6 +12,7 @@
   (:require [clojure.java.io]
             [convex.code      :as $.code]
             [convex.cvm       :as $.cvm]
+            [convex.read      :as $.read]
             [convex.run.sym   :as $.run.sym]))
 
 
@@ -26,7 +27,10 @@
 
   (if-some [resource (clojure.java.io/resource "convex/run.cvx")]
     (let [ctx ($.cvm/eval ($.cvm/ctx)
-                          (first ($.cvm/read (slurp resource))))
+                          (-> resource
+                              .openStream
+                              $.read/input-stream
+                              first))
           ex  ($.cvm/exception ctx)]
       (when ex
         (throw (ex-info "Unable to execute 'run.cvx'"

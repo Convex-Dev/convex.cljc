@@ -32,9 +32,10 @@
                                                        (ctx :maestro/main+))
                    :kaocha/test-paths   ($.alias/path+ ctx
                                                        (ctx :maestro/test+))})))
-  (assoc ctx
-         :maestro/exec-letter
-         "M"))
+  (update ctx
+          :maestro/exec-char
+          #(or %
+               \M)))
 
 
 ;;;;;;;;;;

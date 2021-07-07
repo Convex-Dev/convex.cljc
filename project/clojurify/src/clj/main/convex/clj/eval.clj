@@ -12,8 +12,9 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.cvm :as $.cvm]
-            [convex.clj :as $.clj]))
+  (:require [convex.cvm  :as $.cvm]
+            [convex.clj  :as $.clj]
+            [convex.read :as $.read]))
 
 
 (declare result)
@@ -66,7 +67,7 @@
    ($.cvm/eval ($.cvm/fork ctx)
                (-> form
                    $.clj/src
-                   $.cvm/read
+                   $.read/string
                    first))))
 
 

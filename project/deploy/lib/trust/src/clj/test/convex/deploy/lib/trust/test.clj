@@ -21,8 +21,12 @@
 
   "Base context for this namespace."
 
-  (-> ($.sync/disk {'$     (clojure.java.io/resource "convex/break.cvx")
-                    'trust (clojure.java.io/resource "convex/trust.cvx")})
+  (-> ($.sync/disk {'$     (-> "convex/break.cvx"
+                               clojure.java.io/resource
+                               .openStream)
+                    'trust (-> "convex/trust.cvx"
+                               clojure.java.io/resource
+                               .openStream)})
       :convex.sync/ctx
       ($.clj.eval/ctx '(do
                          (set-key (blob "0000000000000000000000000000000000000000000000000000000000000000"))

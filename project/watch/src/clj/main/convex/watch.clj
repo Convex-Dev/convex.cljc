@@ -12,7 +12,8 @@
 
   {:author "Adam Helinski"}
 
-  (:import (java.io File))
+  (:import (java.io File)
+           (java.nio.file NoSuchFileException))
   (:require [convex.cvm  :as $.cvm]
             [convex.sync :as $.sync]
             [hawk.core   :as watcher]))
@@ -58,8 +59,7 @@
    Just like in [[convex.sync/disk]] from the 'sync' project, files from `:sym->dep` will be loaded in [[start]], interned under their
    respective symbols.
 
-   However, unlike [[convex.sync/disk]] which accepts anything that Clojure's `slurp accepts (eg. resources), dependencies **MUST** be
-   paths to files (strings).
+   However, unlike [[convex.sync/disk]], only filenames are accepted as dependencies.
 
    Extra files will not be read, only monitored for change. However, in case of change, dependencies will not update and the user
    will be in charge of what should be done. This feature looks peculiar at first but it is used wisely by the [[convex.run]] namespace.
@@ -139,7 +139,7 @@
                                        :paths   (concat (env :convex.watch/extra+)
                                                         (vals sym->dep))}])]
 
-                    (catch java.nio.file.NoSuchFileException ex
+                    (catch NoSuchFileException ex
                       [[:not-found
                         (.getMessage ex)]
                        nil])

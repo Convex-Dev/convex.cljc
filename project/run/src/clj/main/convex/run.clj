@@ -76,18 +76,19 @@
 
    See 'app/run' project."
 
-  ;; TODO. Reader errors cannot be very meaningful as long as Parboiled is used.
+  ;; TODO. Improve reader error reporting when Antlr gets stabilized.
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.data AList
-                             AMap)
+  (:import (convex.core.data AList)
            (convex.core.lang Symbols)
-           (java.io File))
+           (java.io File)
+           (java.nio.file NoSuchFileException))
   (:refer-clojure :exclude [eval
                             load])
   (:require [clojure.java.io]
             [convex.code      :as $.code]
+            [convex.read      :as $.read]
             [convex.cvm       :as $.cvm]
             [convex.run.ctx   :as $.run.ctx]
             [convex.run.err   :as $.run.err]
@@ -99,7 +100,23 @@
             [convex.watch     :as $.watch]))
 
 
+(declare sym->dep)
+
+
 ;;;;;;;;;; Computing dependencies
+
+
+(defn assoc-trx+
+
+  "Associates the given `trx+` on `env` and computes dependencies using [[sym->dep]]."
+
+  [env trx+]
+
+  (-> env
+      (assoc :convex.run/trx+
+             trx+)
+      sym->dep))
+
 
 
 (defn sym->dep
@@ -174,14 +191,14 @@
                       ($.run.err/sync err))))
 
 
-;;;;;;;;;; Preparing an environment prior to executing transactions
+;;;;;;;;;; Initializing an environment
 
 
 (defn init
 
   "Initializes important functions and values in the given `env`, using defaults when relevant.
 
-   Must be used prior to other preparatory functions such as [[slurp-file]].
+   Must be used prior to other preparatory functions such as [[main-file]].
   
    Operates over:
   
@@ -224,69 +241,30 @@
 
 
 
-(defn slurp-file
-
-  "Gets the source for the main file mentioned under `:convex.run/path`.
-  
-   Signals an error if not accessible (see [[convex.run.err/main-src-access]])."
-
-  [env]
-
-  (let [path  (env :convex.run/path)
-        [ex
-         src] (try
-                [nil
-                 (slurp path)]
-                (catch Throwable ex
-                  [ex
-                   nil]))]
-    (if ex
-      ($.run.err/signal env
-                        ($.run.err/main-src-access))
-      (assoc env
-             :convex.run/src
-             src))))
-
-
-
-(defn process-src
-
-  "Processes (and removes) source string located under `:convex.run/src`.
-
-   Reads it, associates the transactions under `:convex.run/trx+`, and computes dependencies using [[sym->dep]].
-
-   In case of errors, uses [[convex.run.err/main]]."
-
-  [env]
-
-  (let [src    (env :convex.run/src)
-        [err
-         trx+] (try
-                 [nil
-                  (vec ($.cvm/read src))]
-                 (catch Throwable err
-                   [err
-                    nil]))]
-    (if err
-      ($.run.err/signal env
-                        ($.run.err/main-src "Main source cannot be parsed as Convex Lisp"))
-      (-> env
-          (assoc :convex.run/trx+ trx+)
-          (dissoc :convex.run/src)
-          sym->dep))))
-
-
-
 (defn main-file
 
-  "Successively calls [[slurp-file]] and [[process-src]], checking for errors."
+  "Reads and parses the main file under `:convex.run/path` and prepares transactions using [[assoc-trx+]]."
 
   [env]
-    
-  (let [env-2 (slurp-file env)]
-    (if (env-2 :convex.run/error)
-      env-2
-      (process-src env-2))))
+
+  (let [[err
+         form+] (try
+
+                  [nil
+                   (vec ($.read/file (env :convex.run/path)))]
+
+                  (catch NoSuchFileException _ex
+                    [($.run.err/main-src-access)
+                     nil])
+
+                  (catch Throwable _ex
+                    [($.run.err/main-src "Main file cannot be read and parsed as Convex Lisp")
+                     nil]))]
+    (if err
+      ($.run.err/signal env
+                        err)
+      (assoc-trx+ env
+                  form+))))
 
 
 ;;;;;;;;;; Executing source once
@@ -327,20 +305,28 @@
   "Like [[load]] but evaluates a given string as opposed to a file."
 
 
-  ([src]
+  ([string]
 
    (eval nil
-         src))
+         string))
 
 
-  ([env src]
+  ([env ^String string]
 
-   (-> env
-       init
-       (assoc :convex.run/src
-              src)
-       process-src
-       once)))
+   (let [env-2   (init env)
+         [ex
+          form+] (try
+                   [nil
+                    (vec ($.read/string string))]
+                   (catch Throwable ex
+                     [ex
+                      nil]))]
+     (if ex
+       ($.run.err/signal env-2
+                         ($.run.err/main-src "Given string cannot be parsed as Convex Lisp"))
+       (-> env-2
+           (assoc-trx+ form+)
+           once)))))
 
 
 ;;;;;;;;;; Loading a main file and its dependencies

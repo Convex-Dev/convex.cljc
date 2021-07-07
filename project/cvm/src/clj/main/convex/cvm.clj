@@ -28,9 +28,10 @@
            (convex.core.init Init
                              InitConfig)
            (convex.core.lang AFn
-                             Context
-                             Reader)
-           (convex.core.lang.impl ErrorValue))
+                             AOp
+                             Context)
+           (convex.core.lang.impl ErrorValue)
+           (convex.core.lang.reader AntlrReader))
   (:refer-clojure :exclude [compile
                             def
                             eval
@@ -481,9 +482,9 @@
    Those CVM forms can be used either via their Java API (also see [[convex.code]] namespace) or converted to a Clojure
    representation via [[as-clojure]]."
 
-  [string]
+  [^String string]
 
-  (Reader/readAll string))
+  (AntlrReader/readAll string))
 
 
 
@@ -631,7 +632,7 @@
           (result ctx))))
 
 
-  (^Context [^Context ctx compiled]
+  (^Context [^Context ctx ^AOp compiled]
 
    (.run ctx
          compiled)))

@@ -4,7 +4,8 @@
 
   (:require [clojure.test :as t]
             [convex.cvm   :as $.cvm]
-            [convex.clj   :as $.clj])
+            [convex.clj   :as $.clj]
+            [convex.read  :as $.read])
   (:import convex.core.data.Syntax
            convex.core.data.prim.CVMByte
            convex.core.lang.impl.ErrorValue))
@@ -15,8 +16,8 @@
 
 (t/deftest execution
 
-  (let [form (first ($.cvm/read "(if true 42 0)"))]
-    (t/is (= (first ($.cvm/read "42"))
+  (let [form (first ($.read/string "(if true 42 0)"))]
+    (t/is (= (first ($.read/string "42"))
              (->> form
                   ($.cvm/eval ($.cvm/ctx))
                   $.cvm/result)
@@ -51,7 +52,7 @@
            ($.cvm/as-clojure (cond->
                                target-convex
                                (string? target-convex)
-                               (-> $.cvm/read
+                               (-> $.read/string
                                    first))))
         message))
 
@@ -109,8 +110,8 @@
 
   (-as-clojure '(syntax [:a 42]
                         {:foo :bar})
-               (Syntax/create (first ($.cvm/read "[:a 42]"))
-                              (first ($.cvm/read "{:foo :bar}")))
+               (Syntax/create (first ($.read/string "[:a 42]"))
+                              (first ($.read/string "{:foo :bar}")))
                "Syntax")
   
   (-as-clojure true
@@ -137,8 +138,8 @@
                 :convex.exception/message [:foo]
                 :convex.exception/trace   '("test-1"
                                             "test-2")}
-               (doto (ErrorValue/createRaw (first ($.cvm/read "{:a 42}"))
-                                           (first ($.cvm/read "[:foo]")))
+               (doto (ErrorValue/createRaw (first ($.read/string "{:a 42}"))
+                                           (first ($.read/string "[:foo]")))
                  (.addTrace "test-1")
                  (.addTrace "test-2"))
                "Error")
@@ -165,7 +166,7 @@
     (t/is (= code
              (-> code
                  $.clj/src
-                 $.cvm/read
+                 $.read/string
                  first
                  $.cvm/as-clojure))
           "Stress test")))

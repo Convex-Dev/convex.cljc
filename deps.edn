@@ -29,6 +29,19 @@
   ;; EXTERNAL DEPENDENCIES
 
 
+  :ext/criterium
+
+  {:extra-deps  {criterium/criterium {:mvn/version "0.4.6"}}
+   :maestro/doc "Benchmarking"}
+
+
+  :ext/convex
+
+  {:extra-deps {world.convex/convex {:local/root #_"cvm/hack.jar"
+                                                 "cvm/e7470befd81e9f6a8dbb14b053162b3e4750bb11.jar"}}
+   :maestro/doc "Java implementation of the CVM and related utilities"}
+
+
   :ext/deploy
 
   {:replace-deps {slipset/deps-deploy {:mvn/version "0.1.5"}}
@@ -39,12 +52,6 @@
 
   {:replace-deps {com.github.seancorfield/depstar {:mvn/version "2.1.245"}}
    :maestro/doc  "Packaging jars and uberjars"}
-
-
-  :ext/convex
-
-  {:extra-deps {world.convex/convex {:local/root "cvm/c08c8231fcecabc2ab6c8e0a856f8c1b72965385.jar"}}
-   :maestro/doc "Java implementation of the CVM and related utilities"}
 
 
   :ext/hawk
@@ -91,10 +98,10 @@
   :task/dev
 
   {:extra-paths     ["dev"]
-   :main-opts       []
    :maestro/doc     "Mandatory alias for development"
    :maestro/env     {"CONVEX_DEV" "true"}
-   :maestro/require [:ext/tools.reader]}
+   :maestro/require [:ext/criterium
+                     :ext/tools.reader]}
 
 
   :task/jar
@@ -103,6 +110,12 @@
    :exec-fn         hf.depstar/jar
    :maestro/doc     "Setup for creating jar files"
    :maestro/require [:ext/depstar]}
+
+
+  :task/no-main
+
+  {:main-opts   []
+   :maestro/doc "Remove any CLI argument provides by a previous alias"}
 
 
   :task/test
@@ -143,7 +156,7 @@
   :toggle/tap
 
   {:maestro/doc "Toggles printing to terminal on `tap>` in `user` namespace"
-   :maestro/env {"CONVEX_TAP" "TRUE"}}
+   :maestro/env {"CONVEX_TAP" "true"}}
 
 
 
@@ -333,7 +346,8 @@
 
   :dev/sync
 
-  {:extra-paths ["project/sync/src/clj/dev"]}
+  {:extra-paths     ["project/sync/src/clj/dev"]
+   :maestro/require [:project/break]}
 
   ;---
 

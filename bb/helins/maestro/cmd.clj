@@ -54,12 +54,12 @@
   [ctx]
 
   (-> ctx
-      ($/walk (concat [:task/test]
+      ($/walk (concat [:task/test
+                       :task/dev]
                       ($.alias/dev ctx)
-                      (ctx :maestro/cli+)
-                      [:task/dev]))
+                      (ctx :maestro/cli+)))
       require-test
-      (update :maestro/exec-letter
+      (update :maestro/exec-char
               #(or %
                    \M))))
 
@@ -72,8 +72,9 @@
   [ctx]
 
   (-> ($/walk ctx)
-      (assoc :maestro/exec-letter
-             "X")))
+      (update :maestro/exec-char
+              #(or %
+                   \X))))
 
 
 
@@ -84,8 +85,9 @@
   [ctx]
 
   (-> ($/walk ctx)
-      (assoc :maestro/exec-letter
-             "M")))
+      (update :maestro/exec-char
+              #(or %
+                   \M))))
 
 
 
@@ -106,8 +108,9 @@
                               (or ($.alias/main-class ctx-2)
                                   (throw (ex-info "Alias needs `:maestro/main-class` pointing to the class containing the `-main` function"
                                                   {})))))))
-      (assoc :maestro/exec-letter
-             "M")))
+      (update :maestro/exec-char
+              #(or %
+                   \M))))
 
 
 
