@@ -6,6 +6,7 @@
 
   (:refer-clojure :exclude [test])
   (:require [babashka.fs          :as bb.fs]
+            [helins.maestro       :as $]
             [helins.maestro.alias :as $.alias]
             [helins.maestro.cmd   :as $.cmd]))
 
@@ -31,12 +32,9 @@
                                                        (ctx :maestro/main+))
                    :kaocha/test-paths   ($.alias/path+ ctx
                                                        (ctx :maestro/test+))})))
-  (-> ctx
-      (update :maestro/arg+
-              (partial cons
-                       "-m kaocha.runner"))
-      (assoc :maestro/exec-letter
-             "M")))
+  (assoc ctx
+         :maestro/exec-letter
+         "M"))
 
 
 ;;;;;;;;;;
@@ -46,11 +44,17 @@
 
   ""
 
-  [ctx]
+
+  ([]
+
+   (broad ($/ctx)))
+
+
+  ([ctx]
 
   (-> ctx
       $.cmd/test-broad
-      test))
+      test)))
 
 
 
@@ -58,8 +62,14 @@
 
   ""
 
-  [ctx]
 
-  (-> ctx
-      $.cmd/test-narrow
-      test))
+  ([]
+
+   (narrow ($/ctx)))
+
+
+  ([ctx]
+
+   (-> ctx
+       $.cmd/test-narrow
+       test)))

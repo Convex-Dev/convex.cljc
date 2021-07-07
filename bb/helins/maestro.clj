@@ -37,7 +37,7 @@
   ([ctx]
 
    (walk ctx
-         (ctx :maestro/require)))
+         (ctx :maestro/cli+)))
 
 
   ([ctx alias+]
@@ -96,63 +96,46 @@
         *command-line-args*))
 
 
-  ([deps-edn [alias+ & arg+]]
+  ([deps-edn cli-arg+]
 
-   (if-some [alias-2+ (and alias+
-                           (when (clojure.string/starts-with? alias+
-                                                              ":")
-                             (->> (clojure.string/split alias+
-                                                        #":")
-                                  rest
-                                  (mapv keyword)
-                                  not-empty)))]
-    (-> deps-edn
-        (merge (if (.ready *in*)
-                 (clojure.edn/read *in*)
-                 {}))
-        (assoc :maestro/aggr     aggr
-               :maestro/arg+     arg+
-               :maestro/cli+     alias-2+
-               :maestro/require  alias-2+))
-    (throw (ex-info "At least one alias must be provided as first argument"
-                    {})))))
-
-
-;;;;;;;;;; Miscellaneous helpers
-
-
-(defn require-test
-
-  ""
-
-
-  ([ctx]
-
-   (require-test ctx
-                 ($.alias/test+ ctx)))
-
-
-  ([ctx alias+]
-
-   (let [required (ctx :maestro/require)]
-     (-> ctx
-         (assoc :maestro/require
-                [])
-         (walk ($.alias/test+ ctx
-                              alias+))
-         (as->
-           ctx-2
-           (assoc ctx-2
-                  :maestro/test+
-                  (ctx-2 :maestro/require)))
-         (assoc :maestro/main+
-                required)
-         (update :maestro/require
-                 concat
-                 required)))))
+   (let [arg-first (or (first cli-arg+)
+                       (throw (ex-info "No argument provided, requires at least one alias"
+                                       {})))
+         [arg-first-2
+          exec-letter] (if (clojure.string/starts-with? arg-first
+                                                        "-")
+                         (try
+                           [(.substring ^String arg-first
+                                        2)
+                            (nth arg-first
+                                 1)]
+                           (catch Throwable _ex
+                             (throw (ex-info "First argument starting with '-' needs a Clojure execution letter (eg. '-M')"
+                                             {:maestro/arg arg-first}))))
+                         [arg-first
+                          nil])]
+      (-> deps-edn
+          (merge (if (.ready *in*)
+                   (clojure.edn/read *in*)
+                   {}))
+          (assoc :maestro/aggr    aggr
+                 :maestro/arg+    (rest cli-arg+)
+                 :maestro/cli+    (or (and (clojure.string/starts-with? arg-first-2
+                                                                        ":")
+                                           (->> (clojure.string/split arg-first-2
+                                                                      #":")
+                                                rest
+                                                (mapv keyword)
+                                                not-empty))
+                                      (throw (ex-info "At least one alias must be specified"
+                                                      {:maestro/arg arg-first-2})))
+                 :maestro/require [])
+          (cond->
+            exec-letter
+            (assoc :maestro/exec-letter exec-letter))))))
 
 
-;;;;;;;;;; Running Clojure commands
+;;;;;;;;;; Miscellaneous insigts
 
 
 (defn cmd
@@ -167,17 +150,3 @@
                                (ctx :maestro/require))
           (clojure.string/join " "
                                (ctx :maestro/arg+))))
-
-
-
-(defn clojure
-
-  ""
-
-  [ctx]
-
-  (let [cmd-2 (cmd ctx)]
-    (when (ctx :maestro/debug?)
-      (println cmd-2))
-    (bb.task/clojure {:extra-env (ctx :maestro/env)}
-                     cmd-2)))

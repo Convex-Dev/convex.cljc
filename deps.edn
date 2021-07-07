@@ -91,6 +91,7 @@
   :task/dev
 
   {:extra-paths     ["dev"]
+   :main-opts       []
    :maestro/doc     "Mandatory alias for development"
    :maestro/env     {"CONVEX_DEV" "true"}
    :maestro/require [:ext/tools.reader]}
@@ -106,7 +107,9 @@
 
   :task/test
 
-  {:maestro/doc     "Mandatory alias for testing"
+  {:main-opts       ["-m"            "kaocha.runner"
+                     "--config-file" "kaocha.edn"]
+   :maestro/doc     "Mandatory alias for testing"
    :maestro/require [:ext/kaocha
                      :ext/mprop]}
 

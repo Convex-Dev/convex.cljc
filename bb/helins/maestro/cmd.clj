@@ -10,7 +10,41 @@
             [helins.maestro.alias :as $.alias]))
 
 
-;;;;;;;;;;
+;;;;;;;;;; Helpers
+
+
+(defn require-test
+
+  ""
+
+
+  ([ctx]
+
+   (require-test ctx
+                 ($.alias/test+ ctx)))
+
+
+  ([ctx alias+]
+
+   (let [required (ctx :maestro/require)]
+     (-> ctx
+         (assoc :maestro/require
+                [])
+         ($/walk ($.alias/test+ ctx
+                                alias+))
+         (as->
+           ctx-2
+           (assoc ctx-2
+                  :maestro/test+
+                  (ctx-2 :maestro/require)))
+         (assoc :maestro/main+
+                required)
+         (update :maestro/require
+                 concat
+                 required)))))
+
+
+;;;;;;;;;; Preparing for commands (calling a function, launching dev mode, ...)
 
 
 (defn dev
@@ -20,15 +54,14 @@
   [ctx]
 
   (-> ctx
-      (assoc :maestro/require
-             [])
-      ($/walk (concat [:task/test
-                       :task/dev]
+      ($/walk (concat [:task/test]
                       ($.alias/dev ctx)
-                      (ctx :maestro/require)))
-      $/require-test
-      (assoc :maestro/exec-letter
-             "M")))
+                      (ctx :maestro/cli+)
+                      [:task/dev]))
+      require-test
+      (update :maestro/exec-letter
+              #(or %
+                   \M))))
 
 
 
@@ -41,6 +74,18 @@
   (-> ($/walk ctx)
       (assoc :maestro/exec-letter
              "X")))
+
+
+
+(defn main
+
+  ""
+
+  [ctx]
+
+  (-> ($/walk ctx)
+      (assoc :maestro/exec-letter
+             "M")))
 
 
 
@@ -73,14 +118,12 @@
   [ctx f-test-alias+]
 
   (-> ctx
-      (update :maestro/require
-              conj
-              :task/test)
-      $/walk
+      ($/walk (conj (ctx :maestro/cli+)
+                    :task/test))
       (as->
         ctx-2
-        ($/require-test ctx-2
-                        (f-test-alias+ ctx-2)))))
+        (require-test ctx-2
+                      (f-test-alias+ ctx-2)))))
 
 
 

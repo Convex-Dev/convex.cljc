@@ -2,115 +2,95 @@
 
 
 
- :tasks {:requires
+ :tasks {cp
 
-         ([helins.maestro     :as maestro]
-          [helins.maestro.cmd :as maestro.cmd])
-
-
-         ;; TASKS
-
-         
-         cp:dev
-
-         {:doc      "Prints the class path ; extra profiles given as arguments"
+         {:doc      "Pretty prints the class path received as STDIN"
           :requires ([helins.maestro.cp :as maestro.cp])
-          :task     (run! println
-                          (-> (maestro.cmd/dev (maestro/ctx))
-                              maestro.cp/string
-                              maestro.cp/split
-                              sort))}
+          :task     (maestro.cp/print-stdin)}
 
 
-         cp:del
+         cp:rm
 
-         {:doc      "Deletes the cached classpath of the given project"
-          :requires ([script.cp :as $.cp])
-          :task     ($.cp/delete)}
+         {:doc      "Deletes the computed classpath"
+          :requires ([helins.maestro.cp :as maestro.cp])
+          :task     (maestro.cp/rm)}
 
 
          dev
 
-         {:doc  "Starts dev mode using '-M' ; project, extra profiles, and extra arguments"
-          :task (maestro/clojure (maestro.cmd/dev (maestro/ctx)))}
+         {:doc      "Starts dev mode (using '-M' by default) ; same arguments as Clojure CLI"
+          :requires ([helins.maestro.run :as maestro.run])
+          :task     (maestro.run/dev)}
                                   
 
 
-         dev:templ
+         dev:templ:copy
 
-         {:doc      "In project directory where Clojure dev files are located, copies `./templ.clj` (public) to `./dev.clj` (private)"
-          :requires ([script.dev :as $.dev])
-          :task     ($.dev/templ-copy)}
+         {:doc      "In the directory given as argument, copies `./templ.clj` (public) to `./dev.clj` (private)"
+          :requires ([helins.maestro.dev.templ.run :as maestro.dev.templ.run])
+          :task     (maestro.dev.templ.run/copy)}
 
 
-         dev:templ:del
+         dev:templ:rm
 
-         {:doc      "In project directory where Clojure dev files are located, deletes `./dev.clj`"
-          :requires ([script.dev :as $.dev])
-          :task     ($.dev/templ-del)}
+         {:doc      "In the directory given as argument, deletes `./dev.clj`"
+          :requires ([helins.maestro.dev.templ.run :as maestro.dev.templ.run])
+          :task     (maestro.dev.templ/rm)}
 
 
          jar
 
-         {:doc      "Packages the given aliases in a jar"
-          :requires ([helins.maestro         :as maestro]
-                     [helins.maestro.depstar :as maestro.depstar])
-          :task     (maestro/clojure (maestro.depstar/jar (maestro/ctx)))}
+         {:doc      "Packages the given aliases in a jar ; same arguments as Depstar"
+          :requires ([helins.maestro.depstar.run :as maestro.depstar.run])
+          :task     (maestro.depstar.run/jar)}
 
 
          lint
 
-         {:doc  "Starts Clj-kondo on './src' (further path can be provided as command-line argument)"
+         {:doc  "Starts Clj-kondo on the path given as argument ; understands globs"
           :task (shell (str "clj-kondo --lint "
                             (first *command-line-args*)))}
 
 
          lint:import
 
-         {:doc      "Initializes Clj-kondo and copies configuration files from dependencies"
-          :requires ([script.cp :as $.cp])
-          :task     (shell (format "clj-kondo --lint '%s' --dependencies --parallel --copy-configs"
-                                   ($.cp/string)))}
+         {:doc  "Initializes Clj-kondo and copies configuration files from dependencies ; uses classpath received as STDIN"
+          :task (shell (format "clj-kondo --lint '%s' --dependencies --parallel --copy-configs"
+                               (slurp *in*)))}
 
 
          run-M
 
-         {:doc  "Executes Clojure using '-M'"
-          :task (maestro/clojure (maestro.cmd/main-class (maestro/ctx)))}
+         {:doc      "Executes Clojure using '-M', calling the main class specified in the alias"
+          :requires ([helins.maestro.run :as maestro.run])
+          :task     (maestro.run/main-class)}
 
 
          run-X
 
-         {:doc  "Executes Clojure using '-X'"
-          :task (maestro/clojure (maestro.cmd/function (maestro/ctx)))}
+         {:doc      "Executes Clojure using '-X', using the function specified in the alias"
+          :requires ([helins.maestro.run :as maestro.run])
+          :task     (maestro.run/function)}
 
 
          test
 
-         {:doc      "Runs tests on the JVM ; given aliases and required ones ; takes aliases and arguments for Kaocha CLI"
-          :requires ([helins.maestro.kaocha :as maestro.kaocha])
-          :task     (maestro/clojure (-> (maestro/ctx)
-                                         (update :maestro/arg+
-                                                 (partial cons
-                                                          "--config-file kaocha.edn"))
-                                         maestro.kaocha/broad))}
+         {:doc      "Runs tests on the JVM for the given aliases ; accepts Kaocha CLI arguments"
+          :requires ([helins.maestro.kaocha.run :as maestro.kaocha.run])
+          :task     (maestro.kaocha.run/broad)}
 
 
 
          test:narrow
 
-         {:doc      "Runs tests on the JVM ; only specified aliases ; takes aliases and arguments for Kaocha CLI"
-          :requires ([helins.maestro.kaocha :as maestro.kaocha])
-          :task     (maestro/clojure (-> (maestro/ctx)
-                                         (update :maestro/arg+
-                                                 (partial cons
-                                                          "--config-file kaocha.edn"))
-                                         maestro.kaocha/narrow))}
+         {:doc      "Like `test` but tests only the given aliases, not transitive ones"
+          :requires ([helins.maestro.kaocha.run :as maestro.kaocha.run])
+          :task     (maestro.kaocha.run/narrow)}
 
 
          uberjar
 
-         {:doc      "Packages the tiven aliases in an uberjar"
-          :requires ([helins.maestro.depstar :as maestro.depstar])
-          :task     (maestro/clojure (maestro.depstar/uberjar (maestro/ctx)))}
+         {:doc      "Packages the given aliases in an uberjar ; same arguments as Depstart"
+          :requires ([helins.maestro.depstar.run :as maestro.depstar.run])
+          :task     (maestro.depstar.run/uberjar)}
          }}

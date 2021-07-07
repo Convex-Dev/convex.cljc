@@ -20,8 +20,6 @@
   (let [ctx-2      ($/walk ctx)
         alias-main (last (ctx-2 :maestro/cli+))]
     (-> ctx-2
-        (assoc :maestro/require
-               [])
         ($/walk [alias])
         (assoc :maestro/main
                alias-main)
@@ -53,12 +51,18 @@
 
   ""
 
-  [ctx]
 
-  (-jar ctx
-        "jar"
-        :task/jar
-        identity))
+  ([]
+
+   (jar ($/ctx)))
+
+
+  ([ctx]
+
+   (-jar ctx
+         "jar"
+         :task/jar
+         identity)))
 
 
 
@@ -66,17 +70,23 @@
 
   ""
 
-  [ctx]
 
-  (-jar ctx
-        "uberjar"
-        :task/uberjar
-        (fn [ctx]
-          (if-some [main-class ($.alias/main-class ctx
-                                                   (ctx :maestro/main))]
-            (update ctx
-                    :maestro/arg+
-                    (partial cons
-                             (str ":main-class "
-                                  main-class)))
-            ctx))))
+  ([]
+
+   (uberjar ($/ctx)))
+
+
+  ([ctx]
+
+   (-jar ctx
+         "uberjar"
+         :task/uberjar
+         (fn [ctx]
+           (if-some [main-class ($.alias/main-class ctx
+                                                    (ctx :maestro/main))]
+             (update ctx
+                     :maestro/arg+
+                     (partial cons
+                              (str ":main-class "
+                                   main-class)))
+             ctx)))))
