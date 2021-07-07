@@ -12,7 +12,6 @@
             [helins.maestro.alias :as $.alias]))
 
 
-
 ;;;;;;;;;; Operation over a context
 
 

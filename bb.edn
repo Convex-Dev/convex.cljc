@@ -11,11 +11,15 @@
          ;; TASKS
 
          
-         cp
+         cp:dev
 
          {:doc      "Prints the class path ; extra profiles given as arguments"
-          :requires ([script.cp :as $.cp])
-          :task     ($.cp/print)}
+          :requires ([helins.maestro.cp :as maestro.cp])
+          :task     (run! println
+                          (-> (maestro.cmd/dev (maestro/ctx))
+                              maestro.cp/string
+                              maestro.cp/split
+                              sort))}
 
 
          cp:del
