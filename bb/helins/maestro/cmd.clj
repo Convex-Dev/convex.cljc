@@ -6,7 +6,8 @@
 
   (:refer-clojure :exclude [test])
   (:require [clojure.string]
-            [helins.maestro  :as $]))
+            [helins.maestro       :as $]
+            [helins.maestro.alias :as $.alias]))
 
 
 ;;;;;;;;;;
@@ -19,10 +20,11 @@
   [ctx]
 
   (-> ctx
-      (dissoc :maestro/require)
+      (assoc :maestro/require
+             [])
       ($/walk (concat [:task/test
                        :task/dev]
-                      ($/dev ctx)
+                      ($.alias/dev ctx)
                       (ctx :maestro/require)))
       $/require-test
       (assoc :maestro/exec-letter
@@ -56,7 +58,7 @@
                 :maestro/arg+
                 (partial cons
                          (str "-m "
-                              (or ($/main-class ctx-2)
+                              (or ($.alias/main-class ctx-2)
                                   (throw (ex-info "Alias needs `:maestro/main-class` pointing to the class containing the `-main` function"
                                                   {})))))))
       (assoc :maestro/exec-letter

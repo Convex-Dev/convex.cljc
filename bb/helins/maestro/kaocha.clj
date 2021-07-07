@@ -5,9 +5,9 @@
   {:author "Adam Helinski"}
 
   (:refer-clojure :exclude [test])
-  (:require [babashka.fs        :as bb.fs]
-            [helins.maestro     :as $]
-            [helins.maestro.cmd :as $.cmd]))
+  (:require [babashka.fs          :as bb.fs]
+            [helins.maestro.alias :as $.alias]
+            [helins.maestro.cmd   :as $.cmd]))
 
 
 ;;;;;;;;;;
@@ -27,10 +27,10 @@
                   root
                   (or (ctx :maestro.kaocha/file)
                       "maestro_kaocha.edn"))
-          (pr-str {:kaocha/source-paths ($/path+ ctx
-                                                 (ctx :maestro/main+))
-                   :kaocha/test-paths   ($/path+ ctx
-                                                 (ctx :maestro/test+))})))
+          (pr-str {:kaocha/source-paths ($.alias/path+ ctx
+                                                       (ctx :maestro/main+))
+                   :kaocha/test-paths   ($.alias/path+ ctx
+                                                       (ctx :maestro/test+))})))
   (-> ctx
       (update :maestro/arg+
               (partial cons

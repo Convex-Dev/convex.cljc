@@ -4,7 +4,8 @@
 
   {:author "Adam Helinski"}
 
-  (:require [helins.maestro :as $]))
+  (:require [helins.maestro       :as $]
+            [helins.maestro.alias :as $.alias]))
 
 
 ;;;;;;;;;;
@@ -19,7 +20,8 @@
   (let [ctx-2      ($/walk ctx)
         alias-main (last (ctx-2 :maestro/cli+))]
     (-> ctx-2
-        (dissoc :maestro/require)
+        (assoc :maestro/require
+               [])
         ($/walk [alias])
         (assoc :maestro/main
                alias-main)
@@ -28,8 +30,8 @@
           (update ctx-3
                   :maestro/arg+
                   (partial cons
-                           (let [root (or ($/root ctx-3
-                                                  alias-main)
+                           (let [root (or ($.alias/root ctx-3
+                                                        alias-main)
                                           (throw (ex-info "Alias needs `:maestro/root` pointing to project root directory"
                                                           {})))]
                              (format ":jar %s/%s/%s.jar :aliases '%s' :pom-file '\"%s/pom.xml\"'"
@@ -70,8 +72,8 @@
         "uberjar"
         :task/uberjar
         (fn [ctx]
-          (if-some [main-class ($/main-class ctx
-                                             (ctx :maestro/main))]
+          (if-some [main-class ($.alias/main-class ctx
+                                                   (ctx :maestro/main))]
             (update ctx
                     :maestro/arg+
                     (partial cons
