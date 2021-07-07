@@ -2,7 +2,16 @@
 
 
 
- :tasks {cp
+ :tasks {:requires
+
+         ([helins.maestro     :as maestro]
+          [helins.maestro.cmd :as maestro.cmd])
+
+
+         ;; TASKS
+
+         
+         cp
 
          {:doc      "Prints the class path ; extra profiles given as arguments"
           :requires ([script.cp :as $.cp])
@@ -18,9 +27,8 @@
 
          dev
 
-         {:doc      "Starts dev mode using '-M' ; project, extra profiles, and extra arguments"
-          :requires ([helins.maestro.run :as maestro.run])
-          :task     (maestro.run/dev)}
+         {:doc  "Starts dev mode using '-M' ; project, extra profiles, and extra arguments"
+          :task (maestro/clojure (maestro.cmd/dev (maestro/ctx)))}
                                   
 
 
@@ -41,8 +49,9 @@
          jar
 
          {:doc      "Packages the given aliases in a jar"
-          :requires ([helins.maestro.depstar :as maestro.depstar])
-          :task     (maestro.depstar/jar)}
+          :requires ([helins.maestro         :as maestro]
+                     [helins.maestro.depstar :as maestro.depstar])
+          :task     (maestro/clojure (maestro.depstar/jar (maestro/ctx)))}
 
 
          lint
@@ -62,44 +71,42 @@
 
          run-M
 
-         {:doc      "Executes Clojure using '-M'"
-          :requires ([helins.maestro.run :as maestro.run])
-          :task     (maestro.run/clojure-M)}
+         {:doc  "Executes Clojure using '-M'"
+          :task (maestro/clojure (maestro.cmd/main-class (maestro/ctx)))}
 
 
          run-X
 
-         {:doc      "Executes Clojure using '-X'"
-          :requires ([helins.maestro.run :as run])
-          :task     (maestro.run/clojure-X)}
+         {:doc  "Executes Clojure using '-X'"
+          :task (maestro/clojure (maestro.cmd/function (maestro/ctx)))}
 
 
          test
 
          {:doc      "Runs tests on the JVM ; given aliases and required ones ; takes aliases and arguments for Kaocha CLI"
-          :requires ([helins.maestro        :as maestro]
-                     [helins.maestro.kaocha :as maestro.kaocha])
-          :task     (maestro.kaocha/run (-> (maestro/ctx)
-                                            (update :maestro/arg+
-                                                    (partial cons
-                                                             "--config-file kaocha.edn"))))}
+          :requires ([helins.maestro.kaocha :as maestro.kaocha])
+          :task     (maestro/clojure (-> (maestro/ctx)
+                                         (update :maestro/arg+
+                                                 (partial cons
+                                                          "--config-file kaocha.edn"))
+                                         maestro.kaocha/broad))}
 
 
 
          test:narrow
 
          {:doc      "Runs tests on the JVM ; only specified aliases ; takes aliases and arguments for Kaocha CLI"
-          :requires ([helins.maestro        :as maestro]
-                     [helins.maestro.kaocha :as maestro.kaocha])
-          :task     (maestro.kaocha/run-narrow (-> (maestro/ctx)
-                                                   (update :maestro/arg+
-                                                           (partial cons
-                                                                    "--config-file kaocha.edn"))))}
+          :requires ([helins.maestro.kaocha :as maestro.kaocha])
+          :task     (maestro/clojure (-> (maestro/ctx)
+                                         (update :maestro/arg+
+                                                 (partial cons
+                                                          "--config-file kaocha.edn"))
+                                         maestro.kaocha/narrow))}
 
 
          uberjar
 
          {:doc      "Packages the tiven aliases in an uberjar"
           :requires ([helins.maestro.depstar :as maestro.depstar])
-          :task     (maestro.depstar/uberjar)}
+          :task     (maestro/clojure (maestro.depstar/uberjar (maestro/ctx)))}
          }}

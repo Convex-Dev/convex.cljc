@@ -7,7 +7,7 @@
   (:refer-clojure :exclude [test])
   (:require [babashka.fs        :as bb.fs]
             [helins.maestro     :as $]
-            [helins.maestro.run :as $.run]))
+            [helins.maestro.cmd :as $.cmd]))
 
 
 ;;;;;;;;;;
@@ -17,63 +17,49 @@
 
   ""
 
-  [ctx f-test-alias+]
+  [ctx]
 
-  ($.run/clojure "M"
-                 (-> ctx
-                     (update :maestro/require
-                             conj
-                             :task/test)
-                     $/walk
-                     (as->
-                       ctx-2
-                       ($/require-test ctx-2
-                                       (f-test-alias+ ctx-2))
-                       (do
-                         (when-not (bb.fs/exists? "private")
-                           (bb.fs/create-dir "private"))
-                         (spit "private/maestro_kaocha.edn"
-                               (pr-str {:kaocha/source-paths ($/path+ ctx-2
-                                                                      (ctx-2 :maestro/main+))
-                                        :kaocha/test-paths   ($/path+ ctx-2
-                                                                      (ctx-2 :maestro/test+))}))
-                         ctx-2))
-                     (update :maestro/arg+
-                             (partial cons
-                                      "-m kaocha.runner")))))
+  (let [root (or (ctx :maestro.kaocha/root)
+                 "private")]
+    (when-not (bb.fs/exists? root)
+      (bb.fs/create-dir root))
+    (spit (format "%s/%s"
+                  root
+                  (or (ctx :maestro.kaocha/file)
+                      "maestro_kaocha.edn"))
+          (pr-str {:kaocha/source-paths ($/path+ ctx
+                                                 (ctx :maestro/main+))
+                   :kaocha/test-paths   ($/path+ ctx
+                                                 (ctx :maestro/test+))})))
+  (-> ctx
+      (update :maestro/arg+
+              (partial cons
+                       "-m kaocha.runner"))
+      (assoc :maestro/exec-letter
+             "M")))
 
 
 ;;;;;;;;;;
 
 
-(defn run
+(defn broad
 
   ""
 
+  [ctx]
 
-  ([]
-
-   (run ($/ctx)))
-
-
-  ([ctx]
-
-   (test ctx
-         :maestro/require)))
+  (-> ctx
+      $.cmd/test-broad
+      test))
 
 
 
-(defn run-narrow
+(defn narrow
 
   ""
 
+  [ctx]
 
-  ([]
-
-   (run-narrow ($/ctx)))
-
-
-  ([ctx]
-
-   (test ctx
-         :maestro/cli+)))
+  (-> ctx
+      $.cmd/test-narrow
+      test))

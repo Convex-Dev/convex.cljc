@@ -5,7 +5,8 @@
   {:author "Adam Helinski"}
 
   (:refer-clojure :exclude [test])
-  (:require [clojure.edn]
+  (:require [babashka.tasks :as bb.task]
+            [clojure.edn]
             [clojure.string]))
 
 
@@ -297,19 +298,6 @@
 
 
 
-(defn clojure
-
-  ""
-
-  [letter ctx]
-
-  (format "-%s%s %s"
-          letter
-          (clojure.string/join ""
-                               (ctx :maestro/require))
-          (clojure.string/join " "
-                               (ctx :maestro/arg+))))
-
 
 
 
@@ -344,3 +332,36 @@
        (update :maestro/require
                concat
                required)))))
+
+
+
+
+(defn cmd
+
+  ""
+
+  [ctx]
+
+  (format "-%s%s %s"
+          (ctx :maestro/exec-letter)
+          (clojure.string/join ""
+                               (ctx :maestro/require))
+          (clojure.string/join " "
+                               (ctx :maestro/arg+))))
+
+
+
+(defn clojure
+
+  ""
+
+  [ctx]
+
+  (let [cmd-2 (cmd ctx)]
+    (when (ctx :maestro/debug?)
+      (println cmd-2))
+    (bb.task/clojure {:extra-env (ctx :maestro/env)}
+                     cmd-2)))
+
+
+
