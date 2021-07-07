@@ -1,6 +1,6 @@
 (ns convex.read
 
-  ""
+  "Reading Convex Lisp source and transforming it into Convex forms."
 
   {:author "Adam Helinski"}
 
@@ -20,7 +20,7 @@
 
 (defn file
 
-  ""
+  "Reads the file under the given `filename`."
 
   ^ACell
 
@@ -32,7 +32,7 @@
 
 (defn input-stream
 
-  ""
+  "Reads the given `java.io.InputStream`."
 
   ^ACell
 
@@ -44,7 +44,7 @@
 
 (defn reader
 
-  ""
+  "Reads the given `java.io.Reader`"
 
   ^ACell
 
@@ -56,7 +56,7 @@
 
 (defn string
 
-  ""
+  "Reads the given `string`."
 
   ^ACell
 
