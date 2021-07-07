@@ -30,16 +30,15 @@
            (convex.core.lang AFn
                              AOp
                              Context)
-           (convex.core.lang.impl ErrorValue)
-           (convex.core.lang.reader AntlrReader))
+           (convex.core.lang.impl ErrorValue))
   (:refer-clojure :exclude [compile
                             def
                             eval
-                            read
                             time])
   (:require [clojure.core.protocols]
             [convex.code             :as $.code]
-            [convex.clj              :as $.clj]))
+            [convex.clj              :as $.clj]
+            [convex.read             :as $.read]))
 
 
 (set! *warn-on-reflection*
@@ -470,37 +469,7 @@
        ctx))))
 
 
-;;;;;;;;;; Phase 1 - Reading Convex Lisp 
-
-
-(defn read
-
-  "Converts Convex Lisp source (string) to a CVM list of top-level CVM forms.
-
-   If needed, that CVM list can be converted to a Clojure vector using `vec`.
-
-   Those CVM forms can be used either via their Java API (also see [[convex.code]] namespace) or converted to a Clojure
-   representation via [[as-clojure]]."
-
-  [^String string]
-
-  (AntlrReader/readAll string))
-
-
-
-(defn read-clojure
-
-  "Stringifies the given Clojure form to Convex Lisp source and applies the result to [[read]]."
-
-  [form]
-
-  (-> form
-      $.clj/src
-      read
-      first))
-
-
-;;;;;;;;;; Phase 2 & 3 - Expanding Convex objects and compiling into operations
+;;;;;;;;;; Phase 1 & 2 - Expanding Convex objects and compiling into operations
 
 
 (defn compile
@@ -570,7 +539,7 @@
                    object)))
 
 
-;;;;;;;;;; Pahse 4 - Executing compiled code
+;;;;;;;;;; Pahse 3 - Executing compiled code
 
 
 (defn eval
@@ -924,7 +893,7 @@
     (datafy [this]
       (-> this
           .toString
-          read
+          $.read/string
           clojure.core.protocols/datafy)))
 
 
