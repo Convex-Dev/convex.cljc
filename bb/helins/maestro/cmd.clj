@@ -13,32 +13,64 @@
 ;;;;;;;;;; Helpers
 
 
-(defn require-test
+(defn require-alias+
+
+  ""
+
+  [ctx kw-track alias+]
+
+  (-> ctx
+      (assoc :maestro/require
+             [])
+      ($/walk alias+)
+      (as->
+        ctx-2
+        (assoc ctx-2
+               kw-track
+               (ctx-2 :maestro/require)))
+      (update :maestro/require
+              concat
+              (ctx :maestro/require))))
+
+
+
+(defn require-dev+
 
   ""
 
 
   ([ctx]
 
-   (require-test ctx
-                 ($.alias/test+ ctx)))
+   (require-dev+ ctx
+                 (ctx :maestro/require)))
 
 
   ([ctx alias+]
 
-   (-> ctx
-       (assoc :maestro/require
-              [])
-       ($/walk ($.alias/test+ ctx
-                              alias+))
-       (as->
-         ctx-2
-         (assoc ctx-2
-                :maestro/test+
-                (ctx-2 :maestro/require)))
-       (update :maestro/require
-               concat
-               (ctx :maestro/require)))))
+   (require-alias+ ctx
+                   :maestro/dev+
+                   ($.alias/dev+ ctx
+                                 alias+))))
+
+
+
+(defn require-test+
+
+  ""
+
+
+  ([ctx]
+
+   (require-test+ ctx
+                  (ctx :maestro/require)))
+
+
+  ([ctx alias+]
+
+   (require-alias+ ctx
+                   :maestro/test+
+                   ($.alias/test+ ctx
+                                  alias+))))
 
 
 ;;;;;;;;;; Preparing for commands (calling a function, launching dev mode, ...)
@@ -54,7 +86,8 @@
       ($/walk (concat [:task/test
                        :task/dev]
                       (ctx :maestro/main+)))
-      require-test
+      require-dev+
+      require-test+
       (update :maestro/exec-char
               #(or %
                    \M))))
@@ -121,8 +154,8 @@
                     :task/test))
       (as->
         ctx-2
-        (require-test ctx-2
-                      (f-test-alias+ ctx-2)))))
+        (require-test+ ctx-2
+                       (f-test-alias+ ctx-2)))))
 
 
 
