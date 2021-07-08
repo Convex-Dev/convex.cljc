@@ -9,8 +9,8 @@
 
   (:import (convex.core.data AVector)
            (convex.core.data.prim CVMLong))
-  (:require [convex.code     :as $.code]
-            [convex.cvm      :as $.cvm]
+  (:require [convex.cvm      :as $.cvm]
+            [convex.data     :as $.data]
             [convex.read     :as $.read]
             [convex.run.ctx  :as $.run.ctx]
             [convex.run.err  :as $.run.err]
@@ -95,7 +95,7 @@
   ($.run.err/signal env
                     ($.run.err/sreq ($.cvm/code-std* :ARGUMENT)
                                     tuple
-                                    ($.code/string "Unsupported special transaction"))))
+                                    ($.data/string "Unsupported special transaction"))))
 
 ;;;;;;;;;; Implementations
 
@@ -130,7 +130,7 @@
   ($.run.err/signal env
                     ($.run.err/sreq ($.cvm/code-std* :FATAL)
                                     tuple
-                                    ($.code/string "CVM special command 'sreq/dep' can only be used as the very first transaction"))))
+                                    ($.data/string "CVM special command 'sreq/dep' can only be used as the very first transaction"))))
 
 
 
@@ -160,10 +160,10 @@
                         (if-some [env-var (.get tuple
                                                 2)]
                           (some-> (System/getenv (str env-var))
-                                  $.code/string)
-                          ($.code/map (map (fn [[k v]]
-                                             [($.code/string k)
-                                              ($.code/string v)])
+                                  $.data/string)
+                          ($.data/map (map (fn [[k v]]
+                                             [($.data/string k)
+                                              ($.data/string v)])
                                            (System/getenv))))))
 
 
@@ -242,7 +242,7 @@
                        ($.run.err/fatal env-3
                                         ($.run.err/error ex)
                                         ;err
-                                        ($.code/string "Calling error hook failed")
+                                        ($.data/string "Calling error hook failed")
                                         (-> ex
                                             $.run.err/error
                                             ($.run.err/assoc-cause (env-2 :convex.run/error))))
@@ -258,7 +258,7 @@
                          (if err-2
                            ($.run.err/fatal env-4
                                             form
-                                            ($.code/string "Evaluating output from error hook failed")
+                                            ($.data/string "Evaluating output from error hook failed")
                                             ($.run.err/assoc-cause err-2
                                                                    err))
                            (assoc env-4
@@ -309,9 +309,9 @@
                          (-> env-3
                              (assoc :convex.run.hook/out
                                     hook-old)
-                             ($.run.err/fatal ($.code/list [f
+                             ($.run.err/fatal ($.data/list [f
                                                             x])
-                                              ($.code/string "Calling output hook failed, using default output")
+                                              ($.data/string "Calling output hook failed, using default output")
                                               ($.run.err/error ex))
                              (assoc :convex.run.hook/out
                                     hook-new))
@@ -406,7 +406,7 @@
                   (catch Throwable _err
                     [($.run.err/sreq ($.cvm/code-std* :ARGUMENT)
                                      tuple
-                                     ($.code/string "Unable to read source"))
+                                     ($.data/string "Unable to read source"))
                      nil]))]
     (if err
       ($.run.err/signal env

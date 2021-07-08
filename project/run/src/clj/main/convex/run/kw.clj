@@ -8,156 +8,156 @@
   (:refer-clojure :exclude [compile
                             do
                             read])
-  (:require [convex.code :as $.code]))
+  (:require [convex.data :as $.data]))
 
 
 ;;;;;;;;;;
 
 
 (def ^Keyword advance
-              ($.code/keyword "advance"))
+              ($.data/keyword "advance"))
 
 
 
 (def ^Keyword cause
-              ($.code/keyword "cause"))
+              ($.data/keyword "cause"))
 
 
 
 (def ^Keyword compile
-              ($.code/keyword "compile"))
+              ($.data/keyword "compile"))
 
 
 
 (def ^Keyword cvm-sreq
-              ($.code/keyword "cvm.sreq"))
+              ($.data/keyword "cvm.sreq"))
 
 
 
 (def ^Keyword dep
-              ($.code/keyword "dep"))
+              ($.data/keyword "dep"))
 
 
 
 (def ^Keyword do
-              ($.code/keyword "do"))
+              ($.data/keyword "do"))
 
 
 
 (def ^Keyword exception?
-              ($.code/keyword "exception?"))
+              ($.data/keyword "exception?"))
 
 
 
 (def ^Keyword env
-              ($.code/keyword "env"))
+              ($.data/keyword "env"))
 
 
 
 (def ^Keyword expand
-              ($.code/keyword "expand"))
+              ($.data/keyword "expand"))
 
 
 
 (def ^Keyword form
-              ($.code/keyword "form"))
+              ($.data/keyword "form"))
 
 
 
 (def ^Keyword hook-end
-              ($.code/keyword "hook.end"))
+              ($.data/keyword "hook.end"))
 
 
 
 (def ^Keyword hook-error
-              ($.code/keyword "hook.error"))
+              ($.data/keyword "hook.error"))
 
 
 
 (def ^Keyword hook-out
-              ($.code/keyword "hook.out"))
+              ($.data/keyword "hook.out"))
 
 
 
 (def ^Keyword hook-result
-              ($.code/keyword "hook.result"))
+              ($.data/keyword "hook.result"))
 
 
 
 (def ^Keyword log
-              ($.code/keyword "log"))
+              ($.data/keyword "log"))
 
 
 
 (def ^Keyword main
-              ($.code/keyword "main"))
+              ($.data/keyword "main"))
 
 
 
 (def ^Keyword out
-              ($.code/keyword "out"))
+              ($.data/keyword "out"))
 
 
 
 (def ^Keyword path
-              ($.code/keyword "path"))
+              ($.data/keyword "path"))
 
 
 
 (def ^Keyword phase
-              ($.code/keyword "phase"))
+              ($.data/keyword "phase"))
 
 
 
 (def ^Keyword read
-              ($.code/keyword "read"))
+              ($.data/keyword "read"))
 
 
 
 (def ^Keyword run
-              ($.code/keyword "run"))
+              ($.data/keyword "run"))
 
 
 
 (def ^Keyword screen-clear
-              ($.code/keyword "screen.clear"))
+              ($.data/keyword "screen.clear"))
 
 
 
 (def ^Keyword splice
-              ($.code/keyword "splice"))
+              ($.data/keyword "splice"))
 
 
 
 (def ^Keyword src
-              ($.code/keyword "src"))
+              ($.data/keyword "src"))
 
 
 
 (def ^Keyword sreq
-              ($.code/keyword "special-trx"))
+              ($.data/keyword "special-trx"))
 
 
 
 (def ^Keyword trx
-              ($.code/keyword "trx"))
+              ($.data/keyword "trx"))
 
 
 
 (def ^Keyword trx-eval
-              ($.code/keyword "trx.eval"))
+              ($.data/keyword "trx.eval"))
 
 
 
 (def ^Keyword trx-prepare
-              ($.code/keyword "trx.prepare"))
+              ($.data/keyword "trx.prepare"))
 
 
 
 (def ^Keyword try
-              ($.code/keyword "try"))
+              ($.data/keyword "try"))
 
 
 
 (def ^Keyword watch
-              ($.code/keyword "watch"))
+              ($.data/keyword "watch"))

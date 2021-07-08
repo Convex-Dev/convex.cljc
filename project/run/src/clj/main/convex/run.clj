@@ -87,7 +87,7 @@
   (:refer-clojure :exclude [eval
                             load])
   (:require [clojure.java.io]
-            [convex.code      :as $.code]
+            [convex.data      :as $.data]
             [convex.read      :as $.read]
             [convex.cvm       :as $.cvm]
             [convex.run.ctx   :as $.run.ctx]
@@ -127,9 +127,9 @@
   [env]
 
   (or (when-some [trx (first (env :convex.run/trx+))]
-        (when ($.code/list? trx)
+        (when ($.data/list? trx)
           (let [^AList form (first trx)]
-            (when (and ($.code/list? form)
+            (when (and ($.data/list? form)
                        (= (count form)
                           3)
                        (= (.get form
@@ -145,17 +145,17 @@
                                 2)
                           $.run.sym/dep))
               (let [sym->dep (second trx)]
-                (if ($.code/map? sym->dep)
+                (if ($.data/map? sym->dep)
                   (reduce (fn [env-2 [cvm-sym cvm-str-dep]]
                             (if-some [err-message (cond
-                                                    (not ($.code/string? cvm-str-dep)) (str "Dependency must be a path to a file (string), not: "
+                                                    (not ($.data/string? cvm-str-dep)) (str "Dependency must be a path to a file (string), not: "
                                                                                             cvm-str-dep)
-                                                    (not ($.code/symbol? cvm-sym))     (format "Dependency '%s' must be defined under a symbol, not: %s"
+                                                    (not ($.data/symbol? cvm-sym))     (format "Dependency '%s' must be defined under a symbol, not: %s"
                                                                                                cvm-str-dep
                                                                                                cvm-sym))]
                               (reduced ($.run.err/signal env
-                                                         (-> ($.code/error ($.cvm/code-std* :CAST)
-                                                                           ($.code/string err-message))
+                                                         (-> ($.data/error ($.cvm/code-std* :CAST)
+                                                                           ($.data/string err-message))
                                                              ($.run.err/assoc-phase $.run.kw/dep))))
                               (assoc-in env-2
                                         [:convex.run/sym->dep
@@ -169,8 +169,8 @@
                                   rest)
                           sym->dep)
                   ($.run.err/signal env
-                                    (-> ($.code/error ($.cvm/code-std* :CAST)
-                                                      ($.code/string "Dependencies must but a map of 'symbol' -> 'file path (string)'"))
+                                    (-> ($.data/error ($.cvm/code-std* :CAST)
+                                                      ($.data/string "Dependencies must but a map of 'symbol' -> 'file path (string)'"))
                                         ($.run.err/assoc-phase $.run.kw/dep)))))))))
       env))
           

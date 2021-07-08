@@ -5,10 +5,10 @@
   {:clj-kondo/config '{:linters {:unused-import    {:level :off}
                                  :unused-namespace {:level :off}}}}
 
-  (:require [convex.code     :as $.code]
-            [convex.cvm      :as $.cvm]
+  (:require [convex.cvm      :as $.cvm]
             [convex.clj.eval :as $.clj.eval]
             [convex.clj      :as $.clj]
+            [convex.data     :as $.data]
             [convex.watch    :as $.watch]))
 
 

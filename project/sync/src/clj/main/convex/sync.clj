@@ -15,7 +15,7 @@
            (java.nio.file NoSuchFileException))
   (:refer-clojure :exclude [eval
                             load])
-  (:require [convex.code :as $.code]
+  (:require [convex.data :as $.data]
             [convex.read :as $.read]
             [convex.cvm  :as $.cvm]))
 
@@ -273,7 +273,7 @@
                                         [(if (string? input)
                                            (.getCanonicalPath (File. ^String input))
                                            input)
-                                         ($.code/symbol (str sym))]))
+                                         ($.data/symbol (str sym))]))
                                 []
                                 sym->input)
          input->cvm-sym (into {}
@@ -302,8 +302,8 @@
                                               err)
                               (assoc-code env
                                           input
-                                          ($.code/def (input->cvm-sym input)
-                                                      ($.code/quote form+))))))]
+                                          ($.data/def (input->cvm-sym input)
+                                                      ($.data/quote form+))))))]
      (-> {:convex.sync/input+         (mapv first
                                             input+)
           :convex.sync/input->cvm-sym input->cvm-sym

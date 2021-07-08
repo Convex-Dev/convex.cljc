@@ -21,8 +21,8 @@
                              AMap)
            (convex.core.lang.impl ErrorValue))
   (:refer-clojure :exclude [sync])
-  (:require [convex.code    :as $.code]
-            [convex.cvm     :as $.cvm]
+  (:require [convex.cvm     :as $.cvm]
+            [convex.data    :as $.data]
             [convex.run.ctx :as $.run.ctx]
             [convex.run.kw  :as $.run.kw]))
 
@@ -46,7 +46,7 @@
       (assoc :convex.run/error
              (.assoc err
                      $.run.kw/exception?
-                     ($.code/boolean true)))
+                     ($.data/boolean true)))
       (cond->
         (env :convex.sync/ctx)
         (-> (update :convex.sync/ctx
@@ -100,9 +100,9 @@
 
   (^AMap [^ErrorValue ex]
 
-   ($.code/error (.getCode ex)
+   ($.data/error (.getCode ex)
                  (.getMessage ex)
-                 ($.code/vector (.getTrace ex))))
+                 ($.data/vector (.getTrace ex))))
 
 
   (^AMap [ex phase ^ACell trx]
@@ -121,8 +121,8 @@
 
   [message]
 
-  (-> ($.code/error ($.cvm/code-std* :FATAL)
-                    ($.code/string message))
+  (-> ($.data/error ($.cvm/code-std* :FATAL)
+                    ($.data/string message))
       (assoc-phase $.run.kw/main)))
 
 
@@ -143,7 +143,7 @@
 
   [code ^ACell trx message]
 
-  (-> ($.code/error code
+  (-> ($.data/error code
                     message)
       (.assoc $.run.kw/trx
               trx)
@@ -166,11 +166,11 @@
 
   ([kind path->reason]
 
-   (-> ($.code/error ($.cvm/code-std* :FATAL)
+   (-> ($.data/error ($.cvm/code-std* :FATAL)
                      (reduce-kv (fn [^AMap path->reason--2 path reason]
                                   (.assoc path->reason--2
-                                          ($.code/string path)
-                                          ($.code/string (case kind
+                                          ($.data/string path)
+                                          ($.data/string (case kind
 
                                                            :load
                                                            (case (first reason)
@@ -179,7 +179,7 @@
                                                              :unknown   "Unknown error while loading and parsing dependency file")
 
                                                            "Unknown error while loading dependency file"))))
-                                ($.code/map)
+                                ($.data/map)
                                 path->reason))
        (assoc-phase $.run.kw/dep))))
 
@@ -191,8 +191,8 @@
 
   []
 
-  (-> ($.code/error ($.cvm/code-std* :FATAL)
-                    ($.code/string "Unknown error occured while setting up the file watcher"))
+  (-> ($.data/error ($.cvm/code-std* :FATAL)
+                    ($.data/string "Unknown error occured while setting up the file watcher"))
       (assoc-phase $.run.kw/watch)))
 
 
@@ -219,7 +219,7 @@
   ([env ^ACell form message cause]
 
    (fatal env
-          (-> ($.code/error ($.cvm/code-std* :FATAL)
+          (-> ($.data/error ($.cvm/code-std* :FATAL)
                             message)
               ;(.assoc $.run.kw/form
               ;        form)
@@ -231,7 +231,7 @@
 
   "Uses [[attach] and ultimately passes the environment to the error hook.
   
-   Arity 2 and 3 are shortcuts to [[convex.code/error]] for building an error map on the spot."
+   Arity 2 and 3 are shortcuts to [[convex.data/error]] for building an error map on the spot."
 
   ([env err]
 
@@ -243,13 +243,13 @@
   ([env code message]
 
    (signal env
-           ($.code/error code
+           ($.data/error code
                          message)))
 
 
   ([env code message trace]
 
    (signal env
-           ($.code/error code
+           ($.data/error code
                          message
                          trace))))

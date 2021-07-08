@@ -1,4 +1,4 @@
-(ns convex.code
+(ns convex.data
 
   "Constructors for CVM objects and predicate functions for those objects."
 
@@ -340,15 +340,15 @@
   ([code]
 
    (list [Symbols/DEPLOY
-          (convex.code/quote code)]))
+          (convex.data/quote code)]))
 
 
   ([sym code]
 
    (let [sym-2 (-sym sym)]
-     (convex.code/do [(convex.code/def sym-2
+     (convex.data/do [(convex.data/def sym-2
                                        (deploy code))
-                      (convex.code/import (list [(symbol "address")
+                      (convex.data/import (list [(symbol "address")
                                                     sym-2])
                                              sym-2)]))))
 

@@ -6,8 +6,8 @@
                                  :unused-namespace {:level :off}}}}
 
   (:require [clojure.pprint]
-            [convex.code      :as $.code]
             [convex.cvm       :as $.cvm]
+            [convex.data      :as $.data]
             [convex.run       :as $.run]
             [convex.run.ctx   :as $.run.ctx]
             [convex.run.err   :as $.run.err]

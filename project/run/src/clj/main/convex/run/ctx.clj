@@ -10,8 +10,8 @@
   (:import (convex.core.data AVector))
   (:refer-clojure :exclude [cycle])
   (:require [clojure.java.io]
-            [convex.code      :as $.code]
             [convex.cvm       :as $.cvm]
+            [convex.data      :as $.data]
             [convex.read      :as $.read]
             [convex.run.sym   :as $.run.sym]))
 
@@ -133,7 +133,7 @@
   [env]
 
   (def-help env
-            {$.run.sym/cycle ($.code/long (or (env :convex.watch/cycle)
+            {$.run.sym/cycle ($.data/long (or (env :convex.watch/cycle)
                                               0))}))
 
 
@@ -162,7 +162,7 @@
   (if-some [path (env :convex.run/path)]
     (def-help env
               :convex.sync/ctx-base
-              {$.run.sym/file ($.code/string path)})
+              {$.run.sym/file ($.data/string path)})
     env))
 
 
@@ -180,7 +180,7 @@
 
   (def-help env
             {$.run.sym/trx-form form
-             $.run.sym/trx-id   ($.code/long (env :convex.run/i-trx))}))
+             $.run.sym/trx-id   ($.data/long (env :convex.run/i-trx))}))
 
 
 
@@ -199,10 +199,10 @@
   [env form juice-last result]
 
   (def-help env
-            {$.run.sym/juice-total     ($.code/long (env :convex.run/juice-total))
+            {$.run.sym/juice-total     ($.data/long (env :convex.run/juice-total))
              $.run.sym/trx-form        nil
              $.run.sym/trx-id          nil
              $.run.sym/trx-last-form   form
-             $.run.sym/trx-last-id     ($.code/long (env :convex.run/i-trx))
-             $.run.sym/trx-last-juice  ($.code/long juice-last)
+             $.run.sym/trx-last-id     ($.data/long (env :convex.run/i-trx))
+             $.run.sym/trx-last-juice  ($.data/long juice-last)
              $.run.sym/trx-last-result result}))

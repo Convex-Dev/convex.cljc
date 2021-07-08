@@ -36,8 +36,8 @@
                             eval
                             time])
   (:require [clojure.core.protocols]
-            [convex.code             :as $.code]
             [convex.clj              :as $.clj]
+            [convex.data             :as $.data]
             [convex.read             :as $.read]))
 
 
@@ -99,7 +99,7 @@
   (cond->
     x
     (number? x)
-    $.code/address))
+    $.data/address))
 
 
 
@@ -275,7 +275,7 @@
 
   "Creates an new account, with a `key` (user) or without (actor).
 
-   See [[convex.code/key]].
+   See [[convex.data/key]].
   
    Address is attached as a result in the returned context."
 
@@ -432,8 +432,8 @@
                  state
                  (.applyBlock (Block/create (long (+ (.longValue (time ctx))
                                                      millis))
-                                            ($.code/key ($.code/blob (byte-array 32)))
-                                            ($.code/vector [])))
+                                            ($.data/key ($.data/blob (byte-array 32)))
+                                            ($.data/vector [])))
                  .getState)))
 
 

@@ -6,66 +6,66 @@
 
   (:import (convex.core.data Symbol))
   (:refer-clojure :exclude [cycle])
-  (:require [convex.code :as $.code]))
+  (:require [convex.data :as $.data]))
 
 
 ;;;;;;;;;;
 
 
 (def ^Symbol cycle
-             ($.code/symbol "*cycle*"))
+             ($.data/symbol "*cycle*"))
 
 
 
 (def ^Symbol dep
-             ($.code/symbol "dep"))
+             ($.data/symbol "dep"))
 
 
 
 (def ^Symbol error
-             ($.code/symbol "*error*"))
+             ($.data/symbol "*error*"))
 
 
 
 (def ^Symbol file
-             ($.code/symbol "*file*"))
+             ($.data/symbol "*file*"))
 
 
 
 (def ^Symbol juice-total
-             ($.code/symbol "*juice*"))
+             ($.data/symbol "*juice*"))
 
 
 
 (def ^Symbol sreq
-             ($.code/symbol "sreq"))
+             ($.data/symbol "sreq"))
 
 
 
 (def ^Symbol trx-form
-             ($.code/symbol "*trx.form*"))
+             ($.data/symbol "*trx.form*"))
 
 
 
 (def ^Symbol trx-id
-             ($.code/symbol "*trx.id*"))
+             ($.data/symbol "*trx.id*"))
 
 
 
 (def ^Symbol trx-last-form
-             ($.code/symbol "*trx.last.form*"))
+             ($.data/symbol "*trx.last.form*"))
 
 
 
 (def ^Symbol trx-last-id
-             ($.code/symbol "*trx.last.id*"))
+             ($.data/symbol "*trx.last.id*"))
 
 
 
 (def ^Symbol trx-last-juice
-             ($.code/symbol "*trx.last.juice*"))
+             ($.data/symbol "*trx.last.juice*"))
 
 
 
 (def ^Symbol trx-last-result
-             ($.code/symbol "*trx.last.result*"))
+             ($.data/symbol "*trx.last.result*"))

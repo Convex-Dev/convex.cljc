@@ -8,8 +8,8 @@
   (:refer-clojure :exclude [compile
                             cycle
                             eval])
-  (:require [convex.code    :as $.code]
-            [convex.cvm     :as $.cvm]
+  (:require [convex.cvm     :as $.cvm]
+            [convex.data    :as $.data]
             [convex.run.ctx :as $.run.ctx]
             [convex.run.err :as $.run.err]
             [convex.run.kw  :as $.run.kw]))
@@ -69,7 +69,7 @@
 
   ([result]
 
-   (when (and ($.code/vector? result)
+   (when (and ($.data/vector? result)
               (>= (count result)
                   2)
               (= (.get ^AVector result
@@ -255,7 +255,7 @@
            (catch Throwable _ex
              ($.run.err/signal env-3
                                ($.cvm/code-std* :FATAL)
-                               ($.code/string "Unknown error happened while finalizing transaction")))))))))
+                               ($.data/string "Unknown error happened while finalizing transaction")))))))))
 
 
 
