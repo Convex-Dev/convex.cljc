@@ -1,4 +1,4 @@
-(ns dev
+(ns convex.clj.dev
 
   "Daydreaming at the REPL."
 

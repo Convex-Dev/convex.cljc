@@ -1,4 +1,5 @@
-(ns dev
+(ns convex.all.dev
+
 
   "Daydreaming at the REPL."
 

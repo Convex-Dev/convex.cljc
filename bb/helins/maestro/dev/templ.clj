@@ -22,7 +22,7 @@
       (throw (ex-info "Cannot copy dev template, file already exists"
                       {::path path-dev}))
       (bb.fs/copy (str root
-                       "/templ.clj")
+                       "/dev_templ.clj")
                   path-dev))))
 
 

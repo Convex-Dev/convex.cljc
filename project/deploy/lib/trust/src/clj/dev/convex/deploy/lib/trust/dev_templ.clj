@@ -1,4 +1,4 @@
-(ns dev
+(ns convex.deploy.lib.trust.dev
 
   "Daydreaming at the REPL."
 

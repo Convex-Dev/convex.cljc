@@ -1,4 +1,4 @@
-(ns dev
+(ns convex.deploy.lab.lib.xform.dev
 
   "Daydreaming at the REPL."
 
