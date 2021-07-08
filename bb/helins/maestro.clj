@@ -37,7 +37,7 @@
   ([ctx]
 
    (walk ctx
-         (ctx :maestro/cli+)))
+         (ctx :maestro/main+)))
 
 
   ([ctx alias+]
@@ -120,7 +120,7 @@
                    {}))
           (assoc :maestro/aggr    aggr
                  :maestro/arg+    (rest cli-arg+)
-                 :maestro/cli+    (or (and (clojure.string/starts-with? arg-first-2
+                 :maestro/main+   (or (and (clojure.string/starts-with? arg-first-2
                                                                         ":")
                                            (->> (clojure.string/split arg-first-2
                                                                       #":")

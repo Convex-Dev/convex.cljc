@@ -29,19 +29,31 @@
 
   ""
 
+  [ctx alias]
+
+  (related+ ctx
+            :maestro/dev
+            "dev"
+            alias))
+
+
+
+(defn dev+
+
+  ""
+
 
   ([ctx]
 
-   (dev ctx
-        (first (ctx :maestro/cli+))))
+   (dev+ ctx
+         (ctx :maestro/require)))
 
 
-  ([ctx alias]
+  ([ctx alias+]
 
-   (related+ ctx
-             :maestro/dev
-             "dev"
-             alias)))
+   (mapcat (partial dev
+                    ctx)
+           alias+)))
 
 
 
@@ -53,7 +65,7 @@
   ([ctx]
 
    (main-class ctx
-               (last (ctx :maestro/cli+))))
+               (last (ctx :maestro/main+))))
 
 
   ([ctx alias]

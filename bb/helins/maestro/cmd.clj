@@ -26,22 +26,19 @@
 
   ([ctx alias+]
 
-   (let [required (ctx :maestro/require)]
-     (-> ctx
-         (assoc :maestro/require
-                [])
-         ($/walk ($.alias/test+ ctx
-                                alias+))
-         (as->
-           ctx-2
-           (assoc ctx-2
-                  :maestro/test+
-                  (ctx-2 :maestro/require)))
-         (assoc :maestro/main+
-                required)
-         (update :maestro/require
-                 concat
-                 required)))))
+   (-> ctx
+       (assoc :maestro/require
+              [])
+       ($/walk ($.alias/test+ ctx
+                              alias+))
+       (as->
+         ctx-2
+         (assoc ctx-2
+                :maestro/test+
+                (ctx-2 :maestro/require)))
+       (update :maestro/require
+               concat
+               (ctx :maestro/require)))))
 
 
 ;;;;;;;;;; Preparing for commands (calling a function, launching dev mode, ...)
@@ -56,8 +53,7 @@
   (-> ctx
       ($/walk (concat [:task/test
                        :task/dev]
-                      ($.alias/dev ctx)
-                      (ctx :maestro/cli+)))
+                      (ctx :maestro/main+)))
       require-test
       (update :maestro/exec-char
               #(or %
@@ -121,7 +117,7 @@
   [ctx f-test-alias+]
 
   (-> ctx
-      ($/walk (conj (ctx :maestro/cli+)
+      ($/walk (conj (ctx :maestro/main+)
                     :task/test))
       (as->
         ctx-2
@@ -148,4 +144,4 @@
   [ctx]
 
   (test ctx
-        :maestro/cli+))
+        :maestro/main+))

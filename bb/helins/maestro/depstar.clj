@@ -17,8 +17,10 @@
 
   [ctx dir alias f]
 
-  (let [ctx-2      ($/walk ctx)
-        alias-main (last (ctx-2 :maestro/cli+))]
+  (let [main+      (ctx :maestro/main+)
+        ctx-2      ($/walk ctx
+                           main+)
+        alias-main (last main+)]
     (-> ctx-2
         ($/walk [alias])
         (assoc :maestro/main
