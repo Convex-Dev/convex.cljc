@@ -12,6 +12,7 @@
             [convex.clj.eval               :as $.clj.eval]
             [convex.clj                    :as $.clj]
             [convex.clj.gen                :as $.clj.gen]
+            [convex.clj.translate          :as $.clj.translate]
             [convex.data                   :as $.data]
             [helins.mprop                  :as mprop]))
 
@@ -368,7 +369,7 @@
         ($.clj/= ($.clj.eval/result x-return)
                  (-> ctx
                      $.cvm/result
-                     $.cvm/as-clojure))
+                     $.clj.translate/cvx->clj))
 
 
         "State has been rolled back"

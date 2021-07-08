@@ -12,10 +12,11 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.cvm  :as $.cvm]
-            [convex.clj  :as $.clj]
-            [convex.data :as $.data]
-            [convex.read :as $.read]))
+  (:require [convex.cvm           :as $.cvm]
+            [convex.clj           :as $.clj]
+            [convex.clj.translate :as $.clj.translate]
+            [convex.data          :as $.data]
+            [convex.read          :as $.read]))
 
 
 (declare result)
@@ -54,7 +55,7 @@
 
   "Evaluates the given `form` and returns `ctx`.
   
-   Uses [[convex.cvm/*ctx-default*]] if `ctx` is not provided."
+   Uses [[*ctx-default*]] if `ctx` is not provided."
 
 
   ([form]
@@ -109,7 +110,7 @@
    (->> (convex.clj.eval/ctx ctx
                              form)
         ($.cvm/exception code)
-        $.cvm/as-clojure)))
+        $.clj.translate/cvx->clj)))
 
 
 
@@ -197,7 +198,7 @@
    (-> (convex.clj.eval/ctx ctx
                             form)
        $.cvm/exception
-       $.cvm/as-clojure)))
+       $.clj.translate/cvx->clj)))
 
 
 
@@ -334,7 +335,7 @@
       process (fn [ctx]
                 (-> ctx
                     $.cvm/log
-                    $.cvm/as-clojure))]
+                    $.clj.translate/cvx->clj))]
   (defn log
 
     "Like [[ctx]] but returns the context log as Clojure data structure, where the last entry for the executing
@@ -388,7 +389,7 @@
    (-> (convex.clj.eval/ctx ctx
                             form)
        $.cvm/result
-       $.cvm/as-clojure)))
+       $.clj.translate/cvx->clj)))
 
 
 
@@ -426,7 +427,7 @@
      (-> (if (nil? exception)
            ($.cvm/result ctx-2)
            exception)
-         $.cvm/as-clojure))))
+         $.clj.translate/cvx->clj))))
 
 
 

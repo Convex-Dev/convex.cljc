@@ -143,7 +143,7 @@
   :bundle/deploy
 
   {:maestro/doc     "Bundles aliases needed when developping Convex Lisp libraries"
-   :maestro/require [:project/clj
+   :maestro/require [:project/clojurify
                      :project/cvm
                      :project/watch]}
 
@@ -175,7 +175,7 @@
                      :project/app.run
                      :project/break
                      :project/cvm
-                     :project/clj
+                     :project/clojurify
                      :project/deploy.lab.lib.xform
                      :project/deploy.lib.trust
                      :project/run
@@ -199,7 +199,7 @@
    :maestro/require [:ext/test.check
                      :project/break
                      :project/cvm
-                     :project/clj
+                     :project/clojurify
                      :toggle/tap]
    :maestro/root    "project/app/fuzz"}
 
@@ -231,7 +231,7 @@
   {:extra-paths     ["project/break/src/clj/main"
                      "project/break/src/cvx/main"]
    :maestro/doc     "Advanced generative testing against the CVM"
-   :maestro/require [:project/clj
+   :maestro/require [:project/clojurify
                      :project/cvm
                      :project/sync]
    :maestro/root    "project/break"}
@@ -246,9 +246,8 @@
   :project/cvm
 
   {:extra-paths     ["project/cvm/src/clj/main"]
-   :maestro/doc     "Clojure wrapper for CVM contextes"
-   :maestro/require [:ext/convex
-                     :project/clj]
+   :maestro/doc     "Handling CVM contextes and Convex data"
+   :maestro/require [:ext/convex]
    :maestro/root    "project/cvm"}
 
 
@@ -263,7 +262,7 @@
  
   ;---
 
-  :project/clj
+  :project/clojurify
 
   {:extra-paths     ["project/clojurify/src/clj/main"]
    :maestro/doc     "Writing Convex Lisp forms as Clojure data and related utilities"
@@ -272,12 +271,12 @@
    :maestro/root    "project/clojurify"}
 
 
-  :dev/clj
+  :dev/clojurify
 
   {:extra-paths ["project/clojurify/src/clj/dev"]}
 
 
-  :test/clj
+  :test/clojurify
 
   {:extra-paths ["project/clojurify/src/clj/test"]}
 

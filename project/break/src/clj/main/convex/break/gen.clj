@@ -10,7 +10,8 @@
             [convex.cvm                    :as $.cvm]
             [convex.clj.eval               :as $.clj.eval]
             [convex.clj                    :as $.clj]
-            [convex.clj.gen                :as $.clj.gen]))
+            [convex.clj.gen                :as $.clj.gen]
+            [convex.clj.translate          :as $.clj.translate]))
 
 
 (declare kv+)
@@ -126,7 +127,7 @@
   "Any of the core symbols."
 
   (TC.gen/elements (into []
-                         (comp (map (comp $.cvm/as-clojure
+                         (comp (map (comp $.clj.translate/cvx->clj
                                           first))
                                (filter #(not (contains? #{'actor  ;; TODO. https://github.com/Convex-Dev/convex/issues/152
                                                           'expand ;; TODO. https://github.com/Convex-Dev/convex/issues/149

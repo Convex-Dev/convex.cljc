@@ -52,7 +52,7 @@
 
 (defn list
 
-  "Turns the given collection into a `(list ...)` and store information in metadata
+  "Turns the given collection into a `(list ...)` and stores information in metadata
    like typed symbols."
 
   [x+]
