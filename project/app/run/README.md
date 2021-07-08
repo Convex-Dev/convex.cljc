@@ -1,16 +1,26 @@
-# Project 'app/run'
+# `:project/app.run`
 
 **Namespaces of interest**: `$.app.run`
 
-Convex Lisp Runner. CLI interface built on top of [project 'run'](../../run) for executing Convex Lisp from the terminal.
+Convex Lisp Runner. CLI interface built on top of [`:project/run`](../../run) for executing Convex Lisp from the terminal.
 
-Offers a highly-productive environment for writing, developping, testing, or scripting with Convex Lisp from the comfort
-of your own editor. Depencency management included.
+Offers a highly-productive environment for writing, developing, testing, or scripting with Convex Lisp from the comfort
+of your own editor. With or without live-reloading. Depencency management included.
 
 Each form is evaluated as a transaction. Evaluation stops whenever an unhandled error or CVM exception occurs.
 
 
 ## Usage
+
+
+### As a CLI app
+
+See Babashka tasks mentioned in the root README for running from the terminal or uberjarring as a CLI application.
+
+No providing any CLI argument will print help and user can also mimicks arguments demonstrated below.
+
+
+### From Clojure
 
 Printing help:
 
@@ -77,7 +87,7 @@ For more information:
 ($.app.run/-main "describe" "sreq")
 ```
 
-This [example file](./../../run/src/cvx/example/convex/run/example.cvx) demonstrates all supported special requests. User is invited to gradually
+This [example file](./../../run/src/cvx/dev/convex/run/example.cvx) demonstrates all supported special requests. User is invited to gradually
 remove comments, run or watch the file and see what happens.
 
 
@@ -98,10 +108,3 @@ Lisp function. In Convex Lisp, one can run:
 ```clojure
 (help/about sreq 'out)
 ```
-
-
-## License
-
-Currently unlicensed.
-
-Copyright © 2021 Adam Helinski

@@ -26,7 +26,7 @@
 
          dev:templ:copy
 
-         {:doc      "In the directory given as argument, copies `./templ.clj` (public) to `./dev.clj` (private)"
+         {:doc      "In the directory given as argument, copies `./dev_templ.clj` (public) to `./dev.clj` (private)"
           :requires ([helins.maestro.dev.templ.run :as maestro.dev.templ.run])
           :task     (maestro.dev.templ.run/copy)}
 

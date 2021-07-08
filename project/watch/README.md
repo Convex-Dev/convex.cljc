@@ -1,8 +1,8 @@
-# Project 'Watch'
+# `:project/watch`
 
 **Namespaces of interest:** `$.watch`
 
-Built on top of [project 'Sync'](../sync), this projects provides a live-reloading experience at the REPL.
+Built on top of [`:project/sync`](../sync), this projects provides a live-reloading experience at the REPL.
 
 Anytime a dependency is modified on disk, it is reloaded and a new, updated context is created.
 
@@ -19,7 +19,7 @@ In essence:
                                                           $.clj.eval/ctx
                                                           '(def $
                                                                 (deploy (first $)))))
-                        :convex.watch/sym->dep  {'$ "project/break/src/cvx/main"}})
+                        :convex.watch/sym->dep  {'$ "project/break/src/cvx/main/convex/break.cvx"}})
          $.watch/start))
 
 
@@ -30,11 +30,4 @@ In essence:
 ($.watch/stop a*env)
 ```
 
-The above example live-reloads only one file and ressembles the example in [project 'Sync'](../sync).
-
-
-## License
-
-Currently unlicensed.
-
-Copyright © 2021 Adam Helinski
+The above example live-reloads only one file and ressembles the example in [`:project/sync`](../sync).

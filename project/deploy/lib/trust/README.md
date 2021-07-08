@@ -1,10 +1,3 @@
-# Subproject 'Deploy/lib/trust'
+# `:project/deploy.lib.trust'
 
 WIP.
-
-
-## License
-
-Currently unlicensed.
-
-Copyright © 2021 Adam Helinski

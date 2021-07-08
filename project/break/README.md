@@ -1,25 +1,24 @@
-# Project 'Break'
+# `:project/break`
 
 Advanced suite of generative tests targetting the CVM.
 
-Builds upon [project 'Clojurify'] which provides utilities that allows to quickly write Convex Lisp as Clojure data and
-evaluating such code for different scenarios. It also defines a series of useful [test.check]((https://github.com/clojure/test.check)
-generators.
+Builds upon [`:project/clojurify`](../clojurify) which provides utilities for quickly writing Convex Lisp as Clojure data and
+evaluating such code for different scenarios. It also defines a series of useful [test.check](https://github.com/clojure/test.check)
+generators used extensively in this project.
 
-This great combination is showcased in all test files found in `./src/clj/test`. Those tests helped uncovering dozens of issues
-and bugs in the CVM, contributing to making it strong and robust.
+This great combination is showcased in all the [test files](./src/clj/test) from this project. Those tests helped uncovering dozens of issues
+and bugs in the CVM, contributing to making it strong and robust, and serve as a prime example.
 
-Those tests structures generative assertions using the [Mprop](https://github.com/helins/mprop.cljc) library. It is highly
-recommended for writing sophisticated tests fearlessly.
+Generative assertions are structured using the [Mprop](https://github.com/helins/mprop.cljc) library. It is highly recommended for writing
+such sophisticated tests fearlessly.
 
 
 ## Running tests
 
-See BB tasks at the root of this repository. By default, they take several minutes depending on hardware.
+By default, they take several minutes depending on hardware.
 
+From your terminal, at the root of this repository:
 
-## License
-
-Currently unlicensed.
-
-Copyright © 2021 Adam Helinski
+```bash
+$ bb test:narrow :project/break
+```

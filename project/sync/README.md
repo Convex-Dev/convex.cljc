@@ -1,8 +1,8 @@
-# Project 'Sync'
+# `:project/sync`
 
 **Namespaces of interest:** `$.sync`
 
-While [project 'CVM'](../cvm) offers a low-level API for evaluating Convex Lisp, there exists a higher-level
+While [`:project/cvm`](../cvm) offers a low-level API for evaluating Convex Lisp, there exists a higher-level
 concern for integrating source code from different sources and syncing everything into a context.
 
 An obvious need is reading source files from disk and ending up with a context that has somehow evaluated them.
@@ -28,18 +28,11 @@ The above example specifies a map of `symbol` -> `path`. A map is returned which
 context. Each specified source file is passed through the Convex Lisp reader and produces a CVM list of forms which is defined
 under its requested symbol, as unevaluated code.
 
-Further, using utilities from [project 'Clojurify'](../clojurify), are used to deploy the code as an actor and query the `foo`
+Further, using utilities from [`:project/clojurify`](../clojurify), are used to deploy the code as an actor and query the `foo`
 value from it.
 
 This example showcases the power of Lisp and having code as data: users can manipulate and evaluate source code exactly as
 needed.
 
-[Project 'watch'](../watch) goes further and builds on top of this project for providing a live-reloading experience.
-[Project 'run'](../run) relies on both.
-
-
-## License
-
-Currently unlicensed.
-
-Copyright © 2021 Adam Helinski
+[`:project/watch`](../watch) goes further and builds on top of this project for providing a live-reloading experience.
+[`:project/run`](../run) relies on both.

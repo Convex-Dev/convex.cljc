@@ -1,10 +1,10 @@
-# Project 'Clojurify'
+# `:project/clojurify`
 
 Convex Lisp is particularly close to Clojure on many aspects.
 
-[Project 'CVM'] exposes low-level features for executing Convex Lisp code via a CVM context while this project offers
-high-productivity utilities for producing Convex Lisp code from Clojure data structures. Those utilities are especially
-useful during development and testing.
+[`:project/cvm`](../cvm) exposes low-level features for executing Convex Lisp code via a CVM context and handling Convex data.
+This project offers high-productivity utilities for producing Convex Lisp code from Clojure data structures. Those utilities
+are especially useful during development and testing (eg. see [`:project/break`](../break)).
 
 
 ## Writing Convex Lisp as Clojure data structures
@@ -60,18 +60,16 @@ in their metadata:
 
 ## Producing source
 
-**Namespaces of interest:** `$.clj`, `$.cvm` (project 'CVM')
+**Namespaces of interest:** `$.clj`, `$.read`
 
 Revelant Clojure values can be converted to Convex Lisp and read back using the Convex Lisp reader:
 
 ```clojure
-(first ($.cvm/read ($.clj/src '(+ 2 2))))
-```
-
-This is essentially what the following does:
-
-```clojure
-($.cvm/read-clojure '(+ 2 2))
+(-> '(+ 2 2)       ; Form written in Clojure
+    $.clj/src      ; As string
+    $.read/string  ; Read back as a Convex list of Convex data
+    first          ; Grab first and only one
+    )
 ```
 
 
@@ -99,13 +97,13 @@ For avoiding confusion, when using this macro, only `~` and `~@` are actually pr
 
 ## Shortcuts for evaluation
 
-**Namespaces of interest:** `$.clj.eval`, `$.cvm` (project 'CVM')
+**Namespaces of interest:** `$.clj.eval`, `$.cvm`
 
 As empirically proven, the above utilities are most useful during development and evaluation. Functions for common evaluation patterns
 have been prepared in order to make it particularly easy, especially when writing sophisticated tests. Similar macros have been added
 which automatically provides the templating experience described in the previous section.
 
-Results and CVM are also automatically converted to Clojure data for easy consumption.
+Results and CVM exceptions are also automatically converted to Clojure data for easy consumption.
 
 ```clojure
 ;; Directly evaluating to a result.
@@ -124,7 +122,7 @@ Results and CVM are also automatically converted to Clojure data for easy consum
                          (+ ~x 4))))
 ```
 
-Any of those functions always forks the given context. See `convex.cvm/fork` from [project 'CVM'](../cvm).
+Any of those functions always fork the given context. See `$.cvm/fork` from [`:project/cvm`](../cvm).
 
 Here is a common scenario of preparing a base context and then easily reusing it, as often seen in tests, knowing
 forks will not affect the original:
@@ -174,14 +172,7 @@ the following is possible:
 **Namespaces of interest:** `$.clj.gen`
 
 Generative tests using [test.check](https://github.com/clojure/test.check) offer a highly productive and robust way of findings bugs in
-Convex Lisp and smart contracts, as described in [project 'Break'](../break) which should be studied for learning about such methods.. 
+Convex Lisp and smart contracts, as described in [`:project/break`](../break) which should be studied for learning about such methods.. 
 
 Common useful generators are defined in the `$.clj.gen` namespaces and are a great match for the `$.clj.eval` namespace described above and
 the templating utilities.
-
-
-## License
-
-Currently unlicensed.
-
-Copyright © 2021 Adam Helinski

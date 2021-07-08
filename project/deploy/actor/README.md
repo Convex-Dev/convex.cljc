@@ -1,6 +1,4 @@
-# Subproject 'Deploy/actor'
-
-Each directory points to a dev and test environment for Convex actors officially managed and deployed by the Convex Foundation.
+Each directory points to a dev and test environment for a Convex actor officially managed by the Convex Foundation.
 
 Documentation is currently work in progress.
 
@@ -11,10 +9,3 @@ Documentation is currently work in progress.
 | [registry](./registry) | WIP | WIP |
 | [secured-loan](./secured-loan) | WIP | WIP |
 | [torus](./torus) | WIP | WIP |
-
-
-## License
-
-Currently unlicensed.
-
-Copyright © 2021 Adam Helinski

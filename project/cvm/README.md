@@ -1,4 +1,4 @@
-# Project 'CVM'
+# `:project/cvm`
 
 The Convex Virtual Machine executes operations over state, as described in [CAD 005](https://github.com/Convex-Dev/design/blob/main/cad/005_cvmex/README.md).
 
@@ -6,38 +6,38 @@ This project offers a toolset running a CVM locally, purely in memory, without r
 Convex Lisp and gain various insights.
 
 
-## CVM types
+## Convex data
 
-**Namespaces of interest:** `$.code`
+**Namespaces of interest:** `$.data`
 
 CVM types are described in [CAD 002] and consist of immutable Java objects.
 
-The `$.code` namespace provides a set of functions for creating those objects from scratch, type predicate functions, and a few higher-level utilities:
+The `$.data` namespace provides a set of functions for creating those objects from scratch, type predicate functions, and a few higher-level utilities:
 
 ```clojure
 ;; Creating a CVM vector.
 ;;
 (def v
-     ($.code/vector [($.code/address 42)
-                     ($.code/long 24)
-                     ($.code/keyword "foo")]))
+     ($.data/vector [($.data/address 42)
+                     ($.data/long 24)
+                     ($.data/keyword "foo")]))
 
 
 ;; Yes, it is a vector indeed
 ;;
-($.code/vector? v)
+($.data/vector? v)
 
 
 ;; Creating a `def` form for that vector
 ;;
-(def cvm-dev
-     ($.code/def ($.code/symbol "my-vector")
+(def def-form
+     ($.data/def ($.data/symbol "my-vector")
                  v))
 
 
 ;; It is only a form: `(def my vector [#42 24 :foo])` expressed in CVM objects
 ;;
-($.code/list? cvm-dev)
+($.data/list? def-form)
 ```
 
 Some types works with some aspects of Clojure. For instance, `first` can be applied to collections. Overall, it is safer and more effective to use the Java API
@@ -46,13 +46,13 @@ Some types works with some aspects of Clojure. For instance, `first` can be appl
 
 ## Reading Convex Lisp
 
-**Namespaces of interest:** `$.cvm`
+**Namespaces of interest:** `$.read`
 
-Reading is the process of parsing source code (a Java string) into a CVM list of CVM objects.
+Reading is the process of parsing source code (text) into a Convex list of Convex data.
 
 ```clojure
 (def form+
-     ($.cvm/read "(inc 42) :foo"))
+     ($.read/string "(inc 42) :foo"))
 
 
 ;; Two forms have been read.
@@ -63,16 +63,10 @@ Reading is the process of parsing source code (a Java string) into a CVM list of
 
 ;; Nothing has been evaluated yet.
 ;;
-($.code/list? (first form+))
+($.data/list? (first form+))
 ```
 
-Convex Lisp is so close to Clojure that it is sometimes convenient writing source as Clojure data. Especially during development and testing.
-
-```clojure
-($.cvm/read-clojure '(inc 42))
-```
-
-For more information about leveraging Clojure data for writing Convex Lisp, see [project 'clojurify'](../clojurify).
+The `$.read` namespace provides functions for reading source from strings, files, and others means.
 
 
 ## Creating and handling a CVM context
@@ -86,10 +80,10 @@ A CVM context holds the CVM state as well as extra information. It is needed for
      ($.cvm/ctx))
 ```
 
-Functions `ctx` -> `ctx` are common. While a context is mostly immutable, when using such functions, the input context **MUST** be discarded in favor
-of the output context.
+Functions `ctx` -> `ctx` are common in the `$.cvm` namespace. While a context is mostly immutable, when using such functions, the input context **MUST**
+be discarded in favor of the output context.
 
-The only exception is forking which creates a cheap copy. Whatever happens with a copy as absolutely no effect on the original. It is commonly used for
+The only exception is forking which creates a cheap copy. Whatever happens with a copy has absolutely no effect on the original. It is commonly used for
 preparing a "base" context that is then copied and reused in many situations.
 
 ```clojure
@@ -114,10 +108,10 @@ Evaluation condenses those 3 steps:
 
 ```clojure
 (let [ctx-2 ($.cvm/eval ctx
-                        ($.cvm/read "(+ 2 2)"))
+                        ($.read/string "(+ 2 2)"))
       ex    ($.cvm/exception ctx-2)]
   (if ex
-     ...error-handling
+     :error-handling
      ($.cvm/result ctx-2)))
 ```
 
@@ -125,24 +119,26 @@ Step-by-step with error handling would be structured similarly to:
 
 ```clojure
 (let [ctx-expand ($.cvm/expand ctx
-                               ($.cvm/read "(+ 2 2)"))
+                               ($.read/string "(+ 2 2)"))
       ex-expand  ($.cvm/exception ctx-expand)]
   (if ex-expand
-    ...error-handling
+    :error-handling
     (let [ctx-compile ($.cvm/run ctx-expand
                                  ($.cvm/result ctx-expand))
           ex-compile  ($.cvm/exception ctx-2)]
       (if ex-expand
-        ...
+        :error-handling
         (let [ctx-run ($.cvm/run ctx-compile
                                  ($.cvm/result ctx-compile))
               ex-run  ($.cvm/exception ctx-run)]
           (if ex-run
-             ...
+             :error-handling
              ($.cvm/result ctx-run)))))))
 ```
 
-All those steps consumes juice as described in [CAD 007](https://github.com/Convex-Dev/design/blob/main/cad/007_juice/README.md).
+Hence, user can have full control over those steps, and when something has been compiled, the results can be reused at will.
+
+All those steps consume juice as described in [CAD 007](https://github.com/Convex-Dev/design/blob/main/cad/007_juice/README.md).
 
 
 ## Getting insights and altering context properties
@@ -152,11 +148,4 @@ All those steps consumes juice as described in [CAD 007](https://github.com/Conv
 The API offers utilities for retrieving and altering a variety of common properties from a context and its state: getting/setting juice,
 timestamp, defining symbols in accounts, etc.
 
-If not sufficient, the Java API offers wider possibilities.
-
-
-## License
-
-Currently unlicensed.
-
-Copyright © 2021 Adam Helinski
+It has been designed to fullfill common use cases. If not sufficient, the Java API offers wider possibilities.
