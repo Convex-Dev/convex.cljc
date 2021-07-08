@@ -1,4 +1,4 @@
-(ns convex.break.test.ctrl
+(ns convex.test.break.ctrl
 
   "Testing flow control constructs."
 

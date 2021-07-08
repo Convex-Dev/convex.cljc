@@ -1,4 +1,4 @@
-(ns convex.break.test.coll
+(ns convex.test.break.coll
 
   "Testing core functions operating on collections.
   

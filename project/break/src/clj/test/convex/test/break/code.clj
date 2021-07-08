@@ -1,4 +1,4 @@
-(ns convex.break.test.code
+(ns convex.test.break.code
 
   "Testing code related utilities, such as expansion, evaluation, ..."
 

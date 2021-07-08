@@ -1,4 +1,4 @@
-(ns convex.break.test.symbolic
+(ns convex.test.break.symbolic
 
   "Testing utilities related to keywords and symbols."
 

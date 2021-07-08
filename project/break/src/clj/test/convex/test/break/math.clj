@@ -1,4 +1,4 @@
-(ns convex.break.test.math
+(ns convex.test.break.math
 
   "Testing Convex core math functions."
 

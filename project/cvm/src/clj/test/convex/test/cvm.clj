@@ -1,4 +1,4 @@
-(ns convex.cvm.test
+(ns convex.test.cvm
 
   {:author "Adam Helinski"}
 

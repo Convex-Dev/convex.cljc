@@ -1,4 +1,4 @@
-(ns convex.break.test.set
+(ns convex.test.break.set
 
   "Testing set operations."
 

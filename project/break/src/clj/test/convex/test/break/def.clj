@@ -1,4 +1,4 @@
-(ns convex.break.test.def
+(ns convex.test.break.def
 
   "Testing utilities around `def`."
 

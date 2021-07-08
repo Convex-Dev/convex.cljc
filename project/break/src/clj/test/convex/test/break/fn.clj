@@ -1,4 +1,4 @@
-(ns convex.break.test.fn
+(ns convex.test.break.fn
 
   "Testing creating functions and calling them."
 

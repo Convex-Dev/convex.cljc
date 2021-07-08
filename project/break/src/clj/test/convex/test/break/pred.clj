@@ -1,4 +1,4 @@
-(ns convex.break.test.pred
+(ns convex.test.break.pred
 
   "Tests Convex core type predicate. 
   

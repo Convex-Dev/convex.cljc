@@ -1,4 +1,4 @@
-(ns convex.break.test.actor
+(ns convex.test.break.actor
 
   "Testing actor utilities."
 
@@ -9,7 +9,7 @@
             [convex.clj.eval               :as $.clj.eval]
             [convex.clj.gen                :as $.clj.gen]
             [convex.break.gen              :as $.break.gen]
-            [convex.break.test.account     :as $.break.test.account]
+            [convex.test.break.account     :as $.break.test.account]
             [helins.mprop                  :as mprop]))
 
 

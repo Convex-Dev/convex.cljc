@@ -1,4 +1,4 @@
-(ns convex.break.test.coerce
+(ns convex.test.break.coerce
 
   "Tests Convex core coercions."
 

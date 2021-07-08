@@ -1,9 +1,8 @@
-(ns convex.clj.test.translate
+(ns convex.test.clj.translate
 
   {:author "Adam Helinski"}
 
   (:require [clojure.test         :as t]
-            [convex.cvm           :as $.cvm]
             [convex.clj           :as $.clj]
             [convex.clj.translate :as $.clj.translate]
             [convex.read          :as $.read])

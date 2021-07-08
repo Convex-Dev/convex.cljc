@@ -1,4 +1,4 @@
-(ns convex.break.test.literal
+(ns convex.test.break.literal
 
   "Testing literal notation of Convex data (scalar values and collections).
   

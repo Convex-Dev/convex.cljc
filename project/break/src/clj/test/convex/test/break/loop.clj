@@ -1,4 +1,4 @@
-(ns convex.break.test.loop
+(ns convex.test.break.loop
 
   "Testing various ways of looping and doing recursion."
 

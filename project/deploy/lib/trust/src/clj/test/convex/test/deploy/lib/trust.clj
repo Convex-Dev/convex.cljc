@@ -1,4 +1,4 @@
-(ns convex.deploy.lib.test.trust
+(ns convex.test.deploy.lib.trust
 
   "Testing the Trust library."
 

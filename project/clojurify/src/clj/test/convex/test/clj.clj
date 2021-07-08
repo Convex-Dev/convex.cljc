@@ -1,4 +1,4 @@
-(ns convex.clj.test
+(ns convex.test.clj
 
   "Testing core features."
 

@@ -1,4 +1,4 @@
-(ns convex.break.test.syntax
+(ns convex.test.break.syntax
 
   "Testing `Syntax` utilities."
 

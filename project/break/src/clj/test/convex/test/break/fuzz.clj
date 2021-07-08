@@ -1,4 +1,4 @@
-(ns convex.break.test.fuzz
+(ns convex.test.break.fuzz
 
   "Fuzzing testing random core forms.
   

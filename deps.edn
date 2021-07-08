@@ -101,7 +101,8 @@
    :maestro/doc     "Mandatory alias for development"
    :maestro/env     {"CONVEX_DEV" "true"}
    :maestro/require [:ext/criterium
-                     :ext/tools.reader]}
+                     :ext/tools.reader
+                     :task/no-main]}
 
 
   :task/jar
@@ -124,7 +125,8 @@
                      "--config-file" "kaocha.edn"]
    :maestro/doc     "Mandatory alias for testing"
    :maestro/require [:ext/kaocha
-                     :ext/mprop]}
+                     :ext/mprop
+                     :ext/test.check]}
 
   :task/uberjar
 
@@ -143,8 +145,10 @@
   :bundle/deploy
 
   {:maestro/doc     "Bundles aliases needed when developping Convex Lisp libraries"
-   :maestro/require [:project/clojurify
+   :maestro/require [:project/break
+                     :project/clojurify
                      :project/cvm
+                     :project/sync
                      :project/watch]}
 
 
@@ -301,7 +305,8 @@
 
   {:extra-paths     ["project/deploy/lib/trust/src/cvx/main"]
    :maestro/doc     "Trust library for Convex Lisp"
-   :maestro/require [:bundle/deploy]
+   :maestro/require [:bundle/deploy
+                     :project/break]
    :maestro/root    "project/lib/trust"}
 
 
