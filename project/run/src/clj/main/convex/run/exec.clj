@@ -254,7 +254,7 @@
                  res)
            (catch Throwable _ex
              ($.run.err/signal env-3
-                               ($.cvm/code-std* :FATAL)
+                               ($.data/code-std* :FATAL)
                                ($.data/string "Unknown error happened while finalizing transaction")))))))))
 
 

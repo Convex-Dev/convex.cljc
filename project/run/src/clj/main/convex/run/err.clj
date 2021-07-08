@@ -121,7 +121,7 @@
 
   [message]
 
-  (-> ($.data/error ($.cvm/code-std* :FATAL)
+  (-> ($.data/error ($.data/code-std* :FATAL)
                     ($.data/string message))
       (assoc-phase $.run.kw/main)))
 
@@ -166,7 +166,7 @@
 
   ([kind path->reason]
 
-   (-> ($.data/error ($.cvm/code-std* :FATAL)
+   (-> ($.data/error ($.data/code-std* :FATAL)
                      (reduce-kv (fn [^AMap path->reason--2 path reason]
                                   (.assoc path->reason--2
                                           ($.data/string path)
@@ -191,7 +191,7 @@
 
   []
 
-  (-> ($.data/error ($.cvm/code-std* :FATAL)
+  (-> ($.data/error ($.data/code-std* :FATAL)
                     ($.data/string "Unknown error occured while setting up the file watcher"))
       (assoc-phase $.run.kw/watch)))
 
@@ -219,7 +219,7 @@
   ([env ^ACell form message cause]
 
    (fatal env
-          (-> ($.data/error ($.cvm/code-std* :FATAL)
+          (-> ($.data/error ($.data/code-std* :FATAL)
                             message)
               ;(.assoc $.run.kw/form
               ;        form)

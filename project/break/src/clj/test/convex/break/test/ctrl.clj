@@ -12,6 +12,7 @@
             [convex.clj.eval               :as $.clj.eval]
             [convex.clj                    :as $.clj]
             [convex.clj.gen                :as $.clj.gen]
+            [convex.data                   :as $.data]
             [helins.mprop                  :as mprop]))
 
 
@@ -66,7 +67,7 @@
   (TC.prop/for-all [n        gen-nest
                     x-ploy   $.clj.gen/any
                     x-return $.clj.gen/truthy]
-    ($.clj.eval/code? ($.cvm/code-std* :ASSERT)
+    ($.clj.eval/code? ($.data/code-std* :ASSERT)
                       (-nested-fn n
                                   ($.clj/templ* (assert (not ~x-return)))
                                   x-ploy))))

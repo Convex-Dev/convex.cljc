@@ -14,6 +14,7 @@
 
   (:require [convex.cvm  :as $.cvm]
             [convex.clj  :as $.clj]
+            [convex.data :as $.data]
             [convex.read :as $.read]))
 
 
@@ -93,7 +94,7 @@
 
   "Like [[exception]] but returns an exception only if it matches the given `code`.
   
-   See [[convex.cvm/code-std*]]."
+   See [[convex.data/code-std*]]."
 
   
   ([code form]
@@ -119,14 +120,14 @@
   [code]
 
   (if (keyword? code)
-    `($.cvm/code-std* ~code)
+    `($.data/code-std* ~code)
     code))
 
 
 
 (defmacro code*
 
-  "Note: if `code` is a keyword, it is passed to [[convex.cvm/code-std*]]."
+  "Note: if `code` is a keyword, it is passed to [[convex.data/code-std*]]."
 
   ([code form]
 
@@ -164,7 +165,7 @@
 
 (defmacro code?*
 
-  "Note: if `code` is a keyword, it is passed to [[convex.cvm/code-std*]]."
+  "Note: if `code` is a keyword, it is passed to [[convex.data/code-std*]]."
 
   ([code form]
 

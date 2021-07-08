@@ -154,7 +154,7 @@
                                                                                                cvm-str-dep
                                                                                                cvm-sym))]
                               (reduced ($.run.err/signal env
-                                                         (-> ($.data/error ($.cvm/code-std* :CAST)
+                                                         (-> ($.data/error ($.data/code-std* :CAST)
                                                                            ($.data/string err-message))
                                                              ($.run.err/assoc-phase $.run.kw/dep))))
                               (assoc-in env-2
@@ -169,7 +169,7 @@
                                   rest)
                           sym->dep)
                   ($.run.err/signal env
-                                    (-> ($.data/error ($.cvm/code-std* :CAST)
+                                    (-> ($.data/error ($.data/code-std* :CAST)
                                                       ($.data/string "Dependencies must but a map of 'symbol' -> 'file path (string)'"))
                                         ($.run.err/assoc-phase $.run.kw/dep)))))))))
       env))

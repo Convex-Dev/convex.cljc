@@ -10,6 +10,7 @@
             [convex.clj.eval               :as $.clj.eval]
             [convex.clj.gen                :as $.clj.gen]
             [convex.cvm                    :as $.cvm]
+            [convex.data                   :as $.data]
             [convex.sync                   :as $.sync]
             [helins.mprop                  :as mprop]))
 
@@ -363,7 +364,7 @@
         "Cannot eval code after giving up root access"
 
         ($.clj.eval/code? ctx-2
-                          ($.cvm/code-std* :STATE)
+                          ($.data/code-std* :STATE)
                           '(do
                              (trust/remove-upgradability! actor-controlled)
                              (upgrade actor-controlled)))
@@ -372,12 +373,12 @@
         "Cannot eval code in uncontrolled actor"
 
         ($.clj.eval/code? ctx-2
-                          ($.cvm/code-std* :TRUST)
+                          ($.data/code-std* :TRUST)
                           '(upgrade actor-uncontrolled))
 
 
         "Cannot remove upgradability in uncontrolled actor"
 
         ($.clj.eval/code? ctx-2
-                          ($.cvm/code-std* :TRUST)
+                          ($.data/code-std* :TRUST)
                           '(trust/remove-upgradability! actor-uncontrolled))))))

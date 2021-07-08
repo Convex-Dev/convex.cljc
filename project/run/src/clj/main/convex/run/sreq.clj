@@ -93,7 +93,7 @@
   [env tuple]
 
   ($.run.err/signal env
-                    ($.run.err/sreq ($.cvm/code-std* :ARGUMENT)
+                    ($.run.err/sreq ($.data/code-std* :ARGUMENT)
                                     tuple
                                     ($.data/string "Unsupported special transaction"))))
 
@@ -128,7 +128,7 @@
   [env ^AVector tuple]
 
   ($.run.err/signal env
-                    ($.run.err/sreq ($.cvm/code-std* :FATAL)
+                    ($.run.err/sreq ($.data/code-std* :FATAL)
                                     tuple
                                     ($.data/string "CVM special command 'sreq/dep' can only be used as the very first transaction"))))
 
@@ -404,7 +404,7 @@
                       str
                       $.read/string)]
                   (catch Throwable _err
-                    [($.run.err/sreq ($.cvm/code-std* :ARGUMENT)
+                    [($.run.err/sreq ($.data/code-std* :ARGUMENT)
                                      tuple
                                      ($.data/string "Unable to read source"))
                      nil]))]

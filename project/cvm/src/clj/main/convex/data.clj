@@ -123,6 +123,79 @@
 
 
 
+(defmacro code-std*
+
+  "Given a Clojure keyword, returns the corresponding standard error code (any of the Convex keyword the CVM itself
+   uses):
+  
+   - `:ARGUMENT`
+   - `:ARITY`
+   - `:ASSERT`
+   - `:BOUNDS`
+   - `:CAST`
+   - `:COMPILE`
+   - `:DEPTH`
+   - `:EXCEPTION`
+   - `:EXPAND`
+   - `:FATAL`
+   - `:FUNDS`
+   - `:HALT`
+   - `:JUICE`
+   - `:MEMORY`
+   - `:NOBODY`
+   - `:RECUR`
+   - `:REDUCED`
+   - `:RETURN`
+   - `:ROLLBACK`
+   - `:SEQUENCE`
+   - `:SIGNATURE`
+   - `:STATE`
+   - `:TAILCALL`
+   - `:TODO`
+   - `:TRUST`
+   - `:UNDECLARED`
+   - `:UNEXPECTED`
+  
+   Throws if keyword does not match any of those.
+  
+   Note that in user functions, codes can be anything, any type, using those codes is not at all mandatory."
+
+  [kw]
+
+  (case kw
+    :ARGUMENT   'convex.core.ErrorCodes/ARGUMENT
+    :ARITY      'convex.core.ErrorCodes/ARITY
+    :ASSERT     'convex.core.ErrorCodes/ASSERT
+    :BOUNDS     'convex.core.ErrorCodes/BOUNDS
+    :CAST       'convex.core.ErrorCodes/CAST
+    :COMPILE    'convex.core.ErrorCodes/COMPILE
+    :DEPTH      'convex.core.ErrorCodes/DEPTH
+    :EXCEPTION  'convex.core.ErrorCodes/EXCEPTION
+    :EXPAND     'convex.core.ErrorCodes/EXPAND
+    :FATAL      'convex.core.ErrorCodes/FATAL
+    :FUNDS      'convex.core.ErrorCodes/FUNDS
+    :HALT       'convex.core.ErrorCodes/HALT
+    :JUICE      'convex.core.ErrorCodes/JUICE
+    :MEMORY     'convex.core.ErrorCodes/MEMORY
+    :NOBODY     'convex.core.ErrorCodes/NOBODY
+    :RECUR      'convex.core.ErrorCodes/RECUR
+    :REDUCED    'convex.core.ErrorCodes/REDUCED
+    :RETURN     'convex.core.ErrorCodes/RETURN
+    :ROLLBACK   'convex.core.ErrorCodes/ROLLBACK
+    :SEQUENCE   'convex.core.ErrorCodes/SEQUENCE
+    :SIGNATURE  'convex.core.ErrorCodes/SIGNATURE
+    :STATE      'convex.core.ErrorCodes/STATE
+    :TAILCALL   'convex.core.ErrorCodes/TAILCALL
+    :TODO       'convex.core.ErrorCodes/TODO
+    :TRUST      'convex.core.ErrorCodes/TRUST
+    :UNDECLARED 'convex.core.ErrorCodes/UNDECLARED
+    :UNEXPECTED 'convex.core.ErrorCodes/UNEXPECTED
+    (throw (ex-info (str "There is no official exception code for: "
+                         kw)
+                    {:convex.data/code kw}))))
+
+
+
 (defn char
 
   "Creates a CVM character from a regular characer."

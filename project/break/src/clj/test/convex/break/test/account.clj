@@ -9,10 +9,10 @@
             [clojure.test.check.properties :as TC.prop]
             [convex.break]
             [convex.break.gen              :as $.break.gen]
-            [convex.cvm                    :as $.cvm]
             [convex.clj.eval               :as $.clj.eval]
             [convex.clj                    :as $.clj]
             [convex.clj.gen                :as $.clj.gen]
+            [convex.data                   :as $.data]
             [helins.mprop                  :as mprop]))
 
 
@@ -523,7 +523,7 @@
        "Transfering garbage instead of funds"
 
        ($.clj.eval/code? ctx
-                         ($.cvm/code-std* :CAST)
+                         ($.data/code-std* :CAST)
                          '(transfer addr
                                     faulty-amount)))))
 
