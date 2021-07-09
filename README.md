@@ -59,7 +59,7 @@ The following conventions are enforced in READMEs and source files:
 
 Currently, none of it has been publicly released. User is expected to fork this repository and use what is needed.
 
-This monorepo is managed with [Maestro](TODO).
+This monorepo is managed with [Maestro](https://github.com/helins/maestro.clj).
 
 
 ### Clojure Deps
@@ -67,7 +67,7 @@ This monorepo is managed with [Maestro](TODO).
 This repository rely on the [Clojure command line tools](https://clojure.org/guides/getting_started). Familiarity with
 [Clojure Deps](https://clojure.org/guides/deps_and_cli) is required.
 
-Alias names follow the convention established in [Maestro](TODO). For instance, see project aliases in table above.
+Alias names follow the convention established in [Maestro](https://github.com/helins/maestro.clj). For instance, see project aliases in table above.
 
 
 ### Babashka and tasks
