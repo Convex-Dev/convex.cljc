@@ -120,6 +120,6 @@ For example, see [`:project/all` dev directory](./project/all/src/clj/dev/convex
 
 ## License
 
-Currently unlicensed.
+Copyright © 2021 Adam Helinski, the Convex Foundation, and contributors
 
-Copyright © 2021 Adam Helinski
+Licensed under the Apache License, Version 2.0
