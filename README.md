@@ -93,8 +93,8 @@ $ bb dev :project/cvm:nrepl
 
 # Testings all namespaces for project 'break'
 $ bb test :project/break
-
 ```
+
 
 ### CVM
 

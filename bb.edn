@@ -1,4 +1,5 @@
 {:deps  {io.helins/maestro {:local/root "private/maestro.jar"}}
+ :paths ["script"]
 
 
 
@@ -44,6 +45,13 @@
                                (slurp *in*)))}
 
 
+         native-image
+
+         {:doc      "Builds a native image"
+          :requires ([script.native :as $.native])
+          :task     ($.native/image)}
+
+
          run-M
 
          {:doc      "Executes Clojure using '-M', calling the main class specified in the alias"
@@ -78,4 +86,16 @@
          {:doc      "Packages the given aliases in an uberjar ; same arguments as Depstart"
           :requires ([helins.maestro.depstar.run :as maestro.depstar.run])
           :task     (maestro.depstar.run/uberjar)}
+
+
+		 uberjar-direct
+
+		 {:doc      "Like 'uberjar' but does AOT and direct-linking"
+          :requires ([helins.maestro.depstar.run :as maestro.depstar.run])
+          :task     (binding [*command-line-args* (concat *command-line-args*
+                                                          [":aot"      "true"
+                                                           ":jvm-opts" "'[\"-Dclojure.compiler.direct-linking=true\"]'"])]
+                      (maestro.depstar.run/uberjar))}
+		  
+
          }}

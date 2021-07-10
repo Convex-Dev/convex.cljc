@@ -2,11 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>world.convex</groupId>
-  <artifactId>runner</artifactId>
+  <artifactId>app.run</artifactId>
   <version>0.0.0-alpha0</version>
   <name>Convex Lisp Runner</name>
   <description>Run Convex Lisp in the terminal</description>
-  <url>https://github.com/helins/convex.cljc</url>
+  <url>https://github.com/Convex-Dev/convex.cljc/tree/main/project/app/run</url>
   <licenses>
     <license>
       <name>Unlicensed</name>
