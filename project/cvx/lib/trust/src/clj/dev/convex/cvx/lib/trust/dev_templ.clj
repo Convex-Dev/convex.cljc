@@ -1,4 +1,4 @@
-(ns convex.deploy.lib.trust.dev
+(ns convex.cvx.lib.trust.dev
 
   "Daydreaming at the REPL."
 
@@ -27,7 +27,7 @@
                                                                (set-key (blob "0000000000000000000000000000000000000000000000000000000000000000"))
                                                                (def trust
                                                                     (deploy (first trust))))))
-                          :convex.watch/sym->dep  {'trust "project/deploy/lib/trust/src/cvx/main/convex/trust.cvx"}})
+                          :convex.watch/sym->dep  {'trust "project/cvx/lib/trust/src/cvx/main/convex/trust.cvx"}})
            $.watch/start))
 
 

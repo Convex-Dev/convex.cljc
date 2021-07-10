@@ -1,4 +1,4 @@
-(ns convex.deploy.lab.lib.xform.dev
+(ns convex.cvx.lab.lib.xform.dev
 
   "Daydreaming at the REPL."
 
@@ -28,8 +28,8 @@
                                                                     (deploy (first store)))
                                                                (def xform
                                                                     (deploy (first xform))))))
-                          :convex.watch/sym->dep  {'store "project/deploy/lab/lib/xform/src/cvx/dev/convex/xform/store.cvx"
-                                                   'xform "project/deploy/lab/lib/xform/src/cvx/main/convex/xform.cvx"}})
+                          :convex.watch/sym->dep  {'store "project/cvx/lab/lib/xform/src/cvx/dev/convex/xform/store.cvx"
+                                                   'xform "project/cvx/lab/lib/xform/src/cvx/main/convex/xform.cvx"}})
            $.watch/start))
 
 

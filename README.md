@@ -14,7 +14,7 @@ Overview of the [./project](./project) directory:
 | [break](./project/break) | `:project/break` | Advanced generative test suite for the CVM ; prime example of testing Convex Lisp thoroughly |
 | [clojuriy](./project/clojurify) | `:project/clojurify` |Convex <-> Clojure data conversions, quick evaluation, useful `test.check` generators for testing |
 | [cvm](./project/cvm) | `:project/cvm` | Handling Convex data and the CVM, low-level utilities |
-| [deploy](./project/deploy) | `:project/deploy.XXX` | Experimental and stable Convex Lisp actors and libraries officially managed by the Convex Foundation |
+| [cvx](./project/cvx) | `:project/cvx.XXX` | Experimental and stable Convex Lisp actors and libraries officially managed by the Convex Foundation |
 | [run](./project/run) | `:project/run` | Core implementation of [`:project/app/.run`](./app/run) ; reusable for similar purposes |
 | [sync](./project/sync) | `:project/sync` | Framework for loading and executing Convex Lisp snippets into a a single context ; executing files from disk |
 | [watch](./project/watch) | `:project/watch` | Live-reloading of Convex Lisp files |
@@ -24,7 +24,7 @@ Ordered recommendation for building a solid understanding:
 - [cvm](./project/cvm), for understanding core CVM utilities and Convex data
 - [clojurify](./project/clojurify), for quickly evaluating Convex Lisp during dev and when writing tests
 - [break](./project/break), for seeing thorough examples of testing Convex Lisp with [test.check](https://github.com/clojure/test.check)
-- [deploy](./project/deploy), for seeing more complex examples of Convex Lisp actors and libraries, associated development and testing
+- [cvx](./project/cvx), for seeing more complex examples of Convex Lisp actors and libraries, associated development and testing
 
 If interested in the Convex Lisp Runner:
 

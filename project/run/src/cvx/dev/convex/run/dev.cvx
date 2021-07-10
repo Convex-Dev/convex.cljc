@@ -19,8 +19,8 @@
 ;;
 ;; Ensure file paths are correct when testing this.
 ;;
-(sreq/dep {store "project/deploy/lab/lib/xform/src/cvx/dev/convex/xform/store.cvx"
-           xform "project/deploy/lab/lib/xform/src/cvx/main/convex/xform.cvx"})
+(sreq/dep {store "project/cvx/lab/lib/xform/src/cvx/dev/convex/xform/store.cvx"
+           xform "project/cvx/lab/lib/xform/src/cvx/main/convex/xform.cvx"})
 
 
 
