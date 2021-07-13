@@ -1,0 +1,1124 @@
+[ {
+  "name" : "boolean[]"
+}, {
+  "name" : "byte[]"
+}, {
+  "name" : "char[]"
+}, {
+  "name" : "clojure.asm.ClassVisitor"
+}, {
+  "name" : "clojure.asm.ClassWriter"
+}, {
+  "name" : "clojure.asm.Opcodes"
+}, {
+  "name" : "clojure.asm.Type"
+}, {
+  "name" : "clojure.asm.commons.GeneratorAdapter"
+}, {
+  "name" : "clojure.asm.commons.Method"
+}, {
+  "name" : "clojure.core.ArrayChunk"
+}, {
+  "name" : "clojure.core.ArrayManager"
+}, {
+  "name" : "clojure.core.Eduction"
+}, {
+  "name" : "clojure.core.IVecImpl"
+}, {
+  "name" : "clojure.core.Inst"
+}, {
+  "name" : "clojure.core.Vec"
+}, {
+  "name" : "clojure.core.VecNode"
+}, {
+  "name" : "clojure.core.VecSeq"
+}, {
+  "name" : "clojure.core.protocols.CollReduce"
+}, {
+  "name" : "clojure.core.protocols.Datafiable"
+}, {
+  "name" : "clojure.core.protocols.IKVReduce"
+}, {
+  "name" : "clojure.core.protocols.InternalReduce"
+}, {
+  "name" : "clojure.core.protocols.Navigable"
+}, {
+  "name" : "clojure.core.protocols__init"
+}, {
+  "name" : "clojure.core.server__init"
+}, {
+  "name" : "clojure.core__init"
+}, {
+  "name" : "clojure.core_deftype__init"
+}, {
+  "name" : "clojure.core_print__init"
+}, {
+  "name" : "clojure.core_proxy__init"
+}, {
+  "name" : "clojure.edn__init"
+}, {
+  "name" : "clojure.genclass__init"
+}, {
+  "name" : "clojure.gvec__init"
+}, {
+  "name" : "clojure.instant__init"
+}, {
+  "name" : "clojure.java.io.Coercions"
+}, {
+  "name" : "clojure.java.io.IOFactory"
+}, {
+  "name" : "clojure.java.io__init"
+}, {
+  "name" : "clojure.lang.APersistentMap$KeySeq"
+}, {
+  "name" : "clojure.lang.APersistentMap$ValSeq"
+}, {
+  "name" : "clojure.lang.ASeq"
+}, {
+  "name" : "clojure.lang.BigInt"
+}, {
+  "name" : "clojure.lang.ChunkBuffer"
+}, {
+  "name" : "clojure.lang.Compiler"
+}, {
+  "name" : "clojure.lang.Compiler$CompilerException"
+}, {
+  "name" : "clojure.lang.DynamicClassLoader"
+}, {
+  "name" : "clojure.lang.ExceptionInfo"
+}, {
+  "name" : "clojure.lang.Fn"
+}, {
+  "name" : "clojure.lang.IChunk"
+}, {
+  "name" : "clojure.lang.IChunkedSeq"
+}, {
+  "name" : "clojure.lang.IDeref"
+}, {
+  "name" : "clojure.lang.IExceptionInfo"
+}, {
+  "name" : "clojure.lang.IFn"
+}, {
+  "name" : "clojure.lang.IHashEq"
+}, {
+  "name" : "clojure.lang.IKVReduce"
+}, {
+  "name" : "clojure.lang.IPersistentCollection"
+}, {
+  "name" : "clojure.lang.IPersistentList"
+}, {
+  "name" : "clojure.lang.IPersistentMap"
+}, {
+  "name" : "clojure.lang.IPersistentSet"
+}, {
+  "name" : "clojure.lang.IPersistentVector"
+}, {
+  "name" : "clojure.lang.IProxy"
+}, {
+  "name" : "clojure.lang.IRecord"
+}, {
+  "name" : "clojure.lang.IReduceInit"
+}, {
+  "name" : "clojure.lang.ISeq"
+}, {
+  "name" : "clojure.lang.Keyword"
+}, {
+  "name" : "clojure.lang.LazilyPersistentVector"
+}, {
+  "name" : "clojure.lang.LazySeq"
+}, {
+  "name" : "clojure.lang.LineNumberingPushbackReader"
+}, {
+  "name" : "clojure.lang.LispReader$ReaderException"
+}, {
+  "name" : "clojure.lang.Murmur3"
+}, {
+  "name" : "clojure.lang.Namespace"
+}, {
+  "name" : "clojure.lang.PersistentHashMap"
+}, {
+  "name" : "clojure.lang.PersistentHashSet"
+}, {
+  "name" : "clojure.lang.PersistentQueue"
+}, {
+  "name" : "clojure.lang.PersistentVector"
+}, {
+  "name" : "clojure.lang.RT"
+}, {
+  "name" : "clojure.lang.Ratio"
+}, {
+  "name" : "clojure.lang.ReaderConditional"
+}, {
+  "name" : "clojure.lang.Reflector"
+}, {
+  "name" : "clojure.lang.SeqIterator"
+}, {
+  "name" : "clojure.lang.Sequential"
+}, {
+  "name" : "clojure.lang.StringSeq"
+}, {
+  "name" : "clojure.lang.Symbol"
+}, {
+  "name" : "clojure.lang.TaggedLiteral"
+}, {
+  "name" : "clojure.lang.Util"
+}, {
+  "name" : "clojure.lang.Var"
+}, {
+  "name" : "clojure.lang.Volatile"
+}, {
+  "name" : "clojure.main__init"
+}, {
+  "name" : "clojure.pprint.PrettyFlush"
+}, {
+  "name" : "clojure.pprint.cl_format__init"
+}, {
+  "name" : "clojure.pprint.column_writer__init"
+}, {
+  "name" : "clojure.pprint.dispatch__init"
+}, {
+  "name" : "clojure.pprint.pprint_base__init"
+}, {
+  "name" : "clojure.pprint.pretty_writer__init"
+}, {
+  "name" : "clojure.pprint.print_table__init"
+}, {
+  "name" : "clojure.pprint.utilities__init"
+}, {
+  "name" : "clojure.pprint__init"
+}, {
+  "name" : "clojure.set__init"
+}, {
+  "name" : "clojure.spec.alpha.Spec"
+}, {
+  "name" : "clojure.spec.alpha.Specize"
+}, {
+  "name" : "clojure.spec.alpha__init"
+}, {
+  "name" : "clojure.spec.gen.alpha__init"
+}, {
+  "name" : "clojure.string__init"
+}, {
+  "name" : "clojure.tools.cli__init"
+}, {
+  "name" : "clojure.uuid__init"
+}, {
+  "name" : "clojure.walk__init"
+}, {
+  "name" : "com.barbarysoftware.watchservice.StandardWatchEventKind"
+}, {
+  "name" : "com.barbarysoftware.watchservice.WatchService"
+}, {
+  "name" : "com.barbarysoftware.watchservice.WatchableFile"
+}, {
+  "name" : "com.goterl.lazysodium.Sodium",
+  "allDeclaredMethods" : true
+}, {
+  "name" : "com.goterl.lazysodium.SodiumJava",
+  "allDeclaredMethods" : true
+}, {
+  "name" : "com.sun.jna.CallbackProxy",
+  "methods" : [ {
+    "name" : "callback",
+    "parameterTypes" : [ "java.lang.Object[]" ]
+  } ]
+}, {
+  "name" : "com.sun.jna.NativeLong",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "com.sun.jna.Structure$FFIType",
+  "allDeclaredFields" : true,
+  "allPublicConstructors" : true,
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "com.sun.jna.Structure$FFIType$size_t",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "convex.app.run.help__init"
+}, {
+  "name" : "convex.app.run__init"
+}, {
+  "name" : "convex.core.Block"
+}, {
+  "name" : "convex.core.ErrorCodes"
+}, {
+  "name" : "convex.core.State"
+}, {
+  "name" : "convex.core.data.ABlob"
+}, {
+  "name" : "convex.core.data.ABlobMap"
+}, {
+  "name" : "convex.core.data.ACell"
+}, {
+  "name" : "convex.core.data.AHashMap"
+}, {
+  "name" : "convex.core.data.AList"
+}, {
+  "name" : "convex.core.data.AMap"
+}, {
+  "name" : "convex.core.data.ASet"
+}, {
+  "name" : "convex.core.data.AString"
+}, {
+  "name" : "convex.core.data.AVector"
+}, {
+  "name" : "convex.core.data.AccountKey"
+}, {
+  "name" : "convex.core.data.AccountStatus"
+}, {
+  "name" : "convex.core.data.Address"
+}, {
+  "name" : "convex.core.data.Blob"
+}, {
+  "name" : "convex.core.data.Keyword"
+}, {
+  "name" : "convex.core.data.Keywords"
+}, {
+  "name" : "convex.core.data.Lists"
+}, {
+  "name" : "convex.core.data.MapEntry"
+}, {
+  "name" : "convex.core.data.Maps"
+}, {
+  "name" : "convex.core.data.Ref[]"
+}, {
+  "name" : "convex.core.data.Sets"
+}, {
+  "name" : "convex.core.data.Strings"
+}, {
+  "name" : "convex.core.data.Symbol"
+}, {
+  "name" : "convex.core.data.Vectors"
+}, {
+  "name" : "convex.core.data.prim.CVMBool"
+}, {
+  "name" : "convex.core.data.prim.CVMByte"
+}, {
+  "name" : "convex.core.data.prim.CVMChar"
+}, {
+  "name" : "convex.core.data.prim.CVMDouble"
+}, {
+  "name" : "convex.core.data.prim.CVMLong"
+}, {
+  "name" : "convex.core.init.Init"
+}, {
+  "name" : "convex.core.init.InitConfig"
+}, {
+  "name" : "convex.core.lang.AFn"
+}, {
+  "name" : "convex.core.lang.AOp"
+}, {
+  "name" : "convex.core.lang.Context"
+}, {
+  "name" : "convex.core.lang.Symbols"
+}, {
+  "name" : "convex.core.lang.impl.ErrorValue"
+}, {
+  "name" : "convex.core.lang.reader.AntlrReader"
+}, {
+  "name" : "convex.cvm__init"
+}, {
+  "name" : "convex.data__init"
+}, {
+  "name" : "convex.read__init"
+}, {
+  "name" : "convex.run.ctx__init"
+}, {
+  "name" : "convex.run.err__init"
+}, {
+  "name" : "convex.run.exec__init"
+}, {
+  "name" : "convex.run.kw__init"
+}, {
+  "name" : "convex.run.sreq__init"
+}, {
+  "name" : "convex.run.sym__init"
+}, {
+  "name" : "convex.run__init"
+}, {
+  "name" : "convex.sync__init"
+}, {
+  "name" : "convex.watch__init"
+}, {
+  "name" : "double[]"
+}, {
+  "name" : "float[]"
+}, {
+  "name" : "hawk.PollingWatchService"
+}, {
+  "name" : "hawk.SensitivityWatchEventModifier"
+}, {
+  "name" : "hawk.core__init"
+}, {
+  "name" : "hawk.watcher.Watcher"
+}, {
+  "name" : "hawk.watcher__init"
+}, {
+  "name" : "int[]"
+}, {
+  "name" : "java.io.BufferedInputStream"
+}, {
+  "name" : "java.io.BufferedOutputStream"
+}, {
+  "name" : "java.io.BufferedReader"
+}, {
+  "name" : "java.io.BufferedWriter"
+}, {
+  "name" : "java.io.ByteArrayInputStream"
+}, {
+  "name" : "java.io.ByteArrayOutputStream"
+}, {
+  "name" : "java.io.CharArrayReader"
+}, {
+  "name" : "java.io.Closeable"
+}, {
+  "name" : "java.io.File",
+  "allPublicMethods" : true
+}, {
+  "name" : "java.io.FileInputStream"
+}, {
+  "name" : "java.io.FileOutputStream"
+}, {
+  "name" : "java.io.FileWriter"
+}, {
+  "name" : "java.io.InputStream"
+}, {
+  "name" : "java.io.InputStreamReader"
+}, {
+  "name" : "java.io.NotSerializableException"
+}, {
+  "name" : "java.io.OutputStream"
+}, {
+  "name" : "java.io.OutputStreamWriter"
+}, {
+  "name" : "java.io.PrintWriter"
+}, {
+  "name" : "java.io.PushbackReader"
+}, {
+  "name" : "java.io.Reader"
+}, {
+  "name" : "java.io.Serializable"
+}, {
+  "name" : "java.io.StringReader"
+}, {
+  "name" : "java.io.Writer"
+}, {
+  "name" : "java.lang.Boolean"
+}, {
+  "name" : "java.lang.Character"
+}, {
+  "name" : "java.lang.Class"
+}, {
+  "name" : "java.lang.Double"
+}, {
+  "name" : "java.lang.Float"
+}, {
+  "name" : "java.lang.Integer"
+}, {
+  "name" : "java.lang.Iterable"
+}, {
+  "name" : "java.lang.Long"
+}, {
+  "name" : "java.lang.Number"
+}, {
+  "name" : "java.lang.Object"
+}, {
+  "name" : "java.lang.Object[]"
+}, {
+  "name" : "java.lang.StackTraceElement"
+}, {
+  "name" : "java.lang.String",
+  "allPublicMethods" : true
+}, {
+  "name" : "java.lang.Thread",
+  "allPublicMethods" : true
+}, {
+  "name" : "java.lang.ThreadLocal"
+}, {
+  "name" : "java.lang.Throwable",
+  "methods" : [ {
+    "name" : "addSuppressed",
+    "parameterTypes" : [ "java.lang.Throwable" ]
+  } ]
+}, {
+  "name" : "java.lang.UnsupportedOperationException"
+}, {
+  "name" : "java.lang.annotation.Annotation"
+}, {
+  "name" : "java.lang.annotation.Retention"
+}, {
+  "name" : "java.lang.reflect.Array"
+}, {
+  "name" : "java.lang.reflect.Constructor"
+}, {
+  "name" : "java.lang.reflect.Field"
+}, {
+  "name" : "java.lang.reflect.AccessibleObject",
+  "methods" : [ {
+    "name" : "canAccess",
+    "parameterTypes" : [ "java.lang.Object" ]
+  } ]
+}, {
+  "name" : "java.lang.reflect.Modifier"
+}, {
+  "name" : "java.math.BigDecimal"
+}, {
+  "name" : "java.math.BigInteger"
+}, {
+  "name" : "java.net.InetAddress"
+}, {
+  "name" : "java.net.MalformedURLException"
+}, {
+  "name" : "java.net.ServerSocket"
+}, {
+  "name" : "java.net.Socket"
+}, {
+  "name" : "java.net.SocketException"
+}, {
+  "name" : "java.net.URI"
+}, {
+  "name" : "java.net.URL"
+}, {
+  "name" : "java.net.URLDecoder"
+}, {
+  "name" : "java.net.URLEncoder"
+}, {
+  "name" : "java.nio.Buffer"
+}, {
+  "name" : "java.nio.file.FileSystems"
+}, {
+  "name" : "java.nio.file.Files"
+}, {
+  "name" : "java.nio.file.NoSuchFileException"
+}, {
+  "name" : "java.nio.file.Path",
+  "methods" : [ {
+    "name" : "compareTo",
+    "parameterTypes" : [ "java.nio.file.Path" ]
+  }, {
+    "name" : "resolve",
+    "parameterTypes" : [ "java.nio.file.Path" ]
+  }, {
+    "name" : "startsWith",
+    "parameterTypes" : [ "java.nio.file.Path" ]
+  } ]
+}, {
+  "name" : "java.nio.file.Paths"
+}, {
+  "name" : "java.nio.file.StandardWatchEventKinds"
+}, {
+  "name" : "java.nio.file.StandardWatchEventKinds$StdWatchEventKind[]"
+}, {
+  "name" : "java.nio.file.WatchEvent"
+}, {
+  "name" : "java.nio.file.WatchEvent$Modifier"
+}, {
+  "name" : "java.nio.file.WatchKey"
+}, {
+  "name" : "java.nio.file.WatchService"
+}, {
+  "name" : "java.nio.file.attribute.FileAttribute"
+}, {
+  "name" : "java.security.MessageDigestSpi"
+}, {
+  "name" : "java.security.SecureRandomParameters"
+}, {
+  "name" : "java.security.cert.PKIXRevocationChecker"
+}, {
+  "name" : "java.sql.Timestamp"
+}, {
+  "name" : "java.time.Instant"
+}, {
+  "name" : "java.util.Calendar"
+}, {
+  "name" : "java.util.Collection"
+}, {
+  "name" : "java.util.Date"
+}, {
+  "name" : "java.util.GregorianCalendar"
+}, {
+  "name" : "java.util.List"
+}, {
+  "name" : "java.util.Map"
+}, {
+  "name" : "java.util.Properties",
+  "allPublicMethods" : true
+}, {
+  "name" : "java.util.RandomAccess"
+}, {
+  "name" : "java.util.Set"
+}, {
+  "name" : "java.util.TimeZone"
+}, {
+  "name" : "java.util.UUID"
+}, {
+  "name" : "java.util.concurrent.ArrayBlockingQueue"
+}, {
+  "name" : "java.util.concurrent.BlockingQueue"
+}, {
+  "name" : "java.util.concurrent.LinkedBlockingQueue"
+}, {
+  "name" : "java.util.concurrent.locks.ReentrantLock"
+}, {
+  "name" : "java.util.regex.Matcher"
+}, {
+  "name" : "java.util.regex.Pattern"
+}, {
+  "name" : "long[]"
+}, {
+  "name" : "org.antlr.v4.runtime.CharStreams"
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.asymmetric.COMPOSITE$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.asymmetric.DH$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.asymmetric.DSA$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.asymmetric.DSTU4145$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.asymmetric.EC$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.asymmetric.ECGOST$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.asymmetric.EdEC$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.asymmetric.ElGamal$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.asymmetric.GM$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.asymmetric.GOST$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.asymmetric.IES$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.asymmetric.RSA$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.asymmetric.X509$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.asymmetric.edec.KeyPairGeneratorSpi$Ed25519",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.digest.Blake2b$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.digest.Blake2s$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.digest.DSTU7564$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.digest.GOST3411$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.digest.Haraka$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.digest.Keccak$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.digest.MD2$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.digest.MD4$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.digest.MD5$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.digest.RIPEMD128$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.digest.RIPEMD160$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.digest.RIPEMD256$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.digest.RIPEMD320$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.digest.SHA1$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.digest.SHA224$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.digest.SHA256$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.digest.SHA3$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.digest.SHA384$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.digest.SHA512$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.digest.SM3$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.digest.Skein$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.digest.Tiger$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.digest.Whirlpool$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.drbg.DRBG$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.keystore.BC$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.keystore.BCFKS$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.keystore.PKCS12$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.AES$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.ARC4$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.ARIA$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.Blowfish$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.CAST5$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.CAST6$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.Camellia$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.ChaCha$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.DES$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.DESede$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.DSTU7624$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.GOST28147$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.GOST3412_2015$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.Grain128$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.Grainv1$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.HC128$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.HC256$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.IDEA$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.Noekeon$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.OpenSSLPBKDF$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.PBEPBKDF1$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.PBEPBKDF2$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.PBEPKCS12$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.Poly1305$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.RC2$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.RC5$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.RC6$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.Rijndael$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.SCRYPT$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.SEED$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.SM4$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.Salsa20$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.Serpent$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.Shacal2$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.SipHash$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.SipHash128$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.Skipjack$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.TEA$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.TLSKDF$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.Threefish$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.Twofish$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.VMPC$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.VMPCKSA3$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.XSalsa20$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.XTEA$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "org.bouncycastle.jcajce.provider.symmetric.Zuc$Mappings",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "short[]"
+}, {
+  "name" : "sun.nio.fs.UnixPath",
+  "allPublicMethods" : true
+}, {
+  "name" : "sun.security.provider.NativePRNG",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "sun.security.provider.SHA",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+}, {
+  "name" : "sun.security.provider.SHA3$SHA256",
+  "methods" : [ {
+    "name" : "<init>",
+    "parameterTypes" : [ ]
+  } ]
+} ]

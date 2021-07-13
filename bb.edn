@@ -45,7 +45,21 @@
                                (slurp *in*)))}
 
 
-         native-image
+         native:agent
+
+         {:doc      "Starts Java command setting the native-image-agent to output tracing to './private/agent' (eg. reflection configuration for task 'native:image'"
+          :requires ([script.native :as $.native])
+          :task     ($.native/agent)}
+
+
+         native:reflect-config
+
+         {:doc      "Copies './private/agent/reflect-config.json' to the folder given as argument after preparing it"
+          :requires ([script.native :as $.native])
+          :task     ($.native/reflect-config)}
+
+
+         native:image
 
          {:doc      "Builds a native image"
           :requires ([script.native :as $.native])
@@ -88,7 +102,7 @@
           :task     (maestro.depstar.run/uberjar)}
 
 
-		 uberjar-direct
+		 uberjar:direct
 
 		 {:doc      "Like 'uberjar' but does AOT and direct-linking"
           :requires ([helins.maestro.depstar.run :as maestro.depstar.run])
