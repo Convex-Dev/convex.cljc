@@ -158,29 +158,33 @@
    See 'sync' project, the [[convex.sync]] namespace."
 
 
-  ([[kind path->reason]]
+  ([[kind arg]]
 
    (sync kind
-         path->reason))
+         arg))
 
 
-  ([kind path->reason]
+  ([kind arg]
 
    (-> ($.data/error ($.data/code-std* :FATAL)
-                     (reduce-kv (fn [^AMap path->reason--2 path reason]
-                                  (.assoc path->reason--2
-                                          ($.data/string path)
-                                          ($.data/string (case kind
+                     (case kind
 
-                                                           :load
-                                                           (case (first reason)
+                       :eval
+                       ($.data/map {($.data/string arg)
+                                    ($.data/string "Fail to evaluate")})
+
+                       :load
+                       (reduce-kv (fn [^AMap path->reason path reason]
+                                    (.assoc path->reason
+                                            ($.data/string path)
+                                            ($.data/string (case (first reason)
                                                              :not-found "Dependency file not found or inaccessible"
-                                                             :parse     "Dependency file cannot be parsed as Convex Lisp"
-                                                             :unknown   "Unknown error while loading and parsing dependency file")
+                                                             :unknown   "Unknown error while loading and parsing dependency file"))))
 
-                                                           "Unknown error while loading dependency file"))))
-                                ($.data/map)
-                                path->reason))
+                                  ($.data/map)
+                                  arg)
+
+                       "Unknown error while loading dependency file"))
        (assoc-phase $.run.kw/dep))))
 
 

@@ -250,15 +250,16 @@
                                   (deploy my-lib))))
    ```
 
-   In case of an error occuring during reading, attaches under `:convex.sync/error` a tuple `[:load {Path Reason}]` where `Path` is a
-   file path and `Reason` is one of:
+   Any error is attached under `:convex.sync/error`. Possibly:
+
+   - Failure during reading:
 
    | Reason | Meaning |
    |---|---|
    | `[:not-found]` | File does not exist or is not accessible |
-   | `[:unknown Exception]]` | Unknown exception while loading file |"
+   | `[:unknown Exception]]` | Unknown exception while loading file |
 
-   ; | `[:parse Exception]` | CVM reader could not parse the source |
+   - Failure during evaluation: see [[eval]]."
 
   ([sym->input]
 
