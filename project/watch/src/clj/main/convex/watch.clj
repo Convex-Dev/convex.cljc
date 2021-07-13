@@ -148,9 +148,9 @@
                       [[:unknown ex]
                        nil]))]
     (->> (if watcher
-           (-> ($.sync/disk ($.cvm/fork (env :convex.sync/ctx-base))
-                            sym->dep)
-               (merge env)
+           (-> (merge env
+                      ($.sync/disk ($.cvm/fork (env :convex.sync/ctx-base))
+                                   sym->dep))
                (assoc :convex.watch/watcher
                       watcher))
            (assoc env

@@ -434,7 +434,7 @@
                                                                      :convex.watch/sym->dep)
                                                              ($.run.err/signal ($.run.err/sync :load
                                                                                                {arg [:not-found]})))))
-                                  :unknown   ($.run.err/signal env
+                                  :unknown   ($.run.err/signal env-3
                                                                ($.run.err/watcher-setup))))
                               ;;
                               ;; Handles sync error if any.

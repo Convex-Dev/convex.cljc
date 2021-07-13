@@ -148,14 +148,14 @@
               (env :convex.sync/input->change)))
 
 
-  ([env path change]
+  ([env input change]
 
    ((if (identical? change
                     :delete)
       unload
       reload)
     env
-    path)))
+    input)))
 
 
 ;;;;;;;;;; Executing steps
@@ -256,9 +256,9 @@
    | Reason | Meaning |
    |---|---|
    | `[:not-found]` | File does not exist or is not accessible |
-   | `[:parse Exception]` | CVM reader could not parse the source |
    | `[:unknown Exception]]` | Unknown exception while loading file |"
 
+   ; | `[:parse Exception]` | CVM reader could not parse the source |
 
   ([sym->input]
 
@@ -278,7 +278,7 @@
                                 sym->input)
          input->cvm-sym (into {}
                               input+)
-         read-dep       (fn [env input]
+         read-dep       (fn X [env input]
                           (let [[err
                                  form+] (try
                                           

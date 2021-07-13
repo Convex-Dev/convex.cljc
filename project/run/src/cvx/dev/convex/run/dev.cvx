@@ -135,8 +135,8 @@
 
 ;; The store file can be evaluated in place
 ;;
-; (eval (first store))
-; (sreq/out [:inventory inventory])
+(eval (first store))
+(sreq/out [:inventory inventory])
 
 
 
@@ -260,32 +260,26 @@
 ;;
 ;; For testing scheduling, it can be advanced.
 
-(def happened?
-     false)
+; (def happened?
+;      false)
 
 ;; Scheduling this in 10 milliseconds
 ;;
-(schedule (+ *timestamp*
-             10)
-          (def happened?
-               true))
+; (schedule (+ *timestamp*
+;              10)
+;           (def happened?
+;                true))
 
 ;; Not yet.
 ;;
-(sreq/out [:happened? happened? *timestamp*])
+; (sreq/out [:happened? happened? *timestamp*])
 
 
 ;; Advancing the timestamp by 10 milliseconds.
 ;;
-(sreq/advance 10)
+; (sreq/advance 10)
 
 
 ;; Done!
 ;;
-(sreq/out [:happened? happened? *timestamp*])
-
-
-
-
-
-(help/about help 'about)
+; (sreq/out [:happened? happened? *timestamp*])
