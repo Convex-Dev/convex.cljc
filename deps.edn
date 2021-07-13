@@ -37,9 +37,10 @@
 
   :ext/convex
 
-  {:extra-deps {world.convex/convex {:local/root #_"cvm/hack.jar"
-                                                 "cvm/e7470befd81e9f6a8dbb14b053162b3e4750bb11.jar"}}
-   :maestro/doc "Java implementation of the CVM and related utilities"}
+  {:extra-deps      {world.convex/convex {:local/root #_"cvm/hack.jar"
+                                                      "cvm/e7470befd81e9f6a8dbb14b053162b3e4750bb11.jar"}}
+   :maestro/doc     "Java implementation of the CVM and related utilities"
+   :maestro/require [:ext/slf4j-timbre]}
 
 
   :ext/deploy
@@ -70,6 +71,12 @@
 
   {:extra-deps  {io.helins/mprop {:mvn/version "0.0.1"}}
    :maestro/doc "Improves writing complex generative tests with `ext/test.check`."}
+
+
+  :ext/slf4j-timbre
+
+  {:extra-deps  {com.fzakaria/slf4j-timbre {:mvn/version "0.3.21"}}
+   :maestro/doc "Needed for supressing warnings related to SLF4J used by some dependencies"}
 
 
   :ext/test.check
