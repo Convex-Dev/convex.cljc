@@ -355,7 +355,6 @@
 
 ;;;;;;;;;; Watch files
 
-(def foo nil)
 
 (let [-restart (fn [a*env env]
                  ;;
@@ -434,8 +433,9 @@
                                                                      :convex.watch/sym->dep)
                                                              ($.run.err/signal ($.run.err/sync :load
                                                                                                {arg [:not-found]})))))
-                                  :unknown   ($.run.err/signal env-3
-                                                               ($.run.err/watcher-setup))))
+                                  :unknown   ($.run.err/report env-3
+                                                               ($.run.err/watcher-setup)
+                                                               arg)))
                               ;;
                               ;; Handles sync error if any.
                               ;;

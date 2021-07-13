@@ -19,16 +19,23 @@
 
   (:import (convex.core.data ACell
                              AMap)
-           (convex.core.lang.impl ErrorValue))
+           (convex.core.lang.impl ErrorValue)
+           (java.nio.file Files)
+           (java.nio.file.attribute FileAttribute))
   (:refer-clojure :exclude [sync])
-  (:require [convex.cvm     :as $.cvm]
-            [convex.data    :as $.data]
-            [convex.run.ctx :as $.run.ctx]
-            [convex.run.kw  :as $.run.kw]))
+  (:require [clojure.java.io]
+            [clojure.pprint]
+            [convex.cvm       :as $.cvm]
+            [convex.data      :as $.data]
+            [convex.run.ctx   :as $.run.ctx]
+            [convex.run.kw    :as $.run.kw]))
 
 
 (set! *warn-on-reflection*
       true)
+
+
+(declare signal)
 
 
 ;;;;;;;;;; Altering env
@@ -200,7 +207,7 @@
       (assoc-phase $.run.kw/watch)))
 
 
-;;;;;;;;;; Signaling errors
+;;;;;;;;;; Signaling errors in Convex Lisp
 
 
 (defn fatal
@@ -220,7 +227,7 @@
     err))
 
 
-  ([env ^ACell form message cause]
+  ([env ^ACell _form message cause]
 
    (fatal env
           (-> ($.data/error ($.data/code-std* :FATAL)
@@ -228,6 +235,36 @@
               ;(.assoc $.run.kw/form
               ;        form)
               (assoc-cause cause)))))
+
+
+
+(defn report
+
+  "Uses [[signal]] with `err` but associates to it a `:report` key pointing to a temp file
+   where an EDN file has been written.
+  
+   This EDN file pretty-prints the given `env` with `ex` under `:convex.run/exception` (the Java exception
+   that caused the failure).
+  
+   The error in Convex data under `:convex.run/error` is stringified for better readibility."
+
+  [env ^AMap err ex]
+
+  (let [path  (str (Files/createTempFile "cvx_report_"
+                                         ".edn"
+                                         (make-array FileAttribute
+                                                     0)))
+        env-2 (signal env
+                      (.assoc err
+                              $.run.kw/report
+                              ($.data/string path)))]
+    (clojure.pprint/pprint (-> env-2
+                               (update :convex.run/error
+                                       str)
+                               (assoc :convex.run/exception
+                                      ex))
+                           (clojure.java.io/writer path))
+    env-2))
 
 
 

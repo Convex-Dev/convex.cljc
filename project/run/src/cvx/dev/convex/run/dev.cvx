@@ -32,7 +32,7 @@
 
 ;; Prints nice information at the start of a run.
 ;;
-#_(sreq/out (str "Run N°" (inc help/*cycle*)
+(sreq/out (str "Run N°" (inc help/*cycle*)
                \newline
                \newline
                "OUTPUT:"

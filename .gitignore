@@ -26,3 +26,5 @@
 /cvm
 /private
 /report
+
+cvx_report_*.edn

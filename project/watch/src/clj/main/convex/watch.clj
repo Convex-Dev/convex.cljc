@@ -145,7 +145,8 @@
                        nil])
 
                     (catch Throwable ex
-                      [[:unknown ex]
+                      [[:unknown 
+                        ex]
                        nil]))]
     (->> (if watcher
            (-> (merge env
