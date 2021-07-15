@@ -439,6 +439,8 @@
   ;; In that case, the error is interned under `help/*error*` and transactions from the "catch" vector are
   ;; executed.
 
+  ;; TODO. Remove any previous result in case of error?
+
   [env ^AVector tuple]
 
   (let [trx-catch+ (.get tuple

@@ -1,0 +1,165 @@
+(sreq/screen.clear)
+
+
+
+
+(def test
+     (deploy
+      '(do
+
+         (call *registry*
+               (cns-update 'convex.run.test
+                           *address*))
+         
+         
+         
+         (call *registry*
+               (register {:doc  "Unit testing library for the Convex Lisp Runner."
+                          :name "Convex Liser Runner Unit Testing"}))
+         
+         
+         
+         (def help
+         
+           ^{:doc {:description "Alias to the Help library."}}
+         
+           (call *registry*
+                 (cns-resolve 'convex.run.sreq)))
+         
+         
+         
+         (def sreq
+         
+           ^{:doc {:description "Alias to the SReq library."}}
+         
+           (call *registry*
+                 (cns-resolve 'convex.run.sreq)))
+
+
+
+         (def self
+
+           ^{:doc {}}
+
+           *address*)
+
+
+
+         (def result+
+ 
+           ^{:doc {}}
+ 
+           [])
+
+
+
+         (defn conj-result
+         
+           ^{:doc {}}
+         
+           [result]
+         
+           (def result+
+                (conj result+
+                      result)))
+
+
+
+         (export conj-result)
+
+
+
+         (def k-pass?
+         
+           ^{:doc {}}
+         
+           :convex.run.test.pass?)
+         
+         
+         
+         (defn pass?
+         
+           ^{:doc {}}
+         
+           [result]
+         
+           (if (boolean result)
+             (if (map? result)
+               (boolean (result k-pass?))
+               true)
+             false))
+         
+         
+
+         (defn trx
+         
+           ^{:doc {}}
+         
+           [trx]
+         
+           (let [base-report {:trx 42}]
+             (sreq/try `[(query ~trx)
+                         (let [result help/*trx.last.result*]
+                           (call ~self
+                                 (conj-result (assoc ~base-report
+                                                     :result result
+                                                     :pass?  (boolean result)))))]
+                       `[(call ~self
+                               (conj-result (assoc ~base-report
+                                                  :exception help/*error*
+                                                  :pass?     false)))])))
+         
+                                 
+
+         (defn function
+
+           ^{:doc {}}
+
+            [f]
+
+            (trx (list f)))
+
+
+         
+         (defmacro assert
+         
+           ^{:doc {}}
+         
+           [form]
+         
+           `(let [result ~form]
+              (if (~self/pass? result)
+                result
+                (if (map? result)
+                  (assoc result
+                         :convex.run.test.form
+                         (quote ~form))
+                  {~k-pass?              false
+                   :result               result
+                   :convex.run.test.form (quote ~form)}))))
+
+
+       ))) ;; END OF TEST ACTOR
+
+
+
+(defn foo
+
+  []
+
+  (test/assert (< 5 5)))
+
+
+
+
+(test/function 'foo)
+
+
+(sreq/out [:result+ test/result+])
+
+
+#_
+(sreq/do '[(sreq/out \newline):
+           (sreq/log)
+           (sreq/out help/*trx.last.result*)])
+
