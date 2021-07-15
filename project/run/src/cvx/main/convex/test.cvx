@@ -44,13 +44,42 @@
            *address*)
 
 
-
          (def state
- 
+              nil)
+
+
+         
+         (defn update-state
+
            ^{:doc {}}
- 
-           {:pass?   true
-            :report+ []})
+
+           [f]
+
+           (def state
+
+             ^{:doc {}}
+
+             (f state)))
+
+
+
+         (defn clear
+
+           ^{:doc {}}
+
+           []
+
+           (if (= *address*
+                  self)
+             (update-state {:pass?   true
+                            :report+ []})
+             (call self
+                   (clear))))
+
+
+         (export clear)
+
+         (clear)
 
 
 
@@ -108,35 +137,11 @@
                                                     :exception help/*error*
                                                     :pass?     false))]))))
          
-                                 
-
-         (defn function
-
-           ^{:doc {}}
-
-            [f-symbol]
-
-            (trx (list f-symbol)
-                 (lookup-meta f-symbol)))
-
-
-
 
 
        ))) ;; END OF TEST ACTOR
 
 
-
-(defn test-1
-
-  ^{:important? true
-    :test?      true}
-
-  []
-
-  (or (< 4
-         5)
-      :foo))
 
 
 
@@ -156,12 +161,16 @@
 (sreq/do '[(when (guard #{:important})
              (sreq/do '[(def foo 42)
                         (when (guard #{:foo})
-                          (test/trx '(or (fail :bar :baz)
-                                         :foo)))]))])
+                          (test/trx '(or (< 5 5)
+                                         :foo)))]))
+           (test/clear)
+           (test/trx '(< 1 2)
+                     {:doc "One is lesser than two"})])
 
 
 
 (sreq/out [:tests test/state])
+
 
 
 
