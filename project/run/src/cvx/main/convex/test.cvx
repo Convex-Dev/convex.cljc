@@ -71,8 +71,9 @@
 
            (if (= *address*
                   self)
-             (update-state {:pass?   true
-                            :report+ []})
+             (update-state (fn [_state]
+                             {:pass?   true
+                              :report+ []}))
              (call self
                    (clear))))
 
@@ -109,6 +110,17 @@
 
          (export conj-report)
 
+
+
+         (defn exit
+
+           ^{:doc {}}
+
+           []
+
+           (sreq/exit (if (:pass? self/state)
+                        0
+                        42)))
 
 
          (defn trx
@@ -164,8 +176,13 @@
                           (test/trx '(or (< 5 5)
                                          :foo)))]))
            (test/clear)
-           (test/trx '(< 1 2)
+           (test/trx '(< 2 2)
                      {:doc "One is lesser than two"})])
+
+
+
+(sreq/hook.end '[(test/exit)])
+
 
 
 

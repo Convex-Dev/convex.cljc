@@ -61,7 +61,7 @@
 
          native:image
 
-         {:doc      "Builds a native image"
+         {:doc      "Builds a native image in `./build/native` ; requires path to uberjar"
           :requires ([script.native :as $.native])
           :task     ($.native/image)}
 

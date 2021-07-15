@@ -54,6 +54,10 @@
 
 
 
+(def ^Keyword exit
+              ($.data/keyword "exit"))
+
+
 (def ^Keyword expand
               ($.data/keyword "expand"))
 

@@ -106,6 +106,20 @@
                                  (nil? env-var)))
                      [:cvm.sreq :env env-var]))
                 
+
+
+                  (defn exit
+
+                    ^{:doc {:description ["Stops execution and exits process with given `status` code (a long)."
+                                          "Depending on the operating system, by convention, a non-zero value means an error occured."]
+                            :examples    [{:code "(sreq/exit 42)"}]
+                            :signature   [{:params [status]}]
+                            :type        :function}}
+
+                    [status]
+
+                    (assert (long? status))
+                    [:cvm.sreq :exit status])
                 
                 
                   (defn hook.end

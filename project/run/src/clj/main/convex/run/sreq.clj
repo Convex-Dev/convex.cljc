@@ -167,6 +167,25 @@
                                            (System/getenv))))))
 
 
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/exit
+
+  ;; Exits process with the user given status code.
+
+  [_env ^AVector tuple]
+
+  (let [^CVMLong status (.get tuple
+                              2)]
+    (if (= (System/getenv "CONVEX_DEV")
+           "true")
+      (throw (ex-info "Throw instead of exit since dev mode"
+                      {::status status}))
+      (System/exit (.longValue status)))))
+
+
+
 (defmethod $.run.exec/sreq
   
   $.run.kw/hook-end
