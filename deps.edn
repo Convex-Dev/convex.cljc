@@ -187,6 +187,7 @@
                      :project/break
                      :project/cvm
                      :project/clojurify
+                     :project/cvx.lab.lib.run.test
                      :project/cvx.lab.lib.xform
                      :project/cvx.lib.trust
                      :project/run
@@ -291,6 +292,18 @@
 
   {:extra-paths ["project/clojurify/src/clj/test"]}
 
+  ;--
+
+  :project/cvx.lab.lib.run.test
+
+  {:extra-paths  ["project/cvx/lab/lib/run/test/src/cvx/main"]
+   :maestro/doc  "Unit testing library for the Convex Lisp Runner"
+   :maestro/root "project/lab/lib/run/test"}
+
+  :dev/cvx.lab.lib.lib.run.test
+
+  {:extra-paths ["project/cvx/lab/lib/run/test/src/cvx/main"]}
+
   ;---
 
   :project/cvx.lab.lib.xform
@@ -334,6 +347,7 @@
                      "project/run/src/cvx/main"]
    :maestro/doc     "Core implementation of `:project/app.run`, reusable interface"
    :maestro/require [:project/cvm
+                     :project/cvx.lab.lib.run.test
                      :project/sync
                      :project/watch]
    :maestro/root    "project/run"}

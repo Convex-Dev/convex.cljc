@@ -1,0 +1,50 @@
+(sreq/dep {test "project/cvx/lab/lib/run/test/src/cvx/main/convex/run/test.cvx"})
+
+(eval (first test))
+
+(import convex.run.test :as test)
+
+
+(sreq/screen.clear)
+
+
+
+
+(defn guard
+
+  [tag+]
+
+  (> (count (intersection tag+
+                          #{:foo
+                            :important}))
+     0))
+                    
+
+
+(sreq/do '[(when (guard #{:important})
+             (sreq/do '[(def foo 42)
+                        (when (guard #{:foo})
+                          (test/trx '(or (< 5 5)
+                                         :foo)))]))
+           (test/clear)
+           (test/trx '(< 1 2)
+                     {:doc "One is lesser than two"})])
+
+
+
+;(sreq/hook.end '[(test/exit)])
+
+
+
+
+(sreq/out [:state test/state])
+
+
+
+
+
+#_
+(sreq/do '[(sreq/out \newline):
+           (sreq/log)
+           (sreq/out help/*trx.last.result*)])
+

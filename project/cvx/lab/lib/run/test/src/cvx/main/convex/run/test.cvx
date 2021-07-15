@@ -1,0 +1,146 @@
+;;
+;;
+;; Unit testing library for the Convex Lisp Runner
+;;
+;; Provides a simple but flexible framework where a test assertion is a transaction.
+;;
+;;
+(deploy
+ '(do
+
+    (call *registry*
+          (cns-update 'convex.run.test
+                      *address*))
+    
+    
+    
+    (call *registry*
+          (register {:doc  "Unit testing library for the Convex Lisp Runner."
+                     :name "Convex Liser Runner Unit Testing"}))
+    
+    
+
+    (def sreq
+    
+      ^{:doc {:description "Alias to the SReq library."}}
+    
+      (call *registry*
+            (cns-resolve 'convex.run.sreq)))
+
+
+
+    (def self
+
+      ^{:doc {}}
+
+      *address*)
+
+
+
+    (def state
+         nil)
+
+    
+
+    (defn update-state
+
+      ^{:doc {}}
+
+      [f]
+
+      (def state
+
+        ^{:doc {}}
+
+        (f state)))
+
+
+
+    (defn clear
+
+      ^{:doc {}}
+
+      []
+
+      (if (= *address*
+             self)
+        (update-state (fn [_state]
+                        {:pass?   true
+                         :report+ []}))
+        (call self
+              (clear))))
+
+
+    (export clear)
+
+    (clear)
+
+
+
+    (defn conj-report
+    
+      ^{:doc {}}
+    
+      [report]
+    
+      (if (= *address*
+             self)
+        (def state
+             (let [state-2 (assoc state
+                                  :report+
+                                  (conj (get state
+                                             :report+)
+                                        report))]
+              (if (:pass? report)
+                state-2
+                (assoc state-2
+                       :pass?
+                       false))))
+        (call self
+              (conj-report report))))
+
+
+
+    (export conj-report)
+
+
+
+    (defn exit
+
+      ^{:doc {}}
+
+      []
+
+      (sreq/exit (if (:pass? self/state)
+                   0
+                   42)))
+
+
+    (defn trx
+    
+      ^{:doc {}}
+
+
+      ([trx]
+
+       (self/trx trx
+                 nil))
+
+    
+      ([trx metadata]
+    
+       (let [base-report {:metadata metadata
+                          :trx      (list 'quote
+                                          trx)}]
+         (sreq/try `[(query ~trx)
+                     (let [result help/*trx.last.result*]
+                       (~self/conj-report (assoc ~base-report
+                                                 :result result
+                                                 :pass?  (= result
+                                                            true))))]
+                   `[(~self/conj-report (assoc ~base-report
+                                               :exception help/*error*
+                                               :pass?     false))]))))
+
+    
+  )) ;; END
