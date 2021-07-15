@@ -27,8 +27,8 @@
                           (test/trx '(or (< 5 5)
                                          :foo)))]))
            (test/clear)
-           (test/trx '(< 1 2)
-                     {:doc "One is lesser than two"})])
+           (test/fail-code #{:foo}
+                           '(fail :foo :bar))])
 
 
 

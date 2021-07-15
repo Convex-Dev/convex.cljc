@@ -116,6 +116,36 @@
                    42)))
 
 
+    (defn fail-code
+
+      ^{:doc {}}
+
+      
+      ([code-target trx]
+
+       (fail-code code-target
+                  trx
+                  nil))
+
+
+      ([code-target trx metadata]
+
+       (let [base-report {:metadata metadata
+                          :trx      (list 'quote
+                                          trx)}]
+         (sreq/try `[(query ~trx)
+                     (~self/conj-report (assoc ~base-report
+                                               :fail?  false
+                                               :result help/*trx.last.result*
+                                               :pass?  false))]
+                   `[(let [ex help/*error*]
+                       (~self/conj-report (assoc ~base-report
+                                                 :exception  ex
+                                                 :fail?      true
+                                                 :pass?      (~code-target (ex :code)))))]))))
+
+
+
     (defn trx
     
       ^{:doc {}}
