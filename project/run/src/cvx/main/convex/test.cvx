@@ -45,11 +45,11 @@
 
 
 
-         (def result+
+         (def state
  
            ^{:doc {}}
  
-           [])
+           {:result+ []})
 
 
 
@@ -59,14 +59,36 @@
          
            [result]
          
-           (def result+
-                (conj result+
-                      result)))
+           (def state
+                (assoc state
+                       :result+
+                       (conj (get state
+                                  :result+)
+                             result))))
 
 
 
          (export conj-result)
 
+
+         (defn set-filter
+
+           ^{:doc {}}
+
+           [filter]
+
+           (if (= *address*
+                  self)
+             (def state
+                  (assoc state
+                         :filter
+                         filter))
+             (call self
+                   (set-filter filter))))
+
+
+         (export set-filter)
+                 
 
 
          (def k-pass?
@@ -94,20 +116,33 @@
          (defn trx
          
            ^{:doc {}}
+
+
+           ([trx]
+
+            (if (syntax? trx)
+              (self/trx (meta trx)
+                        (unsyntax trx))
+              (self/trx nil
+                        trx)))
+
          
-           [trx]
+           ([metadata trx]
          
-           (let [base-report {:trx 42}]
-             (sreq/try `[(query ~trx)
-                         (let [result help/*trx.last.result*]
-                           (call ~self
-                                 (conj-result (assoc ~base-report
-                                                     :result result
-                                                     :pass?  (boolean result)))))]
-                       `[(call ~self
-                               (conj-result (assoc ~base-report
-                                                  :exception help/*error*
-                                                  :pass?     false)))])))
+            (let [filter (self/state :filter)]
+              (when (or (not filter)
+                        (filter metadata))
+                (let [base-report {:trx 42}]
+                  (sreq/try `[(query ~trx)
+                              (let [result help/*trx.last.result*]
+                                (call ~self
+                                      (conj-result (assoc ~base-report
+                                                          :result result
+                                                          :pass?  (boolean result)))))]
+                            `[(call ~self
+                                    (conj-result (assoc ~base-report
+                                                       :exception help/*error*
+                                                       :pass?     false)))]))))))
          
                                  
 
@@ -115,9 +150,10 @@
 
            ^{:doc {}}
 
-            [f]
+            [f-symbol]
 
-            (trx (list f)))
+            (trx (lookup-meta f-symbol)
+                 (list f-symbol)))
 
 
          
@@ -143,7 +179,9 @@
 
 
 
-(defn foo
+(defn test-1
+
+  ^{:important? false}
 
   []
 
@@ -152,10 +190,25 @@
 
 
 
-(test/function 'foo)
+
+(test/set-filter (fn [metadata]
+                   (get metadata
+                        :important?)))
 
 
-(sreq/out [:result+ test/result+])
+
+
+#_
+(test/trx (syntax '(test-1)
+                  {:important? true}))
+
+(test/function 'test-1)
+
+
+(sreq/out [:result+ (get test/state
+                         :result+)])
+
+
 
 
 #_
