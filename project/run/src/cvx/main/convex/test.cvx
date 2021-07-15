@@ -49,69 +49,38 @@
  
            ^{:doc {}}
  
-           {:result+ []})
+           {:pass?   true
+            :report+ []})
 
 
 
-         (defn conj-result
+         (defn conj-report
          
            ^{:doc {}}
          
-           [result]
+           [report]
          
-           (def state
-                (assoc state
-                       :result+
-                       (conj (get state
-                                  :result+)
-                             result))))
-
-
-
-         (export conj-result)
-
-
-         (defn set-filter
-
-           ^{:doc {}}
-
-           [filter]
-
            (if (= *address*
                   self)
              (def state
-                  (assoc state
-                         :filter
-                         filter))
+                  (let [state-2 (assoc state
+                                       :report+
+                                       (conj (get state
+                                                  :report+)
+                                             report))]
+                   (if (:pass? report)
+                     state-2
+                     (assoc state-2
+                            :pass?
+                            false))))
              (call self
-                   (set-filter filter))))
+                   (conj-report report))))
 
 
-         (export set-filter)
-                 
+
+         (export conj-report)
 
 
-         (def k-pass?
-         
-           ^{:doc {}}
-         
-           :convex.run.test.pass?)
-         
-         
-         
-         (defn pass?
-         
-           ^{:doc {}}
-         
-           [result]
-         
-           (if (boolean result)
-             (if (map? result)
-               (boolean (result k-pass?))
-               true)
-             false))
-         
-         
 
          (defn trx
          
@@ -120,29 +89,24 @@
 
            ([trx]
 
-            (if (syntax? trx)
-              (self/trx (meta trx)
-                        (unsyntax trx))
-              (self/trx nil
-                        trx)))
+            (self/trx trx
+                      nil))
 
          
-           ([metadata trx]
+           ([trx metadata]
          
-            (let [filter (self/state :filter)]
-              (when (or (not filter)
-                        (filter metadata))
-                (let [base-report {:trx 42}]
-                  (sreq/try `[(query ~trx)
-                              (let [result help/*trx.last.result*]
-                                (call ~self
-                                      (conj-result (assoc ~base-report
-                                                          :result result
-                                                          :pass?  (boolean result)))))]
-                            `[(call ~self
-                                    (conj-result (assoc ~base-report
-                                                       :exception help/*error*
-                                                       :pass?     false)))]))))))
+            (let [base-report {:metadata metadata
+                               :trx      (list 'quote
+                                               trx)}]
+              (sreq/try `[(query ~trx)
+                          (let [result help/*trx.last.result*]
+                            (~self/conj-report (assoc ~base-report
+                                                      :result result
+                                                      :pass?  (= result
+                                                                 true))))]
+                        `[(~self/conj-report (assoc ~base-report
+                                                    :exception help/*error*
+                                                    :pass?     false))]))))
          
                                  
 
@@ -152,27 +116,11 @@
 
             [f-symbol]
 
-            (trx (lookup-meta f-symbol)
-                 (list f-symbol)))
+            (trx (list f-symbol)
+                 (lookup-meta f-symbol)))
 
 
-         
-         (defmacro assert
-         
-           ^{:doc {}}
-         
-           [form]
-         
-           `(let [result ~form]
-              (if (~self/pass? result)
-                result
-                (if (map? result)
-                  (assoc result
-                         :convex.run.test.form
-                         (quote ~form))
-                  {~k-pass?              false
-                   :result               result
-                   :convex.run.test.form (quote ~form)}))))
+
 
 
        ))) ;; END OF TEST ACTOR
@@ -181,32 +129,39 @@
 
 (defn test-1
 
-  ^{:important? false}
+  ^{:important? true
+    :test?      true}
 
   []
 
-  (test/assert (< 5 5)))
+  (or (< 4
+         5)
+      :foo))
 
 
 
 
 
-(test/set-filter (fn [metadata]
-                   (get metadata
-                        :important?)))
+(defn guard
+
+  [tag+]
+
+  (> (count (intersection tag+
+                          #{:foo
+                            :important}))
+     0))
+                    
+
+
+(sreq/do '[(when (guard #{:important})
+             (sreq/do '[(def foo 42)
+                        (when (guard #{:foo})
+                          (test/trx '(or (fail :bar :baz)
+                                         :foo)))]))])
 
 
 
-
-#_
-(test/trx (syntax '(test-1)
-                  {:important? true}))
-
-(test/function 'test-1)
-
-
-(sreq/out [:result+ (get test/state
-                         :result+)])
+(sreq/out [:tests test/state])
 
 
 
