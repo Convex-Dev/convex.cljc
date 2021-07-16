@@ -5,13 +5,14 @@
 ;; Provides a simple but flexible framework where a test assertion is a transaction.
 ;;
 ;;
+
+
 (deploy
  '(do
 
     (call *registry*
           (cns-update 'convex.run.test
                       *address*))
-    
     
     
     (call *registry*
@@ -26,6 +27,15 @@
     
       (call *registry*
             (cns-resolve 'convex.run.sreq)))
+
+
+
+    (def xform
+
+      ^{:doc {:description "Alias to the Xform library."}}
+
+      (call *registry*
+            (cns-resolve 'convex.xform)))
 
 
 
@@ -193,6 +203,55 @@
                    `[(~self/conj-report (assoc ~base-report
                                                :exception help/*error*
                                                :pass?     false))]))))
+
+
+     ;; REPORTING
+
+
+     (def xform-fail
+
+       ^{:doc {}}
+
+       (xform/filter (fn [report]
+                       (not (report :pass?)))))
+
+
+
+     (defn print-failed
+
+       ^{:doc {}}
+
+       []
+
+       (sreq/out (apply str
+                        (xform/transduce xform-fail
+                                         (fn
+                                           ([acc]
+                                            acc)
+                                           ([acc report]
+                                            (conj acc
+                                                  "---"
+                                                  \newline
+                                                  \newline
+                                                  (report :trx)
+                                                  \newline
+                                                  \newline
+                                                  "  Returns: "
+                                                  (report :result)
+                                                  \newline
+                                                  \newline
+                                                  "  "
+                                                  (or (get-in report
+                                                              [:metadata
+                                                               :doc])
+                                                      "No description provided")
+                                                  \newline
+                                                  \newline
+                                                  )))
+                                         []
+                                         (self/state :report+)))))
+
+                               
 
     
   )) ;; END

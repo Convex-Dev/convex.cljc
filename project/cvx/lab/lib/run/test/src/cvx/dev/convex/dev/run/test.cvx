@@ -1,8 +1,18 @@
-(sreq/dep {test "project/cvx/lab/lib/run/test/src/cvx/main/convex/run/test.cvx"})
+(sreq/dep {test  "project/cvx/lab/lib/run/test/src/cvx/main/convex/run/test.cvx"
+           xform "project/cvx/lab/lib/xform/src/cvx/main/convex/xform.cvx"})
 
+
+#_
+(sreq/hook.error (fn [ex]
+                   (sreq/out (dissoc ex
+                                     :trace))))
+
+(eval (first xform))
 (eval (first test))
 
 (import convex.run.test :as test)
+(import convex.xform :as xform)
+
 
 (sreq/screen.clear)
 
@@ -21,16 +31,19 @@
 (test/trx '(< 2 5))
 
 
-;(test/trx false)
-;(test/trx '(> 3 4))
+(test/trx '(< 42 4))
+(test/trx '(> 3 4)
+          {:doc "I know, it fails."})
 
-(sreq/hook.end '[(test/exit)])
+;(sreq/hook.end '[(test/exit)])
 
 
+;(sreq/out test/state)
+
+(sreq/out \newline)
 
 
-(sreq/out [:state test/state])
-
+(test/print-failed)
 
 
 #_
