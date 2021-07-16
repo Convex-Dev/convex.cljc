@@ -65,7 +65,7 @@
       (if (= *address*
              self)
         (update-state (fn [_state]
-                        {:pass?   true
+                        {:n-fail  0
                          :report+ []}))
         (call self
               (clear))))
@@ -94,8 +94,8 @@
               (if (:pass? report)
                 state-2
                 (assoc state-2
-                       :pass?
-                       false))))
+                       :n-fail
+                       (inc (state-2 :n-fail))))))
         (call self
               (conj-report report))))
 
@@ -111,9 +111,10 @@
 
       []
 
-      (sreq/exit (if (:pass? self/state)
-                   0
-                   42)))
+      (sreq/exit (if (> (:n-fail self/state)
+                        0)
+                   42
+                   0)))
 
 
 

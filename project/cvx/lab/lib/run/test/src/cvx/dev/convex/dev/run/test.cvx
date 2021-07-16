@@ -18,21 +18,13 @@
      0))
 
 
-
-(sreq/do '[(when (guard #{:important})
-             (sreq/do '[(def foo 42)
-                        (when (guard #{:foo})
-                          (test/trx '(or (< 5 5)
-                                         :foo)))]))
-           (test/clear)
-           (def foo :foo)
-           (test/fail-code #{:foo}
-                           '(fail foo :bar))
-           (undef foo)])
+(test/trx '(< 2 5))
 
 
+;(test/trx false)
+;(test/trx '(> 3 4))
 
-;(sreq/hook.end '[(test/exit)])
+(sreq/hook.end '[(test/exit)])
 
 
 
@@ -41,10 +33,8 @@
 
 
 
-
-
 #_
 (sreq/do '[(sreq/out \newline):
            (sreq/log)
-           (sreq/out help/*trx.last.result*)])
+           (sreq/out [:log help/*trx.last.result*])])
 
