@@ -173,7 +173,9 @@
        (fail (fn [ex]
                (code-target (ex :code)))
              trx
-             metadata)))
+             (assoc metadata
+                    :code-target
+                    code-target))))
 
 
 
@@ -229,25 +231,48 @@
                                            ([acc]
                                             acc)
                                            ([acc report]
-                                            (conj acc
-                                                  "---"
-                                                  \newline
-                                                  \newline
-                                                  (report :trx)
-                                                  \newline
-                                                  \newline
-                                                  "  Returns: "
-                                                  (report :result)
-                                                  \newline
-                                                  \newline
-                                                  "  "
-                                                  (or (get-in report
-                                                              [:metadata
-                                                               :doc])
-                                                      "No description provided")
-                                                  \newline
-                                                  \newline
-                                                  )))
+                                            (let [metadata (report :metadata)
+                                                  ex       (dissoc (report :exception)
+                                                                   :trx)
+                                                  res      (report :result)
+                                                  res?     (contains-key? report
+                                                                          :result)
+                                                  [text
+                                                   data] (if (= (report :expect)
+                                                                :result)
+                                                           (if res?
+                                                             ["Returned: "
+                                                              res]
+                                                             ["Threw: "
+                                                              ex])
+                                                           (if res?
+                                                             ["Instead of exception: "
+                                                              res]
+                                                             ["Not predicted exception: "
+                                                              ex]))]
+                                              (conj acc
+                                                    "---"
+                                                    \newline
+                                                    \newline
+                                                    (report :trx)
+                                                    \newline
+                                                    \newline
+                                                    "  "
+                                                    text
+                                                    data
+                                                    \newline
+                                                    \newline
+                                                    "  "
+                                                    (or (:description metadata)
+                                                        "No description provided.")
+                                                    \newline
+                                                    \newline
+                                                    "  Other metadata: "
+                                                    (dissoc metadata
+                                                            :description)
+                                                    \newline
+                                                    \newline
+                                                    ))))
                                          []
                                          (self/state :report+)))))
 

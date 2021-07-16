@@ -2,7 +2,7 @@
            xform "project/cvx/lab/lib/xform/src/cvx/main/convex/xform.cvx"})
 
 
-#_
+
 (sreq/hook.error (fn [ex]
                    (sreq/out (dissoc ex
                                      :trace))))
@@ -32,8 +32,15 @@
 
 
 (test/trx '(< 42 4))
-(test/trx '(> 3 4)
-          {:doc "I know, it fails."})
+(let [a 4
+      b 3]
+  (test/trx `(or (< ~a ~b)
+                 (- ~a ~b))
+            {:description "I know, it fails."}))
+
+(test/fail-code #{:ASSERT}
+                '(fail :foo :bar)
+                {:description "Must fail fast."})
 
 ;(sreq/hook.end '[(test/exit)])
 
