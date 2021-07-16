@@ -116,6 +116,35 @@
                    42)))
 
 
+
+    (defn fail
+
+      ^{:doc {}}
+
+      
+      ([expected-fail? trx]
+
+       (fail expected-fail?
+             trx
+             nil))
+
+
+      ([expected-fail? trx metadata]
+
+       (let [base-report {:expect   :exception
+                          :metadata metadata
+                          :trx      (list 'quote
+                                          trx)}]
+         (sreq/try `[(query ~trx)
+                     (~self/conj-report (assoc ~base-report
+                                               :result help/*trx.last.result*
+                                               :pass?  false))]
+                   `[(let [ex help/*error*]
+                       (~self/conj-report (assoc ~base-report
+                                                 :exception ex
+                                                 :pass?     (~expected-fail? ex))))]))))
+
+
     (defn fail-code
 
       ^{:doc {}}
@@ -130,19 +159,10 @@
 
       ([code-target trx metadata]
 
-       (let [base-report {:metadata metadata
-                          :trx      (list 'quote
-                                          trx)}]
-         (sreq/try `[(query ~trx)
-                     (~self/conj-report (assoc ~base-report
-                                               :fail?  false
-                                               :result help/*trx.last.result*
-                                               :pass?  false))]
-                   `[(let [ex help/*error*]
-                       (~self/conj-report (assoc ~base-report
-                                                 :exception  ex
-                                                 :fail?      true
-                                                 :pass?      (~code-target (ex :code)))))]))))
+       (fail (fn [ex]
+               (code-target (ex :code)))
+             trx
+             metadata)))
 
 
 
@@ -159,7 +179,8 @@
     
       ([trx metadata]
     
-       (let [base-report {:metadata metadata
+       (let [base-report {:expect   :result
+                          :metadata metadata
                           :trx      (list 'quote
                                           trx)}]
          (sreq/try `[(query ~trx)

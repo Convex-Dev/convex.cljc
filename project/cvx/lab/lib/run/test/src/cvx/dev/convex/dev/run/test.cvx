@@ -4,7 +4,6 @@
 
 (import convex.run.test :as test)
 
-
 (sreq/screen.clear)
 
 
@@ -15,10 +14,9 @@
   [tag+]
 
   (> (count (intersection tag+
-                          #{:foo
-                            :important}))
+                          #{:important}))
      0))
-                    
+
 
 
 (sreq/do '[(when (guard #{:important})
@@ -27,8 +25,10 @@
                           (test/trx '(or (< 5 5)
                                          :foo)))]))
            (test/clear)
+           (def foo :foo)
            (test/fail-code #{:foo}
-                           '(fail :foo :bar))])
+                           '(fail foo :bar))
+           (undef foo)])
 
 
 
