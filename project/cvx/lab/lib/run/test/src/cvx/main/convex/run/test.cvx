@@ -10,16 +10,18 @@
 (deploy
  '(do
 
+    ;; REGISTERING THE LIBRARY
+
     (call *registry*
           (cns-update 'convex.run.test
                       *address*))
-    
     
     (call *registry*
           (register {:doc  "Unit testing library for the Convex Lisp Runner."
                      :name "Convex Liser Runner Unit Testing"}))
     
-    
+
+    ;; IMPORTING OTHER LIBRARIES
 
     (def sreq
     
@@ -38,15 +40,18 @@
             (cns-resolve 'convex.xform)))
 
 
+    ;; VALUES
 
     (def self
 
-      ^{:doc {}}
+      ^{:doc {:description "Reference to this library's address."}}
 
       *address*)
 
 
 
+    ;; Is defined below in order to preserve metadata. 
+    ;;
     (def state
          nil)
 
@@ -54,13 +59,14 @@
 
     (defn update-state
 
-      ^{:doc {}}
+      ^{:doc {:description ["Used by this actor."
+                            "Updates the `state` symbol using `f`, a function `state` -> `state`."]}}
 
       [f]
 
       (def state
 
-        ^{:doc {}}
+        ^{:doc {:description "State map holding the number of failures (`:n-fail`) and all reports (`:report+`, see the `conj-report` symbol)."}}
 
         (f state)))
 
@@ -68,7 +74,7 @@
 
     (defn clear
 
-      ^{:doc {}}
+      ^{:doc {:description "Resets the `state` symbol to a clean state, erasing all tests."}}
 
       []
 
@@ -78,7 +84,8 @@
                         {:n-fail  0
                          :report+ []}))
         (call self
-              (clear))))
+              (clear)))
+      nil)
 
 
     (export clear)
@@ -89,7 +96,9 @@
 
     (defn conj-report
     
-      ^{:doc {}}
+      ^{:doc {:description ["Low-level function for adding a new report to the `state` symbol."
+                            "A report summarizes a test assertion."
+                            "If strictly required, study the `fail` and `trx` symbols which rely on this function."]}}
     
       [report]
     
@@ -117,7 +126,9 @@
 
     (defn exit
 
-      ^{:doc {}}
+      ^{:doc {:description ["Returns an 'exit' special request to terminate the process."
+                            "A non-zero status code is issued in case not all tests pass."
+                            "Meant to be used at the end of the run indicating failure or success."]}}
 
       []
 
@@ -130,7 +141,12 @@
 
     (defn fail
 
-      ^{:doc {}}
+      ^{:doc {:description ["Tests that the given `trx` quoted transaction throws an exception."
+                            "If no exception is throw, test fails."
+                            "If an exception is thrown, it is passed to the `expected-fail?` function."
+                            "Returning true means the exception was as expected, meaning test passes."
+                            "Most of the time, the `fail-code` function will be used rather than this one."
+                            "For the `metadata` argument, see the `trx` function."]}}
 
       
       ([expected-fail? trx]
@@ -158,9 +174,11 @@
 
     (defn fail-code
 
-      ^{:doc {}}
-
+      ^{:doc {:description ["Like the `fail` function but `expected-code?` receives the exception's code."
+                            "A convenient solution is to use a set of expected codes."]
+              :examples    [{:code "(fail-code #{:ASSERT} '(assert (< 42 3)))"}]}}
       
+
       ([code-target trx]
 
        (fail-code code-target
@@ -181,7 +199,9 @@
 
     (defn trx
     
-      ^{:doc {}}
+      ^{:doc {:description ["Tests that the given transaction (a quoted form) return exactly true."
+                            "Any other value means the transaction failed."]
+              :examples    [{:code "(trx '(< 2 3) {:description \"Two should be lesser than three.\"})"}]}} 
 
 
       ([trx]
@@ -212,7 +232,8 @@
 
      (def xform-fail
 
-       ^{:doc {}}
+       ^{:doc {:description ["Transducer filtering test reports that do not `:pass?`."
+                             "See the `convex.xform` library"]}}
 
        (xform/filter (fn [report]
                        (not (report :pass?)))))
@@ -221,7 +242,7 @@
 
      (defn print-failed
 
-       ^{:doc {}}
+       ^{:doc {:description "Returns an 'out' special requestion which outputs failed tests in human-readable format."}}
 
        []
 
@@ -275,8 +296,6 @@
                                                     ))))
                                          []
                                          (self/state :report+)))))
-
-                               
 
     
   )) ;; END
