@@ -15,7 +15,7 @@
             [convex.run.sym   :as $.run.sym]))
 
 
-;;;;;;;;;;
+;;;;;;;;;; Loading libraries
 
 
 (let [preload   (fn [ctx path]
@@ -42,7 +42,9 @@
       addr-sreq ($.cvm/result ctx-2)
       ctx-3     (preload ctx-2
                          "convex/run/help.cvx")
-      addr-help ($.cvm/result ctx-2)]
+      addr-help ($.cvm/result ctx-2)
+      ctx-4     (preload ctx-3
+                         "convex/run/test.cvx")]
 
 
   (def base
@@ -51,7 +53,7 @@
     
      Prepares the `help` and `sreq` accounts."
 
-    ($.cvm/def ctx-3
+    ($.cvm/def ctx-4
                {$.run.sym/help addr-help
                 $.run.sym/sreq addr-sreq}))
 
@@ -70,7 +72,7 @@
     addr-sreq))
 
 
-;;;;;;;;;;
+;;;;;;;;;; Defining symbols in the environment's context
 
 
 (defn def-current

@@ -172,7 +172,7 @@
 
 
 
-  ;; GOD MODE
+  ;; GOD MODE - Requiring pretty much everything
   
 
   :project/all
@@ -187,6 +187,8 @@
                      :project/break
                      :project/cvm
                      :project/clojurify
+                     :project/cvx.lab.lib.run.help
+                     :project/cvx.lab.lib.run.sreq
                      :project/cvx.lab.lib.run.test
                      :project/cvx.lab.lib.xform
                      :project/cvx.lib.trust

@@ -8,9 +8,11 @@
                                      :trace))))
 
 (eval (first xform))
-(eval (first test))
+(eval `(def test
+            (deploy (quote ~(cons 'do
+                                  (next (next test)))))))
+                      
 
-(import convex.run.test :as test)
 (import convex.xform :as xform)
 
 
@@ -57,4 +59,3 @@
 (sreq/do '[(sreq/out \newline):
            (sreq/log)
            (sreq/out [:log help/*trx.last.result*])])
-
