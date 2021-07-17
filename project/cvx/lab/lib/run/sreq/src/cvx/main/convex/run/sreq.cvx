@@ -1,0 +1,260 @@
+;;
+;;
+;; The SReq library offers functions for creating vectors that the Convex Lisp Runner interperts as special requests.
+;; A special request is typically a side-effects such as outputting a value.
+;;
+;;
+
+
+(call *registry*
+      (cns-update 'convex.run.sreq 
+                  *address*))
+
+
+(call *registry*
+      (register {:doc  {:description ["Special requests are vectors of data which instruct the Convex Lisp Runner to perform useful actions such as outputting values."
+                                      "Those actions are not implemented by the CVM, they are only understood by the runner."
+                                      "After each transaction in the main file has been executed, the runner checks if the result is any supported special request."
+                                      "Such vectors are created by calling functions from this address."]}
+                 :name "Convex Lisp Runner Special Requests"}))
+
+
+;; SPECIAL REQUESTS
+
+
+(defn advance
+
+  ^{:doc {:description ["Advances the current timestamp by `millis` milliseconds."
+                        "Argument must be > 0."]
+          :examples    [{:code "(sreq/advance (* 60 60 1000))"}]
+          :signature   [{:params [millis]}]
+          :type        :function}}
+
+  [millis]
+
+  (assert (>= millis
+              0))
+  [:cvm.sreq :advance millis])
+
+
+
+(defn dep
+
+  ^{:doc {:description ["Loads Convex Lisp dependency files. During watch mode, those files are live-reloaded as well."
+                        "If used, MUST be written as the very first transaction found in the main file."
+                        "Takes a map of `symbol` -> `path to file`. Files are read as lists of Convex Lisp forms and then defined under their corresponding symbol."
+                        "Then, those forms can be used as needed. It is common to use `deploy` or `eval`, depending on the purpose of a given file."]
+          :examples    [{:code "(sreq/dep {'my-lib \"path/to/lib.cvx\"})"}]
+          :signature   [{:params [sym->file]}]
+          :type        :function}}
+
+  [sym->file]
+
+  (assert (not "First transaction")))
+
+
+
+(defn do
+
+  ^{:doc {:description ["Given a sequence of quoted transactions, executes them one by one."
+                        "Useful when composing special requests in some way."]
+          :examples    [{:code "(sreq/do '[(def foo 42) (sreq/out foo)])"}]
+          :signature   [{:params [trx+]}]
+          :type        :function}}
+
+  [trx+]
+
+  (assert (or (list? trx+)
+              (vector? trx+)))
+  [:cvm.sreq :do trx+])
+
+
+
+(defn env
+
+  ^{:doc {:description ["Retrieves environment variable from the current process. Useful when some information must be passed to the runner from the outside."
+                        "When a env variable is given as well, defines only the value for that variable"
+                        "Result is temporarily stored in `help/*trx.last.result* and is accessible during the next transaction."]
+          :examples    [{:code "(sreq/env}"}
+                        {:code "(sreq/env \"MY_X\")"}]
+          :signature   [{:params [sym]}
+                        {:params [sym env-var]}]
+          :type        :function}}
+
+
+  ([]
+
+   (env nil))
+
+
+  ([env-var]
+
+   (assert (or (str? env-var)
+               (nil? env-var)))
+   [:cvm.sreq :env env-var]))
+
+
+
+(defn exit
+
+  ^{:doc {:description ["Stops execution and exits process with given `status` code (a long)."
+                        "Depending on the operating system, by convention, a non-zero value means an error occured."]
+          :examples    [{:code "(sreq/exit 42)"}]
+          :signature   [{:params [status]}]
+          :type        :function}}
+
+  [status]
+
+  (assert (long? status))
+  [:cvm.sreq :exit status])
+
+
+(defn hook.end
+
+  ^{:doc {:description ["Registers the given sequence of quoted transactions to be executed at the end, even if an error occured."
+                        "Overwrites what was previously registers."
+                        "Providing no transaction cancels what was previously registered."]
+          :examples    [{:code "(sreq/hook.end nil)"}
+                        {:code "(sreq/hook.end '[(def foo 42) (sreq/out [:end :foo foo])])"}]
+          :signature   [{:params [trx+]}]
+          :type        :function}}
+
+  [trx+]
+
+  (assert (or (list? trx+)
+              (nil? trx+)
+              (vector? trx+)))
+  [:cvm.sreq :hook.end trx+])
+
+
+
+(defn hook.error
+
+  ^{:doc {:description ["When an exception occurs, the given function is called with that exception. The result is code that is interpreted."
+                        "Returned code can be a special request."
+                        "Default is outputting the error without any modification"
+                        "Overwrites any previously registered function, `nil` removes it."]
+          :examples    [{:code "(sreq/hook.error (fn [ex] (sreq/out [:EXCEPTION ex])))"}]
+          :signature   [{:params [f]}]
+          :type        :function}}
+
+  [f]
+
+  (assert (fn? f))
+  [:cvm.sreq :hook.error f])
+
+
+
+(defn hook.out
+
+  ^{:doc {:description ["Registers a function that modifies any value prior to being outputted with `out`"
+                        "Default is `identity`, meaning values are not modified."
+                        "If the function returns nil, then nothing is outputted."
+                        "Overwrites any previously registered function, `nil` removes it."]
+          :examples    [{:code "(sreq/hook.out (fn [x] (when-not (:foo x) x)))"}]
+          :signature   [{:params [f]}]
+          :type        :function}}
+
+  [f]
+
+  (assert (fn? f))
+  [:cvm.sreq :hook.out f])
+
+
+
+(defn hook.result
+
+  ^{:doc {:description ["Registers a quoted transaction meant to be executed after transaction with the purpose of doing some post-processing."
+                        "Useful for things like displaying juice consumption, tracing transactions, etc."
+                        "Overwrites any previously registered quoted transaction, `nil` removes it."]
+          :examples    [{:code "(sreq/hook.trx '(sreq/out [:result help/*trx.last.result* :juice help/*trx.last.juice*]))"}]
+          :signature   [{:params [trx]}]
+          :type        :function}}
+
+  [trx]
+
+  [:cvm.sreq :hook.result trx])
+
+                                                      
+
+(defn log
+
+  ^{:doc {:description ["Retrieves the current CVM log."
+                        "Result is temporarily stored in `help/*trx.last.result* and is accessible during the next transaction."]
+          :examples    [{:code "(sreq/do '[(log :foo) (sreq/log l) (sreq/out l))"}]
+          :signature   [{:params []}]
+          :type        :function}}
+
+  []
+
+  [:cvm.sreq :log])
+
+
+
+(defn out
+
+  ^{:doc {:description "Outputs the given argument."
+          :examples    [{:code "(sreq/out 42)"}]
+          :signature   [{:params [x]}]
+          :type        :function}}
+
+  [x]
+
+  [:cvm.sreq :out x])
+
+
+
+(defn read
+
+  ^{:doc {:description ["Passes the given string through the Convex Lisp reader and produces a list of forms."
+                        "Those forms can be compiled, evaluated, ..."
+                        "Result is temporarily stored in `help/*trx.last.result* and is accessible during the next transaction."]
+          :examples    [{:code "(sreq/read \"(+ 2 2)\")"}]
+          :signature   [{:params [string]}]
+          :type        :function}}
+
+  [src]
+
+  (assert (str? src))
+  [:cvm.sreq :read src])
+
+
+
+(defn screen.clear
+
+  ^{:doc {:description ["Clears the screen."
+                        "Useful only if the output is printed in the terminal."]
+          :examples    [{:code "(sreq/clear.screen)"}]
+          :signature   [{:params []}]
+          :type        :function}}
+
+  []
+
+  [:cvm.sreq :screen.clear])
+
+
+
+(defn try
+
+  ^{:doc {:description ["First argument is a sequence of quoted transactions executed one by one until an exception is throw."
+                        "In such case, the exception is defined under `help/*cvm.error*` and optional quoted transactions from the second argument are executed."
+                        "With or without \"catch\" transactions, execution in the main file continues."]
+          :examples    [{:code "(sreq/try '[(def foo 42) (fail \"Oops\")] '[(sreq/out [:error *cvm.error*)])"}]
+          :signature   [{:params [try-trx+ catch-trx+]}]
+          :type        :function}}
+                      
+
+  ([try-trx+]
+
+   (try try-trx+
+        nil))
+
+
+  ([try-trx+ catch-trx+]
+
+   (assert (or (list? try-trx+)
+               (vector? try-trx+)))
+   (assert (or (nil? catch-trx+)
+               (list? catch-trx+)
+               (vector? catch-trx+)))
+   [:cvm.sreq :try try-trx+ catch-trx+]))

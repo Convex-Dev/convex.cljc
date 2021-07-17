@@ -1,0 +1,301 @@
+;;
+;;
+;; Help library for the Convex Lisp Runner offering a series of values dynamically set by the runner (eg. `help/*error*` when a CVM error occurs) and the `about`
+;; function for navigating documentation metadata.
+;;
+;;
+
+
+(call *registry*
+      (cns-update 'convex.run.help
+                  *address*))
+
+
+(call *registry*
+      (register {:doc  {:description ["Help library for the Convex Lisp Runner."
+                                      "Provides a series of special values named `*xxx*` which hold commonly useful information, such as juice consumption."
+                                      "Also provides the `about` function for printing a description of any account or any symbol defined in any account."
+                                      "For more information, evalute `(help/about help 'about)`."]}
+                 :name "Convex Lisp Runner Help and Miscelleneous Utilities"}))
+
+
+
+(def sreq
+
+ ^{:doc {:description "Alias to the SReq library."}}
+
+ (call *registry*
+       (cns-resolve 'convex.run.sreq)))
+
+
+;; SPECIAL VALUES
+
+
+(def *cycle*
+
+  ^{:doc {:description ["Starting at 0, is incremented every time the main file is run."
+                        "Potentially useful for watch mode."]}}
+
+  nil)
+
+
+
+(def *error*
+
+  ^{:doc {:description ["Any thrown exception is defined under this symbol."
+                        "Notably useful in try-catch (see `sreq/try`)"]}}
+
+  nil)
+
+
+
+(def *file*
+
+  ^{:doc {:description "Canonical path of the invoked main file."}}
+
+  nil)
+
+
+
+(def *juice*
+
+  ^{:doc {:description "Total amount of juice consumed up to now."}}
+
+  nil)
+
+
+
+(def *trx.form*
+
+  ^{:doc {:description "Form representing the current transaction."}}
+
+  nil)
+
+
+
+(def *trx.id*
+
+  ^{:doc {:description ["Id of the current transaction."
+                        "Starting at 0, is incremented on every transaction."
+                        "Resets on each run in watch mode."]}}
+
+  nil)
+
+
+
+(def *trx.last.form*
+
+  ^{:doc {:description "Like `*trx.form*` but represents the previous transaction."}}
+
+  nil)
+
+
+
+(def *trx.last.id*
+
+  ^{:doc {:description "Like `*trx.id*` but represents the previous transaction."}}
+
+  nil)
+
+
+
+(def *trx.last.juice*
+
+  ^{:doc {:description "Amount of juice consumed by the previous transaction."}}
+
+  nil)
+
+
+
+(def *trx.last.result*
+
+  ^{:doc {:description "Result of the previous transaction."}}
+
+  nil)
+
+
+;; FUNCTIONS
+
+
+(defn str-line+
+
+  ^{:doc {:description ["Returns a unique string which lays out text sections in a way that is easy to read for humans."
+                        "Used by `str-about`"]
+          :examples    [{:code "(str-line+ [[\"My section\" [\"Line 1\" \"Line 2\"]]])"}]
+          :signature   [{:params [section+]}]
+          :type        :function}}
+
+  [section+]
+
+  (apply str
+         (reduce (fn [acc [section line+]]
+                   (reduce (fn [acc-2 line]
+                             (conj acc-2
+                                   \newline
+                                   \newline
+                                   line))
+                           (conj acc
+                                 \newline
+                                 \newline
+                                 \newline
+                                 section
+                                 \newline
+                                 (loop [acc []
+                                        i   (count section)]
+                                  (if (> i
+                                         0)
+                                    (recur (conj acc
+                                                 "=")
+                                           (dec i))
+                                    (apply str
+                                           acc))))
+                           line+))
+                 []
+                 section+)))
+
+
+
+(let [-doc (fn [target meta]
+             (let [doc         (:doc meta)
+                   description (:description doc)
+                   example+    (:examples doc)
+                   signature   (:signature doc)
+                   type        (:type doc)
+                   target-sym  (symbol target)
+                   section+    [["HELP"
+                                 [target]]]
+                   section-2+  (if type
+                                 (conj section+
+                                       ["TYPE"
+                                        [type]])
+                                 section+)
+                   section-3+  (if signature
+                                 (conj section-2+
+                                       ["SIGNATURE"
+                                        (map (fn [sign]
+                                               (cons target-sym
+                                                     (:params sign)))
+                                             signature)])
+                                 section-2+)
+                   section-4+  (if description
+                                 (conj section-3+
+                                       ["DESCRIPTION"
+                                        (cond
+                                          (str? description)    [description]
+                                          (vector? description) description
+                                          :else                 ["Malformed, description must be a string or a vector or strings."])])
+                                 section-3+)
+                   section-5+  (if example+
+                                 (conj section-4+
+                                       ["EXAMPLES"
+                                        (map :code
+                                             example+)])
+                                 section-4+)]
+               (str-line+ section-5+)))]
+
+    (defn str-about
+
+      ^{:doc {:description ["Using `str-line+`, prepares a string for displaying useful information about an account or a symbol defined in any account."
+                            "Used by `about`"]
+              :examples    [{:code "(help/str-about sreq)"}
+                            {:code "(help/str-about sreq 'out)"}]
+              :signature   [{:params [addr-or-sym]}
+                            {:params [addr sym]}]
+              :type        :function}}
+
+      ([addr-or-sym]
+
+       (if (symbol? addr-or-sym)
+         (-doc (str addr-or-sym)
+               (lookup-meta addr-or-sym))
+         (if-let [acc (account addr-or-sym)]
+           (let [allowance   (acc :allowance)
+                 balance     (acc :balance)
+                 controller  (acc :controller)
+                 env         (acc :environment)
+                 key         (acc :key)
+                 meta        (acc :metadata)
+                 meta-reg    (call *registry*
+                                   (lookup addr-or-sym))
+                 name        (:name meta-reg)
+                 overview    (:description (:doc meta-reg))
+                 section+    [["ACCOUNT"
+                               [addr-or-sym]]
+                              ["KEY"
+                               [(or key
+                                    "None (this is an actor)")]]
+                              ["ALLOWANCE"
+                               [allowance]]
+                              ["BALANCE"
+                               [balance]]
+                              ["CONTROLLER"
+                               [(or controller
+                                    "None")]]]
+                section-2+    (if name
+                                (conj section+
+                                      ["NAME"
+                                       [name]])
+                                section+)
+                section-3+    (if overview
+                                (conj section-2+
+                                      ["OVERVIEW"
+                                       (if (str? overview)
+                                         [overview]
+                                         overview)])
+                                section-2+)
+                section-4+    (if (> (count env)
+                                     0)
+                                (conj section-3+
+                                      ["ENVIRONMENT (simplified)"
+                                       (reduce (fn [line+ [k _v]]
+                                                 (if-let [desc (get-in meta
+                                                                       [k
+                                                                        :doc
+                                                                        :description])]
+                                                   (conj line+
+                                                         k
+                                                         (str "  "
+                                                              (if (str? desc)
+                                                                desc
+                                                                (first desc))))
+                                                   (conj line+
+                                                         k)))
+                                               []
+                                               env)])
+                                section-3+)]
+             (str-line+ section-4+))
+           (str "Account "
+                addr-of-sym
+                " does not exist."))))
+
+
+      ([addr sym]
+
+       (-doc (str (address addr)
+                           "/"
+                           sym)
+             (lookup-meta addr
+                          sym)))))
+
+
+
+  (defn about
+
+    ^{:doc {:description ["Prepares a special request for outputting useful information about an account or a symbol defined in any account."
+                          "Note: if present, the environment description is simplified one. More information about each symbol can be queried."]
+            :examples    [{:code "(help/str sreq)"}
+                          {:code "(help/str sreq 'out)"}]
+            :signature   [{:params [addr-or-sym]}
+                          {:params [addr sym]}]
+            :type        :function}}
+
+
+    ([addr-or-sym]
+
+     (sreq/out (str-about addr-or-sym)))
+
+
+    ([addr sym]
+
+     (sreq/out (str-about addr
+                          sym))))

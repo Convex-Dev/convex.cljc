@@ -294,11 +294,27 @@
 
   ;--
 
+  :project/cvx.lab.lib.run.help
+
+  {:extra-paths  ["project/cvx/lab/lib/run/help/src/cvx/main"]
+   :maestro/doc  "Help library for the Convex Lisp Runner"
+   :maestro/root "project/lab/lib/run/help"}
+  ;--
+
+  :project/cvx.lab.lib.run.sreq
+
+  {:extra-paths  ["project/cvx/lab/lib/run/sreq/src/cvx/main"]
+   :maestro/doc  "Library for building special requests for the Convex Lisp Runner"
+   :maestro/root "project/lab/lib/run/sreq"}
+
+  ;--
+
   :project/cvx.lab.lib.run.test
 
   {:extra-paths  ["project/cvx/lab/lib/run/test/src/cvx/main"]
    :maestro/doc  "Unit testing library for the Convex Lisp Runner"
    :maestro/root "project/lab/lib/run/test"}
+
 
   :dev/cvx.lab.lib.lib.run.test
 
@@ -347,6 +363,8 @@
                      "project/run/src/cvx/main"]
    :maestro/doc     "Core implementation of `:project/app.run`, reusable interface"
    :maestro/require [:project/cvm
+                     :project/cvx.lab.lib.run.help
+                     :project/cvx.lab.lib.run.sreq
                      :project/cvx.lab.lib.run.test
                      :project/sync
                      :project/watch]

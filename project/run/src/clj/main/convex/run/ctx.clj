@@ -7,7 +7,6 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.data AVector))
   (:refer-clojure :exclude [cycle])
   (:require [clojure.java.io]
             [convex.cvm       :as $.cvm]
@@ -19,49 +18,56 @@
 ;;;;;;;;;;
 
 
-(def base
+(let [preload   (fn [ctx path]
+                  (if-some [resource (clojure.java.io/resource path)]
+                    (let [ctx-2 ($.cvm/eval ctx
+                                            (-> resource
+                                                .openStream
+                                                $.read/input-stream
+                                                $.data/do
+                                                $.data/deploy))
+                          ex    ($.cvm/exception ctx)]
+                      (when ex
+                        (throw (ex-info "Unable to preload CVX file"
+                                        {::base :eval
+                                         ::ex   ex
+                                         ::path path})))
+                      ($.cvm/juice-refill ctx-2))
+                    (throw (ex-info "Mandatory CVX file is not on classpath"
+                                    {::base :not-found
+                                     ::path path}))))
+      ctx       ($.cvm/ctx)
+      ctx-2     (preload ctx
+                         "convex/run/sreq.cvx")
+      addr-sreq ($.cvm/result ctx-2)
+      ctx-3     (preload ctx-2
+                         "convex/run/help.cvx")
+      addr-help ($.cvm/result ctx-2)]
 
-  "Base context used when initiating a run.
-  
-   Prepares the `help` and `sreq` accounts."
 
-  (if-some [resource (clojure.java.io/resource "convex/run.cvx")]
-    (let [ctx ($.cvm/eval ($.cvm/ctx)
-                          (-> resource
-                              .openStream
-                              $.read/input-stream
-                              first))
-          ex  ($.cvm/exception ctx)]
-      (when ex
-        (throw (ex-info "Unable to execute 'run.cvx'"
-                        {::base :eval
-                         ::ex   ex})))
-      ($.cvm/juice-refill ctx))
-    (throw (ex-info "Mandatory 'run.cvx' file is not on classpath"
-                    {::base :not-found}))))
+  (def base
 
+    "Base context used when initiating a run.
+    
+     Prepares the `help` and `sreq` accounts."
 
+    ($.cvm/def ctx-3
+               {$.run.sym/help addr-help
+                $.run.sym/sreq addr-sreq}))
 
-;;;;;;;;;; Miscellaneous values
-
-
-(let [^AVector -result ($.cvm/result base)]
 
   (def addr-help
 
     "Address of the `help` account fetched from [[base]]."
 
-    (.get -result
-          0))
-
+    addr-help)
 
 
   (def addr-sreq
   
     "Address of the `sreq` account fetched from [[base]]."
 
-    (.get -result
-          1)))
+    addr-sreq))
 
 
 ;;;;;;;;;;

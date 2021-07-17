@@ -32,6 +32,11 @@
 
 
 
+(def ^Symbol help
+             ($.data/symbol "help"))
+
+
+
 (def ^Symbol juice-total
              ($.data/symbol "*juice*"))
 
