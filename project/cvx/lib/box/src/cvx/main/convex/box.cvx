@@ -15,7 +15,7 @@
 (do
 
 
-  (import convex.asset :as asset)
+  (import convex.asset :as asset-lib)
   
 
 
@@ -180,8 +180,8 @@
     [asset box-id]
 
     (let [box-id (long box-id)]
-	  (asset/accept *caller*
-                    asset) ;; Accepts first, solves problem of putting box into itself.
+	  (asset-lib/accept *caller*
+                        asset) ;; Accepts first, solves problem of putting box into itself.
 	  (cond
 	    (not (contains-key? boxes
                             box-id))
@@ -194,9 +194,9 @@
 	  (def boxes
           (assoc boxes
                  box-id
-                 (asset/quantity-add (get boxes
-                                          box-id)
-                                     asset)))))
+                 (asset-lib/quantity-add (get boxes
+                                              box-id)
+                                         asset)))))
 
 
 
@@ -278,8 +278,8 @@
     (let [box-id        (long box-id)
           current-asset (get boxes
                              box-id)]
-       (when-not (asset/quantity-contains? current-asset
-                                           asset)
+       (when-not (asset-lib/quantity-contains? current-asset
+                                               asset)
          (fail "Box does not contain quantity of asset specified for removal"))
        (when-not (contains-key? (ownership *caller*)
                                 box-id)
@@ -288,12 +288,12 @@
        (def boxes
             (assoc boxes
                    box-id
-                   (asset/quantity-sub current-asset
-                                       asset)))
+                   (asset-lib/quantity-sub current-asset
+                                           asset)))
        ;; Delivers the asset to the caller.
        ;;
-       (asset/transfer *caller*
-                       asset)))
+       (asset-lib/transfer *caller*
+                           asset)))
   
 
   ;; API, meant to be used as a library ; interface over callable functions
@@ -316,9 +316,9 @@
 
     [box-id asset]
 
-    (asset/transfer ~*address*
-                    asset
-                    box-id))
+    (asset-lib/transfer ~*address*
+                        asset
+                        box-id))
 
 
   (defn remove
