@@ -361,8 +361,7 @@
 
   :project/run
 
-  {:extra-paths     ["project/run/src/clj/main"
-                     "project/run/src/cvx/main"]
+  {:extra-paths     ["project/run/src/clj/main"]
    :maestro/doc     "Core implementation of `:project/app.run`, reusable interface"
    :maestro/require [:project/cvm
                      :project/cvx.lab.lib.run.help

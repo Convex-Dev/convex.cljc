@@ -1,0 +1,25 @@
+(sreq/dep {fungible "project/cvx/lib/fungible/src/cvx/main/convex/fungible.cvx"})
+
+(eval `(def fungible
+            (deploy (quote ~(cons 'do
+                                  (next (next fungible)))))))
+
+(import convex.run.test :as T)
+
+(sreq/screen.clear)
+(sreq/out "Testing `convex.fungible` library\n")
+
+
+
+(def token
+     (deploy (fungible/build-token {:supply 1000000})))
+
+
+(T/trx '(boolean token)
+       {:description "Token has been deployed"})
+
+
+
+
+
+(T/print-failed)
