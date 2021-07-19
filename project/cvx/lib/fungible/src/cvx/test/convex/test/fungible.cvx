@@ -16,6 +16,7 @@
 (import convex.run.test :as T)
 
 
+(sreq/hook.error (fn [err] (sreq/out (dissoc err :trace))))
 
 (sreq/hook.end '[(T/print-failed)])
 (sreq/screen.clear)
@@ -39,257 +40,256 @@
 
 
 
-(defn test-fungible
+(defn suite.fungible
 
   ^{:doc {:description ""}}
 
-  [token user metadata]
+  [token user]
 
-  (let [metadata-2 metadata]
-    (T/group `[(T/trx '(= supply
+  (T/group `[(T/path.conj 'suite.fungible)
+
+             (T/trx '(= supply
+                        (asset/balance ~token
+                                       ~user))
+                    {:description "Initially, user owns total supply."})
+                  
+             (T/trx '(= 0
+                        (asset/balance ~token
+                                       (deploy nil)))
+                    {:description "Newly created account has no token."})
+              
+             (T/trx '(do
+                      (asset/transfer ~user
+                                      [~token
+                                       (asset/balance ~token
+                                                      ~user)])
+                      (= supply
+                         (asset/balance ~token
+                                        ~user)))
+                    {:description "Self-transfer does not affect balance."})
+
+             (T/trx '(do
+                       (asset/transfer ~user
+                                       [~token
+                                        nil])
+                       (= supply
                           (asset/balance ~token
-                                         ~user))
-                      {:description "Initially, user owns total supply."})
-                    
-               (T/trx '(= 0
-                          (asset/balance ~token
-                                         (deploy nil)))
-                      {:description "Newly created account has no token."})
-                
-               (T/trx '(do
-                        (asset/transfer ~user
-                                        [~token
-                                         (asset/balance ~token
-                                                        ~user)])
-                        (= supply
-                           (asset/balance ~token
-                                          ~user)))
-                      {:description "Self-transfer does not affect balance."})
+                                         ~user)))
+                    {:description "Self-transfer of nothing does not affect balance."})
 
-               (T/trx '(do
-                         (asset/transfer ~user
-                                         [~token
-                                          nil])
-                         (= supply
-                            (asset/balance ~token
-                                           ~user)))
-                      {:description "Self-transfer of nothing does not affect balance."})
-
-               (asset.test/suite.main ~token
-                                      ~user
-                                      (let [user-2 (deploy '(do
-                                                              (set-controller *origin*)
-                                                              (set-key 0x0000000000000000000000000000000000000000000000000000000000000000)))]
-                                        (asset/transfer user-2
-                                                        [~token
-                                                         (long (/ supply
-                                                                  3))])
-                                        user-2)
-                                      ~metadata-2)])))
+             (asset.test/suite.main ~token
+                                    ~user
+                                    (let [user-2 (deploy '(do
+                                                            (set-controller *origin*)
+                                                            (set-key 0x0000000000000000000000000000000000000000000000000000000000000000)))]
+                                      (asset/transfer user-2
+                                                      [~token
+                                                       (long (/ supply
+                                                                3))])
+                                      user-2))]))
 
 
 
-(defn test-asset
+(defn suite.asset
 
   ^{:doc {:description ""}}
 
-  [metadata]
+  []
 
-  (let [metadata-2 metadata]
-    (T/group `[(T/trx '(address? (def token
-                                      (deploy (fungible/build-token {:supply ~supply}))))
-                      {:description "Token deployed"})
+  (T/group `[(T/path.conj 'suite.asset)
 
-               (test-fungible token
-                              *address*
-                              ~metadata-2)
+             (T/trx '(address? (def token
+                                    (deploy (fungible/build-token {:supply ~supply}))))
+                    {:description "Token deployed"})
 
+             (suite.fungible token
+                             *address*)
 
-               ;; Transfers
+             ;; Transfers
 
-               (T/trx '(= 500
-                          (asset/offer ~villain
-                                       [token
-                                        500]))
-                      {:description "Offer villain some tokens."})
+             (T/trx '(= 500
+                        (asset/offer ~villain
+                                     [token
+                                      500]))
+                    {:description "Offer villain some tokens."})
 
-               (T/trx '(= 500
-                          (asset/get-offer token
-                                           *address*
-                                           ~villain))
-                      {:description "First offer has been issued."})
-
-               (T/trx '(= 1000
-                          (asset/offer ~villain
-                                       [token
-                                        1000]))
-                      {:description "Updating offer."})
-
-               (T/trx '(= 1000
-                          (asset/get-offer token
-                                           *address*
-                                           ~villain))
-                      {:description "Offer has been updated."})
-
-               (T/trx '(= 250
-                          (eval-as ~villain
-                                   `(~asset/accept ~*address*
-                                                   [~token
-                                                    250])))
-                      {:description "Partly accepting an offer, returns current balance."})
-
-               (T/trx '(= 750
-                          (asset/get-offer token
-                                           *address*
-                                           ~villain))
-                      {:description "Remaining offer is still valid."})
-
-               (T/trx '(= 1000
-                          (eval-as ~villain
-                                   `(~asset/accept ~*address*
-                                                   [~token
-                                                    750])))
-                      {:description "Accepting remaining offer, returns current balance."})
-
-               (T/trx '(= 2000
-                          (asset/transfer ~villain
-                                          [token
-                                           1000]))
-                      {:description "Transfer some tokens to villain (arity 2), returns current balance."})
-
-               (T/trx '(= {token 3000}
-                          (asset/transfer ~villain
-                                          {token 1000}))
-                      {:description "Transfer some tokens to villain (arity 3), returns current balance."})
-
-               (T/trx '(= (- ~supply
-                             3000)
-                          (asset/balance token
-                                         *address*))
-                      {:description "Villain received tokens."})
-
-               (T/trx '(= 3000
-                          (asset/balance token
+             (T/trx '(= 500
+                        (asset/get-offer token
+                                         *address*
                                          ~villain))
-                      {:description "Balance updated after transferring to villain."})
+                    {:description "First offer has been issued."})
+
+             (T/trx '(= 1000
+                        (asset/offer ~villain
+                                     [token
+                                      1000]))
+                    {:description "Updating offer."})
+
+             (T/trx '(= 1000
+                        (asset/get-offer token
+                                         *address*
+                                         ~villain))
+                    {:description "Offer has been updated."})
+
+             (T/trx '(= 250
+                        (eval-as ~villain
+                                 `(~asset/accept ~*address*
+                                                 [~token
+                                                  250])))
+                    {:description "Partly accepting an offer, returns current balance."})
+
+             (T/trx '(= 750
+                        (asset/get-offer token
+                                         *address*
+                                         ~villain))
+                    {:description "Remaining offer is still valid."})
+
+             (T/trx '(= 1000
+                        (eval-as ~villain
+                                 `(~asset/accept ~*address*
+                                                 [~token
+                                                  750])))
+                    {:description "Accepting remaining offer, returns current balance."})
+
+             (T/trx '(= 2000
+                        (asset/transfer ~villain
+                                        [token
+                                         1000]))
+                    {:description "Transfer some tokens to villain (arity 2), returns current balance."})
+
+             (T/trx '(= {token 3000}
+                        (asset/transfer ~villain
+                                        {token 1000}))
+                    {:description "Transfer some tokens to villain (arity 3), returns current balance."})
+
+             (T/trx '(= (- ~supply
+                           3000)
+                        (asset/balance token
+                                       *address*))
+                    {:description "Villain received tokens."})
+
+             (T/trx '(= 3000
+                        (asset/balance token
+                                       ~villain))
+                    {:description "Balance updated after transferring to villain."})
 
 
-               ;; Ownership
+             ;; Ownership
 
-               (def balance-villain
-                    (asset/balance token
-                                   ~villain))
+             (def balance-villain
+                  (asset/balance token
+                                 ~villain))
 
-               (T/trx '(asset/owns? ~villain
-                                    [token
-                                     (dec balance-villain)])
-                      {:description "Villain owns at least less than its balance."})
+             (T/trx '(asset/owns? ~villain
+                                  [token
+                                   (dec balance-villain)])
+                    {:description "Villain owns at least less than its balance."})
 
-               (T/trx '(asset/owns? ~villain
-                                    [token
-                                     balance-villain])
-                      {:description "Villain owns its balance."})
+             (T/trx '(asset/owns? ~villain
+                                  [token
+                                   balance-villain])
+                    {:description "Villain owns its balance."})
 
-               (T/trx '(not (asset/owns? ~villain
-                                         [token
-                                          (inc balance-villain)]))
-                      {:description "Villain cannot own more than its balance."})
-
-
-               ;; Token arithmetics
-
-               (T/trx '(= 0
-                          (asset/quantity-zero token))
-                      {:description "Empty balance is 0."})
-
-               (T/trx '(= 110
-                          (asset/quantity-add token
-                                              100
-                                              10))
-                      {:description "Adding tokens."})
-
-               (T/trx '(= 100
-                          (asset/quantity-add token
-                                              100
-                                              nil))
-                      {:description "Adding nil."})
-
-               (T/trx '(= 100
-                          (asset/quantity-add token
-                                              nil
-                                              100))
-                      {:description "Adding to nil."})
-
-               (T/trx '(= 90
-                          (asset/quantity-sub token
-                                              100
-                                              10))
-                      {:description "Subtracting tokens."})
-
-               (T/trx '(= 100
-                          (asset/quantity-sub token
-                                              100
-                                              nil))
-                      {:description "Subtracting nil."})
-
-               (T/trx '(zero? (asset/quantity-sub token
-                                                  nil
-                                                  100))
-                      {:description "Subtracting from nil."})
-
-               (T/trx '(= 0
-                          (asset/quantity-sub token
-                                              10
-                                              1000))
-                      {:description "Subtracting does not go below 0."})
+             (T/trx '(not (asset/owns? ~villain
+                                       [token
+                                        (inc balance-villain)]))
+                    {:description "Villain cannot own more than its balance."})
 
 
-               ;; Token comparisons
+             ;; Token arithmetics
 
-               (T/trx '(asset/quantity-contains? [token
-                                                  110]
-                                                 [token
-                                                  100]))
+             (T/trx '(= 0
+                        (asset/quantity-zero token))
+                    {:description "Empty balance is 0."})
 
-               (T/trx '(asset/quantity-contains? [token
-                                                  110]
-                                                 nil))
+             (T/trx '(= 110
+                        (asset/quantity-add token
+                                            100
+                                            10))
+                    {:description "Adding tokens."})
 
-               (T/trx '(asset/quantity-contains? nil
-                                                 nil))
+             (T/trx '(= 100
+                        (asset/quantity-add token
+                                            100
+                                            nil))
+                    {:description "Adding nil."})
 
-               (T/trx '(asset/quantity-contains? token
-                                                 110
-                                                 100))
+             (T/trx '(= 100
+                        (asset/quantity-add token
+                                            nil
+                                            100))
+                    {:description "Adding to nil."})
 
-               (T/trx '(asset/quantity-contains? token
-                                                 110
-                                                 nil))
+             (T/trx '(= 90
+                        (asset/quantity-sub token
+                                            100
+                                            10))
+                    {:description "Subtracting tokens."})
 
-               (T/trx '(asset/quantity-contains? token
-                                                 nil
-                                                 nil))
+             (T/trx '(= 100
+                        (asset/quantity-sub token
+                                            100
+                                            nil))
+                    {:description "Subtracting nil."})
 
-               (T/trx '(not (asset/quantity-contains? [token
-                                                       100]
-                                                      [token
-                                                       110])))
+             (T/trx '(zero? (asset/quantity-sub token
+                                                nil
+                                                100))
+                    {:description "Subtracting from nil."})
 
-               (T/trx '(not (asset/quantity-contains? nil
-                                                      [token
-                                                       110])))
-
-               (T/trx '(not (asset/quantity-contains? token
-                                                      100
-                                                      110)))
-
-               (T/trx '(not (asset/quantity-contains? token
-                                                      nil
-                                                      110)))])))
+             (T/trx '(= 0
+                        (asset/quantity-sub token
+                                            10
+                                            1000))
+                    {:description "Subtracting does not go below 0."})
 
 
+             ;; Token comparisons
 
-(defn test-build-token
+             (T/trx '(asset/quantity-contains? [token
+                                                110]
+                                               [token
+                                                100]))
+
+             (T/trx '(asset/quantity-contains? [token
+                                                110]
+                                               nil))
+
+             (T/trx '(asset/quantity-contains? nil
+                                               nil))
+
+             (T/trx '(asset/quantity-contains? token
+                                               110
+                                               100))
+
+             (T/trx '(asset/quantity-contains? token
+                                               110
+                                               nil))
+
+             (T/trx '(asset/quantity-contains? token
+                                               nil
+                                               nil))
+
+             (T/trx '(not (asset/quantity-contains? [token
+                                                     100]
+                                                    [token
+                                                     110])))
+
+             (T/trx '(not (asset/quantity-contains? nil
+                                                    [token
+                                                     110])))
+
+             (T/trx '(not (asset/quantity-contains? token
+                                                    100
+                                                    110)))
+
+             (T/trx '(not (asset/quantity-contains? token
+                                                    nil
+                                                    110)))]))
+
+
+
+(defn suite.build-token
 
   ^{:doc {:description ""}}
 
@@ -303,6 +303,6 @@
 
 
 
-(test-asset {})
+(suite.asset)
 
-;(test-build-token {})
+;(suite.build-token {})

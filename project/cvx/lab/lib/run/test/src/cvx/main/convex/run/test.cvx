@@ -100,7 +100,11 @@
                                          :report+
                                          (conj (get state
                                                     :report+)
-                                               report))))]
+                                               (assoc report
+                                                      :metadata
+                                                      (assoc (:metadata report)
+                                                             :path
+                                                             *path*))))))]
      (if (:pass? report)
        state-2
        (update-state (fn [state]
@@ -135,6 +139,35 @@
 
 
 (export merge)
+
+
+;; PATH
+
+
+(def *path*
+
+  ^{:doc {:description ""}}
+
+  [])
+
+
+
+(defn path.conj
+
+  ^{:doc {:description ""}}
+
+  [item]
+
+  (if (= *address*
+         self)
+    (def *path*
+         (conj *path*
+               item))
+    (call self
+          (path.conj item))))
+
+
+(export path.conj)
 
 
 ;; CVM STATE ISOLATION
@@ -357,6 +390,10 @@
                                             data
                                             \newline
                                             \newline
+                                            "  Path: "
+                                            (:path metadata)
+                                            \newline
+                                            \newline
                                             "  "
                                             (or (:description metadata)
                                                 "No description provided.")
@@ -364,7 +401,8 @@
                                             \newline
                                             "  Other metadata: "
                                             (dissoc metadata
-                                                    :description)
+                                                    :description
+                                                    :path)
                                             \newline
                                             \newline
                                             ))))

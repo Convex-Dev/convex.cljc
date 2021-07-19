@@ -5,23 +5,26 @@
 (import convex.run.test :as T)
 
 
+(def self *address*)
+
+
 
 (defn suite.balance
 
   ^{:doc {:description ""}}
 
-  [value-empty balance metadata]
+  [path value-empty balance]
 
-  (T/group `[(T/trx '(not (nil? ~balance))
-                    ~(assoc metadata
-                            :description
-                            "Balance is not nil."))
+  (T/group `[(T/path.conj ['convex.asset.test
+                           'suite.balance
+                           ~path])
+
+             (T/trx '(not (nil? ~balance))
+                    {:description "Balance is not nil."})
 
              (T/trx '(not (= ~value-empty
                              ~balance))
-                    ~(assoc metadata
-                            :description
-                            "Balance is not empty."))]))
+                    {:description "Balance is not empty"})]))
 
 
 
@@ -29,90 +32,79 @@
 
   ^{:doc {:description ""}}
 
-  [token user-1 user-2 meta]
+  [token user-1 user-2]
 
-  (let [meta-user-1 (assoc meta
-                          :user
-                          "1")
-        meta-user-2 (assoc meta
-                          :user
-                          "2")]
-    (T/group `[(def tester
-                    (deploy '(do
-                               (set-controller ~*address*)
-                               (set-key 0x0000000000000000000000000000000000000000000000000000000000000000)
-                               (def actor
-                                    (deploy '(set-controller *address*))))))
+  (T/group `[(T/path.conj '[convex.asset.test
+                            suite.main])
+             (def tester
+                  (deploy '(do
+                             (set-controller ~*address*)
+                             (set-key 0x0000000000000000000000000000000000000000000000000000000000000000))))
 
-               (T/trx '(boolean (eval-as tester
-                                        'actor))
-                      {:description "Controlled actor deployed"})
+             (def value-empty
+                  (asset/quantity-zero ~token))
 
-               (def value-empty
-                    (asset/quantity-zero ~token))
+             (T/trx '(= value-empty
+                        (asset/balance ~token
+                                       tester))
+                    {:description "Initially, tester balance is empty."})
 
-               (T/trx '(= value-empty
-                          (asset/balance ~token
-                                         tester))
-                      {:description "Initially, tester balance is empty."})
+             (def balance-1
+                  (asset/balance ~token
+                                 ~user-1))
 
-               (def balance-1
-                    (asset/balance ~token
-                                   ~user-1))
+             (~suite.balance "user-1"
+                             value-empty
+                             balance-1)
 
-               (~suite.balance value-empty
-                               balance-1
-                               ~meta-user-1)
+             (def balance-2
+                  (asset/balance ~token
+                                 ~user-2))
 
+             (~suite.balance "user-2"
+                             value-empty
+                             balance-2)
 
-               (def balance-2
-                    (asset/balance ~token
-                                   ~user-2))
+             (def supply
+                  (asset/quantity-add ~token
+                                      balance-1
+                                      balance-2))
 
-               (~suite.balance value-empty
-                               balance-2
-                               ~meta-user-2)
+             (~suite.balance "supply"
+                             value-empty
+                             supply)
 
-               (def supply
-                    (asset/quantity-add ~token
-                                        balance-1
-                                        balance-2))
+             (~suite.user "user-1"
+                          ~token
+                          ~user-1
+                          balance-1)
 
-               (~suite.balance value-empty
-                               supply
-                               {:user "supply"})
+             (~suite.user "user-2"
+                          ~token
+                          ~user-2
+                          balance-2)
 
-               (~suite.user ~token
-                            ~user-1
-                            balance-1
-                            ~meta-user-1)
+             (eval-as ~user-1
+                      (list asset/transfer
+                            tester
+                            [~token
+                             balance-1]))
+                                       
+             (T/trx '(= value-empty
+                        (asset/balance ~token
+                                       ~user-1))
+                    {:description "Balance of user 1 has been emptied."})
 
-               (~suite.user ~token
-                            ~user-2
-                            balance-2
-                            ~meta-user-2)
-
-               (eval-as ~user-1
-                        (list asset/transfer
-                              tester
-                              [~token
-                               balance-1]))
-                                         
-               (T/trx '(= value-empty
-                          (asset/balance ~token
-                                         ~user-1))
-                      {:description "Balance of user 1 has been emptied."})
-
-               (eval-as ~user-2
-                        (list asset/transfer
-                              tester
-                              [~token
-                               balance-2]))
-                                   
-               (T/trx '(= supply
-                          (asset/balance ~token
-                                         tester))
-                      {:description "Tester has whole supply."})])))
+             (eval-as ~user-2
+                      (list asset/transfer
+                            tester
+                            [~token
+                             balance-2]))
+                                 
+             (T/trx '(= supply
+                        (asset/balance ~token
+                                       tester))
+                    {:description "Tester has whole supply."})]))
 
 
 
@@ -120,14 +112,15 @@
 
   ^{:doc {:description ""}}
 
-  [token user known-balance metadata]
+  [path token user known-balance]
 
-  (T/group `[(T/trx '(= ~known-balance
+  (T/group `[(T/path.conj ['convex.asset.test
+                           'suite.user
+                           ~path])
+             (T/trx '(= ~known-balance
                         (asset/balance ~token
                                        ~user))
-                    ~(assoc metadata
-                            :description
-                            "Balance is as expected."))
+                    {:description "Balance is as expected."})
 
              (T/trx '(= ~known-balance
                         (asset/quantity-add ~token
@@ -136,28 +129,20 @@
                         (asset/quantity-add ~token
                                             nil
                                             ~known-balance))
-                    ~(assoc metadata
-                            :description
-                            "Adding nothing to a quantity does not change the quantity."))
+                    {:description "Adding nothing to a quantity does not change the quantity."})
 
              (T/trx '(= (asset/quantity-zero ~token)
                         (asset/quantity-sub ~token
                                             ~known-balance
                                             ~known-balance))
-                    ~(assoc metadata
-                            :description
-                            "Subtracting a quantity from itself equals the empty value."))
+                    {:description "Subtracting a quantity from itself equals the empty value."})
 
              (T/trx '(asset/owns? ~user
                                   [~token
                                    ~known-balance])
-                    ~(assoc metadata
-                            :description
-                            "User owns what is reported by `balance`."))
+                    {:description "User owns what is reported by `balance`."})
 
              (T/trx '(asset/owns? ~user
                                   [~token
                                    nil])
-                    ~(assoc metadata
-                            :description
-                            "User owns at least \"nothing\"."))]))
+                    {:description "User owns at least \"nothing\"."})]))
