@@ -2,6 +2,7 @@
 
 
 (import convex.run.sreq :as sreq)
+(import convex.run.test :as T)
 
 
 
@@ -11,7 +12,7 @@
 
   [value-empty balance metadata]
 
-  (sreq/do `[(T/trx '(not (nil? ~balance))
+  (T/group `[(T/trx '(not (nil? ~balance))
                     ~(assoc metadata
                             :description
                             "Balance is not nil."))
@@ -36,9 +37,7 @@
         meta-user-2 (assoc meta
                           :user
                           "2")]
-    (sreq/do `[(T/state.push)
-
-               (def tester
+    (T/group `[(def tester
                     (deploy '(do
                                (set-controller ~*address*)
                                (set-key 0x0000000000000000000000000000000000000000000000000000000000000000)
@@ -113,9 +112,7 @@
                (T/trx '(= supply
                           (asset/balance ~token
                                          tester))
-                      {:description "Tester has whole supply."})
-
-               (T/state.pop)])))
+                      {:description "Tester has whole supply."})])))
 
 
 
@@ -125,9 +122,7 @@
 
   [token user known-balance metadata]
 
-  (sreq/do `[(T/state.push)
-
-             (T/trx '(= ~known-balance
+  (T/group `[(T/trx '(= ~known-balance
                         (asset/balance ~token
                                        ~user))
                     ~(assoc metadata
@@ -165,6 +160,4 @@
                                    nil])
                     ~(assoc metadata
                             :description
-                            "User owns at least \"nothing\"."))
-
-             (T/state.pop)]))
+                            "User owns at least \"nothing\"."))]))

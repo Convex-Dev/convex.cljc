@@ -140,6 +140,26 @@
 ;; CVM STATE ISOLATION
 
 
+(defn group
+
+  ^{:doc {:description ""}}
+
+
+  ([trx+]
+
+   (group trx+
+          nil))
+
+
+  ([trx+ trx-pop]
+
+   (sreq/do (cons (list state.push)
+                  (conj trx+
+                        (list state.pop
+                              trx-pop))))))
+
+
+
 (defn state.pop
 
   ^{:doc {:description ["Like `(sreq/state.pop)` but ensures tests results are remembered."

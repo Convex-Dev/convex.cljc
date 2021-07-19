@@ -46,9 +46,7 @@
   [token user metadata]
 
   (let [metadata-2 metadata]
-    (sreq/do `[(T/state.push)
-
-               (T/trx '(= supply
+    (T/group `[(T/trx '(= supply
                           (asset/balance ~token
                                          ~user))
                       {:description "Initially, user owns total supply."})
@@ -87,9 +85,7 @@
                                                          (long (/ supply
                                                                   3))])
                                         user-2)
-                                      ~metadata-2)
-
-               (T/state.pop)])))
+                                      ~metadata-2)])))
 
 
 
@@ -100,12 +96,8 @@
   [metadata]
 
   (let [metadata-2 metadata]
-    (sreq/do `[(T/state.push)
-
-               (def token
-                    (deploy (fungible/build-token {:supply ~supply})))
-
-               (T/trx '(boolean token)
+    (T/group `[(T/trx '(address? (def token
+                                      (deploy (fungible/build-token {:supply ~supply}))))
                       {:description "Token deployed"})
 
                (test-fungible token
@@ -150,7 +142,7 @@
                           (asset/get-offer token
                                            *address*
                                            ~villain))
-                      {:description "Remaining of offer is still valid."})
+                      {:description "Remaining offer is still valid."})
 
                (T/trx '(= 1000
                           (eval-as ~villain
@@ -293,13 +285,7 @@
 
                (T/trx '(not (asset/quantity-contains? token
                                                       nil
-                                                      110)))
-
-               
-                          
-
-
-               (T/state.pop)])))
+                                                      110)))])))
 
 
 
@@ -309,15 +295,11 @@
 
   [meta]
 
-  (sreq/do '[(T/state.push)
-
-             (def token
+  (T/group '[(def token
                   (deploy (fungible/build-token {})))
 
              (T/trx '(boolean token)
-                    {:description "Token deployed"})
-
-             (T/state.pop)]))
+                    {:description "Token deployed"})]))
 
 
 
