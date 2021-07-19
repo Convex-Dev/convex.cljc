@@ -144,7 +144,17 @@
 
 
 (def ^Keyword sreq
-              ($.data/keyword "special-trx"))
+              ($.data/keyword "sreq"))
+
+
+
+(def ^Keyword state-pop
+              ($.data/keyword "state.pop"))
+
+
+
+(def ^Keyword state-push
+              ($.data/keyword "state.push"))
 
 
 

@@ -234,6 +234,40 @@
 
 
 
+(defn state.pop
+
+  ^{:doc {:description ["Restores the last state saved with `state.push`."
+                        "Quoted transaction, if given, is executed in the context of the restored state, allowing to pass values from one to the other."]
+          :examples    [{:code "(sreq/state.pop)"}]
+          :signatures  [{:params []}]
+          :type        :function}}
+
+
+  ([]
+
+   (state.pop nil))
+
+
+  ([trx]
+
+   [:cvm.sreq :state.pop trx]))
+
+
+
+(defn state.push
+
+  ^{:doc {:description ["Pushes the current state of the CVM onto a stack."
+                        "This state can later be restored using `state.pop`."]
+          :examples    [{:code "(sreq/state.push)"}]
+          :signature   [{:params []}]
+          :type        :function}}
+
+  []
+
+  [:cvm.sreq :state.push])
+
+
+
 (defn try
 
   ^{:doc {:description ["First argument is a sequence of quoted transactions executed one by one until an exception is throw."

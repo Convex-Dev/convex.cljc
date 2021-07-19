@@ -366,6 +366,7 @@
                                          :convex.run/error
                                          :convex.run/i-trx
                                          :convex.run/juice-last
+                                         :convex.run/state-stack
                                          :convex.sync/ctx
                                          :convex.sync/input+
                                          :convex.sync/input->code

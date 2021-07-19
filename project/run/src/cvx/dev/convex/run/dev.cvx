@@ -282,3 +282,24 @@
 ;; Done!
 ;;
 ; (sreq/out [:happened? happened? *timestamp*])
+
+
+;;;;;;;;;; Saving and restoring state 
+
+
+;; Current state is pushed onto a stack.
+;;
+; (sreq/state.push)
+
+;; Doing some work in current state.
+;;
+; (def foo
+;      42)
+
+;; Restoring last saved state and transferring arbitrary work.
+;;
+; (sreq/state.pop `(def bar ~foo))
+
+;; `foo` was not defined originally but we ported it to the restored state as `bar`.
+;;
+; (sreq/out [:foo-defined? (defined? foo) :bar bar])
