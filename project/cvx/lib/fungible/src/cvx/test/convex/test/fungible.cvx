@@ -1,25 +1,78 @@
 (sreq/dep {fungible "project/cvx/lib/fungible/src/cvx/main/convex/fungible.cvx"})
 
-(eval `(def fungible
+#_(eval `(def fungible
             (deploy (quote ~(cons 'do
                                   (next (next fungible)))))))
 
+(import convex.fungible :as fungible)
+(import convex.asset    :as asset)
 (import convex.run.test :as T)
 
+
+
+(sreq/hook.end '[(T/print-failed)])
 (sreq/screen.clear)
 (sreq/out "Testing `convex.fungible` library\n")
 
 
+;; Defautl account is an actor, key is set to transform it into a user account.
+;;
+(set-key 0x0000000000000000000000000000000000000000000000000000000000000000)
+
+
+(def supply
+     1000000)
+
 
 (def token
-     (deploy (fungible/build-token {:supply 1000000})))
+     (deploy (fungible/build-token {:supply supply})))
 
 
 (T/trx '(boolean token)
-       {:description "Token has been deployed"})
+       {:description "Token deployed"})
+
+
+(def villain
+     (deploy nil))
+
+
+(def test-fungible
+     '[(def actor
+            (deploy `(set-controller ~*address*)))
+
+       (T/trx '(boolean actor)
+              {:description "Controlled actor deployed"})
+       
+       (T/trx '(= supply
+                  (asset/balance token
+                                 *address*))
+              {:description "Initially, user owns total supply"})
+            
+       (T/trx '(= 0
+                  (asset/balance token
+                                 actor))
+              {:description "Initially, actor has no tokens"})
+       
+       (asset/transfer *address*
+                       [token
+                        supply])
+       
+       (T/trx '(= supply
+                  (asset/balance token
+                                 *address*))
+              {:description "Self-transfer does not affect balance."})
+
+       (asset/transfer *address*
+                       [token
+                        nil])
+
+       (T/trx '(= supply
+                  (asset/balance token
+                                 *address*))
+              {:description "Self-transfer of nothing does not affect balance."})
+
+       ])
 
 
 
-
-
-(T/print-failed)
+(sreq/do test-fungible)

@@ -150,7 +150,7 @@
                       :metadata metadata
                       :trx      (list 'quote
                                       trx)}]
-     (sreq/try `[(query ~trx)
+     (sreq/try `[~trx
                  (~self/conj-report (assoc ~base-report
                                            :result help/*trx.last.result*
                                            :pass?  false))]
@@ -189,7 +189,6 @@
 
   ^{:doc {:description ["Tests that the given transaction (a quoted form) return exactly true."
                         "Any other value means the transaction failed."
-                        "Transaction is evaluated wrapped in `(query ...)`, meaning any side-effect is discarded afterwards."
                         "Result is reported using `conj-report`."
                         "Metadata is an arbitrary map associated under `:metadata` in the report for providing extra information."
                         "It is advised to provide at least `:description`, a human-readable string explaining the test."]
@@ -208,7 +207,7 @@
                       :metadata metadata
                       :trx      (list 'quote
                                       trx)}]
-     (sreq/try `[(query ~trx)
+     (sreq/try `[~trx
                  (let [result help/*trx.last.result*]
                    (~self/conj-report (assoc ~base-report
                                              :result result
@@ -239,52 +238,54 @@
       (sreq/out (apply str
 	  				   "Number of failed tests: "
 	  				   n-fail
+                       " / "
+                       (count (state :report+))
 	  				   (when (> n-fail
 	  				      	  0)
                          (reduce (fn [acc report]
 	  				               (if (:pass? report)
 	  				      	         acc
                                      (let [metadata (report :metadata)
-                                                     ex       (dissoc (report :exception)
-                                                                      :trx)
-                                                     res      (report :result)
-                                                     res?     (contains-key? report
-                                                                             :result)
-                                                     [text
-                                                      data] (if (= (report :expect)
+                                           ex       (dissoc (report :exception)
+                                                            :trx)
+                                           res      (report :result)
+                                           res?     (contains-key? report
                                                                    :result)
-                                                              (if res?
-                                                                ["Returned: "
-                                                                 res]
-                                                                ["Threw: "
-                                                                 ex])
-                                                              (if res?
-                                                                ["Instead of exception: "
-                                                                 res]
-                                                                ["Not predicted exception: "
-                                                                 ex]))]
-                                                 (conj acc
-                                                       "---"
-                                                       \newline
-                                                       \newline
-                                                       (report :trx)
-                                                       \newline
-                                                       \newline
-                                                       "  "
-                                                       text
-                                                       data
-                                                       \newline
-                                                       \newline
-                                                       "  "
-                                                       (or (:description metadata)
-                                                           "No description provided.")
-                                                       \newline
-                                                       \newline
-                                                       "  Other metadata: "
-                                                       (dissoc metadata
-                                                               :description)
-                                                       \newline
-                                                       \newline
-                                                       ))))
+                                           [text
+                                            data]   (if (= (report :expect)
+                                                           :result)
+                                                      (if res?
+                                                        ["Returned: "
+                                                         res]
+                                                        ["Threw: "
+                                                         ex])
+                                                      (if res?
+                                                        ["Instead of exception: "
+                                                         res]
+                                                        ["Not predicted exception: "
+                                                         ex]))]
+                                       (conj acc
+                                             "---"
+                                             \newline
+                                             \newline
+                                             (report :trx)
+                                             \newline
+                                             \newline
+                                             "  "
+                                             text
+                                             data
+                                             \newline
+                                             \newline
+                                             "  "
+                                             (or (:description metadata)
+                                                 "No description provided.")
+                                             \newline
+                                             \newline
+                                             "  Other metadata: "
+                                             (dissoc metadata
+                                                     :description)
+                                             \newline
+                                             \newline
+                                             ))))
                                  ["\n\n"]
                                  (:report+ state))))))))
