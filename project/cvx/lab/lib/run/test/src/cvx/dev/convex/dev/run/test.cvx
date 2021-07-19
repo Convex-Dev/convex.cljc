@@ -30,7 +30,11 @@
      0))
 
 
-(test/trx '(< 2 5))
+(test/state.push)
+
+(test/trx '(do
+             (def baz 24)
+             (< 2 5)))
 
 
 (test/trx '(< 42 4))
@@ -39,6 +43,13 @@
   (test/trx `(or (< ~a ~b)
                  (- ~a ~b))
             {:description "I know, it fails."}))
+
+(def foo 42)
+
+    (sreq/out [:baz baz])
+(test/state.pop `(def bar ~foo))
+
+;(sreq/out baz)
 
 (test/fail-code #{:ASSERT}
                 '(fail :foo :bar)
@@ -55,7 +66,6 @@
 (test/print-failed)
 
 
-#_
-(sreq/do '[(sreq/out \newline):
+#_(sreq/do '[(sreq/out \newline):
            (sreq/log)
            (sreq/out [:log help/*trx.last.result*])])

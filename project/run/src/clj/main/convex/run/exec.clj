@@ -297,7 +297,8 @@
   [env]
 
   (-> env
-      (dissoc :convex.run/restore)
+      (dissoc :convex.run/restore
+              :convex.run/state-stack)
       (merge (env :convex.run/restore))
       (assoc :convex.run/i-trx       -1
              :convex.run/juice-total 0)

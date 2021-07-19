@@ -44,6 +44,8 @@
      nil)
 
 
+;; MODIFYING STATE CONTAINING REPORTS
+
 
 (defn update-state
 
@@ -58,6 +60,8 @@
 
     (f state)))
 
+
+;;
 
 
 (defn clear
@@ -77,7 +81,6 @@
 
 
 (export clear)
-
 (clear)
 
 
@@ -92,17 +95,18 @@
 
   (if (= *address*
          self)
-    (def state
-         (let [state-2 (assoc state
-                              :report+
-                              (conj (get state
-                                         :report+)
-                                    report))]
-          (if (:pass? report)
-            state-2
-            (assoc state-2
-                   :n-fail
-                   (inc (state-2 :n-fail))))))
+    (let [state-2 (update-state (fn [state]
+                                  (assoc state
+                                         :report+
+                                         (conj (get state
+                                                    :report+)
+                                               report))))]
+     (if (:pass? report)
+       state-2
+       (update-state (fn [state]
+                       (assoc state-2
+                              :n-fail
+                              (inc (state-2 :n-fail)))))))
     (call self
           (conj-report report))))
 
@@ -112,19 +116,62 @@
 
 
 
-(defn exit
+(defn merge
 
-  ^{:doc {:description ["Returns an 'exit' special request to terminate the process."
-                        "A non-zero status code is issued in case not all tests pass."
-                        "Meant to be used at the end of the run indicating failure or success."]}}
+  ^{:doc {:description "Merges the given test state with the current one."}}
+
+  [state]
+
+  (if (= *address*
+         self)
+    (update-state (fn [state-old]
+                    (assoc state-old
+                           :n-fail  (+ (state-old :n-fail)
+                                       (state :n-fail))
+                           :report+ (concat (state-old :report+)
+                                            (state :report+)))))
+    (call self
+          (merge state))))
+
+
+(export merge)
+
+
+;; CVM STATE ISOLATION
+
+
+(defn state.pop
+
+  ^{:doc {:description ["Like `(sreq/state.pop)` but ensures tests results are remembered."
+                        "See function `state.push`."
+                        "An additional quoted `trx` can be passed to transfer other user data."]}}
+
+
+  ([]
+
+   (state.pop nil))
+
+
+  ([trx]
+
+   (sreq/state.pop `(sreq/do '[(~self/merge (quote ~self/state))
+                    ~trx]))))
+
+
+
+(defn state.push
+
+  ^{:doc {:description ["Like `(sreq/state.push)` but clears the test state from this actor."
+                        "Later, CVM state can be restored with function `state.pop`."
+                        "Provides isolation, side-effects can be discarded in a controlled fashion."]}}
 
   []
 
-  (sreq/exit (if (> (:n-fail self/state)
-                    0)
-               42
-               0)))
+  (sreq/do `[(sreq/state.push)
+             (~self/clear)]))
 
+
+;; TESTING TRANSACTIONS
 
 
 (defn fail
@@ -218,74 +265,88 @@
                                            :pass?     false))]))))
 
 
- ;; REPORTING
+;; REPORTING
 
 
- (defn print-failed
+(defn exit
 
-   ^{:doc {:description ["Returns an 'out' special requestion which outputs failed tests in human-readable format."
-                         "Prints each failed transaction, why, and its `:description` from `:metadata`."]}}
+  ^{:doc {:description ["Returns an 'exit' special request to terminate the process."
+                        "A non-zero status code is issued in case not all tests pass."
+                        "Meant to be used at the end of the run indicating failure or success."]}}
+
+  []
+
+  (sreq/exit (if (> (:n-fail self/state)
+                    0)
+               42
+               0)))
 
 
-   ([]
+(defn print-failed
 
-    (print-failed state))
+  ^{:doc {:description ["Returns an 'out' special requestion which outputs failed tests in human-readable format."
+                        "Prints each failed transaction, why, and its `:description` from `:metadata`."]}}
 
 
-   ([state]
+  ([]
 
-    (let [n-fail (:n-fail state)]
-      (sreq/out (apply str
-	  				   "Number of failed tests: "
-	  				   n-fail
-                       " / "
-                       (count (state :report+))
-	  				   (when (> n-fail
-	  				      	  0)
-                         (reduce (fn [acc report]
-	  				               (if (:pass? report)
-	  				      	         acc
-                                     (let [metadata (report :metadata)
-                                           ex       (dissoc (report :exception)
-                                                            :trx)
-                                           res      (report :result)
-                                           res?     (contains-key? report
-                                                                   :result)
-                                           [text
-                                            data]   (if (= (report :expect)
-                                                           :result)
-                                                      (if res?
-                                                        ["Returned: "
-                                                         res]
-                                                        ["Threw: "
-                                                         ex])
-                                                      (if res?
-                                                        ["Instead of exception: "
-                                                         res]
-                                                        ["Not predicted exception: "
-                                                         ex]))]
-                                       (conj acc
-                                             "---"
-                                             \newline
-                                             \newline
-                                             (report :trx)
-                                             \newline
-                                             \newline
-                                             "  "
-                                             text
-                                             data
-                                             \newline
-                                             \newline
-                                             "  "
-                                             (or (:description metadata)
-                                                 "No description provided.")
-                                             \newline
-                                             \newline
-                                             "  Other metadata: "
-                                             (dissoc metadata
-                                                     :description)
-                                             \newline
-                                             \newline
-                                             ))))
-                                 ["\n\n"]
-                                 (:report+ state))))))))
+   (print-failed state))
+
+
+  ([state]
+
+   (let [n-fail (:n-fail state)]
+     (sreq/out (apply str
+     				   "Number of failed tests: "
+     				   n-fail
+                      " / "
+                      (count (state :report+))
+     				   (when (> n-fail
+     				      	  0)
+                        (reduce (fn [acc report]
+     				               (if (:pass? report)
+     				      	         acc
+                                    (let [metadata (report :metadata)
+                                          ex       (dissoc (report :exception)
+                                                           :trx)
+                                          res      (report :result)
+                                          res?     (contains-key? report
+                                                                  :result)
+                                          [text
+                                           data]   (if (= (report :expect)
+                                                          :result)
+                                                     (if res?
+                                                       ["Returned: "
+                                                        res]
+                                                       ["Threw: "
+                                                        ex])
+                                                     (if res?
+                                                       ["Instead of exception: "
+                                                        res]
+                                                       ["Not predicted exception: "
+                                                        ex]))]
+                                      (conj acc
+                                            "---"
+                                            \newline
+                                            \newline
+                                            (report :trx)
+                                            \newline
+                                            \newline
+                                            "  "
+                                            text
+                                            data
+                                            \newline
+                                            \newline
+                                            "  "
+                                            (or (:description metadata)
+                                                "No description provided.")
+                                            \newline
+                                            \newline
+                                            "  Other metadata: "
+                                            (dissoc metadata
+                                                    :description)
+                                            \newline
+                                            \newline
+                                            ))))
+                                ["\n\n"]
+                                (:report+ state))))))))
