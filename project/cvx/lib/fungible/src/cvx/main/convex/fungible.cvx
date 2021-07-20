@@ -42,8 +42,8 @@
 
   [config]
 
-  (let [max-supply (or (long (:max-supply config))
-                       1000000000000000000)
+  (let [max-supply (long (or (:max-supply config)
+                             1000000000000000000))
         minter     (address (or (:minter config)
                                 *address*))]
     (assert (<= 0
@@ -129,8 +129,8 @@
 
   [config]
 
-  (let [supply         (or (long (:supply config))
-                           1000000)
+  (let [supply         (long (or (:supply config)
+                                 1000000))
         initial-holder (address (or (:initial-holder config)
                                     *address*))]
     `(do
@@ -383,7 +383,9 @@
 
 (defn transfer 
 
-  ^{:doc {:description "Transfers balance of a fungible token. Returns the amount transferred, or nil if the transfer fails."
+  ;; TODO. Ensure docstring is accurate.
+
+  ^{:doc {:description "Transfers balance of a fungible token. Returns the balance of receiver, or nil if the transfer fails."
           :examples    [{:code "(transfer my-token-address my-friend 100)"}]
           :type        :function
           :signature   [{:params [token target amount]}]}}

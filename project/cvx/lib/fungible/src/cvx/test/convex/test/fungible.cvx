@@ -305,11 +305,71 @@
 
   []
 
-  (T/group '[(def token
-                  (deploy (fungible/build-token {})))
+  (T/group '[(T/path.conj 'suite.build-token)
 
-             (T/trx '(boolean token)
-                    {:description "Token deployed"})]))
+             (T/trx '(address? (def token
+                                    (deploy (fungible/build-token {}))))
+                    {:description "Token deployed"})
+
+             (def receiver
+                  (help/zombie))
+
+             (def supply
+                  (fungible/balance token
+                                    *address*))
+
+             (def amount
+                  (long (/ supply
+                           10)))
+
+             (T/trx '(= amount
+                        (fungible/transfer token
+                                           receiver
+                                           amount))
+                    {:description "Transferring tokens to receiver."})
+
+             (T/trx '(= (- supply
+                           amount)
+                        (fungible/balance token
+                                          *address*))
+                    {:description "Balance of sender updated after transfer."})
+
+             (T/trx '(= amount
+                        (fungible/balance token
+                                          receiver))
+                    {:description "Balance of receiver updated after transfer."})
+
+             (T/fail-code #{:ASSERT}
+                          '(fungible/transfer token
+                                              receiver
+                                              -1)
+                          {:description "Cannot transfer negative amount."})
+
+             (T/fail-code #{:ASSERT}
+                          '(fungible/transfer token
+                                              receiver
+                                              (inc (fungible/balance token
+                                                                     *address*)))
+                          {:description "Cannot transfer more than hold."})
+
+             (T/group '[(T/trx '(= supply
+                                   (fungible/transfer token
+                                                      receiver
+                                                      (fungible/balance token
+                                                                        *address*)))
+                               {:description "Transferring all tokens to receiver."})
+
+                        (T/trx '(= 0
+                                   (fungible/balance token
+                                                     *address*))
+                               {:description "Sender has transferred all owned tokens."})
+
+                        (T/trx '(= supply
+                                   (fungible/balance token
+                                                     receiver))
+                               {:description "Receiver holds whole supply."})
+                        ])
+             ]))
 
 
 
@@ -470,6 +530,5 @@
 
 
 (suite.asset)
+(suite.build-token)
 (suite.mint)
-
-;(suite.build-token)
