@@ -41,7 +41,86 @@
 (set-key help/fake-key)
 
 
+
+;; Helpers
+
+
+(defmacro create-box+
+
+  ^{:doc {:description ""}}
+
+  [n-box]
+
+  (loop [acc []
+         n   0]
+    (if (< n
+		   n-box)
+	  (recur (conj acc
+				   (box/create))
+		     (inc n))
+	  `(do
+		 (def total
+			  ~acc)
+		 ~(cons 'do
+				(loop [acc []
+					   n   0]
+				  (if (< n
+					     n-box)
+				    (recur (conj acc
+							     `(def ~(symbol (str "b-"
+					  		   					     n))
+							   		   (total ~n)))
+						   (inc n))
+					acc)))))))
+
+
 ;; Test suites
+
+
+(defn suite.asset
+
+  ^{:doc {:description ""}}
+
+  []
+
+  (T/group '[(T/path.conj 'suite.asset)
+
+			 (create-box+ 4)
+
+			 (T/trx '(= (set total)
+						(asset/balance box))
+					{:description "Box actor owns all its boxes."})
+
+			 (T/trx '(address? (def user-1
+									(help/zombie)))
+			        {:description "User 1 created."})
+
+			 (T/trx '(address? (def user-2
+									(help/zombie)))
+			        {:description "User 2 created."})
+
+
+             (T/trx '(= #{b-0
+					      b-1
+				 		  b-2}
+					    (asset/transfer user-1
+									    [box
+									     #{b-0
+									       b-1
+										   b-2}]))
+			        {:description "Transfer of 3 boxes to user 1."})
+
+			 (T/trx '(= #{b-3}
+					    (asset/transfer user-2
+									    [box
+										 #{b-3}]))
+			        {:description "Transfer of last box to user 2."})
+
+			 (asset.test/suite.main box
+									user-1
+									user-2)
+	         ]))
+
 
 
 (defn suite.content
@@ -50,24 +129,9 @@
 
   []
 
-  (T/group `[(T/path.conj 'suite.content)
+  (T/group '[(T/path.conj 'suite.content)
 
-			 (def total
-				  (map (fn [_i]
-						 (box/create))
-				       [1 2 3 4]))
-
-			 (def b-0
-				  (total 0))
-
-			 (def b-1
-				  (total 1))
-
-			 (def b-2
-				  (total 2))
-
-			 (def b-3
-				  (total 3))
+			 (create-box+ 4)
 
 			 (T/trx '(= {0 {box #{b-1
 							      b-2}}
@@ -177,8 +241,9 @@
 			        {:description "Box balance in foocoin adjusted after removing some."})
              ]))
 
+
 ;;
 
+
+(suite.asset)
 (suite.content)
-
-
