@@ -36,7 +36,7 @@
 (sreq/hook.end '[(suite.main)
 				 (T/print-failed)])
 (sreq/screen.clear)
-(sreq/out "Testing `asset.box` library\n")
+(sreq/out "Testing `asset.box` actor\n")
 
 
 ;; Default account is an actor, key is set to transform it into a user account.
