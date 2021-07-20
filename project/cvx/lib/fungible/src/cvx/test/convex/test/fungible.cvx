@@ -1,23 +1,35 @@
+;;
+;;
+;; Testing `convex.fungible`.
+;;
+;;
+
+
 (sreq/dep {asset.test "project/cvx/lib/asset/src/cvx/test/convex/test/asset.cvx"
            fungible   "project/cvx/lib/fungible/src/cvx/main/convex/fungible.cvx"})
 
 
+;; Deploying test version of `convex.fungible` instead of importing stable version.
+;;
+(eval `(def fungible
+            (deploy (quote ~(cons 'do
+                                  (next (next fungible)))))))
+
+;; Requiring test suites for `convex.asset` since fungible tokens implement that interface.
+;;
 (def asset.test
      (deploy (cons 'do
                     asset.test)))
 
 
-(eval `(def fungible
-          (deploy (quote ~(cons 'do
-                                (next (next fungible)))))))
-
-; (import convex.fungible :as fungible)
+;; Importing stable versions
+;;
 (import convex.asset    :as asset)
 (import convex.run.test :as T)
 
 
-;(sreq/hook.error (fn [err] (sreq/out (dissoc err :trace))))
-
+;; Setup. Print test results at the end
+;;
 (sreq/hook.end '[(T/print-failed)])
 (sreq/screen.clear)
 (sreq/out "Testing `convex.fungible` library\n")
@@ -25,15 +37,12 @@
 
 ;; Default account is an actor, key is set to transform it into a user account.
 ;;
-(set-key 0x0000000000000000000000000000000000000000000000000000000000000000)
+(set-key help/fake-key)
 
 
 
-(def villain
-     (deploy `(do
-                (set-controller ~*address*)
-                (set-key 0x0000000000000000000000000000000000000000000000000000000000000000))))
 
+;; Test suites
 
 
 (defn suite.fungible
@@ -75,9 +84,7 @@
 
              (asset.test/suite.main ~token
                                     ~user
-                                    (let [user-2 (deploy '(do
-                                                            (set-controller *origin*)
-                                                            (set-key 0x0000000000000000000000000000000000000000000000000000000000000000)))]
+                                    (let [user-2 (help/zombie)]
                                       (asset/transfer user-2
                                                       [~token
                                                        (long (/ ~supply
@@ -107,20 +114,23 @@
 
              ;; Transfers
 
+             (def receiver
+                  (help/zombie))
+
              (T/trx '(= 500
-                        (asset/offer ~villain
+                        (asset/offer receiver
                                      [token
                                       500]))
-                    {:description "Offer villain some tokens."})
+                    {:description "Offer receiver some tokens."})
 
              (T/trx '(= 500
                         (asset/get-offer token
                                          *address*
-                                         ~villain))
+                                         receiver))
                     {:description "First offer has been issued."})
 
              (T/trx '(= 1000
-                        (asset/offer ~villain
+                        (asset/offer receiver
                                      [token
                                       1000]))
                     {:description "Updating offer."})
@@ -128,11 +138,11 @@
              (T/trx '(= 1000
                         (asset/get-offer token
                                          *address*
-                                         ~villain))
+                                         receiver))
                     {:description "Offer has been updated."})
 
              (T/trx '(= 250
-                        (eval-as ~villain
+                        (eval-as receiver
                                  `(~asset/accept ~*address*
                                                  [~token
                                                   250])))
@@ -141,26 +151,26 @@
              (T/trx '(= 750
                         (asset/get-offer token
                                          *address*
-                                         ~villain))
+                                         receiver))
                     {:description "Remaining offer is still valid."})
 
              (T/trx '(= 1000
-                        (eval-as ~villain
+                        (eval-as receiver
                                  `(~asset/accept ~*address*
                                                  [~token
                                                   750])))
                     {:description "Accepting remaining offer, returns current balance."})
 
              (T/trx '(= 2000
-                        (asset/transfer ~villain
+                        (asset/transfer receiver
                                         [token
                                          1000]))
-                    {:description "Transfer some tokens to villain (arity 2), returns current balance."})
+                    {:description "Transfer some tokens to receiver (arity 2), returns current balance."})
 
              (T/trx '(= {token 3000}
-                        (asset/transfer ~villain
+                        (asset/transfer receiver
                                         {token 1000}))
-                    {:description "Transfer some tokens to villain (arity 3), returns current balance."})
+                    {:description "Transfer some tokens to receiver (arity 3), returns current balance."})
 
              (T/trx '(= (- supply
                            3000)
@@ -170,29 +180,29 @@
 
              (T/trx '(= 3000
                         (asset/balance token
-                                       ~villain))
-                    {:description "Balance updated after transferring to villain."})
+                                       receiver))
+                    {:description "Balance updated after transferring to receiver."})
 
 
              ;; Ownership
 
-             (def balance-villain
+             (def balance-receiver
                   (asset/balance token
-                                 ~villain))
+                                 receiver))
 
-             (T/trx '(asset/owns? ~villain
+             (T/trx '(asset/owns? receiver
                                   [token
-                                   (dec balance-villain)])
+                                   (dec balance-receiver)])
                     {:description "Villain owns at least less than its balance."})
 
-             (T/trx '(asset/owns? ~villain
+             (T/trx '(asset/owns? receiver
                                   [token
-                                   balance-villain])
+                                   balance-receiver])
                     {:description "Villain owns its balance."})
 
-             (T/trx '(not (asset/owns? ~villain
+             (T/trx '(not (asset/owns? receiver
                                        [token
-                                        (inc balance-villain)]))
+                                        (inc balance-receiver)]))
                     {:description "Villain cannot own more than its balance."})
 
 
@@ -311,6 +321,9 @@
 
   (T/group `[(T/path.conj 'suite.mint)
       
+             (def receiver
+                  (help/zombie))
+
              (def supply.init
                   100)
 
@@ -390,25 +403,25 @@
                                      '(fungible/burn token
                                                      1)
                                      {:description "Cannot burn more than currently hold."})])
-            (def supply.villain
+            (def supply.receiver
                  (long (/ supply.max
                           5)))
 
-            (T/trx '(= supply.villain
+            (T/trx '(= supply.receiver
                        (fungible/transfer token
-                                          ~villain
-                                          supply.villain))
-                   {:description "Transferring part of supply to villain."})
+                                          receiver
+                                          supply.receiver))
+                   {:description "Transferring part of supply to receiver."})
 
-            (T/trx '(= supply.villain
+            (T/trx '(= supply.receiver
                        (fungible/balance token
-                                         ~villain))
-                   {:description "Balance of villain updated after transfer."})
+                                         receiver))
+                   {:description "Balance of receiver updated after transfer."})
 
             (T/trx '(= (- supply.max
-                          supply.villain)
+                          supply.receiver)
                        (fungible/burn token
-                                      supply.villain))
+                                      supply.receiver))
                    {:description "Can still burn hold tokens."})
 
             (T/fail-code #{:ASSERT}
@@ -419,35 +432,35 @@
 
             (T/fail-code #{:ASSERT}
                          '(fungible/mint token
-                                         (inc supply.villain))
+                                         (inc supply.receiver))
                          {:description "After transfer, still Cannot mint more than max supply."})
 
-            (T/trx '(= supply.villain
+            (T/trx '(= supply.receiver
                        (query (fungible/burn token
                                              (fungible/balance token
                                                                *address*))))
                    {:description "Can burn all currently hold tokens."})
 
             (T/fail-code #{:TRUST}
-                         '(eval-as ~villain
+                         '(eval-as receiver
                                    `(~fungible/mint ~token
                                                     1))
                          {:description "Non-owner cannot mint anything."})
 
             (T/fail-code #{:TRUST}
-                         '(eval-as ~villain
+                         '(eval-as receiver
                                    `(~fungible/mint ~token
                                                     ~(inc supply.max)))
                          {:description "Trust verified before amount during minting."})
 
             (T/fail-code #{:TRUST}
-                         `(eval-as ~villain
+                         `(eval-as receiver
                                    `(~fungible/burn ~token
                                                     1))
                          {:description "Non-owner cannot burn anything."})
 
             (T/fail-code #{:TRUST}
-                         '(eval-as ~villain
+                         '(eval-as receiver
                                    `(~fungible/burn ~token
                                                     ~(inc supply.max)))
                          {:description "Trust verified before amount during minting."})

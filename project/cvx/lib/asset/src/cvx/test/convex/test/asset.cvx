@@ -37,9 +37,7 @@
   (T/group `[(T/path.conj '[convex.asset.test
                             suite.main])
              (def tester
-                  (deploy '(do
-                             (set-controller ~*address*)
-                             (set-key 0x0000000000000000000000000000000000000000000000000000000000000000))))
+                  (help/zombie))
 
              (def value-empty
                   (asset/quantity-zero ~token))

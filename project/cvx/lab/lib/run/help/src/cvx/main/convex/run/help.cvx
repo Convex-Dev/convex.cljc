@@ -114,7 +114,32 @@
   nil)
 
 
-;; FUNCTIONS
+;; MISCELLANEOUS HELPERS
+
+
+(def fake-key
+
+  ^{:doc {:description "Fake key for turning an actor into a user account with standard `set-key`."}}
+
+  0x0000000000000000000000000000000000000000000000000000000000000000)
+
+
+(defmacro zombie
+
+  ^{:doc {:description "Wraps forms into deploy code which turns the actor into a user account with `fake-key` and make it controllable with `eval-as`."
+    	  :examples    [{:code "(def a (help/zombie (def foo 42)))"}]
+          :type        :macro}}
+
+  [& form+]
+
+  `(deploy '(do
+			  (set-controller ~*address*)
+		      (set-key ~fake-key)
+			  ~(cons 'do
+					 form+))))
+
+
+;; PRINTING
 
 
 (defn str-line+
