@@ -131,7 +131,12 @@
 
   (T/group '[(T/path.conj 'suite.content)
 
-			 (create-box+ 4)
+			 (create-box+ 4)  ;; defines `total` containing all boxes and `b-X` for each numbered box
+
+			 (T/trx '(asset/owns? *address*
+						          [box
+								   (set total)])
+				    {:description "Initially, creator owns all boxes."})
 
 			 (T/trx '(= {0 {box #{b-1
 							      b-2}}
@@ -142,7 +147,24 @@
 					       		    [box
 					      		     #{b-1
 					      		       b-2}]))
-				    {:description "Put b-1 and b-2 in b-0."})
+				    {:description "Put b-1 and b-2 in b-0 since boxes are assets themselves."})
+
+			 (T/trx '(not (asset/owns? *address*
+						      		   #{b-1
+									     b-2}))
+			        {:description "Loose ownership of inserted assets."})
+
+			 (T/trx '(asset/owns? box
+								  [box
+								   #{b-1
+								 	 b-2}])
+				    {:description "Box actor takes ownership of inserted assets."})
+
+			 (T/trx '(asset/owns? *address*
+								  [box
+								   #{b-0
+					                 b-3}])
+			        {:description "Creator still owns non-inserted assets."})
 
 			 (T/trx '(= #{b-0
 						  b-3}
