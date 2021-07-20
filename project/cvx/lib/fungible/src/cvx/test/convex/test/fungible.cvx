@@ -7,16 +7,16 @@
                     asset.test)))
 
 
-#_(eval `(def fungible
-            (deploy (quote ~(cons 'do
-                                  (next (next fungible)))))))
+(eval `(def fungible
+          (deploy (quote ~(cons 'do
+                                (next (next fungible)))))))
 
-(import convex.fungible :as fungible)
+; (import convex.fungible :as fungible)
 (import convex.asset    :as asset)
 (import convex.run.test :as T)
 
 
-(sreq/hook.error (fn [err] (sreq/out (dissoc err :trace))))
+;(sreq/hook.error (fn [err] (sreq/out (dissoc err :trace))))
 
 (sreq/hook.end '[(T/print-failed)])
 (sreq/screen.clear)
@@ -26,10 +26,6 @@
 ;; Default account is an actor, key is set to transform it into a user account.
 ;;
 (set-key 0x0000000000000000000000000000000000000000000000000000000000000000)
-
-
-(def supply
-     1000000)
 
 
 
@@ -44,11 +40,11 @@
 
   ^{:doc {:description ""}}
 
-  [token user]
+  [token supply user]
 
   (T/group `[(T/path.conj 'suite.fungible)
 
-             (T/trx '(= supply
+             (T/trx '(= ~supply
                         (asset/balance ~token
                                        ~user))
                     {:description "Initially, user owns total supply."})
@@ -63,7 +59,7 @@
                                       [~token
                                        (asset/balance ~token
                                                       ~user)])
-                      (= supply
+                      (= ~supply
                          (asset/balance ~token
                                         ~user)))
                     {:description "Self-transfer does not affect balance."})
@@ -72,7 +68,7 @@
                        (asset/transfer ~user
                                        [~token
                                         nil])
-                       (= supply
+                       (= ~supply
                           (asset/balance ~token
                                          ~user)))
                     {:description "Self-transfer of nothing does not affect balance."})
@@ -84,7 +80,7 @@
                                                             (set-key 0x0000000000000000000000000000000000000000000000000000000000000000)))]
                                       (asset/transfer user-2
                                                       [~token
-                                                       (long (/ supply
+                                                       (long (/ ~supply
                                                                 3))])
                                       user-2))]))
 
@@ -98,11 +94,15 @@
 
   (T/group `[(T/path.conj 'suite.asset)
 
+             (def supply
+                  1000000)
+
              (T/trx '(address? (def token
-                                    (deploy (fungible/build-token {:supply ~supply}))))
+                                    (deploy (fungible/build-token {:supply supply}))))
                     {:description "Token deployed"})
 
              (suite.fungible token
+                             supply
                              *address*)
 
              ;; Transfers
@@ -162,7 +162,7 @@
                                         {token 1000}))
                     {:description "Transfer some tokens to villain (arity 3), returns current balance."})
 
-             (T/trx '(= (- ~supply
+             (T/trx '(= (- supply
                            3000)
                         (asset/balance token
                                        *address*))
@@ -293,7 +293,7 @@
 
   ^{:doc {:description ""}}
 
-  [meta]
+  []
 
   (T/group '[(def token
                   (deploy (fungible/build-token {})))
@@ -303,6 +303,160 @@
 
 
 
-(suite.asset)
+(defn suite.mint
 
-;(suite.build-token {})
+  ^{:doc {:description ""}}
+
+  []
+
+  (T/group `[(T/path.conj 'suite.mint)
+      
+             (def supply.init
+                  100)
+
+             (def supply.max
+                  1000) 
+
+             (def supply.mintable
+                  (- supply.max
+                     supply.init))
+
+             (T/trx `(boolean (def token
+                                   (deploy '(do
+                                              ~(fungible/build-token {:supply supply.init})
+                                              ~(fungible/add-mint {:max-supply supply.max})))))
+                    {:description "Token deployed."})
+
+             (suite.fungible token
+                             supply.init
+                             *address*)
+
+             ;; Minting
+
+             (T/fail-code #{:ASSERT}
+                          '(fungible/mint token (inc supply.mintable))
+                          {:description "Cannot mint more than max supply."})
+
+             (T/trx '(= supply.max
+                        (fungible/mint token
+                                       supply.mintable))
+                    {:description "Minting and augmenting total supply."})
+
+             (T/trx '(= supply.max
+                        (fungible/balance token
+                                          *address*))
+                    {:description "Minted tokens added to balance."})
+
+             (T/group `[(T/path.conj :negative-minting)
+
+                        (T/trx '(= supply.init
+                                   (fungible/mint token
+                                                  (- supply.mintable)))
+                               {:description "Negative minting and reducing total supply."})
+
+                        (T/trx '(= supply.init
+                                   (fungible/balance token
+                                                     *address*))
+                               {:description "Balance adjusted after negative minting."})
+
+                        (T/trx '(= 0
+                                   (fungible/mint token
+                                                  (- supply.init)))
+                               {:description "Negative mint down to 0."})
+
+                        (T/fail-code #{:ASSERT}
+                                     '(fungible/mint token
+                                                     -1)
+                                     {:description "Cannot negative mint more than currently hold."})])
+
+             (T/group `[(T/path.conj :burning)
+
+                        (T/trx '(= supply.init
+                                   (fungible/burn token
+                                                  supply.mintable))
+                               {:description "Burning and reducing total supply."})
+
+                        (T/trx '(= supply.init
+                                   (fungible/balance token
+                                                     *address*))
+                               {:description "Balance adjusted after burning."})
+
+                        (T/trx '(= 0
+                                   (fungible/burn token
+                                                  supply.init))
+                               {:description "Burning down to 0."})
+
+                        (T/fail-code #{:ASSERT}
+                                     '(fungible/burn token
+                                                     1)
+                                     {:description "Cannot burn more than currently hold."})])
+            (def supply.villain
+                 (long (/ supply.max
+                          5)))
+
+            (T/trx '(= supply.villain
+                       (fungible/transfer token
+                                          ~villain
+                                          supply.villain))
+                   {:description "Transferring part of supply to villain."})
+
+            (T/trx '(= supply.villain
+                       (fungible/balance token
+                                         ~villain))
+                   {:description "Balance of villain updated after transfer."})
+
+            (T/trx '(= (- supply.max
+                          supply.villain)
+                       (fungible/burn token
+                                      supply.villain))
+                   {:description "Can still burn hold tokens."})
+
+            (T/fail-code #{:ASSERT}
+                         '(fungible/burn token
+                                         (inc (fungible/balance token
+                                                                *address*)))
+                         {:description "Cannot burn more than currently holding."})
+
+            (T/fail-code #{:ASSERT}
+                         '(fungible/mint token
+                                         (inc supply.villain))
+                         {:description "After transfer, still Cannot mint more than max supply."})
+
+            (T/trx '(= supply.villain
+                       (query (fungible/burn token
+                                             (fungible/balance token
+                                                               *address*))))
+                   {:description "Can burn all currently hold tokens."})
+
+            (T/fail-code #{:TRUST}
+                         '(eval-as ~villain
+                                   `(~fungible/mint ~token
+                                                    1))
+                         {:description "Non-owner cannot mint anything."})
+
+            (T/fail-code #{:TRUST}
+                         '(eval-as ~villain
+                                   `(~fungible/mint ~token
+                                                    ~(inc supply.max)))
+                         {:description "Trust verified before amount during minting."})
+
+            (T/fail-code #{:TRUST}
+                         `(eval-as ~villain
+                                   `(~fungible/burn ~token
+                                                    1))
+                         {:description "Non-owner cannot burn anything."})
+
+            (T/fail-code #{:TRUST}
+                         '(eval-as ~villain
+                                   `(~fungible/burn ~token
+                                                    ~(inc supply.max)))
+                         {:description "Trust verified before amount during minting."})
+            ]))
+
+
+
+
+(suite.asset)
+(suite.mint)
+
+;(suite.build-token)
