@@ -41,13 +41,12 @@
 
 
 
-
-;; Test suites
+;; Reusable test suites
 
 
 (defn suite.fungible
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Reusable fungability tests with the `convex.asset` interface."}}
 
   [token supply user]
 
@@ -92,10 +91,12 @@
                                       user-2))]))
 
 
+;; Top-level test suites
+
 
 (defn suite.asset
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Testing that the library follows the `convex.asset` interface."}}
 
   []
 
@@ -301,7 +302,7 @@
 
 (defn suite.build-token
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Builds a token and ensures good fungability behavior."}}
 
   []
 
@@ -375,7 +376,7 @@
 
 (defn suite.mint
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Builds a mintable token and ensures minting rules are enforced."}}
 
   []
 
@@ -528,7 +529,20 @@
 
 
 
+;;
 
-(suite.asset)
-(suite.build-token)
-(suite.mint)
+
+(defn suite.main
+
+  ^{:doc {:description "Calls all top level test suites related to `convex.fungible`"}}
+
+  []
+
+  (sreq/do '[(suite.asset)
+             (suite.build-token)
+             (suite.mint)]))
+
+;;
+
+
+(suite.main)

@@ -12,7 +12,7 @@ Overview of the [./project](./project) directory:
 | [app/fuzz](./project/app/fuzz) | `:project/app.fuzz` | CLI multicore fuzzy tester, generates and tests random Convex Lisp forms | 
 | [app/run](./project/app/run) | `:project/app.run` |CLI Convex Lisp runner, from the comfort of your terminal |
 | [break](./project/break) | `:project/break` | Advanced generative test suite for the CVM ; prime example of testing Convex Lisp thoroughly |
-| [clojuriy](./project/clojurify) | `:project/clojurify` |Convex <-> Clojure data conversions, quick evaluation, useful `test.check` generators for testing |
+| [clojurify](./project/clojurify) | `:project/clojurify` |Convex <-> Clojure data conversions, quick evaluation, useful `test.check` generators for testing |
 | [cvm](./project/cvm) | `:project/cvm` | Handling Convex data and the CVM, low-level utilities |
 | [cvx](./project/cvx) | `:project/cvx.XXX` | Experimental and stable Convex Lisp actors and libraries officially managed by the Convex Foundation |
 | [run](./project/run) | `:project/run` | Core implementation of [`:project/app/.run`](./app/run) ; reusable for similar purposes |
