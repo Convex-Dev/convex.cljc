@@ -22,7 +22,7 @@
 
 ;; Setup. Print test results at the end
 ;;
-(sreq/hook.end '[;(suite.main)
+(sreq/hook.end '[(suite.main)
 				 (T/print-failed)])
 (sreq/screen.clear)
 (sreq/out "Testing `convex.trust`library\n")
@@ -33,12 +33,14 @@
 (set-key help/fake-key)
 
 
+
+
 ;; Test suites
 
 
-(defn suite.black-list
+(defn suite.blacklist
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Creates a blacklist and ensures access is managed accordingly."}}
 
   []
 
@@ -168,7 +170,7 @@
 
 (defn suite.self-trust
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Basic truths about trust."}}
 
   []
 
@@ -195,24 +197,25 @@
 
 (defn suite.upgrade
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Adding and removing upgradability from an account (ie. ability to eval arbitrary code)."}}
 
   []
 
   (T/group '[(T/path.conj 'suite.upgrade)
 
-             (T/trx '(address? (def wl
+             (T/trx '(address? (def target
 								    (deploy `(do
-											   ~(trust/build-whitelist nil)
+											   (def bar
+												    1)
 											   ~(trust/add-trusted-upgrade nil)))))
 				    {:description "Upgradable whiteliste deployed."})
 
 			 (T/trx '(do
-					   (call wl
+					   (call target
 							 (upgrade '(def foo
 							   	            42)))
 					   (= 42
-						  wl/foo))
+						  target/foo))
 			        {:description "Eval arbitrary code in list actor."})
 
 			 (T/trx '(address? (def not-root
@@ -221,31 +224,29 @@
 
 			 (T/fail-code #{:TRUST}
 						  '(eval-as not-root
-									`(call ~wl
+									`(call ~target
 										   (upgrade '(def foo
 														  100))))
 						  {:description "Non-root account cannot upgrade."})
 
-			 (T/trx '(= #{'check-trusted?
-				          'set-trusted}
-					    (trust/remove-upgradability! wl))
-					{:description "Upgrade utilities removed."})
+			 (T/trx '(nil? (trust/remove-upgradability! target))
+					{:description "Upgrade utilities removed (returns nil)."})
 
 			 (T/fail-code #{:STATE}
-						  '(call wl
+						  '(call target
 								 (updade '(def foo
 											   1001)))
 						  {:description "Impossible to upgrade."})
 
-			 (T/trx '(trust/trusted? wl
-								     *address*)
-			        {:description "Account still trusted after loosing upgradability."})]))
+			 (T/trx '(= 1
+						target/bar)
+			        {:description "Rest of environment is preserved after loosing upgradability."})]))
 
 
 
-(defn suite.white-list
+(defn suite.whitelist
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Builds whitelist and ensures access is managed accordingly."}}
 
   []
 
@@ -375,7 +376,13 @@
 ;;
 
 
-(suite.black-list)
-(suite.self-trust)
-(suite.upgrade)
-(suite.white-list)
+(defn suite.main
+
+  ^{:doc {:description "Main suite gathering all other suites."}}
+
+  []
+
+  (sreq/do '[(suite.blacklist)
+			 (suite.self-trust)
+			 (suite.upgrade)
+			 (suite.whitelist)]))

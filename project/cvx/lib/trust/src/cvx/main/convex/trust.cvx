@@ -264,4 +264,5 @@
                (undef upgradable-root)
                (def *exports*
                     (disj *exports*
-                          'upgrade)))))))
+                          'upgrade))))))
+  nil)
