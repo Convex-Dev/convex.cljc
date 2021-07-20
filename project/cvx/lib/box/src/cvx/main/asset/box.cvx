@@ -5,7 +5,7 @@
 ;; A box acts as an holder of arbitrary assets. The owner of the box has exclusive rights to 
 ;; put assets in or take assets out.
 ;; 
-;; The box itself is an asset with the designator [box-actor id]
+;; The box itself is an asset with the designator [box-actor id].
 ;;
 ;;
 
@@ -14,10 +14,16 @@
 
 (call *registry*
       (cns-update 'asset.box
-                  *address*
+                  *address*))
+
+(call *registry*
+      (register {:name "Box Library"}))
+
+
+;; SETUP
+
 
 (import convex.asset :as asset-lib)
-
 
 
 (export accept

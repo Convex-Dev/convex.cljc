@@ -1,0 +1,184 @@
+;;
+;;
+;; Testing the `asset.box` actor.
+;;
+;;
+
+
+(sreq/dep {asset.test "project/cvx/lib/asset/src/cvx/test/convex/test/asset.cvx"
+           box        "project/cvx/lib/box/src/cvx/main/asset/box.cvx"})
+
+
+;; Deploying test version of `convex.fungible` instead of importing stable version.
+;;
+(eval `(def box
+            (deploy (quote ~(cons 'do
+                                  (next (next box)))))))
+
+;; Requiring test suites for `convex.asset` since this library implement that interface.
+;;
+(def asset.test
+     (deploy (cons 'do
+                    asset.test)))
+
+
+;; Importing stable versions
+;;
+(import convex.asset    :as asset)
+(import convex.fungible :as fungible)
+(import convex.run.test :as T)
+
+
+;; Setup. Print test results at the end
+;;
+(sreq/hook.end '[(T/print-failed)])
+(sreq/screen.clear)
+(sreq/out "Testing `asset.box` library\n")
+
+
+;; Default account is an actor, key is set to transform it into a user account.
+;;
+(set-key help/fake-key)
+
+
+;; Test suites
+
+
+(defn suite.content
+
+  ^{:doc {:description ""}}
+
+  []
+
+  (T/group `[(T/path.conj 'suite.content)
+
+			 (def total
+				  (map (fn [_i]
+						 (box/create))
+				       [1 2 3 4]))
+
+			 (def b-0
+				  (total 0))
+
+			 (def b-1
+				  (total 1))
+
+			 (def b-2
+				  (total 2))
+
+			 (def b-3
+				  (total 3))
+
+			 (T/trx '(= {0 {box #{b-1
+							      b-2}}
+						 1 {}
+						 2 {}
+						 3 {}}
+					    (box/insert b-0
+					       		    [box
+					      		     #{b-1
+					      		       b-2}]))
+				    {:description "Put b-1 and b-2 in b-0."})
+
+			 (T/trx '(= #{b-0
+						  b-3}
+						(asset/balance box
+									   *address*))
+				    {:description "Don't own inserted boxes anymore."})
+
+			 (T/trx '(= #{b-1
+						  b-2}
+						(asset/balance box
+									   box))
+			        {:description "Box actor owns inserted boxes."})
+
+			 (T/trx '(= #{b-1
+					      b-2}
+					    (box/remove b-0
+					     		    [box
+					     		     #{b-1
+					     		       b-2}]))
+			        {:description "Remove boxes from b-0."})
+
+			 (T/trx '(= #{b-0
+					      b-1
+						  b-2
+						  b-3}
+						(asset/balance box
+									   *address*))
+			        {:description "Removed boxes owned again."})
+
+			 (T/fail-code #{:ASSERT}
+				          '(box/insert b-0
+				   	       		       [box
+				   	       		        #{b-0}])
+					      {:description "Cannot insert a box into itself."})
+
+			 ;; Using a fungible token
+
+			 (T/trx '(address? (def foocoin
+									(deploy (fungible/build-token {:supply 1000000}))))
+				    {:description "Fungible token created."})
+
+			 (T/trx '(= {0 {}
+					     1 {foocoin 1000}
+					     2 {}
+						 3 {}}
+					    (box/insert b-1
+						 		    [foocoin
+								     1000]))
+					{:description "Put 1000 tokens into b-1."})
+
+			 (T/trx '(= {0 {}
+					     1 {foocoin 1000}
+						 2 {foocoin 2000}
+						 3 {}}
+						(box/insert b-2
+									[foocoin
+									 2000]))
+			        {:description "Put 2000 tokens into b-2."})
+
+			 (T/trx '(= 3000
+						(asset/balance foocoin
+									   box))
+			        {:description "Box actor holds 3000 foocoin after inserts."})
+
+			 (T/fail-code #{:ASSERT}
+					      '(box/remove b-1
+					      			   [foocoin
+					      			    1001])
+						  {:description "Cannot remove too much from a box."})
+
+			 (T/fail-code #{:ASSERT}
+						  '(box/remove b-1
+						               [foocoin
+						                -1])
+						  {:description "Cannot remove negative amount from a box."})
+
+			 (def expected-balance
+				  (+ (- 1000000
+					    3000)
+				     500))
+
+			 (T/trx '(= expected-balance
+					    (box/remove b-1
+									[foocoin
+									 500]))
+			        {:description "Remove 500 foocoin from b-1."})
+
+			 (T/trx '(= expected-balance
+						(asset/balance foocoin
+									   *address*))
+					{:description "Regain foocoins after removing them from box actor."})
+
+			 (T/trx '(= 2500
+						(asset/balance foocoin
+									   box))
+			        {:description "Box balance in foocoin adjusted after removing some."})
+             ]))
+
+;;
+
+(suite.content)
+
+
