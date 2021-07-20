@@ -21,6 +21,8 @@
      (deploy (cons 'do
                     asset.test)))
 
+(asset.test/setup)
+
 
 ;; Importing stable versions
 ;;
@@ -30,7 +32,8 @@
 
 ;; Setup. Print test results at the end
 ;;
-(sreq/hook.end '[(T/print-failed)])
+(sreq/hook.end '[(suite.main)
+                 (T/print-failed)])
 (sreq/screen.clear)
 (sreq/out "Testing `convex.fungible` library\n")
 
@@ -534,15 +537,10 @@
 
 (defn suite.main
 
-  ^{:doc {:description "Calls all top level test suites related to `convex.fungible`"}}
+  ^{:doc {:description "Main suite gathering all other test suites."}}
 
   []
 
   (sreq/do '[(suite.asset)
              (suite.build-token)
              (suite.mint)]))
-
-;;
-
-
-(suite.main)

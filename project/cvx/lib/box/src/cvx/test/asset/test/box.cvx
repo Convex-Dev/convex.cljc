@@ -22,16 +22,19 @@
                     asset.test)))
 
 
+(asset.test/setup)
+
+
 ;; Importing stable versions
 ;;
-(import convex.asset    :as asset)
 (import convex.fungible :as fungible)
 (import convex.run.test :as T)
 
 
 ;; Setup. Print test results at the end
 ;;
-(sreq/hook.end '[(T/print-failed)])
+(sreq/hook.end '[(suite.main)
+				 (T/print-failed)])
 (sreq/screen.clear)
 (sreq/out "Testing `asset.box` library\n")
 
@@ -47,7 +50,8 @@
 
 (defmacro create-box+
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Creates `n-box` boxes defined under `total`, each being also defined under `b-X` where X is a number starting at 0."
+		  :type		   :macro}}
 
   [n-box]
 
@@ -79,7 +83,7 @@
 
 (defn suite.asset
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Ensures `convex.asset` interface is respected."}}
 
   []
 
@@ -125,7 +129,7 @@
 
 (defn suite.content
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Inserting assets in boxes and removing them."}}
 
   []
 
@@ -227,7 +231,7 @@
 			 (T/trx '(= 3000
 						(asset/balance foocoin
 									   box))
-			        {:description "Box actor holds 3000 foocoin after inserts."})
+			        {:description "Box actor holds 3000 foocoin after insertions."})
 
 			 (T/fail-code #{:ASSERT}
 					      '(box/remove b-1
@@ -267,5 +271,11 @@
 ;;
 
 
-(suite.asset)
-(suite.content)
+(defn suite.main
+
+  ^{:doc {:description "Main suite gathering all other suites."}}
+
+  []
+
+  (suite.asset)
+  (suite.content))
