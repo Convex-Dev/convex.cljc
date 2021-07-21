@@ -25,7 +25,7 @@
 
 
 ;; Internal tests suites
-   
+
 
 (defn suite.balance
 
@@ -150,7 +150,7 @@
                             tester
                             [~token
                              balance-1]))
-                                       
+
              (T/trx '(= quantity-zero
                         (asset/balance ~token
                                        ~user-1))
@@ -161,7 +161,7 @@
                             tester
                             [~token
                              balance-2]))
-                                 
+
              (T/trx '(= supply
                         (asset/balance ~token
                                        tester))

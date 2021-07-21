@@ -62,13 +62,13 @@
 (def offers 
 
   ;; Map of `owner` -> (Map of `recipient-address` -> `id-set`).
-  
+
   {})
 
 
 
 (def ownership
-  
+
   ;; Map of `owner` -> `#{box-id+}`.
 
   {})
@@ -105,9 +105,9 @@
 
 
 (defn accept
-  
+
   [sender quantity]
-  
+
   (let [sender           (address sender)
         sender-offers    (get offers
                               sender
@@ -134,7 +134,7 @@
 
 
 (defn balance
-  
+
   [owner]
 
   (or (get ownership
@@ -144,7 +144,7 @@
 
 
 (defn direct-transfer
-  
+
   [receiver quantity]
 
   (internal-direct-transfer *caller*
@@ -154,7 +154,7 @@
 
 
 (defn offer
-  
+
   [receiver quantity]
 
   (let [caller-offers (get offers
@@ -170,7 +170,7 @@
 
 
 (defn owns?
-  
+
   [owner boxes]
 
   (subset? boxes
@@ -222,7 +222,7 @@
 
 
 (defn burn
-  
+
   ;; Contract for Destroying a set of boxes. Boxes must be owned and empty.
 
   ;; TODO. Better return value?
@@ -252,7 +252,7 @@
 
 
 (defn create-box
-  
+
   ;; Contract for creating a new box, with a fresh ID.
 
   []
@@ -278,7 +278,7 @@
 
 
 (defn remove-asset
-  
+
   ;; Contract for removing an asset.
 
   [box-id asset]
@@ -319,7 +319,7 @@
 
 
 (defn insert
-  
+
   ;; Inserts an asset into a box.
 
   [box-id asset]

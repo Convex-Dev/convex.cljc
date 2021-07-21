@@ -4,19 +4,8 @@
 ;;
 ;; This library is based on the Reference Monitor security model. The library works with 'Trust Monitors', which are 
 ;; a design pattern of for reference monitors on the Convex platform.
-;; 
+;;
 ;; See: https://en.wikipedia.org/wiki/Reference_monitor
-;;
-;; Library operation:
-;;
-;;   deploy with: (deploy trust-code)
-;; 
-;;   import with (import <address of trust> :as trust)
-;;
-;; Key usage:
-;;
-;;   (trusted? trust-store address)                        
-;;   Checks if subject is trusted
 ;;
 ;;
 
@@ -101,36 +90,36 @@
         controller (address (or (:controller config)
                                 *address*))]
     `(do
-	   (def trust
-			~self)
+       (def trust
+            ~self)
 
        (export check-trusted?
                set-trusted)
 
        (def blacklist
-         
+
          ;;  blacklist of addresses that are denied.
 
          ~blacklist)
-       
+
 
        (def controller
 
          ;; Controller address determines who can modify the blacklist.
-         
+
          ~controller)
-     
+
 
        (defn check-trusted?
-         
+
          [subject action object]
 
          (not (contains-key? blacklist
                              (address subject))))
-       
+
 
        (defn set-trusted
-         
+
          [subject allow?]
 
          (if (trust/trusted? controller
@@ -164,37 +153,37 @@
         controller (or (:controller config)
                        *address*)]
     `(do
-		(def trust
-			 ~self)
+        (def trust
+             ~self)
 
        (export check-trusted?
                set-trusted)
 
 
        (def whitelist
-         
+
          ;; A whitelist of addresses that are accepted.
 
          ~whitelist)
-       
+
 
        (def controller
 
          ;; Controller address determines who can modify the whitelist.
-         
+
          ~(address controller))
-    
+
 
        (defn check-trusted?
-         
+
          [subject action object]
 
          (contains-key? whitelist
                         (address subject)))
-       
+
 
        (defn set-trusted
-         
+
          [subject allow?]
 
          (if (trust/trusted? controller
@@ -224,18 +213,18 @@
    (let [root (address (or (:root config)
                            *address*))]
      `(do
-		(def trust
-			 ~self)
+        (def trust
+             ~self)
 
         (export upgrade)
 
 
         (def upgradable-root
              ~root)
-        
+
 
         (defn upgrade
-          
+
           [code]
 
           (if (trust/trusted? upgradable-root

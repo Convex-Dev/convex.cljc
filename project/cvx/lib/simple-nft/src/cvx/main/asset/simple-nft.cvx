@@ -27,14 +27,14 @@
 
 
 (export accept
-	    balance
-	    burn
-	    create-nft
-	    direct-transfer
-	    offer 
-	    quantity-add
-	    quantity-sub
-	    quantity-subset?)
+        balance
+        burn
+        create-nft
+        direct-transfer
+        offer 
+        quantity-add
+        quantity-sub
+        quantity-subset?)
 
 
 
@@ -81,14 +81,14 @@
   [receiver quantity]
 
   (let [caller-offers (get offers
-						   *caller*
-						   {})]
+                           *caller*
+                           {})]
     (def offers
-		 (assoc offers
-			    *caller*
-				(assoc caller-offers
-					   receiver
-					   quantity)))))
+         (assoc offers
+                *caller*
+                (assoc caller-offers
+                       receiver
+                       quantity)))))
 
 
 
@@ -101,63 +101,63 @@
 
 
 (def quantity-add
-	 union)
+     union)
 
 (def quantity-sub
-	 difference)
+     difference)
 
 (def quantity-subset?
-	 subset?)
+     subset?)
 
 
 
 (let [internal-direct-transfer (fn [sender receiver quantity]
-								 (let [receiver             (address receiver)
-  								       sender-balance       (or (get-holding sender)
+                                 (let [receiver             (address receiver)
+                                       sender-balance       (or (get-holding sender)
                                                                 #{})
-  								       _                    (assert (subset? quantity
-											                                 sender-balance))
-  								       receiver-balance     (or (get-holding receiver)
+                                       _                    (assert (subset? quantity
+                                                                             sender-balance))
+                                       receiver-balance     (or (get-holding receiver)
                                                                 #{})
-  								       new-sender-balance   (difference sender-balance
-										                                quantity)
-  								       new-receiver-balance (union receiver-balance
-										                           quantity)]
-  								   (set-holding sender
-									            new-sender-balance)
-  								   (set-holding receiver
-									            new-receiver-balance))
-  								   quantity)]
+                                       new-sender-balance   (difference sender-balance
+                                                                        quantity)
+                                       new-receiver-balance (union receiver-balance
+                                                                   quantity)]
+                                   (set-holding sender
+                                                new-sender-balance)
+                                   (set-holding receiver
+                                                new-receiver-balance))
+                                   quantity)]
 
   (defn accept
-  
+
     [sender quantity]
-    
-    (let [sender		   (address sender)
+
+    (let [sender           (address sender)
           sender-offers    (or (get offers
-  							        sender)
-  						       {})
-          offer		       (or (get-in offers
-  								       [sender
-  								        *caller*])
-  						       #{})
-          _			       (assert (subset? quantity
-  						    		        offer))
+                                    sender)
+                               {})
+          offer            (or (get-in offers
+                                       [sender
+                                        *caller*])
+                               #{})
+          _                (assert (subset? quantity
+                                            offer))
           receiver-balance (or (get-holding *caller*)
                                #{})
           new-offer        (difference offer
-  			                           quantity)]
-  
+                                       quantity)]
+
       (def offers
-  		 (assoc offers
-  				sender
-  				(assoc sender-offers
-  					   *caller*
-  					   new-offer)))
-  
+         (assoc offers
+                sender
+                (assoc sender-offers
+                       *caller*
+                       new-offer)))
+
       (internal-direct-transfer sender
-  	                          *caller*
-  							  quantity)))
+                              *caller*
+                              quantity)))
 
 
   (defn direct-transfer
@@ -165,8 +165,8 @@
     [receiver quantity]
 
     (internal-direct-transfer *caller*
-		                      receiver
-							  quantity)))
+                              receiver
+                              quantity)))
 
 
 
@@ -186,12 +186,12 @@
                      (set? nft-set)  nft-set
                      :else           (set nft-set))]
     (when-not (subset? nft-set
-				 	   owned-nfts)
-	  (fail :TRUST
-		    "Trying to burn nfts which are not owned!"))
+                       owned-nfts)
+      (fail :TRUST
+            "Trying to burn nfts which are not owned!"))
     (set-holding *caller*
-	             (difference owned-nfts
-							 nft-set))
+                 (difference owned-nfts
+                             nft-set))
     nft-set))
 
 
@@ -199,7 +199,7 @@
 (defn create 
 
   ^{:doc {:description "Library function to create a NFT. Metadata for the NFT is option, will be nil if not specifies."}}
-  
+
   []
 
   (call self
@@ -207,7 +207,7 @@
 
 
 
-(defn create-nft 
+(defn create-nft
 
   ^{:doc {:description "Contract to create a new NFT, with a fresh ID and arbitrary metadata."}}
 
@@ -218,8 +218,8 @@
         owned-nfts (or (get-holding owner)
                        #{})]
     (set-holding owner
-	             (conj owned-nfts
-				       id))
+                 (conj owned-nfts
+                       id))
     (def counter
-	     (inc counter))
-    id))) 
+         (inc counter))
+    id))

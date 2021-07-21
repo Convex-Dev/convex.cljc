@@ -59,12 +59,12 @@
                         (asset/balance ~token
                                        ~user))
                     {:description "Initially, user owns total supply."})
-                  
+
              (T/trx '(= 0
                         (asset/balance ~token
                                        (deploy nil)))
                     {:description "Newly created account has no token."})
-              
+
              (T/trx '(do
                       (asset/transfer ~user
                                       [~token
@@ -384,7 +384,7 @@
   []
 
   (T/group `[(T/path.conj 'suite.mint)
-      
+
              (def receiver
                   (help/zombie))
 
@@ -527,8 +527,7 @@
                          '(eval-as receiver
                                    `(~fungible/burn ~token
                                                     ~(inc supply.max)))
-                         {:description "Trust verified before amount during minting."})
-            ]))
+                         {:description "Trust verified before amount during minting."})]))
 
 
 

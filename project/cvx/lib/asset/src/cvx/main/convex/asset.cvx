@@ -203,9 +203,9 @@
              (call receiver
                    (receive-asset asset
                                   data)))
-         
+
            (actor? receiver)
-           (fail "Receiver does not have receive-asset function")          
+           (fail "Receiver does not have receive-asset function")
 
            (account? receiver)
            (call asset-address
@@ -273,8 +273,8 @@
         (call asset-address
               (quantity-subset? quantity
                                 bal)))
-        
-      (map? asset) 
+
+      (map? asset)
       (reduce (fn [result [asset-address quantity]]
                 (if (call asset-address
                           (quantity-subset? quantity
@@ -389,7 +389,7 @@
                      {:code   "(quantity-contains? non-fungible-token #{1 2} #{2 3})"
                       :result false}]
           :signature [{:params [asset a b]}]
-          :type :function}}
+          :type      :function}}
 
 
   ([asset-a asset-b]

@@ -51,17 +51,17 @@
                 1000000000000000000))
     `(do
        (import convex.trust :as trust)
-       
+
        ;; Who is allowed to mint tokens?
        ;;
        (def minter
             ~minter)
-       
+
        ;; Maximum supply (limit after minting)
        ;;
        (def max-supply
             ~max-supply)
-       
+
 
        (defn burn
 
@@ -113,7 +113,6 @@
                         new-bal)
            (def supply
                 new-supply)))
-       
 
        (export burn
                mint))))
@@ -136,15 +135,14 @@
     `(do
        (def supply
             ~supply)
-       
+
        (set-holding ~initial-holder
                     ~supply)
-       
+
        ;; Map of holder-address -> {offeree-address -> positive long amount}
        ;; Must enforce valid positive offers
        ;;
        (def offers {})
-       
 
 
        ;; Functions of the interface described in the `convex.asset` library
@@ -199,21 +197,21 @@
 
 
        (defn balance
-         
+
          [addr]
 
          (or (get-holding addr)
               0))
-       
+
 
        ;; No restrictions on transfer by default.
        ;;
        (defn check-transfer
-         
+
          [_sender _receiver _quantity]
 
          nil)
-       
+
 
        (defn direct-transfer
 
@@ -245,7 +243,7 @@
 
 
        (defn get-offer
-         
+
          [sender receiver]
 
          (or (get-in offers
@@ -280,7 +278,7 @@
                             quantity)))
            quantity))
 
-       
+
        ;; TODO. Shouldn't also implement `owns?`
 
 
@@ -298,7 +296,7 @@
 
 
        (defn quantity-sub
-         
+
          [a b]
 
          (let [a (if a
@@ -314,7 +312,7 @@
 
 
        (defn quantity-subset?
-         
+
          [a b]
 
          (<= (if a
@@ -324,7 +322,7 @@
                (long b)
                0)))
 
-       
+
        (export accept
                balance
                check-transfer
