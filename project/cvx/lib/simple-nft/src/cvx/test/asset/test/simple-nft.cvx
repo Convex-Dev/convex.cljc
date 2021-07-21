@@ -33,7 +33,7 @@
 
 ;; Setup. Print test results at the end
 ;;
-(sreq/hook.end '[;(suite.main)
+(sreq/hook.end '[(suite.asset)
 				 (T/print-failed)])
 (sreq/screen.clear)
 (sreq/out "Testing `asset.simple-nft` library\n")
@@ -49,7 +49,7 @@
 
 (defn suite.asset
 
-  ^{:doc {:decription ""}}
+  ^{:doc {:decription "Ensures the `convex.asset` interface is respected."}}
 
   []
 
@@ -214,9 +214,3 @@
 			 (asset.test/suite.main nft
 									user-1
 									user-2)]))
-
-
-;;
-
-
-(suite.asset)
