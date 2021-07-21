@@ -459,8 +459,14 @@
                                                           (dissoc :convex.run/sym->dep))]
                                         (if (env-5 :convex.run/error)
                                           env-5
-                                          (if (= (not-empty dep-new+)
-                                                 (not-empty dep-old+))
+                                          (if (= (not-empty sym->dep')
+                                                 (not-empty (env-3 :convex.watch/sym->dep)))
+                                              ;;
+                                              ;; TODO. Ideally, nothing is reloaded if symbol changes put not file path and code reload only happens on dependencies that
+                                              ;;       did change. Currently, alls deps are reloaded if anything in `sym->dep` changes.
+                                              ;;
+                                              ; (= (not-empty dep-new+)
+                                              ;    (not-empty dep-old+))
                                             (-> env-5
                                                 (dissoc :convex.watch/dep-lock
                                                         :convex.watch/extra->change)
@@ -472,7 +478,8 @@
                                               (dissoc env-5
                                                       :convex.run/dep+
                                                       :convex.run/dep-lock
-                                                      :convex.run/extra->change)
+                                                      :convex.run/extra->change
+                                                      :convex.watch/sym->dep)
                                               (-restart a*env
                                                         (dissoc env-5
                                                                 :convex.run/dep-lock))))))))
