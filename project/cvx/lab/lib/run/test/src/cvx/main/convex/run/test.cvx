@@ -38,7 +38,7 @@
 
 
 
-;; Is defined below in order to preserve metadata. 
+;; Is defined below in order to preserve metadata.
 ;;
 (def state
      nil)
@@ -236,7 +236,7 @@
                         "Most of the time, the `fail-code` function will be used rather than this one."
                         "See the `trx` symbol from this library for metadata and how exection is done."]}}
 
-  
+
   ([expected-fail? trx]
 
    (fail expected-fail?
@@ -265,7 +265,6 @@
   ^{:doc {:description ["Like the `fail` function but `expected-code?` receives the exception's code."
                         "A convenient solution is to use a set of expected codes."]
           :examples    [{:code "(fail-code #{:ASSERT} '(assert (< 42 3)))"}]}}
-  
 
   ([code-target trx]
 
@@ -292,7 +291,7 @@
                         "Result is reported using `conj-report`."
                         "Metadata is an arbitrary map associated under `:metadata` in the report for providing extra information."
                         "It is advised to provide at least `:description`, a human-readable string explaining the test."]
-          :examples    [{:code "(trx '(< 2 3) {:description \"Two should be lesser than three.\"})"}]}} 
+          :examples    [{:code "(trx '(< 2 3) {:description \"Two should be lesser than three.\"})"}]}}
 
 
   ([trx]
@@ -316,6 +315,30 @@
                `[(~self/conj-report (assoc ~base-report
                                            :exception help/*error*
                                            :pass?     false))]))))
+
+
+;; TRACING
+
+
+(defmacro is
+
+  ^{:doc {:description "Macro for tracing the given `form`: it it does not return true, result is returned as well as arguments (assumes `form` is a function call)."}}
+
+  [form]
+
+  (let [n-arg (dec (count form))]
+    (if (> n-arg
+           0)
+      `(let [arg+ ~(vec (next form))
+             res  (apply ~(first form)
+                         arg+)]
+         (or (= res
+                true)
+             (list '=
+                   res
+                   (cons (quote ~(first form))
+                         arg+))))
+      form)))
 
 
 ;; REPORTING
@@ -350,15 +373,15 @@
 
    (let [n-fail (:n-fail state)]
      (sreq/out (apply str
-     				   "Number of failed tests: "
-     				   n-fail
+                       "Number of failed tests: "
+                       n-fail
                       " / "
                       (count (state :report+))
-     				   (when (> n-fail
-     				      	  0)
+                       (when (> n-fail
+                              0)
                         (reduce (fn [acc report]
-     				               (if (:pass? report)
-     				      	         acc
+                                   (if (:pass? report)
+                                     acc
                                     (let [metadata (report :metadata)
                                           ex       (dissoc (report :exception)
                                                            :trx)

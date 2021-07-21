@@ -1,4 +1,4 @@
-(sreq/dep {test  "project/cvx/lab/lib/run/test/src/cvx/main/convex/run/test.cvx"
+(sreq/dep {T     "project/cvx/lab/lib/run/test/src/cvx/main/convex/run/test.cvx"
            xform "project/cvx/lab/lib/xform/src/cvx/main/convex/xform.cvx"})
 
 
@@ -8,10 +8,10 @@
                                      :trace))))
 
 (eval (first xform))
-(eval `(def test
+(eval `(def T
             (deploy (quote ~(cons 'do
-                                  (next (next test)))))))
-                      
+                                  (next (next T)))))))
+
 
 (import convex.xform :as xform)
 
@@ -30,40 +30,45 @@
      0))
 
 
-(test/state.push)
+(T/state.push)
 
-(test/trx '(do
-             (def baz 24)
-             (< 2 5)))
+(T/trx '(do
+          (def baz 24)
+          (< 2 5)))
 
 
-(test/trx '(< 42 4))
+(def x
+     42)
+
+(T/trx '(T/is (< x 4)))
+
 (let [a 4
       b 3]
-  (test/trx `(or (< ~a ~b)
+  (T/trx `(or (< ~a ~b)
                  (- ~a ~b))
             {:description "I know, it fails."}))
 
 (def foo 42)
 
     (sreq/out [:baz baz])
-(test/state.pop `(def bar ~foo))
+(T/state.pop `(def bar ~foo))
 
 ;(sreq/out baz)
 
-(test/fail-code #{:ASSERT}
-                '(fail :foo :bar)
-                {:description "Must fail fast."})
+(T/fail-code #{:ASSERT}
+             '(T/is (= 1
+                       2))
+             {:description "Must fail fast."})
 
-;(sreq/hook.end '[(test/exit)])
+;(sreq/hook.end '[(T/exit)])
 
 
-;(sreq/out test/state)
+;(sreq/out T/state)
 
 (sreq/out \newline)
 
 
-(test/print-failed)
+(T/print-failed)
 
 
 #_(sreq/do '[(sreq/out \newline):
