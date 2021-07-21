@@ -333,9 +333,9 @@
    (set []))
 
 
-  (^ASet [x]
+  (^ASet [^Collection x]
 
-   (Sets/create (vector x))))
+   (Sets/fromCollection x)))
 
 
 

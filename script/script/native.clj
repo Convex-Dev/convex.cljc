@@ -41,10 +41,9 @@
                                     (if (= (get hmap
                                                 "name")
                                            "java.lang.reflect.Method")
-                                      (do (println :got hmap)
                                       {"name"    "java.lang.reflect.AccessibleObject"
                                        "methods" [{"name" "canAccess"
-                                                   "parameterTypes" ["java.lang.Object"]}]})
+                                                   "parameterTypes" ["java.lang.Object"]}]}
                                       hmap))
                                   (cheshire/parse-stream (clojure.java.io/reader "./private/agent/reflect-config.json")))
                             (clojure.java.io/writer (str (or (first *command-line-args*)

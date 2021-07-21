@@ -103,6 +103,10 @@
 }, {
   "name" : "clojure.lang.IKVReduce"
 }, {
+  "name" : "clojure.lang.IMeta"
+}, {
+  "name" : "clojure.lang.IObj"
+}, {
   "name" : "clojure.lang.IPersistentCollection"
 }, {
   "name" : "clojure.lang.IPersistentList"
@@ -134,6 +138,8 @@
   "name" : "clojure.lang.Murmur3"
 }, {
   "name" : "clojure.lang.Namespace"
+}, {
+  "name" : "clojure.lang.Numbers"
 }, {
   "name" : "clojure.lang.PersistentHashMap"
 }, {
@@ -197,9 +203,43 @@
 }, {
   "name" : "clojure.spec.gen.alpha__init"
 }, {
+  "name" : "clojure.stacktrace__init"
+}, {
   "name" : "clojure.string__init"
 }, {
+  "name" : "clojure.template__init"
+}, {
+  "name" : "clojure.test__init"
+}, {
   "name" : "clojure.tools.cli__init"
+}, {
+  "name" : "clojure.tools.reader.default_data_readers__init"
+}, {
+  "name" : "clojure.tools.reader.edn__init"
+}, {
+  "name" : "clojure.tools.reader.impl.commons__init"
+}, {
+  "name" : "clojure.tools.reader.impl.utils__init"
+}, {
+  "name" : "clojure.tools.reader.reader_types.IPushbackReader"
+}, {
+  "name" : "clojure.tools.reader.reader_types.IndexingPushbackReader"
+}, {
+  "name" : "clojure.tools.reader.reader_types.IndexingReader"
+}, {
+  "name" : "clojure.tools.reader.reader_types.InputStreamReader"
+}, {
+  "name" : "clojure.tools.reader.reader_types.PushbackReader"
+}, {
+  "name" : "clojure.tools.reader.reader_types.Reader"
+}, {
+  "name" : "clojure.tools.reader.reader_types.SourceLoggingPushbackReader"
+}, {
+  "name" : "clojure.tools.reader.reader_types.StringReader"
+}, {
+  "name" : "clojure.tools.reader.reader_types__init"
+}, {
+  "name" : "clojure.tools.reader__init"
 }, {
   "name" : "clojure.uuid__init"
 }, {
@@ -211,37 +251,9 @@
 }, {
   "name" : "com.barbarysoftware.watchservice.WatchableFile"
 }, {
-  "name" : "com.goterl.lazysodium.Sodium",
-  "allDeclaredMethods" : true
+  "name" : "com.github.fzakaria.slf4j.timbre.TimbreLoggerAdapter"
 }, {
-  "name" : "com.goterl.lazysodium.SodiumJava",
-  "allDeclaredMethods" : true
-}, {
-  "name" : "com.sun.jna.CallbackProxy",
-  "methods" : [ {
-    "name" : "callback",
-    "parameterTypes" : [ "java.lang.Object[]" ]
-  } ]
-}, {
-  "name" : "com.sun.jna.NativeLong",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "com.sun.jna.Structure$FFIType",
-  "allDeclaredFields" : true,
-  "allPublicConstructors" : true,
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "com.sun.jna.Structure$FFIType$size_t",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
+  "name" : "com.github.fzakaria.slf4j.timbre.TimbreLoggerFactory"
 }, {
   "name" : "convex.app.run.help__init"
 }, {
@@ -311,8 +323,6 @@
 }, {
   "name" : "convex.core.init.Init"
 }, {
-  "name" : "convex.core.init.InitConfig"
-}, {
   "name" : "convex.core.lang.AFn"
 }, {
   "name" : "convex.core.lang.AOp"
@@ -364,6 +374,16 @@
   "name" : "hawk.watcher__init"
 }, {
   "name" : "int[]"
+}, {
+  "name" : "io.aviso.ansi__init"
+}, {
+  "name" : "io.aviso.columns__init"
+}, {
+  "name" : "io.aviso.exception__init"
+}, {
+  "name" : "io.aviso.writer.StringWriter"
+}, {
+  "name" : "io.aviso.writer__init"
 }, {
   "name" : "java.io.BufferedInputStream"
 }, {
@@ -439,16 +459,14 @@
   "name" : "java.lang.String",
   "allPublicMethods" : true
 }, {
+  "name" : "java.lang.StringBuilder"
+}, {
   "name" : "java.lang.Thread",
   "allPublicMethods" : true
 }, {
   "name" : "java.lang.ThreadLocal"
 }, {
-  "name" : "java.lang.Throwable",
-  "methods" : [ {
-    "name" : "addSuppressed",
-    "parameterTypes" : [ "java.lang.Throwable" ]
-  } ]
+  "name" : "java.lang.Throwable"
 }, {
   "name" : "java.lang.UnsupportedOperationException"
 }, {
@@ -492,8 +510,6 @@
 }, {
   "name" : "java.net.URLEncoder"
 }, {
-  "name" : "java.nio.Buffer"
-}, {
   "name" : "java.nio.file.FileSystems"
 }, {
   "name" : "java.nio.file.Files"
@@ -530,11 +546,9 @@
 }, {
   "name" : "java.security.MessageDigestSpi"
 }, {
-  "name" : "java.security.SecureRandomParameters"
-}, {
-  "name" : "java.security.cert.PKIXRevocationChecker"
-}, {
   "name" : "java.sql.Timestamp"
+}, {
+  "name" : "java.text.SimpleDateFormat"
 }, {
   "name" : "java.time.Instant"
 }, {
@@ -546,7 +560,11 @@
 }, {
   "name" : "java.util.GregorianCalendar"
 }, {
+  "name" : "java.util.LinkedList"
+}, {
   "name" : "java.util.List"
+}, {
+  "name" : "java.util.Locale"
 }, {
   "name" : "java.util.Map"
 }, {
@@ -565,6 +583,8 @@
 }, {
   "name" : "java.util.concurrent.BlockingQueue"
 }, {
+  "name" : "java.util.concurrent.CountDownLatch"
+}, {
   "name" : "java.util.concurrent.LinkedBlockingQueue"
 }, {
   "name" : "java.util.concurrent.locks.ReentrantLock"
@@ -577,548 +597,58 @@
 }, {
   "name" : "org.antlr.v4.runtime.CharStreams"
 }, {
-  "name" : "org.bouncycastle.jcajce.provider.asymmetric.COMPOSITE$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
+  "name" : "org.slf4j.Marker"
 }, {
-  "name" : "org.bouncycastle.jcajce.provider.asymmetric.DH$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
+  "name" : "org.slf4j.helpers.MessageFormatter"
 }, {
-  "name" : "org.bouncycastle.jcajce.provider.asymmetric.DSA$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.asymmetric.DSTU4145$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.asymmetric.EC$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.asymmetric.ECGOST$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.asymmetric.EdEC$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.asymmetric.ElGamal$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.asymmetric.GM$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.asymmetric.GOST$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.asymmetric.IES$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.asymmetric.RSA$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.asymmetric.X509$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.asymmetric.edec.KeyPairGeneratorSpi$Ed25519",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.digest.Blake2b$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.digest.Blake2s$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.digest.DSTU7564$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.digest.GOST3411$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.digest.Haraka$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.digest.Keccak$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.digest.MD2$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.digest.MD4$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.digest.MD5$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.digest.RIPEMD128$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.digest.RIPEMD160$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.digest.RIPEMD256$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.digest.RIPEMD320$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.digest.SHA1$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.digest.SHA224$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.digest.SHA256$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.digest.SHA3$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.digest.SHA384$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.digest.SHA512$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.digest.SM3$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.digest.Skein$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.digest.Tiger$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.digest.Whirlpool$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.drbg.DRBG$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.keystore.BC$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.keystore.BCFKS$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.keystore.PKCS12$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.AES$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.ARC4$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.ARIA$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.Blowfish$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.CAST5$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.CAST6$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.Camellia$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.ChaCha$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.DES$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.DESede$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.DSTU7624$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.GOST28147$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.GOST3412_2015$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.Grain128$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.Grainv1$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.HC128$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.HC256$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.IDEA$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.Noekeon$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.OpenSSLPBKDF$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.PBEPBKDF1$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.PBEPBKDF2$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.PBEPKCS12$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.Poly1305$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.RC2$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.RC5$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.RC6$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.Rijndael$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.SCRYPT$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.SEED$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.SM4$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.Salsa20$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.Serpent$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.Shacal2$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.SipHash$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.SipHash128$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.Skipjack$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.TEA$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.TLSKDF$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.Threefish$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.Twofish$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.VMPC$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.VMPCKSA3$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.XSalsa20$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.XTEA$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "org.bouncycastle.jcajce.provider.symmetric.Zuc$Mappings",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
+  "name" : "org.slf4j.spi.LocationAwareLogger"
 }, {
   "name" : "short[]"
 }, {
+  "name" : "slf4j_timbre.adapter__init"
+}, {
+  "name" : "slf4j_timbre.factory__init"
+}, {
+  "name" : "slf4j_timbre.static_logger_binder__init"
+}, {
   "name" : "sun.nio.fs.UnixPath",
   "allPublicMethods" : true
-}, {
-  "name" : "sun.security.provider.NativePRNG",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
-}, {
-  "name" : "sun.security.provider.SHA",
-  "methods" : [ {
-    "name" : "<init>",
-    "parameterTypes" : [ ]
-  } ]
 }, {
   "name" : "sun.security.provider.SHA3$SHA256",
   "methods" : [ {
     "name" : "<init>",
     "parameterTypes" : [ ]
   } ]
+}, {
+  "name" : "taoensso.encore.DefaultTimeoutImpl"
+}, {
+  "name" : "taoensso.encore.ITimeoutFuture"
+}, {
+  "name" : "taoensso.encore.ITimeoutImpl"
+}, {
+  "name" : "taoensso.encore.LimitEntry"
+}, {
+  "name" : "taoensso.encore.LimitHits"
+}, {
+  "name" : "taoensso.encore.LimitSpec"
+}, {
+  "name" : "taoensso.encore.SimpleCacheEntry"
+}, {
+  "name" : "taoensso.encore.Swapped"
+}, {
+  "name" : "taoensso.encore.TickedCacheEntry"
+}, {
+  "name" : "taoensso.encore.TimeoutFuture"
+}, {
+  "name" : "taoensso.encore__init"
+}, {
+  "name" : "taoensso.timbre.appenders.core__init"
+}, {
+  "name" : "taoensso.timbre__init"
+}, {
+  "name" : "taoensso.truss.impl.WrappedError"
+}, {
+  "name" : "taoensso.truss.impl__init"
+}, {
+  "name" : "taoensso.truss__init"
 } ]
