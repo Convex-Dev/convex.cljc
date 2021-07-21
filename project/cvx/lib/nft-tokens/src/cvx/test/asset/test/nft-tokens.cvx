@@ -5,7 +5,8 @@
 ;;
 
 
-(sreq/dep {nft "project/cvx/lib/nft-tokens/src/cvx/main/asset/nft-tokens.cvx"})
+(sreq/dep {asset.test.quantity.set-long "project/cvx/lib/asset/src/cvx/test/convex/test/asset/quantity/set-long.cvx"
+		   nft                          "project/cvx/lib/nft-tokens/src/cvx/main/asset/nft-tokens.cvx"})
 
 
 ;; Deploying test version of `asset.simple-nft` instead of importing stable version.
@@ -13,6 +14,10 @@
 (eval `(def nft
             (deploy (quote ~(cons 'do
                                   (next (next nft)))))))
+
+
+(eval (cons 'do
+		     asset.test.quantity.set-long))
 
 
 ;; Importing stable versions
@@ -187,7 +192,12 @@
 					{:description "NFT record destroyed."})]))
 
 
+
+
+
+
 ;;
 
 
 (suite.mono)
+(suite.quantity nft)
