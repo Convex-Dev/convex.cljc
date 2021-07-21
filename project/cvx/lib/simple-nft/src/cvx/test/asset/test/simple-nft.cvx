@@ -34,6 +34,7 @@
 ;; Setup. Print test results at the end
 ;;
 (sreq/hook.end '[(suite.asset)
+	             (suite.burn)
 				 (T/print-failed)])
 (sreq/screen.clear)
 (sreq/out "Testing `asset.simple-nft` library\n")
@@ -214,3 +215,24 @@
 			 (asset.test/suite.main nft
 									user-1
 									user-2)]))
+
+
+
+(defn suite.burn
+
+  ^{:doc {:description "Burning NFTs."}}
+
+  []
+
+  (T/group '[(T/path.conj 'suite.burn)
+
+		
+			 (def n
+			      (nft/create))
+
+			 (sreq/out (asset/balance nft
+									  *address*))
+			 (call nft
+				   (burn #{n}))
+             ]))
+
