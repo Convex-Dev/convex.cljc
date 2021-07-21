@@ -33,8 +33,7 @@
 
 ;; Setup. Print test results at the end
 ;;
-(sreq/hook.end '[(suite.asset)
-	             (suite.burn)
+(sreq/hook.end '[(suite.main)
 				 (T/print-failed)])
 (sreq/screen.clear)
 (sreq/out "Testing `asset.simple-nft` library\n")
@@ -226,13 +225,44 @@
 
   (T/group '[(T/path.conj 'suite.burn)
 
-		
-			 (def n
-			      (nft/create))
+			 (T/fail-code #{:TRUST}
+						  '(call nft
+								 (burn #{-1}))
+						  {:description "Cannot burn inexistant NFT."})
 
-			 (sreq/out (asset/balance nft
-									  *address*))
-			 (call nft
-				   (burn #{n}))
-             ]))
+			 (T/trx '(long? (def piece
+								 (nft/create)))
+				    {:description "NFT created."})
 
+			 (T/trx '(= #{piece}
+					    (call nft
+							  (burn #{piece})))
+			        {:description "NFT burned."})
+
+			 (T/fail-code #{:TRUST}
+			              '(call nft
+								 (burn #{piece}))
+						  {:description "Impossible to double-burn."})
+
+			 (T/trx '(= #{}
+                        (asset/balance nft
+									   *address*))
+					{:description "Balance is empty after burning."})
+
+			 (T/trx '(not (asset/owns? *address*
+									   [nft
+										#{piece} ]))
+			        {:description "Cannot own burned NFT."})]))
+
+
+;;
+
+
+(defn suite.main
+
+  ^{:doc {:description "Main suite gathering all other suites."}}
+
+  []
+
+  (sreq/do '[(suite.asset)
+             (suite.burn)]))

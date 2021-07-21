@@ -192,12 +192,6 @@
     (set-holding *caller*
 	             (difference owned-nfts
 							 nft-set))
-    (def metadata
-	     (reduce (fn [md nft]
-				   ((dissoc md
-							nft)))
-		         metadata
-				 nft-set))
     nft-set))
 
 
