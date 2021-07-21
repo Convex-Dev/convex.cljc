@@ -9,6 +9,7 @@
 
 ;; REGISTERING THE LIBRARY
 
+
 (call *registry*
       (cns-update 'convex.run.test
                   *address*))
@@ -20,6 +21,7 @@
 
 ;; IMPORTING OTHER LIBRARIES
 
+
 (def sreq
 
   ^{:doc {:description "Alias to the SReq library."}}
@@ -28,7 +30,8 @@
         (cns-resolve 'convex.run.sreq)))
 
 
-;; VALUES
+;; STATIC VALUES
+
 
 (def self
 
@@ -37,55 +40,51 @@
   *address*)
 
 
+;; DYNAMIC VALUES
 
-;; Is defined below in order to preserve metadata.
-;;
-(def state
-     nil)
+(def *n-fail*
 
+  ^{:doc {:description "Number of currently failed tests."}}
 
-;; MODIFYING STATE CONTAINING REPORTS
-
-
-(defn update-state
-
-  ^{:doc {:description ["Used by this actor."
-                        "Updates the `state` symbol using `f`, a function `state` -> `state`."]}}
-
-  [f]
-
-  (def state
-
-    ^{:doc {:description "State map holding the number of failures (`:n-fail`) and all reports (`:report+`, see the `conj-report` symbol)."}}
-
-    (f state)))
+  0)
 
 
-;;
+(def *report+*
+
+  ^{:doc {:description ["Vector of currently collected test reports."
+                        "Also see `conj-report`"]}}
+
+  [])
 
 
-(defn clear
+;; ALTERING TEST REPORTS
 
-  ^{:doc {:description "Resets the `state` symbol to a clean state, erasing all tests."}}
+
+(defn report.clear
+
+  ^{:doc {:description ["Erases all test reports."
+                        "Used internally by `state.push`."
+                        "See `*report+*`."]}}
 
   []
 
   (if (= *address*
          self)
-    (update-state (fn [_state]
-                    {:n-fail  0
-                     :report+ []}))
+    (do
+      (def *n-fail*
+           0)
+      (def *report+*
+           []))
     (call self
-          (clear)))
+          (report.clear)))
   nil)
 
 
-(export clear)
-(clear)
+(export report.clear)
 
 
 
-(defn conj-report
+(defn report.conj
 
   ^{:doc {:description ["Low-level function for adding a new report to the `state` symbol."
                         "A report summarizes a test assertion."
@@ -95,50 +94,48 @@
 
   (if (= *address*
          self)
-    (let [state-2 (update-state (fn [state]
-                                  (assoc state
-                                         :report+
-                                         (conj (get state
-                                                    :report+)
-                                               (assoc report
-                                                      :metadata
-                                                      (assoc (:metadata report)
-                                                             :path
-                                                             *path*))))))]
-     (if (:pass? report)
-       state-2
-       (update-state (fn [state]
-                       (assoc state-2
-                              :n-fail
-                              (inc (state-2 :n-fail)))))))
+     (do
+       (when-not (:pass? report)
+         (def *n-fail*
+              (inc *n-fail*)))
+       (def *report+*
+            (conj *report+*
+                  (assoc report
+                         :metadata
+                         (assoc (:metadata report)
+                                :path
+                                *path*)))))
     (call self
-          (conj-report report))))
+          (report.conj report))))
 
 
 
-(export conj-report)
+(export report.conj)
 
 
 
-(defn merge
+(defn report.merge
 
-  ^{:doc {:description "Merges the given test state with the current one."}}
+  ^{:doc {:description ["Merges the given argument into `*n-fail*` and `*report+*`."
+                        "Used by `state.pop` for remembering tests reults after restoring previous state."]}}
 
-  [state]
+  [n-fail report+]
 
   (if (= *address*
          self)
-    (update-state (fn [state-old]
-                    (assoc state-old
-                           :n-fail  (+ (state-old :n-fail)
-                                       (state :n-fail))
-                           :report+ (concat (state-old :report+)
-                                            (state :report+)))))
+    (do
+      (def *n-fail*
+           (+ *n-fail*
+              n-fail))
+      (def *report+*
+           (concat *report+*
+                   report+)))
     (call self
-          (merge state))))
+          (report.merge n-fail
+                        report+))))
 
 
-(export merge)
+(export report.merge)
 
 
 ;; PATH
@@ -146,7 +143,9 @@
 
 (def *path*
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description ["Vector of arbitrary values that helps locating a particular result."
+                        "Current value is attach to test report under `:path` in `:metadata`."
+                        "Item is added using `path.conj`."]}}
 
   [])
 
@@ -154,7 +153,7 @@
 
 (defn path.conj
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Adds an arbitrary item to `*path*`."}}
 
   [item]
 
@@ -175,7 +174,8 @@
 
 (defn group
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description ["Encloses given quoted transactions between `state.push` and `state.pop`."
+                        "Optional `trx-pop` is an additional transaction executed on pop."]}}
 
 
   ([trx+]
@@ -207,8 +207,9 @@
 
   ([trx]
 
-   (sreq/state.pop `(sreq/do '[(~self/merge (quote ~self/state))
-                    ~trx]))))
+   (sreq/state.pop `(sreq/do '[(~self/report.merge ~self/*n-fail*
+                                                   (quote ~self/*report+*))
+                               ~trx]))))
 
 
 
@@ -221,7 +222,7 @@
   []
 
   (sreq/do `[(sreq/state.push)
-             (~self/clear)]))
+             (~self/report.clear)]))
 
 
 ;; TESTING TRANSACTIONS
@@ -251,11 +252,11 @@
                       :trx      (list 'quote
                                       trx)}]
      (sreq/try `[~trx
-                 (~self/conj-report (assoc ~base-report
+                 (~self/report.conj (assoc ~base-report
                                            :result help/*trx.last.result*
                                            :pass?  false))]
                `[(let [ex help/*error*]
-                   (~self/conj-report (assoc ~base-report
+                   (~self/report.conj (assoc ~base-report
                                              :exception ex
                                              :pass?     (~expected-fail? ex))))]))))
 
@@ -308,11 +309,11 @@
                                       trx)}]
      (sreq/try `[~trx
                  (let [result help/*trx.last.result*]
-                   (~self/conj-report (assoc ~base-report
+                   (~self/report.conj (assoc ~base-report
                                              :result result
                                              :pass?  (= result
                                                         true))))]
-               `[(~self/conj-report (assoc ~base-report
+               `[(~self/report.conj (assoc ~base-report
                                            :exception help/*error*
                                            :pass?     false))]))))
 
@@ -352,7 +353,7 @@
 
   []
 
-  (sreq/exit (if (> (:n-fail self/state)
+  (sreq/exit (if (> *n-fail*
                     0)
                42
                0)))
@@ -366,68 +367,68 @@
 
   ([]
 
-   (print-failed state))
+   (print-failed *n-fail*
+                 *report+*))
 
 
-  ([state]
+  ([n-fail report+]
 
-   (let [n-fail (:n-fail state)]
-     (sreq/out (apply str
-                       "Number of failed tests: "
-                       n-fail
-                      " / "
-                      (count (state :report+))
-                       (when (> n-fail
-                              0)
-                        (reduce (fn [acc report]
-                                   (if (:pass? report)
-                                     acc
-                                    (let [metadata (report :metadata)
-                                          ex       (dissoc (report :exception)
-                                                           :trx)
-                                          res      (report :result)
-                                          res?     (contains-key? report
-                                                                  :result)
-                                          [text
-                                           data]   (if (= (report :expect)
-                                                          :result)
-                                                     (if res?
-                                                       ["Returned: "
-                                                        res]
-                                                       ["Threw: "
-                                                        ex])
-                                                     (if res?
-                                                       ["Instead of exception: "
-                                                        res]
-                                                       ["Not predicted exception: "
-                                                        ex]))]
-                                      (conj acc
-                                            "---"
-                                            \newline
-                                            \newline
-                                            (report :trx)
-                                            \newline
-                                            \newline
-                                            "  "
-                                            text
-                                            data
-                                            \newline
-                                            \newline
-                                            "  Path: "
-                                            (:path metadata)
-                                            \newline
-                                            \newline
-                                            "  "
-                                            (or (:description metadata)
-                                                "No description provided.")
-                                            \newline
-                                            \newline
-                                            "  Other metadata: "
-                                            (dissoc metadata
-                                                    :description
-                                                    :path)
-                                            \newline
-                                            \newline
-                                            ))))
-                                ["\n\n"]
-                                (:report+ state))))))))
+   (sreq/out (apply str
+                     "Number of failed tests: "
+                     n-fail
+                    " / "
+                    (count report+)
+                    (when (> n-fail
+                           0)
+                     (reduce (fn [acc report]
+                                (if (:pass? report)
+                                  acc
+                                 (let [metadata (report :metadata)
+                                       ex       (dissoc (report :exception)
+                                                        :trx)
+                                       res      (report :result)
+                                       res?     (contains-key? report
+                                                               :result)
+                                       [text
+                                        data]   (if (= (report :expect)
+                                                       :result)
+                                                  (if res?
+                                                    ["Returned: "
+                                                     res]
+                                                    ["Threw: "
+                                                     ex])
+                                                  (if res?
+                                                    ["Instead of exception: "
+                                                     res]
+                                                    ["Not predicted exception: "
+                                                     ex]))]
+                                   (conj acc
+                                         "---"
+                                         \newline
+                                         \newline
+                                         (report :trx)
+                                         \newline
+                                         \newline
+                                         "  "
+                                         text
+                                         data
+                                         \newline
+                                         \newline
+                                         "  Path: "
+                                         (:path metadata)
+                                         \newline
+                                         \newline
+                                         "  "
+                                         (or (:description metadata)
+                                             "No description provided.")
+                                         \newline
+                                         \newline
+                                         "  Other metadata: "
+                                         (dissoc metadata
+                                                 :description
+                                                 :path)
+                                         \newline
+                                         \newline
+                                         ))))
+                             ["\n\n"]
+                             report+))))))

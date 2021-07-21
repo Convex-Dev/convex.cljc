@@ -50,7 +50,7 @@
 
 (def foo 42)
 
-    (sreq/out [:baz baz])
+    (sreq/out *aliases*)
 (T/state.pop `(def bar ~foo))
 
 ;(sreq/out baz)
@@ -68,7 +68,7 @@
 (sreq/out \newline)
 
 
-(T/print-failed)
+;(T/print-failed)
 
 
 #_(sreq/do '[(sreq/out \newline):
