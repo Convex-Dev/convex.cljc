@@ -22,8 +22,7 @@
                              Address
                              AHashMap)
            (convex.core.data.prim CVMLong)
-           (convex.core.init Init
-                             InitConfig)
+           (convex.core.init Init)
            (convex.core.lang AFn
                              AOp
                              Context)
@@ -60,7 +59,7 @@
   (^Context [option+]
 
    (Context/createFake (or (:convex.cvm/state option+)
-                           (Init/createState (InitConfig/create)))
+                           (Init/createState [($.data/key ($.data/blob (byte-array 32)))]))
                        (or (:convex.cvm/address option+)
                            Init/RESERVED_ADDRESS))))
 
