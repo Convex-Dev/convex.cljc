@@ -55,6 +55,57 @@
 
   (T/group '[(T/path.conj 'suite.asset)
 
+		     ;; Quantities
+
+			 (T/trx '(= #{}
+						(asset/quantity-zero nft)))
+
+			 (T/trx '(= #{1 2 3 4}
+						(asset/quantity-add nft
+											#{1 2}
+											#{3 4})))
+			 (T/trx '(= #{1 2 3 4}
+						(asset/quantity-add nft
+											#{1 2 3}
+											#{2 3 4})))
+
+			 (T/trx '(= #{1 2}
+						(asset/quantity-sub nft
+											#{1 2 3}
+											#{3 4 5})))
+			 (T/trx '(= #{1 2}
+						(asset/quantity-add nft
+										    #{1 2}
+						                    nil)))
+			 (T/trx '(= #{1 2}
+						(asset/quantity-add nft
+										    nil
+										    #{1 2})))
+
+			 (T/trx '(= #{1 2}
+						(asset/quantity-sub nft
+										    #{1 2}
+						                    nil)))
+
+			 (T/trx '(= #{}
+						(asset/quantity-sub nft
+										    nil
+										    #{1 2})))
+
+			 (T/trx '(asset/quantity-contains? nft
+											   #{1 2 3}
+										       #{2 3}))
+
+			 (T/trx '(not (asset/quantity-contains? nft
+													#{1 2 3}
+											   		#{3 4})))
+
+			 (T/trx '(not (asset/quantity-contains? nft
+												    #{1 2 3}
+												    #{4 5 6})))
+
+			 ;; Transfer and ownership
+
 		     (T/trx '(vector? (def total
 							       (loop [acc []]
 							         (if (= (count acc)
