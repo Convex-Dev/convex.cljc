@@ -241,13 +241,15 @@
 
 
   ([asset-address]
-    (query (call asset-address
-                 (balance *address*))))
+
+   (query (call asset-address
+                (balance *address*))))
 
 
   ([asset-address owner]
-    (query (call asset-address
-                 (balance (address owner))))))
+
+   (query (call asset-address
+                (balance (address owner))))))
 
 
 
