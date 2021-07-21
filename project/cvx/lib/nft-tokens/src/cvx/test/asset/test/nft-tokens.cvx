@@ -1,0 +1,193 @@
+;;
+;;
+;; Testing the `asset.nft-tokens` library.
+;;
+;;
+
+
+(sreq/dep {nft "project/cvx/lib/nft-tokens/src/cvx/main/asset/nft-tokens.cvx"})
+
+
+;; Deploying test version of `asset.simple-nft` instead of importing stable version.
+;;
+(eval `(def nft
+            (deploy (quote ~(cons 'do
+                                  (next (next nft)))))))
+
+
+;; Importing stable versions
+;;
+(import convex.asset    :as asset)
+(import convex.run.test :as T)
+
+
+;; Setup. Print test results at the end
+;;
+(sreq/hook.end '[;(suite.main)
+				 (T/print-failed)])
+(sreq/screen.clear)
+(sreq/out "Testing `asset.nft-tokens` library\n")
+
+
+;; Default account is an actor, key is set to transform it into a user account.
+;;
+(set-key help/fake-key)
+
+
+;; Test suites
+
+
+(defn suite.mono
+
+  ^{:doc {:description ""}}
+
+  []
+
+  (T/group '[(T/path.conj 'suite.mono)
+
+			 (def uri
+				  "https://www.mysite.com")
+
+		     (def data
+				  {:name "Token-1"
+				   :uri	 uri})
+
+			 (T/trx '(long? (def token
+			                     (call nft
+					 	               (create-token data
+													 nil))))
+				    {:description "NFT created."})
+
+			 (T/trx '(= {:creator *address*
+						 :data    data
+					     :owner   *address*}
+						(get nft/token-records
+							 token))
+				    {:description "Accurate NFT record."})
+
+			 (T/trx '(asset/owns? *address*
+								  [nft
+								   #{token}])
+			        {:description "Creater owns NFT."})
+
+			 (T/trx '(= #{token}
+						(asset/balance nft
+									   *address*))
+			        {:description "NFT is in creator balance."})
+
+			 (T/trx '(= *address*
+						(call nft
+							  (get-token-creator token)))
+					{:description "Creator is retrieved."})
+
+			 (T/trx '(= *address*
+						(call nft
+							  (get-token-owner token)))
+			        {:description "Initially, creator is owner."})
+
+			 (T/trx '(= data
+					    (call nft
+							  (get-token-data token)))
+				    {:description "Token data is retrieved."})
+
+			 (T/trx '(nil? (call nft
+								 (get-token-class token)))
+			        {:description "No class associated with NFT."})
+
+			 (T/trx '(= uri
+						(call nft
+							  (get-uri token)))
+					{:description "URI of NFT is retrieved."})
+
+			 (T/trx '(call nft
+						   (check-trusted? *address*
+									       :destroy
+										   token))
+				    {:description "Can destroy NFT."})
+						
+			 (T/trx '(call nft
+						   (check-trusted? *address*
+									       :transfer
+										   token))
+				    {:description "Can transfer NFT."})
+						
+			 (T/trx '(call nft
+						   (check-trusted? *address*
+									       :update
+										   token))
+				    {:description "Can update NFT."})
+						
+			 (T/trx '(call nft
+						   (check-trusted? *address*
+									       [:update :name]
+										   token))
+				    {:description "Can update NFT name."})
+
+			 (def data-new
+				  (assoc data
+						 :foo
+						 :bar))
+
+			 (T/trx '(= data-new
+			            (call nft
+						   	  (merge-token-data token
+											    {:foo :bar})))
+				    {:description "Can merge data to NFT."})
+
+			 (T/trx '(= data-new
+						(call nft
+							  (get-token-data token)))
+				    {:description "Data merged permanently."})
+
+			 (T/trx '(= 42
+					    (call nft
+							  (set-token-data token
+											  42)))
+				    {:description "Can replace NFT data."})
+
+			 (T/trx '(= 42
+					    (call nft
+							  (get-token-data token)))
+			        {:description "Data replaced permanently."})
+
+			 (T/trx '(nil? (call nft
+								 (check-transfer *address*
+												 nil
+												 token)))
+			        {:description "No transfer issued."})
+
+			 (T/trx '(= "No right to transfer token -1"
+						(call nft
+							  (check-transfer *address*
+											  nil
+											  -1)))
+			        {:description "Cannot check transfer on inexistent NFT."})
+
+			 (T/trx '(call nft
+					       (destroy-token token))
+					{:description "NFT destroyed."})
+
+			 (T/fail-code #{:ASSERT}
+			              '(call nft
+						 	     (destroy-token -1))
+						  {:description "Cannot destroyed NFT."})
+
+			 (T/trx '(not (asset/owns? *address*
+									   [nft
+										token]))
+					{:description "Cannot own destroyed NFT."})
+
+			 (T/trx '(= #{}
+						 (asset/balance nft
+										*address*))
+				    {:description "Balance is empty after destroying NFT."})
+
+			 (T/trx '(nil? (get nft/token-records
+								token))
+					{:description "NFT record destroyed."})]))
+
+
+;;
+
+
+(suite.mono)
