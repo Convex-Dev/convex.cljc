@@ -173,7 +173,8 @@
   (if (= *address*
         self)
     (do
-      (assert (fn? f))
+      (assert (or (fn? f)
+                  (nil? f)))
       (def *filter*
            f))
     (call self
@@ -181,6 +182,52 @@
 
 
 (export filter.set)
+
+
+;; DEFAULT METADATA
+
+
+(def *meta*
+
+  ^{:doc {:description ["User defined function for altering metadata."
+                        "Altering happens before filtering. See `*filter*`."
+                        "See `meta.set`."]}}
+
+  nil)
+
+
+
+(defn meta.map
+
+  ^{:doc {:description "Maps `metadata` using `*meta*` if it is set to a function."}}
+
+  [metadata]
+
+  (if *meta*
+    (*meta* metadata)
+    metadata))
+
+
+
+(defn meta.set
+
+  ^{:doc {:description ["Sets `*meta*`."
+                        "Function must takes metadata and returns new metadata."]}}
+
+  [f]
+
+  (if (= *address*
+         self)
+    (do
+      (assert (or (fn? f)
+                  (nil? f)))
+      (def *meta*
+           f))
+    (call self
+          (meta.set f))))
+
+
+(export meta.set)
 
 
 ;; PATH
@@ -292,19 +339,20 @@
 
   ([expected-fail? trx metadata]
 
-   (when (filter.allow? metadata)
-     (let [base-report {:expect   :exception
-                        :metadata metadata
-                        :trx      (list 'quote
-                                        trx)}]
-       (sreq/try `[~trx
-                   (~self/report.conj (assoc ~base-report
-                                             :result help/*trx.last.result*
-                                             :pass?  false))]
-                 `[(let [ex help/*error*]
+   (let [metadata-2 (meta.map metadata)]
+     (when (filter.allow? metadata-2)
+       (let [base-report {:expect   :exception
+                          :metadata metadata-2
+                          :trx      (list 'quote
+                                          trx)}]
+         (sreq/try `[~trx
                      (~self/report.conj (assoc ~base-report
-                                               :exception ex
-                                               :pass?     (~expected-fail? ex))))])))))
+                                               :result help/*trx.last.result*
+                                               :pass?  false))]
+                   `[(let [ex help/*error*]
+                       (~self/report.conj (assoc ~base-report
+                                                 :exception ex
+                                                 :pass?     (~expected-fail? ex))))]))))))
 
 
 (defn fail-code
@@ -349,20 +397,21 @@
 
   ([trx metadata]
 
-   (when (filter.allow? metadata)
-     (let [base-report {:expect   :result
-                        :metadata metadata
-                        :trx      (list 'quote
-                                        trx)}]
-       (sreq/try `[~trx
-                   (let [result help/*trx.last.result*]
-                     (~self/report.conj (assoc ~base-report
-                                               :result result
-                                               :pass?  (= result
-                                                          true))))]
-                 `[(~self/report.conj (assoc ~base-report
-                                             :exception help/*error*
-                                             :pass?     false))])))))
+   (let [metadata-2 (meta.map metadata)]
+     (when (filter.allow? metadata-2)
+       (let [base-report {:expect   :result
+                          :metadata metadata-2
+                          :trx      (list 'quote
+                                          trx)}]
+         (sreq/try `[~trx
+                     (let [result help/*trx.last.result*]
+                       (~self/report.conj (assoc ~base-report
+                                                 :result result
+                                                 :pass?  (= result
+                                                            true))))]
+                   `[(~self/report.conj (assoc ~base-report
+                                               :exception help/*error*
+                                               :pass?     false))]))))))
 
 
 ;; TRACING

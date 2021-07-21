@@ -21,19 +21,18 @@
 
 
 
-(defn guard
-
-  [tag+]
-
-  (> (count (intersection tag+
-                          #{:important}))
-     0))
-
 
 (T/filter.set :important?)
 
 
+(T/meta.set (fn [x] (assoc x :important? true)))
+
+
 (T/state.push)
+
+
+
+
 
 (T/trx '(do
           (def baz 24)
@@ -44,7 +43,6 @@
      42)
 
 
-    (sreq/out [:filter T/*filter*])
 (T/trx '(T/is (< x 4)))
 
 (let [a 4
@@ -57,7 +55,6 @@
 
 (T/state.pop `(def bar ~foo))
 
-    (sreq/out [:filter T/*filter*])
 
 (T/fail-code #{:ASSERT}
              '(T/is (= 1
@@ -76,6 +73,3 @@
 #_(sreq/do '[(sreq/out \newline):
            (sreq/log)
            (sreq/out [:log help/*trx.last.result*])])
-
-                                 (sreq/log)
-                                 (sreq/out [:log help/*trx.last.result*])
