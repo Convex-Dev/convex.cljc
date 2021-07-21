@@ -30,6 +30,9 @@
      0))
 
 
+(T/filter.set :important?)
+
+
 (T/state.push)
 
 (T/trx '(do
@@ -40,6 +43,8 @@
 (def x
      42)
 
+
+    (sreq/out [:filter T/*filter*])
 (T/trx '(T/is (< x 4)))
 
 (let [a 4
@@ -50,10 +55,9 @@
 
 (def foo 42)
 
-    (sreq/out *aliases*)
 (T/state.pop `(def bar ~foo))
 
-;(sreq/out baz)
+    (sreq/out [:filter T/*filter*])
 
 (T/fail-code #{:ASSERT}
              '(T/is (= 1
@@ -63,14 +67,15 @@
 ;(sreq/hook.end '[(T/exit)])
 
 
-;(sreq/out T/state)
-
 (sreq/out \newline)
 
 
-;(T/print-failed)
+(T/print-failed)
 
 
 #_(sreq/do '[(sreq/out \newline):
            (sreq/log)
            (sreq/out [:log help/*trx.last.result*])])
+
+                                 (sreq/log)
+                                 (sreq/out [:log help/*trx.last.result*])
