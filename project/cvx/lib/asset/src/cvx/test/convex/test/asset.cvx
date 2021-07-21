@@ -92,7 +92,8 @@
 
 (defn suite.main
 
-  ^{:doc {:description "Main suite which gathers all other suites from this library."}}
+  ^{:doc {:description ["Main suite which gathers all other suites from this library."
+                        "Together, both given user owns total supply."]}}
 
   [token user-1 user-2]
 

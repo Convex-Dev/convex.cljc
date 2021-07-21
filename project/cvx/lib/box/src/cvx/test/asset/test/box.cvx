@@ -9,7 +9,7 @@
            box        "project/cvx/lib/box/src/cvx/main/asset/box.cvx"})
 
 
-;; Deploying test version of `convex.fungible` instead of importing stable version.
+;; Deploying test version of `asset.box` instead of importing stable version.
 ;;
 (eval `(def box
             (deploy (quote ~(cons 'do

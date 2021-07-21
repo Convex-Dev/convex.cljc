@@ -1,0 +1,103 @@
+;;
+;;
+;; Testing the `asset.simple-nft` library.
+;;
+;;
+
+
+(sreq/dep {asset.test "project/cvx/lib/asset/src/cvx/test/convex/test/asset.cvx"
+           nft	      "project/cvx/lib/simple-nft/src/cvx/main/asset/simple-nft.cvx"})
+
+
+;; Deploying test version of `asset.simple-nft` instead of importing stable version.
+;;
+(eval `(def nft
+            (deploy (quote ~(cons 'do
+                                  (next (next nft)))))))
+
+
+;; Requiring test suites for `convex.asset` since this library implement that interface.
+;;
+(def asset.test
+     (deploy (cons 'do
+                    asset.test)))
+
+
+(asset.test/setup)
+
+
+;; Importing stable versions
+;;
+(import convex.run.test :as T)
+
+
+;; Setup. Print test results at the end
+;;
+(sreq/hook.end '[;(suite.main)
+				 (T/print-failed)])
+(sreq/screen.clear)
+(sreq/out "Testing `asset.simple-nft` library\n")
+
+
+;; Default account is an actor, key is set to transform it into a user account.
+;;
+(set-key help/fake-key)
+
+
+;; Test suites
+
+
+(defn suite.asset
+
+  ^{:doc {:decription ""}}
+
+  []
+
+  (T/group '[(T/path.conj 'suite.asset)
+
+		     (T/trx '(vector? (def total
+							       (loop [acc []]
+							         (if (= (count acc)
+							     		   4)
+							     	  acc
+							     	  (recur (conj acc
+							     			       (call nft
+							     					     (create-nft))))))))
+				    {:description "4 NFTs created."})
+
+			 (T/trx '(= (set total)
+					    (asset/balance nft))
+					{:description "NFT actor owns all NFTs."})
+
+			 (T/trx '(address? (def user-1
+								    (help/zombie)))
+			        {:description "User 1 deployed."})
+
+			 (T/trx '(address? (def user-2
+								    (help/zombie)))
+			        {:description "User 2 deployed."})
+
+			 (T/trx '(let [tr (set (next total))]
+					   (= tr
+						  (asset/transfer user-1
+										  [nft
+										   tr])))
+					{:description "Transfer almost all NFTs to user 1."})
+
+			 (T/trx '(let [n-0 (total 0)]
+					   (= #{n-0}
+						   (asset/transfer user-2
+										   [nft
+										    #{n-0}])))
+			        {:description "Transfer remaining NFT to user 2."})
+
+
+			 (asset.test/suite.main nft
+									user-1
+									user-2)]))
+
+
+;;
+
+
+(suite.asset)
