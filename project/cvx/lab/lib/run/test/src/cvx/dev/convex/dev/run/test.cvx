@@ -67,7 +67,9 @@
 (sreq/out \newline)
 
 
-(T/print-failed)
+(sreq/out :foo)
+
+;(T/print-failed)
 
 
 #_(sreq/do '[(sreq/out \newline):

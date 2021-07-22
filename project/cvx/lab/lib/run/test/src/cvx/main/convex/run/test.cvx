@@ -378,7 +378,6 @@
                 code-target))))
 
 
-
 (defn trx
 
   ^{:doc {:description ["Tests that the given transaction (a quoted form) return exactly true."

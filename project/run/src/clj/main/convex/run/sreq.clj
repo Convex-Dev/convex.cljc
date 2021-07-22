@@ -248,8 +248,8 @@
           (assoc :convex.run.hook/error
                  (fn hook [env-2]
                    (let [err   (env-2 :convex.run/error)
-                         ctx   ($.cvm/invoke (-> env-2
-                                                 :convex.sync/ctx
+                         ctx   ($.cvm/invoke (-> (or (env-2 :convex.sync/ctx)
+                                                     (env-2 :convex.sync/ctx-base))
                                                  $.cvm/juice-refill)
                                              f
                                              ($.cvm/arg+* err))

@@ -486,31 +486,3 @@
                                   ($.run.exec/cycle env-3)))))))))
        ($.watch/start a*env)
        a*env))))
-
-
-;;;;;;;;;; During dev
-
-
-(comment
-
-
-  (eval "(help/about sreq)")
-
-
-
-  (load "project/run/src/cvx/dev/convex/run/dev.cvx")
-
-
-
-  (def a*env
-       (watch "project/run/src/cvx/dev/convex/run/dev.cvx"))
-
-  ($.watch/stop a*env)
-
-  (clojure.pprint/pprint (dissoc @a*env
-                                 :convex.sync/input->code))
-
-  (agent-error a*env)
-
-
-  )
