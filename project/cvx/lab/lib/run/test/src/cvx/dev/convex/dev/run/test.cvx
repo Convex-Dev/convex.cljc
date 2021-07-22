@@ -71,6 +71,8 @@
 
 ;(T/print-failed)
 
+(T/exit)
+
 
 #_(sreq/do '[(sreq/out \newline):
            (sreq/log)

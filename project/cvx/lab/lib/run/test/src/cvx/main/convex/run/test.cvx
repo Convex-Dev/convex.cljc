@@ -22,6 +22,15 @@
 ;; IMPORTING OTHER LIBRARIES
 
 
+(def help
+
+  ^{:doc {:description "Alias to the Help library."}}
+
+  (call *registry*
+        (cns-resolve 'convex.run.help)))
+
+
+
 (def sreq
 
   ^{:doc {:description "Alias to the SReq library."}}
@@ -448,10 +457,11 @@
 
   []
 
-  (sreq/exit (if (> *n-fail*
-                    0)
-               42
-               0)))
+  (when help/single-run?
+    (sreq/exit (if (> *n-fail*
+                      0)
+                 42
+                 0))))
 
 
 (defn print-failed
