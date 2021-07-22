@@ -42,6 +42,11 @@
 
 
 
+(def ^Symbol single-run?
+             ($.data/symbol "single-run?"))
+
+
+
 (def ^Symbol sreq
              ($.data/symbol "sreq"))
 

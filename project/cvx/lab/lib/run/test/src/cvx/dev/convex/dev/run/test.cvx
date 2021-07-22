@@ -67,7 +67,7 @@
 (sreq/out \newline)
 
 
-(sreq/out :foo)
+(sreq/out help/single-run?)
 
 ;(T/print-failed)
 

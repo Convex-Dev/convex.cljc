@@ -202,12 +202,13 @@
   
    Operates over:
   
-   | Key | Action |
-   |---|---|
+   | Key | Action | Mandatory |
+   |---|---|---|
    | `:convex.run/path` | If present, ensures the path to the main file is canonical |
    | `:convex.run.hook/end` | Ensures a default end hook, see namespace description |
    | `:convex.run.hook/error` | Ensures a default error hook, see namespace description |
    | `:convex.run.hook/out` | Ensures a default output hook, see namespace description |
+   | `:convex.run/single-run? | Whether code is run once or more (watch mode), defaults to false |
    | `:convex.sync/cx-base | Ensures a default base context, see [[convex.run.ctx/base]] |"
 
   [env]
@@ -237,6 +238,8 @@
       (update :convex.sync/ctx-base
               #(or %
                    $.run.ctx/base))
+      ($.run.ctx/def-help :convex.sync/ctx-base
+                          {$.run.sym/single-run? ($.data/boolean (env :convex.run/single-run?))})
       $.run.ctx/init))
 
 
@@ -313,7 +316,10 @@
 
   ([env ^String string]
 
-   (let [env-2   (init env)
+   (let [env-2   (-> env
+                     (assoc :convex.run/single-run?
+                            true)
+                     init)
          [ex
           form+] (try
                    [nil
@@ -346,8 +352,8 @@
   ([env path]
 
    (-> env
-       (assoc :convex.run/path
-              path)
+       (assoc :convex.run/path        path
+              :convex.run/single-run? true)
        init
        main-file
        once)))
@@ -399,8 +405,8 @@
     ([env ^String path]
 
      (let [a*env ($.watch/init (-> env
-                                   (assoc :convex.run/path
-                                          path)
+                                   (assoc :convex.run/path        path
+                                          :convex.run/single-run? false)
                                    init
                                    (assoc :convex.watch/extra+
                                           #{(.getCanonicalPath (File. path))})))]
