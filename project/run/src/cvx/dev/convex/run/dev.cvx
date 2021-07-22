@@ -303,3 +303,23 @@
 ;; `foo` was not defined originally but we ported it to the restored state as `bar`.
 ;;
 ; (sreq/out [:foo-defined? (defined? foo) :bar bar])
+
+
+;;;;;;;;;; Reading from STDIN
+
+
+;; Implementing a very simple REPL which read forms entered by the user, executes them and prints the result.
+;;
+; (defn repl
+; 
+;   []
+; 
+;   (sreq/do '[(sreq/out "Enter form:")
+;              (sreq/stdin)
+;              (when-let [form+ help/*trx.last.result*]
+;                (sreq/do `[(sreq/out [:result (eval ~(cons 'do
+;                                                           form+))])
+;                           (repl)]))]))
+; 
+; 
+; (repl)

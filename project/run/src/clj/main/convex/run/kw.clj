@@ -54,6 +54,11 @@
 
 
 
+(def ^Keyword err-reader
+              ($.data/keyword "READER"))
+
+
+
 (def ^Keyword exit
               ($.data/keyword "exit"))
 
@@ -155,6 +160,11 @@
 
 (def ^Keyword state-push
               ($.data/keyword "state.push"))
+
+
+
+(def ^Keyword stdin
+              ($.data/keyword "stdin"))
 
 
 

@@ -8,14 +8,16 @@
   {:author "Adam Helinski"}
 
   (:import (convex.core.data AVector)
-           (convex.core.data.prim CVMLong))
+           (convex.core.data.prim CVMLong)
+           (java.io IOException))
   (:require [convex.cvm      :as $.cvm]
             [convex.data     :as $.data]
             [convex.read     :as $.read]
             [convex.run.ctx  :as $.run.ctx]
             [convex.run.err  :as $.run.err]
             [convex.run.exec :as $.run.exec]
-            [convex.run.kw   :as $.run.kw]))
+            [convex.run.kw   :as $.run.kw]
+            [convex.run.sym  :as $.run.sym]))
 
 
 ;;;;;;;;;; Miscellaneous
@@ -93,7 +95,7 @@
   [env tuple]
 
   ($.run.err/signal env
-                    ($.run.err/sreq ($.data/code-std* :ARGUMENT)
+                    ($.run.err/sreq ($.data/code-std* :STATE)
                                     tuple
                                     ($.data/string "Unsupported special transaction"))))
 
@@ -488,6 +490,31 @@
           (fnil conj
                 '())
           ($.cvm/fork (env :convex.sync/ctx))))
+
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/stdin
+
+  [env tuple]
+
+  (try
+
+    ($.run.ctx/def-result env
+                          (if-some [line (read-line)]
+                            ($.read/string line)
+                            nil))
+
+    (catch IOException _ex
+      ($.run.ctx/def-result env
+                            nil))
+
+    (catch Throwable _ex
+      ($.run.err/signal env
+                        ($.run.err/sreq $.run.kw/err-reader
+                                        tuple
+                                        ($.data/string "While reading from STDIN."))))))
 
 
 

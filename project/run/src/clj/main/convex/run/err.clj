@@ -58,6 +58,7 @@
         (env :convex.sync/ctx)
         (-> (update :convex.sync/ctx
                     $.cvm/exception-clear)
+            ($.run.ctx/def-result nil)
             ($.run.ctx/error err)))))
 
 

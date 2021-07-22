@@ -42,6 +42,18 @@
 
 
 
+(defn input-stream-one
+
+  "Like [[input-stream]] but reads only one form."
+
+  ^ACell
+
+  [^InputStream is]
+
+  (AntlrReader/read (CharStreams/fromStream is)))
+
+
+
 (defn reader
 
   "Reads the given `java.io.Reader`"
@@ -54,6 +66,18 @@
 
 
 
+(defn reader-one
+
+  "Like [[reader]] but reads only one form."
+
+  ^ACell
+
+  [^Reader reader]
+
+  (AntlrReader/read (CharStreams/fromReader reader)))
+
+
+
 (defn string
 
   "Reads the given `string`."
@@ -61,5 +85,5 @@
   ^ACell
 
   [^String string]
-           
+
   (AntlrReader/readAll string))
