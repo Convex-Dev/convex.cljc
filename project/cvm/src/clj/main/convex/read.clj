@@ -2,7 +2,7 @@
 
   "Reading CVX, parsing source into CVX forms without any evaluation.
 
-   Forms can either be UTF-8 text or binary data (see [[convex.encode]])."
+   Forms can either be UTF-8 text or binary data (see [[convex.write]])."
 
   {:author "Adam Helinski"}
 
@@ -53,7 +53,9 @@
 
 (defn is-bin
 
-  "Reads one binary form from the given `java.io.InputStream`."
+  "Reads one binary form from the given `java.io.InputStream`.
+  
+   Binary data for the form is prefixed with a byte size in VLC (Variable Length Encoding)."
 
   ;; Assumes input stream is perfect. For instance, does not check that there is enough data.
   ;;

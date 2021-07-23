@@ -18,7 +18,6 @@
             [convex.cvm                    :as $.cvm]
             [convex.clj.eval               :as $.clj.eval]
             [convex.data                   :as $.data]
-            [convex.encode                 :as $.encode]
             [convex.run                    :as $.run]
             [convex.run.ctx                :as $.run.ctx]
             [convex.run.err                :as $.run.err]
@@ -48,6 +47,7 @@
             [convex.test.cvm]
             [convex.test.cvx.lib.trust]
             [convex.watch                  :as $.watch]
+            [convex.write                  :as $.write]
             [clojure.test.check.generators :as TC.gen]
             [hawk.core                     :as hawk]))
 

@@ -16,13 +16,13 @@
            (java.nio ByteBuffer))
   (:require [convex.cvm      :as $.cvm]
             [convex.data     :as $.data]
-            [convex.encode   :as $.encode]
             [convex.read     :as $.read]
             [convex.run.ctx  :as $.run.ctx]
             [convex.run.err  :as $.run.err]
             [convex.run.exec :as $.run.exec]
             [convex.run.kw   :as $.run.kw]
-            [convex.run.sym  :as $.run.sym]))
+            [convex.run.sym  :as $.run.sym]
+            [convex.write    :as $.write]))
 
 
 ;;;;;;;;;; Miscellaneous
@@ -458,18 +458,9 @@
 
     [env ^AVector tuple]
 
-    (let [bb-data ($.encode/byte-buffer (.get tuple
-                                              2))
-          n-byte  (.limit bb-data)]
-      (.write out
-              (let [ba (byte-array (Format/getVLCLength n-byte))]
-                (Format/writeVLCLong (ByteBuffer/wrap ba)
-                                     n-byte)
-                ba))
-      (.write out
-              (.array bb-data)
-              0
-              n-byte))
+    ($.write/os-bin out
+                    (.get tuple
+                          2))
     env))
 
 
