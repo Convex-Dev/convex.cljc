@@ -316,15 +316,20 @@
 ;
 ;   (sreq/do '[(sreq/out "> ")
 ;              (sreq/out.flush)
-;              (sreq/stdin)
-;              (when-let [form+ help/*trx.last.result*]
-;                (sreq/do `[(sreq/out help/line)
-;                           (sreq/try '[(eval ~(cons 'do
-;                                                    form+))
-;                                       (sreq/out.ln help/*trx.last.result*)]
-;                                     '[(sreq/out.ln (list 'quote
-;                                                          help/*error*))])
-;                           (sreq/out.ln "")
-;                           (repl)]))]))
-
-;(repl)
+;              (sreq/in.ln)
+;              (let [form+ help/*trx.last.result*]
+;                (when-not (and (not (nil? form+))
+;                               (>= (count form+)
+;                                   1)
+;                               (= (first form+)
+;                                  :repl.stop))
+;                  (sreq/do `[(sreq/out help/line)
+;                             (sreq/try '[(eval ~(cons 'do
+;                                                      form+))
+;                                         (sreq/out.ln help/*trx.last.result*)]
+;                                       '[(sreq/out.ln (list 'quote
+;                                                            help/*error*))])
+;                             (sreq/out.ln "")
+;                             (repl)])))]))
+; 
+; (repl)

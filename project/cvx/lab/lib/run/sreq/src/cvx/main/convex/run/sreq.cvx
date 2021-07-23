@@ -175,7 +175,18 @@
 
   [:cvm.sreq :hook.result trx])
 
-                                                      
+
+
+(defn in.ln
+
+  ^{:doc {:description ["Reads a line from STDIN."
+                        "Returns a list of forms."]}}
+
+  []
+
+  [:cvm.sreq :in.ln])
+
+
 
 (defn log
 
@@ -293,17 +304,6 @@
   []
 
   [:cvm.sreq :state.push])
-
-
-
-(defn stdin
-
-  ^{:doc {:description ["Reads line from STDIN."
-                        "Returns a list of forms."]}}
-
-  []
-
-  [:cvm.sreq :stdin])
         
 
 

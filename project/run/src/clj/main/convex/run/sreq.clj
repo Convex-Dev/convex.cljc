@@ -380,6 +380,31 @@
 
 
 (defmethod $.run.exec/sreq
+
+  $.run.kw/in-ln
+
+  [env tuple]
+
+  (try
+
+    ($.run.ctx/def-result env
+                          (if-some [line (read-line)]
+                            ($.read/string line)
+                            nil))
+
+    (catch IOException _ex
+      ($.run.ctx/def-result env
+                            nil))
+
+    (catch Throwable _ex
+      ($.run.err/signal env
+                        ($.run.err/sreq $.run.kw/err-reader
+                                        tuple
+                                        ($.data/string "While reading a line from STDIN."))))))
+
+
+
+(defmethod $.run.exec/sreq
   
   $.run.kw/log
 
@@ -503,31 +528,6 @@
           (fnil conj
                 '())
           ($.cvm/fork (env :convex.sync/ctx))))
-
-
-
-(defmethod $.run.exec/sreq
-
-  $.run.kw/stdin
-
-  [env tuple]
-
-  (try
-
-    ($.run.ctx/def-result env
-                          (if-some [line (read-line)]
-                            ($.read/string line)
-                            nil))
-
-    (catch IOException _ex
-      ($.run.ctx/def-result env
-                            nil))
-
-    (catch Throwable _ex
-      ($.run.err/signal env
-                        ($.run.err/sreq $.run.kw/err-reader
-                                        tuple
-                                        ($.data/string "While reading from STDIN."))))))
 
 
 

@@ -94,6 +94,11 @@
 
 
 
+(def ^Keyword in-ln
+              ($.data/keyword "in.ln"))
+
+
+
 (def ^Keyword log
               ($.data/keyword "log"))
 
@@ -166,11 +171,6 @@
 
 (def ^Keyword state-push
               ($.data/keyword "state.push"))
-
-
-
-(def ^Keyword stdin
-              ($.data/keyword "stdin"))
 
 
 
