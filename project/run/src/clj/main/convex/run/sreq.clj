@@ -409,6 +409,19 @@
 
 (defmethod $.run.exec/sreq
 
+  $.run.kw/out-flush
+
+  ;; Outputs the given value using the output hook.
+
+  [env _tuple]
+
+  ((env :convex.run/flush)
+   env))
+
+
+
+(defmethod $.run.exec/sreq
+
   $.run.kw/read
 
   ;; Reads the given string and parses to a list of forms.

@@ -214,6 +214,11 @@
   [env]
 
   (-> env
+      (update :convex.run/flush
+              #(or %
+                   (fn [env-2]
+                     (flush)
+                     env-2)))
       (update :convex.run/path
               (fn [^String path]
                 (when path
@@ -224,16 +229,20 @@
       (update :convex.run.hook/error
               #(or %
                    (fn [env-2]
-                     ((env-2 :convex.run.hook/out)
-                      env-2
-                      (env-2 :convex.run/error)))))
+                     (as-> env-2
+                           env-3
+
+                       ((env-3 :convex.run.hook/out)
+                        env-3
+                        (env-3 :convex.run/error))
+
+                       ((env-3 :convex.run/flush)
+                        env-3)))))
       (update :convex.run.hook/out
               #(or %
                    (fn [env-2 x]
                      (when x
-                       (-> x
-                           str
-                           tap>))
+                       (print (str x)))
                      env-2)))
       (update :convex.sync/ctx-base
               #(or %

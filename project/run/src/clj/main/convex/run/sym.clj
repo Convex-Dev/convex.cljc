@@ -42,6 +42,11 @@
 
 
 
+(def ^Symbol line
+             ($.data/symbol "line"))
+
+
+
 (def ^Symbol single-run?
              ($.data/symbol "single-run?"))
 

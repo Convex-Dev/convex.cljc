@@ -21,13 +21,10 @@
 (def env
 
   "Base environment map used in this app.
-  
+
    See [[convex.run]] namespace."
 
-  {:convex.run.hook/out (fn [env-2 x]
-                          (println (str x))
-                          (flush)
-                          env-2)})
+  {})
 
 
 
@@ -60,7 +57,7 @@
   "Given `arg+` (CLI arguments to a command) contains a file `path`, call `(f env path)`.
 
    If not, terminates with [[error]].
-  
+
    See [[env]]."
 
   [f arg+]
@@ -118,7 +115,7 @@
 (defn eval
 
   "Implementation for the 'eval' CLI command.
-  
+
    Evaluatues the user given string."
 
   [arg+ _option+]
@@ -133,7 +130,7 @@
 (defn load
 
   "Implementation for the 'load' CLI command.
-  
+
    Loads and executes the user given main file."
 
   [arg+ _option+]
@@ -146,7 +143,7 @@
 (defn watch
 
   "Implementation for the 'watch' CLI command.
-  
+
    Like [[load]] but provides live-reloading of main file and its declared dependencies."
 
   [arg+ _option+]
@@ -169,9 +166,9 @@
 (defn -main
 
   "Main function.
-  
+
    Executes a CLI command:
- 
+
    - [[command]]
    - [[describe]]
    - [[eval]]

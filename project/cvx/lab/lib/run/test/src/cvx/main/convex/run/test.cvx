@@ -509,31 +509,31 @@
                                                      ex]))]
                                    (conj acc
                                          "---"
-                                         \newline
-                                         \newline
+                                         help/line
+                                         help/line
                                          (report :trx)
-                                         \newline
-                                         \newline
+                                         help/line
+                                         help/line
                                          "  "
                                          text
                                          data
-                                         \newline
-                                         \newline
+                                         help/line
+                                         help/line
                                          "  Path: "
                                          (:path metadata)
-                                         \newline
-                                         \newline
+                                         help/line
+                                         help/line
                                          "  "
                                          (or (:description metadata)
                                              "No description provided.")
-                                         \newline
-                                         \newline
+                                         help/line
+                                         help/line
                                          "  Other metadata: "
                                          (dissoc metadata
                                                  :description
                                                  :path)
-                                         \newline
-                                         \newline
+                                         help/line
+                                         help/line
                                          ))))
                              ["\n\n"]
                              report+))))))

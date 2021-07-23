@@ -156,15 +156,15 @@
          (reduce (fn [acc [section line+]]
                    (reduce (fn [acc-2 line]
                              (conj acc-2
-                                   \newline
-                                   \newline
+                                   line
+                                   line
                                    line))
                            (conj acc
-                                 \newline
-                                 \newline
-                                 \newline
+                                 line
+                                 line
+                                 line
                                  section
-                                 \newline
+                                 line
                                  (loop [acc []
                                         i   (count section)]
                                   (if (> i

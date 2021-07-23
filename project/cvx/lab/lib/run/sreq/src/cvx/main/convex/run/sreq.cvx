@@ -193,7 +193,8 @@
 
 (defn out
 
-  ^{:doc {:description "Outputs the given argument."
+  ^{:doc {:description ["Outputs the given argument."
+                        "See `out.flush`."]
           :examples    [{:code "(sreq/out 42)"}]
           :signature   [{:params [x]}]
           :type        :function}}
@@ -202,6 +203,33 @@
 
   [:cvm.sreq :out x])
 
+
+
+(defn out.flush
+
+  ^{:doc {:description "Flushes what has been outputted with `out`."}}
+
+  []
+
+  [:cvm.sreq :out.flush])
+
+
+
+(let [;; Help library is deployed right after this one.
+      help (address (inc (long *address*)))]
+
+  (defn out.ln
+  
+    ^{:doc {:description "Like [[out]] but appends a new line and flushes."}}
+  
+    [x]
+  
+    [:cvm.sreq
+     :do
+     `[(sreq/out ~x)
+       (sreq/out ~help/line)
+       (sreq/out.flush)]]))
+  
 
 
 (defn read

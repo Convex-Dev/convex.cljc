@@ -63,6 +63,7 @@
               ($.data/keyword "exit"))
 
 
+
 (def ^Keyword expand
               ($.data/keyword "expand"))
 
@@ -105,6 +106,11 @@
 
 (def ^Keyword out
               ($.data/keyword "out"))
+
+
+
+(def ^Keyword out-flush
+              ($.data/keyword "out.flush"))
 
 
 

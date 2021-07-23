@@ -64,7 +64,7 @@
 ;(sreq/hook.end '[(T/exit)])
 
 
-(sreq/out \newline)
+(sreq/out help/line)
 
 
 (sreq/out help/single-run?)
@@ -76,6 +76,6 @@
 
 
 
-#_(sreq/do '[(sreq/out \newline):
+#_(sreq/do '[(sreq/out help/line):
            (sreq/log)
            (sreq/out [:log help/*trx.last.result*])])

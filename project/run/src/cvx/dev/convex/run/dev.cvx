@@ -32,11 +32,11 @@
 
 ;; Prints nice information at the start of a run.
 ;;
-(sreq/out (str "Run N°" (inc help/*cycle*)
-               \newline
-               \newline
-               "OUTPUT:"
-               \newline))
+(sreq/out.ln (str "Run N°" (inc help/*cycle*)
+                  help/line
+                  help/line
+                  "OUTPUT:"
+                  help/line))
 
 
 ;;;;;;;;;; HELP LIBRARY
@@ -57,8 +57,8 @@
 ;; For example:
 ;;
 ; (+ 10 20)
-; (sreq/out {:juice  help/*trx.last.juice*
-;            :result help/*trx.last.result*})
+; (sreq/out.ln {:juice  help/*trx.last.juice*
+;               :result help/*trx.last.result*})
 
 
 ;;;;;;;;;; SPECIAL REQUESTS
@@ -84,7 +84,7 @@
 
 ;; Returns a vector which requests the runner to output a given value.
 ;;
-; (sreq/out [:output "any value" {'foo 42}])
+; (sreq/out.ln [:output "any value" {'foo 42}])
 
 
 ;;;;;;;;;; HOOKS (code executed at particular moments)
@@ -93,14 +93,14 @@
 ;; Registers transactions to be executed at the end of the run, even if a CVM exception was thrown.
 ;;
 ; (sreq/hook.end '[(def foo 42)
-;                  (sreq/out [:end :foo foo])])
+;                  (sreq/out.ln [:end :foo foo])])
 
 
 ;; Registers a function which maps a thrown CVM exception to a transaction.
 ;; Default is to output them.
 ;;
 ;(sreq/hook.error (fn [err]
-;                   (sreq/out (str "An error occured: " err))))
+;                   (sreq/out.ln (str "An error occured: " err))))
 ;(fail :foo :bar)
 
 
@@ -112,16 +112,16 @@
 ;                           (:foo x))
 ;                    (str "This value contains `:foo`: " x)
 ;                    x)))
-; (sreq/out 42)
-; (sreq/out {:foo 1, :bar 2})
+; (sreq/out.ln 42)
+; (sreq/out.ln {:foo 1, :bar 2})
 
 
 ;; Registers a transaction to perform after each transaction in this main file.
 ;; Useful for providing feedback on what is happening.
 ;;
-;(sreq/hook.result '(sreq/out {:form   help/*trx.last.form*
-;                              :juice  help/*trx.last.juice*
-;                              :result help/*trx.last.result*}))
+;(sreq/hook.result '(sreq/out.ln {:form   help/*trx.last.form*
+;                                 :juice  help/*trx.last.juice*
+;                                 :result help/*trx.last.result*}))
 ;(+ 10 20)
 
 ;(sreq/hook.result nil)
@@ -148,22 +148,22 @@
 
 ;; Transducer example ; functions `available?`, `code`, `price`, and `tag+` were defined in the evaluated "store" file
 ;;
-; (sreq/out [:query-veggies
-;            (xform/transduce ;; Processing, composition of "transducers" which filter and map items
-;                             (comp (xform/filter (fn [item]
-;                                                   (contains-key? (tag+ item)
-;                                                                  :fruit)))
-;                                   (xform/filter (fn [item]
-;                                                   (< (price item)
-;                                                      600)))
-;                                   (xform/filter available?)
-;                                   (xform/map code)
-;                                   )
-;                             ;; Output, each item that survives processing is `conj`ed to the given vector (empty at the beginning)
-;                             conj
-;                             []
-;                             ;; Input, declared in the "store" file, a vector where an item is a fruit or vegetable with a price, some quantity, tags, ...
-;                             inventory)])
+; (sreq/out.ln [:query-veggies
+;               (xform/transduce ;; Processing, composition of "transducers" which filter and map items
+;                                (comp (xform/filter (fn [item]
+;                                                      (contains-key? (tag+ item)
+;                                                                     :fruit)))
+;                                      (xform/filter (fn [item]
+;                                                      (< (price item)
+;                                                         600)))
+;                                      (xform/filter available?)
+;                                      (xform/map code)
+;                                      )
+;                                ;; Output, each item that survives processing is `conj`ed to the given vector (empty at the beginning)
+;                                conj
+;                                []
+;                                ;; Input, declared in the "store" file, a vector where an item is a fruit or vegetable with a price, some quantity, tags, ...
+;                                inventory)])
 
 
 ;;;;;;;;; BUILDING ABSTRACTIONS
@@ -173,7 +173,7 @@
 ;;
 ;(def trx+
 ;     '[(def foo 42)
-;       (sreq/out [:foo foo])])
+;       (sreq/out.ln [:foo foo])])
 ;
 ;(sreq/do trx+)
 
@@ -181,18 +181,18 @@
 ;; Hence, regular functions and macros can be used to build any abstraction.
 ;;
 ; (defmacro trace
-;  
+;
 ;   [trx]
-; 
-;   (sreq/do `[(sreq/out "===")
-;              (sreq/out \newline)
-;              (sreq/out (str "TRANSACTION: "
-;                             (quote ~trx)))
-;              (sreq/out \newline)
-;              (sreq/out (str "RESULT: "
-;                             ~trx))
-;              (sreq/out \newline)
-;              (sreq/out "===")]))
+;
+;   (sreq/do `[(sreq/out.ln "===")
+;              (sreq/out.ln help/line)
+;              (sreq/out.ln (str "TRANSACTION: "
+;                                (quote ~trx)))
+;              (sreq/out.ln help/line)
+;              (sreq/out.ln (str "RESULT: "
+;                                ~trx))
+;              (sreq/out.ln help/line)
+;              (sreq/out.ln "===")]))
 ; 
 ; (trace (+ 2 2))
 
@@ -206,7 +206,7 @@
 ;;
 ; (sreq/try '[(def foo 42)
 ;             (fail :bar :baz)]
-;           '[(sreq/out [:catch :foo foo :caught help/*error*])])
+;           '[(sreq/out.ln [:catch :foo foo :caught help/*error*])])
 
 
 ;;;;;;;;;; ACCESSING THE CVM LOG
@@ -223,7 +223,7 @@
 
 ;; For the next transaction, it is available as last transaction's result.
 ;;
-; (sreq/out [:log help/*trx.last.result*])
+; (sreq/out.ln [:log help/*trx.last.result*])
 
 
 ;;;;;;;;;; READING SOURCE
@@ -234,7 +234,7 @@
 ;;
 ; (sreq/read (str "(+ 2 " "3)"))
 ; (let [form (first help/*trx.last.result*)]
-;   (sreq/out (list '= form (eval form))))
+;   (sreq/out.ln (list '= form (eval form))))
 
 
 ;;;;;;;;;; ACCESSING PROCESS ENVIRONMENT
@@ -249,7 +249,7 @@
 ;; Storing only one env property.
 ;;
 ; (sreq/env "SOME_ENV") ;; Should be a property spotted in previous example
-; (sreq/out [:one-prop help/*trx.last.result*])
+; (sreq/out.ln [:one-prop help/*trx.last.result*])
 
 
 ;;;;;;;;;; SCHEDULING AND ADVANCING TIMESTAMP
@@ -271,7 +271,7 @@
 
 ;; Not yet.
 ;;
-; (sreq/out [:happened? happened? *timestamp*])
+; (sreq/out.ln [:happened? happened? *timestamp*])
 
 
 ;; Advancing the timestamp by 10 milliseconds.
@@ -281,7 +281,7 @@
 
 ;; Done!
 ;;
-; (sreq/out [:happened? happened? *timestamp*])
+; (sreq/out.ln [:happened? happened? *timestamp*])
 
 
 ;;;;;;;;;; Saving and restoring state 
@@ -302,7 +302,7 @@
 
 ;; `foo` was not defined originally but we ported it to the restored state as `bar`.
 ;;
-; (sreq/out [:foo-defined? (defined? foo) :bar bar])
+; (sreq/out.ln [:foo-defined? (defined? foo) :bar bar])
 
 
 ;;;;;;;;;; Reading from STDIN
@@ -311,15 +311,20 @@
 ;; Implementing a very simple REPL which read forms entered by the user, executes them and prints the result.
 ;;
 ; (defn repl
-; 
+;
 ;   []
-; 
-;   (sreq/do '[(sreq/out "Enter form:")
+;
+;   (sreq/do '[(sreq/out "> ")
+;              (sreq/out.flush)
 ;              (sreq/stdin)
 ;              (when-let [form+ help/*trx.last.result*]
-;                (sreq/do `[(sreq/out [:result (eval ~(cons 'do
-;                                                           form+))])
+;                (sreq/do `[(sreq/out help/line)
+;                           (sreq/try '[(eval ~(cons 'do
+;                                                    form+))
+;                                       (sreq/out.ln help/*trx.last.result*)]
+;                                     '[(sreq/out.ln (list 'quote
+;                                                          help/*error*))])
+;                           (sreq/out.ln "")
 ;                           (repl)]))]))
-; 
-; 
-; (repl)
+
+;(repl)

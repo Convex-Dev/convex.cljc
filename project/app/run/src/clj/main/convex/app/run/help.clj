@@ -11,6 +11,13 @@
 
 ;;;;;;;;;; Private
 
+(def ^:private -newline
+
+  ;; Portable newline.
+
+  (System/lineSeparator))
+
+
 
 (defn- -print
 
@@ -18,7 +25,7 @@
 
   [line+]
 
-  (println (clojure.string/join \newline
+  (println (clojure.string/join -newline
                                 line+)))
 
 

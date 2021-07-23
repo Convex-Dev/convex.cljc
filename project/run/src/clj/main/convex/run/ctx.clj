@@ -53,9 +53,11 @@
     
      Prepares the `help` and `sreq` accounts."
 
-    ($.cvm/def ctx-4
-               {$.run.sym/help addr-help
-                $.run.sym/sreq addr-sreq}))
+    (-> ctx-4
+        ($.cvm/def {$.run.sym/help addr-help
+                    $.run.sym/sreq addr-sreq})
+        ($.cvm/def addr-help
+                   {$.run.sym/line ($.data/string (System/lineSeparator))})))
 
 
   (def addr-help
