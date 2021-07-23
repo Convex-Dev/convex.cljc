@@ -12,7 +12,8 @@
                              Blob
                              Format)
            (convex.core.lang.reader AntlrReader)
-           (java.io InputStream
+           (java.io FileInputStream
+                    InputStream
                     Reader)
            (java.nio ByteBuffer)
            (org.antlr.v4.runtime CharStreams)))
@@ -22,10 +23,36 @@
       true)
 
 
-(declare byte-buffer)
+(declare byte-buffer
+         stream-bin
+         stream-bin+)
 
 
 ;;;;;;;;;; ANTLR Reader
+
+
+(defn file-bin
+
+  "Reads one binary form from the given `filename`."
+
+  ^ACell
+
+  [^String filename]
+
+  (stream-bin (FileInputStream. filename)))
+
+
+
+(defn file-bin+
+
+  "Like [[file-bin]] but reads all available binary forms and returns them in a CVX list."
+
+  ^AList
+
+  [^String filename]
+
+  (stream-bin+ (FileInputStream. filename)))
+
 
 
 (defn file-txt
@@ -44,7 +71,7 @@
 
   "Like [[file-txt]] but reads all available forms and returns them in a CVX list."
 
-  ^ACell
+  ^AList
 
   [^String filename]
 
@@ -117,7 +144,7 @@
 
   "Like [[stream-txt]] but reads all available text forms and returns them in a CVX list."
 
-  ^ACell
+  ^AList
 
   [^Reader reader]
 
@@ -141,7 +168,7 @@
 
   "Like [[string]] but reads all available text forms and returns them in a CVX list."
 
-  ^ACell
+  ^AList
 
   [^String string]
 
@@ -179,7 +206,7 @@
 
   "Like [[byte-buffer]] but reads all available forms and returns them in a CVX list."
 
-  ^ACell
+  ^AList
 
   [^ByteBuffer bb]
 

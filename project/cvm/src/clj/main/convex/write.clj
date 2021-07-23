@@ -7,7 +7,8 @@
   (:import (convex.core.data ABlob
                              ACell
                              Format)
-           (java.io OutputStream)
+           (java.io OutputStream
+                    Reader)
            (java.nio ByteBuffer)))
 
 
@@ -70,3 +71,17 @@
             0
             n-byte))
   os)
+
+
+
+(defn stream-txt
+
+  ""
+
+  ^Reader
+
+  [^Reader reader ^ACell cell]
+
+  (.write reader
+          (str cell))
+  reader)
