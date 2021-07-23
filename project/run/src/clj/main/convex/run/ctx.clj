@@ -20,19 +20,25 @@
 
 (let [preload   (fn [ctx path]
                   (if-some [resource (clojure.java.io/resource path)]
-                    (let [ctx-2 ($.cvm/eval ctx
-                                            (-> resource
-                                                .openStream
-                                                $.read/input-stream
-                                                $.data/do
-                                                $.data/deploy))
-                          ex    ($.cvm/exception ctx)]
-                      (when ex
-                        (throw (ex-info "Unable to preload CVX file"
-                                        {::base :eval
+                    (try
+                      (let [ctx-2 ($.cvm/eval ctx
+                                              (-> resource
+                                                  .openStream
+                                                  $.read/is-txt+
+                                                  $.data/do
+                                                  $.data/deploy))
+                            ex    ($.cvm/exception ctx)]
+                        (when ex
+                          (throw (ex-info "While deploying prelude CVX file"
+                                          {::base :eval
+                                           ::ex   ex
+                                           ::path path})))
+                        ($.cvm/juice-refill ctx-2))
+                      (catch Throwable ex
+                        (throw (ex-info "While reading prelude CVX file"
+                                        {::base :read
                                          ::ex   ex
-                                         ::path path})))
-                      ($.cvm/juice-refill ctx-2))
+                                         ::path path}))))
                     (throw (ex-info "Mandatory CVX file is not on classpath"
                                     {::base :not-found
                                      ::path path}))))

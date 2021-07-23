@@ -1,6 +1,8 @@
 (ns convex.read
 
-  "Reading Convex Lisp source and transforming it into Convex forms."
+  "Reading CVX, parsing source into CVX forms without any evaluation.
+
+   Forms can either be UTF-8 text or binary data (see [[convex.encode]])."
 
   {:author "Adam Helinski"}
 
@@ -21,9 +23,9 @@
 ;;;;;;;;;; ANTLR Reader
 
 
-(defn file
+(defn file-txt
 
-  "Reads the file under the given `filename`."
+  "Reads one text form from the given `filename`."
 
   ^ACell
 
@@ -33,21 +35,21 @@
 
 
 
-(defn input-stream
+(defn file-txt+
 
-  "Reads the given `java.io.InputStream`."
+  "Like [[file-txt]] but reads all available forms and returns them in a CVX list."
 
   ^ACell
 
-  [^InputStream is]
+  [^String filename]
 
-  (AntlrReader/readAll (CharStreams/fromStream is)))
+  (AntlrReader/readAll (CharStreams/fromFileName filename)))
 
 
 
-(defn input-stream-one
+(defn is-txt
 
-  "Like [[input-stream]] but reads only one form."
+  "Reads one form from the given `java.io.InputStream`."
 
   ^ACell
 
@@ -57,21 +59,21 @@
 
 
 
-(defn reader
+(defn is-txt+
 
-  "Reads the given `java.io.Reader`"
+  "Like [[is-txt]] but reads all available forms and returns them in a CVX list."
 
   ^ACell
 
-  [^Reader reader]
+  [^InputStream is]
 
-  (AntlrReader/readAll (CharStreams/fromReader reader)))
+  (AntlrReader/readAll (CharStreams/fromStream is)))
 
 
 
-(defn reader-one
+(defn reader
 
-  "Like [[reader]] but reads only one form."
+  "Reads one text form from the given `java.io.Reader`."
 
   ^ACell
 
@@ -81,9 +83,33 @@
 
 
 
+(defn reader+
+
+  "Like [[is-txt]] but reads all available forms and returns them in a CVX list."
+
+  ^ACell
+
+  [^Reader reader]
+
+  (AntlrReader/readAll (CharStreams/fromReader reader)))
+
+
+
 (defn string
 
-  "Reads the given `string`."
+  "Reads one form from the given `string`."
+
+  ^ACell
+
+  [^String string]
+
+  (AntlrReader/read string))
+
+
+
+(defn string+
+
+  "Like [[string]] but reads all available forms and returns them in a CVX list."
 
   ^ACell
 
@@ -97,7 +123,7 @@
 
 (defn blob
 
-  ""
+  "Reads one binary form from the given CVX blob."
 
   ^ACell
 
@@ -109,7 +135,7 @@
 
 (defn byte-buffer
 
-  ""
+  "Reads one binary form from the given `java.nio.ByteBuffer`."
 
   ^ACell
 
@@ -118,10 +144,21 @@
   (Format/read bb))
 
 
+;(defn byte-buffer
+;
+;  ""
+;
+;  ^ACell
+;
+;  [^ByteBuffer bb]
+;
+;  (loop 
+
+
 
 (defn hex-string
 
-  ""
+  "Reads one binary form from the given hex string."
 
   ^ACell
 

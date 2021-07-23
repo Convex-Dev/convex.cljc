@@ -167,7 +167,7 @@
                                                                       (.getTrace this)))})
 
 
-  ;; TODO. Use EDN? Ops have protected fields meaning they cannot be readily translated.
+  ;; TODO. Ops have protected fields meaning they cannot be readily translated.
   ;;
   convex.core.lang.impl.Fn
 

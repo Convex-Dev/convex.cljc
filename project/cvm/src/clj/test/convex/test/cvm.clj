@@ -12,8 +12,8 @@
 
 (t/deftest execution
 
-  (let [form (first ($.read/string "(if true 42 0)"))]
-    (t/is (= (first ($.read/string "42"))
+  (let [form ($.read/string "(if true 42 0)")]
+    (t/is (= ($.read/string "42")
              (->> form
                   ($.cvm/eval ($.cvm/ctx))
                   $.cvm/result)

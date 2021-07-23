@@ -52,7 +52,7 @@ Reading is the process of parsing source code (text) into a Convex list of Conve
 
 ```clojure
 (def form+
-     ($.read/string "(inc 42) :foo"))
+     ($.read/string+ "(inc 42) :foo"))
 
 
 ;; Two forms have been read.

@@ -416,7 +416,7 @@
 
     ($.run.ctx/def-result env
                           (if-some [line (read-line)]
-                            ($.read/string line)
+                            ($.read/string+ line)
                             nil))
 
     (catch IOException _ex
@@ -514,7 +514,7 @@
                   (-> (.get tuple
                             2)
                       str
-                      $.read/string)]
+                      $.read/string+)]
                   (catch Throwable _err
                     [($.run.err/sreq ($.data/code-std* :ARGUMENT)
                                      tuple

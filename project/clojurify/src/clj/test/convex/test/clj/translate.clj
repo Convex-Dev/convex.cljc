@@ -23,8 +23,7 @@
            ($.clj.translate/cvx->clj (cond->
                                        target-convex
                                        (string? target-convex)
-                                       (-> $.read/string
-                                           first))))
+                                       $.read/string)))
         message))
 
 
@@ -81,8 +80,8 @@
 
   (-cvx->clj '(syntax [:a 42]
                         {:foo :bar})
-               (Syntax/create (first ($.read/string "[:a 42]"))
-                              (first ($.read/string "{:foo :bar}")))
+               (Syntax/create ($.read/string "[:a 42]")
+                              ($.read/string "{:foo :bar}"))
                "Syntax")
   
   (-cvx->clj true
@@ -109,8 +108,8 @@
                 :convex.exception/message [:foo]
                 :convex.exception/trace   '("test-1"
                                             "test-2")}
-               (doto (ErrorValue/createRaw (first ($.read/string "{:a 42}"))
-                                           (first ($.read/string "[:foo]")))
+               (doto (ErrorValue/createRaw ($.read/string "{:a 42}")
+                                           ($.read/string "[:foo]"))
                  (.addTrace "test-1")
                  (.addTrace "test-2"))
                "Error")
@@ -138,6 +137,5 @@
              (-> code
                  $.clj/src
                  $.read/string
-                 first
                  $.clj.translate/cvx->clj))
           "Stress test")))

@@ -68,7 +68,6 @@ Revelant Clojure values can be converted to Convex Lisp and read back using the 
 (-> '(+ 2 2)       ; Form written in Clojure
     $.clj/src      ; As string
     $.read/string  ; Read back as a Convex list of Convex data
-    first          ; Grab first and only one
     )
 ```
 

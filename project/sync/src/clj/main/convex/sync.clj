@@ -285,8 +285,8 @@
                                           
                                           [nil
                                            ((if (string? input)
-                                              $.read/file
-                                              $.read/input-stream)
+                                              $.read/file-txt+
+                                              $.read/is-txt+)
                                             input)]
 
                                           (catch NoSuchFileException _ex

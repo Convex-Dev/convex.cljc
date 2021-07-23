@@ -69,8 +69,7 @@
    ($.cvm/eval ($.cvm/fork ctx)
                (-> form
                    $.clj/src
-                   $.read/string
-                   first))))
+                   $.read/string))))
 
 
 

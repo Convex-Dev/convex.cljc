@@ -310,29 +310,26 @@
 
 ;; Implementing a very simple REPL which read forms entered by the user, executes them and prints the result.
 ;;
-; (defn repl
-;
-;   []
-;
-;   (sreq/do '[(sreq/out "> ")
-;              (sreq/out.flush)
-;              (sreq/in.ln)
-;              (let [form+ help/*trx.last.result*]
-;                (when-not (and (not (nil? form+))
-;                               (>= (count form+)
-;                                   1)
-;                               (= (first form+)
-;                                  :repl.stop))
-;                  (sreq/do `[(sreq/out help/line)
-;                             (sreq/try '[(eval ~(cons 'do
-;                                                      form+))
-;                                         (sreq/out.ln help/*trx.last.result*)]
-;                                       '[(sreq/out.ln (list 'quote
-;                                                            help/*error*))])
-;                             (sreq/out.ln "")
-;                             (repl)])))]))
-; 
-; (repl)
+(defn repl
 
+  []
 
-(sreq/out.bin {:a :b})
+  (sreq/do '[(sreq/out "> ")
+             (sreq/out.flush)
+             (sreq/in.ln)
+             (let [form+ help/*trx.last.result*]
+               (when-not (and (not (nil? form+))
+                              (>= (count form+)
+                                  1)
+                              (= (first form+)
+                                 :repl.stop))
+                 (sreq/do `[(sreq/out help/line)
+                            (sreq/try '[(eval ~(cons 'do
+                                                     form+))
+                                        (sreq/out.ln help/*trx.last.result*)]
+                                      '[(sreq/out.ln (list 'quote
+                                                           help/*error*))])
+                            (sreq/out.ln "")
+                            (repl)])))]))
+
+(repl)
