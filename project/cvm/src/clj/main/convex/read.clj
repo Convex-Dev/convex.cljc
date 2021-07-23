@@ -21,6 +21,9 @@
       true)
 
 
+(declare byte-buffer)
+
+
 ;;;;;;;;;; ANTLR Reader
 
 
@@ -48,9 +51,35 @@
 
 
 
+(defn is-bin
+
+  "Reads one binary form from the given `java.io.InputStream`."
+
+  ;; Assumes input stream is perfect. For instance, does not check that there is enough data.
+  ;;
+  ;; Akin to [[byte-buffer]] throwing an underflow exception when data is missing.
+
+  ^ACell
+
+  [^InputStream is]
+
+  (let [ba (byte-array Format/MAX_VLC_LONG_LENGTH)]
+    (loop [i 0]
+      (let [b (.read is)]
+        (aset-byte ba
+                   i
+                   b)
+        (if (bit-test b
+                      8)
+          (recur (inc i))
+          (byte-buffer (ByteBuffer/wrap (.readNBytes is
+                                                     (Format/readVLCLong ba
+                                                                         0)))))))))
+
+
 (defn is-txt
 
-  "Reads one form from the given `java.io.InputStream`."
+  "Reads one text form from the given `java.io.InputStream`."
 
   ^ACell
 

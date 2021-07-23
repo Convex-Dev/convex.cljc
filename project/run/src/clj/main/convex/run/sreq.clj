@@ -390,19 +390,8 @@
 
   [env _tuple]
 
-  (let [ba (byte-array Format/MAX_VLC_LONG_LENGTH)]
-    (loop [i 0]
-      (let [b (.read System/in)]
-        (aset-byte ba
-                   i
-                   b)
-        (if (bit-test b
-                      8)
-          (recur (inc i))
-          ($.run.ctx/def-result env
-                                ($.read/byte-buffer (ByteBuffer/wrap (.readNBytes System/in
-                                                                                  (Format/readVLCLong ba
-                                                                                                      0))))))))))
+  ($.run.ctx/def-result env
+                        ($.read/is-bin System/in)))
 
 
 
