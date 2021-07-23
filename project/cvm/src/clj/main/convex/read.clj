@@ -1,8 +1,10 @@
 (ns convex.read
 
-  "Reading CVX, parsing source into CVX forms without any evaluation.
+  "Reading, parsing various kind of sources into CVX cells without any evaluation.
 
-   Forms can either be UTF-8 text or binary data (see [[convex.write]])."
+   Binary must be big-endian and text must be UTF-8.
+
+   Also see [[convex.write]] for the opposite idea."
 
   {:author "Adam Helinski"}
 
@@ -33,7 +35,7 @@
 
 (defn file-bin
 
-  "Reads one binary form from the given `filename`."
+  "Reads one binary cell from the given `filename`."
 
   ^ACell
 
@@ -45,7 +47,7 @@
 
 (defn file-bin+
 
-  "Like [[file-bin]] but reads all available binary forms and returns them in a CVX list."
+  "Like [[file-bin]] but reads all available binary cells and returns them in a CVX list."
 
   ^AList
 
@@ -57,7 +59,7 @@
 
 (defn file-txt
 
-  "Reads one text form from the given `filename`."
+  "Reads one text cell from the given `filename`."
 
   ^ACell
 
@@ -69,7 +71,7 @@
 
 (defn file-txt+
 
-  "Like [[file-txt]] but reads all available forms and returns them in a CVX list."
+  "Like [[file-txt]] but reads all available cells and returns them in a CVX list."
 
   ^AList
 
@@ -81,9 +83,9 @@
 
 (defn stream-bin
 
-  "Reads one binary form from the given `java.io.InputStream` (parent class of bin streams)..
+  "Reads one binary cell from the given `java.io.InputStream` (parent class of bin streams)..
 
-   Binary data for the form is prefixed with a byte size in VLC (Variable Length Encoding)."
+   Binary data for the cell is prefixed with a byte size in VLC (Variable Length Encoding)."
 
   ;; Assumes input stream is perfect. For instance, does not check that there is enough data.
   ;;
@@ -114,23 +116,23 @@
 
 (defn stream-bin+
 
-  "Like [[stream-bin]] but reads all available binary forms and returns them in a CVX list."
+  "Like [[stream-bin]] but reads all available binary cells and returns them in a CVX list."
 
   ^AList
 
   [is]
 
   (loop [acc []]
-    (if-some [form (stream-bin is)]
+    (if-some [cell (stream-bin is)]
       (recur (conj acc
-                   form))
+                   cell))
       ($.data/list acc))))
 
 
 
 (defn stream-txt
 
-  "Reads one text form from the given `java.io.Reader` (parent class of char streams)."
+  "Reads one text cell from the given `java.io.Reader` (parent class of text streams)."
 
   ^ACell
 
@@ -142,7 +144,7 @@
 
 (defn stream-txt+
 
-  "Like [[stream-txt]] but reads all available text forms and returns them in a CVX list."
+  "Like [[stream-txt]] but reads all available text cells and returns them in a CVX list."
 
   ^AList
 
@@ -154,7 +156,7 @@
 
 (defn string
 
-  "Reads one form text from the given `string`."
+  "Reads one cell text from the given `string`."
 
   ^ACell
 
@@ -166,7 +168,7 @@
 
 (defn string+
 
-  "Like [[string]] but reads all available text forms and returns them in a CVX list."
+  "Like [[string]] but reads all available text cells and returns them in a CVX list."
 
   ^AList
 
@@ -180,7 +182,7 @@
 
 (defn blob
 
-  "Reads one binary form from the given CVX blob."
+  "Reads one binary cell from the given CVX blob."
 
   ^ACell
 
@@ -192,7 +194,7 @@
 
 (defn byte-buffer
 
-  "Reads one binary form from the given `java.nio.ByteBuffer`."
+  "Reads one binary cell from the given `java.nio.ByteBuffer`."
 
   ^ACell
 
@@ -204,7 +206,7 @@
 
 (defn byte-buffer+
 
-  "Like [[byte-buffer]] but reads all available forms and returns them in a CVX list."
+  "Like [[byte-buffer]] but reads all available cells and returns them in a CVX list."
 
   ^AList
 
@@ -220,7 +222,7 @@
 
 (defn hex-string
 
-  "Reads one binary form from the given hex string."
+  "Reads one binary cell from the given hex string."
 
   ^ACell
 

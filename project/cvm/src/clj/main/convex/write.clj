@@ -1,6 +1,11 @@
 (ns convex.write
 
-  ""
+  "Writing, encoding CVX cells various kind of sources.
+
+   Binary is big-endian and text is UTF-8.
+
+   Also see [[convex.read]] for the opposite idea."
+
 
   {:author "Adam Helinski"}
 
@@ -8,7 +13,7 @@
                              ACell
                              Format)
            (java.io OutputStream
-                    Reader)
+                    Writer)
            (java.nio ByteBuffer)))
 
 
@@ -17,7 +22,7 @@
 
 (defn blob
 
-  ""
+  "Encodes the given `cell` into a CVX blob."
 
   ^ABlob
 
@@ -29,7 +34,7 @@
 
 (defn byte-buffer
 
-  ""
+  "Encodes the given `cell` into a `java.nio.ByteBuffer`."
 
   ^ByteBuffer
 
@@ -41,7 +46,7 @@
 
 (defn hex-string
 
-  ""
+  "Encodes the given `cell` into a hex string."
 
   ^String
 
@@ -53,7 +58,7 @@
 
 (defn stream-bin
 
-  ""
+  "Writes the given `cell` to the given `java.io.OutputStream` (parent class of binary streams)."
 
   ^OutputStream
 
@@ -76,12 +81,12 @@
 
 (defn stream-txt
 
-  ""
+  "Writes the given `cell` to the given `java.io.Writer` (parent class of text streams)."
 
-  ^Reader
+  ^Writer
 
-  [^Reader reader ^ACell cell]
+  [^Writer writer ^ACell cell]
 
-  (.write reader
+  (.write writer
           (str cell))
-  reader)
+  writer)
