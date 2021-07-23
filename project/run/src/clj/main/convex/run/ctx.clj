@@ -7,6 +7,8 @@
 
   {:author "Adam Helinski"}
 
+  (:import (java.io InputStreamReader)
+           (java.nio.charset StandardCharsets))
   (:refer-clojure :exclude [cycle])
   (:require [clojure.java.io]
             [convex.cvm       :as $.cvm]
@@ -24,7 +26,8 @@
                       (let [ctx-2 ($.cvm/eval ctx
                                               (-> resource
                                                   .openStream
-                                                  $.read/is-txt+
+                                                  (InputStreamReader. StandardCharsets/UTF_8)
+                                                  $.read/stream-txt+
                                                   $.data/do
                                                   $.data/deploy))
                             ex    ($.cvm/exception ctx)]

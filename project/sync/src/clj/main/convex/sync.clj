@@ -217,7 +217,7 @@
   "Into the given CVM `ctx` (or a newly created one if not provided), reads the given files and interns them as unevaluted code
    under their respective symbols. Conceptually, they can be considered as dependency files.
 
-   A dependency is either a filename or a `java.io.InputStream`. Each filename is turned into its canonical form.
+   A dependency is either a filename or a `java.io.Reader`. Each filename is turned into its canonical form.
   
    Unevaluated code is a list of raw quoted forms. Often, Convex Lisp files have only one top-level `do` form bundling several forms
    meant to be executed as a single transaction. However, it could be useful for a dependency file to have several top-level forms.
@@ -286,7 +286,7 @@
                                           [nil
                                            ((if (string? input)
                                               $.read/file-txt+
-                                              $.read/is-txt+)
+                                              $.read/stream-txt+)
                                             input)]
 
                                           (catch NoSuchFileException _ex

@@ -7,8 +7,9 @@
   {:author "Adam Helinski"}
 
   (:require [convex.data :as $.data])
-  (:import (convex.core.data Blob
-                             ACell
+  (:import (convex.core.data ACell
+                             AList
+                             Blob
                              Format)
            (convex.core.lang.reader AntlrReader)
            (java.io InputStream
@@ -51,10 +52,10 @@
 
 
 
-(defn is-bin
+(defn stream-bin
 
-  "Reads one binary form from the given `java.io.InputStream`.
-  
+  "Reads one binary form from the given `java.io.InputStream` (parent class of bin streams)..
+
    Binary data for the form is prefixed with a byte size in VLC (Variable Length Encoding)."
 
   ;; Assumes input stream is perfect. For instance, does not check that there is enough data.
@@ -65,47 +66,44 @@
 
   [^InputStream is]
 
-  (let [ba (byte-array Format/MAX_VLC_LONG_LENGTH)]
-    (loop [i 0]
-      (let [b (.read is)]
-        (aset-byte ba
-                   i
-                   b)
-        (if (bit-test b
-                      8)
-          (recur (inc i))
-          (byte-buffer (ByteBuffer/wrap (.readNBytes is
-                                                     (Format/readVLCLong ba
-                                                                         0)))))))))
-
-
-(defn is-txt
-
-  "Reads one text form from the given `java.io.InputStream`."
-
-  ^ACell
-
-  [^InputStream is]
-
-  (AntlrReader/read (CharStreams/fromStream is)))
+  (let [b-first (.read is)]
+    (when-not (= b-first
+                 -1)
+      (let [ba (byte-array Format/MAX_VLC_LONG_LENGTH)]
+        (loop [b b-first
+               i 0]
+          (aset-byte ba
+                     i
+                     b)
+          (if (bit-test b
+                        8)
+            (recur (.read is)
+                   (inc i))
+            (byte-buffer (ByteBuffer/wrap (.readNBytes is
+                                                       (Format/readVLCLong ba
+                                                                           0))))))))))
 
 
 
-(defn is-txt+
+(defn stream-bin+
 
-  "Like [[is-txt]] but reads all available forms and returns them in a CVX list."
+  "Like [[stream-bin]] but reads all available binary forms and returns them in a CVX list."
 
-  ^ACell
+  ^AList
 
-  [^InputStream is]
+  [is]
 
-  (AntlrReader/readAll (CharStreams/fromStream is)))
+  (loop [acc []]
+    (if-some [form (stream-bin is)]
+      (recur (conj acc
+                   form))
+      ($.data/list acc))))
 
 
 
-(defn reader
+(defn stream-txt
 
-  "Reads one text form from the given `java.io.Reader`."
+  "Reads one text form from the given `java.io.Reader` (parent class of char streams)."
 
   ^ACell
 
@@ -115,9 +113,9 @@
 
 
 
-(defn reader+
+(defn stream-txt+
 
-  "Like [[is-txt]] but reads all available forms and returns them in a CVX list."
+  "Like [[stream-txt]] but reads all available text forms and returns them in a CVX list."
 
   ^ACell
 
@@ -129,7 +127,7 @@
 
 (defn string
 
-  "Reads one form from the given `string`."
+  "Reads one form text from the given `string`."
 
   ^ACell
 
@@ -141,7 +139,7 @@
 
 (defn string+
 
-  "Like [[string]] but reads all available forms and returns them in a CVX list."
+  "Like [[string]] but reads all available text forms and returns them in a CVX list."
 
   ^ACell
 

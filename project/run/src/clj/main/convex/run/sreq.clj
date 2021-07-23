@@ -391,7 +391,7 @@
   [env _tuple]
 
   ($.run.ctx/def-result env
-                        ($.read/is-bin System/in)))
+                        ($.read/stream-bin System/in)))
 
 
 
@@ -458,9 +458,9 @@
 
     [env ^AVector tuple]
 
-    ($.write/os-bin out
-                    (.get tuple
-                          2))
+    ($.write/stream-bin out
+                        (.get tuple
+                              2))
     env))
 
 

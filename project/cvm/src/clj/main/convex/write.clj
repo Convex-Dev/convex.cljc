@@ -50,7 +50,7 @@
 
 
 
-(defn os-bin
+(defn stream-bin
 
   ""
 
