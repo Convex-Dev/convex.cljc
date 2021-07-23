@@ -6,6 +6,7 @@
 
   {:author "Adam Helinski"}
 
+  (:require [convex.data :as $.data])
   (:import (convex.core.data Blob
                              ACell
                              Format)
@@ -144,15 +145,20 @@
   (Format/read bb))
 
 
-;(defn byte-buffer
-;
-;  ""
-;
-;  ^ACell
-;
-;  [^ByteBuffer bb]
-;
-;  (loop 
+
+(defn byte-buffer+
+
+  "Like [[byte-buffer]] but reads all available forms and returns them in a CVX list."
+
+  ^ACell
+
+  [^ByteBuffer bb]
+
+  (loop [acc []]
+    (if (.hasRemaining bb)
+      (recur (conj acc
+                   (byte-buffer bb)))
+      ($.data/list acc))))
 
 
 
