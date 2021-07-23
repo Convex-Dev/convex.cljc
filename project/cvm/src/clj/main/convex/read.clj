@@ -4,10 +4,13 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.data ACell)
+  (:import (convex.core.data Blob
+                             ACell
+                             Format)
            (convex.core.lang.reader AntlrReader)
            (java.io InputStream
                     Reader)
+           (java.nio ByteBuffer)
            (org.antlr.v4.runtime CharStreams)))
 
 
@@ -15,7 +18,7 @@
       true)
 
 
-;;;;;;;;;;
+;;;;;;;;;; ANTLR Reader
 
 
 (defn file
@@ -87,3 +90,41 @@
   [^String string]
 
   (AntlrReader/readAll string))
+
+
+;;;;;;;;; Decoding
+
+
+(defn blob
+
+  ""
+
+  ^ACell
+
+  [^Blob blob]
+
+  (Format/read blob))
+
+
+
+(defn byte-buffer
+
+  ""
+
+  ^ACell
+
+  [^ByteBuffer bb]
+
+  (Format/read bb))
+
+
+
+(defn hex-string
+
+  ""
+
+  ^ACell
+
+  [^String string]
+
+  (Format/read string))
