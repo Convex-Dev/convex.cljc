@@ -333,3 +333,6 @@
 ;                             (repl)])))]))
 ; 
 ; (repl)
+
+
+(sreq/out.bin {:a :b})

@@ -177,10 +177,22 @@
 
 
 
+(defn in.bin
+
+  ^{:doc {:description ["Reads a form from STDIN as binary data."
+                        "See `out.bin`."]}}
+
+  []
+
+  [:cvm.sreq :in.bin])
+
+
+
 (defn in.ln
 
   ^{:doc {:description ["Reads a line from STDIN."
-                        "Returns a list of forms."]}}
+                        "Returns a list of forms."
+                        "See `out.ln`."]}}
 
   []
 
@@ -204,7 +216,7 @@
 
 (defn out
 
-  ^{:doc {:description ["Outputs the given argument."
+  ^{:doc {:description ["Writes the given argument to STDOUT as text."
                         "See `out.flush`."]
           :examples    [{:code "(sreq/out 42)"}]
           :signature   [{:params [x]}]
@@ -213,6 +225,18 @@
   [x]
 
   [:cvm.sreq :out x])
+
+
+
+(defn out.bin
+
+  ^{:doc {:description ["Writes the given argument to STDOUT as binary data prefixed by a long indicating length."
+                        "More efficient than `out` at the expense of not being human-readable."
+                        "See `out.flush`, `in.bin`."]}}
+
+  [x]
+
+  [:cvm.sreq :out.bin x])
 
 
 
@@ -231,7 +255,8 @@
 
   (defn out.ln
   
-    ^{:doc {:description "Like [[out]] but appends a new line and flushes."}}
+    ^{:doc {:description ["Like [[out]] but appends a new line and flushes."
+                          "See `in.ln`."]}}
   
     [x]
   

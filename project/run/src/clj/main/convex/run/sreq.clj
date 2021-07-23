@@ -9,9 +9,11 @@
 
   (:import (convex.core.data AVector)
            (convex.core.data.prim CVMLong)
-           (java.io IOException))
+           (java.io IOException)
+           (java.nio ByteBuffer))
   (:require [convex.cvm      :as $.cvm]
             [convex.data     :as $.data]
+            [convex.encode   :as $.encode]
             [convex.read     :as $.read]
             [convex.run.ctx  :as $.run.ctx]
             [convex.run.err  :as $.run.err]
@@ -381,6 +383,19 @@
 
 (defmethod $.run.exec/sreq
 
+  $.run.kw/in-bin
+
+  [env _tuple]
+
+  ($.run.ctx/def-result env
+                        ($.read/byte-buffer (ByteBuffer/wrap (.readNBytes System/in
+                                                                          (.getLong (ByteBuffer/wrap (.readNBytes System/in
+                                                                                                                  8))))))))
+
+
+
+(defmethod $.run.exec/sreq
+
   $.run.kw/in-ln
 
   [env tuple]
@@ -429,6 +444,31 @@
    env
    (.get tuple
          2)))
+
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/out-bin
+
+  ;; Outputs the given value as binary data.
+
+  [env ^AVector tuple]
+
+  (let [bb-data ($.encode/byte-buffer (.get tuple
+                                            2))
+        n-byte  (.limit bb-data)]
+    (.write System/out
+            (let [ba        (byte-array 8)
+                  bb-length (ByteBuffer/wrap ba)]
+              (.putLong bb-length
+                        n-byte)
+              ba))
+    (.write System/out
+            (.array bb-data)
+            0
+            n-byte))
+  env)
 
 
 

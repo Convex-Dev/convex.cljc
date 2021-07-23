@@ -94,6 +94,11 @@
 
 
 
+(def ^Keyword in-bin
+              ($.data/keyword "in.bin"))
+
+
+
 (def ^Keyword in-ln
               ($.data/keyword "in.ln"))
 
@@ -111,6 +116,11 @@
 
 (def ^Keyword out
               ($.data/keyword "out"))
+
+
+
+(def ^Keyword out-bin
+              ($.data/keyword "out.bin"))
 
 
 
