@@ -253,6 +253,7 @@
            (sreq env-3
                  res)
            (catch Throwable _ex
+             (println :EX _ex)
              ($.run.err/signal env-3
                                ($.data/code-std* :FATAL)
                                ($.data/string "Unknown error happened while finalizing transaction")))))))))

@@ -7,7 +7,8 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.data AVector)
+  (:import (convex.core.data AVector
+                             Format)
            (convex.core.data.prim CVMLong)
            (java.io IOException
                     FileDescriptor
@@ -389,10 +390,19 @@
 
   [env _tuple]
 
-  ($.run.ctx/def-result env
-                        ($.read/byte-buffer (ByteBuffer/wrap (.readNBytes System/in
-                                                                          (.getLong (ByteBuffer/wrap (.readNBytes System/in
-                                                                                                                  8))))))))
+  (let [ba (byte-array Format/MAX_VLC_LONG_LENGTH)]
+    (loop [i 0]
+      (let [b (.read System/in)]
+        (aset-byte ba
+                   i
+                   b)
+        (if (bit-test b
+                      8)
+          (recur (inc i))
+          ($.run.ctx/def-result env
+                                ($.read/byte-buffer (ByteBuffer/wrap (.readNBytes System/in
+                                                                                  (Format/readVLCLong ba
+                                                                                                      0))))))))))
 
 
 
@@ -463,17 +473,14 @@
                                               2))
           n-byte  (.limit bb-data)]
       (.write out
-              (let [ba        (byte-array 8)
-                    bb-length (ByteBuffer/wrap ba)]
-                (.putLong bb-length
-                          n-byte)
+              (let [ba (byte-array (Format/getVLCLength n-byte))]
+                (Format/writeVLCLong (ByteBuffer/wrap ba)
+                                     n-byte)
                 ba))
       (.write out
               (.array bb-data)
               0
-              n-byte)
-      ;(.flush out)
-      )
+              n-byte))
     env))
 
 
