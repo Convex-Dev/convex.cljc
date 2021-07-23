@@ -9,7 +9,9 @@
 
   (:import (convex.core.data AVector)
            (convex.core.data.prim CVMLong)
-           (java.io IOException)
+           (java.io IOException
+                    FileDescriptor
+                    FileOutputStream)
            (java.nio ByteBuffer))
   (:require [convex.cvm      :as $.cvm]
             [convex.data     :as $.data]
@@ -447,28 +449,32 @@
 
 
 
-(defmethod $.run.exec/sreq
+(let [out (FileOutputStream. FileDescriptor/out)]
 
-  $.run.kw/out-bin
+  (defmethod $.run.exec/sreq
 
-  ;; Outputs the given value as binary data.
+    $.run.kw/out-bin
 
-  [env ^AVector tuple]
+    ;; Outputs the given value as binary data.
 
-  (let [bb-data ($.encode/byte-buffer (.get tuple
-                                            2))
-        n-byte  (.limit bb-data)]
-    (.write System/out
-            (let [ba        (byte-array 8)
-                  bb-length (ByteBuffer/wrap ba)]
-              (.putLong bb-length
-                        n-byte)
-              ba))
-    (.write System/out
-            (.array bb-data)
-            0
-            n-byte))
-  env)
+    [env ^AVector tuple]
+
+    (let [bb-data ($.encode/byte-buffer (.get tuple
+                                              2))
+          n-byte  (.limit bb-data)]
+      (.write out
+              (let [ba        (byte-array 8)
+                    bb-length (ByteBuffer/wrap ba)]
+                (.putLong bb-length
+                          n-byte)
+                ba))
+      (.write out
+              (.array bb-data)
+              0
+              n-byte)
+      ;(.flush out)
+      )
+    env))
 
 
 
