@@ -537,6 +537,30 @@
 
 (defmethod $.run.exec/sreq
 
+  $.run.kw/mode-eval
+
+  [env _tuple]
+
+  (assoc env
+         :convex.run/mode
+         $.run.exec/mode-eval))
+
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/mode-exec
+
+  [env _tuple]
+
+  (assoc env
+         :convex.run/mode
+         $.run.exec/mode-exec))
+
+
+
+(defmethod $.run.exec/sreq
+
   $.run.kw/out
 
   ;; Outputs the given value using the output hook.

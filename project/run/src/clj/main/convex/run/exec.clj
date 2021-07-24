@@ -35,18 +35,18 @@
 
 (defn update-ctx
 
-  "Refills the current context with maximum juice and calls `f` with that context and `form`.
+  "Refills the current context with maximum juice and calls `f` with that context and `trx`.
   
    The context is then reattached to `env`.
   
    In case of a CVM exception, a descriptive error map is created passed to [[convex.run.err/signal]]."
 
-  [env kw-phase f form]
+  [env kw-phase f trx]
 
   (let [ctx (f (-> env
                    :convex.sync/ctx
                    $.cvm/juice-refill)
-               form)
+               trx)
         ex  ($.cvm/exception ctx)]
     (cond->
       (assoc env
@@ -55,7 +55,7 @@
       ex
       ($.run.err/signal ($.run.err/error ex
                                          kw-phase
-                                         form)))))
+                                         trx)))))
 
 
 ;;;;;;;;;; Special transactions
@@ -105,7 +105,7 @@
 
 (defn expand
 
-  "Expands the given `form` using the current context."
+  "Expands the given `trx` using the current context."
 
 
   ([env]
@@ -114,18 +114,18 @@
            (result env)))
 
 
-  ([env form]
+  ([env trx]
 
    (update-ctx env
                $.run.kw/expand
                $.cvm/expand
-               form)))
+               trx)))
 
 
 
 (defn compile
 
-  "Compiles the given, previously expandend `form` using the current context.
+  "Compiles the given, previously expanded `trx` using the current context.
 
    See [[expand]]."
 
@@ -136,18 +136,18 @@
             (result env)))
 
 
-  ([env form]
+  ([env trx-canonical]
 
    (update-ctx env
                $.run.kw/compile
                $.cvm/compile
-               form)))
+               trx-canonical)))
 
 
 
 (defn exec
 
-  "Runs the given, previously compiled `form` using the current context.
+  "Runs the given, previously compiled `trx` using the current context.
   
    See [[compile]]."
 
@@ -158,40 +158,15 @@
          (result env)))
 
 
-  ([env form]
+  ([env trx-compiled]
 
    (update-ctx env
                $.run.kw/exec
                $.cvm/exec
-               form)))
+               trx-compiled)))
 
 
 ;;; Modes, evaluating code and tracking juice cost differently
-
-
-(defn mode-exec
-
-  "Evaluates `trx` but reported juice will only account for the [[exec]] phase."
-
-
-  ([env]
-
-   (mode-exec env
-              (result env)))
-
-
-  ([env form]
-
-   (let [env-2 (expand env
-                       form)]
-     (if (env-2 :convex.run/error)
-       env-2
-       (let [env-3 (compile env
-                            form)]
-         (if (env-3 :convex.run/error)
-           env-3
-           (exec env-3)))))))
-
 
 
 (defn mode-eval
@@ -206,12 +181,37 @@
               (result env)))
 
 
-  ([env form]
+  ([env trx]
 
    (update-ctx env
                $.run.kw/eval
                $.cvm/eval
-               form)))
+               trx)))
+
+
+
+(defn mode-exec
+
+  "Evaluates `trx` but reported juice will only account for the [[exec]] phase."
+
+
+  ([env]
+
+   (mode-exec env
+              (result env)))
+
+
+  ([env trx]
+
+   (let [env-2 (expand env
+                       trx)]
+     (if (env-2 :convex.run/error)
+       env-2
+       (let [env-3 (compile env
+                            trx)]
+         (if (env-3 :convex.run/error)
+           env-3
+           (exec env-3)))))))
 
 
 ;;;;;;;;;; Transactions
@@ -219,12 +219,14 @@
 
 (defn trx
 
-  "Evaluates the given `form` as a transaction.
+  "Evaluates the given transaction.
   
    Result from current context is used if not provided.
   
-   Essentially, setups the situation with [[convex.run.ctx/trx-begin]], runs [[eval]], updates important
-   definitions using [[convex.run.ctx/trx-end]] and processes special request if needed."
+   Essentially, setups the situation with [[convex.run.ctx/trx-begin]], evaluates using the current mode, updates
+   important definitions using [[convex.run.ctx/trx-end]] and processes special request if needed.
+  
+   Mode is defined under `:convex.run/mode`. Se [[mode-eval]], [[mode-exec]]."
 
 
   ([env]
@@ -233,13 +235,14 @@
         (result env)))
 
 
-  ([env form]
+  ([env trx]
 
    (let [env-2 (-> env
                    (update :convex.run/i-trx
                            inc)
-                   ($.run.ctx/trx-begin form)
-                   (mode-exec form))]
+                   ($.run.ctx/trx-begin trx)
+                   ((env :convex.run/mode)
+                    trx))]
      (if (env-2 :convex.run/error)
        env-2
        (let [ctx        (env :convex.sync/ctx)
@@ -250,14 +253,13 @@
                             (update :convex.run/juice-total
                                     +
                                     juice-last)
-                            ($.run.ctx/trx-end form
+                            ($.run.ctx/trx-end trx
                                                juice-last
                                                res))]
          (try
            (sreq env-3
                  res)
            (catch Throwable _ex
-             (println :EX _ex)
              ($.run.err/signal env-3
                                ($.data/code-std* :FATAL)
                                ($.data/string "Unknown error happened while finalizing transaction")))))))))
@@ -279,9 +281,9 @@
 
   ([env trx+]
 
-   (reduce (fn [env-2 form]
+   (reduce (fn [env-2 cell]
              (let [env-3 (trx env-2
-                              form)]
+                              cell)]
                (if (env-3 :convex.run/error)
                  (reduced env-3)
                  env-3)))

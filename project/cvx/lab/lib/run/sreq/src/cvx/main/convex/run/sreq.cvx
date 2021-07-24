@@ -159,6 +159,7 @@
   [:cvm.sreq :exit status])
 
 
+
 (defn hook.end
 
   ^{:doc {:description ["Registers the given sequence of quoted transactions to be executed at the end, even if an error occured."
@@ -301,6 +302,26 @@
   []
 
   [:cvm.sreq :log])
+
+
+
+(defn mode.eval
+
+  ^{:doc {:description ""}}
+
+  []
+
+  [:cvm.sreq :mode.eval])
+
+
+
+(defn mode.exec
+
+  ^{:doc {:description ""}}
+
+  []
+
+  [:cvm.sreq :mode.exec])
 
 
 

@@ -19,8 +19,8 @@
 ;;
 ;; Ensure file paths are correct when testing this.
 ;;
-(sreq/dep {store "project/cvx/lab/lib/xform/src/cvx/dev/convex/xform/store.cvx"
-           xform "project/cvx/lab/lib/xform/src/cvx/main/convex/xform.cvx"})
+; (sreq/dep {store "project/cvx/lab/lib/xform/src/cvx/dev/convex/xform/store.cvx"
+;            xform "project/cvx/lab/lib/xform/src/cvx/main/convex/xform.cvx"})
 
 
 
@@ -311,41 +311,30 @@
 
 ;; Implementing a very simple REPL which read forms entered by the user, executes them and prints the result.
 ;;
-;_(defn repl
-;
-; []
-;
-; (sreq/do '[(sreq/out "> ")
-;            (sreq/out.flush)
-;            (sreq/in.line)
-;            (let [form+ help/*trx.last.result*]
-;              (if (>= (count form+)
-;                             1)
-;                (when-not (= (first form+)
-;                             :repl.stop)
-;                  (sreq/do `[(sreq/out help/line)
-;                             (sreq/try '[(eval (quote ~(if (> (count form+)
-;                                                              1)
-;                                                         (cons 'do
-;                                                               form+)
-;                                                         (first form+))))
-;                                         (sreq/out! help/*trx.last.result*)]
-;                                       '[(sreq/out! (list 'quote
-;                                                          help/*error*))])
-;                             (sreq/out help/line)
-;                             (sreq/out.flush)
-;                             (repl)]))
-;                (repl)))]))
-;
-;(repl)
+(defn repl
 
+  []
+ 
+  (sreq/do '[(sreq/out "> ")
+             (sreq/out.flush)
+             (sreq/in.line)
+             (let [form+  help/*trx.last.result*
+                   n-form (count form+)]
+               (if (>= n-form
+                       1)
+                 (when-not (= (first form+)
+                              :exit)
+                   (sreq/do `[(sreq/out help/line)
+                              (sreq/try '[~(if (= n-form
+                                                  1)
+                                             (first form+)
+                                             (cons 'do
+                                                   form+))
+                                          (sreq/out! help/*trx.last.result*)]
+                                        '[(sreq/out! help/*error*)])
+                              (sreq/out help/line)
+                              (sreq/out.flush)
+                              (repl)]))
+                 (repl)))]))
 
-
-
-42
-
-
-(sreq/out! help/*trx.last.juice*)
-
-
-
+(repl)

@@ -98,8 +98,7 @@
             [convex.run.sym   :as $.run.sym]
             [convex.run.sreq]
             [convex.sync      :as $.sync]
-            [convex.watch     :as $.watch]
-            [convex.write     :as $.write]))
+            [convex.watch     :as $.watch]))
 
 
 (declare sym->dep)
@@ -249,6 +248,9 @@
 
 
 
+      (assoc :convex.run/mode
+             $.run.exec/mode-eval)
+             
 
       (assoc :convex.run/stream+
              {0 [$.io/stdin-txt

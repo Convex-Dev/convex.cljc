@@ -139,6 +139,16 @@
 
 
 
+(def ^Keyword mode-eval
+              ($.data/keyword "mode-eval"))
+
+
+
+(def ^Keyword mode-exec
+              ($.data/keyword "mode-exec"))
+
+
+
 (def ^Keyword out
               ($.data/keyword "out"))
 
