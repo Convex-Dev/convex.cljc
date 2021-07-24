@@ -127,6 +127,8 @@
 
   "Error map describing failure when preparing the main source."
 
+  ^AMap
+
   [message]
 
   (-> ($.data/error ($.data/code-std* :FATAL)
@@ -139,6 +141,8 @@
 
   "Error map describing failure when accessing the main file."
 
+  ^AMap
+
   []
 
   (main-src "Main file not found or not accessible"))
@@ -148,6 +152,8 @@
 (defn sreq
 
   "Error map describing an error that occured when performing an operation for a special request."
+
+  ^AMap
 
   [code ^ACell trx message]
 
@@ -166,13 +172,13 @@
    See 'sync' project, the [[convex.sync]] namespace."
 
 
-  ([[kind arg]]
+  (^AMap [[kind arg]]
 
    (sync kind
          arg))
 
 
-  ([kind arg]
+  (^AMap [kind arg]
 
    (-> ($.data/error ($.data/code-std* :FATAL)
                      (case kind
@@ -201,6 +207,7 @@
 
   "Error map describing unknown failure when setting up the file watcher."
 
+  ^AMap
   []
 
   (-> ($.data/error ($.data/code-std* :FATAL)

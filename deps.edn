@@ -358,6 +358,14 @@
 
   ;---
 
+  :project/io
+
+  {:extra-paths  ["project/io/src/clj/main"]
+   :maestro/doc  "Basic IO utilities."
+   :maestro/root "project/io"}
+
+  ;---
+
   :project/run
 
   {:extra-paths     ["project/run/src/clj/main"]
@@ -366,6 +374,7 @@
                      :project/cvx.lab.lib.run.help
                      :project/cvx.lab.lib.run.sreq
                      :project/cvx.lab.lib.run.test
+                     :project/io
                      :project/sync
                      :project/watch]
    :maestro/root    "project/run"}

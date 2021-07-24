@@ -26,17 +26,18 @@
 
 ;; Clears the terminal.
 ;;
-(sreq/screen.clear)
+;(sreq/screen.clear)
 
 
 
 ;; Prints nice information at the start of a run.
 ;;
-(sreq/out.ln (str "Run N°" (inc help/*cycle*)
-                  help/line
-                  help/line
-                  "OUTPUT:"
-                  help/line))
+(sreq/out! (str "\033[H\033[2J"
+                "Run N°" (inc help/*cycle*)
+                help/line
+                help/line
+                "OUTPUT:"
+                help/line))
 
 
 ;;;;;;;;;; HELP LIBRARY
@@ -311,12 +312,12 @@
 ;; Implementing a very simple REPL which read forms entered by the user, executes them and prints the result.
 ;;
 ; (defn repl
-;
+; 
 ;   []
-;
+; 
 ;   (sreq/do '[(sreq/out "> ")
 ;              (sreq/out.flush)
-;              (sreq/in.ln)
+;              (sreq/in.line)
 ;              (let [form+ help/*trx.last.result*]
 ;                (when-not (and (not (nil? form+))
 ;                               (>= (count form+)
@@ -326,10 +327,10 @@
 ;                  (sreq/do `[(sreq/out help/line)
 ;                             (sreq/try '[(eval ~(cons 'do
 ;                                                      form+))
-;                                         (sreq/out.ln help/*trx.last.result*)]
-;                                       '[(sreq/out.ln (list 'quote
-;                                                            help/*error*))])
-;                             (sreq/out.ln "")
+;                                         (sreq/out! help/*trx.last.result*)]
+;                                       '[(sreq/out! (list 'quote
+;                                                          help/*error*))])
+;                             (sreq/out! nil)
 ;                             (repl)])))]))
 ; 
-;(repl)
+; (repl)

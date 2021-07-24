@@ -19,6 +19,56 @@
                  :name "Convex Lisp Runner Special Requests"}))
 
 
+;; STDIO STREAMS
+
+
+(def stdin.txt
+
+  ^{:doc {:description ""}}
+
+  0)
+
+
+
+(def stdin.bin
+
+  ^{:doc {:description ""}}
+
+  1)
+
+
+
+(def stdout.txt
+
+  ^{:doc {:description ""}}
+
+  2)
+
+
+
+(def stdout.bin
+
+  ^{:doc {:description ""}}
+
+  3)
+
+
+
+(def stderr.txt
+
+  ^{:doc {:description ""}}
+
+  4)
+
+
+
+(def stderr.bin
+
+  ^{:doc {:description ""}}
+
+  5)
+
+
 ;; SPECIAL REQUESTS
 
 
@@ -177,26 +227,66 @@
 
 
 
-(defn in.bin
+(defn in
 
-  ^{:doc {:description ["Reads a form from STDIN as binary data."
+  ^{:doc {:description ["Reads a cell form from input."
                         "See `out.bin`."]}}
 
-  []
 
-  [:cvm.sreq :in.bin])
+  ([]
+
+   (in nil))
+
+
+  ([stream]
+
+   [:cvm.sreq :in stream]))
 
 
 
-(defn in.ln
+(defn in+
+
+  ^{:doc {:description ["Reads a cell form from input."
+                        "See `out.bin`."]}}
+
+
+  ([]
+
+   (in+ nil))
+
+
+  ([stream]
+
+   [:cvm.sreq :in+ stream]))
+
+
+
+(defn in.line
 
   ^{:doc {:description ["Reads a line from STDIN."
                         "Returns a list of forms."
                         "See `out.ln`."]}}
 
-  []
 
-  [:cvm.sreq :in.ln])
+  ([]
+
+   (in.line nil))
+
+
+  ([stream]
+
+   [:cvm.sreq :in.line stream]))
+
+
+
+(defn in.set
+
+  ^{:doc {:description ""}}
+
+  [stream]
+
+  (assert (long? stream))
+  [:cvm.sreq :in.set stream])
 
 
 
@@ -222,21 +312,38 @@
           :signature   [{:params [x]}]
           :type        :function}}
 
-  [x]
 
-  [:cvm.sreq :out x])
+  ([x]
+
+   (out nil
+        x))
+
+
+  ([stream x]
+
+   [:cvm.sreq :out stream x]))
 
 
 
-(defn out.bin
+(defn out!
 
-  ^{:doc {:description ["Writes the given argument to STDOUT as binary data prefixed by a long indicating length."
-                        "More efficient than `out` at the expense of not being human-readable."
-                        "See `out.flush`, `in.bin`."]}}
+  ^{:doc {:description ["Writes the given argument to STDOUT as text."
+                        "See `out.flush`."]
+          :examples    [{:code "(sreq/out 42)"}]
+          :signature   [{:params [x]}]
+          :type        :function}}
 
-  [x]
 
-  [:cvm.sreq :out.bin x])
+  ([x]
+
+   (out! nil
+         x))
+
+
+  ([stream x]
+
+   [:cvm.sreq :out! stream x]))
+
 
 
 
@@ -244,28 +351,27 @@
 
   ^{:doc {:description "Flushes what has been outputted with `out`."}}
 
-  []
 
-  [:cvm.sreq :out.flush])
+  ([]
+
+   (out.flush nil))
+
+
+  ([stream]
+
+   [:cvm.sreq :out.flush stream]))
 
 
 
-(let [;; Help library is deployed right after this one.
-      help (address (inc (long *address*)))]
+(defn out.set
 
-  (defn out.ln
-  
-    ^{:doc {:description ["Like [[out]] but appends a new line and flushes."
-                          "See `in.ln`."]}}
-  
-    [x]
-  
-    [:cvm.sreq
-     :do
-     `[(sreq/out ~x)
-       (sreq/out ~help/line)
-       (sreq/out.flush)]]))
-  
+  ^{:doc {:description ""}}
+
+  [stream]
+
+  (assert (long? stream))
+  [:cvm.sreq :out.set stream])
+
 
 
 (defn read

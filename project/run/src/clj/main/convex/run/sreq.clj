@@ -7,21 +7,17 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.data AVector
-                             Format)
+  (:import (convex.core.data AVector)
            (convex.core.data.prim CVMLong)
-           (java.io IOException
-                    FileDescriptor
-                    FileOutputStream)
-           (java.nio ByteBuffer))
+           (java.io BufferedReader))
   (:require [convex.cvm      :as $.cvm]
             [convex.data     :as $.data]
+            [convex.io       :as $.io]
             [convex.read     :as $.read]
             [convex.run.ctx  :as $.run.ctx]
             [convex.run.err  :as $.run.err]
             [convex.run.exec :as $.run.exec]
             [convex.run.kw   :as $.run.kw]
-            [convex.run.sym  :as $.run.sym]
             [convex.write    :as $.write]))
 
 
@@ -68,6 +64,83 @@
          (update :convex.run/restore
                  dissoc
                  kw)))))
+
+
+
+
+(defn err-stream-not-found
+
+  ""
+
+  [env]
+
+  ($.run.err/signal env
+                    $.run.kw/err-stream
+                    ($.data/string "Stream closed or does not exist")))
+
+
+(defn stream-id
+
+  ""
+
+  [env kw-default tuple]
+
+  (or (some-> ^CVMLong (.get tuple
+                             2)
+              .longValue)
+      (env kw-default)))
+
+
+
+(defn stream
+
+  ""
+
+  [env kw-default ^AVector tuple capability f]
+
+  (if-some [id (or (some-> ^CVMLong (.get tuple
+                                          2)
+                           .longValue)
+                   (env kw-default))]
+    (try
+      
+      ($.run.ctx/def-result env
+                            (f (get-in env
+                                       [:convex.run/stream+
+                                        id])))
+
+      (catch ClassCastException _ex
+        ($.run.err/signal env
+                          ($.data/code-std* :ARGUMENT)
+                          ($.data/string (str "Stream is missing capability: "
+                                              capability))))
+
+      (catch Throwable _ex
+        ($.run.err/signal env
+                          $.run.kw/err-stream
+                          ($.data/string (str "Stream failed while performing: "
+                                              capability)))))
+    (err-stream-not-found env)))
+
+
+
+(defn stream-set
+
+  ""
+
+  [env kw ^AVector tuple]
+
+  (let [id (.longValue ^CVMLong (.get tuple
+                                      2))]
+    (if (some? (get-in env
+                       [:convex.run/stream+
+                        id]))
+      (assoc env
+             kw
+             id)
+      (err-stream-not-found env))))
+
+  
 
 
 ;;;;;;;;;; Setup
@@ -386,37 +459,66 @@
 
 (defmethod $.run.exec/sreq
 
-  $.run.kw/in-bin
+  $.run.kw/in
 
-  [env _tuple]
+  [env tuple]
 
-  ($.run.ctx/def-result env
-                        ($.read/stream-bin System/in)))
+  (stream env
+          :convex.run/in
+          tuple
+          "read"
+          (fn [[stream mode]]
+            ((case mode
+               :bin $.read/stream-bin
+               :txt $.read/stream-txt)
+             stream))))
 
 
 
 (defmethod $.run.exec/sreq
 
-  $.run.kw/in-ln
+  $.run.kw/in+
 
   [env tuple]
 
-  (try
+  (stream env
+          :convex.run/in
+          tuple
+          "read"
+          (fn [[stream mode]]
+            ((case mode
+               :bin $.read/stream-bin+
+               :txt $.read/stream-txt+)
+             stream))))
 
-    ($.run.ctx/def-result env
-                          (if-some [line (read-line)]
-                            ($.read/string+ line)
-                            nil))
 
-    (catch IOException _ex
-      ($.run.ctx/def-result env
-                            nil))
 
-    (catch Throwable _ex
-      ($.run.err/signal env
-                        ($.run.err/sreq $.run.kw/err-reader
-                                        tuple
-                                        ($.data/string "While reading a line from STDIN."))))))
+(defmethod $.run.exec/sreq
+
+  $.run.kw/in-line
+
+  [env tuple]
+
+  (stream env
+          :convex.run/in
+          tuple
+          "read line"
+          (fn [[stream _mode]]
+            (-> stream
+                BufferedReader.
+                $.read/line))))
+
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/in-set
+
+  [env tuple]
+
+  (stream-set env
+              :convex.run/in
+              tuple))
 
 
 
@@ -441,27 +543,44 @@
 
   [env ^AVector tuple]
 
-  ((env :convex.run.hook/out)
-   env
-   (.get tuple
-         2)))
+  (stream env
+          :convex.run/out
+          tuple
+          "write"
+          (fn [[stream mode]]
+            (let [cell (.get tuple
+                             3)]
+              ((case mode
+                 :bin $.write/stream-bin
+                 :txt $.write/stream-txt)
+               stream
+               cell)
+              cell))))
 
 
 
-(let [out (FileOutputStream. FileDescriptor/out)]
+(defmethod $.run.exec/sreq
 
-  (defmethod $.run.exec/sreq
+  $.run.kw/out!
 
-    $.run.kw/out-bin
+  [env ^AVector tuple]
 
-    ;; Outputs the given value as binary data.
-
-    [env ^AVector tuple]
-
-    ($.write/stream-bin out
-                        (.get tuple
-                              2))
-    env))
+  (stream env
+          :convex.run/out
+          tuple
+          "write"
+          (fn [[stream mode]]
+            (let [cell (.get tuple
+                             3)]
+              (case mode
+                :bin ($.write/stream-bin stream
+                                         cell)
+                :txt (do
+                       ($.write/stream-txt stream
+                                           cell)
+                       ($.io/newline stream)))
+              ($.io/flush stream)
+              cell))))
 
 
 
@@ -471,10 +590,27 @@
 
   ;; Outputs the given value using the output hook.
 
-  [env _tuple]
+  [env ^AVector tuple]
 
-  ((env :convex.run/flush)
-   env))
+  (stream env
+          :convex.run/out
+          tuple
+          "flush"
+          (fn [[stream _mode]]
+            ($.io/flush stream)
+            nil)))
+
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/out-set
+
+  [env tuple]
+
+  (stream-set env
+              :convex.run/out
+              tuple))
 
 
 

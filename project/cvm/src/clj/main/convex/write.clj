@@ -14,7 +14,8 @@
                              Format)
            (java.io OutputStream
                     Writer)
-           (java.nio ByteBuffer)))
+           (java.nio ByteBuffer)
+           (java.nio.channels Channels)))
 
 
 ;;;;;;;;;;
@@ -34,7 +35,9 @@
 
 (defn byte-buffer
 
-  "Encodes the given `cell` into a `java.nio.ByteBuffer`."
+  "Encodes the given `cell` into a `java.nio.ByteBuffer`.
+  
+   Attention, for small data such as primitives, returned buffer might be read-only."
 
   ^ByteBuffer
 
@@ -62,20 +65,21 @@
 
   ^OutputStream
 
-  [^OutputStream os ^ACell cell]
+  [^OutputStream output-stream ^ACell cell]
 
-  (let [bb-data (byte-buffer cell)
+  (let [ch      (Channels/newChannel output-stream)
+        bb-data (byte-buffer cell)
         n-byte  (.limit bb-data)]
-    (.write os
-            (let [ba (byte-array (Format/getVLCLength n-byte))]
-              (Format/writeVLCLong (ByteBuffer/wrap ba)
+    (.write ch
+            (let [bb (ByteBuffer/allocate (Format/getVLCLength n-byte))]
+              (Format/writeVLCLong bb
                                    n-byte)
-              ba))
-    (.write os
-            (.array bb-data)
-            0
-            n-byte))
-  os)
+              (.position bb
+                         0)
+              bb))
+    (.write ch
+            bb-data))
+  output-stream)
 
 
 

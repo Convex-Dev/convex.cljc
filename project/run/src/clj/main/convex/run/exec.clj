@@ -302,7 +302,9 @@
               :convex.run/state-stack)
       (merge (env :convex.run/restore))
       (assoc :convex.run/i-trx       -1
-             :convex.run/juice-total 0)
+             :convex.run/in          0
+             :convex.run/juice-total 0
+             :convex.run/out         2)
       $.run.ctx/cycle
       trx+
       (as->

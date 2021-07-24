@@ -14,7 +14,8 @@
                              Blob
                              Format)
            (convex.core.lang.reader AntlrReader)
-           (java.io FileInputStream
+           (java.io BufferedReader
+                    FileInputStream
                     InputStream
                     Reader)
            (java.nio ByteBuffer)
@@ -25,12 +26,52 @@
       true)
 
 
-(declare byte-buffer
-         stream-bin
-         stream-bin+)
+(declare stream-bin
+         stream-bin+
+         string+)
 
 
-;;;;;;;;;; ANTLR Reader
+;;;;;;;;;;
+
+
+(defn blob
+
+  "Reads one binary cell from the given CVX blob."
+
+  ^ACell
+
+  [^Blob blob]
+
+  (Format/read blob))
+
+
+
+(defn byte-buffer
+
+  "Reads one binary cell from the given `java.nio.ByteBuffer`."
+
+  ^ACell
+
+  [^ByteBuffer bb]
+
+  (Format/read bb))
+
+
+
+(defn byte-buffer+
+
+  "Like [[byte-buffer]] but reads all available cells and returns them in a CVX list."
+
+  ^AList
+
+  [^ByteBuffer bb]
+
+  (loop [acc []]
+    (if (.hasRemaining bb)
+      (recur (conj acc
+                   (byte-buffer bb)))
+      ($.data/list acc))))
+
 
 
 (defn file-bin
@@ -81,6 +122,29 @@
 
 
 
+(defn hex-string
+
+  "Reads one binary cell from the given hex string."
+
+  ^ACell
+
+  [^String string]
+
+  (Format/read string))
+
+
+
+(defn line
+
+  "Reads a line from the given `java.io.BufferedReader` and parses the result as a CVX list of cells."
+
+  [^BufferedReader buffered-reader]
+
+  (some-> (.readLine buffered-reader)
+          string+))
+
+
+
 (defn stream-bin
 
   "Reads one binary cell from the given `java.io.InputStream` (parent class of bin streams)..
@@ -93,9 +157,9 @@
 
   ^ACell
 
-  [^InputStream is]
+  [^InputStream input-stream]
 
-  (let [b-first (.read is)]
+  (let [b-first (.read input-stream)]
     (when-not (= b-first
                  -1)
       (let [ba (byte-array Format/MAX_VLC_LONG_LENGTH)]
@@ -106,9 +170,9 @@
                      b)
           (if (bit-test b
                         8)
-            (recur (.read is)
+            (recur (.read input-stream)
                    (inc i))
-            (byte-buffer (ByteBuffer/wrap (.readNBytes is
+            (byte-buffer (ByteBuffer/wrap (.readNBytes input-stream
                                                        (Format/readVLCLong ba
                                                                            0))))))))))
 
@@ -120,10 +184,10 @@
 
   ^AList
 
-  [is]
+  [input-stream]
 
   (loop [acc []]
-    (if-some [cell (stream-bin is)]
+    (if-some [cell (stream-bin input-stream)]
       (recur (conj acc
                    cell))
       ($.data/list acc))))
@@ -175,57 +239,3 @@
   [^String string]
 
   (AntlrReader/readAll string))
-
-
-;;;;;;;;; Decoding
-
-
-(defn blob
-
-  "Reads one binary cell from the given CVX blob."
-
-  ^ACell
-
-  [^Blob blob]
-
-  (Format/read blob))
-
-
-
-(defn byte-buffer
-
-  "Reads one binary cell from the given `java.nio.ByteBuffer`."
-
-  ^ACell
-
-  [^ByteBuffer bb]
-
-  (Format/read bb))
-
-
-
-(defn byte-buffer+
-
-  "Like [[byte-buffer]] but reads all available cells and returns them in a CVX list."
-
-  ^AList
-
-  [^ByteBuffer bb]
-
-  (loop [acc []]
-    (if (.hasRemaining bb)
-      (recur (conj acc
-                   (byte-buffer bb)))
-      ($.data/list acc))))
-
-
-
-(defn hex-string
-
-  "Reads one binary cell from the given hex string."
-
-  ^ACell
-
-  [^String string]
-
-  (Format/read string))

@@ -90,6 +90,7 @@
             [convex.data      :as $.data]
             [convex.read      :as $.read]
             [convex.cvm       :as $.cvm]
+            [convex.io        :as $.io]
             [convex.run.ctx   :as $.run.ctx]
             [convex.run.err   :as $.run.err]
             [convex.run.exec  :as $.run.exec]
@@ -97,7 +98,8 @@
             [convex.run.sym   :as $.run.sym]
             [convex.run.sreq]
             [convex.sync      :as $.sync]
-            [convex.watch     :as $.watch]))
+            [convex.watch     :as $.watch]
+            [convex.write     :as $.write]))
 
 
 (declare sym->dep)
@@ -244,6 +246,39 @@
                      (when x
                        (print (str x)))
                      env-2)))
+
+
+
+
+      (assoc :convex.run/stream+
+             {0 [$.io/stdin-txt
+                 :txt]
+              1 [$.io/stdin-bin
+                 :bin]
+              2 [$.io/stdout-txt
+                 :txt]
+              3 [$.io/stdout-bin
+                 :bin]
+              4 [$.io/stderr-txt
+                 :txt]
+              5 [$.io/stderr-bin
+                 :bin]})
+
+
+      (assoc :convex.run/stream-id
+             5)
+
+      (assoc :convex.run/out
+             2)
+
+      (assoc :convex.run/in
+             0)
+
+      (assoc :convex.run/err
+             4)
+
+
+
       (update :convex.sync/ctx-base
               #(or %
                    $.run.ctx/base))
@@ -377,17 +412,19 @@
                  ;;
                  ($.watch/-stop env)
                  ($.watch/-start a*env
-                                 (dissoc env
-                                         :convex.run/error
-                                         :convex.run/i-trx
-                                         :convex.run/juice-last
-                                         :convex.run/state-stack
-                                         :convex.sync/ctx
-                                         :convex.sync/input+
-                                         :convex.sync/input->code
-                                         :convex.sync/input->cvm-sym
-                                         :convex.watch/error
-                                         :convex.watch/watcher)))]
+                                 (-> env
+                                     (assoc :convex.run/in  0
+                                            :convex.run/out 2)
+                                     (dissoc :convex.run/error
+                                             :convex.run/i-trx
+                                             :convex.run/juice-last
+                                             :convex.run/state-stack
+                                             :convex.sync/ctx
+                                             :convex.sync/input+
+                                             :convex.sync/input->code
+                                             :convex.sync/input->cvm-sym
+                                             :convex.watch/error
+                                             :convex.watch/watcher))))]
 
   (defn watch
 

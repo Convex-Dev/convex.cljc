@@ -59,6 +59,11 @@
 
 
 
+(def ^Keyword err-stream
+              ($.data/keyword "STREAM"))
+
+
+
 (def ^Keyword exit
               ($.data/keyword "exit"))
 
@@ -94,13 +99,23 @@
 
 
 
-(def ^Keyword in-bin
-              ($.data/keyword "in.bin"))
+(def ^Keyword in
+              ($.data/keyword "in"))
 
 
 
-(def ^Keyword in-ln
-              ($.data/keyword "in.ln"))
+(def ^Keyword in+
+              ($.data/keyword "in+"))
+
+
+
+(def ^Keyword in-line
+              ($.data/keyword "in.line"))
+
+
+
+(def ^Keyword in-set
+              ($.data/keyword "in.set"))
 
 
 
@@ -119,13 +134,18 @@
 
 
 
-(def ^Keyword out-bin
-              ($.data/keyword "out.bin"))
+(def ^Keyword out!
+              ($.data/keyword "out!"))
 
 
 
 (def ^Keyword out-flush
               ($.data/keyword "out.flush"))
+
+
+
+(def ^Keyword out-set
+              ($.data/keyword "out.set"))
 
 
 
