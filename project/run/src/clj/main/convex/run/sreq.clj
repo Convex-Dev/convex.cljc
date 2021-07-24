@@ -140,7 +140,6 @@
              id)
       (err-stream-not-found env))))
 
-  
 
 
 ;;;;;;;;;; Setup
@@ -541,9 +540,9 @@
 
   [env _tuple]
 
-  (assoc env
-         :convex.run/mode
-         $.run.exec/mode-eval))
+  ($.run.ctx/def-mode env
+                      $.run.exec/mode-eval
+                      $.run.kw/mode-eval))
 
 
 
@@ -553,9 +552,9 @@
 
   [env _tuple]
 
-  (assoc env
-         :convex.run/mode
-         $.run.exec/mode-exec))
+  ($.run.ctx/def-mode env
+                      $.run.exec/mode-exec
+                      $.run.kw/mode-exec))
 
 
 

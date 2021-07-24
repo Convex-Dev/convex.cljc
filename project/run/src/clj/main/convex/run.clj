@@ -246,10 +246,6 @@
                        (print (str x)))
                      env-2)))
 
-
-
-      (assoc :convex.run/mode
-             $.run.exec/mode-eval)
              
 
       (assoc :convex.run/stream+
@@ -286,6 +282,9 @@
                    $.run.ctx/base))
       ($.run.ctx/def-help :convex.sync/ctx-base
                           {$.run.sym/single-run? ($.data/boolean (env :convex.run/single-run?))})
+      ($.run.ctx/def-mode :convex.sync/ctx-base
+                          $.run.exec/mode-eval
+                          $.run.kw/mode-eval)
       $.run.ctx/init))
 
 

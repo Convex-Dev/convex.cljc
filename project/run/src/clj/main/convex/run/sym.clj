@@ -47,6 +47,11 @@
 
 
 
+(def ^Symbol mode
+             ($.data/symbol "*mode*"))
+
+
+
 (def ^Symbol single-run?
              ($.data/symbol "single-run?"))
 

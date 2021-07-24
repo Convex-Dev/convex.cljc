@@ -130,6 +130,31 @@
 
 
 
+(defn def-mode
+
+  "Defines the evaluation mode in the `help` account under `*mode*`.
+
+   See [[convex.run.exec/trx]]."
+
+
+  ([env mode-f mode-kw]
+
+   (def-mode env
+             :convex.sync/ctx
+             mode-f
+             mode-kw))
+
+
+  ([env kw-ctx mode-f mode-kw]
+
+   (-> env
+       (assoc :convex.run/mode
+              mode-f)
+       (def-help kw-ctx
+                 {$.run.sym/mode mode-kw}))))
+
+
+
 (defn def-result
 
   "Defines `help/*trx.last.result*` with the given `result`."

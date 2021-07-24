@@ -578,7 +578,10 @@
 
   "Evaluates the given `cell`, going efficiently through [[expand]], [[compile]], and [[exec]].
 
-   Works with any kind of `cell`
+   Works with any kind of `cell` and is sufficient when there is no need for fine-grained control.
+
+   An important difference with the aforementioned cycle is that the cell passes through `*lang*`, a function
+   possible set by the user for intercepting a cell in CVX (eg. modifying the cell and evaluating explicitley).
 
    Returns a new `ctx` with a [[result]] or an [[exception]] in case of failure."
 
