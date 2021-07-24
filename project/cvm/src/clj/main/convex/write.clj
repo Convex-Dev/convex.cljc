@@ -92,5 +92,7 @@
   [^Writer writer ^ACell cell]
 
   (.write writer
-          (str cell))
+          (if (nil? cell)
+            "nil"
+            (str cell)))
   writer)

@@ -23,13 +23,9 @@
              (->> form
                   ($.cvm/expand ($.cvm/ctx))
                   $.cvm/compile
-                  $.cvm/run
+                  $.cvm/exec
                   $.cvm/result)
              (->> form
                   ($.cvm/expand-compile ($.cvm/ctx))
-                  $.cvm/run
-                  $.cvm/result)
-             (->> form
-                  ($.cvm/expand-compile ($.cvm/ctx))
-                  $.cvm/query
+                  $.cvm/exec
                   $.cvm/result)))))

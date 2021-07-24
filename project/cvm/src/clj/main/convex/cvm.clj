@@ -1,16 +1,31 @@
 (ns convex.cvm
 
-  "A CVM context is needed for compiling and executing Convex code.
+  "Code execution in the CVM, altering state, and gaining insights.
 
-   It can be created using [[ctx]].
-  
-   This namespace provide all needed utilities for such endeavours as well functions for querying and altering useful properties. 
+   Central entities of this namespaces are contextes and they can be created using [[ctx]].
 
-   While the design of a context is mostly immutable, quite a few operations are mutable. Whenever a function takes a context and
-   returns one, the original one must be discarded (besides in [[fork]] for obvious reasons).
-  
-   Such operations consume juice and lead either to a successful [[result]] or to an [[exception]]. Functions that
-   do not return a context (eg. [[env]], [[juice]]) do not consume juice."
+   All other functions revolve around them. While the design of a context is mostly immutable, whenever an altering function
+   is applied (eg. [[juice-set]]) or code is handled in any way (eg. [[eval]]), old context must be discard and only returned
+   one should be used.
+
+   Cheap copies can be created using [[fork]].
+
+   Actions involving code (eg. [[compile]], [[exec]], ...) return a new context which holds either a [[result]] or an [[exception]].
+   Those actions always consume [[juice]].
+
+   Given that a \"cell\" is the term reserved for CVX data and objects, execution consists of following steps:
+
+   | Step | Function | Does |
+   |---|---|---|
+   | 1 | [[expand]] | `cell` -> `canonical cell`, applies macros |
+   | 2 | [[compile|| | `canonical cell` -> `op`, preparing executable code |
+   | 3 | [[exec]] | Executes compiled code |
+
+   Any cell can be applied safely to those functions, worse that can happen is nothing (eg. providing an already compiled cell to
+   [[compile]]).
+
+   If fine-grained control is not needed and if source is not compiled anyways, a simpler alternative is to use [[eval]] which does
+   all the job."
 
   {:author "Adam Helinski"}
 
@@ -71,9 +86,11 @@
 
    Any operation on the returned copy has no impact on the original context.
   
-   Attention, forking a `ctx` looses any attached result or exception."
+   Attention, forking a `ctx` looses any attached [[result]] or [[exception]]."
 
-  ^Context [^Context ctx]
+  ^Context
+  
+  [^Context ctx]
 
   (.fork ctx))
 
@@ -465,37 +482,14 @@
 ;;;;;;;;;; Phase 1 & 2 - Expanding Convex objects and compiling into operations
 
 
-(defn compile
-
-  "Compiles an expanded Convex object using the given `ctx`.
-
-   Object must be canonical (all items must be fully expanded). See [[expand]].
-  
-   See [[run]] for execution after compilation.
-
-   Returns `ctx`, attached [[result]] being the compiled object."
-
-
-  (^Context [ctx]
-
-    (compile ctx
-             (result ctx)))
-
-
-  (^Context [^Context ctx canonical-object]
-
-   (.compile ctx
-             canonical-object)))
-
-
-
 (defn expand
 
-  "Expands a Convex object so that it is canonical (fully expanded and ready for compilation).
-
-   Usually run before [[compile]] with the result from [[read]].
+  "Expands `cell` into a `canonical cell` by applying macros.
   
-   Returns `ctx`, attached [[result]] being the expanded object."
+   Fetched using [[result]] if not given.
+
+   Returns a new `ctx` with a [[result]] ready for [[compile]] or an [[exception]] in case
+   of failure."
 
 
   (^Context [ctx]
@@ -511,13 +505,32 @@
 
 
 
+(defn compile
+
+  "Compiles the `canonical-cell` into executable code.
+
+   Fetched using [[result]] if not given.
+
+   Returns a new `ctx` with a [[result]] ready for [[exec]] or an [[exception]] in case of
+   failure."
+
+
+  (^Context [ctx]
+
+    (compile ctx
+             (result ctx)))
+
+
+  (^Context [^Context ctx canonical-cell]
+
+   (.compile ctx
+             canonical-cell)))
+
+
+
 (defn expand-compile
 
-  "Chains [[expand]] and [[compile]] while being slightly more efficient than calling both separately.
-  
-   See [[run]] for execution after compilation.
-
-   Returns `ctx`, attached [[result]] being the compiled object."
+  "Chains [[expand]] and [[compile]] in a slightly more efficient fashion than calling both separately."
 
   
   (^Context [ctx]
@@ -535,55 +548,13 @@
 ;;;;;;;;;; Pahse 3 - Executing compiled code
 
 
-(defn eval
+(defn exec
 
-  "Evaluates the given form after fully expanding and compiling it.
-  
-   Returns `ctx`, attached [[result]] being the evaluated object."
-
-
-  (^Context [ctx]
-
-   (eval ctx
-         (result ctx)))
-
-
-  (^Context [ctx object]
-
-   (run (expand-compile ctx
-                        object))))
-
-
-
-(defn query
-
-  "Like [[run]] but the resulting state is discarded, as if nothing happened.
-
-   Returns `ctx`, attached [[result]] being the evaluated object in query mode."
-
-
-  (^Context [ctx]
-
-   (if (exception? ctx)
-     ctx
-     (query ctx
-            (result ctx))))
-
-
-  (^Context [^Context ctx compiled-object]
-
-   (.query ctx
-           compiled-object)))
-
-
-
-(defn run
-
-  "Runs compiled Convex code.
+  "Executes compiled code.
   
    Usually run after [[compile]].
   
-   Returns `ctx`, attached [[result]] being the evaluated object."
+   Returns a new `ctx` with a [[result]] or an [[exception]] in case of failure."
 
 
   (^Context [ctx]
@@ -594,10 +565,33 @@
           (result ctx))))
 
 
-  (^Context [^Context ctx ^AOp compiled]
+  (^Context [^Context ctx ^AOp op]
 
    (.run ctx
-         compiled)))
+         op)))
+
+
+;;;
+
+
+(defn eval
+
+  "Evaluates the given `cell`, going efficiently through [[expand]], [[compile]], and [[exec]].
+
+   Works with any kind of `cell`
+
+   Returns a new `ctx` with a [[result]] or an [[exception]] in case of failure."
+
+  (^Context [ctx]
+
+   (eval ctx
+         (result ctx)))
+
+
+  (^Context [ctx ^ACell cell]
+
+   (.run ctx
+         cell)))
 
 
 ;;;;;;;;;; Functions
@@ -628,7 +622,7 @@
 
    `arg+` is a Java array of CVM objects. See [[arg+*]] for easily and efficiently creating one.
   
-   Like other code-related functions, returns a context with either a [[result]] or an [[exception]] attached."
+   Returns a new `ctx` with a [[result]] or an [[exception]] in case of failure."
 
   ^Context
 

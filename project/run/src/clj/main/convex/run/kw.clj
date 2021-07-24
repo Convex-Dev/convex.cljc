@@ -7,6 +7,7 @@
   (:import (convex.core.data Keyword))
   (:refer-clojure :exclude [compile
                             do
+                            eval
                             read])
   (:require [convex.data :as $.data]))
 
@@ -61,6 +62,15 @@
 
 (def ^Keyword err-stream
               ($.data/keyword "STREAM"))
+
+
+(def ^Keyword eval
+              ($.data/keyword "eval"))
+
+
+
+(def ^Keyword exec
+              ($.data/keyword "exec"))
 
 
 
@@ -166,11 +176,6 @@
 
 (def ^Keyword report
               ($.data/keyword "report"))
-
-
-
-(def ^Keyword run
-              ($.data/keyword "run"))
 
 
 

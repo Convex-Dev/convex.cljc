@@ -100,7 +100,27 @@
   :default :unknown)
 
 
-;;;;;;;;;; Evaluation
+;;;;;;;;;; Execution steps
+
+
+(defn expand
+
+  "Expands the given `form` using the current context."
+
+
+  ([env]
+
+   (expand env
+           (result env)))
+
+
+  ([env form]
+
+   (update-ctx env
+               $.run.kw/expand
+               $.cvm/expand
+               form)))
+
 
 
 (defn compile
@@ -125,48 +145,7 @@
 
 
 
-(defn compile-run
-
-  "Successively runs [[compile]] and [[run]], stopping in case of error."
-
-
-  ([env]
-
-   (compile-run env
-                (result env)))
-
-
-  ([env form]
-
-   (let [env-2 (compile env
-                        form)]
-     (if (env-2 :convex.run/error)
-       env-2
-       (run env-2)))))
-
-
-
-(defn expand
-
-  "Expands the given `form` using the current context."
-
-
-  ([env]
-
-   (expand env
-           (result env)))
-
-
-  ([env form]
-
-   (update-ctx env
-               $.run.kw/expand
-               $.cvm/expand
-               form)))
-
-
-
-(defn run
+(defn exec
 
   "Runs the given, previously compiled `form` using the current context.
   
@@ -175,30 +154,30 @@
 
   ([env]
 
-   (run env
-        (result env)))
+   (exec env
+         (result env)))
 
 
   ([env form]
 
    (update-ctx env
-               $.run.kw/run
-               $.cvm/run
+               $.run.kw/exec
+               $.cvm/exec
                form)))
 
 
-;;;
+;;; Modes, evaluating code and tracking juice cost differently
 
 
-(defn eval
+(defn mode-exec
 
-  "Successively runs [[expand]], [[compile]], and [[run]] on the given `form`."
+  "Evaluates `trx` but reported juice will only account for the [[exec]] phase."
 
 
   ([env]
 
-   (eval env
-         (result env)))
+   (mode-exec env
+              (result env)))
 
 
   ([env form]
@@ -207,7 +186,32 @@
                        form)]
      (if (env-2 :convex.run/error)
        env-2
-       (compile-run env-2)))))
+       (let [env-3 (compile env
+                            form)]
+         (if (env-3 :convex.run/error)
+           env-3
+           (exec env-3)))))))
+
+
+
+(defn mode-eval
+
+  "Evaluates `trx`, but unlike [[mode-exec]], reported juice encompass [[expand]] and [[compile]]
+   as well."
+
+
+  ([env]
+
+   (mode-eval env
+              (result env)))
+
+
+  ([env form]
+
+   (update-ctx env
+               $.run.kw/eval
+               $.cvm/eval
+               form)))
 
 
 ;;;;;;;;;; Transactions
@@ -235,7 +239,7 @@
                    (update :convex.run/i-trx
                            inc)
                    ($.run.ctx/trx-begin form)
-                   (eval form))]
+                   (mode-exec form))]
      (if (env-2 :convex.run/error)
        env-2
        (let [ctx        (env :convex.sync/ctx)

@@ -92,14 +92,14 @@ preparing a "base" context that is then copied and reused in many situations.
 ```
 
 
-## Expand, compile, run (aka eval)
+## Expand, compile, exec (aka eval)
 
 **Namespaces of interest:** `$.cvm`
 
 Any computation ultimately relies on 3 steps. 
 
 Expansion and compilation are explained in [CAD 008](https://github.com/Convex-Dev/design/blob/main/cad/008_compiler/README.md).
-Only after compilation code can effectively be run.
+Only after compilation code can effectively be executed
 
 Each step is a function `(ctx, form)` -> `ctx`. The output context holds either a result for the next step or a CVM exception in case
 of error.
@@ -123,17 +123,17 @@ Step-by-step with error handling would be structured similarly to:
       ex-expand  ($.cvm/exception ctx-expand)]
   (if ex-expand
     :error-handling
-    (let [ctx-compile ($.cvm/run ctx-expand
-                                 ($.cvm/result ctx-expand))
+    (let [ctx-compile ($.cvm/exec ctx-expand
+                                  ($.cvm/result ctx-expand))
           ex-compile  ($.cvm/exception ctx-2)]
       (if ex-expand
         :error-handling
-        (let [ctx-run ($.cvm/run ctx-compile
-                                 ($.cvm/result ctx-compile))
-              ex-run  ($.cvm/exception ctx-run)]
-          (if ex-run
+        (let [ctx-exec ($.cvm/exec ctx-compile
+                                   ($.cvm/result ctx-compile))
+              ex-exec  ($.cvm/exception ctx-exec)]
+          (if ex-exec
              :error-handling
-             ($.cvm/result ctx-run)))))))
+             ($.cvm/result ctx-exec)))))))
 ```
 
 Hence, user can have full control over those steps, and when something has been compiled, the results can be reused at will.

@@ -311,26 +311,41 @@
 
 ;; Implementing a very simple REPL which read forms entered by the user, executes them and prints the result.
 ;;
-; (defn repl
-; 
-;   []
-; 
-;   (sreq/do '[(sreq/out "> ")
-;              (sreq/out.flush)
-;              (sreq/in.line)
-;              (let [form+ help/*trx.last.result*]
-;                (when-not (and (not (nil? form+))
-;                               (>= (count form+)
-;                                   1)
-;                               (= (first form+)
-;                                  :repl.stop))
+;_(defn repl
+;
+; []
+;
+; (sreq/do '[(sreq/out "> ")
+;            (sreq/out.flush)
+;            (sreq/in.line)
+;            (let [form+ help/*trx.last.result*]
+;              (if (>= (count form+)
+;                             1)
+;                (when-not (= (first form+)
+;                             :repl.stop)
 ;                  (sreq/do `[(sreq/out help/line)
-;                             (sreq/try '[(eval ~(cons 'do
-;                                                      form+))
+;                             (sreq/try '[(eval (quote ~(if (> (count form+)
+;                                                              1)
+;                                                         (cons 'do
+;                                                               form+)
+;                                                         (first form+))))
 ;                                         (sreq/out! help/*trx.last.result*)]
 ;                                       '[(sreq/out! (list 'quote
 ;                                                          help/*error*))])
-;                             (sreq/out! nil)
-;                             (repl)])))]))
-; 
-; (repl)
+;                             (sreq/out help/line)
+;                             (sreq/out.flush)
+;                             (repl)]))
+;                (repl)))]))
+;
+;(repl)
+
+
+
+
+42
+
+
+(sreq/out! help/*trx.last.juice*)
+
+
+
