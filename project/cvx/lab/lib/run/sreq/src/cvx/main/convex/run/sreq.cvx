@@ -411,20 +411,6 @@
 
 
 
-(defn screen.clear
-
-  ^{:doc {:description ["Clears the screen."
-                        "Useful only if the output is printed in the terminal."]
-          :examples    [{:code "(sreq/clear.screen)"}]
-          :signature   [{:params []}]
-          :type        :function}}
-
-  []
-
-  [:cvm.sreq :screen.clear])
-
-
-
 (defn state.pop
 
   ^{:doc {:description ["Restores the last state saved with `state.push`."

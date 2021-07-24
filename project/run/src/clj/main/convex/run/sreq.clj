@@ -21,21 +21,6 @@
             [convex.write    :as $.write]))
 
 
-;;;;;;;;;; Miscellaneous
-
-
-(defn screen-clear
-
-  "VT100 way of clearing a terminal screen."
-
-  ;; https://www.delftstack.com/howto/java/java-clear-console/
-
-  []
-
-  (print "\033[H\033[2J")
-  (flush))
-
-
 ;;;;;;;;;; Helpers used in special transaction implementations
 
 
@@ -664,19 +649,6 @@
                         err)
       ($.run.ctx/def-result env
                             code))))
-
-
-
-(defmethod $.run.exec/sreq
-  
-  $.run.kw/screen-clear
-
-  ;; Clears the terminal screen.
-
-  [env _tuple]
-
-  (screen-clear)
-  env)
 
 
 

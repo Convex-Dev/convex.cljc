@@ -189,11 +189,6 @@
 
 
 
-(def ^Keyword screen-clear
-              ($.data/keyword "screen.clear"))
-
-
-
 (def ^Keyword splice
               ($.data/keyword "splice"))
 
