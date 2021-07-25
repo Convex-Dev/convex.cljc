@@ -64,7 +64,6 @@
    |---|---|---|
    | `:convex.run.hook/end` | A function `env` -> `env` called after all transactions have been processed | Nothing |
    | `:convex.run.hook/error` | A function `env` -> `env` called when an error occurs | Passing the error to the output hook |
-   | `:convex.run.hook/out` | A function `env`, `value` -> `env` called when a value must be outputted | Printing to terminal using `println` |
    | `:convex.run.hook/result | A transaction executed after every transaction provided by the user | Nothing |
 
 

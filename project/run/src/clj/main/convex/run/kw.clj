@@ -99,11 +99,6 @@
 
 
 
-(def ^Keyword hook-out
-              ($.data/keyword "hook.out"))
-
-
-
 (def ^Keyword hook-result
               ($.data/keyword "hook.result"))
 

@@ -146,23 +146,6 @@
 
 
 
-(defn hook.out
-
-  ^{:doc {:description ["Registers a function that modifies any value prior to being outputted with `out`"
-                        "Default is `identity`, meaning values are not modified."
-                        "If the function returns nil, then nothing is outputted."
-                        "Overwrites any previously registered function, `nil` removes it."]
-          :examples    [{:code "(sreq/hook.out (fn [x] (when-not (:foo x) x)))"}]
-          :signature   [{:params [f]}]
-          :type        :function}}
-
-  [f]
-
-  (assert (fn? f))
-  [:cvm.sreq :hook.out f])
-
-
-
 (defn hook.result
 
   ^{:doc {:description ["Registers a quoted transaction meant to be executed after transaction with the purpose of doing some post-processing."

@@ -37,18 +37,6 @@
 
 
 
-(defn hook-out
-
-  ""
-
-  [env x]
-
-  (when x
-    (print (str x)))
-  env)
-
-
-
 (def stream+
 
   ""
@@ -109,7 +97,6 @@
              :convex.run/out        stream-out
              :convex.run.hook/end   hook-end
              :convex.run.hook/error hook-error
-             :convex.run.hook/out   hook-out
              :convex.run.stream/id  5)
       (update :convex.sync/ctx-base
               #(or %

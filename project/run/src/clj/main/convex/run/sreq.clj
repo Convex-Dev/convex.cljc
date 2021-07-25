@@ -8,11 +8,9 @@
   {:author "Adam Helinski"}
 
   (:import (convex.core.data AVector)
-           (convex.core.data.prim CVMLong)
-           (java.io BufferedReader))
+           (convex.core.data.prim CVMLong))
   (:require [convex.cvm        :as $.cvm]
             [convex.data       :as $.data]
-            [convex.io         :as $.io]
             [convex.read       :as $.read]
             [convex.run.ctx    :as $.run.ctx]
             [convex.run.err    :as $.run.err]
@@ -68,36 +66,6 @@
 
 
 
-
-(defn stream
-
-  ""
-
-  [env kw-default ^AVector tuple capability f]
-
-  (if-some [id (or (some-> ^CVMLong (.get tuple
-                                          2)
-                           .longValue)
-                   (env kw-default))]
-    (try
-      
-      ($.run.ctx/def-result env
-                            (f (get-in env
-                                       [:convex.run/stream+
-                                        id])))
-
-      (catch ClassCastException _ex
-        ($.run.err/signal env
-                          ($.data/code-std* :ARGUMENT)
-                          ($.data/string (str "Stream is missing capability: "
-                                              capability))))
-
-      (catch Throwable _ex
-        ($.run.err/signal env
-                          $.run.kw/err-stream
-                          ($.data/string (str "Stream failed while performing: "
-                                              capability)))))
-    (err-stream-not-found env)))
 
 
 
@@ -318,7 +286,6 @@
                      (if ex
                        ($.run.err/fatal env-3
                                         ($.run.err/error ex)
-                                        ;err
                                         ($.data/string "Calling error hook failed")
                                         (-> ex
                                             $.run.err/error
@@ -343,59 +310,6 @@
                                   err))))))))
       (restore env
                :convex.run.hook/error
-               hook-restore))))
-
-
-
-(defmethod $.run.exec/sreq
-  
-  $.run.kw/hook-out
-
-  ;; Registers a function called with a value whenever it has to be outputted. Returns a possibly modified value.
-  ;;
-  ;; Restores default hook on nil.
-
-  [env ^AVector tuple]
-
-  (let [path-restore [:convex.run/restore
-                      :convex.run.hook/out]
-        hook-restore (get-in env
-                             path-restore)
-        f            (.get tuple
-                           2)]
-    (if f
-      (let [hook-old (or hook-restore
-                         (env :convex.run.hook/out))]
-        (-> env
-            (cond->
-              (not hook-restore)
-              (assoc-in path-restore
-                        hook-old))
-            (assoc :convex.run.hook/out
-                   (fn hook-new [env-2 x]
-                     (let [ctx    ($.cvm/invoke (-> env-2
-                                                    :convex.sync/ctx
-                                                    $.cvm/juice-refill)
-                                                f
-                                                ($.cvm/arg+* x))
-                           env-3  (assoc env-2
-                                         :convex.sync/ctx
-                                         ctx)
-                           ex     ($.cvm/exception ctx)]
-                       (if ex
-                         (-> env-3
-                             (assoc :convex.run.hook/out
-                                    hook-old)
-                             ($.run.err/fatal ($.data/list [f
-                                                            x])
-                                              ($.data/string "Calling output hook failed, using default output")
-                                              ($.run.err/error ex))
-                             (assoc :convex.run.hook/out
-                                    hook-new))
-                         (hook-old env-3
-                                   ($.cvm/result ctx))))))))
-      (restore env
-               :convex.run.hook/out
                hook-restore))))
 
 
