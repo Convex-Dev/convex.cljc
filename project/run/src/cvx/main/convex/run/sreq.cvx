@@ -110,25 +110,6 @@
 
 
 
-(defn hook.end
-
-  ^{:doc {:description ["Registers the given sequence of quoted transactions to be executed at the end, even if an error occured."
-                        "Overwrites what was previously registers."
-                        "Providing no transaction cancels what was previously registered."]
-          :examples    [{:code "(sreq/hook.end nil)"}
-                        {:code "(sreq/hook.end '[(def foo 42) (sreq/out [:end :foo foo])])"}]
-          :signature   [{:params [trx+]}]
-          :type        :function}}
-
-  [trx+]
-
-  (assert (or (list? trx+)
-              (nil? trx+)
-              (vector? trx+)))
-  [:cvm.sreq :hook.end trx+])
-
-
-
 (defn hook.error
 
   ^{:doc {:description ["When an exception occurs, the given function is called with that exception. The result is code that is interpreted."

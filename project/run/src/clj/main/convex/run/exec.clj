@@ -12,7 +12,8 @@
             [convex.data    :as $.data]
             [convex.run.ctx :as $.run.ctx]
             [convex.run.err :as $.run.err]
-            [convex.run.kw  :as $.run.kw]))
+            [convex.run.kw  :as $.run.kw]
+            [convex.run.sym :as $.run.sym]))
 
 
 (declare run)
@@ -310,12 +311,16 @@
       (dissoc :convex.run/restore
               :convex.run/state-stack)
       (merge (env :convex.run/restore))
-      (assoc :convex.run/err         4
-             :convex.run/in          0
-             :convex.run/out         2)
+      (assoc :convex.run/err 4
+             :convex.run/in  0
+             :convex.run/out 2)
       $.run.ctx/cycle
       trx+
       (as->
         env-2
-        ((env-2 :convex.run.hook/end)
-         env-2))))
+        (if-some [hook (.get ($.cvm/env (env-2 :convex.sync/ctx)
+                                        $.run.ctx/addr-env)
+                             $.run.sym/hook-end)]
+          (trx env-2
+               hook)
+          env-2))))

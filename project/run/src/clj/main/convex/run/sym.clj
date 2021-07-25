@@ -36,6 +36,10 @@
              ($.data/symbol "*file*"))
 
 
+(def ^Symbol hook-end
+             ($.data/symbol "*hook.end*"))
+
+
 
 (def ^Symbol in
              ($.data/symbol "*in*"))

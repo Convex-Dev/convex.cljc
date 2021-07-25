@@ -92,8 +92,7 @@
 
 ;; Registers transactions to be executed at the end of the run, even if a CVM exception was thrown.
 ;;
-; (sreq/hook.end '[(def foo 42)
-;                  (sreq/out! [:end :foo foo])])
+(env/hook.end '(sreq/out! :finished))
 
 
 ;; Registers a function which maps a thrown CVM exception to a transaction.
@@ -322,11 +321,3 @@
 ;                  (repl)))]))
 ; 
 ; (repl)
-
-
-
-(sreq/monitor '(+ 2 4))
-
-(sreq/out! env/*result*)
-
-

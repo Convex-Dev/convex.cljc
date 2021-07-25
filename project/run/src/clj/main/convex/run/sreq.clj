@@ -207,43 +207,6 @@
 
 (defmethod $.run.exec/sreq
   
-  $.run.kw/hook-end
-
-  ;; Registers or removes a vector of transactions that will be executed after all transactions from source have been executed.
-  ;;
-  ;; Even if an error occured.
-
-  [env ^AVector tuple]
-
-  (let [path-restore [:convex.run/restore
-                      :convex.run.hook/end]
-        hook-restore (get-in env
-                             path-restore)
-        trx+         (.get tuple
-                           2)]
-    (if (and trx+
-             (not= trx+
-                   [nil]))
-      (let [hook-old (or hook-restore
-                         (env :convex.run.hook/end))]
-        (-> env
-            (cond->
-              (not hook-restore)
-              (assoc-in path-restore
-                        hook-old))
-            (assoc :convex.run.hook/end
-                   (fn hook-new  [env-2]
-                     (hook-old ($.run.exec/trx+ (dissoc env-2
-                                                        :convex.run/error)
-                                                trx+))))))
-      (restore env
-               :convex.run.hook/end
-               hook-restore))))
-
-
-
-(defmethod $.run.exec/sreq
-  
   $.run.kw/hook-error
 
   ;; Registers a function called with an error whenever one occurs. Must returns a transaction to execute.

@@ -89,11 +89,6 @@
 
 
 
-(def ^Keyword hook-end
-              ($.data/keyword "hook.end"))
-
-
-
 (def ^Keyword hook-error
               ($.data/keyword "hook.error"))
 
