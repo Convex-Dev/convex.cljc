@@ -5,12 +5,13 @@
   {:author "Adam Helinski"}
 
   (:import (java.io File))
-  (:require [convex.data     :as $.data]
-            [convex.io       :as $.io]
-            [convex.run.ctx  :as $.run.ctx]
-            [convex.run.exec :as $.run.exec]
-            [convex.run.kw   :as $.run.kw]
-            [convex.run.sym  :as $.run.sym]))
+  (:require [convex.data       :as $.data]
+            [convex.io         :as $.io]
+            [convex.run.ctx    :as $.run.ctx]
+            [convex.run.exec   :as $.run.exec]
+            [convex.run.kw     :as $.run.kw]
+            [convex.run.stream :as $.run.stream]
+            [convex.run.sym    :as $.run.sym]))
 
 
 ;;;;;;;;;;
@@ -23,21 +24,17 @@
   identity)
 
 
+
 (defn hook-error
 
   ""
 
   [env]
 
-  (as-> env
-        env-2
+  ($.run.stream/out! env
+                     (env :convex.run/err)
+                     (env :convex.run/error)))
 
-    ((env-2 :convex.run.hook/out)
-     env-2
-     (env-2 :convex.run/error))
-
-    ((env-2 :convex.run/flush)
-     env-2)))
 
 
 (defn hook-out
@@ -103,24 +100,27 @@
    | `:convex.run/single-run? | Whether code is run once or more (watch mode), defaults to false |
    | `:convex.sync/cx-base | Ensures a default base context, see [[convex.run.ctx/base]] |"
 
+
   [env]
 
   (-> env
-      (->> (merge {:convex.run/err        stream-err
-                   :convex.run/in         stream-in
-                   :convex.run/out        stream-out
-                   :convex.run.hook/end   hook-end
-                   :convex.run.hook/error hook-error
-                   :convex.run.hook/out   hook-out
-                   :convex.run.stream/id  5
-                   :convex.sync/ctx-base  $.run.ctx/base}))
+      (assoc :convex.run/err        stream-err
+             :convex.run/in         stream-in
+             :convex.run/out        stream-out
+             :convex.run.hook/end   hook-end
+             :convex.run.hook/error hook-error
+             :convex.run.hook/out   hook-out
+             :convex.run.stream/id  5)
+      (update :convex.sync/ctx-base
+              #(or %
+                   $.run.ctx/base))
       (update :convex.run/path
               (fn [^String path]
                 (when path
                   (.getCanonicalPath (File. path)))))
       (update :convex.run/stream+
-              (partial merge
-                       stream+))
+              merge
+              stream+)
       (as->
         env-2
         ($.run.ctx/def-help env-2

@@ -338,3 +338,7 @@
 ;                  (repl)))]))
 ; 
 ;(repl)
+
+
+(sreq/out! :foo)
+

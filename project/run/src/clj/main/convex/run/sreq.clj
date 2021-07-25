@@ -10,16 +10,17 @@
   (:import (convex.core.data AVector)
            (convex.core.data.prim CVMLong)
            (java.io BufferedReader))
-  (:require [convex.cvm      :as $.cvm]
-            [convex.data     :as $.data]
-            [convex.io       :as $.io]
-            [convex.read     :as $.read]
-            [convex.run.ctx  :as $.run.ctx]
-            [convex.run.err  :as $.run.err]
-            [convex.run.exec :as $.run.exec]
-            [convex.run.kw   :as $.run.kw]
-            [convex.run.sym  :as $.run.sym]
-            [convex.write    :as $.write]))
+  (:require [convex.cvm        :as $.cvm]
+            [convex.data       :as $.data]
+            [convex.io         :as $.io]
+            [convex.read       :as $.read]
+            [convex.run.ctx    :as $.run.ctx]
+            [convex.run.err    :as $.run.err]
+            [convex.run.exec   :as $.run.exec]
+            [convex.run.kw     :as $.run.kw]
+            [convex.run.stream :as $.run.stream]
+            [convex.run.sym    :as $.run.sym]
+            [convex.write      :as $.write]))
 
 
 ;;;;;;;;;; Helpers used in special transaction implementations
@@ -65,16 +66,6 @@
                     ($.data/string "Stream closed or does not exist")))
 
 
-(defn stream-id
-
-  ""
-
-  [env kw-default tuple]
-
-  (or (some-> ^CVMLong (.get tuple
-                             2)
-              .longValue)
-      (env kw-default)))
 
 
 
@@ -448,17 +439,12 @@
 
   $.run.kw/in
 
-  [env tuple]
+  [env ^AVector tuple]
 
-  (stream env
-          :convex.run/in
-          tuple
-          "read"
-          (fn [[stream mode]]
-            ((case mode
-               :bin $.read/stream-bin
-               :txt $.read/stream-txt)
-             stream))))
+  ($.run.stream/in env
+                   (or (.get tuple
+                             2)
+                       (env :convex.run/in))))
 
 
 
@@ -468,15 +454,10 @@
 
   [env tuple]
 
-  (stream env
-          :convex.run/in
-          tuple
-          "read"
-          (fn [[stream mode]]
-            ((case mode
-               :bin $.read/stream-bin+
-               :txt $.read/stream-txt+)
-             stream))))
+  ($.run.stream/in+ env
+                    (or (.get tuple
+                              2)
+                        (env :convex.run/in))))
 
 
 
@@ -486,14 +467,10 @@
 
   [env tuple]
 
-  (stream env
-          :convex.run/in
-          tuple
-          "read line"
-          (fn [[stream _mode]]
-            (-> stream
-                BufferedReader.
-                $.read/line))))
+  ($.run.stream/in-line+ env
+                         (or (.get tuple
+                                   2)
+                             (env :convex.run/in))))
 
 
 
@@ -555,19 +532,12 @@
 
   [env ^AVector tuple]
 
-  (stream env
-          :convex.run/out
-          tuple
-          "write"
-          (fn [[stream mode]]
-            (let [cell (.get tuple
-                             3)]
-              ((case mode
-                 :bin $.write/stream-bin
-                 :txt $.write/stream-txt)
-               stream
-               cell)
-              cell))))
+  ($.run.stream/out env
+                    (or (.get tuple
+                              2)
+                        (env :convex.run/out))
+                    (.get tuple
+                          3)))
 
 
 
@@ -577,22 +547,12 @@
 
   [env ^AVector tuple]
 
-  (stream env
-          :convex.run/out
-          tuple
-          "write"
-          (fn [[stream mode]]
-            (let [cell (.get tuple
-                             3)]
-              (case mode
-                :bin ($.write/stream-bin stream
-                                         cell)
-                :txt (do
-                       ($.write/stream-txt stream
-                                           cell)
-                       ($.io/newline stream)))
-              ($.io/flush stream)
-              cell))))
+  ($.run.stream/out! env
+                     (or (.get tuple
+                               2)
+                         (env :convex.run/out))
+                     (.get tuple
+                           3)))
 
 
 
@@ -617,13 +577,10 @@
 
   [env ^AVector tuple]
 
-  (stream env
-          :convex.run/out
-          tuple
-          "flush"
-          (fn [[stream _mode]]
-            ($.io/flush stream)
-            nil)))
+  ($.run.stream/flush env
+                      (or (.get tuple
+                                2)
+                          (env :convex.run/out))))
 
 
 

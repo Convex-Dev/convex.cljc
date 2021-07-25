@@ -19,56 +19,6 @@
                  :name "Convex Lisp Runner Special Requests"}))
 
 
-;; STDIO STREAMS
-
-
-(def stdin.txt
-
-  ^{:doc {:description ""}}
-
-  0)
-
-
-
-(def stdin.bin
-
-  ^{:doc {:description ""}}
-
-  1)
-
-
-
-(def stdout.txt
-
-  ^{:doc {:description ""}}
-
-  2)
-
-
-
-(def stdout.bin
-
-  ^{:doc {:description ""}}
-
-  3)
-
-
-
-(def stderr.txt
-
-  ^{:doc {:description ""}}
-
-  4)
-
-
-
-(def stderr.bin
-
-  ^{:doc {:description ""}}
-
-  5)
-
-
 ;; SPECIAL REQUESTS
 
 

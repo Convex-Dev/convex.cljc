@@ -28,7 +28,57 @@
        (cns-resolve 'convex.run.sreq)))
 
 
-;; SPECIAL VALUES
+;; STDIO STREAMS
+
+
+(def stdin.txt
+
+  ^{:doc {:description ""}}
+
+  0)
+
+
+
+(def stdin.bin
+
+  ^{:doc {:description ""}}
+
+  1)
+
+
+
+(def stdout.txt
+
+  ^{:doc {:description ""}}
+
+  2)
+
+
+
+(def stdout.bin
+
+  ^{:doc {:description ""}}
+
+  3)
+
+
+
+(def stderr.txt
+
+  ^{:doc {:description ""}}
+
+  4)
+
+
+
+(def stderr.bin
+
+  ^{:doc {:description ""}}
+
+  5)
+
+
+;; DYNAMIC VALUES
 
 
 (def *cycle*
@@ -127,16 +177,16 @@
 (defmacro zombie
 
   ^{:doc {:description "Wraps forms into deploy code which turns the actor into a user account with `fake-key` and make it controllable with `eval-as`."
-    	  :examples    [{:code "(def a (help/zombie (def foo 42)))"}]
+          :examples    [{:code "(def a (help/zombie (def foo 42)))"}]
           :type        :macro}}
 
   [& form+]
 
   `(deploy '(do
-			  (set-controller ~*address*)
-		      (set-key ~fake-key)
-			  ~(cons 'do
-					 form+))))
+              (set-controller ~*address*)
+              (set-key ~fake-key)
+              ~(cons 'do
+                     form+))))
 
 
 ;; PRINTING
