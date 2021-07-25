@@ -317,7 +317,7 @@
  
   (sreq/do '[(sreq/out "> ")
              (sreq/out.flush)
-             (sreq/in.line)
+             (sreq/in.line+)
              (let [form+  help/*trx.last.result*
                    n-form (count form+)]
                (if (>= n-form

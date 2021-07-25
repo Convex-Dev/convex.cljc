@@ -119,8 +119,8 @@
 
 
 
-(def ^Keyword in-line
-              ($.data/keyword "in.line"))
+(def ^Keyword in-line+
+              ($.data/keyword "in.line+"))
 
 
 

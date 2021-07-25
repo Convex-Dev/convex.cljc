@@ -4,6 +4,9 @@
 
    Binary must be big-endian and text must be UTF-8.
 
+   Attention, currently, function that read only one cell fail if the input contains more than one.
+   In the future, behavior should be improved. For instance, consuming cells one by one from a stream.
+
    Also see [[convex.write]] for the opposite idea."
 
   {:author "Adam Helinski"}

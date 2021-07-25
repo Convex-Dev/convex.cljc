@@ -479,7 +479,7 @@
 
 (defmethod $.run.exec/sreq
 
-  $.run.kw/in-line
+  $.run.kw/in-line+
 
   [env tuple]
 
