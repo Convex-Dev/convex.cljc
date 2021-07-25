@@ -1,11 +1,7 @@
-(sreq/dep {T     "project/cvx/lab/lib/run/test/src/cvx/main/convex/run/test.cvx"
+(sreq/dep {T     "project/run/src/cvx/main/convex/run/test.cvx"
            xform "project/cvx/lab/lib/xform/src/cvx/main/convex/xform.cvx"})
 
 
-
-(sreq/hook.error (fn [ex]
-                   (sreq/out (dissoc ex
-                                     :trace))))
 
 (eval (first xform))
 (eval `(def T
@@ -14,10 +10,6 @@
 
 
 (import convex.xform :as xform)
-
-
-(sreq/screen.clear)
-
 
 
 
@@ -32,6 +24,9 @@
 
 
 
+
+(sreq/out "\033[H\033[2J")
+(sreq/out.flush)
 
 
 (T/trx '(do
@@ -48,8 +43,8 @@
 (let [a 4
       b 3]
   (T/trx `(or (< ~a ~b)
-                 (- ~a ~b))
-            {:description "I know, it fails."}))
+                (- ~a ~b))
+           {:description "I know, it fails."}))
 
 (def foo 42)
 
@@ -61,21 +56,8 @@
                        2))
              {:description "Must fail fast."})
 
-;(sreq/hook.end '[(T/exit)])
 
 
-(sreq/out env/line)
-
-
-(sreq/out env/single-run?)
-
-;(T/print-failed)
+(T/print-failed)
 
 (T/exit)
-
-
-
-
-#_(sreq/do '[(sreq/out env/line):
-           (sreq/log)
-           (sreq/out [:log env/*trx.last.result*])])

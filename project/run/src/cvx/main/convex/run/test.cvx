@@ -354,11 +354,10 @@
                           :metadata metadata-2
                           :trx      (list 'quote
                                           trx)}]
-         (sreq/try `(do
-                      ~trx
-                      (~self/report.conj (assoc ~base-report
-                                                :result env/*trx.last.result*
-                                                :pass?  false)))
+         (sreq/try `(sreq/do '[~trx
+                               (~self/report.conj (assoc ~base-report
+                                                         :result env/*trx.last.result*
+                                                         :pass?  false))])
                    `(let [ex env/*error*]
                       (~self/report.conj (assoc ~base-report
                                                 :exception ex
@@ -412,13 +411,11 @@
                           :metadata metadata-2
                           :trx      (list 'quote
                                           trx)}]
-         (sreq/try `(do
-                      ~trx
-                      (let [result env/*trx.last.result*]
-                        (~self/report.conj (assoc ~base-report
-                                                  :result result
-                                                  :pass?  (= result
-                                                             true)))))
+         (sreq/try `(sreq/do '[~trx
+                               (~self/report.conj (assoc ~base-report
+                                                         :result env/*trx.last.result*
+                                                         :pass?  (= env/*trx.last.result*
+                                                                    true)))])
                    `(~self/report.conj (assoc ~base-report
                                               :exception env/*error*
                                               :pass?     false))))))))
@@ -480,62 +477,63 @@
 
   ([n-fail report+]
 
-   (sreq/out (apply str
+   (sreq/out! (apply str
                      "Number of failed tests: "
                      n-fail
-                    " / "
-                    (count report+)
-                    (when (> n-fail
-                           0)
-                     (reduce (fn [acc report]
-                                (if (:pass? report)
-                                  acc
-                                 (let [metadata (report :metadata)
-                                       ex       (dissoc (report :exception)
-                                                        :trx)
-                                       res      (report :result)
-                                       res?     (contains-key? report
-                                                               :result)
-                                       [text
-                                        data]   (if (= (report :expect)
-                                                       :result)
-                                                  (if res?
-                                                    ["Returned: "
-                                                     res]
-                                                    ["Threw: "
-                                                     ex])
-                                                  (if res?
-                                                    ["Instead of exception: "
-                                                     res]
-                                                    ["Not predicted exception: "
-                                                     ex]))]
-                                   (conj acc
-                                         "---"
-                                         env/line
-                                         env/line
-                                         (report :trx)
-                                         env/line
-                                         env/line
-                                         "  "
-                                         text
-                                         data
-                                         env/line
-                                         env/line
-                                         "  Path: "
-                                         (:path metadata)
-                                         env/line
-                                         env/line
-                                         "  "
-                                         (or (:description metadata)
-                                             "No description provided.")
-                                         env/line
-                                         env/line
-                                         "  Other metadata: "
-                                         (dissoc metadata
-                                                 :description
-                                                 :path)
-                                         env/line
-                                         env/line
-                                         ))))
-                             ["\n\n"]
-                             report+))))))
+                     " / "
+                     (count report+)
+                     (when (> n-fail
+                            0)
+                      (reduce (fn [acc report]
+                                 (if (:pass? report)
+                                   acc
+                                  (let [metadata (report :metadata)
+                                        ex       (dissoc (report :exception)
+                                                         :trx)
+                                        res      (report :result)
+                                        res?     (contains-key? report
+                                                                :result)
+                                        [text
+                                         data]   (if (= (report :expect)
+                                                        :result)
+                                                   (if res?
+                                                     ["Returned: "
+                                                      res]
+                                                     ["Threw: "
+                                                      ex])
+                                                   (if res?
+                                                     ["Instead of exception: "
+                                                      res]
+                                                     ["Not predicted exception: "
+                                                      ex]))]
+                                    (conj acc
+                                          "---"
+                                          env/line
+                                          env/line
+                                          (report :trx)
+                                          env/line
+                                          env/line
+                                          "  "
+                                          text
+                                          data
+                                          env/line
+                                          env/line
+                                          "  Path: "
+                                          (:path metadata)
+                                          env/line
+                                          env/line
+                                          "  "
+                                          (or (:description metadata)
+                                              "No description provided.")
+                                          env/line
+                                          env/line
+                                          "  Other metadata: "
+                                          (dissoc metadata
+                                                  :description
+                                                  :path)
+                                          env/line
+                                          env/line
+                                          ))))
+                              [env/line
+                               env/line]
+                              report+))))))
