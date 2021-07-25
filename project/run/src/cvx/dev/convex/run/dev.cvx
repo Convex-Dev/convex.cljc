@@ -184,13 +184,15 @@
 ;;;;;;;;;; TRY-CATCH
 
 
-;; Transactions from the first "try" vector are executed one by one until an error occurs, like `sreq/do`.
+;; First quoted transaction is executed.
+;; If it fails (it does in this example), second transaction is called.
 ;;
-;; If an error does occur, execution jumps to the second "catch" vector for error handling.
+;; `foo` becomes undefined because in case of failure during a transaction, state is reverted.
 ;;
-; (sreq/try '[(def foo 42)
-;             (fail :bar :baz)]
-;           '[(sreq/out! [:catch :foo foo :caught help/*error*])])
+; (sreq/try '(do
+;              (def foo 42)
+;              (assert (> foo 100)))
+;           '(sreq/out! [:catch :foo-defined? (defined? foo)  :caught help/*error*]))
 
 
 ;;;;;;;;;; ACCESSING THE CVM LOG

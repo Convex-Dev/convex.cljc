@@ -383,17 +383,12 @@
           :type        :function}}
 
 
-  ([try-trx+]
+  ([trx-try]
 
-   (try try-trx+
+   (try trx-try
         nil))
 
 
-  ([try-trx+ catch-trx+]
+  ([trx-try trx-catch]
 
-   (assert (or (list? try-trx+)
-               (vector? try-trx+)))
-   (assert (or (nil? catch-trx+)
-               (list? catch-trx+)
-               (vector? catch-trx+)))
-   [:cvm.sreq :try try-trx+ catch-trx+]))
+   [:cvm.sreq :try trx-try trx-catch]))

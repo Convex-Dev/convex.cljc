@@ -532,8 +532,8 @@
 
   [env ^AVector tuple]
 
-  (let [trx-catch+ (.get tuple
-                         3)
+  (let [trx-catch (.get tuple
+                        3)
         hook-error (env :convex.run.hook/error)]
     (-> env
         (assoc :convex.run.hook/error
@@ -541,15 +541,15 @@
                  (-> env-2
                      (dissoc :convex.run/error)
                      (cond->
-                       trx-catch+
+                       trx-catch
                        (-> (assoc :convex.run.hook/error
                                   hook-error)
-                           ($.run.exec/trx+ trx-catch+)))
+                           ($.run.exec/trx trx-catch)))
                      (update :convex.run/error
                              #(or %
                                   ::try)))))
-        ($.run.exec/trx+ (.get tuple
-                               2))
+        ($.run.exec/trx (.get tuple
+                              2))
         (assoc :convex.run.hook/error
                hook-error)
         (as->
