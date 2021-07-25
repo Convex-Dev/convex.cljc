@@ -594,6 +594,18 @@
 
 (defmethod $.run.exec/sreq
 
+  $.run.kw/out-err-set
+
+  [env tuple]
+
+  (stream-set env
+              :convex.run/err
+              tuple))
+
+
+
+(defmethod $.run.exec/sreq
+
   $.run.kw/out-flush
 
   ;; Outputs the given value using the output hook.

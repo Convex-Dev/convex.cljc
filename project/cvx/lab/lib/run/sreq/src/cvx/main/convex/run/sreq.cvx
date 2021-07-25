@@ -368,6 +368,16 @@
 
 
 
+(defn out.err.set
+
+  ^{:doc {:description ""}}
+
+  [stream]
+
+  (assert (long? stream))
+  [:cvm.sreq :out.err.set stream])
+
+
 
 (defn out.flush
 

@@ -159,6 +159,11 @@
 
 
 
+(def ^Keyword out-err-set
+              ($.data/keyword "out.err.set"))
+
+
+
 (def ^Keyword out-flush
               ($.data/keyword "out.flush"))
 
