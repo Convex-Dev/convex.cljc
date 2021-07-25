@@ -396,19 +396,19 @@
 
 
 
-(defn read
+(defn read+
 
-  ^{:doc {:description ["Passes the given string through the Convex Lisp reader and produces a list of forms."
-                        "Those forms can be compiled, evaluated, ..."
+  ^{:doc {:description ["Passes the given string through the CVX reader and produces a list of cells."
+                        "Those cells can be compiled, evaluated, ..."
                         "Result is temporarily stored in `help/*trx.last.result* and is accessible during the next transaction."]
-          :examples    [{:code "(sreq/read \"(+ 2 2)\")"}]
+          :examples    [{:code "(sreq/read+ \"(+ 2 2)\")"}]
           :signature   [{:params [string]}]
           :type        :function}}
 
   [src]
 
   (assert (str? src))
-  [:cvm.sreq :read src])
+  [:cvm.sreq :read+ src])
 
 
 
