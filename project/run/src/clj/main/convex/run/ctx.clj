@@ -2,8 +2,8 @@
 
   "Preparing CVM contextes for runner operations.
   
-   Mosting about defining symbols at key moments, all those dynamic values in the `help`
-   account (eg. `help/*error*`, `help/*trx.form*`, ...)."
+   Mosting about defining symbols at key moments, all those dynamic values in the `env`
+   account (eg. `env/*error*`, `env/*trx.form*`, ...)."
 
   {:author "Adam Helinski"}
 
@@ -50,8 +50,8 @@
                          "convex/run/sreq.cvx")
       addr-sreq ($.cvm/result ctx-2)
       ctx-3     (preload ctx-2
-                         "convex/run/help.cvx")
-      addr-help ($.cvm/result ctx-2)
+                         "convex/run/env.cvx")
+      addr-env  ($.cvm/result ctx-2)
       ctx-4     (preload ctx-3
                          "convex/run/test.cvx")]
 
@@ -60,20 +60,20 @@
 
     "Base context used when initiating a run.
     
-     Prepares the `help` and `sreq` accounts."
+     Prepares the `env` and `sreq` accounts."
 
     (-> ctx-4
-        ($.cvm/def {$.run.sym/help addr-help
+        ($.cvm/def {$.run.sym/env addr-env
                     $.run.sym/sreq addr-sreq})
-        ($.cvm/def addr-help
+        ($.cvm/def addr-env
                    {$.run.sym/line ($.data/string (System/lineSeparator))})))
 
 
-  (def addr-help
+  (def addr-env
 
-    "Address of the `help` account fetched from [[base]]."
+    "Address of the `env` account fetched from [[base]]."
 
-    addr-help)
+    addr-env)
 
 
   (def addr-sreq
@@ -102,9 +102,9 @@
 
 
 
-(defn def-help
+(defn def-env
 
-  "Like [[def-current]] but defines symbols in the `help` account.
+  "Like [[def-current]] but defines symbols in the `env` account.
   
    By default, operates over the context in `:convex.sync/ctx`.
 
@@ -114,9 +114,9 @@
 
   ([env sym->value]
 
-   (def-help env
-             :convex.sync/ctx
-             sym->value))
+   (def-env env
+            :convex.sync/ctx
+            sym->value))
 
 
   ([env kw-ctx sym->value]
@@ -125,14 +125,14 @@
            kw-ctx
            (fn [ctx]
              ($.cvm/def ctx
-                        addr-help
+                        addr-env
                         sym->value)))))
 
 
 
 (defn def-mode
 
-  "Defines the evaluation mode in the `help` account under `*mode*`.
+  "Defines the evaluation mode in the `env` account under `*mode*`.
 
    See [[convex.run.exec/trx]]."
 
@@ -150,18 +150,18 @@
    (-> env
        (assoc :convex.run/mode
               mode-f)
-       (def-help kw-ctx
-                 {$.run.sym/mode mode-kw}))))
+       (def-env kw-ctx
+                {$.run.sym/mode mode-kw}))))
 
 
 
 (defn def-result
 
-  "Defines `help/*trx.last.result*` with the given `result`."
+  "Defines `env/*trx.last.result*` with the given `result`."
 
   [env result]
 
-  (def-help env
+  (def-env env
             {$.run.sym/trx-last-result result}))
 
 
@@ -172,13 +172,13 @@
 
   "Used before each run (which can happen more than once in watch mode).
   
-   Defines `help/*cycle*`, a number incremented on each run."
+   Defines `env/*cycle*`, a number incremented on each run."
 
   [env]
 
-  (def-help env
-            {$.run.sym/cycle ($.data/long (or (env :convex.watch/cycle)
-                                              0))}))
+  (def-env env
+           {$.run.sym/cycle ($.data/long (or (env :convex.watch/cycle)
+                                             0))}))
 
 
 
@@ -186,12 +186,12 @@
 
   "Used whenever an error occurs.
   
-   Defines `help/*error*`, the error translated into a map."
+   Defines `env/*error*`, the error translated into a map."
 
   [env err]
 
-  (def-help env
-            {$.run.sym/error err}))
+  (def-env env
+           {$.run.sym/error err}))
 
 
 
@@ -199,14 +199,14 @@
 
   "Used once at the very beginning for preparing [[base]].
   
-   `Defines `help/*file*`, the canonical path of the main file (unless in eval mode)."
+   `Defines `env/*file*`, the canonical path of the main file (unless in eval mode)."
 
   [env]
 
   (if-some [path (env :convex.run/path)]
-    (def-help env
-              :convex.sync/ctx-base
-              {$.run.sym/file ($.data/string path)})
+    (def-env env
+             :convex.sync/ctx-base
+             {$.run.sym/file ($.data/string path)})
     env))
 
 
@@ -217,14 +217,14 @@
   
    `Defines:
   
-    - `help/*trx.form*`, the form of the current transaction
-    - `help/*frx.id*`, the number of the current transaction (incremented each time)"
+    - `env/*trx.form*`, the form of the current transaction
+    - `env/*frx.id*`, the number of the current transaction (incremented each time)"
 
   [env form]
 
-  (def-help env
-            {$.run.sym/trx-form form
-             $.run.sym/trx-id   ($.data/long (env :convex.run/i-trx))}))
+  (def-env env
+           {$.run.sym/trx-form form
+            $.run.sym/trx-id   ($.data/long (env :convex.run/i-trx))}))
 
 
 
@@ -234,19 +234,19 @@
   
    Defines:
 
-   - `help/*juice*`, the total amount of juice consumed since the beginning of the run
-   - `help/*trx.last.form*`, previous transaction
-   - `help/*trx.last.id*, id ofthe previous transaction (see [[trx-begin]])
-   - `help/*trx.last.juice*, juice consumed by the previous transaction
-   - `help/*trx.last.result*, result of the previous transaction"
+   - `env/*juice*`, the total amount of juice consumed since the beginning of the run
+   - `env/*trx.last.form*`, previous transaction
+   - `env/*trx.last.id*, id ofthe previous transaction (see [[trx-begin]])
+   - `env/*trx.last.juice*, juice consumed by the previous transaction
+   - `env/*trx.last.result*, result of the previous transaction"
 
   [env form juice-last result]
 
-  (def-help env
-            {$.run.sym/juice-total     ($.data/long (env :convex.run/juice-total))
-             $.run.sym/trx-form        nil
-             $.run.sym/trx-id          nil
-             $.run.sym/trx-last-form   form
-             $.run.sym/trx-last-id     ($.data/long (env :convex.run/i-trx))
-             $.run.sym/trx-last-juice  ($.data/long juice-last)
-             $.run.sym/trx-last-result result}))
+  (def-env env
+           {$.run.sym/juice-total     ($.data/long (env :convex.run/juice-total))
+            $.run.sym/trx-form        nil
+            $.run.sym/trx-id          nil
+            $.run.sym/trx-last-form   form
+            $.run.sym/trx-last-id     ($.data/long (env :convex.run/i-trx))
+            $.run.sym/trx-last-juice  ($.data/long juice-last)
+            $.run.sym/trx-last-result result}))

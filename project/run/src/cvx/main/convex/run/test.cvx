@@ -22,12 +22,12 @@
 ;; IMPORTING OTHER LIBRARIES
 
 
-(def help
+(def env
 
-  ^{:doc {:description "Alias to the Help library."}}
+  ^{:doc {:description "Alias to the `env` account."}}
 
   (call *registry*
-        (cns-resolve 'convex.run.help)))
+        (cns-resolve 'convex.run.env)))
 
 
 
@@ -354,14 +354,15 @@
                           :metadata metadata-2
                           :trx      (list 'quote
                                           trx)}]
-         (sreq/try `[~trx
-                     (~self/report.conj (assoc ~base-report
-                                               :result help/*trx.last.result*
-                                               :pass?  false))]
-                   `[(let [ex help/*error*]
-                       (~self/report.conj (assoc ~base-report
-                                                 :exception ex
-                                                 :pass?     (~expected-fail? ex))))]))))))
+         (sreq/try `(do
+                      ~trx
+                      (~self/report.conj (assoc ~base-report
+                                                :result env/*trx.last.result*
+                                                :pass?  false)))
+                   `(let [ex env/*error*]
+                      (~self/report.conj (assoc ~base-report
+                                                :exception ex
+                                                :pass?     (~expected-fail? ex))))))))))
 
 
 (defn fail-code
@@ -411,15 +412,16 @@
                           :metadata metadata-2
                           :trx      (list 'quote
                                           trx)}]
-         (sreq/try `[~trx
-                     (let [result help/*trx.last.result*]
-                       (~self/report.conj (assoc ~base-report
-                                                 :result result
-                                                 :pass?  (= result
-                                                            true))))]
-                   `[(~self/report.conj (assoc ~base-report
-                                               :exception help/*error*
-                                               :pass?     false))]))))))
+         (sreq/try `(do
+                      ~trx
+                      (let [result env/*trx.last.result*]
+                        (~self/report.conj (assoc ~base-report
+                                                  :result result
+                                                  :pass?  (= result
+                                                             true)))))
+                   `(~self/report.conj (assoc ~base-report
+                                              :exception env/*error*
+                                              :pass?     false))))))))
 
 
 ;; TRACING
@@ -457,7 +459,7 @@
 
   []
 
-  (when help/single-run?
+  (when env/single-run?
     (sreq/exit (if (> *n-fail*
                       0)
                  42
@@ -509,31 +511,31 @@
                                                      ex]))]
                                    (conj acc
                                          "---"
-                                         help/line
-                                         help/line
+                                         env/line
+                                         env/line
                                          (report :trx)
-                                         help/line
-                                         help/line
+                                         env/line
+                                         env/line
                                          "  "
                                          text
                                          data
-                                         help/line
-                                         help/line
+                                         env/line
+                                         env/line
                                          "  Path: "
                                          (:path metadata)
-                                         help/line
-                                         help/line
+                                         env/line
+                                         env/line
                                          "  "
                                          (or (:description metadata)
                                              "No description provided.")
-                                         help/line
-                                         help/line
+                                         env/line
+                                         env/line
                                          "  Other metadata: "
                                          (dissoc metadata
                                                  :description
                                                  :path)
-                                         help/line
-                                         help/line
+                                         env/line
+                                         env/line
                                          ))))
                              ["\n\n"]
                              report+))))))

@@ -82,7 +82,7 @@
       (-> env
           (assoc kw
                  id)
-          ($.run.ctx/def-help {cvx-sym ($.data/long id)}))
+          ($.run.ctx/def-env {cvx-sym ($.data/long id)}))
       (err-stream-not-found env))))
 
 
@@ -525,7 +525,7 @@
   ;; Provides a try-catch mechanism.
   ;;
   ;; First vector of transaction if for trying and stops as soon as an error occurs.
-  ;; In that case, the error is interned under `help/*error*` and transactions from the "catch" vector are
+  ;; In that case, the error is interned under `env/*error*` and transactions from the "catch" vector are
   ;; executed.
 
   ;; TODO. Remove any previous result in case of error?

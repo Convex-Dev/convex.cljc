@@ -64,10 +64,10 @@
 ;(sreq/hook.end '[(T/exit)])
 
 
-(sreq/out help/line)
+(sreq/out env/line)
 
 
-(sreq/out help/single-run?)
+(sreq/out env/single-run?)
 
 ;(T/print-failed)
 
@@ -76,6 +76,6 @@
 
 
 
-#_(sreq/do '[(sreq/out help/line):
+#_(sreq/do '[(sreq/out env/line):
            (sreq/log)
-           (sreq/out [:log help/*trx.last.result*])])
+           (sreq/out [:log env/*trx.last.result*])])

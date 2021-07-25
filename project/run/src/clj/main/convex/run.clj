@@ -34,8 +34,8 @@
    DYNAMIC VALUES AND HELP
    =======================
 
-   A runner maintains a set of dynamic values that users can access in the address aliased by default as `help`. For more
-   information, use [[eval]] to evaluate `(help/about help)`.
+   A runner maintains a set of dynamic values that users can access in the address aliased by default as `env`. For more
+   information, use [[eval]] to evaluate `(env/about env)`.
 
 
    OUTPUT

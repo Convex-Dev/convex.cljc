@@ -110,12 +110,12 @@
               stream+)
       (as->
         env-2
-        ($.run.ctx/def-help env-2
-                            :convex.sync/ctx-base
-                            {$.run.sym/in          ($.data/long (env-2 :convex.run/in))
-                             $.run.sym/out         ($.data/long (env-2 :convex.run/out))
-                             $.run.sym/out-err     ($.data/long (env-2 :convex.run/err))
-                             $.run.sym/single-run? ($.data/boolean (env-2 :convex.run/single-run?))}))
+        ($.run.ctx/def-env env-2
+                           :convex.sync/ctx-base
+                           {$.run.sym/in          ($.data/long (env-2 :convex.run/in))
+                            $.run.sym/out         ($.data/long (env-2 :convex.run/out))
+                            $.run.sym/out-err     ($.data/long (env-2 :convex.run/err))
+                            $.run.sym/single-run? ($.data/boolean (env-2 :convex.run/single-run?))}))
       (as->
         env-2
         (apply $.run.ctx/def-mode

@@ -22,6 +22,11 @@
 
 
 
+(def ^Symbol env
+             ($.data/symbol "env"))
+
+
+
 (def ^Symbol error
              ($.data/symbol "*error*"))
 
@@ -29,11 +34,6 @@
 
 (def ^Symbol file
              ($.data/symbol "*file*"))
-
-
-
-(def ^Symbol help
-             ($.data/symbol "help"))
 
 
 

@@ -33,11 +33,11 @@
 ;; Prints nice information at the start of a run.
 ;;
 (sreq/out! (str "\033[H\033[2J"
-                "Run N°" (inc help/*cycle*)
-                help/line
-                help/line
+                "Run N°" (inc env/*cycle*)
+                env/line
+                env/line
                 "OUTPUT:"
-                help/line))
+                env/line))
 
 
 ;;;;;;;;;; HELP LIBRARY
@@ -48,9 +48,9 @@
 ;; Notably, it provides an `about` function which can be used to describe any address or any symbol defined
 ;; in any address
 
-; (help/about help)
+; (env/about env)
 
-; (help/about help 'about)
+; (env/about env 'about)
 
 
 ;; It also contains dynamic values commonly useful.
@@ -58,8 +58,8 @@
 ;; For example:
 ;;
 ; (+ 10 20)
-; (sreq/out! {:juice  help/*trx.last.juice*
-;             :result help/*trx.last.result*})
+; (sreq/out! {:juice  env/*trx.last.juice*
+;             :result env/*trx.last.result*})
 
 
 ;;;;;;;;;; SPECIAL REQUESTS
@@ -75,9 +75,9 @@
 ;;
 ;; The rest of this file shows examples of such special requests.
 
-; (help/about sreq)
+; (env/about sreq)
 
-; (help/about sreq 'out)
+; (env/about sreq 'out)
 
 
 ;;;;;;;;;; PRODUCING AN OUTPUT
@@ -100,11 +100,11 @@
 ;; Registers a function which maps a thrown CVM exception to a transaction.
 ;; Default is to output them.
 ;;
-; (sreq/hook.error '(sreq/out! (str "An error occured: " help/*error*)))
+; (sreq/hook.error '(sreq/out! (str "An error occured: " env/*error*)))
 ; (fail :foo :bar)
 
 
-;                               :result help/*trx.last.result*}))
+;                               :result env/*trx.last.result*}))
 ;(+ 10 20)
 
 ;(sreq/hook.error nil)
@@ -169,13 +169,13 @@
 ;   [trx]
 ;
 ;   (sreq/do `[(sreq/out! "===")
-;              (sreq/out! help/line)
+;              (sreq/out! env/line)
 ;              (sreq/out! (str "TRANSACTION: "
 ;                                (quote ~trx)))
-;              (sreq/out! help/line)
+;              (sreq/out! env/line)
 ;              (sreq/out! (str "RESULT: "
 ;                                ~trx))
-;              (sreq/out! help/line)
+;              (sreq/out! env/line)
 ;              (sreq/out! "===")]))
 ; 
 ; (trace (+ 2 2))
@@ -192,7 +192,7 @@
 ; (sreq/try '(do
 ;              (def foo 42)
 ;              (assert (> foo 100)))
-;           '(sreq/out! [:catch :foo-defined? (defined? foo)  :caught help/*error*]))
+;           '(sreq/out! [:catch :foo-defined? (defined? foo)  :caught env/*error*]))
 
 
 ;;;;;;;;;; ACCESSING THE CVM LOG
@@ -209,7 +209,7 @@
 
 ;; For the next transaction, it is available as last transaction's result.
 ;;
-; (sreq/out! [:log help/*trx.last.result*])
+; (sreq/out! [:log env/*trx.last.result*])
 
 
 ;;;;;;;;;; READING SOURCE
@@ -219,7 +219,7 @@
 ;; Code is available as a list of forms in last transaction's result.
 ;;
 ; (sreq/read+ (str "(+ 2 " "3)"))
-; (let [form (first help/*trx.last.result*)]
+; (let [form (first env/*trx.last.result*)]
 ;   (sreq/out! (list '= form (eval form))))
 
 
@@ -229,13 +229,13 @@
 ;; Storing whole process environment map.
 ;;
 ; (sreq/env)
-; (sreq/out [:whole-env help/*trx.last.result*])
+; (sreq/out [:whole-env env/*trx.last.result*])
 
 
 ;; Storing only one env property.
 ;;
 ; (sreq/env "SOME_ENV") ;; Should be a property spotted in previous example
-; (sreq/out! [:one-prop help/*trx.last.result*])
+; (sreq/out! [:one-prop env/*trx.last.result*])
 
 
 ;;;;;;;;;; SCHEDULING AND ADVANCING TIMESTAMP
@@ -303,21 +303,21 @@
 ;   (sreq/do '[(sreq/out "> ")
 ;              (sreq/out.flush)
 ;              (sreq/in.line+)
-;              (let [form+  help/*trx.last.result*
+;              (let [form+  env/*trx.last.result*
 ;                    n-form (count form+)]
 ;                (if (>= n-form
 ;                        1)
 ;                  (when-not (= (first form+)
 ;                               :exit)
-;                    (sreq/do `[(sreq/out help/line)
-;                               (sreq/try '[~(if (= n-form
-;                                                   1)
-;                                              (first form+)
-;                                              (cons 'do
-;                                                    form+))
-;                                           (sreq/out! help/*trx.last.result*)]
-;                                         '[(sreq/out! help/*error*)])
-;                               (sreq/out help/line)
+;                    (sreq/do `[(sreq/out env/line)
+;                               (sreq/try '(sreq/do '[~(if (= n-form
+;                                                             1)
+;                                                        (first form+)
+;                                                        (cons 'do
+;                                                              form+))
+;                                                     (sreq/out! env/*trx.last.result*)])
+;                                         '(sreq/out! renv/*error*))
+;                               (sreq/out env/line)
 ;                               (sreq/out.flush)
 ;                               (repl)]))
 ;                  (repl)))]))
