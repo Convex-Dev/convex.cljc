@@ -116,15 +116,4 @@
                             $.run.sym/out         ($.data/long (env-2 :convex.run/out))
                             $.run.sym/out-err     ($.data/long (env-2 :convex.run/err))
                             $.run.sym/single-run? ($.data/boolean (env-2 :convex.run/single-run?))}))
-      (as->
-        env-2
-        (apply $.run.ctx/def-mode
-               env-2
-               :convex.sync/ctx-base
-               (case (or (env-2 :convex.run/mode)
-                         :eval)
-                 :eval [$.run.exec/mode-eval
-                        $.run.kw/mode-eval]
-                 :exec [$.run.exec/mode-exec
-                        $.run.kw/mode-exec])))
       $.run.ctx/init))

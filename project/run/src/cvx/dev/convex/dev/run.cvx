@@ -40,10 +40,10 @@
                 env/line))
 
 
-;;;;;;;;;; HELP LIBRARY
+;;;;;;;;;; ENV ACCOUNT
 
 
-;; The Help library is a special address only available when using the runner.
+;; The `env` address is a special account only available when using the runner.
 ;;
 ;; Notably, it provides an `about` function which can be used to describe any address or any symbol defined
 ;; in any address
@@ -58,8 +58,7 @@
 ;; For example:
 ;;
 ; (+ 10 20)
-; (sreq/out! {:juice  env/*juice*
-;             :result env/*result*})
+; (sreq/out! {:result env/*result*})
 
 
 ;;;;;;;;;; SPECIAL REQUESTS
@@ -316,7 +315,7 @@
 ;                                                        (cons 'do
 ;                                                              form+))
 ;                                                     (sreq/out! env/*result*)])
-;                                         '(sreq/out! renv/*error*))
+;                                         '(sreq/out! env/*error*))
 ;                               (sreq/out env/line)
 ;                               (sreq/out.flush)
 ;                               (repl)]))
@@ -326,16 +325,8 @@
 
 
 
-;(defmacro foo [x] (assert false))
+(sreq/monitor '(+ 2 4))
 
-(sreq/mode.exec)
-(sreq/mode.eval)
-
-(sreq/out! [:mode env/*mode*])
+(sreq/out! env/*result*)
 
 
-(defmacro foo [x] x); `(+ 1 ~x))
-
-(foo 42)
-
-(sreq/out! env/*juice*)

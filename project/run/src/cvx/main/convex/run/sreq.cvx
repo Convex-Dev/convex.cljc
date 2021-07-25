@@ -223,23 +223,13 @@
 
 
 
-(defn mode.eval
+(defn monitor
 
   ^{:doc {:description ""}}
 
-  []
+  [trx]
 
-  [:cvm.sreq :mode.eval])
-
-
-
-(defn mode.exec
-
-  ^{:doc {:description ""}}
-
-  []
-
-  [:cvm.sreq :mode.exec])
+  [:cvm.sreq :monitor trx])
 
 
 

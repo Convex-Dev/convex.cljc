@@ -350,25 +350,13 @@
 
 (defmethod $.run.exec/sreq
 
-  $.run.kw/mode-eval
+  $.run.kw/monitor
 
-  [env _tuple]
+  [env ^AVector tuple]
 
-  ($.run.ctx/def-mode env
-                      $.run.exec/mode-eval
-                      $.run.kw/mode-eval))
-
-
-
-(defmethod $.run.exec/sreq
-
-  $.run.kw/mode-exec
-
-  [env _tuple]
-
-  ($.run.ctx/def-mode env
-                      $.run.exec/mode-exec
-                      $.run.kw/mode-exec))
+  ($.run.exec/trx-monitor env
+                          (.get tuple
+                                2)))
 
 
 

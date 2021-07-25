@@ -130,31 +130,6 @@
 
 
 
-(defn def-mode
-
-  "Defines the evaluation mode in the `env` account under `*mode*`.
-
-   See [[convex.run.exec/trx]]."
-
-
-  ([env mode-f mode-kw]
-
-   (def-mode env
-             :convex.sync/ctx
-             mode-f
-             mode-kw))
-
-
-  ([env kw-ctx mode-f mode-kw]
-
-   (-> env
-       (assoc :convex.run/mode
-              mode-f)
-       (def-env kw-ctx
-                {$.run.sym/mode mode-kw}))))
-
-
-
 (defn def-result
 
   "Defines `env/*result*` with the given `result`."
@@ -208,20 +183,3 @@
              :convex.sync/ctx-base
              {$.run.sym/file ($.data/string path)})
     env))
-
-
-
-(defn trx-end
-
-  "Used after executing each transaction which becomes the \"previous\" form.
-  
-   Defines:
-
-   - `env/*juice*, juice consumed by the previous transaction
-   - `env/*result*, result of the previous transaction"
-
-  [env juice-last result]
-
-  (def-env env
-           {$.run.sym/juice  ($.data/long juice-last)
-            $.run.sym/result result}))

@@ -25,7 +25,7 @@
 (comment
 
 
-  ($.run/eval "(help/about sreq)")
+  ($.run/eval "(sreq/about sreq)")
 
 
 

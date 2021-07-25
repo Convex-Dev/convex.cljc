@@ -42,17 +42,8 @@
 
 
 
-(def ^Symbol juice
-             ($.data/symbol "*juice*"))
-
-
 (def ^Symbol line
              ($.data/symbol "line"))
-
-
-
-(def ^Symbol mode
-             ($.data/symbol "*mode*"))
 
 
 

@@ -118,6 +118,25 @@
               ($.data/keyword "in.set"))
 
 
+(def ^Keyword juice
+              ($.data/keyword "juice"))
+
+
+
+(def ^Keyword juice-expand
+              ($.data/keyword "juice.expand"))
+
+
+
+(def ^Keyword juice-compile
+              ($.data/keyword "juice.compile"))
+
+
+
+(def ^Keyword juice-exec
+              ($.data/keyword "juice.exec"))
+
+
 
 (def ^Keyword log
               ($.data/keyword "log"))
@@ -129,13 +148,8 @@
 
 
 
-(def ^Keyword mode-eval
-              ($.data/keyword "mode.eval"))
-
-
-
-(def ^Keyword mode-exec
-              ($.data/keyword "mode.exec"))
+(def ^Keyword monitor
+              ($.data/keyword "monitor"))
 
 
 
@@ -181,6 +195,11 @@
 
 (def ^Keyword report
               ($.data/keyword "report"))
+
+
+
+(def ^Keyword result
+              ($.data/keyword "result"))
 
 
 

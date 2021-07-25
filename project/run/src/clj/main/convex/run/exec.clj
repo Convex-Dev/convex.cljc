@@ -28,7 +28,28 @@
   4)
 
 
+
+(def max-juice
+
+  "Maximum juice value set on context prior to handling code."
+
+  Long/MAX_VALUE)
+
+
 ;;;;;;;;;; Miscellaneous
+
+
+(defn juice
+
+  "Computes consumed juice, extracting [[max-juice]] from the current value."
+
+  [env]
+
+  (- max-juice
+     (-> env
+         :convex.sync/ctx
+         $.cvm/juice)))
+
 
 
 (defn result
@@ -110,6 +131,22 @@
   :default :unknown)
 
 
+
+(defn sreq-safe
+
+  ""
+
+  [env result]
+
+  (try
+    (sreq env
+          result)
+    (catch Throwable _ex
+           ($.run.err/signal env
+                             ($.data/code-std* :FATAL)
+                             ($.data/string "Unknown error happened while finalizing transaction")))))
+
+
 ;;;;;;;;;; Execution steps
 
 
@@ -176,94 +213,59 @@
                trx-compiled)))
 
 
-;;; Modes, evaluating code and tracking juice cost differently
-
-
-(defn mode-eval
-
-  "Evaluates `trx`, but unlike [[mode-exec]], reported juice encompass [[expand]] and [[compile]]
-   as well."
-
-
-  ([env]
-
-   (mode-eval env
-              (result env)))
-
-
-  ([env trx]
-
-   (update-ctx env
-               $.run.kw/eval
-               $.cvm/eval
-               trx)))
-
-
-
-(defn mode-exec
-
-  "Evaluates `trx` but reported juice will only account for the [[exec]] phase."
-
-
-  ([env]
-
-   (mode-exec env
-              (result env)))
-
-
-  ([env trx]
-
-   (let [env-2 (expand env
-                       trx)]
-     (if (env-2 :convex.run/error)
-       env-2
-       (let [env-3 (compile env-2)]
-         (if (env-3 :convex.run/error)
-           env-3
-           (exec env-3)))))))
-
-
 ;;;;;;;;;; Transactions
 
 
 (defn trx
 
-  "Evaluates the given transaction.
-  
-   Result from current context is used if not provided.
-  
-   Essentially, setups the situation with [[convex.run.ctx/trx-begin]], evaluates using the current mode, updates
-   important definitions using [[convex.run.ctx/trx-end]] and processes special request if needed.
-  
-   Mode is defined under `:convex.run/mode`. Se [[mode-eval]], [[mode-exec]]."
+  "Evaluates `trx` and interns result in `env/*result*`."
+
+  [env trx]
+
+  (let [env-2 (update-ctx env
+                          $.run.kw/eval
+                          $.cvm/eval
+                          trx)]
+    (if (env-2 :convex.run/error)
+      env-2
+      (let [res (result env-2)]
+        (sreq-safe ($.run.ctx/def-result env-2
+                                         res)
+                   res)))))
 
 
-  ([env]
 
-   (trx env
-        (result env)))
+(defn trx-monitor
 
+  "Like [[trx]] but result is a map containing `:result` as well as juice values for each steps ([[expand]],
+   [[compile]], and [[exec]])."
 
-  ([env trx]
+  [env trx]
 
-   (let [env-2 ((env :convex.run/mode)
-                env
-                trx)]
-     (if (env-2 :convex.run/error)
-       env-2
-       (let [ctx   (env :convex.sync/ctx)
-             res   ($.cvm/result ctx)
-             env-3 (-> env-2
-                       ($.run.ctx/trx-end (- Long/MAX_VALUE
-                                             ($.cvm/juice ctx)) ;; Juice is always refilled to max prior to evaluation.
-                                          res))]
-         (try
-           (sreq env-3
-                 res)
-           (catch Throwable _ex
-             ($.run.err/signal env-3
-                               ($.data/code-std* :FATAL)
-                               ($.data/string "Unknown error happened while finalizing transaction")))))))))
+  (let [env-2 (expand env
+                      trx)]
+    (if (env-2 :convex.run/error)
+      env-2
+      (let [juice-expand (juice env-2)
+            env-3        (compile env-2)]
+        (if (env-3 :convex.run/error)
+          env-3
+          (let [juice-compile (juice env-3)
+                env-4         (exec env-3)]
+            (if (env-4 :convex.run/error)
+              env-4
+              (let [juice-exec (juice env-4)
+                    res        (result env-4)]
+                (sreq-safe ($.run.ctx/def-result env-4
+                                                 ($.data/map {$.run.kw/juice         ($.data/long (+ juice-expand
+                                                                                                     juice-compile
+                                                                                                     juice-exec))
+                                                              $.run.kw/juice-expand  ($.data/long juice-expand)
+                                                              $.run.kw/juice-compile ($.data/long juice-compile)
+                                                              $.run.kw/juice-exec    ($.data/long juice-exec)
+                                                              $.run.kw/result        res}))
+
+                           res)))))))))
 
 
 
@@ -311,8 +313,6 @@
       (assoc :convex.run/err         4
              :convex.run/in          0
              :convex.run/out         2)
-      ($.run.ctx/def-mode mode-eval
-                          $.run.kw/mode-eval)
       $.run.ctx/cycle
       trx+
       (as->
