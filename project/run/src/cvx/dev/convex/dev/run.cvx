@@ -58,8 +58,8 @@
 ;; For example:
 ;;
 ; (+ 10 20)
-; (sreq/out! {:juice  env/*trx.last.juice*
-;             :result env/*trx.last.result*})
+; (sreq/out! {:juice  env/*juice*
+;             :result env/*result*})
 
 
 ;;;;;;;;;; SPECIAL REQUESTS
@@ -104,7 +104,7 @@
 ; (fail :foo :bar)
 
 
-;                               :result env/*trx.last.result*}))
+;                               :result env/*result*}))
 ;(+ 10 20)
 
 ;(sreq/hook.error nil)
@@ -209,7 +209,7 @@
 
 ;; For the next transaction, it is available as last transaction's result.
 ;;
-; (sreq/out! [:log env/*trx.last.result*])
+; (sreq/out! [:log env/*result*])
 
 
 ;;;;;;;;;; READING SOURCE
@@ -219,7 +219,7 @@
 ;; Code is available as a list of forms in last transaction's result.
 ;;
 ; (sreq/read+ (str "(+ 2 " "3)"))
-; (let [form (first env/*trx.last.result*)]
+; (let [form (first env/*result*)]
 ;   (sreq/out! (list '= form (eval form))))
 
 
@@ -229,13 +229,13 @@
 ;; Storing whole process environment map.
 ;;
 ; (sreq/env)
-; (sreq/out [:whole-env env/*trx.last.result*])
+; (sreq/out [:whole-env env/*result*])
 
 
 ;; Storing only one env property.
 ;;
 ; (sreq/env "SOME_ENV") ;; Should be a property spotted in previous example
-; (sreq/out! [:one-prop env/*trx.last.result*])
+; (sreq/out! [:one-prop env/*result*])
 
 
 ;;;;;;;;;; SCHEDULING AND ADVANCING TIMESTAMP
@@ -303,7 +303,7 @@
 ;   (sreq/do '[(sreq/out "> ")
 ;              (sreq/out.flush)
 ;              (sreq/in.line+)
-;              (let [form+  env/*trx.last.result*
+;              (let [form+  env/*result*
 ;                    n-form (count form+)]
 ;                (if (>= n-form
 ;                        1)
@@ -315,7 +315,7 @@
 ;                                                        (first form+)
 ;                                                        (cons 'do
 ;                                                              form+))
-;                                                     (sreq/out! env/*trx.last.result*)])
+;                                                     (sreq/out! env/*result*)])
 ;                                         '(sreq/out! renv/*error*))
 ;                               (sreq/out env/line)
 ;                               (sreq/out.flush)
@@ -323,3 +323,14 @@
 ;                  (repl)))]))
 ; 
 ; (repl)
+
+;(defmacro foo [x] x)
+
+;(sreq/mode.exec)
+;(sreq/mode.eval)
+
+
+(sreq/out! [:mode env/*mode*])
+
+(sreq/out! [env/*result* env/*juice*])
+

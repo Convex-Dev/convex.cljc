@@ -170,6 +170,7 @@
 
   ([env trx-compiled]
 
+   (println :eXEC)
    (update-ctx env
                $.run.kw/exec
                $.cvm/exec
@@ -213,6 +214,7 @@
 
   ([env trx]
 
+   (println :MODEEXEC)
    (let [env-2 (expand env
                        trx)]
      (if (env-2 :convex.run/error)
@@ -247,25 +249,17 @@
 
   ([env trx]
 
-   (let [env-2 (-> env
-                   (update :convex.run/i-trx
-                           inc)
-                   ($.run.ctx/trx-begin trx)
-                   ((env :convex.run/mode)
-                    trx))]
+   (let [env-2 ((env :convex.run/mode)
+                env
+                trx)]
      (if (env-2 :convex.run/error)
        env-2
-       (let [ctx        (env :convex.sync/ctx)
-             res        ($.cvm/result ctx)
-             juice-last (- Long/MAX_VALUE  ;; Juice is always refilled to max prior to evaluation.
-                           ($.cvm/juice ctx))
-             env-3      (-> env-2
-                            (update :convex.run/juice-total
-                                    +
-                                    juice-last)
-                            ($.run.ctx/trx-end trx
-                                               juice-last
-                                               res))]
+       (let [ctx   (env :convex.sync/ctx)
+             res   ($.cvm/result ctx)
+             env-3 (-> env-2
+                       ($.run.ctx/trx-end (- Long/MAX_VALUE
+                                             ($.cvm/juice ctx)) ;; Juice is always refilled to max prior to evaluation.
+                                          res))]
          (try
            (sreq env-3
                  res)
@@ -318,9 +312,7 @@
               :convex.run/state-stack)
       (merge (env :convex.run/restore))
       (assoc :convex.run/err         4
-             :convex.run/i-trx       -1
              :convex.run/in          0
-             :convex.run/juice-total 0
              :convex.run/out         2)
       $.run.ctx/cycle
       trx+

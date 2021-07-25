@@ -356,7 +356,7 @@
                                           trx)}]
          (sreq/try `(sreq/do '[~trx
                                (~self/report.conj (assoc ~base-report
-                                                         :result env/*trx.last.result*
+                                                         :result env/*result*
                                                          :pass?  false))])
                    `(let [ex env/*error*]
                       (~self/report.conj (assoc ~base-report
@@ -413,8 +413,8 @@
                                           trx)}]
          (sreq/try `(sreq/do '[~trx
                                (~self/report.conj (assoc ~base-report
-                                                         :result env/*trx.last.result*
-                                                         :pass?  (= env/*trx.last.result*
+                                                         :result env/*result*
+                                                         :pass?  (= env/*result*
                                                                     true)))])
                    `(~self/report.conj (assoc ~base-report
                                               :exception env/*error*

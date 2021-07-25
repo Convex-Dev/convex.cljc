@@ -3,7 +3,7 @@
   "Preparing CVM contextes for runner operations.
   
    Mosting about defining symbols at key moments, all those dynamic values in the `env`
-   account (eg. `env/*error*`, `env/*trx.form*`, ...)."
+   account (eg. `env/*error*`, ...)."
 
   {:author "Adam Helinski"}
 
@@ -157,12 +157,12 @@
 
 (defn def-result
 
-  "Defines `env/*trx.last.result*` with the given `result`."
+  "Defines `env/*result*` with the given `result`."
 
   [env result]
 
   (def-env env
-            {$.run.sym/trx-last-result result}))
+            {$.run.sym/result result}))
 
 
 ;;;;;;;;;; Miscellaneous utilities
@@ -199,7 +199,7 @@
 
   "Used once at the very beginning for preparing [[base]].
   
-   `Defines `env/*file*`, the canonical path of the main file (unless in eval mode)."
+   `Defines `env/*file*`, the canonical path of the main file (unless there is none)."
 
   [env]
 
@@ -211,42 +211,17 @@
 
 
 
-(defn trx-begin
-
-  "Used before executing each transaction.
-  
-   `Defines:
-  
-    - `env/*trx.form*`, the form of the current transaction
-    - `env/*frx.id*`, the number of the current transaction (incremented each time)"
-
-  [env form]
-
-  (def-env env
-           {$.run.sym/trx-form form
-            $.run.sym/trx-id   ($.data/long (env :convex.run/i-trx))}))
-
-
-
 (defn trx-end
 
   "Used after executing each transaction which becomes the \"previous\" form.
   
    Defines:
 
-   - `env/*juice*`, the total amount of juice consumed since the beginning of the run
-   - `env/*trx.last.form*`, previous transaction
-   - `env/*trx.last.id*, id ofthe previous transaction (see [[trx-begin]])
-   - `env/*trx.last.juice*, juice consumed by the previous transaction
-   - `env/*trx.last.result*, result of the previous transaction"
+   - `env/*juice*, juice consumed by the previous transaction
+   - `env/*result*, result of the previous transaction"
 
-  [env form juice-last result]
+  [env juice-last result]
 
   (def-env env
-           {$.run.sym/juice-total     ($.data/long (env :convex.run/juice-total))
-            $.run.sym/trx-form        nil
-            $.run.sym/trx-id          nil
-            $.run.sym/trx-last-form   form
-            $.run.sym/trx-last-id     ($.data/long (env :convex.run/i-trx))
-            $.run.sym/trx-last-juice  ($.data/long juice-last)
-            $.run.sym/trx-last-result result}))
+           {$.run.sym/juice  ($.data/long juice-last)
+            $.run.sym/result result}))

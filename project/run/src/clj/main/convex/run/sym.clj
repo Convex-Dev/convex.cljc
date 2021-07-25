@@ -42,9 +42,8 @@
 
 
 
-(def ^Symbol juice-total
+(def ^Symbol juice
              ($.data/symbol "*juice*"))
-
 
 
 (def ^Symbol line
@@ -53,7 +52,7 @@
 
 
 (def ^Symbol mode
-             ($.data/symbol "mode"))
+             ($.data/symbol "*mode*"))
 
 
 
@@ -67,6 +66,11 @@
 
 
 
+(def ^Symbol result
+             ($.data/symbol "*result*"))
+
+
+
 (def ^Symbol single-run?
              ($.data/symbol "single-run?"))
 
@@ -74,33 +78,3 @@
 
 (def ^Symbol sreq
              ($.data/symbol "sreq"))
-
-
-
-(def ^Symbol trx-form
-             ($.data/symbol "*trx.form*"))
-
-
-
-(def ^Symbol trx-id
-             ($.data/symbol "*trx.id*"))
-
-
-
-(def ^Symbol trx-last-form
-             ($.data/symbol "*trx.last.form*"))
-
-
-
-(def ^Symbol trx-last-id
-             ($.data/symbol "*trx.last.id*"))
-
-
-
-(def ^Symbol trx-last-juice
-             ($.data/symbol "*trx.last.juice*"))
-
-
-
-(def ^Symbol trx-last-result
-             ($.data/symbol "*trx.last.result*"))

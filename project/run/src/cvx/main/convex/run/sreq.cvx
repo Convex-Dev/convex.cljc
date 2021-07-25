@@ -74,7 +74,7 @@
 
   ^{:doc {:description ["Retrieves environment variable from the current process. Useful when some information must be passed to the runner from the outside."
                         "When a env variable is given as well, defines only the value for that variable"
-                        "Result is temporarily stored in `env/*trx.last.result* and is accessible during the next transaction."]
+                        "Result is temporarily stored in `env/*result* and is accessible during the next transaction."]
           :examples    [{:code "(sreq/env}"}
                         {:code "(sreq/env \"MY_X\")"}]
           :signature   [{:params [sym]}
@@ -212,7 +212,7 @@
 (defn log
 
   ^{:doc {:description ["Retrieves the current CVM log."
-                        "Result is temporarily stored in `env/*trx.last.result* and is accessible during the next transaction."]
+                        "Result is temporarily stored in `env/*result* and is accessible during the next transaction."]
           :examples    [{:code "(sreq/do '[(log :foo) (sreq/log l) (sreq/out l))"}]
           :signature   [{:params []}]
           :type        :function}}
@@ -327,7 +327,7 @@
 
   ^{:doc {:description ["Passes the given string through the CVX reader and produces a list of cells."
                         "Those cells can be compiled, evaluated, ..."
-                        "Result is temporarily stored in `env/*trx.last.result* and is accessible during the next transaction."]
+                        "Result is temporarily stored in `env/*result* and is accessible during the next transaction."]
           :examples    [{:code "(sreq/read+ \"(+ 2 2)\")"}]
           :signature   [{:params [string]}]
           :type        :function}}

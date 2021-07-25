@@ -321,7 +321,6 @@
                                      (assoc :convex.run/in  0
                                             :convex.run/out 2)
                                      (dissoc :convex.run/error
-                                             :convex.run/i-trx
                                              :convex.run/juice-last
                                              :convex.run/state-stack
                                              :convex.sync/ctx
