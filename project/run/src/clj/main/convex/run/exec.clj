@@ -18,6 +18,16 @@
 (declare run)
 
 
+;;;;;;;;;; Values
+
+
+(def default-err
+  
+  "Default error stream."
+
+  4)
+
+
 ;;;;;;;;;; Miscellaneous
 
 
@@ -307,7 +317,8 @@
       (dissoc :convex.run/restore
               :convex.run/state-stack)
       (merge (env :convex.run/restore))
-      (assoc :convex.run/i-trx       -1
+      (assoc :convex.run/err         4
+             :convex.run/i-trx       -1
              :convex.run/in          0
              :convex.run/juice-total 0
              :convex.run/out         2)
