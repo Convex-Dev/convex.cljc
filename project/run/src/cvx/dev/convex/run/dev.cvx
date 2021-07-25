@@ -338,6 +338,3 @@
 ;                  (repl)))]))
 ; 
 ;(repl)
-
-(sreq/out.err.set sreq/stdout.txt)
-

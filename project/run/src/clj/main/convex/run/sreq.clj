@@ -18,6 +18,7 @@
             [convex.run.err  :as $.run.err]
             [convex.run.exec :as $.run.exec]
             [convex.run.kw   :as $.run.kw]
+            [convex.run.sym  :as $.run.sym]
             [convex.write    :as $.write]))
 
 
@@ -113,17 +114,19 @@
 
   ""
 
-  [env kw ^AVector tuple]
+  [env kw cvx-sym ^AVector tuple]
 
   (let [id (.longValue ^CVMLong (.get tuple
                                       2))]
     (if (some? (get-in env
                        [:convex.run/stream+
                         id]))
-      (assoc env
-             kw
-             id)
+      (-> env
+          (assoc kw
+                 id)
+          ($.run.ctx/def-help {cvx-sym ($.data/long id)}))
       (err-stream-not-found env))))
+
 
 
 
@@ -502,6 +505,7 @@
 
   (stream-set env
               :convex.run/in
+              $.run.sym/in
               tuple))
 
 
@@ -600,6 +604,7 @@
 
   (stream-set env
               :convex.run/err
+              $.run.sym/out-err
               tuple))
 
 
@@ -630,6 +635,7 @@
 
   (stream-set env
               :convex.run/out
+              $.run.sym/out-err
               tuple))
 
 

@@ -196,5 +196,6 @@
 
 
     (catch Throwable ex
+      (println :EX ex)
       (error "An unknown exception happened."
              ex))))

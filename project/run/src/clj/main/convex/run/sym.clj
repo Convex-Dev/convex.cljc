@@ -37,6 +37,11 @@
 
 
 
+(def ^Symbol in
+             ($.data/symbol "*in*"))
+
+
+
 (def ^Symbol juice-total
              ($.data/symbol "*juice*"))
 
@@ -48,7 +53,17 @@
 
 
 (def ^Symbol mode
-             ($.data/symbol "*mode*"))
+             ($.data/symbol "mode"))
+
+
+
+(def ^Symbol out
+             ($.data/symbol "*out*"))
+
+
+
+(def ^Symbol out-err
+             ($.data/symbol "*out.err*"))
 
 
 
