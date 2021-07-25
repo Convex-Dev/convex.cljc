@@ -95,17 +95,11 @@
   
   nil
 
-  ;; No special request, simply finalizes a regular transaction and evaluates result hook (if present).
+  ;; No special request.
 
   [env _result]
 
-  (if-some [hook (env :convex.run.hook/result)]
-    (-> env
-        (dissoc :convex.run.hook/result)
-        ($.run.exec/trx hook)
-        (assoc :convex.run.hook/result
-               hook))
-    env))
+  env)
 
 
 
@@ -286,41 +280,6 @@
       (restore env
                :convex.run.hook/error
                hook-restore))))
-
-
-
-(defmethod $.run.exec/sreq
-  
-  $.run.kw/hook-result
-
-  ;; Registers a transaction that will be executed after every transaction in source that does not result
-  ;; in a special request.
-  ;;
-  ;; Removes hook on nil.
-
-  [env ^AVector tuple]
-
-  (let [path-restore [:convex.run/restore
-                      :convex.run.hook/result]
-        trx-restore  (get-in env
-                             path-restore
-                             ::nil)
-        trx-restore? (not (identical? trx-restore
-                                      ::nil))
-        trx-new      (.get tuple
-                           2)]
-    (if trx-new
-      (-> env
-          (cond->
-            (not trx-restore?)
-            (assoc-in path-restore
-                      (env :convex.run.hook/result)))
-          (assoc :convex.run.hook/result
-                 trx-new))
-      (restore env
-               :convex.run.hook/result
-               trx-restore?
-               trx-restore))))
 
 
 

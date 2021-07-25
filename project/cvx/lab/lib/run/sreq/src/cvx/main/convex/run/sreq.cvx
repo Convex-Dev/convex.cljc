@@ -145,21 +145,6 @@
 
 
 
-(defn hook.result
-
-  ^{:doc {:description ["Registers a quoted transaction meant to be executed after transaction with the purpose of doing some post-processing."
-                        "Useful for things like displaying juice consumption, tracing transactions, etc."
-                        "Overwrites any previously registered quoted transaction, `nil` removes it."]
-          :examples    [{:code "(sreq/hook.trx '(sreq/out [:result help/*trx.last.result* :juice help/*trx.last.juice*]))"}]
-          :signature   [{:params [trx]}]
-          :type        :function}}
-
-  [trx]
-
-  [:cvm.sreq :hook.result trx])
-
-
-
 (defn in
 
   ^{:doc {:description ["Reads a cell form from input."

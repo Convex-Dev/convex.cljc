@@ -99,11 +99,6 @@
 
 
 
-(def ^Keyword hook-result
-              ($.data/keyword "hook.result"))
-
-
-
 (def ^Keyword in
               ($.data/keyword "in"))
 
@@ -135,12 +130,12 @@
 
 
 (def ^Keyword mode-eval
-              ($.data/keyword "mode-eval"))
+              ($.data/keyword "mode.eval"))
 
 
 
 (def ^Keyword mode-exec
-              ($.data/keyword "mode-exec"))
+              ($.data/keyword "mode.exec"))
 
 
 

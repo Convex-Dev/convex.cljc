@@ -100,34 +100,17 @@
 ;; Registers a function which maps a thrown CVM exception to a transaction.
 ;; Default is to output them.
 ;;
-;(sreq/hook.error (fn [err]
-;                   (sreq/out! (str "An error occured: " err))))
-;(fail :foo :bar)
+; (sreq/hook.error '(sreq/out! (str "An error occured: " help/*error*)))
+; (fail :foo :bar)
 
 
-;; Registers a function which maps any value to be output right before being so.
-;; Allows for implementing things like pretty-printing.
-;;
-; (sreq/hook.out (fn [x]
-;                  (if (and (map? x)
-;                           (:foo x))
-;                    (str "This value contains `:foo`: " x)
-;                    x)))
-; (sreq/out! 42)
-; (sreq/out! {:foo 1, :bar 2})
-
-
-;; Registers a transaction to perform after each transaction in this main file.
-;; Useful for providing feedback on what is happening.
-;;
-;(sreq/hook.result '(sreq/out! {:form   help/*trx.last.form*
-;                               :juice  help/*trx.last.juice*
 ;                               :result help/*trx.last.result*}))
 ;(+ 10 20)
 
-;(sreq/hook.result nil)
+;(sreq/hook.error nil)
+
 ;;
-;; Any registered can be overwritten or canceled with nil
+;; Any registered hook can be overwritten or canceled with nil
 ;;
 
 
@@ -337,4 +320,4 @@
 ;                               (repl)]))
 ;                  (repl)))]))
 ; 
-;(repl)
+; (repl)
