@@ -50,7 +50,7 @@
 
    When a CVM exception or any other error occurs, it is being signaled using the error hook. See hook section.
 
-   Errors are usually signaled to the user with [[convex.run.err/signal]] and [[convex.run.err/fatal]] in extreme cases.
+   Errors are usually signaled to the user with [[convex.run.err/signal]].
 
 
    HOOKS

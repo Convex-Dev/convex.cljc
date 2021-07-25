@@ -218,34 +218,6 @@
 ;;;;;;;;;; Signaling errors in Convex Lisp
 
 
-(defn fatal
-
-  "In some extreme cases, normal error reporting via [[signal]] does not work or cannot be done.
-  
-   For instance, user provided error hook failed, no way to actually report the error.
-  
-   In that case the error os forwarded directly to the output hook after using [[attach]]."
-
-
-  ([env err]
-
-   ((env :convex.run.hook/out)
-    (attach env
-            err)
-    err))
-
-
-  ([env ^ACell _form message cause]
-
-   (fatal env
-          (-> ($.data/error ($.data/code-std* :FATAL)
-                            message)
-              ;(.assoc $.run.kw/form
-              ;        form)
-              (assoc-cause cause)))))
-
-
-
 (defn report
 
   "Uses [[signal]] with `err` but associates to it a `:report` key pointing to a temp file

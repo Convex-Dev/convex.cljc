@@ -139,10 +139,9 @@
           :signature   [{:params [f]}]
           :type        :function}}
 
-  [f]
+  [trx]
 
-  (assert (fn? f))
-  [:cvm.sreq :hook.error f])
+  [:cvm.sreq :hook.error trx])
 
 
 
