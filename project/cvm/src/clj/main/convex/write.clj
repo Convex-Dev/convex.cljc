@@ -18,6 +18,9 @@
            (java.nio.channels Channels)))
 
 
+(declare string)
+
+
 ;;;;;;;;;;
 
 
@@ -85,14 +88,44 @@
 
 (defn stream-txt
 
-  "Writes the given `cell` to the given `java.io.Writer` (parent class of text streams)."
+  "Writes the given `cell` to the given `java.io.Writer` (parent class of text streams).
 
-  ^Writer
+   By default, standard `str` is used for stringifying `cell`. See [[string]] for implications."
 
-  [^Writer writer ^ACell cell]
 
-  (.write writer
-          (if (nil? cell)
-            "nil"
-            (str cell)))
-  writer)
+  (^Writer [writer cell]
+
+   (stream-txt writer
+               str
+               cell))
+
+
+  (^Writer [^Writer writer stringify ^ACell cell]
+
+   (.write writer
+           (if (nil? cell)
+             "nil"
+             (stringify cell)))
+   writer))
+
+
+
+(defn string
+
+  "Prints the given `cell` as a string.
+  
+   While standard `str` is sufficient for other type of cells, this function ensures that CVX strings are escaped
+   so that reading produces a CVX string as well.
+  
+   For instance, with `(+ 1 2)`:
+
+   | Function | Cell after reading |
+   |---|---|
+   | Clojure `str` | `(+ 1 2)` |
+   | This namespace's `string` | `\"(+ 1 2)\"` |"
+
+  ^String
+
+  [^ACell cell]
+
+  (.print cell))
