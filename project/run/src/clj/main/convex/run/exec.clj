@@ -170,7 +170,6 @@
 
   ([env trx-compiled]
 
-   (println :eXEC)
    (update-ctx env
                $.run.kw/exec
                $.cvm/exec
@@ -214,13 +213,11 @@
 
   ([env trx]
 
-   (println :MODEEXEC)
    (let [env-2 (expand env
                        trx)]
      (if (env-2 :convex.run/error)
        env-2
-       (let [env-3 (compile env
-                            trx)]
+       (let [env-3 (compile env-2)]
          (if (env-3 :convex.run/error)
            env-3
            (exec env-3)))))))
@@ -314,6 +311,8 @@
       (assoc :convex.run/err         4
              :convex.run/in          0
              :convex.run/out         2)
+      ($.run.ctx/def-mode mode-eval
+                          $.run.kw/mode-eval)
       $.run.ctx/cycle
       trx+
       (as->

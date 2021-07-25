@@ -54,7 +54,6 @@
 
 
 (declare juice-set
-         run
          state-set)
 
 
@@ -559,10 +558,8 @@
 
   (^Context [ctx]
 
-   (if (exception? ctx)
-     ctx
-     (run ctx
-          (result ctx))))
+   (exec ctx
+         (result ctx)))
 
 
   (^Context [^Context ctx ^AOp op]

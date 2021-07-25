@@ -324,13 +324,18 @@
 ; 
 ; (repl)
 
-;(defmacro foo [x] x)
 
-;(sreq/mode.exec)
-;(sreq/mode.eval)
 
+;(defmacro foo [x] (assert false))
+
+(sreq/mode.exec)
+(sreq/mode.eval)
 
 (sreq/out! [:mode env/*mode*])
 
-(sreq/out! [env/*result* env/*juice*])
 
+(defmacro foo [x] x); `(+ 1 ~x))
+
+(foo 42)
+
+(sreq/out! env/*juice*)
