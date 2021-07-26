@@ -22,14 +22,6 @@
 ;;;;;;;;;; Values
 
 
-(def default-err
-  
-  "Default error stream."
-
-  4)
-
-
-
 (def max-juice
 
   "Maximum juice value set on context prior to handling code."
@@ -312,17 +304,12 @@
                          $.run.sym/hook-error))]
     (-> env
         (assoc :convex.run/fail
-               (fn [env]
-                 ($.run.stream/out! env
-                                    (env :convex.run/err)
-                                    (env :convex.run/error))))
+               $.run.stream/err)
         (dissoc :convex.run/error)
         (trx hook)
         (assoc :convex.run/error (env :convex.run/error)
                :convex.run/fail  (env :convex.run/fail)))
-    ($.run.stream/out! env
-                       (env :convex.run/err)
-                       (env :convex.run/error))))
+    ($.run.stream/err env)))
 
 
 ;;;;;;;;;;
@@ -341,9 +328,6 @@
       (dissoc :convex.run/restore
               :convex.run/state-stack)
       (merge (env :convex.run/restore))
-      (assoc :convex.run/err 4
-             :convex.run/in  0
-             :convex.run/out 2)
       $.run.ctx/cycle
       trx+
       (as->

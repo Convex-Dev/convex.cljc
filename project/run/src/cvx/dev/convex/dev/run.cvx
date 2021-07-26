@@ -92,20 +92,20 @@
 
 ;; Registers transactions to be executed at the end of the run, even if a CVM exception was thrown.
 ;;
-;(env/hook.end '(sreq/out! :finished))
+;(env/set.hook.end '(sreq/out! :finished))
 
 
 ;; Registers a function which maps a thrown CVM exception to a transaction.
 ;; Default is to output them.
 ;;
-; (sreq/hook.error '(sreq/out! (str "An error occured: " env/*error*)))
+; (sreq/set.hook.error '(sreq/out! (str "An error occured: " env/*error*)))
 ; (fail :foo :bar)
 
 
 ;                               :result env/*result*}))
 ;(+ 10 20)
 
-;(sreq/hook.error nil)
+;(sreq/set.hook.error nil)
 
 ;;
 ;; Any registered hook can be overwritten or canceled with nil
@@ -321,8 +321,3 @@
 ;                  (repl)))]))
 ; 
 ; (repl)
-
-
-(sreq/close env/*out*)
-(sreq/out! :foo)
-

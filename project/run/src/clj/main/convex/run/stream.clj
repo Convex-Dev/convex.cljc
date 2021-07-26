@@ -4,18 +4,52 @@
 
   {:author "Adam Helinski"}
 
-  (:import (java.io BufferedReader))
+  (:import (convex.core.data.prim CVMLong)
+           (java.io BufferedReader))
   (:refer-clojure :exclude [flush])
-  (:require [convex.data    :as $.data]
+  (:require [convex.cvm     :as $.cvm]
+            [convex.data    :as $.data]
             [convex.io      :as $.io]
             [convex.read    :as $.read]
             [convex.run.ctx :as $.run.ctx]
             [convex.run.err :as $.run.err]
             [convex.run.kw  :as $.run.kw]
+            [convex.run.sym :as $.run.sym]
             [convex.write   :as $.write]))
 
 
+(set! *warn-on-reflection*
+      true)
+
+
+(declare out!)
+
+
 ;;;;;;;;;;
+
+
+(defn- -fail
+
+  ;;
+
+  [env id err]
+
+  (if (= id
+         (env ::stream.err))
+    (if (= id
+           4)  ;;  STDERR faulty, nothing can be done.
+      ((env :convex.run/fatal)
+       (dissoc env
+               ::err)
+       err)
+      (out! (assoc env
+                   ::stream.err
+                   4)
+            4
+            err))
+    ($.run.err/fail env
+                    err)))
+
 
 
 (defn operation
@@ -36,24 +70,26 @@
                             (f stream))
       
       (catch ClassCastException _ex
-        ($.run.err/fail env
-                        ($.data/error ($.data/code-std* :ARGUMENT)
-                                      ($.data/string (format "Stream [%s] is missing capability: %s"
-                                                             id
-                                                             capability)))))
+        (-fail env
+               id
+               ($.data/error ($.data/code-std* :ARGUMENT)
+                             ($.data/string (format "Stream [%s] is missing capability: %s"
+                                                    id
+                                                    capability)))))
 
       (catch Throwable _ex
-        (println :EX _ex)
-        ($.run.err/fail env
-                        ($.data/error $.run.kw/err-stream
-                                      ($.data/string (format "Stream [%s] failed while performing: %s" 
-                                                             id
-                                                             capability))))))
+        (-fail env
+               id
+               ($.data/error $.run.kw/err-stream
+                             ($.data/string (format "Stream [%s] failed while performing: %s" 
+                                                    id
+                                                    capability))))))
 
-    ($.run.err/fail env
-                    ($.data/error $.run.kw/err-stream
-                                  ($.data/string (format "Stream [%s] closed or does not exist"
-                                                         id))))))
+    (-fail env
+           id
+           ($.data/error $.run.kw/err-stream
+                         ($.data/string (format "Stream [%s] closed or does not exist"
+                                                id))))))
 
 
 
@@ -70,6 +106,26 @@
              (fn [^java.lang.AutoCloseable stream]
                (.close stream)
                nil)))
+
+
+
+(defn err
+
+  ""
+
+  [env]
+
+  (let [id (-> env
+               :convex.sync/ctx
+               ($.cvm/env $.run.ctx/addr-env)
+               ^CVMLong (.get $.run.sym/out-err)
+               .longValue)]
+    (-> env
+        (assoc ::stream.err
+               id)
+        (out! id
+              (env :convex.run/error))
+        (dissoc :err))))
 
 
 

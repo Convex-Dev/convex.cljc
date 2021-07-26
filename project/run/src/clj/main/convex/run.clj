@@ -198,6 +198,13 @@
       (update :convex.run/fail
               #(or %
                    $.run.exec/fail))
+      (update :convex.run/fatal
+              #(or %
+                   (fn [_env err]
+                     (println "FATAL: cannot output failure to error stream")
+                     (println)
+                     (println (str err))
+                     (System/exit 42))))
       (update :convex.sync/ctx-base
               #(or %
                    $.run.ctx/base))

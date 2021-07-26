@@ -51,6 +51,11 @@
 
 
 
+(def ^Symbol out-err
+             ($.data/symbol "*out.err*"))
+
+
+
 (def ^Symbol result
              ($.data/symbol "*result*"))
 
