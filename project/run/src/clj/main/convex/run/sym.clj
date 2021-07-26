@@ -41,6 +41,11 @@
 
 
 
+(def ^Symbol hook-error
+             ($.data/symbol "*hook.error*"))
+
+
+
 (def ^Symbol in
              ($.data/symbol "*in*"))
 

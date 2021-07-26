@@ -11,9 +11,8 @@
    | `:message| CVM exception message (often a string) | True |
    | `:trace` | Stacktrace, vector of strings | False |
 
-   This map is passed to [[signal]] so that it becomes attached to the current environment and forwarded to the error hook.
-  
-   In some extreme case where normal error reporting does not work (eg. user output hook failing), the error is passed to [[fatal]]."
+   This map is passed to [[fail]] so that it becomes attached to the current environment and forwarded to `:convex.run/fail` in env.
+   Consumers can control what `:convex.run/fail` does, default is [[convex.run.exec/fail]]."
 
   {:author "Adam Helinski"}
 
@@ -33,33 +32,6 @@
 
 (set! *warn-on-reflection*
       true)
-
-
-(declare signal)
-
-
-;;;;;;;;;; Altering env
-
-
-(defn attach
-
-  "Attaches the given `err` under `:convex.run/error`.
-  
-   Also clears the CVM execption of the current context (if present)."
-
-  [env ^AMap err]
-
-  (-> env
-      (assoc :convex.run/error
-             (.assoc err
-                     $.run.kw/exception?
-                     ($.data/boolean true)))
-      (cond->
-        (env :convex.sync/ctx)
-        (-> (update :convex.sync/ctx
-                    $.cvm/exception-clear)
-            ($.run.ctx/def-result nil)
-            ($.run.ctx/error err)))))
 
 
 ;;;;;;;;;; Altering error maps
@@ -96,12 +68,34 @@
           phase))
 
 
+
+(defn assoc-trx
+
+  "Associates a transaction to the given `err` map. under `:trx`."
+  
+  [^AMap err ^ACell trx]
+
+  (.assoc err
+          $.run.kw/trx
+          trx))
+
+
 ;;;;;;;;;; Creating error maps
 
 
-(defn error
+(defn fatal
 
-  "Transforms the given CVM error value into a CVM map meant to be ultimately used with [[signal]].
+  "Creates a `:FATAL` error map."
+  
+  [message]
+  
+  ($.data/error ($.data/code-std* :FATAL)
+                message))
+
+
+(defn mappify
+
+  "Transforms the given CVM error value into a CVM map meant to be ultimately used with [[fail]].
   
    If prodived, associates to the resulting error map a [[phase]] and the current, responsible transaction."
 
@@ -116,7 +110,7 @@
   (^AMap [ex phase ^ACell trx]
 
    (-> ex
-       error
+       mappify
        (.assoc $.run.kw/trx
                trx)
        (assoc-phase phase))))
@@ -131,8 +125,7 @@
 
   [message]
 
-  (-> ($.data/error ($.data/code-std* :FATAL)
-                    ($.data/string message))
+  (-> (fatal message)
       (assoc-phase $.run.kw/main)))
 
 
@@ -145,7 +138,7 @@
 
   []
 
-  (main-src "Main file not found or not accessible"))
+  (main-src ($.data/string "Main file not found or not accessible")))
 
 
 
@@ -155,13 +148,12 @@
 
   ^AMap
 
-  [code ^ACell trx message]
+  [code message trx]
 
   (-> ($.data/error code
                     message)
-      (.assoc $.run.kw/trx
-              trx)
-      (assoc-phase $.run.kw/sreq)))
+      (assoc-phase $.run.kw/sreq)
+      (assoc-trx trx)))
 
 
 
@@ -208,6 +200,7 @@
   "Error map describing unknown failure when setting up the file watcher."
 
   ^AMap
+
   []
 
   (-> ($.data/error ($.data/code-std* :FATAL)
@@ -218,9 +211,30 @@
 ;;;;;;;;;; Signaling errors in Convex Lisp
 
 
+(defn fail
+
+  ""
+
+  [env ^AMap err]
+
+  ((env :convex.run/fail)
+   (-> env
+       (assoc :convex.run/error
+              (.assoc err
+                      $.run.kw/exception?
+                      ($.data/boolean true)))
+       (cond->
+         (env :convex.sync/ctx)
+         (-> (update :convex.sync/ctx
+                     $.cvm/exception-clear)
+             ($.run.ctx/def-result nil)
+             ($.run.ctx/error err))))))
+
+
+
 (defn report
 
-  "Uses [[signal]] with `err` but associates to it a `:report` key pointing to a temp file
+  "Uses [[fail]] with `err` but associates to it a `:report` key pointing to a temp file
    where an EDN file has been written.
   
    This EDN file pretty-prints the given `env` with `ex` under `:convex.run/exception` (the Java exception
@@ -234,10 +248,10 @@
                                          ".edn"
                                          (make-array FileAttribute
                                                      0)))
-        env-2 (signal env
-                      (.assoc err
-                              $.run.kw/report
-                              ($.data/string path)))]
+        env-2 (fail env
+                    (.assoc err
+                            $.run.kw/report
+                            ($.data/string path)))]
     (clojure.pprint/pprint (-> env-2
                                (update :convex.run/error
                                        str)
@@ -245,32 +259,3 @@
                                       ex))
                            (clojure.java.io/writer path))
     env-2))
-
-
-
-(defn signal
-
-  "Uses [[attach] and ultimately passes the environment to the error hook.
-  
-   Arity 2 and 3 are shortcuts to [[convex.data/error]] for building an error map on the spot."
-
-  ([env err]
-
-   ((env :convex.run.hook/error)
-    (attach env
-            err)))
-
-
-  ([env code message]
-
-   (signal env
-           ($.data/error code
-                         message)))
-
-
-  ([env code message trace]
-
-   (signal env
-           ($.data/error code
-                         message
-                         trace))))

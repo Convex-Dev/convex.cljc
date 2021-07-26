@@ -32,7 +32,7 @@
 
 ;; Prints nice information at the start of a run.
 ;;
-(sreq/out! (str "\033[H\033[2J"
+#_(sreq/out! (str "\033[H\033[2J"
                 "Run N°" (inc env/*cycle*)
                 env/line
                 env/line
@@ -92,7 +92,7 @@
 
 ;; Registers transactions to be executed at the end of the run, even if a CVM exception was thrown.
 ;;
-(env/hook.end '(sreq/out! :finished))
+;(env/hook.end '(sreq/out! :finished))
 
 
 ;; Registers a function which maps a thrown CVM exception to a transaction.
@@ -321,3 +321,16 @@
 ;                  (repl)))]))
 ; 
 ; (repl)
+
+
+
+;(env/hook.error '(sreq/out! env/stderr-txt :fuck))
+(env/hook.error '(fail :arf :arf))
+
+(sreq/out! :foo)
+(assert false)
+
+(sreq/out! :bar)
+
+
+;(env/hook.end '(sreq/out! "end"))

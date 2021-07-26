@@ -110,22 +110,6 @@
 
 
 
-(defn hook.error
-
-  ^{:doc {:description ["When an exception occurs, the given function is called with that exception. The result is code that is interpreted."
-                        "Returned code can be a special request."
-                        "Default is outputting the error without any modification"
-                        "Overwrites any previously registered function, `nil` removes it."]
-          :examples    [{:code "(sreq/hook.error (fn [ex] (sreq/out [:EXCEPTION ex])))"}]
-          :signature   [{:params [f]}]
-          :type        :function}}
-
-  [trx]
-
-  [:cvm.sreq :hook.error trx])
-
-
-
 (defn in
 
   ^{:doc {:description ["Reads a cell form from input."

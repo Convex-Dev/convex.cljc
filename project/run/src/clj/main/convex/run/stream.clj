@@ -15,19 +15,6 @@
             [convex.write   :as $.write]))
 
 
-;;;;;;;;;; Errors
-
-
-(defn err-stream-not-found
-
-  ""
-
-  [env]
-
-  ($.run.err/signal env
-                    $.run.kw/err-stream
-                    ($.data/string "Stream closed or does not exist")))
-
 ;;;;;;;;;;
 
 
@@ -42,23 +29,30 @@
   (if-some [stream (get-in env
                            [:convex.run/stream+
                             id])]
+
     (try
       
       ($.run.ctx/def-result env
                             (f stream))
       
       (catch ClassCastException _ex
-        ($.run.err/signal env
-                          ($.data/code-std* :ARGUMENT)
-                          ($.data/string (str "Stream is missing capability: "
-                                              capability))))
+        ($.run.err/fail env
+                        ($.data/error ($.data/code-std* :ARGUMENT)
+                                      ($.data/string (format "Stream [%s] is missing capability: %s"
+                                                             id
+                                                             capability)))))
 
       (catch Throwable _ex
-        ($.run.err/signal env
-                          $.run.kw/err-stream
-                          ($.data/string (str "Stream failed while performing: "
-                                              capability)))))
-    (err-stream-not-found env)))
+        ($.run.err/fail env
+                        ($.data/error $.run.kw/err-stream
+                                      ($.data/string (format "Stream [%s] failed while performing: %s" 
+                                                             id
+                                                             capability))))))
+
+    ($.run.err/fail env
+                    ($.data/error $.run.kw/err-stream
+                                  ($.data/string (format "Stream [%s] closed or does not exist"
+                                                         id))))))
 
 
 
@@ -165,5 +159,5 @@
                         ($.write/stream-txt stream
                                             cell)
                         ($.io/newline stream)))
-               ($.io/flush stream)
-               cell)))
+                 ($.io/flush stream)
+                 cell)))

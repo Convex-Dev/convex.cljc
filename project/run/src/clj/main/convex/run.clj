@@ -28,7 +28,7 @@
    A runner can do useful side-effects on-demand called \"special requests\", such as outputting a value. Those special
    requests are nothing more than vector that the runner interprets at runtime.
   
-    See the [[convex.run.sreq]] namespace.
+   See the [[convex.run.sreq]] namespace.
 
   
    DYNAMIC VALUES AND HELP
@@ -48,33 +48,26 @@
    ERRORS
    ======
 
-   When a CVM exception or any other error occurs, it is being signaled using the error hook. See hook section.
-
-   Errors are usually signaled to the user with [[convex.run.err/signal]].
+   When a CVM exception or any other error occurs, [[convex.run.err/fail]] must be called with a CVX error map (built from
+   scratch or by mappifying an actual CVM exception).
 
 
    HOOKS
    =====
 
-   Hooks are functions or transactions executed by the runner at key moments.
+   Hooks are transactions executed by the runner at key moments. They are defined through the `env` account:
 
-   They are specified in the environment:
-
-   | When | What | Default behavior |
-   |---|---|---|
-   | `:convex.run.hook/end` | A function `env` -> `env` called after all transactions have been processed | Nothing |
-   | `:convex.run.hook/error` | A function `env` -> `env` called when an error occurs | Passing the error to the output hook |
+   - `hook.end`
+   - `hook.error`
 
 
    CLI APP
    =======
 
    The CLI Convex Lisp Runner is a light layer built on top of this project. It is not much more than a CLI interface with
-   description.
+   a description. See `:project/app.run` in Deps."
 
-   See 'app/run' project."
-
-  ;; TODO. Improve reader error reporting when Antlr gets stabilized.
+  ;; TODO. Improve reader error reporting when ANTLR gets stabilized.
 
   {:author "Adam Helinski"}
 
@@ -152,10 +145,10 @@
                                                     (not ($.data/symbol? cvm-sym))     (format "Dependency '%s' must be defined under a symbol, not: %s"
                                                                                                cvm-str-dep
                                                                                                cvm-sym))]
-                              (reduced ($.run.err/signal env
-                                                         (-> ($.data/error ($.data/code-std* :CAST)
-                                                                           ($.data/string err-message))
-                                                             ($.run.err/assoc-phase $.run.kw/dep))))
+                              (reduced ($.run.err/fail env
+                                                       (-> ($.data/error ($.data/code-std* :CAST)
+                                                                         ($.data/string err-message))
+                                                           ($.run.err/assoc-phase $.run.kw/dep))))
                               (assoc-in env-2
                                         [:convex.run/sym->dep
                                          (str cvm-sym)]
@@ -167,10 +160,10 @@
                                   :convex.run/trx+
                                   rest)
                           sym->dep)
-                  ($.run.err/signal env
-                                    (-> ($.data/error ($.data/code-std* :CAST)
-                                                      ($.data/string "Dependencies must but a map of 'symbol' -> 'file path (string)'"))
-                                        ($.run.err/assoc-phase $.run.kw/dep)))))))))
+                  ($.run.err/fail env
+                                  (-> ($.data/error ($.data/code-std* :CAST)
+                                                    ($.data/string "Dependencies must but a map of 'symbol' -> 'file path (string)'"))
+                                      ($.run.err/assoc-phase $.run.kw/dep)))))))))
       env))
           
 
@@ -186,8 +179,8 @@
   [env]
 
   (when-some [err (env :convex.sync/error)]
-    ($.run.err/signal env
-                      ($.run.err/sync err))))
+    ($.run.err/fail env
+                    ($.run.err/sync err))))
 
 
 ;;;;;;;;;; Accessing a main file
@@ -210,11 +203,11 @@
                      nil])
 
                   (catch Throwable _ex
-                    [($.run.err/main-src "Main file cannot be read and parsed as Convex Lisp")
+                    [($.run.err/main-src ($.data/string "Main file cannot be read and parsed as Convex Lisp"))
                      nil]))]
     (if err
-      ($.run.err/signal env
-                        err)
+      ($.run.err/fail env
+                      err)
       (assoc-trx+ env
                   form+))))
 
@@ -277,8 +270,8 @@
                      [ex
                       nil]))]
      (if ex
-       ($.run.err/signal env-2
-                         ($.run.err/main-src "Given string cannot be parsed as Convex Lisp"))
+       ($.run.err/fail env-2
+                       ($.run.err/main-src "Given string cannot be parsed as Convex Lisp"))
        (-> env-2
            (assoc-trx+ form+)
            once)))))
@@ -376,8 +369,8 @@
                                 (case etype
                                   :not-found (if (= arg
                                                     (first (env-3 :convex.watch/extra+)))
-                                               ($.run.err/signal env-3
-                                                                 ($.run.err/main-src-access))
+                                               ($.run.err/fail env-3
+                                                               ($.run.err/main-src-access))
                                                ;;
                                                ;; Dependency is missing, restart watching only main file for retrying on new changes.
                                                ;; A "dep-lock" is used so that a new watcher with the same failing dependencies is not restarted right away.
@@ -388,8 +381,8 @@
                                                                     dep-old+)
                                                              (dissoc :convex.run/dep+
                                                                      :convex.watch/sym->dep)
-                                                             ($.run.err/signal ($.run.err/sync :load
-                                                                                               {arg [:not-found]})))))
+                                                             ($.run.err/fail ($.run.err/sync :load
+                                                                                             {arg [:not-found]})))))
                                   :unknown   ($.run.err/report env-3
                                                                ($.run.err/watcher-setup)
                                                                arg)))

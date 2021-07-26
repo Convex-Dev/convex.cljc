@@ -8,23 +8,11 @@
   (:require [convex.data       :as $.data]
             [convex.io         :as $.io]
             [convex.run.ctx    :as $.run.ctx]
-            [convex.run.stream :as $.run.stream]
+            [convex.run.exec   :as $.run.exec]
             [convex.run.sym    :as $.run.sym]))
 
 
 ;;;;;;;;;;
-
-
-(defn hook-error
-
-  ""
-
-  [env]
-
-  ($.run.stream/out! env
-                     (env :convex.run/err)
-                     (env :convex.run/error)))
-
 
 
 (def stream+
@@ -83,9 +71,9 @@
 
   (-> env
       (assoc :convex.run/err        stream-err
+             :convex.run/fail       $.run.exec/fail
              :convex.run/in         stream-in
              :convex.run/out        stream-out
-             :convex.run.hook/error hook-error
              :convex.run.stream/id  5)
       (update :convex.sync/ctx-base
               #(or %

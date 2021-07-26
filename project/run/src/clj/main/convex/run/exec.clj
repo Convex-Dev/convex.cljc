@@ -1,22 +1,22 @@
 (ns convex.run.exec
 
-  "All aspects of executing transactions for the [[convex.run]] namespace.."
+  "All aspects of executing transactions for the [[convex.run]] namespace."
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.data AVector))
+  (:import (convex.core.data AVector
+                             AMap))
   (:refer-clojure :exclude [compile
                             cycle
                             eval])
-  (:require [convex.cvm     :as $.cvm]
-            [convex.data    :as $.data]
-            [convex.run.ctx :as $.run.ctx]
-            [convex.run.err :as $.run.err]
-            [convex.run.kw  :as $.run.kw]
-            [convex.run.sym :as $.run.sym]))
+  (:require [convex.cvm        :as $.cvm]
+            [convex.data       :as $.data]
+            [convex.run.ctx    :as $.run.ctx]
+            [convex.run.err    :as $.run.err]
+            [convex.run.kw     :as $.run.kw]
+            [convex.run.stream :as $.run.stream]
+            [convex.run.sym    :as $.run.sym]))
 
-
-(declare run)
 
 
 ;;;;;;;;;; Values
@@ -69,9 +69,7 @@
 
   "Refills the current context with maximum juice and calls `f` with that context and `trx`.
   
-   The context is then reattached to `env`.
-  
-   In case of a CVM exception, a descriptive error map is created passed to [[convex.run.err/signal]]."
+   The context is then reattached to `env`."
 
   [env kw-phase f trx]
 
@@ -85,9 +83,9 @@
              :convex.sync/ctx
              ctx)
       ex
-      ($.run.err/signal ($.run.err/error ex
-                                         kw-phase
-                                         trx)))))
+      ($.run.err/fail (-> ($.run.err/mappify ex)
+                          ($.run.err/assoc-phase kw-phase)
+                          ($.run.err/assoc-trx trx))))))
 
 
 ;;;;;;;;;; Special transactions
@@ -135,17 +133,20 @@
 
 (defn sreq-safe
 
-  ""
+  "Calls [[sreq]] while wrapped in a try-catch.
+  
+   Errors are reported using [[$.run.err/fail]]."
 
-  [env result]
+  [env trx result]
 
   (try
     (sreq env
           result)
     (catch Throwable _ex
-           ($.run.err/signal env
-                             ($.data/code-std* :FATAL)
-                             ($.data/string "Unknown error happened while finalizing transaction")))))
+      ($.run.err/fail env
+                      ($.run.err/sreq ($.data/code-std* :FATAL)
+                                      ($.data/string "Unknown error happened while finalizing transaction")
+                                      trx)))))
 
 
 ;;;;;;;;;; Execution steps
@@ -232,6 +233,7 @@
       (let [res (result env-2)]
         (sreq-safe ($.run.ctx/def-result env-2
                                          res)
+                   trx
                    res)))))
 
 
@@ -265,7 +267,7 @@
                                                               $.run.kw/juice-compile ($.data/long juice-compile)
                                                               $.run.kw/juice-exec    ($.data/long juice-exec)
                                                               $.run.kw/result        res}))
-
+                           trx
                            res)))))))))
 
 
@@ -293,6 +295,34 @@
                  env-3)))
            env
            trx+)))
+
+
+;;;;;;;;;; Notifying a failure
+
+
+(defn fail
+
+  ""
+
+  [env]
+
+  (if-some [hook (when-not (env :convex.run/hook.error?)
+                   (.get ($.cvm/env (env :convex.sync/ctx)
+                                    $.run.ctx/addr-env)
+                         $.run.sym/hook-error))]
+    (-> env
+        (assoc :convex.run/fail
+               (fn [env]
+                 ($.run.stream/out! env
+                                    (env :convex.run/err)
+                                    (env :convex.run/error))))
+        (dissoc :convex.run/error)
+        (trx hook)
+        (assoc :convex.run/error (env :convex.run/error)
+               :convex.run/fail  (env :convex.run/fail)))
+    ($.run.stream/out! env
+                       (env :convex.run/err)
+                       (env :convex.run/error))))
 
 
 ;;;;;;;;;;

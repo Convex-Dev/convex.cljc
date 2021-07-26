@@ -52,15 +52,15 @@
 
 
 
-(defn err-stream-not-found
-
-  ""
-
-  [env]
-
-  ($.run.err/signal env
-                    $.run.kw/err-stream
-                    ($.data/string "Stream closed or does not exist")))
+; (defn err-stream-not-found
+; 
+;   ""
+; 
+;   [env]
+; 
+;   ($.run.err/fail env
+;                   $.run.kw/err-stream
+;                   ($.data/string "Stream closed or does not exist")))
 
 
 
@@ -83,7 +83,9 @@
           (assoc kw
                  id)
           ($.run.ctx/def-env {cvx-sym ($.data/long id)}))
-      (err-stream-not-found env))))
+      ;(err-stream-not-found env)
+      env
+      )))
 
 
 
@@ -111,10 +113,10 @@
 
   [env tuple]
 
-  ($.run.err/signal env
-                    ($.run.err/sreq ($.data/code-std* :STATE)
-                                    tuple
-                                    ($.data/string "Unsupported special transaction"))))
+  ($.run.err/fail env
+                  ($.run.err/sreq ($.data/code-std* :ARGUMENT)
+                                  ($.data/string "Unsupported special transaction")
+                                  tuple)))
 
 ;;;;;;;;;; Implementations
 
@@ -146,10 +148,10 @@
 
   [env ^AVector tuple]
 
-  ($.run.err/signal env
-                    ($.run.err/sreq ($.data/code-std* :FATAL)
-                                    tuple
-                                    ($.data/string "CVM special command 'sreq/dep' can only be used as the very first transaction"))))
+  ($.run.err/fail env
+                  ($.run.err/sreq ($.data/code-std* :FATAL)
+                                  ($.data/string "CVM special command 'sreq/dep' can only be used as the very first transaction")
+                                  tuple)))
 
 
 
@@ -202,47 +204,6 @@
       (throw (ex-info "Throw instead of exit since dev mode"
                       {::status status}))
       (System/exit (.longValue status)))))
-
-
-
-(defmethod $.run.exec/sreq
-  
-  $.run.kw/hook-error
-
-  ;; Registers a function called with an error whenever one occurs. Must returns a transaction to execute.
-  ;;
-  ;; Restores default hook on nil.
-
-  [env ^AVector tuple]
-
-  (let [path-restore [:convex.run/restore
-                      :convex.run.hook/error]
-        hook-restore (get-in env
-                             path-restore)
-        trx          (.get tuple
-                           2)]
-    (if trx
-      (let [hook-old (env :convex.run.hook/error)]
-        (-> env
-            (cond->
-              (not hook-restore)
-              (assoc-in path-restore
-                        hook-old))
-            (assoc :convex.run.hook/error
-                   (fn hook-new [env-2]
-                     (-> env-2
-                         (assoc :convex.run.hook/error
-                                hook-old)
-                         (dissoc :convex.run/error)
-                         ($.run.exec/trx trx)
-                         (assoc :convex.run.hook/error
-                                hook-new)
-                         (update :convex.run/error
-                                 #(or %
-                                      (env-2 :convex.run/error))))))))
-      (restore env
-               :convex.run.hook/error
-               hook-restore))))
 
 
 
@@ -406,23 +367,17 @@
   
   [env ^AVector tuple]
 
-  (let [[err
-         code] (try
-                 [nil
-                  (-> (.get tuple
-                            2)
-                      str
-                      $.read/string+)]
-                  (catch Throwable _err
-                    [($.run.err/sreq ($.data/code-std* :ARGUMENT)
-                                     tuple
-                                     ($.data/string "Unable to read source"))
-                     nil]))]
-    (if err
-      ($.run.err/signal env
-                        err)
-      ($.run.ctx/def-result env
-                            code))))
+  (try
+    ($.run.ctx/def-result env
+                          (-> (.get tuple
+                                    2)
+                              str
+                              $.read/string+))
+    (catch Throwable _err
+      ($.run.err/fail env
+                      ($.run.err/sreq ($.data/code-std* :ARGUMENT)
+                                      ($.data/string "Unable to read source")
+                                      tuple)))))
 
 
 
@@ -446,10 +401,10 @@
               ($.run.exec/trx env-2
                               trx)
               env-2)))
-      ($.run.err/signal env
-                        ($.run.err/sreq ($.data/code-std* :STATE)
-                                        tuple
-                                        ($.data/string "No state to pop"))))))
+      ($.run.err/fail env
+                      ($.run.err/sreq ($.data/code-std* :STATE)
+                                      ($.data/string "No state to pop")
+                                      tuple)))))
 
 
 
@@ -485,24 +440,24 @@
 
   (let [trx-catch (.get tuple
                         3)
-        hook-error (env :convex.run.hook/error)]
+        fail      (env :convex.run/fail)]
     (-> env
-        (assoc :convex.run.hook/error
+        (assoc :convex.run/fail
                (fn [env-2]
                  (-> env-2
                      (dissoc :convex.run/error)
                      (cond->
                        trx-catch
-                       (-> (assoc :convex.run.hook/error
-                                  hook-error)
+                       (-> (assoc :convex.run/fail
+                                  fail)
                            ($.run.exec/trx trx-catch)))
                      (update :convex.run/error
                              #(or %
                                   ::try)))))
         ($.run.exec/trx (.get tuple
                               2))
-        (assoc :convex.run.hook/error
-               hook-error)
+        (assoc :convex.run/fail
+               fail)
         (as->
           env-2
           (if (identical? (env-2 :convex.run/error)
