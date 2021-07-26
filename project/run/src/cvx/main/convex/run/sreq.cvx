@@ -7,7 +7,7 @@
 
 
 (call *registry*
-      (cns-update 'convex.run.sreq 
+      (cns-update 'convex.run.sreq
                   *address*))
 
 
@@ -17,6 +17,14 @@
                                       "After each transaction in the main file has been executed, the runner checks if the result is any supported special request."
                                       "Such vectors are created by calling functions from this address."]}
                  :name "Convex Lisp Runner Special Requests"}))
+
+
+
+(def env
+
+  ^{:doc {:description ""}}
+
+  (address (inc (long *address*))))
 
 
 ;; SPECIAL REQUESTS
@@ -80,46 +88,6 @@
 
 
 
-(defn env
-
-  ^{:doc {:description ["Retrieves environment variable from the current process. Useful when some information must be passed to the runner from the outside."
-                        "When a env variable is given as well, defines only the value for that variable"
-                        "Result is temporarily stored in `env/*result* and is accessible during the next transaction."]
-          :examples    [{:code "(sreq/env}"}
-                        {:code "(sreq/env \"MY_X\")"}]
-          :signature   [{:params [sym]}
-                        {:params [sym env-var]}]
-          :type        :function}}
-
-
-  ([]
-
-   (env nil))
-
-
-  ([env-var]
-
-   (assert (or (str? env-var)
-               (nil? env-var)))
-   [:cvm.sreq :env env-var]))
-
-
-
-(defn exit
-
-  ^{:doc {:description ["Stops execution and exits process with given `status` code (a long)."
-                        "Depending on the operating system, by convention, a non-zero value means an error occured."]
-          :examples    [{:code "(sreq/exit 42)"}]
-          :signature   [{:params [status]}]
-          :type        :function}}
-
-  [status]
-
-  (assert (long? status))
-  [:cvm.sreq :exit status])
-
-
-
 (defn in
 
   ^{:doc {:description ["Reads a cell form from input."
@@ -129,7 +97,7 @@
 
   ([]
 
-   (in nil))
+   (in env/*in*))
 
 
   ([stream]
@@ -146,7 +114,7 @@
 
   ([]
 
-   (in+ nil))
+   (in+ env/*in*))
 
 
   ([stream]
@@ -164,23 +132,12 @@
 
   ([]
 
-   (in.line+ nil))
+   (in.line+ env/*in*))
 
 
   ([stream]
 
    [:cvm.sreq :in.line+ stream]))
-
-
-
-(defn in.set
-
-  ^{:doc {:description ""}}
-
-  [stream]
-
-  (assert (long? stream))
-  [:cvm.sreq :in.set stream])
 
 
 
@@ -219,7 +176,7 @@
 
   ([x]
 
-   (out nil
+   (out env/*out*
         x))
 
 
@@ -240,24 +197,13 @@
 
   ([x]
 
-   (out! nil
+   (out! env/*out*
          x))
 
 
   ([stream x]
 
    [:cvm.sreq :out! stream x]))
-
-
-
-(defn out.err.set
-
-  ^{:doc {:description ""}}
-
-  [stream]
-
-  (assert (long? stream))
-  [:cvm.sreq :out.err.set stream])
 
 
 
@@ -268,7 +214,7 @@
 
   ([]
 
-   (out.flush nil))
+   (out.flush env/*out*))
 
 
   ([stream]
@@ -277,14 +223,43 @@
 
 
 
-(defn out.set
+(defn process.env
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description ["Retrieves environment variable from the current process. Useful when some information must be passed to the runner from the outside."
+                        "When a env variable is given as well, defines only the value for that variable"
+                        "Result is temporarily stored in `env/*result* and is accessible during the next transaction."]
+          :examples    [{:code "(sreq/env}"}
+                        {:code "(sreq/env \"MY_X\")"}]
+          :signature   [{:params [sym]}
+                        {:params [sym env-var]}]
+          :type        :function}}
 
-  [stream]
 
-  (assert (long? stream))
-  [:cvm.sreq :out.set stream])
+  ([]
+
+   (process.env nil))
+
+
+  ([env-var]
+
+   (assert (or (str? env-var)
+               (nil? env-var)))
+   [:cvm.sreq :process.env env-var]))
+
+
+
+(defn process.exit
+
+  ^{:doc {:description ["Stops execution and exits process with given `status` code (a long)."
+                        "Depending on the operating system, by convention, a non-zero value means an error occured."]
+          :examples    [{:code "(sreq/exit 42)"}]
+          :signature   [{:params [status]}]
+          :type        :function}}
+
+  [status]
+
+  (assert (long? status))
+  [:cvm.sreq :exit status])
 
 
 

@@ -16,82 +16,24 @@
             [convex.run.err    :as $.run.err]
             [convex.run.exec   :as $.run.exec]
             [convex.run.kw     :as $.run.kw]
-            [convex.run.stream :as $.run.stream]
-            [convex.run.sym    :as $.run.sym]))
+            [convex.run.stream :as $.run.stream]))
 
 
 (set! *warn-on-reflection*
       true)
 
 
-;;;;;;;;;; Helpers used in special transaction implementations
+;;;;;;;;;; Helpers
 
 
-(defn restore
+(defn- -stream
 
-  "Used in some hook implementations.
-  
-   Helps in restoring a default hook."
+  ;;
 
+  [^AVector tuple]
 
-  ([env kw hook]
-
-   (restore env
-            kw
-            hook
-            hook))
-
-
-  ([env kw restore? hook]
-
-   (cond->
-     env
-     restore?
-     (-> (assoc kw
-                hook)
-         (update :convex.run/restore
-                 dissoc
-                 kw)))))
-
-
-
-
-; (defn err-stream-not-found
-; 
-;   ""
-; 
-;   [env]
-; 
-;   ($.run.err/fail env
-;                   $.run.kw/err-stream
-;                   ($.data/string "Stream closed or does not exist")))
-
-
-
-
-
-
-
-(defn stream-set
-
-  ""
-
-  [env kw cvx-sym ^AVector tuple]
-
-  (let [id (.longValue ^CVMLong (.get tuple
-                                      2))]
-    (if (some? (get-in env
-                       [:convex.run/stream+
-                        id]))
-      (-> env
-          (assoc kw
-                 id)
-          ($.run.ctx/def-env {cvx-sym ($.data/long id)}))
-      ;(err-stream-not-found env)
-      env
-      )))
-
-
+  (.longValue ^CVMLong (.get tuple
+                             2)))
 
 
 ;;;;;;;;;; Setup
@@ -187,52 +129,12 @@
 
 (defmethod $.run.exec/sreq
 
-  $.run.kw/env
-  
-  ;; Interns as result the process environment map or a single request property.
-
-  [env ^AVector tuple]
-
-  ($.run.ctx/def-result env
-                        (if-some [env-var (.get tuple
-                                                2)]
-                          (some-> (System/getenv (str env-var))
-                                  $.data/string)
-                          ($.data/map (map (fn [[k v]]
-                                             [($.data/string k)
-                                              ($.data/string v)])
-                                           (System/getenv))))))
-
-
-
-(defmethod $.run.exec/sreq
-
-  $.run.kw/exit
-
-  ;; Exits process with the user given status code.
-
-  [_env ^AVector tuple]
-
-  (let [^CVMLong status (.get tuple
-                              2)]
-    (if (= (System/getenv "CONVEX_DEV")
-           "true")
-      (throw (ex-info "Throw instead of exit since dev mode"
-                      {::status status}))
-      (System/exit (.longValue status)))))
-
-
-
-(defmethod $.run.exec/sreq
-
   $.run.kw/in
 
-  [env ^AVector tuple]
+  [env tuple]
 
   ($.run.stream/in env
-                   (or (.get tuple
-                             2)
-                       (env :convex.run/in))))
+                   (-stream tuple)))
 
 
 
@@ -243,9 +145,7 @@
   [env tuple]
 
   ($.run.stream/in+ env
-                    (or (.get tuple
-                              2)
-                        (env :convex.run/in))))
+                    (-stream tuple)))
 
 
 
@@ -256,22 +156,7 @@
   [env tuple]
 
   ($.run.stream/in-line+ env
-                         (or (.get tuple
-                                   2)
-                             (env :convex.run/in))))
-
-
-
-(defmethod $.run.exec/sreq
-
-  $.run.kw/in-set
-
-  [env tuple]
-
-  (stream-set env
-              :convex.run/in
-              $.run.sym/in
-              tuple))
+                         (-stream tuple)))
 
 
 
@@ -309,9 +194,7 @@
   [env ^AVector tuple]
 
   ($.run.stream/out env
-                    (or (.get tuple
-                              2)
-                        (env :convex.run/out))
+                    (-stream tuple)
                     (.get tuple
                           3)))
 
@@ -324,25 +207,9 @@
   [env ^AVector tuple]
 
   ($.run.stream/out! env
-                     (if-some [^CVMLong id (.get tuple
-                                                 2)]
-                       (.longValue id)
-                       (env :convex.run/out))
+                     (-stream tuple)
                      (.get tuple
                            3)))
-
-
-
-(defmethod $.run.exec/sreq
-
-  $.run.kw/out-err-set
-
-  [env tuple]
-
-  (stream-set env
-              :convex.run/err
-              $.run.sym/out-err
-              tuple))
 
 
 
@@ -355,22 +222,45 @@
   [env ^AVector tuple]
 
   ($.run.stream/flush env
-                      (or (.get tuple
-                                2)
-                          (env :convex.run/out))))
+                      (-stream tuple)))
 
 
 
 (defmethod $.run.exec/sreq
 
-  $.run.kw/out-set
+  $.run.kw/process-exit
 
-  [env tuple]
+  ;; Exits process with the user given status code.
 
-  (stream-set env
-              :convex.run/out
-              $.run.sym/out-err
-              tuple))
+  [_env ^AVector tuple]
+
+  (let [status (.longValue ^CVMLong (.get tuple
+                                          2))]
+    (if (= (System/getenv "CONVEX_DEV")
+           "true")
+      (throw (ex-info "Throw instead of exit since dev mode"
+                      {::status status}))
+      (System/exit status))))
+
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/process-env
+  
+  ;; Interns as result the process environment map or a single request property.
+
+  [env ^AVector tuple]
+
+  ($.run.ctx/def-result env
+                        (if-some [env-var (.get tuple
+                                                2)]
+                          (some-> (System/getenv (str env-var))
+                                  $.data/string)
+                          ($.data/map (map (fn [[k v]]
+                                             [($.data/string k)
+                                              ($.data/string v)])
+                                           (System/getenv))))))
 
 
 

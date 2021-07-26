@@ -55,11 +55,6 @@
 
 
 
-(def ^Keyword env
-              ($.data/keyword "env"))
-
-
-
 (def ^Keyword err-reader
               ($.data/keyword "READER"))
 
@@ -76,11 +71,6 @@
 
 (def ^Keyword exec
               ($.data/keyword "exec"))
-
-
-
-(def ^Keyword exit
-              ($.data/keyword "exit"))
 
 
 
@@ -107,10 +97,6 @@
 (def ^Keyword in-line+
               ($.data/keyword "in.line+"))
 
-
-
-(def ^Keyword in-set
-              ($.data/keyword "in.set"))
 
 
 (def ^Keyword juice
@@ -158,18 +144,8 @@
 
 
 
-(def ^Keyword out-err-set
-              ($.data/keyword "out.err.set"))
-
-
-
 (def ^Keyword out-flush
               ($.data/keyword "out.flush"))
-
-
-
-(def ^Keyword out-set
-              ($.data/keyword "out.set"))
 
 
 
@@ -180,6 +156,16 @@
 
 (def ^Keyword phase
               ($.data/keyword "phase"))
+
+
+
+(def ^Keyword process-env
+              ($.data/keyword "process.env"))
+
+
+
+(def ^Keyword process-exit
+              ($.data/keyword "process.exit"))
 
 
 
@@ -225,16 +211,6 @@
 
 (def ^Keyword trx
               ($.data/keyword "trx"))
-
-
-
-(def ^Keyword trx-eval
-              ($.data/keyword "trx.eval"))
-
-
-
-(def ^Keyword trx-prepare
-              ($.data/keyword "trx.prepare"))
 
 
 

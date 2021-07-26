@@ -226,13 +226,13 @@
 
 ;; Storing whole process environment map.
 ;;
-; (sreq/env)
-; (sreq/out [:whole-env env/*result*])
+; (sreq/process.env)
+; (sreq/out! [:whole-env env/*result*])
 
 
 ;; Storing only one env property.
 ;;
-; (sreq/env "SOME_ENV") ;; Should be a property spotted in previous example
+; (sreq/process.env "SOME_ENV") ;; Should be a property spotted in previous example
 ; (sreq/out! [:one-prop env/*result*])
 
 
@@ -329,10 +329,10 @@
 
 
 
-(sreq/close env/stdout.txt)
-(sreq/out! :foo)
+(sreq/out! sreq/env)
 ;(assert false)
-;(sreq/out! :bar)
+(sreq/out :bar)
+(sreq/out.flush)
 
 
 ;(env/hook.end '(sreq/out! "end"))

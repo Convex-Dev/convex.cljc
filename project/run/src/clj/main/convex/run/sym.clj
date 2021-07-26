@@ -46,23 +46,8 @@
 
 
 
-(def ^Symbol in
-             ($.data/symbol "*in*"))
-
-
-
 (def ^Symbol line
              ($.data/symbol "line"))
-
-
-
-(def ^Symbol out
-             ($.data/symbol "*out*"))
-
-
-
-(def ^Symbol out-err
-             ($.data/symbol "*out.err*"))
 
 
 

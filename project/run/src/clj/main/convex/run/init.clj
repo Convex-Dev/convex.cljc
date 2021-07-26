@@ -34,21 +34,6 @@
 
 
 
-(def stream-err
-     4)
-
-
-
-(def stream-in
-     0)
-
-
-
-(def stream-out
-     2)
-
-
-
 (defn env
 
   "Initializes important functions and values in the given `env`, using defaults when relevant.
@@ -70,11 +55,8 @@
   [env]
 
   (-> env
-      (assoc :convex.run/err        stream-err
-             :convex.run/fail       $.run.exec/fail
-             :convex.run/in         stream-in
-             :convex.run/out        stream-out
-             :convex.run.stream/id  5)
+      (assoc :convex.run/fail      $.run.exec/fail
+             :convex.run.stream/id 5)
       (update :convex.sync/ctx-base
               #(or %
                    $.run.ctx/base))
@@ -89,8 +71,5 @@
         env-2
         ($.run.ctx/def-env env-2
                            :convex.sync/ctx-base
-                           {$.run.sym/in          ($.data/long (env-2 :convex.run/in))
-                            $.run.sym/out         ($.data/long (env-2 :convex.run/out))
-                            $.run.sym/out-err     ($.data/long (env-2 :convex.run/err))
-                            $.run.sym/single-run? ($.data/boolean (env-2 :convex.run/single-run?))}))
+                           {$.run.sym/single-run? ($.data/boolean (env-2 :convex.run/single-run?))}))
       $.run.ctx/init))
