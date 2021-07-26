@@ -10,7 +10,7 @@
    ===
 
    Those utilities are built using the 'sync' project and the 'watch' project. Just as in those project, a runner
-   operates over an \"environment\" map. See [[convex.run.init]] namespace.
+   operates over an \"environment\" map. See [[init]].
 
    In a main file, each form is evaluated as a transaction and gradually modifies an environment.
 
@@ -79,12 +79,12 @@
                             load])
   (:require [clojure.java.io]
             [convex.data      :as $.data]
+            [convex.io        :as $.io]
             [convex.read      :as $.read]
             [convex.cvm       :as $.cvm]
             [convex.run.ctx   :as $.run.ctx]
             [convex.run.err   :as $.run.err]
             [convex.run.exec  :as $.run.exec]
-            [convex.run.init  :as $.run.init]
             [convex.run.kw    :as $.run.kw]
             [convex.run.sym   :as $.run.sym]
             [convex.run.sreq]
@@ -167,6 +167,52 @@
       env))
           
 
+;;;;;;;;;; Initialization
+
+
+(defn init
+
+  "Initializes important functions and values in the given `env`, using defaults when relevant.
+
+   Must be used prior to other preparatory functions such as [[main-file]].
+
+   Operates over:
+
+   | Key | Action | Mandatory |
+   |---|---|---|
+   | `:convex.run/path` | If present, ensures the path to the main file is canonical |
+   | `:convex.run.hook/end` | Ensures a default end hook, see namespace description |
+   | `:convex.run.hook/error` | Ensures a default error hook, see namespace description |
+   | `:convex.run.hook/out` | Ensures a default output hook, see namespace description |
+   | `:convex.run/single-run? | Whether code is run once or more (watch mode), defaults to false |
+   | `:convex.sync/cx-base | Ensures a default base context, see [[convex.run.ctx/base]] |"
+
+
+  [env]
+
+  (-> env
+      (assoc :convex.run/stream+
+             {0 $.io/stdin-txt
+              2 $.io/stdout-txt
+              4 $.io/stderr-txt})
+      (update :convex.run/fail
+              #(or %
+                   $.run.exec/fail))
+      (update :convex.sync/ctx-base
+              #(or %
+                   $.run.ctx/base))
+      (update :convex.run/path
+              (fn [^String path]
+                (when path
+                  (.getCanonicalPath (File. path)))))
+      (as->
+        env-2
+        ($.run.ctx/def-env env-2
+                           :convex.sync/ctx-base
+                           {$.run.sym/single-run? ($.data/boolean (env-2 :convex.run/single-run?))}))
+      $.run.ctx/init))
+
+
 ;;;;;;;;;; Error handling aspects
 
 
@@ -196,7 +242,7 @@
          form+] (try
 
                   [nil
-                   (vec ($.read/file-txt+ (env :convex.run/path)))]
+                   (vec ($.read/file+ (env :convex.run/path)))]
 
                   (catch NoSuchFileException _ex
                     [($.run.err/main-src-access)
@@ -261,7 +307,7 @@
    (let [env-2   (-> env
                      (assoc :convex.run/single-run?
                             true)
-                     $.run.init/env)
+                     init)
          [ex
           form+] (try
                    [nil
@@ -296,7 +342,7 @@
    (-> env
        (assoc :convex.run/path        path
               :convex.run/single-run? true)
-       $.run.init/env
+       init
        main-file
        once)))
 
@@ -350,7 +396,7 @@
      (let [a*env ($.watch/init (-> env
                                    (assoc :convex.run/path        path
                                           :convex.run/single-run? false)
-                                   $.run.init/env
+                                   init
                                    (assoc :convex.watch/extra+
                                           #{(.getCanonicalPath (File. path))})))]
        (send a*env

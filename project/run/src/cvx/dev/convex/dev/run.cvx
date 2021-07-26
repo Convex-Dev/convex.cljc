@@ -294,45 +294,30 @@
 
 ;; Implementing a very simple REPL which read forms entered by the user, executes them and prints the result.
 ;;
-; (defn repl
-; 
-;   []
-;  
-;   (sreq/do '[(sreq/out "> ")
-;              (sreq/out.flush)
-;              (sreq/in.line+)
-;              (let [form+  env/*result*
-;                    n-form (count form+)]
-;                (if (>= n-form
-;                        1)
-;                  (when-not (= (first form+)
-;                               :exit)
-;                    (sreq/do `[(sreq/out env/line)
-;                               (sreq/try '(sreq/do '[~(if (= n-form
-;                                                             1)
-;                                                        (first form+)
-;                                                        (cons 'do
-;                                                              form+))
-;                                                     (sreq/out! env/*result*)])
-;                                         '(sreq/out! env/*error*))
-;                               (sreq/out env/line)
-;                               (sreq/out.flush)
-;                               (repl)]))
-;                  (repl)))]))
-; 
-; (repl)
+(defn repl
 
+  []
+ 
+  (sreq/do '[(sreq/out "> ")
+             (sreq/out.flush)
+             (sreq/in.line+)
+             (let [form+  env/*result*
+                   n-form (count form+)]
+               (if (>= n-form
+                       1)
+                 (when-not (= (first form+)
+                              :exit)
+                   (sreq/do `[(sreq/out env/line)
+                              (sreq/try '(sreq/do '[~(if (= n-form
+                                                            1)
+                                                       (first form+)
+                                                       (cons 'do
+                                                             form+))
+                                                    (sreq/out! env/*result*)])
+                                        '(sreq/out! env/*error*))
+                              (sreq/out env/line)
+                              (sreq/out.flush)
+                              (repl)]))
+                 (repl)))]))
 
-
-;(env/hook.error '(sreq/out! env/stderr-txt :fuck))
-;(env/hook.error '(fail :arf :arf))
-
-
-
-(sreq/out! sreq/env)
-;(assert false)
-(sreq/out :bar)
-(sreq/out.flush)
-
-
-;(env/hook.end '(sreq/out! "end"))
+(repl)

@@ -27,7 +27,7 @@
                                               (-> resource
                                                   .openStream
                                                   (InputStreamReader. StandardCharsets/UTF_8)
-                                                  $.read/stream-txt+
+                                                  $.read/stream+
                                                   $.data/do
                                                   $.data/deploy))
                             ex    ($.cvm/exception ctx)]

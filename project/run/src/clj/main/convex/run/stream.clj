@@ -43,6 +43,7 @@
                                                              capability)))))
 
       (catch Throwable _ex
+        (println :EX _ex)
         ($.run.err/fail env
                         ($.data/error $.run.kw/err-stream
                                       ($.data/string (format "Stream [%s] failed while performing: %s" 
@@ -81,7 +82,7 @@
   (operation env
              id
              "flush"
-             (fn [[stream _mode]]
+             (fn [stream]
                ($.io/flush stream)
                nil)))
 
@@ -96,11 +97,7 @@
   (operation env
              id
              "read"
-             (fn [[stream mode]]
-               ((case mode
-                  :bin $.read/stream-bin
-                  :txt $.read/stream-txt)
-                stream))))
+             $.read/stream))
 
 
 (defn in+
@@ -112,11 +109,7 @@
   (operation env
              id
              "read"
-             (fn [[stream mode]]
-               ((case mode
-                  :bin $.read/stream-bin+
-                  :txt $.read/stream-txt+)
-                stream))))
+             $.read/stream+))
 
 
 
@@ -129,10 +122,10 @@
   (operation env
              id
              "read line"
-             (fn [[stream _mode]]
+             (fn [stream]
                (-> stream
                    BufferedReader.
-                   $.read/line))))
+                   $.read/line+))))
 
 
 
@@ -145,12 +138,9 @@
   (operation env
              id
              "write"
-             (fn [[stream mode]]
-               ((case mode
-                  :bin $.write/stream-bin
-                  :txt $.write/stream-txt)
-                stream
-                cell)
+             (fn [stream]
+               ($.write/stream stream
+                               cell)
                cell)))
 
 
@@ -164,13 +154,9 @@
   (operation env
              id
              "write flush"
-             (fn [[stream mode]]
-               (case mode
-                 :bin ($.write/stream-bin stream
-                                          cell)
-                 :txt (do
-                        ($.write/stream-txt stream
-                                            cell)
-                        ($.io/newline stream)))
-                 ($.io/flush stream)
-                 cell)))
+             (fn [stream]
+               ($.write/stream stream
+                               cell)
+               ($.io/newline stream)
+               ($.io/flush stream)
+               cell)))
