@@ -110,21 +110,24 @@
 
 
 
-(defn in
-
-  ^{:doc {:description ["Reads a cell form from input."
-                        "Currently fails if streams contains more than one input."
-                        "See `out.bin`."]}}
-
-
-  ([]
-
-   (in env/*in*))
-
-
-  ([stream]
-
-   [:cvm.sreq :in stream]))
+;; Currently expects exactly one input form.
+;; Too tricky to use.
+;
+; (defn in
+; 
+;   ^{:doc {:description ["Reads a cell form from input."
+;                         "Currently fails if streams contains more than one input."
+;                         "See `out.bin`."]}}
+; 
+; 
+;   ([]
+; 
+;    (in env/*in*))
+; 
+; 
+;   ([stream]
+; 
+;    [:cvm.sreq :in stream]))
 
 
 

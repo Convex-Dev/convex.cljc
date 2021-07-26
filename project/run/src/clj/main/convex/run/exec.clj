@@ -326,6 +326,8 @@
   [env]
 
   (-> env
+      (assoc :convex.run.stream/id
+             2)
       (dissoc :convex.run/restore
               :convex.run/state-stack)
       (merge (env :convex.run/restore))

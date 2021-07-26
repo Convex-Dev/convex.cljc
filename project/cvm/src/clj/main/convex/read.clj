@@ -63,7 +63,9 @@
 
 (defn stream
 
-  "Reads one cell from the given `java.io.Reader` (parent class of text streams)."
+  "Reads one cell from the given `java.io.Reader` (parent class of text streams).
+  
+   Rest of the stream is discarded."
 
   ^ACell
 

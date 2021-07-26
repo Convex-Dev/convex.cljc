@@ -92,14 +92,10 @@
 
   $.run.kw/close
 
-  [env ^AVector tuple]
+  [env tuple]
 
-  (let [id (-stream tuple)]
-    (-> env
-        ($.run.stream/close id)
-        (update :convex.run/stream+
-                dissoc
-                id))))
+  ($.run.stream/close env
+                      (-stream tuple)))
 
 
 

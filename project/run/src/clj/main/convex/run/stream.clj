@@ -105,18 +105,33 @@
 
 
 
+(defn- -dissoc
+
+  ;;
+
+  [env id]
+
+  (update env
+          :convex.run/stream+
+          dissoc
+          id))
+
+
+
+
 (defn close
 
   ""
 
   [env id]
 
-  (operation env
-             id
-             "close"
-             (fn [^AutoCloseable stream]
-               (.close stream)
-               nil)))
+  (-> env
+      (operation id
+                 "close"
+                 (fn [stream]
+                   (.close stream)
+                   nil))
+      (-dissoc id)))
 
 
 
@@ -161,10 +176,12 @@
 
   [env id]
 
-  (operation env
-             id
-             "read"
-             $.read/stream))
+  (-> env
+      (operation id
+                 "read"
+                 $.read/stream)
+      (-dissoc id)))
+
 
 
 (defn in+
@@ -173,10 +190,11 @@
 
   [env id]
 
-  (operation env
-             id
-             "read"
-             $.read/stream+))
+  (-> env
+      (operation id
+                 "read"
+                 $.read/stream+)
+      (-dissoc id)))
 
 
 
@@ -295,7 +313,6 @@
                                               0
                                               1
                                               2))]
-    (println :close stream)
     (.close stream))
   (assoc env
          :convex.run/stream+
