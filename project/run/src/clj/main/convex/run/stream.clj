@@ -57,6 +57,19 @@
 
 
 
+(defn close
+
+  ""
+
+  [env id]
+
+  (operation env
+             id
+             "close"
+             (fn [[^java.lang.AutoCloseable stream _mode]]
+               (.close stream)
+               nil)))
+
 
 
 (defn flush

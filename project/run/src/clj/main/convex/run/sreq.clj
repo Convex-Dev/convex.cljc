@@ -20,6 +20,10 @@
             [convex.run.sym    :as $.run.sym]))
 
 
+(set! *warn-on-reflection*
+      true)
+
+
 ;;;;;;;;;; Helpers used in special transaction implementations
 
 
@@ -135,6 +139,18 @@
             ($.cvm/time-advance ctx
                                 (.longValue ^CVMLong (.get tuple
                                                            2))))))
+
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/close
+
+  [env ^AVector tuple]
+
+  ($.run.stream/close env
+                      (.longValue ^CVMLong (.get tuple
+                                                 2))))
 
 
 
@@ -308,9 +324,10 @@
   [env ^AVector tuple]
 
   ($.run.stream/out! env
-                     (or (.get tuple
-                               2)
-                         (env :convex.run/out))
+                     (if-some [^CVMLong id (.get tuple
+                                                 2)]
+                       (.longValue id)
+                       (env :convex.run/out))
                      (.get tuple
                            3)))
 

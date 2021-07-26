@@ -25,6 +25,11 @@
 
 
 
+(def ^Keyword close
+              ($.data/keyword "close"))
+
+
+
 (def ^Keyword compile
               ($.data/keyword "compile"))
 

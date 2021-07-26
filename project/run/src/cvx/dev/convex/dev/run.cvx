@@ -32,7 +32,7 @@
 
 ;; Prints nice information at the start of a run.
 ;;
-#_(sreq/out! (str "\033[H\033[2J"
+(sreq/out! (str "\033[H\033[2J"
                 "Run N°" (inc env/*cycle*)
                 env/line
                 env/line
@@ -325,12 +325,14 @@
 
 
 ;(env/hook.error '(sreq/out! env/stderr-txt :fuck))
-(env/hook.error '(fail :arf :arf))
+;(env/hook.error '(fail :arf :arf))
 
+
+
+(sreq/close env/stdout.txt)
 (sreq/out! :foo)
-(assert false)
-
-(sreq/out! :bar)
+;(assert false)
+;(sreq/out! :bar)
 
 
 ;(env/hook.end '(sreq/out! "end"))

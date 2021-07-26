@@ -38,6 +38,16 @@
 
 
 
+(defn close
+
+  ^{:doc {:description ""}}
+
+  [stream]
+
+  [:cvm.sreq :close stream])
+
+
+
 (defn dep
 
   ^{:doc {:description ["Loads Convex Lisp dependency files. During watch mode, those files are live-reloaded as well."
