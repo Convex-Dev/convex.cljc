@@ -5,6 +5,7 @@
   {:author "Adam Helinski"}
 
   (:import (convex.core.data.prim CVMLong)
+           (java.lang AutoCloseable)
            (java.io BufferedReader))
   (:refer-clojure :exclude [flush])
   (:require [convex.cvm     :as $.cvm]
@@ -28,6 +29,16 @@
 ;;;;;;;;;;
 
 
+(def id-stderr
+
+  ""
+
+  2)
+
+
+;;;;;;;;;;
+
+
 (defn- -fail
 
   ;;
@@ -37,15 +48,15 @@
   (if (= id
          (env ::stream.err))
     (if (= id
-           4)  ;;  STDERR faulty, nothing can be done.
+           id-stderr)
       ((env :convex.run/fatal)
        (dissoc env
                ::err)
        err)
       (out! (assoc env
                    ::stream.err
-                   4)
-            4
+                   id-stderr)
+            id-stderr
             err))
     ($.run.err/fail env
                     err)))
@@ -103,7 +114,7 @@
   (operation env
              id
              "close"
-             (fn [^java.lang.AutoCloseable stream]
+             (fn [^AutoCloseable stream]
                (.close stream)
                nil)))
 
@@ -216,3 +227,79 @@
                ($.io/newline stream)
                ($.io/flush stream)
                cell)))
+
+
+;;;;;;;;;;
+
+
+(defn- -file
+
+  ""
+
+  [env path file str-op]
+
+  (try
+    (let [id (inc (env :convex.run.stream/id))]
+      (-> env
+          (assoc :convex.run.stream/id
+                 id)
+          (assoc-in [:convex.run/stream+
+                     id]
+                    file)
+          ($.run.ctx/def-result ($.data/long id))))
+    (catch Throwable _ex
+      ($.run.err/fail env
+                      ($.data/error $.run.kw/err-stream
+                                    ($.data/string (format "Unable to open file for %s: %s"
+                                                           path
+                                                           str-op)))))))
+
+
+
+(defn file-in
+
+  ""
+
+  [env path]
+
+  (-file env
+         path
+         ($.io/file-in path)
+         "reading"))
+
+
+
+(defn file-out
+
+  ""
+
+  [env path]
+
+  (-file env
+         path
+         ($.io/file-out path)
+         "writing"))
+
+
+;;;;;;;;;;
+
+
+(defn close-all
+
+  ""
+
+  [{:as              env
+    :convex.run/keys [stream+]}]
+
+  (doseq [^AutoCloseable stream (vals (dissoc stream+
+                                              0
+                                              1
+                                              2))]
+    (println :close stream)
+    (.close stream))
+  (assoc env
+         :convex.run/stream+
+         (select-keys stream+
+                      [0
+                       1
+                       2])))

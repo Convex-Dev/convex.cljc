@@ -191,10 +191,10 @@
   [env]
 
   (-> env
-      (assoc :convex.run/stream+
-             {0 $.io/stdin-txt
-              2 $.io/stdout-txt
-              4 $.io/stderr-txt})
+      (assoc :convex.run/stream+  {0 $.io/stdin-txt
+                                   1 $.io/stdout-txt
+                                   2 $.io/stderr-txt}
+             :convex.run.stream/id 2)
       (update :convex.run/fail
               #(or %
                    $.run.exec/fail))

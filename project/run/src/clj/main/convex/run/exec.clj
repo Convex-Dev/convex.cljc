@@ -135,6 +135,7 @@
     (sreq env
           result)
     (catch Throwable _ex
+      (println :EX _ex)
       ($.run.err/fail env
                       ($.run.err/sreq ($.data/code-std* :FATAL)
                                       ($.data/string "Unknown error happened while finalizing transaction")
@@ -331,10 +332,14 @@
       $.run.ctx/cycle
       trx+
       (as->
+
         env-2
+
         (if-some [hook (.get ($.cvm/env (env-2 :convex.sync/ctx)
                                         $.run.ctx/addr-env)
                              $.run.sym/hook-end)]
           (trx env-2
                hook)
-          env-2))))
+          env-2)
+
+        ($.run.stream/close-all env-2))))

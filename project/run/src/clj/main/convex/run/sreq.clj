@@ -136,6 +136,30 @@
 
 (defmethod $.run.exec/sreq
 
+  $.run.kw/file.in
+
+  [env ^AVector tuple]
+
+  ($.run.stream/file-in env
+                        (str (.get tuple
+                                   2))))
+
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/file.out
+
+  [env ^AVector tuple]
+
+  ($.run.stream/file-out env
+                         (str (.get tuple
+                                    2))))
+
+
+
+(defmethod $.run.exec/sreq
+
   $.run.kw/in
 
   [env tuple]

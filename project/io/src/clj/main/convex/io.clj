@@ -4,7 +4,8 @@
 
   {:author "Adam Helinski"}
 
-  (:import (java.io FileDescriptor
+  (:import (java.io File
+                    FileDescriptor
                     FileInputStream
                     FileOutputStream
                     FileReader
@@ -88,6 +89,32 @@
   
   (FileWriter. FileDescriptor/out))
 
+
+;;;;;;;;;; Opening files
+
+
+(defn file-in
+
+  ""
+
+  [^String path]
+
+  (FileReader. (File. path)))
+
+
+
+(defn file-out
+
+  ""
+
+  [path]
+
+  (let [file (File. path)]
+    (-> file
+        .getParentFile
+        .mkdirs)
+    (FileWriter. file)))
+  
 
 ;;;;;;;;;; Miscellaneous operations
 
