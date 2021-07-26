@@ -67,7 +67,7 @@
   (operation env
              id
              "close"
-             (fn [[^java.lang.AutoCloseable stream _mode]]
+             (fn [^java.lang.AutoCloseable stream]
                (.close stream)
                nil)))
 

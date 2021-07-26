@@ -26,7 +26,7 @@
 ;;;;;;;;;; Helpers
 
 
-(defn- -stream
+(defn- -arg-long
 
   ;;
 
@@ -34,6 +34,11 @@
 
   (.longValue ^CVMLong (.get tuple
                              2)))
+
+
+
+(def ^:private -stream
+               -arg-long)
 
 
 ;;;;;;;;;; Setup
@@ -73,14 +78,13 @@
 
   ;; Advances the timestamp.
 
-  [env ^AVector tuple]
+  [env tuple]
 
   (update env
           :convex.sync/ctx
           (fn [ctx]
             ($.cvm/time-advance ctx
-                                (.longValue ^CVMLong (.get tuple
-                                                           2))))))
+                                (-arg-long tuple)))))
 
 
 
@@ -90,9 +94,12 @@
 
   [env ^AVector tuple]
 
-  ($.run.stream/close env
-                      (.longValue ^CVMLong (.get tuple
-                                                 2))))
+  (let [id (-stream tuple)]
+    (-> env
+        ($.run.stream/close id)
+        (update :convex.run/stream+
+                dissoc
+                id))))
 
 
 
