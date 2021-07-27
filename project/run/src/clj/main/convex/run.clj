@@ -249,7 +249,7 @@
          form+] (try
 
                   [nil
-                   (vec ($.read/file+ (env :convex.run/path)))]
+                   ($.read/file+ (env :convex.run/path))]
 
                   (catch NoSuchFileException _ex
                     [($.run.err/main-src-access)

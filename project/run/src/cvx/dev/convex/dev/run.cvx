@@ -323,19 +323,6 @@
 ;(repl)
 
 
-(sreq/file.in "/home/adam/projects/convex/clj/tool/project/run/src/cvx/dev/convex/dev/run.cvx")
 
+(env/about env)
 
-(def f
-     env/*result*)
-
-(sreq/in f)
-
-(sreq/out! (count env/*result*))
-
-; (sreq/file.out "/tmp/foo.cvx")
-; 
-; (def f
-;      env/*result*)
-; 
-; (sreq/out! f {:a :dam})
