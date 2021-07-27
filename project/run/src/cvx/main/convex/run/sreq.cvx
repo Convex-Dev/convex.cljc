@@ -180,6 +180,33 @@
 
 
 
+(defn main
+
+  ^{:doc {:description ""}}
+
+  [path]
+
+  (if env/*main?*
+    (fail :STATE
+          "Main file already loaded")
+    [:cvm.sreq :main path]))
+
+
+
+(defn main.watch
+
+  ^{:doc {:description ""}}
+
+  [path]
+
+  (if env/*main?*
+    (fail :STATE
+          "Main file already loaded")
+    [:cvm.sreq :main.watch path]))
+
+
+
+
 (defn monitor
 
   ^{:doc {:description ""}}

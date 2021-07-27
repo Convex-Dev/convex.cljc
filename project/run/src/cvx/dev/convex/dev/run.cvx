@@ -324,5 +324,16 @@
 
 
 
-(env/about env)
+;(env/about env)
+
+
+
+(env/set.hook.end '(sreq/out! :FINISH))
+
+(sreq/out! [:foo foo])
+
+
+(sreq/do '[(sreq/out! :a)])
+
+
 

@@ -183,3 +183,11 @@
              :convex.sync/ctx-base
              {$.run.sym/file ($.data/string path)})
     env))
+
+
+
+      ; (as->
+      ;   env-2
+      ;   ($.run.ctx/def-env env-2
+      ;                      :convex.sync/ctx-base
+      ;                      {$.run.sym/single-run? ($.data/boolean (env-2 :convex.run/single-run?))}))

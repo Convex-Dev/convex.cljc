@@ -16,6 +16,7 @@
             [convex.run.err    :as $.run.err]
             [convex.run.exec   :as $.run.exec]
             [convex.run.kw     :as $.run.kw]
+            [convex.run.main   :as $.run.main]
             [convex.run.stream :as $.run.stream]))
 
 
@@ -124,9 +125,11 @@
 
   [env ^AVector tuple]
 
-  ($.run.exec/trx+ env
+  (update env
+          :convex.run/trx+
+          (partial concat
                    (.get tuple
-                         2)))
+                         2))))
 
 
 
@@ -209,6 +212,30 @@
   ($.run.exec/trx-monitor env
                           (.get tuple
                                 2)))
+
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/main
+
+  [env ^AVector tuple]
+
+  ($.run.exec/halt ($.run.main/load env
+                                    (str (.get tuple
+                                               2)))))
+
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/main-watch
+
+  [env ^AVector tuple]
+
+  ($.run.main/watch env
+                    (str (.get tuple
+                               2))))
 
 
 

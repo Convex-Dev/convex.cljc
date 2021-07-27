@@ -4,11 +4,11 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.data AVector
-                             AMap))
+  (:import (convex.core.data AVector))
   (:refer-clojure :exclude [compile
                             cycle
-                            eval])
+                            eval
+                            load])
   (:require [convex.cvm        :as $.cvm]
             [convex.data       :as $.data]
             [convex.run.ctx    :as $.run.ctx]
@@ -17,6 +17,8 @@
             [convex.run.stream :as $.run.stream]
             [convex.run.sym    :as $.run.sym]))
 
+
+(declare load)
 
 
 ;;;;;;;;;; Values
@@ -135,7 +137,6 @@
     (sreq env
           result)
     (catch Throwable _ex
-      (println :EX _ex)
       ($.run.err/fail env
                       ($.run.err/sreq ($.data/code-std* :FATAL)
                                       ($.data/string "Unknown error happened while finalizing transaction")
@@ -224,10 +225,10 @@
     (if (env-2 :convex.run/error)
       env-2
       (let [res (result env-2)]
-        (sreq-safe ($.run.ctx/def-result env-2
-                                         res)
-                   trx
-                   res)))))
+        (sreq ($.run.ctx/def-result env-2
+                                    res)
+              ;trx
+              res)))))
 
 
 
@@ -252,45 +253,38 @@
               env-4
               (let [juice-exec (juice env-4)
                     res        (result env-4)]
-                (sreq-safe ($.run.ctx/def-result env-4
-                                                 ($.data/map {$.run.kw/juice         ($.data/long (+ juice-expand
-                                                                                                     juice-compile
-                                                                                                     juice-exec))
-                                                              $.run.kw/juice-expand  ($.data/long juice-expand)
-                                                              $.run.kw/juice-compile ($.data/long juice-compile)
-                                                              $.run.kw/juice-exec    ($.data/long juice-exec)
-                                                              $.run.kw/result        res}))
-                           trx
-                           res)))))))))
+                (sreq ($.run.ctx/def-result env-4
+                                            ($.data/map {$.run.kw/juice         ($.data/long (+ juice-expand
+                                                                                                juice-compile
+                                                                                                juice-exec))
+                                                         $.run.kw/juice-expand  ($.data/long juice-expand)
+                                                         $.run.kw/juice-compile ($.data/long juice-compile)
+                                                         $.run.kw/juice-exec    ($.data/long juice-exec)
+                                                         $.run.kw/result        res}))
+                      ;trx
+                      res)))))))))
 
 
 
 (defn trx+
 
-  "Processes all transactions under `:convex.run/trx+` using [[trx]].
-  
-   Stops when any of them results in an error."
+  ""
 
-  
-  ([env]
+  [env]
 
-   (trx+ env
-         (env :convex.run/trx+)))
-
-
-  ([env trx+]
-
-   (reduce (fn [env-2 cell]
-             (let [env-3 (trx env-2
-                              cell)]
-               (if (env-3 :convex.run/error)
-                 (reduced env-3)
-                 env-3)))
-           env
-           trx+)))
+  (loop [env-2 env]
+    (if-some [form+ (seq (:convex.run/trx+ env-2))]
+      (let [env-3 (trx (assoc env-2
+                              :convex.run/trx+
+                              (rest form+))
+                       (first form+))]
+        (if (:convex.run/error env-3)
+          env-3
+          (recur env-3)))
+      env-2)))
 
 
-;;;;;;;;;; Notifying a failure
+;;;;;;;;;; Notifying a failure or full halt
 
 
 (defn fail
@@ -313,15 +307,71 @@
     ($.run.stream/err env)))
 
 
+
+(defn halt
+
+  ""
+
+  [env]
+
+  (dissoc env
+          :convex.run/trx+))
+
+
 ;;;;;;;;;;
 
 
-(defn cycle
+(defn end
+
+  ""
+
+  [env]
+
+  (as-> env
+        env-2
+
+    (if-some [hook (.get ($.cvm/env (env-2 :convex.sync/ctx)
+                                           $.run.ctx/addr-env)
+                         $.run.sym/hook-end)]
+             (trx env-2
+                  hook)
+             env-2)
+
+    ($.run.stream/close-all env-2)))
+
+
+
+(defn default
 
   "Runs a whole cycle of transactions using [[trx+]].
   
    Does some preparatory work such as calling [[convex.run.ctx/cycle]] and finally calls
    the end hook."
+
+  [env]
+  
+  (let [env-2 (load env)
+        f     (:convex.run/end env-2)]
+    (if f
+      (f env-2)
+      env-2)))
+
+
+
+(defn load
+
+  ""
+
+  [env]
+  
+  (-> env
+      $.run.ctx/cycle
+      trx+))
+
+
+(defn watch
+
+  ""
 
   [env]
 
@@ -330,18 +380,6 @@
              2)
       (dissoc :convex.run/restore
               :convex.run/state-stack)
-      (merge (env :convex.run/restore))
       $.run.ctx/cycle
       trx+
-      (as->
-
-        env-2
-
-        (if-some [hook (.get ($.cvm/env (env-2 :convex.sync/ctx)
-                                        $.run.ctx/addr-env)
-                             $.run.sym/hook-end)]
-          (trx env-2
-               hook)
-          env-2)
-
-        ($.run.stream/close-all env-2))))
+      end))
