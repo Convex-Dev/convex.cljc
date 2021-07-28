@@ -32,12 +32,12 @@
 
 ;; Prints nice information at the start of a run.
 ;;
-(sreq/out! (str "\033[H\033[2J"
-                "Run N°" (inc env/*cycle*)
-                env/line
-                env/line
-                "OUTPUT:"
-                env/line))
+($.stream/out! (str "\033[H\033[2J"
+                    "Run N°" (inc $/*cycle*)
+                    $/line
+                    $/line
+                    "OUTPUT:"
+                    $/line))
 
 
 ;;;;;;;;;; ENV ACCOUNT
@@ -330,9 +330,10 @@
 
 (def foo 42)
 
-(sreq/out! env/*repl?*)
+($.stream/out! [$/*repl?* foo])
 
-(env/repl.start)
+
+;(env/repl.start)
 
 
 ; (env/catch.push '(sreq/out! env/*out.err* :foo))

@@ -12,6 +12,16 @@
 ;;;;;;;;;;
 
 
+(def ^Symbol $
+             ($.data/symbol "$"))
+
+
+
+(def ^Symbol $-stream
+             ($.data/symbol "$.stream"))
+
+
+
 (def ^Symbol catch
              ($.data/symbol "*catch*"))
 
@@ -29,6 +39,9 @@
 (def ^Symbol env
              ($.data/symbol "env"))
 
+
+(def ^Symbol err
+             ($.data/symbol "*err*"))
 
 
 (def ^Symbol error
@@ -50,8 +63,8 @@
 
 
 
-(def ^Symbol out-err
-             ($.data/symbol "*out.err*"))
+(def ^Symbol main?
+             ($.data/symbol "main?"))
 
 
 

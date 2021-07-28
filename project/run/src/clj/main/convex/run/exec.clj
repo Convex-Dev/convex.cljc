@@ -311,7 +311,7 @@
   [env]
 
   (if-some [catch-stack (seq (.get ($.cvm/env (env :convex.sync/ctx)
-                                              $.run.ctx/addr-env)
+                                              $.run.ctx/addr-$)
                                    $.run.sym/catch))]
     (-> env
         (assoc :convex.run/fail
@@ -346,7 +346,7 @@
         env-2
 
     (if-some [hook (.get ($.cvm/env (env-2 :convex.sync/ctx)
-                                           $.run.ctx/addr-env)
+                                           $.run.ctx/addr-$)
                          $.run.sym/hook-end)]
              (trx env-2
                   hook)
@@ -382,6 +382,7 @@
   (-> env
       $.run.ctx/cycle
       trx+))
+
 
 
 (defn watch

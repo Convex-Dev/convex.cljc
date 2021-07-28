@@ -50,7 +50,7 @@
                          (or (= addr
                                 $.run.sym/sreq)
                              (= addr
-                                $.run.ctx/addr-sreq)))
+                                $.run.ctx/addr-$)))
                        (= (.get form
                                 2)
                           $.run.sym/dep))
@@ -112,7 +112,7 @@
       (assoc :convex.sync/ctx-base ($.cvm/fork (env :convex.sync/ctx))
              :convex.run/path      (.getCanonicalPath (File. path)))
       (dissoc :convex.sync/ctx)
-      $.run.ctx/init))
+      $.run.ctx/main))
 
 
 ;;;;;;;;;; Error handling aspects

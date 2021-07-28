@@ -20,41 +20,47 @@
 ;;;;;;;;;; Loading libraries
 
 
-(let [preload   (fn [ctx path]
-                  (if-some [resource (clojure.java.io/resource path)]
-                    (try
-                      (let [ctx-2 ($.cvm/eval ctx
-                                              (-> resource
-                                                  .openStream
-                                                  (InputStreamReader. StandardCharsets/UTF_8)
-                                                  $.read/stream+
-                                                  $.data/do
-                                                  $.data/deploy))
-                            ex    ($.cvm/exception ctx)]
-                        (when ex
-                          (throw (ex-info "While deploying prelude CVX file"
-                                          {::base :eval
-                                           ::ex   ex
-                                           ::path path})))
-                        ($.cvm/juice-refill ctx-2))
-                      (catch Throwable ex
-                        (throw (ex-info "While reading prelude CVX file"
-                                        {::base :read
-                                         ::ex   ex
-                                         ::path path}))))
-                    (throw (ex-info "Mandatory CVX file is not on classpath"
-                                    {::base :not-found
-                                     ::path path}))))
-      ctx       ($.cvm/ctx)
-      ctx-2     (preload ctx
-                         "convex/run/sreq.cvx")
-      addr-sreq ($.cvm/result ctx-2)
-      ctx-3     (preload ctx-2
-                         "convex/run/env.cvx")
-      addr-env  ($.cvm/result ctx-2)
-      ctx-4     (preload ctx-3
-                         "convex/run/test.cvx")]
-
+(let [{:keys [ctx
+              sym->addr]} (reduce (fn [acc [sym path]]
+                                    (if-some [resource (clojure.java.io/resource path)]
+                                      (try
+                                        (let [ctx-2 ($.cvm/eval (acc :ctx)
+                                                                (-> resource
+                                                                    .openStream
+                                                                    (InputStreamReader. StandardCharsets/UTF_8)
+                                                                    $.read/stream+
+                                                                    $.data/do
+                                                                    $.data/deploy))
+                                              ex    ($.cvm/exception ctx-2)]
+                                          (when ex
+                                            (throw (ex-info "While deploying prelude CVX file"
+                                                            {::base :eval
+                                                             ::ex   ex
+                                                             ::path path})))
+                                          (-> acc
+                                              (assoc :ctx
+                                                     ($.cvm/juice-refill ctx-2))
+                                              (assoc-in [:sym->addr
+                                                         sym]
+                                                        ($.cvm/result ctx-2))))
+                                        (catch Throwable ex
+                                          (throw (ex-info "While reading prelude CVX file"
+                                                          {::base :read
+                                                           ::ex   ex
+                                                           ::path path}))))
+                                      (throw (ex-info "Mandatory CVX file is not on classpath"
+                                                      {::base :not-found
+                                                       ::path path}))))
+                                  {:ctx       ($.cvm/ctx)
+                                   :sym->addr {}}
+                                  [[$.run.sym/$
+                                    "convex/run.cvx"]
+                                   [$.run.sym/$-stream
+                                    "convex/run/stream.cvx"]
+                                   ;[$.run.sym/$-test
+                                   ; "convex/run/test.cvx"
+                                    ])
+      addr-$              (sym->addr $.run.sym/$)]
 
   (def base
 
@@ -62,25 +68,25 @@
     
      Prepares the `env` and `sreq` accounts."
 
-    (-> ctx-4
-        ($.cvm/def {$.run.sym/env addr-env
-                    $.run.sym/sreq addr-sreq})
-        ($.cvm/def addr-env
+    (-> ctx
+        ($.cvm/def sym->addr)
+        ($.cvm/def addr-$
                    {$.run.sym/line ($.data/string (System/lineSeparator))})))
 
 
-  (def addr-env
+  (def addr-$
 
     "Address of the `env` account fetched from [[base]]."
 
-    addr-env)
-
-
-  (def addr-sreq
+    addr-$)
   
-    "Address of the `sreq` account fetched from [[base]]."
 
-    addr-sreq))
+
+  (def addr-$-stream
+
+    ""
+
+    (sym->addr $.run.sym/$-stream)))
 
 
 ;;;;;;;;;; Defining symbols in the environment's context
@@ -125,7 +131,7 @@
            kw-ctx
            (fn [ctx]
              ($.cvm/def ctx
-                        addr-env
+                        addr-$
                         sym->value)))))
 
 
@@ -170,7 +176,7 @@
 
 
 
-(defn init
+(defn main
 
   "Used once at the very beginning for preparing [[base]].
   
@@ -182,6 +188,7 @@
            :convex.sync/ctx-base
            (cond->
              {$.run.sym/file  ($.data/string (env :convex.run/path))
+              $.run.sym/main? ($.data/boolean true)
               $.run.sym/repl? ($.data/boolean false)}
              (env :convex.run/watch?)
              (assoc $.run.sym/watch?

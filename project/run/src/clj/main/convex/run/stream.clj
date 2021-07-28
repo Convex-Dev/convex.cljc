@@ -141,8 +141,8 @@
 
   (let [id (-> env
                :convex.sync/ctx
-               ($.cvm/env $.run.ctx/addr-env)
-               ^CVMLong (.get $.run.sym/out-err)
+               ($.cvm/env $.run.ctx/addr-$-stream)
+               ^CVMLong (.get $.run.sym/err)
                .longValue)]
     (-> env
         (assoc ::stream.err
