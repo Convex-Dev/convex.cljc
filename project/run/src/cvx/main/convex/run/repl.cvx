@@ -1,0 +1,95 @@
+
+
+
+(import convex.run :as $)
+
+
+
+(def self
+
+  *address*)
+
+
+;;;;;;;;;; DYNAMIC VALUES
+
+
+(def *active?*
+
+  ^{:doc {:description ""}}
+
+  false)
+
+
+;;;;;;;;;; BASIC REPL
+
+
+(defn start
+
+  ^{:doc {:description ""}}
+
+  ([]
+
+   (start *result*))
+
+
+  ([result]
+ 
+   (if (= *address*
+          self)
+     (do
+       (def *active?*
+            true)
+       ($/do `[($.stream/out "> ")
+               ($.stream/flush)
+               ($.stream/line+)
+               (let [form+       $/*result*
+                     n-form      (count form+)
+                     result-real (quote ~result)]
+                 (if (>= n-form
+                         1)
+                   ($/do `[($/catch.push '(def $.repl.result
+                                               $/*error*))
+                           (quote ~result-real)
+                           ~(if (= n-form
+                                   1)
+                              (first form+)
+                              (cons 'do
+                                    form+))
+                           (def $.repl.result
+                                $/*result*)
+                           ($/catch.pop)
+                           ($.stream/out $/line)
+                           ($.stream/out! (if (str? $.repl.result)
+                                            (str \" $.repl.result \")
+                                            $.repl.result))
+                           ($.stream/out $/line)
+                           ($.stream/flush)
+                           (when $.repl/*active?*
+                             (let [result $.repl.result]
+                               (undef $.repl.result)
+                               ($.repl/start result)))])
+                   ($.repl/start nil)))]))
+     (call self
+           (start result)))))
+
+
+(export start)
+
+
+
+(defn stop
+
+  ^{:doc {:description ""}}
+
+  []
+
+  (if (= *address*
+         self)
+    (def *active?*
+         false)
+    (call self
+          (stop)))
+  nil)
+
+
+(export stop)

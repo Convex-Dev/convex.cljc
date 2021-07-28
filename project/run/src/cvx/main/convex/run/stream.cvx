@@ -138,7 +138,7 @@
 
   [stream]
 
-  [:cvm.sreq :close stream])
+  [:cvm.sreq :stream.close stream])
 
 
 
@@ -149,12 +149,12 @@
 
   ([]
 
-   (out.flush *out*))
+   (flush *out*))
 
 
   ([stream]
 
-   [:cvm.sreq :out.flush stream]))
+   [:cvm.sreq :stream.flush stream]))
 
 
 
@@ -171,7 +171,7 @@
 
   ([stream]
 
-   [:cvm.sreq :in+ stream]))
+   [:cvm.sreq :stream.in+ stream]))
 
 
 
@@ -184,12 +184,12 @@
 
   ([]
 
-   (in.line+ *in*))
+   (line+ *in*))
 
 
   ([stream]
 
-   [:cvm.sreq :in.line+ stream]))
+   [:cvm.sreq :stream.line+ stream]))
 
 
 
@@ -210,7 +210,7 @@
 
   ([stream x]
 
-   [:cvm.sreq :out stream x]))
+   [:cvm.sreq :stream.out stream x]))
 
 
 
@@ -231,4 +231,4 @@
 
   ([stream x]
 
-   [:cvm.sreq :out! stream x]))
+   [:cvm.sreq :stream.out! stream x]))

@@ -91,17 +91,6 @@
 
 (defmethod $.run.exec/sreq
 
-  $.run.kw/close
-
-  [env tuple]
-
-  ($.run.stream/close env
-                      (-stream tuple)))
-
-
-
-(defmethod $.run.exec/sreq
-
   $.run.kw/dep
 
   ;; Specifying dependency receives special treatment at the beginning of source.
@@ -158,39 +147,6 @@
 
 
 (defmethod $.run.exec/sreq
-
-  $.run.kw/in
-
-  [env tuple]
-
-  ($.run.stream/in env
-                   (-stream tuple)))
-
-
-
-(defmethod $.run.exec/sreq
-
-  $.run.kw/in+
-
-  [env tuple]
-
-  ($.run.stream/in+ env
-                    (-stream tuple)))
-
-
-
-(defmethod $.run.exec/sreq
-
-  $.run.kw/in-line+
-
-  [env tuple]
-
-  ($.run.stream/in-line+ env
-                         (-stream tuple)))
-
-
-
-(defmethod $.run.exec/sreq
   
   $.run.kw/log
 
@@ -236,47 +192,6 @@
   ($.run.main/watch env
                     (str (.get tuple
                                2))))
-
-
-
-(defmethod $.run.exec/sreq
-
-  $.run.kw/out
-
-  ;; Outputs the given value using the output hook.
-
-  [env ^AVector tuple]
-
-  ($.run.stream/out env
-                    (-stream tuple)
-                    (.get tuple
-                          3)))
-
-
-
-(defmethod $.run.exec/sreq
-
-  $.run.kw/out!
-
-  [env ^AVector tuple]
-
-  ($.run.stream/out! env
-                     (-stream tuple)
-                     (.get tuple
-                           3)))
-
-
-
-(defmethod $.run.exec/sreq
-
-  $.run.kw/out-flush
-
-  ;; Outputs the given value using the output hook.
-
-  [env ^AVector tuple]
-
-  ($.run.stream/flush env
-                      (-stream tuple)))
 
 
 
@@ -382,3 +297,84 @@
           (fnil conj
                 '())
           ($.cvm/fork (env :convex.sync/ctx))))
+
+
+;;;;;;;;;; Streams
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/stream-close
+
+  [env tuple]
+
+  ($.run.stream/close env
+                      (-stream tuple)))
+
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/stream-flush
+
+  [env ^AVector tuple]
+
+  ($.run.stream/flush env
+                      (-stream tuple)))
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/stream-in
+
+  [env tuple]
+
+  ($.run.stream/in env
+                   (-stream tuple)))
+
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/stream-in+
+
+  [env tuple]
+
+  ($.run.stream/in+ env
+                    (-stream tuple)))
+
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/stream-line+
+
+  [env tuple]
+
+  ($.run.stream/in-line+ env
+                         (-stream tuple)))
+
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/stream-out
+
+  [env ^AVector tuple]
+
+  ($.run.stream/out env
+                    (-stream tuple)
+                    (.get tuple
+                          3)))
+
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/stream-out!
+
+  [env ^AVector tuple]
+
+  ($.run.stream/out! env
+                     (-stream tuple)
+                     (.get tuple
+                           3)))

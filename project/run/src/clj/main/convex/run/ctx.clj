@@ -55,6 +55,8 @@
                                    :sym->addr {}}
                                   [[$.run.sym/$
                                     "convex/run.cvx"]
+                                   [$.run.sym/$-repl
+                                    "convex/run/repl.cvx"]
                                    [$.run.sym/$-stream
                                     "convex/run/stream.cvx"]
                                    ;[$.run.sym/$-test
@@ -187,9 +189,9 @@
   (def-env env
            :convex.sync/ctx-base
            (cond->
-             {$.run.sym/file  ($.data/string (env :convex.run/path))
-              $.run.sym/main? ($.data/boolean true)
-              $.run.sym/repl? ($.data/boolean false)}
+             {$.run.sym/active? ($.data/boolean false)
+              $.run.sym/file    ($.data/string (env :convex.run/path))
+              $.run.sym/main?   ($.data/boolean true)}
              (env :convex.run/watch?)
              (assoc $.run.sym/watch?
                     ($.data/boolean true)))))

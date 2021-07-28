@@ -16,9 +16,18 @@
              ($.data/symbol "$"))
 
 
+(def ^Symbol $-repl
+             ($.data/symbol "$.repl"))
+
+
 
 (def ^Symbol $-stream
              ($.data/symbol "$.stream"))
+
+
+
+(def ^Symbol active?
+             ($.data/symbol "*active?*"))
 
 
 
@@ -65,11 +74,6 @@
 
 (def ^Symbol main?
              ($.data/symbol "main?"))
-
-
-
-(def ^Symbol repl?
-             ($.data/symbol "*repl?*"))
 
 
 

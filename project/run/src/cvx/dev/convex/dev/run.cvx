@@ -330,11 +330,11 @@
 
 (def foo 42)
 
-($.stream/out! [$/*repl?* foo])
+($.stream/out! [$.repl/*active?* foo])
 
 
-;(env/repl.start)
-
+($/catch.push '($.stream/out! $.stream/*err* (dissoc $/*error* :trace)))
+($.repl/start)
 
 ; (env/catch.push '(sreq/out! env/*out.err* :foo))
 ; (env/catch.push '(sreq/out! :bar))

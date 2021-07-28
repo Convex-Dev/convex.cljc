@@ -7,7 +7,7 @@
 
 
 (call *registry*
-      (cns-update 'convex.run.env
+      (cns-update 'convex.run
                   *address*))
 
 
@@ -96,14 +96,6 @@
   ^{:doc {:description ""}}
 
   nil)
-
-
-
-(def *repl?*
-
-  ^{:doc {:description ""}}
-
-  false)
 
 
 
@@ -629,90 +621,3 @@
   []
 
   [:cvm.sreq :state.push])
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-;;;;;;;;;; BASIC REPL
-
-
-(defn repl.start
-
-  ^{:doc {:description ""}}
-
-  ([]
-
-   (repl.start *result*))
-
-
-  ([result]
- 
-   (if (= *address*
-          self)
-     (do
-       (def *repl?*
-            true)
-       (sreq/do `[(sreq/out "> ")
-                  (sreq/out.flush)
-                  (sreq/in.line+)
-                  (let [form+       env/*result*
-                        n-form      (count form+)
-                        result-real (quote ~result)]
-                    (if (>= n-form
-                            1)
-                      (sreq/do `[(env/catch.push '(def RES
-                                                       env/*error*))
-                                 (quote ~result-real)
-                                 ~(if (= n-form
-                                         1)
-                                    (first form+)
-                                    (cons 'do
-                                          form+))
-                                 (def RES
-                                      env/*result*)
-                                 (env/catch.pop)
-                                 (sreq/out env/line)
-                                 (sreq/out! (if (str? RES)
-                                              (str \" RES \")
-                                              RES))
-                                 (sreq/out env/line)
-                                 (sreq/out.flush)
-                                 (when env/*repl?*
-                                   (let [result RES]
-                                     (undef RES)
-                                     (env/repl.start result)))])
-                      (env/repl.start nil)))]))
-     (call self
-           (repl.start result)))))
-
-
-
-(defn repl.stop
-
-  ^{:doc {:description ""}}
-
-  []
-
-  (if (= *address*
-         self)
-    (def *repl?*
-         false)
-    (call self
-          (repl.stop)))
-  nil)
-
-
-
-(export repl.start
-        repl.stop)

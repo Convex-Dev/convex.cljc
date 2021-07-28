@@ -25,11 +25,6 @@
 
 
 
-(def ^Keyword close
-              ($.data/keyword "close"))
-
-
-
 (def ^Keyword compile
               ($.data/keyword "compile"))
 
@@ -94,21 +89,6 @@
 
 
 
-(def ^Keyword in
-              ($.data/keyword "in"))
-
-
-
-(def ^Keyword in+
-              ($.data/keyword "in+"))
-
-
-
-(def ^Keyword in-line+
-              ($.data/keyword "in.line+"))
-
-
-
 (def ^Keyword juice
               ($.data/keyword "juice"))
 
@@ -146,21 +126,6 @@
 
 (def ^Keyword monitor
               ($.data/keyword "monitor"))
-
-
-
-(def ^Keyword out
-              ($.data/keyword "out"))
-
-
-
-(def ^Keyword out!
-              ($.data/keyword "out!"))
-
-
-
-(def ^Keyword out-flush
-              ($.data/keyword "out.flush"))
 
 
 
@@ -221,6 +186,40 @@
 
 (def ^Keyword state-push
               ($.data/keyword "state.push"))
+
+
+
+(def ^Keyword stream-close
+              ($.data/keyword "stream.close"))
+
+
+
+(def ^Keyword stream-flush
+              ($.data/keyword "stream.flush"))
+
+
+
+(def ^Keyword stream-in
+              ($.data/keyword "stream.in"))
+
+
+
+(def ^Keyword stream-in+
+              ($.data/keyword "stream.in+"))
+
+
+
+(def ^Keyword stream-line+
+              ($.data/keyword "stream.line+"))
+
+
+(def ^Keyword stream-out
+              ($.data/keyword "stream.out"))
+
+
+
+(def ^Keyword stream-out!
+              ($.data/keyword "stream.out!"))
 
 
 
