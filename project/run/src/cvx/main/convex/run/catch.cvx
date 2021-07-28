@@ -1,0 +1,97 @@
+
+
+(call *registry*
+      (cns-update 'convex.run.catch
+                  *address*))
+
+
+(call *registry*
+      (register {:doc  {:description ""}
+                 :name ""}))
+
+
+
+(def $
+
+  ^{:doc {:description ""}}
+
+  (call *registry*
+        (cns-resolve 'convex.run)))
+
+
+
+(def $.stream
+
+  ^{:doc {:description ""}}
+
+  (call *registry*
+        (cns-resolve 'convex.run.stream)))
+
+
+
+(def $.trx
+
+  ^{:doc {:description ""}}
+
+  (call *registry*
+        (cns-resolve 'convex.run.trx)))
+
+
+
+(def self
+
+  ^{:doc {:description ""}}
+
+  *address*)
+
+
+
+(def *stack*
+
+  ^{:doc {:description ""}}
+
+  '((do
+      ($.trx/halt)
+      ($.stream/err! $/*result*))))
+
+
+
+(defn pop
+
+  ^{:doc {:description ""}}
+
+  []
+
+  (if (= *address*
+         self)
+    (do
+      ($.trx/prepend (first *stack*))
+      (when (> (count *stack*)
+               1)
+        (def *stack*
+             (next *stack*)))
+      $/*result*)
+    (call self
+          (pop))))
+
+
+(export pop)
+
+
+
+(defn push
+
+  ^{:doc {:description ""}}
+
+  [trx]
+
+  (if (= *address*
+         self)
+    (def *stack*
+         (conj *stack*
+               trx))
+    (call self
+          (push trx))))
+
+
+(export push)

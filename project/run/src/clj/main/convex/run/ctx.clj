@@ -56,7 +56,9 @@
                                   [[$.run.sym/$
                                     "convex/run.cvx"]
                                    [$.run.sym/$-trx
-                                    "convex/run/trx.cvx"]
+                                    "convex/run/trx.cvx"]  ;; Must be before others
+                                   [$.run.sym/$-catch
+                                    "convex/run/catch.cvx"]
                                    [$.run.sym/$-file
                                     "convex/run/file.cvx"]
                                    [$.run.sym/$-process
@@ -90,6 +92,14 @@
 
     addr-$)
   
+
+
+  (def addr-$-catch
+
+    ""
+
+    (sym->addr $.run.sym/$-catch))
+
 
 
   (def addr-$-stream
@@ -194,19 +204,6 @@
   (def-env env
            {$.run.sym/cycle ($.data/long (or (env :convex.watch/cycle)
                                              0))}))
-
-
-
-(defn error
-
-  "Used whenever an error occurs.
-  
-   Defines `env/*error*`, the error translated into a map."
-
-  [env err]
-
-  (def-env env
-           {$.run.sym/error err}))
 
 
 

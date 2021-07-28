@@ -41,26 +41,10 @@
 ;;;;;;;;;; DYNAMIC VALUES
 
 
-(def *catch*
-
-  ^{:doc {:description ""}}
-
-  '())
-
-
 (def *cycle*
 
   ^{:doc {:description ["Starting at 0, is incremented every time the main file is run."
                         "Potentially useful for watch mode."]}}
-
-  nil)
-
-
-
-(def *error*
-
-  ^{:doc {:description ["Any thrown exception is defined under this symbol."
-                        "Notably useful in try-catch (see `sreq/try`)"]}}
 
   nil)
 
@@ -95,46 +79,6 @@
   ^{:doc {:description ""}}
 
   false)
-
-
-;;;;;;;;;; SETTING SOME DYNAMIC VALUES
-
-
-(defn catch.pop
-
-  ^{:doc {:description ""}}
-
-  []
-
-  (if (= *address*
-         self)
-    (def *catch*
-         (or (next *catch*)
-             '()))
-    (call self
-          (catch.pop))))
-
-
-(export catch.pop)
-
-
-
-(defn catch.push
-
-  ^{:doc {:description ""}}
-
-  [trx]
-
-  (if (= *address*
-         self)
-    (def *catch*
-         (conj *catch*
-               trx))
-    (call self
-          (catch.push trx))))
-
-
-(export catch.push)
 
 
 ;;;;;;;;;; MISCELLANEOUS HELPERS

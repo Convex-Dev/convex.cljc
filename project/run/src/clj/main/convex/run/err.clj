@@ -217,18 +217,18 @@
 
   [env ^AMap err]
 
-  ((env :convex.run/fail)
-   (-> env
-       (assoc :convex.run/error
-              (.assoc err
+  (let [err-2 (.assoc err
                       $.run.kw/exception?
-                      ($.data/boolean true)))
-       (cond->
-         (env :convex.sync/ctx)
-         (-> (update :convex.sync/ctx
-                     $.cvm/exception-clear)
-             ($.run.ctx/def-result nil)
-             ($.run.ctx/error err))))))
+                      ($.data/boolean true))]
+    ((env :convex.run/fail)
+     (-> env
+         (assoc :convex.run/error
+                err-2)
+         (cond->
+           (env :convex.sync/ctx)
+           (-> (update :convex.sync/ctx
+                       $.cvm/exception-clear)
+               ($.run.ctx/def-result err-2)))))))
 
 
 

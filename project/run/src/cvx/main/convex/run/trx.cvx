@@ -20,7 +20,7 @@
 
 
 
-(def list
+(def *list*
 
   ^{:doc {:description ""}}
 
@@ -36,7 +36,7 @@
 
   (if (= *address*
          self)
-    (def list
+    (def *list*
          (do
            (assert (list? trx+))
            trx+))
@@ -48,6 +48,26 @@
 
 
 
+(defn halt
+
+  ^{:doc {:description ""}}
+
+  []
+
+  (set '()))
+
+
+
+(defn append
+
+  ^{:doc {:description ""}}
+
+  [trx]
+
+  (postcat (list trx)))
+
+
+
 (defn precat
 
   ^{:doc {:description ""}}
@@ -55,4 +75,26 @@
   [trx+]
 
   (set (concat trx+
-               list)))
+               *list*)))
+
+
+
+(defn prepend
+
+  ^{:doc {:description ""}}
+
+  [trx]
+
+  (set (cons trx
+             *list*)))
+
+
+
+(defn postcat
+
+  ^{:doc {:description ""}}
+
+  [ŧrx]
+
+  (set (concat *list*
+               trx+)))

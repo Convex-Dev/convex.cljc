@@ -138,8 +138,20 @@
 
   [stream]
 
+  (assert (not (= stream
+                  stderr)))
   [:cvm.sreq :stream.close stream])
 
+
+
+(defn err!
+
+  ^{:doc {:description ""}}
+
+  [x]
+
+  (out! *err*
+        x))
 
 
 (defn flush

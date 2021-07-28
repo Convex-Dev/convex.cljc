@@ -321,7 +321,10 @@
 ;($.repl/start)
 
 
-($.stream/out! $.trx/list)
 
-($.trx/precat '((def foo 42)))
-($.stream/out! foo)
+
+($.catch/push '(fail :STATE))
+($.catch/push '(assert (< 3 2)))
+
+(assert false)
+($.stream/out! :foo)

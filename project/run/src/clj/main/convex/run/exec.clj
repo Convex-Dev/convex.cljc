@@ -12,6 +12,7 @@
                             load])
   (:require [convex.cvm        :as $.cvm]
             [convex.data       :as $.data]
+            [convex.read       :as $.read]
             [convex.run.ctx    :as $.run.ctx]
             [convex.run.err    :as $.run.err]
             [convex.run.kw     :as $.run.kw]
@@ -300,33 +301,29 @@
                                                     1))
                          (.get trx+
                                0))]
-          (if (or (:convex.run/error env-3)
-                  (not (map? env-3)))
+          (if (not (map? env-3))
             env-3
-            (recur env-3)))
+            (recur (dissoc env-3
+                           :convex.run/error))))
         env-2))))
 
 
 ;;;;;;;;;; Notifying a failure or full halt
 
 
-(defn fail
+(let [trx-pop ($.read/string "($.catch/pop)")]
 
-  ""
+  (defn fail
 
-  [env]
+    ""
 
-  (if-some [catch-stack (seq (.get ($.cvm/env (or (env :convex.sync/ctx)
-                                                  (env :convex.sync/ctx-base))
-                                              $.run.ctx/addr-$)
-                                   $.run.sym/catch))]
-    (-> env
-        (assoc :convex.run/fail
-               $.run.stream/err)
-        (dissoc :convex.run/error)
-        (eval (first catch-stack))
-        (assoc :convex.run/fail (env :convex.run/fail)))
-    ($.run.stream/err env)))
+    [env]
+
+    ($.run.ctx/def-trx+ env
+                        (.cons ^AList (.get ($.cvm/env (env :convex.sync/ctx)
+                                                       $.run.ctx/addr-$-trx)
+                                            $.run.sym/list)
+                               trx-pop))))
 
 
 

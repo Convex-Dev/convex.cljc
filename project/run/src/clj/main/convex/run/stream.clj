@@ -4,18 +4,15 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.data.prim CVMLong)
-           (java.lang AutoCloseable)
+  (:import (java.lang AutoCloseable)
            (java.io BufferedReader))
   (:refer-clojure :exclude [flush])
-  (:require [convex.cvm     :as $.cvm]
-            [convex.data    :as $.data]
+  (:require [convex.data    :as $.data]
             [convex.io      :as $.io]
             [convex.read    :as $.read]
             [convex.run.ctx :as $.run.ctx]
             [convex.run.err :as $.run.err]
             [convex.run.kw  :as $.run.kw]
-            [convex.run.sym :as $.run.sym]
             [convex.write   :as $.write]))
 
 
@@ -43,23 +40,23 @@
 
   ;;
 
-  [env id err]
+  [env id op+ err]
 
-  (if (= id
-         (env ::stream.err))
-    (if (= id
-           id-stderr)
-      ((env :convex.run/fatal)
-       (dissoc env
-               ::err)
-       err)
-      (out! (assoc env
-                   ::stream.err
-                   id-stderr)
-            id-stderr
-            err))
+  (if (and (= id
+              id-stderr)
+           (or (op+ :flush)
+               (op+ :write)))
+    ((env :convex.run/fatal)
+     (dissoc env
+             ::err)
+     err)
+    (out! (assoc env
+                 ::stream.err
+                 id-stderr)
+          id-stderr
+          err))
     ($.run.err/fail env
-                    err)))
+                    err))
 
 
 
@@ -67,7 +64,7 @@
 
   ""
 
-  [env id capability f]
+  [env id op+ f]
 
   (if-some [stream (get-in env
                            [:convex.run/stream+
@@ -81,21 +78,24 @@
       (catch ClassCastException _ex
         (-fail env
                id
+               op+
                ($.data/error ($.data/code-std* :ARGUMENT)
                              ($.data/string (format "Stream [%s] is missing capability: %s"
                                                     id
-                                                    capability)))))
+                                                    op+)))))
 
       (catch Throwable _ex
         (-fail env
                id
+               op+
                ($.data/error $.run.kw/err-stream
                              ($.data/string (format "Stream [%s] failed while performing: %s" 
                                                     id
-                                                    capability))))))
+                                                    op+))))))
 
     (-fail env
            id
+           op+
            ($.data/error $.run.kw/err-stream
                          ($.data/string (format "Stream [%s] closed or does not exist"
                                                 id))))))
@@ -125,31 +125,11 @@
 
   (-> env
       (operation id
-                 "close"
+                 #{:close}
                  (fn [^AutoCloseable stream]
                    (.close stream)
                    nil))
       (-dissoc id)))
-
-
-
-(defn err
-
-  ""
-
-  [env]
-
-  (let [id (-> env
-               :convex.sync/ctx
-               ($.cvm/env $.run.ctx/addr-$-stream)
-               ^CVMLong (.get $.run.sym/err)
-               .longValue)]
-    (-> env
-        (assoc ::stream.err
-               id)
-        (out! id
-              (env :convex.run/error))
-        (dissoc ::stream.err))))
 
 
 
@@ -161,7 +141,7 @@
 
   (operation env
              id
-             "flush"
+             #{:flush}
              (fn [stream]
                ($.io/flush stream)
                nil)))
@@ -176,7 +156,7 @@
 
   (-> env
       (operation id
-                 "read"
+                 #{:read}
                  $.read/stream)
       (-dissoc id)))
 
@@ -190,7 +170,7 @@
 
   (-> env
       (operation id
-                 "read"
+                 #{:read}
                  $.read/stream+)
       (-dissoc id)))
 
@@ -204,7 +184,7 @@
 
   (operation env
              id
-             "read line"
+             #{:read}
              (fn [stream]
                (-> stream
                    BufferedReader.
@@ -220,7 +200,7 @@
 
   (operation env
              id
-             "write"
+             #{:write}
              (fn [stream]
                ($.write/stream stream
                                cell)
@@ -236,7 +216,8 @@
 
   (operation env
              id
-             "write flush"
+             #{:flush
+               :write}
              (fn [stream]
                ($.write/stream stream
                                cell)
@@ -281,7 +262,7 @@
   (-file env
          path
          ($.io/file-in path)
-         "reading"))
+         #{:read}))
 
 
 
@@ -294,7 +275,7 @@
   (-file env
          path
          ($.io/file-out path)
-         "writing"))
+         #{:write}))
 
 
 ;;;;;;;;;;

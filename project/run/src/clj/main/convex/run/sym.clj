@@ -18,6 +18,11 @@
 
 
 
+(def ^Symbol $-catch
+             ($.data/symbol "$.catch"))
+
+
+
 (def ^Symbol $-file
              ($.data/symbol "$.file"))
 
@@ -53,10 +58,6 @@
 
 
 
-(def ^Symbol catch
-             ($.data/symbol "*catch*"))
-
-
 (def ^Symbol cycle
              ($.data/symbol "*cycle*"))
 
@@ -71,12 +72,9 @@
              ($.data/symbol "env"))
 
 
+
 (def ^Symbol err
              ($.data/symbol "*err*"))
-
-
-(def ^Symbol error
-             ($.data/symbol "*error*"))
 
 
 
@@ -91,7 +89,7 @@
 
 
 (def ^Symbol list
-             ($.data/symbol "list"))
+             ($.data/symbol "*list*"))
 
 
 
@@ -107,6 +105,11 @@
 
 (def ^Symbol sreq
              ($.data/symbol "sreq"))
+
+
+
+(def ^Symbol stack
+             ($.data/symbol "*stack*"))
 
 
 
