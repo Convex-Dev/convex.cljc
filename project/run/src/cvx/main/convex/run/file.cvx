@@ -1,0 +1,23 @@
+
+
+
+
+(defn stream.in
+
+  ^{:doc {:description ""}}
+
+  [path]
+
+  (assert (str? path))
+  [:cvm.sreq :file.in path])
+
+
+
+(defn stream.out
+
+  ^{:doc {:description ""}}
+
+  [path]
+
+  (assert (str? path))
+  [:cvm.sreq :file.out path])

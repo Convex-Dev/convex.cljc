@@ -107,30 +107,6 @@
 
 
 (defmethod $.run.exec/sreq
-
-  $.run.kw/file.in
-
-  [env ^AVector tuple]
-
-  ($.run.stream/file-in env
-                        (str (.get tuple
-                                   2))))
-
-
-
-(defmethod $.run.exec/sreq
-
-  $.run.kw/file.out
-
-  [env ^AVector tuple]
-
-  ($.run.stream/file-out env
-                         (str (.get tuple
-                                    2))))
-
-
-
-(defmethod $.run.exec/sreq
   
   $.run.kw/log
 
@@ -202,6 +178,32 @@
                                       tuple)))))
 
 
+;;;;;;;;;; File
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/file.in
+
+  [env ^AVector tuple]
+
+  ($.run.stream/file-in env
+                        (str (.get tuple
+                                   2))))
+
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/file.out
+
+  [env ^AVector tuple]
+
+  ($.run.stream/file-out env
+                         (str (.get tuple
+                                    2))))
+
+
 ;;;;;;;;;; Process
 
 
@@ -231,7 +233,6 @@
 
   [env ^AVector tuple]
 
-  (println :env (str tuple))
   ($.run.ctx/def-result env
                         (if-some [env-var (.get tuple
                                                 2)]
@@ -305,6 +306,7 @@
 
   [env ^AVector tuple]
 
+  (println :out)
   ($.run.stream/out env
                     (-stream tuple)
                     (.get tuple
@@ -318,6 +320,7 @@
 
   [env ^AVector tuple]
 
+  (println :here )
   ($.run.stream/out! env
                      (-stream tuple)
                      (.get tuple

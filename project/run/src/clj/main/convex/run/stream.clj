@@ -69,6 +69,7 @@
 
   [env id capability f]
 
+  (println :stream id capability)
   (if-some [stream (get-in env
                            [:convex.run/stream+
                             id])]

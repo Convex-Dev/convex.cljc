@@ -315,3 +315,7 @@
 ;                  (repl)))]))
 ; 
 ; (repl)
+
+
+
+($.repl/start)

@@ -17,6 +17,11 @@
 
 
 
+(def ^Symbol $-file
+             ($.data/symbol "$.file"))
+
+
+
 (def ^Symbol $-process
              ($.data/symbol "$.process"))
 
