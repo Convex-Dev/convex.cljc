@@ -588,7 +588,7 @@
          (result ctx)))
 
 
-  (^Context [ctx ^ACell cell]
+  (^Context [^Context ctx ^ACell cell]
 
    (.run ctx
          cell)))

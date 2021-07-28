@@ -68,90 +68,6 @@
     (error "Path fo main file is missing.")))
 
 
-;;;;;;;;;; Commands
-
-
-(defn command
-
-  "Implementation for the 'command' CLI command.
-  
-   Prints a description of the user given command."
-
-  [arg+ _option+]
-
-  (if-some [command (first arg+)]
-    (case command
-      "command"  ($.app.run.help/command)
-      "describe" ($.app.run.help/describe)
-      "eval"     ($.app.run.help/eval)
-      "load"     ($.app.run.help/load)
-      "watch"    ($.app.run.help/watch)
-      (str "Unknown command: "
-           command))
-    ($.app.run.help/main)))
-
-
-
-(defn describe
-
-  "Implementation for the 'describe' CLI command.
-
-   Uses the Convex Lisp Help library for printing information about the user given account or symbol."
-
-  [arg+ _option+]
-
-  (case (count arg+)
-    1 ($.run/eval env
-                  (format "(help/about %s)"
-                          (first arg+)))
-    2 ($.run/eval env
-                  (format "(help/about %s '%s)"
-                          (first arg+)
-                          (second arg+)))
-    (error "Describe command expects 1 or 2 arguments.")))
-
-
-
-(defn eval
-
-  "Implementation for the 'eval' CLI command.
-
-   Evaluatues the user given string."
-
-  [arg+ _option+]
-
-  (if-some [string (first arg+)]
-    ($.run/eval env
-                string)
-    (error "No code to evaluate.")))
-
-
-
-(defn load
-
-  "Implementation for the 'load' CLI command.
-
-   Loads and executes the user given main file."
-
-  [arg+ _option+]
-
-  (ensure-path $.run/load
-               arg+))
-
-
-
-(defn watch
-
-  "Implementation for the 'watch' CLI command.
-
-   Like [[load]] but provides live-reloading of main file and its declared dependencies."
-
-  [arg+ _option+]
-
-  (ensure-path $.run/watch
-               arg+))
-
-
 ;;;;;;;;;; Main command
 
 
@@ -178,23 +94,11 @@
   [& arg+]
 
   (try
-    (let [{arg+    :arguments
-           option+ :options}  (clojure.tools.cli/parse-opts arg+
-                                                            cli-option+)
-          cmd      (first arg+)
-          f                   (case cmd
-                                "command"  command
-                                "describe" describe
-                                "eval"     eval
-                                "load"     load
-                                "watch"    watch
-                                nil)]
-      (if f
-        (f (rest arg+)
-           option+)
-        ($.app.run.help/main)))
-
-
+    ($.run/eval (if (seq arg+)
+                  (clojure.string/join " "
+                                       arg+)
+                  "(env/repl.start)"))
     (catch Throwable ex
+      (println :EX ex)
       (error "An unknown exception happened."
              ex))))

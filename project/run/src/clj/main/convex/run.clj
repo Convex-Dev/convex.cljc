@@ -165,7 +165,7 @@
                      nil]))]
       (if ex
         ($.run.err/fail env-2
-                        ($.run.err/main-src "Given string cannot be parsed as Convex Lisp"))
+                        ($.run.err/main-src ($.data/string "Given string cannot be parsed as Convex Lisp")))
         (-> env-2
             (assoc :convex.run/trx+ trx+
                    :convex.sync/ctx (env-2 :convex.sync/ctx-base))
