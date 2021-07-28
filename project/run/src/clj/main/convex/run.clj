@@ -120,6 +120,7 @@
       (assoc :convex.run/stream+  {0 $.io/stdin-txt
                                    1 $.io/stdout-txt
                                    2 $.io/stderr-txt}
+             :convex.run/watch?    false
              :convex.run.stream/id 2)
       (update :convex.run/end
               #(or %
@@ -136,8 +137,7 @@
                      (System/exit 42))))
       (update :convex.sync/ctx-base
               #(or %
-                   $.run.ctx/base))
-      $.run.ctx/init))
+                   $.run.ctx/base))))
 
 
 ;;;;;;;;;; Evaluating a given source string

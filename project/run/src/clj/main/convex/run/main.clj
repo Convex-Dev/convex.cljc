@@ -106,15 +106,12 @@
    | `:convex.sync/cx-base | Ensures a default base context, see [[convex.run.ctx/base]] |"
 
 
-  [env]
+  [env ^String path]
 
   (-> env
-      (assoc :convex.sync/ctx-base
-             ($.cvm/fork (env :convex.sync/ctx)))
-      (update :convex.run/path
-              (fn [^String path]
-                (when path
-                  (.getCanonicalPath (File. path)))))
+      (assoc :convex.sync/ctx-base ($.cvm/fork (env :convex.sync/ctx))
+             :convex.run/path      (.getCanonicalPath (File. path)))
+      (dissoc :convex.sync/ctx)
       $.run.ctx/init))
 
 
@@ -182,9 +179,7 @@
   ([env path]
 
    (let [env-2 (-> env
-                   (assoc :convex.run/path        path
-                          :convex.run/single-run? true)
-                   init
+                   (init path)
                    main-file)]
      (if (env-2 :convex.run/error)
        env-2
@@ -210,8 +205,6 @@
                  ($.watch/-stop env)
                  ($.watch/-start a*env
                                  (-> env
-                                     (assoc :convex.run/in  0
-                                            :convex.run/out 2)
                                      (dissoc :convex.run/error
                                              :convex.run/juice-last
                                              :convex.run/state-stack
@@ -246,12 +239,13 @@
 
     ([env ^String path]
 
-     (let [a*env ($.watch/init (-> env
-                                   (assoc :convex.run/path        path
-                                          :convex.run/single-run? false)
-                                   init
-                                   (assoc :convex.watch/extra+
-                                          #{(.getCanonicalPath (File. path))})))]
+     (let [a*env (-> env
+                     (assoc :convex.run/watch?
+                            true)
+                     (init path)
+                     (assoc :convex.watch/extra+
+                            #{(.getCanonicalPath (File. path))})
+                     $.watch/init)]
        (send a*env
              (fn [env]
                (assoc env

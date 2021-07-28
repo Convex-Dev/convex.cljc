@@ -128,7 +128,7 @@
   (-> env
       (operation id
                  "close"
-                 (fn [stream]
+                 (fn [^AutoCloseable stream]
                    (.close stream)
                    nil))
       (-dissoc id)))

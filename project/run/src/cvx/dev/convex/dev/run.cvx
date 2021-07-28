@@ -330,10 +330,4 @@
 
 (env/set.hook.end '(sreq/out! :FINISH))
 
-(sreq/out! [:foo foo])
-
-
-(sreq/do '[(sreq/out! :a)])
-
-
-
+(sreq/out! [:watch? env/*file* env/*watch?*])

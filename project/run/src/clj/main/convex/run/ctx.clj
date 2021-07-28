@@ -177,17 +177,11 @@
    `Defines `env/*file*`, the canonical path of the main file (unless there is none)."
 
   [env]
-
-  (if-some [path (env :convex.run/path)]
-    (def-env env
-             :convex.sync/ctx-base
-             {$.run.sym/file ($.data/string path)})
-    env))
-
-
-
-      ; (as->
-      ;   env-2
-      ;   ($.run.ctx/def-env env-2
-      ;                      :convex.sync/ctx-base
-      ;                      {$.run.sym/single-run? ($.data/boolean (env-2 :convex.run/single-run?))}))
+      
+  (def-env env
+           :convex.sync/ctx-base
+           (cond->
+             {$.run.sym/file ($.data/string (env :convex.run/path))}
+             (env :convex.run/watch?)
+             (assoc $.run.sym/watch?
+                    ($.data/boolean true)))))
