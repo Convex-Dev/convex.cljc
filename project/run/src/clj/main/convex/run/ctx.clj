@@ -55,6 +55,8 @@
                                    :sym->addr {}}
                                   [[$.run.sym/$
                                     "convex/run.cvx"]
+                                   [$.run.sym/$-process
+                                    "convex/run/process.cvx"]
                                    [$.run.sym/$-repl
                                     "convex/run/repl.cvx"]
                                    [$.run.sym/$-stream

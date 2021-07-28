@@ -16,6 +16,12 @@
              ($.data/symbol "$"))
 
 
+
+(def ^Symbol $-process
+             ($.data/symbol "$.process"))
+
+
+
 (def ^Symbol $-repl
              ($.data/symbol "$.repl"))
 

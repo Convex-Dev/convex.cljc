@@ -518,46 +518,6 @@
 
 
 
-(defn process.env
-
-  ^{:doc {:description ["Retrieves environment variable from the current process. Useful when some information must be passed to the runner from the outside."
-                        "When a env variable is given as well, defines only the value for that variable"
-                        "Result is temporarily stored in `env/*result* and is accessible during the next transaction."]
-          :examples    [{:code "(sreq/env}"}
-                        {:code "(sreq/env \"MY_X\")"}]
-          :signature   [{:params [sym]}
-                        {:params [sym env-var]}]
-          :type        :function}}
-
-
-  ([]
-
-   (process.env nil))
-
-
-  ([env-var]
-
-   (assert (or (str? env-var)
-               (nil? env-var)))
-   [:cvm.sreq :process.env env-var]))
-
-
-
-(defn process.exit
-
-  ^{:doc {:description ["Stops execution and exits process with given `status` code (a long)."
-                        "Depending on the operating system, by convention, a non-zero value means an error occured."]
-          :examples    [{:code "(sreq/exit 42)"}]
-          :signature   [{:params [status]}]
-          :type        :function}}
-
-  [status]
-
-  (assert (long? status))
-  [:cvm.sreq :exit status])
-
-
-
 (defn read+
 
   ^{:doc {:description ["Passes the given string through the CVX reader and produces a list of cells."

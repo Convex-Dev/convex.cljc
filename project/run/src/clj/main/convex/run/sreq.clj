@@ -181,6 +181,32 @@
 
 (defmethod $.run.exec/sreq
 
+  $.run.kw/read+
+
+  ;; Reads the given string and parses to a list of forms.
+
+  ;; TODO. Improve error reporting.
+  
+  [env ^AVector tuple]
+
+  (try
+    ($.run.ctx/def-result env
+                          (-> (.get tuple
+                                    2)
+                              str
+                              $.read/string+))
+    (catch Throwable _err
+      ($.run.err/fail env
+                      ($.run.err/sreq ($.data/code-std* :ARGUMENT)
+                                      ($.data/string "Unable to read source")
+                                      tuple)))))
+
+
+;;;;;;;;;; Process
+
+
+(defmethod $.run.exec/sreq
+
   $.run.kw/process-exit
 
   ;; Exits process with the user given status code.
@@ -205,6 +231,7 @@
 
   [env ^AVector tuple]
 
+  (println :env (str tuple))
   ($.run.ctx/def-result env
                         (if-some [env-var (.get tuple
                                                 2)]
@@ -214,30 +241,6 @@
                                              [($.data/string k)
                                               ($.data/string v)])
                                            (System/getenv))))))
-
-
-
-(defmethod $.run.exec/sreq
-
-  $.run.kw/read+
-
-  ;; Reads the given string and parses to a list of forms.
-
-  ;; TODO. Improve error reporting.
-  
-  [env ^AVector tuple]
-
-  (try
-    ($.run.ctx/def-result env
-                          (-> (.get tuple
-                                    2)
-                              str
-                              $.read/string+))
-    (catch Throwable _err
-      ($.run.err/fail env
-                      ($.run.err/sreq ($.data/code-std* :ARGUMENT)
-                                      ($.data/string "Unable to read source")
-                                      tuple)))))
 
 
 ;;;;;;;;;; Streams

@@ -220,14 +220,14 @@
 
 ;; Storing whole process environment map.
 ;;
-; (sreq/process.env)
-; (sreq/out! [:whole-env env/*result*])
+; ($.process/env)
+; ($.stream/out! [:whole-env $/*result*])
 
 
 ;; Storing only one env property.
 ;;
-; (sreq/process.env "SOME_ENV") ;; Should be a property spotted in previous example
-; (sreq/out! [:one-prop env/*result*])
+; ($.process/env "SOME_PROP")
+; ($.stream/out! [:one-prop $/*result*])
 
 
 ;;;;;;;;;; SCHEDULING AND ADVANCING TIMESTAMP
@@ -267,20 +267,20 @@
 
 ;; Current state is pushed onto a stack.
 ;;
-; (sreq/state.push)
+; ($.time/push)
 
 ;; Doing some work in current state.
 ;;
 ; (def foo
-;      42)
+;      420)
 
 ;; Restoring last saved state and transferring arbitrary work.
 ;;
-; (sreq/state.pop `(def bar ~foo))
+; ($.time/pop `(def bar ~foo))
 
 ;; `foo` was not defined originally but we ported it to the restored state as `bar`.
 ;;
-; (sreq/out! [:foo-defined? (defined? foo) :bar bar])
+; ($.stream/out! [:foo-defined? (defined? foo) :bar bar])
 
 
 ;;;;;;;;;; Reading from STDIN
