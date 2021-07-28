@@ -71,23 +71,16 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.data AList)
-           (convex.core.lang Symbols)
-           (java.io File)
-           (java.nio.file NoSuchFileException))
   (:refer-clojure :exclude [eval
                             load])
   (:require [clojure.java.io]
             [convex.data      :as $.data]
             [convex.io        :as $.io]
             [convex.read      :as $.read]
-            [convex.cvm       :as $.cvm]
             [convex.run.ctx   :as $.run.ctx]
             [convex.run.err   :as $.run.err]
             [convex.run.exec  :as $.run.exec]
-            [convex.run.sreq]
-            [convex.sync      :as $.sync]
-            [convex.watch     :as $.watch]))
+            [convex.run.sreq]))
 
 
 (declare sym->dep)

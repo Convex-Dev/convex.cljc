@@ -390,11 +390,14 @@
 
   [env]
 
-  (-> env
-      (assoc :convex.run.stream/id
-             2)
-      (dissoc :convex.run/restore
-              :convex.run/state-stack)
-      $.run.ctx/cycle
-      trx+
-      end))
+  (assoc env
+         :convex.run.watch/cycle
+         (future 
+           (-> env
+               (assoc :convex.run.stream/id
+                      2)
+               (dissoc :convex.run/restore
+                       :convex.run/state-stack)
+               $.run.ctx/cycle
+               trx+
+               end))))

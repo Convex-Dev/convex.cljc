@@ -332,7 +332,7 @@
 
 (sreq/out! env/*repl?*)
 
-;(env/repl.start)
+(env/repl.start)
 
 
 ; (env/catch.push '(sreq/out! env/*out.err* :foo))
