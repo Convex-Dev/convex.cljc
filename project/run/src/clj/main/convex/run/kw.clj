@@ -15,11 +15,6 @@
 ;;;;;;;;;;
 
 
-(def ^Keyword advance
-              ($.data/keyword "advance"))
-
-
-
 (def ^Keyword cause
               ($.data/keyword "cause"))
 
@@ -179,16 +174,6 @@
 
 
 
-(def ^Keyword state-pop
-              ($.data/keyword "state.pop"))
-
-
-
-(def ^Keyword state-push
-              ($.data/keyword "state.push"))
-
-
-
 (def ^Keyword stream-close
               ($.data/keyword "stream.close"))
 
@@ -221,6 +206,20 @@
 (def ^Keyword stream-out!
               ($.data/keyword "stream.out!"))
 
+
+
+(def ^Keyword time-advance
+              ($.data/keyword "time.advance"))
+
+
+
+(def ^Keyword time-pop
+              ($.data/keyword "time.pop"))
+
+
+
+(def ^Keyword time-push
+              ($.data/keyword "time.push"))
 
 
 (def ^Keyword trx

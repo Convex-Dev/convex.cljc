@@ -24,12 +24,6 @@
 
 
 
-;; Clears the terminal.
-;;
-;(sreq/screen.clear)
-
-
-
 ;; Prints nice information at the start of a run.
 ;;
 ($.stream/out! (str "\033[H\033[2J"
@@ -242,7 +236,7 @@
 ;; Unless requested, the CVM timestamp never changes.
 ;;
 ;; For testing scheduling, it can be advanced.
-
+;;
 ; (def happened?
 ;      false)
 
@@ -255,17 +249,17 @@
 
 ;; Not yet.
 ;;
-; (sreq/out! [:happened? happened? *timestamp*])
+; ($.stream/out! [:happened? happened? *timestamp*])
 
 
 ;; Advancing the timestamp by 10 milliseconds.
 ;;
-; (sreq/advance 10)
+; ($.time/advance 10)
 
 
 ;; Done!
 ;;
-; (sreq/out! [:happened? happened? *timestamp*])
+; ($.stream/out! [:happened? happened? *timestamp*])
 
 
 ;;;;;;;;;; Saving and restoring state 
@@ -321,31 +315,3 @@
 ;                  (repl)))]))
 ; 
 ; (repl)
-
-
-
-;(env/about env)
-
-
-
-(def foo 42)
-
-($.stream/out! [$.repl/*active?* foo])
-
-
-($/catch.push '($.stream/out! $.stream/*err* (dissoc $/*error* :trace)))
-($.repl/start)
-
-; (env/catch.push '(sreq/out! env/*out.err* :foo))
-; (env/catch.push '(sreq/out! :bar))
-; (env/catch.pop)
-; 
-; (sreq/out! env/*catch*)
-; 
-; (assert false)
-; 
-; (sreq/out! :ok)
-; 
-; (env/catch.pop)
-; 
-; (assert (< 2 1))

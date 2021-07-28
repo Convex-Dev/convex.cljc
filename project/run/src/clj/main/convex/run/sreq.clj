@@ -75,22 +75,6 @@
 
 (defmethod $.run.exec/sreq
 
-  $.run.kw/advance
-
-  ;; Advances the timestamp.
-
-  [env tuple]
-
-  (update env
-          :convex.sync/ctx
-          (fn [ctx]
-            ($.cvm/time-advance ctx
-                                (-arg-long tuple)))))
-
-
-
-(defmethod $.run.exec/sreq
-
   $.run.kw/dep
 
   ;; Specifying dependency receives special treatment at the beginning of source.
@@ -256,49 +240,6 @@
                                       tuple)))))
 
 
-
-(defmethod $.run.exec/sreq
-
-  $.run.kw/state-pop
-
-  ;; Pops the CVM context saved with `(sreq/state.push)`.
-
-  [env ^AVector tuple]
-
-  (let [stack (env :convex.run/state-stack)]
-    (if-some [ctx-restore (peek stack)]
-      (-> env
-          (assoc :convex.run/state-stack (pop stack)
-                 :convex.sync/ctx         ctx-restore)
-          (as->
-            env-2
-            (if-some [trx (.get tuple
-                                2)]
-              ($.run.exec/trx env-2
-                              trx)
-              env-2)))
-      ($.run.err/fail env
-                      ($.run.err/sreq ($.data/code-std* :STATE)
-                                      ($.data/string "No state to pop")
-                                      tuple)))))
-
-
-
-(defmethod $.run.exec/sreq
-
-  $.run.kw/state-push
-
-  ;; Saves the current CVM context which can later be restore with `(sreq/state.pop)`'.
-
-  [env _tuple]
-
-  (update env
-          :convex.run/state-stack
-          (fnil conj
-                '())
-          ($.cvm/fork (env :convex.sync/ctx))))
-
-
 ;;;;;;;;;; Streams
 
 
@@ -378,3 +319,65 @@
                      (-stream tuple)
                      (.get tuple
                            3)))
+
+
+;;;;;;;;;; Time
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/time-advance
+
+  ;; Advances the timestamp.
+
+  [env tuple]
+
+  (update env
+          :convex.sync/ctx
+          (fn [ctx]
+            ($.cvm/time-advance ctx
+                                (-arg-long tuple)))))
+
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/time-pop
+
+  ;; Pops the CVM context saved with `(sreq/state.push)`.
+
+  [env ^AVector tuple]
+
+  (let [stack (env :convex.run/state-stack)]
+    (if-some [ctx-restore (peek stack)]
+      (-> env
+          (assoc :convex.run/state-stack (pop stack)
+                 :convex.sync/ctx         ctx-restore)
+          (as->
+            env-2
+            (if-some [trx (.get tuple
+                                2)]
+              ($.run.exec/trx env-2
+                              trx)
+              env-2)))
+      ($.run.err/fail env
+                      ($.run.err/sreq ($.data/code-std* :STATE)
+                                      ($.data/string "No state to pop")
+                                      tuple)))))
+
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/time-push
+
+  ;; Saves the current CVM context which can later be restore with `(sreq/state.pop)`'.
+
+  [env _tuple]
+
+  (update env
+          :convex.run/state-stack
+          (fnil conj
+                '())
+          ($.cvm/fork (env :convex.sync/ctx))))
+

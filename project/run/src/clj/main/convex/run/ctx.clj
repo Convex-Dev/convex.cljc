@@ -61,7 +61,9 @@
                                     "convex/run/stream.cvx"]
                                    ;[$.run.sym/$-test
                                    ; "convex/run/test.cvx"
-                                    ])
+                                   [$.run.sym/$-time
+                                    "convex/run/time.cvx"]
+                                   ])
       addr-$              (sym->addr $.run.sym/$)]
 
   (def base

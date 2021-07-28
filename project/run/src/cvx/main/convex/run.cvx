@@ -392,22 +392,6 @@
 ;;;;;;;;;;
 
 
-(defn advance
-
-  ^{:doc {:description ["Advances the current timestamp by `millis` milliseconds."
-                        "Argument must be > 0."]
-          :examples    [{:code "(sreq/advance (* 60 60 1000))"}]
-          :signature   [{:params [millis]}]
-          :type        :function}}
-
-  [millis]
-
-  (assert (>= millis
-              0))
-  [:cvm.sreq :advance millis])
-
-
-
 (defn dep
 
   ^{:doc {:description ["Loads Convex Lisp dependency files. During watch mode, those files are live-reloaded as well."
@@ -587,37 +571,3 @@
 
   (assert (str? src))
   [:cvm.sreq :read+ src])
-
-
-
-(defn state.pop
-
-  ^{:doc {:description ["Restores the last state saved with `state.push`."
-                        "Quoted transaction, if given, is executed in the context of the restored state, allowing to pass values from one to the other."]
-          :examples    [{:code "(sreq/state.pop)"}]
-          :signatures  [{:params []}]
-          :type        :function}}
-
-
-  ([]
-
-   (state.pop nil))
-
-
-  ([trx]
-
-   [:cvm.sreq :state.pop trx]))
-
-
-
-(defn state.push
-
-  ^{:doc {:description ["Pushes the current state of the CVM onto a stack."
-                        "This state can later be restored using `state.pop`."]
-          :examples    [{:code "(sreq/state.push)"}]
-          :signature   [{:params []}]
-          :type        :function}}
-
-  []
-
-  [:cvm.sreq :state.push])

@@ -26,6 +26,11 @@
 
 
 
+(def ^Symbol $-time
+             ($.data/symbol "$.time"))
+
+
+
 (def ^Symbol active?
              ($.data/symbol "*active?*"))
 
