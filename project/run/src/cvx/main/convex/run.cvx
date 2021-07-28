@@ -82,14 +82,6 @@
 
 
 
-(def *hook.end*
-
-  ^{:doc {:description ""}}
-
-  nil)
-
-
-
 (def *result*
 
   ^{:doc {:description "Result of the previous transaction."}}
@@ -106,23 +98,6 @@
 
 
 ;;;;;;;;;; SETTING SOME DYNAMIC VALUES
-
-
-(defn set.hook.end
-
-  ^{:doc {:description ""}}
-
-  [trx]
-
-  (if (= *address*
-         self)
-    (def *hook.end*
-         trx)
-    (call self
-          (set.hook.end trx))))
-
-
-(export set.hook.end)
 
 
 (defn catch.pop
@@ -436,7 +411,6 @@
     (fail :STATE
           "Main file already loaded")
     [:cvm.sreq :main.watch path]))
-
 
 
 

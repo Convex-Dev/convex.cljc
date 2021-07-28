@@ -192,7 +192,7 @@
          (-> env-2
              (assoc :convex.sync/ctx
                     ($.cvm/fork (env-2 :convex.sync/ctx-base)))
-             $.run.exec/load))))))
+             $.run.exec/init))))))
 
 
 ;;;;;;;;;; Watching a main file

@@ -115,9 +115,6 @@
                                    2 $.io/stderr-txt}
              :convex.run/watch?    false
              :convex.run.stream/id 2)
-      (update :convex.run/end
-              #(or %
-                   $.run.exec/end))
       (update :convex.run/fail
               #(or %
                    $.run.exec/fail))
@@ -163,4 +160,4 @@
         (-> env-2
             (assoc :convex.run/trx+ trx+
                    :convex.sync/ctx (env-2 :convex.sync/ctx-base))
-            $.run.exec/default)))))
+            $.run.exec/init)))))

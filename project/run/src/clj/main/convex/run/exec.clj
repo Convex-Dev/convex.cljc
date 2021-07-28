@@ -343,44 +343,7 @@
 ;;;;;;;;;;
 
 
-(defn end
-
-  ""
-
-  [env]
-
-  (as-> env
-        env-2
-
-    (if-some [hook (.get ($.cvm/env (env-2 :convex.sync/ctx)
-                                           $.run.ctx/addr-$)
-                         $.run.sym/hook-end)]
-             (trx env-2
-                  hook)
-             env-2)
-
-    ($.run.stream/close-all env-2)))
-
-
-
-(defn default
-
-  "Runs a whole cycle of transactions using [[trx+]].
-  
-   Does some preparatory work such as calling [[convex.run.ctx/cycle]] and finally calls
-   the end hook."
-
-  [env]
-  
-  (let [env-2 (load env)
-        f     (:convex.run/end env-2)]
-    (if f
-      (f env-2)
-      env-2)))
-
-
-
-(defn load
+(defn init
 
   ""
 
@@ -408,5 +371,4 @@
                       2)
                (dissoc :convex.run/restore
                        :convex.run/state-stack)
-               load
-               end))))
+               init))))

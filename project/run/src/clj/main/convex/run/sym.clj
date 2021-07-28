@@ -84,10 +84,6 @@
              ($.data/symbol "*file*"))
 
 
-(def ^Symbol hook-end
-             ($.data/symbol "*hook.end*"))
-
-
 
 (def ^Symbol line
              ($.data/symbol "line"))
