@@ -229,10 +229,5 @@
 
 
 
-(def ^Keyword try
-              ($.data/keyword "try"))
-
-
-
 (def ^Keyword watch
               ($.data/keyword "watch"))

@@ -12,6 +12,10 @@
 ;;;;;;;;;;
 
 
+(def ^Symbol catch
+             ($.data/symbol "*catch*"))
+
+
 (def ^Symbol cycle
              ($.data/symbol "*cycle*"))
 
@@ -41,11 +45,6 @@
 
 
 
-(def ^Symbol hook-error
-             ($.data/symbol "*hook.error*"))
-
-
-
 (def ^Symbol line
              ($.data/symbol "line"))
 
@@ -53,6 +52,11 @@
 
 (def ^Symbol out-err
              ($.data/symbol "*out.err*"))
+
+
+
+(def ^Symbol repl?
+             ($.data/symbol "*repl?*"))
 
 
 

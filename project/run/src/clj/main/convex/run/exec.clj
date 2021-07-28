@@ -209,6 +209,25 @@
                trx-compiled)))
 
 
+
+(defn eval
+
+  ""
+
+  ([env]
+
+   (eval env
+         (result env)))
+
+
+  ([env cell]
+
+   (update-ctx env
+               $.run.kw/eval
+               $.cvm/eval
+               cell)))
+
+
 ;;;;;;;;;; Transactions
 
 
@@ -218,10 +237,8 @@
 
   [env trx]
 
-  (let [env-2 (update-ctx env
-                          $.run.kw/eval
-                          $.cvm/eval
-                          trx)]
+  (let [env-2 (eval env
+                    trx)]
     (if (env-2 :convex.run/error)
       env-2
       (let [res (result env-2)]
@@ -293,17 +310,15 @@
 
   [env]
 
-  (if-some [hook (when-not (env :convex.run/hook.error?)
-                   (.get ($.cvm/env (env :convex.sync/ctx)
-                                    $.run.ctx/addr-env)
-                         $.run.sym/hook-error))]
+  (if-some [catch-stack (seq (.get ($.cvm/env (env :convex.sync/ctx)
+                                              $.run.ctx/addr-env)
+                                   $.run.sym/catch))]
     (-> env
         (assoc :convex.run/fail
                $.run.stream/err)
         (dissoc :convex.run/error)
-        (trx hook)
-        (assoc :convex.run/error (env :convex.run/error)
-               :convex.run/fail  (env :convex.run/fail)))
+        (eval (first catch-stack))
+        (assoc :convex.run/fail (env :convex.run/fail)))
     ($.run.stream/err env)))
 
 

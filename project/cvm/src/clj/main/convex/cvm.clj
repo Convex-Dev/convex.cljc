@@ -417,7 +417,7 @@
 
   ^Context
 
-  [^Context ctx state]
+  [^Context ctx ^State state]
 
   (.withState ctx
               state))

@@ -181,7 +181,8 @@
   (def-env env
            :convex.sync/ctx-base
            (cond->
-             {$.run.sym/file ($.data/string (env :convex.run/path))}
+             {$.run.sym/file  ($.data/string (env :convex.run/path))
+              $.run.sym/repl? ($.data/boolean false)}
              (env :convex.run/watch?)
              (assoc $.run.sym/watch?
                     ($.data/boolean true)))))

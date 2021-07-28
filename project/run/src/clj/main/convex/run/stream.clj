@@ -67,8 +67,6 @@
 
   ""
 
-  ;; TODO. Print id in case of error?
-
   [env id capability f]
 
   (if-some [stream (get-in env

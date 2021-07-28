@@ -362,25 +362,3 @@
   []
 
   [:cvm.sreq :state.push])
-
-
-
-(defn try
-
-  ^{:doc {:description ["First argument is a sequence of quoted transactions executed one by one until an exception is throw."
-                        "In such case, the exception is defined under `env/*error*` and optional quoted transactions from the second argument are executed."
-                        "With or without \"catch\" transactions, execution in the main file continues."]
-          :examples    [{:code "(sreq/try '[(def foo 42) (fail \"Oops\")] '[(sreq/out [:error *error*)])"}]
-          :signature   [{:params [try-trx+ catch-trx+]}]
-          :type        :function}}
-
-
-  ([trx-try]
-
-   (try trx-try
-        nil))
-
-
-  ([trx-try trx-catch]
-
-   [:cvm.sreq :try trx-try trx-catch]))

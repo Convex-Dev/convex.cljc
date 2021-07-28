@@ -328,6 +328,23 @@
 
 
 
-(sreq/out! [:watch? env/*file* env/*watch?*])
+(def foo 42)
+
+(sreq/out! env/*repl?*)
 
 ;(env/repl.start)
+
+
+; (env/catch.push '(sreq/out! env/*out.err* :foo))
+; (env/catch.push '(sreq/out! :bar))
+; (env/catch.pop)
+; 
+; (sreq/out! env/*catch*)
+; 
+; (assert false)
+; 
+; (sreq/out! :ok)
+; 
+; (env/catch.pop)
+; 
+; (assert (< 2 1))
