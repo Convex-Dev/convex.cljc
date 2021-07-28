@@ -91,22 +91,6 @@
 
 
 (defmethod $.run.exec/sreq
-
-  $.run.kw/do
-
-  ;; Executes a user given vector of transactions.
-
-  [env ^AVector tuple]
-
-  (update env
-          :convex.run/trx+
-          (partial concat
-                   (.get tuple
-                         2))))
-
-
-
-(defmethod $.run.exec/sreq
   
   $.run.kw/log
 
@@ -306,7 +290,6 @@
 
   [env ^AVector tuple]
 
-  (println :out)
   ($.run.stream/out env
                     (-stream tuple)
                     (.get tuple
@@ -320,7 +303,6 @@
 
   [env ^AVector tuple]
 
-  (println :here )
   ($.run.stream/out! env
                      (-stream tuple)
                      (.get tuple

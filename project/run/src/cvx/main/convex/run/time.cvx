@@ -1,5 +1,17 @@
 
 
+(call *registry*
+      (cns-update 'convex.run.time
+                  *address*))
+
+
+(call *registry*
+      (register {:doc  {:description ""}
+                 :name ""}))
+
+
+
+
 
 (defn advance
 

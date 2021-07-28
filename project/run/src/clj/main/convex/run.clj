@@ -124,9 +124,9 @@
       (update :convex.run/fatal
               #(or %
                    (fn [_env err]
-                     (println "FATAL: cannot output failure to error stream")
-                     (println)
-                     (println (str err))
+                     (print "FATAL: ")
+                     (println err)
+                     (flush)
                      (System/exit 42))))
       (update :convex.sync/ctx-base
               #(or %
@@ -157,8 +157,9 @@
                     [ex
                      nil]))]
       (if ex
-        ($.run.err/fail env-2
-                        ($.run.err/main-src ($.data/string "Given string cannot be parsed as Convex Lisp")))
+        ((env-2 :convex.run/fatal)
+         env-2
+         ($.run.err/main-src ($.data/string "Given string cannot be parsed as Convex Lisp")))
         (-> env-2
             (assoc :convex.run/trx+ trx+
                    :convex.sync/ctx (env-2 :convex.sync/ctx-base))

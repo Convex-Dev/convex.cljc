@@ -55,6 +55,8 @@
                                    :sym->addr {}}
                                   [[$.run.sym/$
                                     "convex/run.cvx"]
+                                   [$.run.sym/$-trx
+                                    "convex/run/trx.cvx"]
                                    [$.run.sym/$-file
                                     "convex/run/file.cvx"]
                                    [$.run.sym/$-process
@@ -94,7 +96,15 @@
 
     ""
 
-    (sym->addr $.run.sym/$-stream)))
+    (sym->addr $.run.sym/$-stream))
+
+
+
+  (def addr-$-trx
+
+    ""
+
+    (sym->addr $.run.sym/$-trx)))
 
 
 ;;;;;;;;;; Defining symbols in the environment's context
@@ -152,6 +162,22 @@
 
   (def-env env
             {$.run.sym/result result}))
+
+
+
+
+(defn def-trx+
+
+  ""
+
+  [env trx+]
+
+  (update env
+          :convex.sync/ctx
+          (fn [ctx]
+            ($.cvm/def ctx
+                       addr-$-trx
+                       {$.run.sym/list trx+}))))
 
 
 ;;;;;;;;;; Miscellaneous utilities

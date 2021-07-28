@@ -318,4 +318,10 @@
 
 
 
-($.repl/start)
+;($.repl/start)
+
+
+($.stream/out! $.trx/list)
+
+($.trx/precat '((def foo 42)))
+($.stream/out! foo)

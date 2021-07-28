@@ -4,7 +4,8 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.data AVector))
+  (:import (convex.core.data AList
+                             AVector))
   (:refer-clojure :exclude [compile
                             cycle
                             eval
@@ -290,15 +291,20 @@
   [env]
 
   (loop [env-2 env]
-    (if-some [form+ (seq (:convex.run/trx+ env-2))]
-      (let [env-3 (trx (assoc env-2
-                              :convex.run/trx+
-                              (rest form+))
-                       (first form+))]
-        (if (:convex.run/error env-3)
-          env-3
-          (recur env-3)))
-      env-2)))
+    (let [^AList trx+ (.get ($.cvm/env (env-2 :convex.sync/ctx)
+                                       $.run.ctx/addr-$-trx)
+                            $.run.sym/list)]
+      (if (pos? (count trx+))
+        (let [env-3 (trx ($.run.ctx/def-trx+ env-2
+                                             (.drop trx+
+                                                    1))
+                         (.get trx+
+                               0))]
+          (if (or (:convex.run/error env-3)
+                  (not (map? env-3)))
+            env-3
+            (recur env-3)))
+        env-2))))
 
 
 ;;;;;;;;;; Notifying a failure or full halt
@@ -310,7 +316,8 @@
 
   [env]
 
-  (if-some [catch-stack (seq (.get ($.cvm/env (env :convex.sync/ctx)
+  (if-some [catch-stack (seq (.get ($.cvm/env (or (env :convex.sync/ctx)
+                                                  (env :convex.sync/ctx-base))
                                               $.run.ctx/addr-$)
                                    $.run.sym/catch))]
     (-> env
@@ -380,7 +387,9 @@
   [env]
   
   (-> env
+      (dissoc :convex.run/trx+)
       $.run.ctx/cycle
+      ($.run.ctx/def-trx+ (env :convex.run/trx+))
       trx+))
 
 
@@ -399,6 +408,5 @@
                       2)
                (dissoc :convex.run/restore
                        :convex.run/state-stack)
-               $.run.ctx/cycle
-               trx+
+               load
                end))))

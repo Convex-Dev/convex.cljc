@@ -1,0 +1,58 @@
+
+
+
+(call *registry*
+      (cns-update 'convex.run.trx
+                  *address*))
+
+
+(call *registry*
+      (register {:doc  {:description ""}
+                 :name ""}))
+
+
+
+(def self
+
+  ^{:doc {:description ""}}
+
+  *address*)
+
+
+
+(def list
+
+  ^{:doc {:description ""}}
+
+  '())
+
+
+
+(defn set
+
+  ^{:doc {:description ""}}
+
+  [trx+]
+
+  (if (= *address*
+         self)
+    (def list
+         (do
+           (assert (list? trx+))
+           trx+))
+    (call self
+          (set trx+))))
+
+
+(export set)
+
+
+
+(defn precat
+
+  ^{:doc {:description ""}}
+
+  [trx+]
+
+  (set (concat trx+
+               list)))

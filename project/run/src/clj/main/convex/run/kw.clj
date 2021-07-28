@@ -35,11 +35,6 @@
 
 
 
-(def ^Keyword do
-              ($.data/keyword "do"))
-
-
-
 (def ^Keyword exception?
               ($.data/keyword "exception?"))
 

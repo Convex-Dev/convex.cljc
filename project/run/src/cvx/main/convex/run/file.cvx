@@ -1,5 +1,16 @@
 
 
+(call *registry*
+      (cns-update 'convex.run.file
+                  *address*))
+
+
+(call *registry*
+      (register {:doc  {:description ""}
+                 :name ""}))
+
+
+
 
 
 (defn stream.in

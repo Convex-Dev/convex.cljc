@@ -399,22 +399,6 @@
 
 
 
-(defn do
-
-  ^{:doc {:description ["Given a sequence of quoted transactions, executes them one by one."
-                        "Useful when composing special requests in some way."]
-          :examples    [{:code "(sreq/do '[(def foo 42) (sreq/out foo)])"}]
-          :signature   [{:params [trx+]}]
-          :type        :function}}
-
-  [trx+]
-
-  (assert (or (list? trx+)
-              (vector? trx+)))
-  [:cvm.sreq :do trx+])
-
-
-
 (defn log
 
   ^{:doc {:description ["Retrieves the current CVM log."
