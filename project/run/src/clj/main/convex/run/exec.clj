@@ -325,17 +325,6 @@
                                trx-pop))))
 
 
-
-(defn halt
-
-  ""
-
-  [env]
-
-  (dissoc env
-          :convex.run/trx+))
-
-
 ;;;;;;;;;;
 
 

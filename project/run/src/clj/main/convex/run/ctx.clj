@@ -61,6 +61,8 @@
                                     "convex/run/catch.cvx"]
                                    [$.run.sym/$-file
                                     "convex/run/file.cvx"]
+                                   [$.run.sym/$-main
+                                    "convex/run/main.cvx"]
                                    [$.run.sym/$-process
                                     "convex/run/process.cvx"]
                                    [$.run.sym/$-repl
@@ -99,6 +101,22 @@
     ""
 
     (sym->addr $.run.sym/$-catch))
+
+
+
+  (def addr-$-main
+
+    ""
+
+    (sym->addr $.run.sym/$-main))
+
+
+
+  (def addr-$-repl
+
+    ""
+
+    (sym->addr $.run.sym/$-repl))
 
 
 
@@ -215,12 +233,15 @@
 
   [env]
       
-  (def-env env
-           :convex.sync/ctx-base
-           (cond->
-             {$.run.sym/active? ($.data/boolean false)
-              $.run.sym/file    ($.data/string (env :convex.run/path))
-              $.run.sym/main?   ($.data/boolean true)}
-             (env :convex.run/watch?)
-             (assoc $.run.sym/watch?
-                    ($.data/boolean true)))))
+  (update env
+          :convex.sync/ctx-base
+          (fn [ctx]
+            (-> ctx
+                ($.cvm/def addr-$-main
+                           {$.run.sym/main?  ($.data/boolean true)
+                            $.run.sym/watch? (-> env
+                                                 :convex.run/watch?
+                                                 boolean
+                                                 $.data/boolean)})
+                ($.cvm/def addr-$-repl
+                           {$.run.sym/active? ($.data/boolean false)})))))

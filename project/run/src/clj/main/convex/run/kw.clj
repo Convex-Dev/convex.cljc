@@ -64,12 +64,12 @@
 
 
 
-(def ^Keyword file.in
+(def ^Keyword file-in
               ($.data/keyword "file.in"))
 
 
 
-(def ^Keyword file.out
+(def ^Keyword file-out
               ($.data/keyword "file.out"))
 
 
@@ -106,6 +106,11 @@
 
 (def ^Keyword main
               ($.data/keyword "main"))
+
+
+
+(def ^Keyword main-load
+              ($.data/keyword "main.load"))
 
 
 

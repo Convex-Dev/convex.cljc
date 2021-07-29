@@ -41,44 +41,11 @@
 ;;;;;;;;;; DYNAMIC VALUES
 
 
-(def *cycle*
-
-  ^{:doc {:description ["Starting at 0, is incremented every time the main file is run."
-                        "Potentially useful for watch mode."]}}
-
-  nil)
-
-
-
-(def *main?*
-
-  ^{:doc {:description ""}}
-
-  false)
-
-
-
-(def *file*
-
-  ^{:doc {:description "Canonical path of the invoked main file."}}
-
-  nil)
-
-
-
 (def *result*
 
   ^{:doc {:description "Result of the previous transaction."}}
 
   nil)
-
-
-
-(def *watch?*
-
-  ^{:doc {:description ""}}
-
-  false)
 
 
 ;;;;;;;;;; MISCELLANEOUS HELPERS
@@ -302,22 +269,6 @@
 ;;;;;;;;;;
 
 
-(defn dep
-
-  ^{:doc {:description ["Loads Convex Lisp dependency files. During watch mode, those files are live-reloaded as well."
-                        "If used, MUST be written as the very first transaction found in the main file."
-                        "Takes a map of `symbol` -> `path to file`. Files are read as lists of Convex Lisp forms and then defined under their corresponding symbol."
-                        "Then, those forms can be used as needed. It is common to use `deploy` or `eval`, depending on the purpose of a given file."]
-          :examples    [{:code "(sreq/dep {'my-lib \"path/to/lib.cvx\"})"}]
-          :signature   [{:params [sym->file]}]
-          :type        :function}}
-
-  [sym->file]
-
-  (assert (not "First transaction")))
-
-
-
 (defn log
 
   ^{:doc {:description ["Retrieves the current CVM log."
@@ -329,32 +280,6 @@
   []
 
   [:cvm.sreq :log])
-
-
-
-(defn main
-
-  ^{:doc {:description ""}}
-
-  [path]
-
-  (if *main?*
-    (fail :STATE
-          "Main file already loaded")
-    [:cvm.sreq :main path]))
-
-
-
-(defn main.watch
-
-  ^{:doc {:description ""}}
-
-  [path]
-
-  (if *main?*
-    (fail :STATE
-          "Main file already loaded")
-    [:cvm.sreq :main.watch path]))
 
 
 

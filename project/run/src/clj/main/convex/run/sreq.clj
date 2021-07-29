@@ -117,30 +117,6 @@
 
 (defmethod $.run.exec/sreq
 
-  $.run.kw/main
-
-  [env ^AVector tuple]
-
-  ($.run.exec/halt ($.run.main/load env
-                                    (str (.get tuple
-                                               2)))))
-
-
-
-(defmethod $.run.exec/sreq
-
-  $.run.kw/main-watch
-
-  [env ^AVector tuple]
-
-  ($.run.main/watch env
-                    (str (.get tuple
-                               2))))
-
-
-
-(defmethod $.run.exec/sreq
-
   $.run.kw/read+
 
   ;; Reads the given string and parses to a list of forms.
@@ -167,7 +143,7 @@
 
 (defmethod $.run.exec/sreq
 
-  $.run.kw/file.in
+  $.run.kw/file-in
 
   [env ^AVector tuple]
 
@@ -179,13 +155,40 @@
 
 (defmethod $.run.exec/sreq
 
-  $.run.kw/file.out
+  $.run.kw/file-out
 
   [env ^AVector tuple]
 
   ($.run.stream/file-out env
                          (str (.get tuple
                                     2))))
+
+
+;;;;;;;;;; Main
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/main-load
+
+  [env ^AVector tuple]
+
+  ($.run.main/load env
+                   (str (.get tuple
+                              2))))
+
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/main-watch
+
+  [env ^AVector tuple]
+
+  ($.run.main/watch env
+                    (str (.get tuple
+                               2))))
+
 
 
 ;;;;;;;;;; Process

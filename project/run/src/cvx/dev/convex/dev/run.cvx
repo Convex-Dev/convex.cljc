@@ -317,8 +317,9 @@
 ; (repl)
 
 
+($.stream/out! [$.repl/*active?* $.main/*watch?* $.main/*main?*])
 
-($.repl/start)
+;($.repl/start)
 
 
 ;($.stream/out! :foo)

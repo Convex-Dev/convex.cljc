@@ -28,6 +28,11 @@
 
 
 
+(def ^Symbol $-main
+             ($.data/symbol "$.main"))
+
+
+
 (def ^Symbol $-process
              ($.data/symbol "$.process"))
 
@@ -78,11 +83,6 @@
 
 
 
-(def ^Symbol file
-             ($.data/symbol "*file*"))
-
-
-
 (def ^Symbol line
              ($.data/symbol "line"))
 
@@ -94,7 +94,7 @@
 
 
 (def ^Symbol main?
-             ($.data/symbol "main?"))
+             ($.data/symbol "*main?*"))
 
 
 
