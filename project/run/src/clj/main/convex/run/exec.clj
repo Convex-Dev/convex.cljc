@@ -16,7 +16,6 @@
             [convex.run.ctx    :as $.run.ctx]
             [convex.run.err    :as $.run.err]
             [convex.run.kw     :as $.run.kw]
-            [convex.run.stream :as $.run.stream]
             [convex.run.sym    :as $.run.sym]))
 
 
@@ -360,12 +359,9 @@
 
   [env]
 
-  (assoc env
-         :convex.run.watch/cycle
-         (future 
-           (-> env
-               (assoc :convex.run.stream/id
-                      2)
-               (dissoc :convex.run/restore
-                       :convex.run/state-stack)
-               init))))
+  (-> env
+      (assoc :convex.run.stream/id
+             2)
+      (dissoc :convex.run/restore
+              :convex.run/state-stack)
+      init))

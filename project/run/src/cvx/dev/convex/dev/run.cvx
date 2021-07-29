@@ -321,6 +321,8 @@
 ($.repl/start)
 
 
+;($.stream/out! :foo)
+
 ;($.catch/push '($.stream/err! (dissoc $/*result* :trace)))
 
 ; ($.catch/safe '($.trx/precat '(($.stream/out! [:trx+ $.trx/*list*])

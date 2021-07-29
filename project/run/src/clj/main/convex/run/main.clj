@@ -252,11 +252,8 @@
                       :convex.watch/on-change
                       (fn on-change [{:as      env-2
                                       dep-old+ :convex.run/dep+}]
-                        (some-> (env-2 :convex.run.watch/cycle)
-                                future-cancel)
                         (let [env-3 (dissoc env-2
-                                            :convex.run/error
-                                            :convex.run.watch/cycle)]
+                                            :convex.run/error)]
                           (or ;;
                               ;; Handles watcher error if any.
                               ;;
