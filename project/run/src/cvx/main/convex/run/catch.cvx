@@ -79,6 +79,29 @@
 
 
 
+(defn drop
+
+  ^{:doc {:description ""}}
+
+  []
+
+  (if (= *address*
+         self)
+    (do
+      (when (> (count *stack*)
+               1)
+        (def *stack*
+             (next *stack*)))
+      $/*result*)
+    (call self
+          (drop))))
+
+
+(export drop)
+
+
+
+
 (defn push
 
   ^{:doc {:description ""}}
@@ -95,3 +118,30 @@
 
 
 (export push)
+
+
+
+(defn safe
+
+  ^{:doc {:description ""}}
+
+
+  ([trx-try]
+
+   (safe trx-try
+         nil))
+
+
+  ([trx-try trx-catch]
+
+   (push `(do
+            ($.trx/set (quote ~$.trx/*list*))
+            ~trx-catch))
+   ($.trx/precat `(~trx-try
+                   ($.catch/drop))))
+
+  ([trx-try trx-catch trx-finally]
+
+   ($.trx/prepend trx-finally)
+   (safe trx-try
+         trx-catch)))

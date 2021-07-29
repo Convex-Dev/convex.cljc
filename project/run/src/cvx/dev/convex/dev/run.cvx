@@ -321,10 +321,13 @@
 ;($.repl/start)
 
 
+;($.catch/push '($.stream/err! (dissoc $/*result* :trace)))
+
+($.catch/safe '($.trx/precat '(($.stream/out! [:trx+ $.trx/*list*])
+                               (assert false)
+                               ($.stream/out! :b)))
+              '($.stream/out! [:err $/*result*])
+              '($.stream/out! :finally))
 
 
-($.catch/push '(fail :STATE))
-($.catch/push '(assert (< 3 2)))
-
-(assert false)
 ($.stream/out! :foo)
