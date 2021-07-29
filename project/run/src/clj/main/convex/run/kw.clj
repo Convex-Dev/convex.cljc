@@ -109,6 +109,11 @@
 
 
 
+(def ^Keyword main-eval
+              ($.data/keyword "main.eval"))
+
+
+
 (def ^Keyword main-load
               ($.data/keyword "main.load"))
 

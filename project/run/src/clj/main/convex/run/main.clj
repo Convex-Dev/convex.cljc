@@ -106,11 +106,11 @@
    | `:convex.sync/cx-base | Ensures a default base context, see [[convex.run.ctx/base]] |"
 
 
-  [env ^String path]
+  [env]
 
   (-> env
-      (assoc :convex.sync/ctx-base ($.cvm/fork (env :convex.sync/ctx))
-             :convex.run/path      (.getCanonicalPath (File. path)))
+      (assoc :convex.sync/ctx-base
+             ($.cvm/fork (env :convex.sync/ctx)))
       (dissoc :convex.sync/ctx)
       $.run.ctx/main))
 
@@ -162,6 +162,50 @@
           sym->dep))))
 
 
+;;;;;;;;;;
+
+
+(defn once
+
+  ""
+
+  [env]
+
+  (let [env-2 (init env)]
+    (if-some [sym->dep' (env-2 :convex.run/sym->dep)]
+      (let [env-3    (merge env-2
+                            ($.sync/disk ($.cvm/fork (env-2 :convex.sync/ctx-base))
+                                         sym->dep'))]
+        (or (check-err-sync env-3)
+            ($.run.exec/load env-3)))
+      (-> env-2
+          (assoc :convex.sync/ctx
+                 ($.cvm/fork (env-2 :convex.sync/ctx-base)))
+          $.run.exec/init))))
+
+
+;;;;;;;;;; Eval
+
+
+(defn eval
+
+  ""
+
+  ([trx+]
+
+   (eval nil
+         trx+))
+
+
+  ([env trx+]
+
+   (once (-> env
+             (assoc :convex.run/trx+
+                    trx+)
+             sym->dep))))
+
+
+
 ;;;;;;;;;; Loading a main file
 
 
@@ -179,20 +223,12 @@
   ([env path]
 
    (let [env-2 (-> env
-                   (init path)
+                   (assoc :convex.run/path
+                          path)
                    main-file)]
      (if (env-2 :convex.run/error)
        env-2
-       (if-some [sym->dep' (env-2 :convex.run/sym->dep)]
-         (let [env-3    (merge env-2
-                               ($.sync/disk ($.cvm/fork (env-2 :convex.sync/ctx-base))
-                                            sym->dep'))]
-           (or (check-err-sync env-3)
-               ($.run.exec/load env-3)))
-         (-> env-2
-             (assoc :convex.sync/ctx
-                    ($.cvm/fork (env-2 :convex.sync/ctx-base)))
-             $.run.exec/init))))))
+       (once env-2)))))
 
 
 ;;;;;;;;;; Watching a main file
@@ -242,7 +278,7 @@
      (let [a*env (-> env
                      (assoc :convex.run/watch?
                             true)
-                     (init path)
+                     init
                      (assoc :convex.watch/extra+
                             #{(.getCanonicalPath (File. path))})
                      $.watch/init)]

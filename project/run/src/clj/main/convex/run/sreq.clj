@@ -169,6 +169,17 @@
 
 (defmethod $.run.exec/sreq
 
+  $.run.kw/main-eval
+
+  [env ^AVector tuple]
+
+  ($.run.main/eval env
+                   (.get tuple
+                         2)))
+
+
+(defmethod $.run.exec/sreq
+
   $.run.kw/main-load
 
   [env ^AVector tuple]

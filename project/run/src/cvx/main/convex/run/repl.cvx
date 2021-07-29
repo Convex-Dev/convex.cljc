@@ -94,7 +94,7 @@
                                                               ($.repl/start result))))))
                            ($.repl/start nil))))))
      (call self
-           (start result)))))
+           (start result)))))3
 
 
 (export start)

@@ -320,9 +320,7 @@
 (def foo 100)
 
 
-(defn foo [] 42)
-
-'foo
+($.stream/out! [:foo foo])
 
 ;($.catch/push '($.repl/start))
 

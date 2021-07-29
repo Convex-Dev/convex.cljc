@@ -54,6 +54,19 @@
 
 
 
+(defn eval
+
+  ^{:doc {:description ""}}
+
+  [code]
+
+  (if *main?*
+    (fail :STATE
+          "Main file already loaded")
+    [:cvm.sreq :main.eval code]))
+
+
+
 (defn load
 
   ^{:doc {:description ""}}
