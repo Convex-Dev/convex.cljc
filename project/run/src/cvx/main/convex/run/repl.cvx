@@ -82,13 +82,13 @@
                                          '(def $.repl.result
                                                $/*result*)
 
-                                         '($.trx/precat '(($.stream/out $/line)
-                                                          ($.stream/out! (if (str? $.repl.result)
-                                                                           (str \" $.repl.result \")
-                                                                           $.repl.result))
-                                                          ($.stream/out $/line)
-                                                          ($.stream/flush)
-                                                          (when $.repl/*active?*
+                                         '(when $.repl/*active?*
+                                            ($.trx/precat '(($.stream/out $/line)
+                                                            ($.stream/out! (if (str? $.repl.result)
+                                                                             (str \" $.repl.result \")
+                                                                             $.repl.result))
+                                                            ($.stream/out $/line)
+                                                            ($.stream/flush)
                                                             (let [result $.repl.result]
                                                               (undef $.repl.result)
                                                               ($.repl/start result))))))

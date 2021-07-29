@@ -243,5 +243,5 @@
                                                  :convex.run/watch?
                                                  boolean
                                                  $.data/boolean)})
-                ($.cvm/def addr-$-repl
+                #_($.cvm/def addr-$-repl
                            {$.run.sym/active? ($.data/boolean false)})))))

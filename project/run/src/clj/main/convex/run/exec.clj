@@ -22,6 +22,27 @@
 (declare load)
 
 
+;;;;;;;;;; Private helpers
+
+
+(defn- -current-trx+
+
+  ;;
+
+
+  (^AList [env]
+
+   (-current-trx+ env
+                  :convex.sync/ctx))
+
+
+  (^AList [env kw-ctx]
+
+   (.get ($.cvm/env (env kw-ctx)
+                    $.run.ctx/addr-$-trx)
+         $.run.sym/list)))
+
+
 ;;;;;;;;;; Values
 
 
@@ -291,9 +312,7 @@
   [env]
 
   (loop [env-2 env]
-    (let [^AList trx+ (.get ($.cvm/env (env-2 :convex.sync/ctx)
-                                       $.run.ctx/addr-$-trx)
-                            $.run.sym/list)]
+    (let [trx+ (-current-trx+ env-2)]
       (if (pos? (count trx+))
         (let [env-3 (trx ($.run.ctx/def-trx+ env-2
                                              (.drop trx+
@@ -319,9 +338,7 @@
     [env]
 
     ($.run.ctx/def-trx+ env
-                        (.cons ^AList (.get ($.cvm/env (env :convex.sync/ctx)
-                                                       $.run.ctx/addr-$-trx)
-                                            $.run.sym/list)
+                        (.cons (-current-trx+ env)
                                trx-pop))))
 
 
@@ -337,7 +354,9 @@
   (-> env
       (dissoc :convex.run/trx+)
       $.run.ctx/cycle
-      ($.run.ctx/def-trx+ (env :convex.run/trx+))
+      ($.run.ctx/def-trx+ (.concat ^AList (env :convex.run/trx+)
+                                   (-current-trx+ env
+                                                  :convex.sync/ctx-base)))
       trx+))
 
 

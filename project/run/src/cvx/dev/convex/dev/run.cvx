@@ -317,7 +317,20 @@
 ; (repl)
 
 
-($.stream/out! [$.repl/*active?* $.main/*watch?* $.main/*main?*])
+(def foo 100)
+
+
+(defn foo [] 42)
+
+'foo
+
+;($.catch/push '($.repl/start))
+
+
+;($.stream/out! "About to fail")
+;
+;(assert (< 45 2))
+
 
 ;($.repl/start)
 
