@@ -47,16 +47,10 @@
            (or (op+ :flush)
                (op+ :write)))
     ((env :convex.run/fatal)
-     (dissoc env
-             ::err)
+     env
      err)
-    (out! (assoc env
-                 ::stream.err
-                 id-stderr)
-          id-stderr
-          err))
     ($.run.err/fail env
-                    err))
+                    err)))
 
 
 

@@ -54,7 +54,7 @@
 
   ([]
 
-   (start *result*))
+   (start $/*result*))
 
 
   ([result]
@@ -64,37 +64,35 @@
      (do
        (def *active?*
             true)
-       ($.trx/precat `(($.stream/out "> ")
-                       ($.stream/flush)
-                       ($.stream/line+)
+       ($.trx/precat `(($.catch/safe '($.trx/precat '(($.stream/out "> ")
+                                                      ($.stream/flush)
+                                                      ($.stream/line+)))
+
+                                     '(list $/*result*))
                        (let [form+       $/*result*
                              n-form      (count form+)
                              result-real (quote ~result)]
                          (if (>= n-form
                                  1)
-                           ($.trx/precat `(($/catch.push '(def $.repl.result
-                                                               $/*error*))
-                                           (quote ~result-real)
-                                           ~(if (= n-form
-                                                   1)
-                                              (first form+)
-                                              (cons 'do
-                                                    form+))
-                                           (def $.repl.result
-                                                $/*result*)
-                                           ($/catch.pop)
-                                           ($.stream/out $/line)
-                                           ($.stream/out! (if (str? $.repl.result)
-                                                            (str \" $.repl.result \")
-                                                            $.repl.result))
-                                           ($.stream/out $/line)
-                                           ($.stream/flush)
-                                           (when $.repl/*active?*
-                                             (let [result $.repl.result]
-                                               (undef $.repl.result)
-                                               ($.repl/start result)))))
-                           ($.repl/start nil))))
-                     $.trx/list))
+                           ($.catch/safe `($.trx/precat (quote ~(concat `((quote ~result-real))
+                                                                        form+
+                                                                        '((def $.repl.result
+                                                                               $/*result*)))))
+
+                                         '(def $.repl.result
+                                               $/*result*)
+
+                                         '($.trx/precat '(($.stream/out $/line)
+                                                          ($.stream/out! (if (str? $.repl.result)
+                                                                           (str \" $.repl.result \")
+                                                                           $.repl.result))
+                                                          ($.stream/out $/line)
+                                                          ($.stream/flush)
+                                                          (when $.repl/*active?*
+                                                            (let [result $.repl.result]
+                                                              (undef $.repl.result)
+                                                              ($.repl/start result))))))
+                           ($.repl/start nil))))))
      (call self
            (start result)))))
 

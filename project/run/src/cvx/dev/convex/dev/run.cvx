@@ -318,16 +318,16 @@
 
 
 
-;($.repl/start)
+($.repl/start)
 
 
 ;($.catch/push '($.stream/err! (dissoc $/*result* :trace)))
 
-($.catch/safe '($.trx/precat '(($.stream/out! [:trx+ $.trx/*list*])
-                               (assert false)
-                               ($.stream/out! :b)))
-              '($.stream/out! [:err $/*result*])
-              '($.stream/out! :finally))
-
-
-($.stream/out! :foo)
+; ($.catch/safe '($.trx/precat '(($.stream/out! [:trx+ $.trx/*list*])
+;                                (assert false)
+;                                ($.stream/out! :b)))
+;               '($.stream/out! [:err $/*result*])
+;               '($.stream/out! :finally))
+; 
+; 
+; ($.stream/out! :foo)
