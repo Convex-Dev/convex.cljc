@@ -11,7 +11,7 @@
             [convex.clj.gen                :as $.clj.gen]
             [convex.cvm                    :as $.cvm]
             [convex.data                   :as $.data]
-            [convex.sync                   :as $.sync]
+            [convex.read                   :as $.read]
             [helins.mprop                  :as mprop]))
 
 
@@ -22,20 +22,14 @@
 
   "Base context for this namespace."
 
-  (-> ($.sync/disk {'$     (-> "convex/break.cvx"
-                               clojure.java.io/resource
-                               .openStream)
-                    'trust (-> "convex/trust.cvx"
-                               clojure.java.io/resource
-                               .openStream)})
-      :convex.sync/ctx
-      ($.clj.eval/ctx '(do
-                         (set-key (blob "0000000000000000000000000000000000000000000000000000000000000000"))
-                         (def $
-                              (deploy (first $)))
-                         (def trust
-                              (deploy (first trust)))))
-      $.cvm/juice-refill))
+  (-> ($.cvm/ctx)
+      ($.cvm/eval ($.data/do [($.data/def ($.data/symbol "$")
+                                          ($.data/deploy ($.read/resource "convex/break.cvx")))
+                              ($.data/def ($.data/symbol "trust")
+                                          ($.data/deploy ($.data/do (.drop ($.read/resource+ "convex/trust.cvx")
+                                                                           2))))]))
+      $.cvm/juice-refill
+      ($.cvm/key-set $.data/key-fake)))
 
 
 ;;;;;;;;;; Suites

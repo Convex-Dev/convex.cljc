@@ -234,6 +234,14 @@
 
 
 
+(def key-fake
+
+  "Zeroed [[key]] that can be used during dev and testing so that an account is considered as a user, not an actor."
+
+  (key (blob (byte-array 32))))
+
+
+
 (defn keyword
 
   "Creates a CVM keyword from a Clojure keyword."

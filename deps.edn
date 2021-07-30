@@ -173,8 +173,7 @@
   {:extra-paths     ["project/all/src/clj/dev"]
    :maestro/dev+    [:project/all]
    :maestro/doc     "Dev environment requiring all useful namespaces from this repository"
-   :maestro/require [:ext/hawk
-                     :ext/test.check
+   :maestro/require [:ext/test.check
                      :project/app.fuzz
                      :project/app.run
                      :project/break

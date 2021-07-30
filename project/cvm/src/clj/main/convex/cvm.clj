@@ -32,6 +32,7 @@
   (:import (convex.core Block
                         State)
            (convex.core.data ABlobMap
+                             AccountKey
                              AccountStatus
                              ACell
                              Address
@@ -45,6 +46,7 @@
   (:refer-clojure :exclude [compile
                             def
                             eval
+                            key
                             time])
   (:require [convex.data :as $.data]))
 
@@ -114,7 +116,7 @@
 
 (defn account
 
-  "Returns the account for the given `address` (or the return value of [[address]] if none is provided)."
+  "Returns the account for the given `address` (or the address associated with `ctx`)."
 
   
   (^AccountStatus [^Context ctx]
@@ -222,6 +224,23 @@
 
 
 
+(defn key
+
+  "Returns the key of the given `address` (or the address associated with `ctx`)."
+
+  (^AccountKey [ctx]
+
+   (.getAccountKey (account ctx)))
+
+
+  (^AccountKey [ctx address]
+
+   (.getAccountKey (account ctx
+                            address))))
+
+
+
+
 (defn log
 
   "Returns the log of `ctx` (a CVM vector of size 2 vectors containing a logging address
@@ -299,6 +318,26 @@
 
    (.createAccount ctx
                    key)))
+
+
+
+(defn account-set
+
+  "Sets the given `account` at the given `address` (or the address associated with `ctx`)."
+
+
+  (^Context [ctx account]
+
+   (account-set ctx
+                (address ctx)
+                account))
+
+
+  (^Context [^Context ctx ^Address address ^AccountStatus account]
+
+   (.withAccountStatus ctx
+                       address
+                       account)))
 
 
 
@@ -402,10 +441,32 @@
   
    Also see [[juice]], [[juice-refill]]."
 
+  ^Context
+
   [^Context ctx amount]
 
   (.withJuice ctx
               amount))
+
+
+
+(defn key-set
+
+  "Sets `key` on the given `address` (or the address curently associated with `ctx`)."
+
+  (^Context [^Context ctx ^AccountKey key]
+
+   (.setAccountKey ctx
+                   key))
+
+
+  (^Context [^Context ctx ^Address address ^AccountKey key]
+
+   (account-set ctx
+                address
+                (.withAccountKey (account ctx
+                                          address)
+                                 key))))
 
 
 

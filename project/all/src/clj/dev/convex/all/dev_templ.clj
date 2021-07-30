@@ -25,7 +25,6 @@
             [convex.run.kw                 :as $.run.kw]
             [convex.run.sreq               :as $.run.sreq]
             [convex.run.sym                :as $.run.sym]
-            [convex.sync                   :as $.sync]
             [convex.test.break.account]
             [convex.test.break.actor]
             [convex.test.break.code]
