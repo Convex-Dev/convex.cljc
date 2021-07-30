@@ -5,9 +5,10 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.java.io]
-            [convex.clj.eval  :as $.clj.eval]
-            [convex.cvm       :as $.cvm]
-            [convex.sync      :as $.sync]))
+            [convex.clj.eval :as $.clj.eval]
+            [convex.cvm      :as $.cvm]
+            [convex.data     :as $.data]
+            [convex.read     :as $.read]))
 
 
 ;;;;;;;;;;
@@ -19,12 +20,9 @@
 
   []
 
-  (-> ($.sync/disk {'$ (-> "convex/break.cvx"
-                           clojure.java.io/resource
-                           .openStream)})
-      :convex.sync/ctx
-      ($.clj.eval/ctx '(def $
-                            (deploy (first $))))
+  (-> ($.cvm/ctx)
+      ($.cvm/eval ($.data/def ($.data/symbol "$")
+                              ($.data/deploy ($.read/resource "convex/break.cvx"))))
       $.cvm/juice-refill))
 
 

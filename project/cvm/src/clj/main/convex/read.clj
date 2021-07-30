@@ -13,18 +13,23 @@
                              AList)
            (convex.core.lang.reader AntlrReader)
            (java.io BufferedReader
+                    InputStreamReader
                     Reader)
-           (org.antlr.v4.runtime CharStreams)))
+           (org.antlr.v4.runtime CharStreams))
+  (:require [clojure.java.io]))
 
 
 (set! *warn-on-reflection*
       true)
 
 
-(declare string+)
+(declare stream
+         stream+
+         string+)
 
 
 ;;;;;;;;;;
+
 
 (defn file
 
@@ -58,6 +63,49 @@
 
   (some-> (.readLine buffered-reader)
           string+))
+
+
+
+(defn- -resource-reader
+
+  ;; Turns path to resource into a `Reader`.
+
+  ^Reader
+
+  [path]
+
+  (-> path
+      clojure.java.io/resource
+      .openStream
+      InputStreamReader.))
+
+
+
+(defn resource
+
+  "Reads one cell from resource located under `path` on the classpath."
+
+  ^AList
+
+  [path]
+
+  (-> path
+      -resource-reader
+      stream))
+
+
+
+(defn resource+
+
+  "Like [[resource]] but reads all available cells and returns them in a CVX list."
+
+  ^AList
+
+  [path]
+
+  (-> path
+      -resource-reader
+      stream+))
 
 
 
