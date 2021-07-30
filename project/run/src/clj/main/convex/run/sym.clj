@@ -47,6 +47,11 @@
 
 
 
+(def ^Symbol $-term
+             ($.cell/symbol "$.term"))
+
+
+
 (def ^Symbol $-test
              ($.cell/symbol "$-test"))
 

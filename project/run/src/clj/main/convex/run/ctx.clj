@@ -70,6 +70,8 @@
                                    [$.run.sym/$-time
                                     "convex/run/time.cvx"]
                                    ;;
+                                   [$.run.sym/$-term
+                                    "convex/run/term.cvx"]
                                    [$.run.sym/$-test
                                     "convex/run/test.cvx"]
                                    ])

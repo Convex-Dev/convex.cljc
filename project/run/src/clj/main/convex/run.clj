@@ -168,23 +168,17 @@
 
 (defn -main
 
-  "Main function.
-
-   Executes a CLI command:
-
-   - [[command]]
-   - [[describe]]
-   - [[eval]]
-   - [[load]]
-   - [[watch]]"
+  ""
 
   [& arg+]
 
   (try
-    (eval (if (seq arg+)
-            (clojure.string/join " "
-                                 arg+)
-            "($.repl/start)"))
+    (if (seq arg+)
+      (eval (clojure.string/join " "
+                                 arg+))
+      (do
+        (println "Convex Lisp Runner")
+        (eval"($.repl/start)")))
     (catch Throwable _ex
       (println "An unknown exception happened.")
       (flush)

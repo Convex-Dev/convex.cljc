@@ -1,0 +1,319 @@
+;; https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797
+
+(call *registry*
+      (cns-update 'convex.run.term
+                  *address*))
+
+
+(call *registry*
+      (register {:doc  {:description ""}
+                 :name ""}))
+
+
+;;;;;;;;;; Background colors
+
+
+(def bg.black
+
+  ^{:doc {:description ""}}
+
+  "\033[40m")
+
+
+
+(def bg.blue
+
+  ^{:doc {:description ""}}
+
+  "\033[44m")
+
+
+
+(def bg.cyan
+
+  ^{:doc {:description ""}}
+
+  "\033[46m")
+
+
+
+(def bg.green
+
+  ^{:doc {:description ""}}
+
+  "\033[42m")
+
+
+
+(def bg.magenta
+
+  ^{:doc {:description ""}}
+
+  "\033[45m")
+
+
+
+(def bg.white
+
+  ^{:doc {:description ""}}
+
+  "\033[47m")
+
+
+
+(def bg.red
+
+  ^{:doc {:description ""}}
+
+  "\033[41m")
+
+
+
+(def bg.yellow
+
+  ^{:doc {:description ""}}
+
+  "\033[43m")
+
+
+;;
+
+
+(defn bg.rgb
+
+  ^{:doc {:description ""}}
+
+  [r g b]
+
+  (str "\033[48;2;" r ";" g ";" b "m"))
+
+
+;;;;;;;;;; Foreground colors
+
+
+(def fg.black
+
+  ^{:doc {:description ""}}
+
+  "\033[30m")
+
+
+
+(def fg.blue
+
+  ^{:doc {:description ""}}
+
+  "\033[34m")
+
+
+
+
+(def fg.cyan
+
+  ^{:doc {:description ""}}
+
+  "\033[36m")
+
+
+
+(def fg.green
+
+  ^{:doc {:description ""}}
+
+  "\033[32m")
+
+
+
+(def fg.magenta
+
+  ^{:doc {:description ""}}
+
+  "\033[35m")
+
+
+
+(def fg.white
+
+  ^{:doc {:description ""}}
+
+  "\033[37m")
+
+
+
+(def fg.red
+
+  ^{:doc {:description ""}}
+
+  "\033[31m")
+
+
+
+(def fg.yellow
+
+  ^{:doc {:description ""}}
+
+  "\033[33m")
+
+
+;;
+
+
+(defn fg.rgb
+
+  ^{:doc {:description ""}}
+
+  [r g b]
+
+  (str "\033[38;2;" r ";" g ";" b "m"))
+
+
+;;;;;;;;;; Effects
+
+
+(def bright
+
+  ^{:doc {:description ""}}
+
+  "\033[1m")
+
+
+
+(def reset
+
+  ^{:doc {:description ""}}
+
+  "\033[0m")
+
+
+
+(def reversed
+
+  ^{:doc {:description ""}}
+
+  "\033[7m")
+
+
+
+(def underline
+
+  ^{:doc {:description ""}}
+
+  "\033[4m")
+
+
+;;;;;;;;;; Moving
+
+
+(defn col
+
+  ^{:doc {:description ""}}
+
+  [n]
+
+  (str "\033[" n "G"))
+
+
+
+(defn down
+
+  ^{:doc {:description ""}}
+
+
+  ([]
+
+   (down 1))
+
+
+  ([n]
+
+   (str "\033[" n "B")))
+
+
+
+(defn down-begin
+
+  ^{:doc {:description ""}}
+
+
+  ([]
+
+   (down-begin 1))
+
+
+  ([n]
+
+   (str "\033[" n "E")))
+
+
+
+(defn left
+
+  ^{:doc {:description ""}}
+
+
+  ([]
+
+   (left 1))
+
+
+  ([n]
+
+   (str "\033[" n "D")))
+
+
+
+(defn right
+
+  ^{:doc {:description ""}}
+
+
+  ([]
+
+   (right 1))
+
+
+  ([n]
+
+   (str "\033[" n "C")))
+
+
+
+(defn up
+
+  ^{:doc {:description ""}}
+
+
+  ([]
+
+   (up 1))
+
+
+  ([n]
+
+   (str "\033[" n "A")))
+
+
+
+(defn up-begin
+
+  ^{:doc {:description ""}}
+
+
+  ([]
+
+   (up-begin 1))
+
+
+  ([n]
+
+   (str "\033[" n "F")))
+
+
+;;;;;;;;;; Clearing
+
+
+(def clear.screen
+
+  ^{:doc {:description ""}}
+
+  "\033[H\033[2J")
