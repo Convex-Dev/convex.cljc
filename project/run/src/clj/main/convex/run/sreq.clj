@@ -9,8 +9,8 @@
 
   (:import (convex.core.data AVector)
            (convex.core.data.prim CVMLong))
-  (:require [convex.cvm        :as $.cvm]
-            [convex.data       :as $.data]
+  (:require [convex.cell       :as $.cell]
+            [convex.cvm        :as $.cvm]
             [convex.read       :as $.read]
             [convex.run.ctx    :as $.run.ctx]
             [convex.run.err    :as $.run.err]
@@ -65,8 +65,8 @@
   [env tuple]
 
   ($.run.err/fail env
-                  ($.run.err/sreq ($.data/code-std* :ARGUMENT)
-                                  ($.data/string "Unsupported special transaction")
+                  ($.run.err/sreq ($.cell/code-std* :ARGUMENT)
+                                  ($.cell/string "Unsupported special transaction")
                                   tuple)))
 
 ;;;;;;;;;; Implementations
@@ -83,8 +83,8 @@
   [env ^AVector tuple]
 
   ($.run.err/fail env
-                  ($.run.err/sreq ($.data/code-std* :FATAL)
-                                  ($.data/string "CVM special command 'sreq/dep' can only be used as the very first transaction")
+                  ($.run.err/sreq ($.cell/code-std* :FATAL)
+                                  ($.cell/string "CVM special command 'sreq/dep' can only be used as the very first transaction")
                                   tuple)))
 
 
@@ -132,8 +132,8 @@
                               $.read/string+))
     (catch Throwable _err
       ($.run.err/fail env
-                      ($.run.err/sreq ($.data/code-std* :ARGUMENT)
-                                      ($.data/string "Unable to read source")
+                      ($.run.err/sreq ($.cell/code-std* :ARGUMENT)
+                                      ($.cell/string "Unable to read source")
                                       tuple)))))
 
 
@@ -196,10 +196,10 @@
                         (if-some [env-var (.get tuple
                                                 2)]
                           (some-> (System/getenv (str env-var))
-                                  $.data/string)
-                          ($.data/map (map (fn [[k v]]
-                                             [($.data/string k)
-                                              ($.data/string v)])
+                                  $.cell/string)
+                          ($.cell/map (map (fn [[k v]]
+                                             [($.cell/string k)
+                                              ($.cell/string v)])
                                            (System/getenv))))))
 
 
@@ -324,8 +324,8 @@
                               trx)
               env-2)))
       ($.run.err/fail env
-                      ($.run.err/sreq ($.data/code-std* :STATE)
-                                      ($.data/string "No state to pop")
+                      ($.run.err/sreq ($.cell/code-std* :STATE)
+                                      ($.cell/string "No state to pop")
                                       tuple)))))
 
 

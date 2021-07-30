@@ -7,12 +7,12 @@
   (:import (convex.core.data AVector))
   (:refer-clojure :exclude [compile
                             eval])
-  (:require [convex.cvm        :as $.cvm]
-            [convex.data       :as $.data]
-            [convex.read       :as $.read]
-            [convex.run.ctx    :as $.run.ctx]
-            [convex.run.err    :as $.run.err]
-            [convex.run.kw     :as $.run.kw]))
+  (:require [convex.cell    :as $.cell]
+            [convex.cvm     :as $.cvm]
+            [convex.read    :as $.read]
+            [convex.run.ctx :as $.run.ctx]
+            [convex.run.err :as $.run.err]
+            [convex.run.kw  :as $.run.kw]))
 
 
 ;;;;;;;;;; Values
@@ -87,7 +87,7 @@
 
   ([result]
 
-   (when (and ($.data/vector? result)
+   (when (and ($.cell/vector? result)
               (>= (count result)
                   2)
               (= (.get ^AVector result
@@ -132,8 +132,8 @@
           result)
     (catch Throwable _ex
       ($.run.err/fail env
-                      ($.run.err/sreq ($.data/code-std* :FATAL)
-                                      ($.data/string "Unknown error happened while finalizing transaction")
+                      ($.run.err/sreq ($.cell/code-std* :FATAL)
+                                      ($.cell/string "Unknown error happened while finalizing transaction")
                                       trx)))))
 
 
@@ -265,12 +265,12 @@
               (let [juice-exec (juice env-4)
                     res        (result env-4)]
                 (sreq ($.run.ctx/def-result env-4
-                                            ($.data/map {$.run.kw/juice         ($.data/long (+ juice-expand
+                                            ($.cell/map {$.run.kw/juice         ($.cell/long (+ juice-expand
                                                                                                 juice-compile
                                                                                                 juice-exec))
-                                                         $.run.kw/juice-expand  ($.data/long juice-expand)
-                                                         $.run.kw/juice-compile ($.data/long juice-compile)
-                                                         $.run.kw/juice-exec    ($.data/long juice-exec)
+                                                         $.run.kw/juice-expand  ($.cell/long juice-expand)
+                                                         $.run.kw/juice-compile ($.cell/long juice-compile)
+                                                         $.run.kw/juice-exec    ($.cell/long juice-exec)
                                                          $.run.kw/result        res}))
                       ;trx
                       res)))))))))

@@ -6,8 +6,8 @@
 
   (:require [clojure.java.io]
             [convex.clj.eval :as $.clj.eval]
+            [convex.cell     :as $.cell]
             [convex.cvm      :as $.cvm]
-            [convex.data     :as $.data]
             [convex.read     :as $.read]))
 
 
@@ -21,8 +21,8 @@
   []
 
   (-> ($.cvm/ctx)
-      ($.cvm/eval ($.data/def ($.data/symbol "$")
-                              ($.data/deploy ($.read/resource "convex/break.cvx"))))
+      ($.cvm/eval ($.cell/def ($.cell/symbol "$")
+                              ($.cell/deploy ($.read/resource "convex/break.cvx"))))
       $.cvm/juice-refill))
 
 

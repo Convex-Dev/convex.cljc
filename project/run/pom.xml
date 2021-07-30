@@ -2,15 +2,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>world.convex</groupId>
-  <artifactId>app.run</artifactId>
+  <artifactId>runner</artifactId>
   <version>0.0.0-alpha0</version>
   <name>Convex Lisp Runner</name>
-  <description>Run Convex Lisp in the terminal</description>
-  <url>https://github.com/Convex-Dev/convex.cljc/tree/main/project/app/run</url>
+  <description>Run Convex Lisp in the terminal, and much more</description>
+  <url>https://github.com/Convex-Dev/convex.cljc/tree/main/project/run</url>
   <licenses>
     <license>
-      <name>Unlicensed</name>
-      <url/>
+      <name>Apache License 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0</url>
     </license>
   </licenses>
   <developers>
@@ -21,9 +21,9 @@
     </developer>
   </developers>
   <scm>
-    <url>https://github.com/helins/convex.cljc</url>
-    <connection>scm:git:git://github.com/helins/convex.cljc.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/helins/convex.cljc.git</developerConnection>
+    <url>https://github.com/convex-dev/convex.cljc</url>
+    <connection>scm:git:git://github.com/convex-dev/convex.cljc.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/convex-dev/convex.cljc.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
   <dependencies>

@@ -71,15 +71,16 @@
 
   {:author "Adam Helinski"}
 
+  (:gen-class)
   (:refer-clojure :exclude [eval
                             load])
-  (:require [clojure.java.io]
-            [convex.cvm       :as $.cvm]
-            [convex.io        :as $.io]
-            [convex.read      :as $.read]
-            [convex.run.ctx   :as $.run.ctx]
-            [convex.run.err   :as $.run.err]
-            [convex.run.exec  :as $.run.exec]
+  (:require [clojure.string]
+            [convex.cvm         :as $.cvm]
+            [convex.io          :as $.io]
+            [convex.read        :as $.read]
+            [convex.run.ctx     :as $.run.ctx]
+            [convex.run.err     :as $.run.err]
+            [convex.run.exec    :as $.run.exec]
             [convex.run.sreq]))
 
 
@@ -160,3 +161,33 @@
        (-> env-2
            ($.run.ctx/precat-trx+ trx+)
            $.run.exec/trx+)))))
+
+
+;;;;;;;;;;
+
+
+(defn -main
+
+  "Main function.
+
+   Executes a CLI command:
+
+   - [[command]]
+   - [[describe]]
+   - [[eval]]
+   - [[load]]
+   - [[watch]]"
+
+  [& arg+]
+
+  (try
+    (eval (if (seq arg+)
+            (clojure.string/join " "
+                                 arg+)
+            "($.repl/start)"))
+    (catch Throwable _ex
+      (println "An unknown exception happened.")
+      (flush)
+      (when (not= (System/getenv "CONVEX_DEV")
+                  "true")
+        (System/exit 42)))))

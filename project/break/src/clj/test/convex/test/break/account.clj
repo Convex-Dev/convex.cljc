@@ -12,7 +12,7 @@
             [convex.clj.eval               :as $.clj.eval]
             [convex.clj                    :as $.clj]
             [convex.clj.gen                :as $.clj.gen]
-            [convex.data                   :as $.data]
+            [convex.cell                   :as $.cell]
             [helins.mprop                  :as mprop]))
 
 
@@ -523,7 +523,7 @@
        "Transfering garbage instead of funds"
 
        ($.clj.eval/code? ctx
-                         ($.data/code-std* :CAST)
+                         ($.cell/code-std* :CAST)
                          '(transfer addr
                                     faulty-amount)))))
 

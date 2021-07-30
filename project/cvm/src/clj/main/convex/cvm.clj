@@ -48,7 +48,7 @@
                             eval
                             key
                             time])
-  (:require [convex.data :as $.data]))
+  (:require [convex.cell :as $.cell]))
 
 
 (set! *warn-on-reflection*
@@ -75,7 +75,7 @@
   (^Context [option+]
 
    (Context/createFake (or (:convex.cvm/state option+)
-                           (Init/createState [($.data/key ($.data/blob (byte-array 32)))]))
+                           (Init/createState [($.cell/key ($.cell/blob (byte-array 32)))]))
                        (or (:convex.cvm/address option+)
                            Init/RESERVED_ADDRESS))))
 
@@ -110,7 +110,7 @@
   (cond->
     x
     (number? x)
-    $.data/address))
+    $.cell/address))
 
 
 
@@ -303,7 +303,7 @@
 
   "Creates an new account, with a `key` (user) or without (actor).
 
-   See [[convex.data/key]].
+   See [[convex.cell/key]].
   
    Address is attached as a result in the returned context."
 
@@ -318,26 +318,6 @@
 
    (.createAccount ctx
                    key)))
-
-
-
-(defn account-set
-
-  "Sets the given `account` at the given `address` (or the address associated with `ctx`)."
-
-
-  (^Context [ctx account]
-
-   (account-set ctx
-                (address ctx)
-                account))
-
-
-  (^Context [^Context ctx ^Address address ^AccountStatus account]
-
-   (.withAccountStatus ctx
-                       address
-                       account)))
 
 
 
@@ -452,21 +432,14 @@
 
 (defn key-set
 
-  "Sets `key` on the given `address` (or the address curently associated with `ctx`)."
+  "Sets `key` on the address curently associated with `ctx`."
 
-  (^Context [^Context ctx ^AccountKey key]
+  ^Context
+  
+  [^Context ctx ^AccountKey key]
 
-   (.setAccountKey ctx
-                   key))
-
-
-  (^Context [^Context ctx ^Address address ^AccountKey key]
-
-   (account-set ctx
-                address
-                (.withAccountKey (account ctx
-                                          address)
-                                 key))))
+  (.setAccountKey ctx
+                  key))
 
 
 
@@ -502,8 +475,8 @@
                  state
                  (.applyBlock (Block/create (long (+ (.longValue (time ctx))
                                                      millis))
-                                            ($.data/key ($.data/blob (byte-array 32)))
-                                            ($.data/vector [])))
+                                            ($.cell/key ($.cell/blob (byte-array 32)))
+                                            ($.cell/vector [])))
                  .getState)))
 
 

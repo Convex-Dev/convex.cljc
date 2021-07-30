@@ -23,8 +23,8 @@
            (java.nio.file.attribute FileAttribute))
   (:require [clojure.java.io]
             [clojure.pprint]
+            [convex.cell      :as $.cell]
             [convex.cvm       :as $.cvm]
-            [convex.data      :as $.data]
             [convex.run.ctx   :as $.run.ctx]
             [convex.run.kw    :as $.run.kw]))
 
@@ -88,7 +88,7 @@
   
   [message]
   
-  ($.data/error ($.data/code-std* :FATAL)
+  ($.cell/error ($.cell/code-std* :FATAL)
                 message))
 
 
@@ -101,9 +101,9 @@
 
   (^AMap [^ErrorValue ex]
 
-   ($.data/error (.getCode ex)
+   ($.cell/error (.getCode ex)
                  (.getMessage ex)
-                 ($.data/vector (.getTrace ex))))
+                 ($.cell/vector (.getTrace ex))))
 
 
   (^AMap [ex phase ^ACell trx]
@@ -124,8 +124,8 @@
 
   []
 
-  ($.data/error $.run.kw/err-reader
-                ($.data/string "String cannot be read as Convex Lisp")))
+  ($.cell/error $.run.kw/err-reader
+                ($.cell/string "String cannot be read as Convex Lisp")))
 
 
 
@@ -139,7 +139,7 @@
 
   [code message trx]
 
-  (-> ($.data/error code
+  (-> ($.cell/error code
                     message)
       (assoc-phase $.run.kw/sreq)
       (assoc-trx trx)))
@@ -156,7 +156,7 @@
 
   (let [err-2 (.assoc err
                       $.run.kw/exception?
-                      ($.data/boolean true))]
+                      ($.cell/boolean true))]
     ((env :convex.run/fail)
      (-> env
          (assoc :convex.run/error
@@ -188,7 +188,7 @@
         env-2 (fail env
                     (.assoc err
                             $.run.kw/report
-                            ($.data/string path)))]
+                            ($.cell/string path)))]
     (clojure.pprint/pprint (-> env-2
                                (update :convex.run/error
                                        str)

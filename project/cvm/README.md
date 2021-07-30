@@ -8,36 +8,36 @@ Convex Lisp and gain various insights.
 
 ## Convex data
 
-**Namespaces of interest:** `$.data`
+**Namespaces of interest:** `$.cell`
 
 CVM types are described in [CAD 002] and consist of immutable Java objects.
 
-The `$.data` namespace provides a set of functions for creating those objects from scratch, type predicate functions, and a few higher-level utilities:
+The `$.cell` namespace provides a set of functions for creating those objects from scratch, type predicate functions, and a few higher-level utilities:
 
 ```clojure
 ;; Creating a CVM vector.
 ;;
 (def v
-     ($.data/vector [($.data/address 42)
-                     ($.data/long 24)
-                     ($.data/keyword "foo")]))
+     ($.cell/vector [($.cell/address 42)
+                     ($.cell/long 24)
+                     ($.cell/keyword "foo")]))
 
 
 ;; Yes, it is a vector indeed
 ;;
-($.data/vector? v)
+($.cell/vector? v)
 
 
 ;; Creating a `def` form for that vector
 ;;
 (def def-form
-     ($.data/def ($.data/symbol "my-vector")
+     ($.cell/def ($.cell/symbol "my-vector")
                  v))
 
 
 ;; It is only a form: `(def my vector [#42 24 :foo])` expressed in CVM objects
 ;;
-($.data/list? def-form)
+($.cell/list? def-form)
 ```
 
 Some types works with some aspects of Clojure. For instance, `first` can be applied to collections. Overall, it is safer and more effective to use the Java API
@@ -63,7 +63,7 @@ Reading is the process of parsing source code (text) into a Convex list of Conve
 
 ;; Nothing has been evaluated yet.
 ;;
-($.data/list? (first form+))
+($.cell/list? (first form+))
 ```
 
 The `$.read` namespace provides functions for reading source from strings, files, and others means.

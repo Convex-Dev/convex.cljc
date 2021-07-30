@@ -5,7 +5,7 @@
   {:clj-kondo/config '{:linters {:unused-import    {:level :off}
                                  :unused-namespace {:level :off}}}}
 
-  (:require [convex.data  :as $.data]
+  (:require [convex.cell  :as $.cell]
             [convex.read  :as $.read]
             [convex.cvm   :as $.cvm]
             [convex.write :as $.write]))

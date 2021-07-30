@@ -79,18 +79,6 @@
    :maestro/doc "Writing generative tests and generators for internal libraries"}
 
 
-  :ext/tools.cli
-
-  {:extra-deps  {org.clojure/tools.cli {:mvn/version "1.0.206"}}
-   :maestro/doc "Parsing command-line arguments in apps"}
-
-
-  :ext/tools.reader
-
-  {:extra-deps  {org.clojure/tools.reader {:mvn/version "1.3.4"}}
-   :maestro/doc "Reading Convex data as EDN"}
-
-
 
 
   ;; FOR TASKS
@@ -102,7 +90,6 @@
    :maestro/doc     "Mandatory alias for development"
    :maestro/env     {"CONVEX_DEV" "true"}
    :maestro/require [:ext/criterium
-                     :ext/tools.reader
                      :task/no-main]}
 
 
@@ -174,7 +161,6 @@
    :maestro/doc     "Dev environment requiring all useful namespaces from this repository"
    :maestro/require [:ext/test.check
                      :project/app.fuzz
-                     :project/app.run
                      :project/break
                      :project/cvm
                      :project/clojurify
@@ -207,22 +193,6 @@
   :dev/app.fuzz
 
   {:extra-paths ["project/app/fuzz/src/clj/dev"]}
-
-  ;---
-
-  :project/app.run
-
-  {:extra-paths        ["project/app/run/src/clj/main"]
-   :maestro/doc        "Convex Lisp Runner"
-   :maestro/main-class convex.app.run
-   :maestro/require    [:ext/tools.cli
-                        :project/run]
-   :maestro/root       "project/app/run"}
-
-
-  :dev/app.run
-
-  {:extra-paths ["project/app/run/src/clj/dev"]}
 
   ;---
 
@@ -315,12 +285,13 @@
 
   :project/run
 
-  {:extra-paths     ["project/run/src/clj/main"
-                     "project/run/src/cvx/main"]
-   :maestro/doc     "Core implementation of `:project/app.run`, reusable interface"
-   :maestro/require [:project/cvm
-                     :project/io]
-   :maestro/root    "project/run"}
+  {:extra-paths        ["project/run/src/clj/main"
+                        "project/run/src/cvx/main"]
+   :maestro/doc        "Convex Lisp Runner"
+   :maestro/main-class convex.run
+   :maestro/require    [:project/cvm
+                        :project/io]
+   :maestro/root       "project/run"}
 
 
   :dev/run

@@ -202,7 +202,7 @@
 ;     (if (.hasRemaining bb)
 ;       (recur (conj acc
 ;                    (byte-buffer bb)))
-;       ($.data/list acc))))
+;       ($.cell/list acc))))
 ; 
 ; 
 ; 
@@ -287,6 +287,6 @@
 ;     (if-some [cell (stream-bin input-stream)]
 ;       (recur (conj acc
 ;                    cell))
-;       ($.data/list acc))))
+;       ($.cell/list acc))))
 
 

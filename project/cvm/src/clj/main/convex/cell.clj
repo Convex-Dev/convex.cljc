@@ -1,6 +1,6 @@
-(ns convex.data
+(ns convex.cell
 
-  "Constructors for CVM objects and predicate functions for those objects."
+  "Constructors for CVX cells and type predicate functions."
 
   {:author "Adam Helinski"}
 
@@ -192,7 +192,7 @@
     :UNEXPECTED 'convex.core.ErrorCodes/UNEXPECTED
     (throw (ex-info (str "There is no official exception code for: "
                          kw)
-                    {:convex.data/code kw}))))
+                    {:convex.cell/code kw}))))
 
 
 
@@ -421,15 +421,15 @@
   ([code]
 
    (list [Symbols/DEPLOY
-          (convex.data/quote code)]))
+          (convex.cell/quote code)]))
 
 
   ([sym code]
 
    (let [sym-2 (-sym sym)]
-     (convex.data/do [(convex.data/def sym-2
+     (convex.cell/do [(convex.cell/def sym-2
                                        (deploy code))
-                      (convex.data/import (list [(symbol "address")
+                      (convex.cell/import (list [(symbol "address")
                                                     sym-2])
                                              sym-2)]))))
 

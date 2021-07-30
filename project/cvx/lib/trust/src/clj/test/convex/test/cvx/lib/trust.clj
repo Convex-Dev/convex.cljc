@@ -9,8 +9,8 @@
             [clojure.test.check.properties :as TC.prop]
             [convex.clj.eval               :as $.clj.eval]
             [convex.clj.gen                :as $.clj.gen]
+            [convex.cell                   :as $.cell]
             [convex.cvm                    :as $.cvm]
-            [convex.data                   :as $.data]
             [convex.read                   :as $.read]
             [helins.mprop                  :as mprop]))
 
@@ -23,13 +23,13 @@
   "Base context for this namespace."
 
   (-> ($.cvm/ctx)
-      ($.cvm/eval ($.data/do [($.data/def ($.data/symbol "$")
-                                          ($.data/deploy ($.read/resource "convex/break.cvx")))
-                              ($.data/def ($.data/symbol "trust")
-                                          ($.data/deploy ($.data/do (.drop ($.read/resource+ "convex/trust.cvx")
+      ($.cvm/eval ($.cell/do [($.cell/def ($.cell/symbol "$")
+                                          ($.cell/deploy ($.read/resource "convex/break.cvx")))
+                              ($.cell/def ($.cell/symbol "trust")
+                                          ($.cell/deploy ($.cell/do (.drop ($.read/resource+ "convex/trust.cvx")
                                                                            2))))]))
       $.cvm/juice-refill
-      ($.cvm/key-set $.data/key-fake)))
+      ($.cvm/key-set $.cell/key-fake)))
 
 
 ;;;;;;;;;; Suites
@@ -358,7 +358,7 @@
         "Cannot eval code after giving up root access"
 
         ($.clj.eval/code? ctx-2
-                          ($.data/code-std* :STATE)
+                          ($.cell/code-std* :STATE)
                           '(do
                              (trust/remove-upgradability! actor-controlled)
                              (upgrade actor-controlled)))
@@ -367,12 +367,12 @@
         "Cannot eval code in uncontrolled actor"
 
         ($.clj.eval/code? ctx-2
-                          ($.data/code-std* :TRUST)
+                          ($.cell/code-std* :TRUST)
                           '(upgrade actor-uncontrolled))
 
 
         "Cannot remove upgradability in uncontrolled actor"
 
         ($.clj.eval/code? ctx-2
-                          ($.data/code-std* :TRUST)
+                          ($.cell/code-std* :TRUST)
                           '(trust/remove-upgradability! actor-uncontrolled))))))

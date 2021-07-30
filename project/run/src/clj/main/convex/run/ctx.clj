@@ -11,8 +11,8 @@
            (java.io InputStreamReader)
            (java.nio.charset StandardCharsets))
   (:require [clojure.java.io]
+            [convex.cell      :as $.cell]
             [convex.cvm       :as $.cvm]
-            [convex.data      :as $.data]
             [convex.read      :as $.read]
             [convex.run.sym   :as $.run.sym]))
 
@@ -29,8 +29,8 @@
                                                                     .openStream
                                                                     (InputStreamReader. StandardCharsets/UTF_8)
                                                                     $.read/stream+
-                                                                    $.data/do
-                                                                    $.data/deploy))
+                                                                    $.cell/do
+                                                                    $.cell/deploy))
                                               ex    ($.cvm/exception ctx-2)]
                                           (when ex
                                             (throw (ex-info "While deploying prelude CVX file"
@@ -84,7 +84,7 @@
     (-> ctx
         ($.cvm/def sym->addr)
         ($.cvm/def addr-$
-                   {$.run.sym/line ($.data/string (System/lineSeparator))})))
+                   {$.run.sym/line ($.cell/string (System/lineSeparator))})))
 
 
   (def addr-$

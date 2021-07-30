@@ -8,7 +8,7 @@
            (java.io BufferedReader
                     FileNotFoundException))
   (:refer-clojure :exclude [flush])
-  (:require [convex.data    :as $.data]
+  (:require [convex.cell    :as $.cell]
             [convex.io      :as $.io]
             [convex.read    :as $.read]
             [convex.run.ctx :as $.run.ctx]
@@ -74,8 +74,8 @@
         (-fail env
                id
                op+
-               ($.data/error ($.data/code-std* :ARGUMENT)
-                             ($.data/string (format "Stream [%s] is missing capability: %s"
+               ($.cell/error ($.cell/code-std* :ARGUMENT)
+                             ($.cell/string (format "Stream [%s] is missing capability: %s"
                                                     id
                                                     op+)))))
 
@@ -83,16 +83,16 @@
         (-fail env
                id
                op+
-               ($.data/error $.run.kw/err-stream
-                             ($.data/string (format "Stream [%s] failed while performing: %s" 
+               ($.cell/error $.run.kw/err-stream
+                             ($.cell/string (format "Stream [%s] failed while performing: %s" 
                                                     id
                                                     op+))))))
 
     (-fail env
            id
            op+
-           ($.data/error $.run.kw/err-stream
-                         ($.data/string (format "Stream [%s] closed or does not exist"
+           ($.cell/error $.run.kw/err-stream
+                         ($.cell/string (format "Stream [%s] closed or does not exist"
                                                 id))))))
 
 
@@ -239,14 +239,14 @@
           (assoc-in [:convex.run/stream+
                      id]
                     file)
-          ($.run.ctx/def-result ($.data/long id))))
+          ($.run.ctx/def-result ($.cell/long id))))
 
     ;(catch FileNotFoundException _ex
 
     (catch Throwable _ex
       ($.run.err/fail env
-                      ($.data/error $.run.kw/err-stream
-                                    ($.data/string (format "Unable to open file for %s: %s"
+                      ($.cell/error $.run.kw/err-stream
+                                    ($.cell/string (format "Unable to open file for %s: %s"
                                                            path
                                                            str-op)))))))
 

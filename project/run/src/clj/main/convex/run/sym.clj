@@ -6,91 +6,91 @@
 
   (:import (convex.core.data Symbol))
   (:refer-clojure :exclude [list])
-  (:require [convex.data :as $.data]))
+  (:require [convex.cell :as $.cell]))
 
 
 ;;;;;;;;;;
 
 
 (def ^Symbol $
-             ($.data/symbol "$"))
+             ($.cell/symbol "$"))
 
 
 
 (def ^Symbol $-catch
-             ($.data/symbol "$.catch"))
+             ($.cell/symbol "$.catch"))
 
 
 
 (def ^Symbol $-file
-             ($.data/symbol "$.file"))
+             ($.cell/symbol "$.file"))
 
 
 
 (def ^Symbol $-process
-             ($.data/symbol "$.process"))
+             ($.cell/symbol "$.process"))
 
 
 
 (def ^Symbol $-repl
-             ($.data/symbol "$.repl"))
+             ($.cell/symbol "$.repl"))
 
 
 
 (def ^Symbol $-stream
-             ($.data/symbol "$.stream"))
+             ($.cell/symbol "$.stream"))
 
 
 
 (def ^Symbol $-time
-             ($.data/symbol "$.time"))
+             ($.cell/symbol "$.time"))
 
 
 
 (def ^Symbol $-test
-             ($.data/symbol "$-test"))
+             ($.cell/symbol "$-test"))
 
 
 
 (def ^Symbol $-trx
-             ($.data/symbol "$.trx"))
+             ($.cell/symbol "$.trx"))
 
 
 
 (def ^Symbol dep
-             ($.data/symbol "dep"))
+             ($.cell/symbol "dep"))
 
 
 
 (def ^Symbol env
-             ($.data/symbol "env"))
+             ($.cell/symbol "env"))
 
 
 
 (def ^Symbol err
-             ($.data/symbol "*err*"))
+             ($.cell/symbol "*err*"))
 
 
 
 (def ^Symbol line
-             ($.data/symbol "line"))
+             ($.cell/symbol "line"))
 
 
 
 (def ^Symbol list
-             ($.data/symbol "*list*"))
+             ($.cell/symbol "*list*"))
 
 
 
 (def ^Symbol result
-             ($.data/symbol "*result*"))
+             ($.cell/symbol "*result*"))
 
 
 
 (def ^Symbol sreq
-             ($.data/symbol "sreq"))
+             ($.cell/symbol "sreq"))
 
 
 
 (def ^Symbol stack
-             ($.data/symbol "*stack*"))
+             ($.cell/symbol "*stack*"))

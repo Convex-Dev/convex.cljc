@@ -9,203 +9,203 @@
                             do
                             eval
                             read])
-  (:require [convex.data :as $.data]))
+  (:require [convex.cell :as $.cell]))
 
 
 ;;;;;;;;;;
 
 
 (def ^Keyword cause
-              ($.data/keyword "cause"))
+              ($.cell/keyword "cause"))
 
 
 
 (def ^Keyword compile
-              ($.data/keyword "compile"))
+              ($.cell/keyword "compile"))
 
 
 
 (def ^Keyword cvm-sreq
-              ($.data/keyword "cvm.sreq"))
+              ($.cell/keyword "cvm.sreq"))
 
 
 
 (def ^Keyword dep
-              ($.data/keyword "dep"))
+              ($.cell/keyword "dep"))
 
 
 
 (def ^Keyword exception?
-              ($.data/keyword "exception?"))
+              ($.cell/keyword "exception?"))
 
 
 
 (def ^Keyword err-reader
-              ($.data/keyword "READER"))
+              ($.cell/keyword "READER"))
 
 
 
 (def ^Keyword err-stream
-              ($.data/keyword "STREAM"))
+              ($.cell/keyword "STREAM"))
 
 
 (def ^Keyword eval
-              ($.data/keyword "eval"))
+              ($.cell/keyword "eval"))
 
 
 
 (def ^Keyword exec
-              ($.data/keyword "exec"))
+              ($.cell/keyword "exec"))
 
 
 
 (def ^Keyword expand
-              ($.data/keyword "expand"))
+              ($.cell/keyword "expand"))
 
 
 
 (def ^Keyword file-in
-              ($.data/keyword "file.in"))
+              ($.cell/keyword "file.in"))
 
 
 
 (def ^Keyword file-out
-              ($.data/keyword "file.out"))
+              ($.cell/keyword "file.out"))
 
 
 
 (def ^Keyword form
-              ($.data/keyword "form"))
+              ($.cell/keyword "form"))
 
 
 
 (def ^Keyword juice
-              ($.data/keyword "juice"))
+              ($.cell/keyword "juice"))
 
 
 
 (def ^Keyword juice-expand
-              ($.data/keyword "juice.expand"))
+              ($.cell/keyword "juice.expand"))
 
 
 
 (def ^Keyword juice-compile
-              ($.data/keyword "juice.compile"))
+              ($.cell/keyword "juice.compile"))
 
 
 
 (def ^Keyword juice-exec
-              ($.data/keyword "juice.exec"))
+              ($.cell/keyword "juice.exec"))
 
 
 
 (def ^Keyword log
-              ($.data/keyword "log"))
+              ($.cell/keyword "log"))
 
 
 
 (def ^Keyword monitor
-              ($.data/keyword "monitor"))
+              ($.cell/keyword "monitor"))
 
 
 
 (def ^Keyword path
-              ($.data/keyword "path"))
+              ($.cell/keyword "path"))
 
 
 
 (def ^Keyword phase
-              ($.data/keyword "phase"))
+              ($.cell/keyword "phase"))
 
 
 
 (def ^Keyword process-env
-              ($.data/keyword "process.env"))
+              ($.cell/keyword "process.env"))
 
 
 
 (def ^Keyword process-exit
-              ($.data/keyword "process.exit"))
+              ($.cell/keyword "process.exit"))
 
 
 
 (def ^Keyword read+
-              ($.data/keyword "read+"))
+              ($.cell/keyword "read+"))
 
 
 
 (def ^Keyword report
-              ($.data/keyword "report"))
+              ($.cell/keyword "report"))
 
 
 
 (def ^Keyword result
-              ($.data/keyword "result"))
+              ($.cell/keyword "result"))
 
 
 
 (def ^Keyword splice
-              ($.data/keyword "splice"))
+              ($.cell/keyword "splice"))
 
 
 
 (def ^Keyword src
-              ($.data/keyword "src"))
+              ($.cell/keyword "src"))
 
 
 
 (def ^Keyword sreq
-              ($.data/keyword "sreq"))
+              ($.cell/keyword "sreq"))
 
 
 
 (def ^Keyword stream-close
-              ($.data/keyword "stream.close"))
+              ($.cell/keyword "stream.close"))
 
 
 
 (def ^Keyword stream-flush
-              ($.data/keyword "stream.flush"))
+              ($.cell/keyword "stream.flush"))
 
 
 
 (def ^Keyword stream-in
-              ($.data/keyword "stream.in"))
+              ($.cell/keyword "stream.in"))
 
 
 
 (def ^Keyword stream-in+
-              ($.data/keyword "stream.in+"))
+              ($.cell/keyword "stream.in+"))
 
 
 
 (def ^Keyword stream-line+
-              ($.data/keyword "stream.line+"))
+              ($.cell/keyword "stream.line+"))
 
 
 (def ^Keyword stream-out
-              ($.data/keyword "stream.out"))
+              ($.cell/keyword "stream.out"))
 
 
 
 (def ^Keyword stream-out!
-              ($.data/keyword "stream.out!"))
+              ($.cell/keyword "stream.out!"))
 
 
 
 (def ^Keyword time-advance
-              ($.data/keyword "time.advance"))
+              ($.cell/keyword "time.advance"))
 
 
 
 (def ^Keyword time-pop
-              ($.data/keyword "time.pop"))
+              ($.cell/keyword "time.pop"))
 
 
 
 (def ^Keyword time-push
-              ($.data/keyword "time.push"))
+              ($.cell/keyword "time.push"))
 
 
 (def ^Keyword trx
-              ($.data/keyword "trx"))
+              ($.cell/keyword "trx"))

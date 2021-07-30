@@ -337,7 +337,7 @@
 }, {
   "name" : "convex.cvm__init"
 }, {
-  "name" : "convex.data__init"
+  "name" : "convex.cell__init"
 }, {
   "name" : "convex.read__init"
 }, {
