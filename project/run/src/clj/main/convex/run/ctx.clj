@@ -7,7 +7,8 @@
 
   {:author "Adam Helinski"}
 
-  (:import (java.io InputStreamReader)
+  (:import (convex.core.data AList)
+           (java.io InputStreamReader)
            (java.nio.charset StandardCharsets))
   (:refer-clojure :exclude [cycle])
   (:require [clojure.java.io]
@@ -69,10 +70,11 @@
                                     "convex/run/repl.cvx"]
                                    [$.run.sym/$-stream
                                     "convex/run/stream.cvx"]
-                                   ;[$.run.sym/$-test
-                                   ; "convex/run/test.cvx"
                                    [$.run.sym/$-time
                                     "convex/run/time.cvx"]
+                                   ;;
+                                   [$.run.sym/$-test
+                                    "convex/run/test.cvx"]
                                    ])
       addr-$              (sym->addr $.run.sym/$)]
 
@@ -236,12 +238,60 @@
   (update env
           :convex.sync/ctx-base
           (fn [ctx]
-            (-> ctx
-                ($.cvm/def addr-$-main
-                           {$.run.sym/main?  ($.data/boolean true)
-                            $.run.sym/watch? (-> env
-                                                 :convex.run/watch?
-                                                 boolean
-                                                 $.data/boolean)})
-                #_($.cvm/def addr-$-repl
-                           {$.run.sym/active? ($.data/boolean false)})))))
+            ($.cvm/def ctx
+              addr-$-main
+                       {$.run.sym/main?  ($.data/boolean true)
+                        $.run.sym/watch? (-> env
+                                             :convex.run/watch?
+                                             boolean
+                                             $.data/boolean)}))))
+
+
+;;;;;;;;;;
+
+
+(defn current-trx+
+
+  ;;
+
+
+  (^AList [env]
+
+   (current-trx+ env
+                 :convex.sync/ctx))
+
+
+  (^AList [env kw-ctx]
+
+   (.get ($.cvm/env (env kw-ctx)
+                    addr-$-trx)
+         $.run.sym/list)))
+
+
+
+(defn drop-trx
+
+  ""
+
+
+  [env]
+
+  (def-trx+ env
+            (.drop (current-trx+ env)
+                   1)))
+
+
+
+
+(defn precat-trx+
+
+  ""
+
+
+  [env ^AList trx+]
+
+  (if (seq trx+)
+    (def-trx+ env
+              (.concat trx+
+                       (current-trx+ env)))
+    env))

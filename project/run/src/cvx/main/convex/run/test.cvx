@@ -22,21 +22,59 @@
 ;; IMPORTING OTHER LIBRARIES
 
 
-(def env
+(def foo 400)
 
-  ^{:doc {:description "Alias to the `env` account."}}
+(def $
 
-  (call *registry*
-        (cns-resolve 'convex.run.env)))
-
-
-
-(def sreq
-
-  ^{:doc {:description "Alias to the SReq library."}}
+  ^{:doc {:description ""}}
 
   (call *registry*
-        (cns-resolve 'convex.run.sreq)))
+        (cns-resolve 'convex.run)))
+
+
+
+(def $.catch
+
+  ^{:doc {:description ""}}
+
+  (call *registry*
+        (cns-resolve 'convex.run.catch)))
+
+
+
+(def $.main
+
+  ^{:doc {:description ""}}
+
+  (call *registry*
+        (cns-resolve 'convex.run.main)))
+
+
+
+(def $.process
+
+  ^{:doc {:description ""}}
+
+  (call *registry*
+        (cns-resolve 'convex.run.process)))
+
+
+
+(def $.time
+
+  ^{:doc {:description ""}}
+
+  (call *registry*
+        (cns-resolve 'convex.run.time)))
+
+
+
+(def $.trx
+
+  ^{:doc {:description ""}}
+
+  (call *registry*
+        (cns-resolve 'convex.run.trx)))
 
 
 ;; STATIC VALUES
@@ -287,10 +325,10 @@
 
   ([trx+ trx-pop]
 
-   (sreq/do (cons (list state.push)
-                  (conj trx+
-                        (list state.pop
-                              trx-pop))))))
+   ($.trx/precat (cons (list state.push)
+                       (conj trx+
+                             (list state.pop
+                                   trx-pop))))))
 
 
 
@@ -308,9 +346,9 @@
 
   ([trx]
 
-   (sreq/state.pop `(sreq/do '[(~self/report.merge ~self/*n-fail*
-                                                   (quote ~self/*report+*))
-                               ~trx]))))
+   ($.time/pop `($.trx/precat '((~self/report.merge ~self/*n-fail*
+                                                    (quote ~self/*report+*))
+                                ~trx)))))
 
 
 
@@ -322,8 +360,8 @@
 
   []
 
-  (sreq/do `[(sreq/state.push)
-             (~self/report.clear)]))
+  ($.trx/precat `((~$.time/push)
+                  (~self/report.clear))))
 
 
 ;; TESTING TRANSACTIONS
@@ -354,14 +392,14 @@
                           :metadata metadata-2
                           :trx      (list 'quote
                                           trx)}]
-         (sreq/try `(sreq/do '[~trx
-                               (~self/report.conj (assoc ~base-report
-                                                         :result env/*result*
-                                                         :pass?  false))])
-                   `(let [ex env/*error*]
-                      (~self/report.conj (assoc ~base-report
-                                                :exception ex
-                                                :pass?     (~expected-fail? ex))))))))))
+         ($.catch/safe `(let [result ~trx]
+                          (~self/report.conj (assoc ~base-report
+                                                    :result result
+                                                    :passe? false)))
+                       `(~self/report.conj (assoc ~base-report
+                                                  :exception $/*result*
+                                                  :pass?     (~expected-fail? $/*result*)))))))))
+
 
 
 (defn fail-code
@@ -411,14 +449,14 @@
                           :metadata metadata-2
                           :trx      (list 'quote
                                           trx)}]
-         (sreq/try `(sreq/do '[~trx
-                               (~self/report.conj (assoc ~base-report
-                                                         :result env/*result*
-                                                         :pass?  (= env/*result*
-                                                                    true)))])
-                   `(~self/report.conj (assoc ~base-report
-                                              :exception env/*error*
-                                              :pass?     false))))))))
+         ($.catch/safe `(let [result ~trx]
+                          (~self/report.conj (assoc ~base-report
+                                                    :result result
+                                                    :pass?  (= result
+                                                               true))))
+                       `(~self/report.conj (assoc ~base-report
+                                                  :exception $/*result*
+                                                  :pass?     false))))))))
 
 
 ;; TRACING
@@ -456,11 +494,12 @@
 
   []
 
-  (when env/single-run?
-    (sreq/exit (if (> *n-fail*
-                      0)
-                 42
-                 0))))
+  (when-not $.main/*watch?*
+    ($.process/exit (if (> *n-fail*
+                           0)
+                      42
+                      0))))
+
 
 
 (defn print-failed
@@ -508,32 +547,32 @@
                                                       ex]))]
                                     (conj acc
                                           "---"
-                                          env/line
-                                          env/line
+                                          $/line
+                                          $/line
                                           (report :trx)
-                                          env/line
-                                          env/line
+                                          $/line
+                                          $/line
                                           "  "
                                           text
                                           data
-                                          env/line
-                                          env/line
+                                          $/line
+                                          $/line
                                           "  Path: "
                                           (:path metadata)
-                                          env/line
-                                          env/line
+                                          $/line
+                                          $/line
                                           "  "
                                           (or (:description metadata)
                                               "No description provided.")
-                                          env/line
-                                          env/line
+                                          $/line
+                                          $/line
                                           "  Other metadata: "
                                           (dissoc metadata
                                                   :description
                                                   :path)
-                                          env/line
-                                          env/line
+                                          $/line
+                                          $/line
                                           ))))
-                              [env/line
-                               env/line]
+                              [$/line
+                               $/line]
                               report+))))))

@@ -74,6 +74,7 @@
   (:refer-clojure :exclude [eval
                             load])
   (:require [clojure.java.io]
+            [convex.cvm       :as $.cvm]
             [convex.data      :as $.data]
             [convex.io        :as $.io]
             [convex.read      :as $.read]
@@ -127,7 +128,7 @@
                      (System/exit 42))))
       (update :convex.sync/ctx-base
               #(or %
-                   $.run.ctx/base))))
+                   ($.cvm/fork $.run.ctx/base)))))
 
 
 ;;;;;;;;;; Evaluating a given source string
@@ -153,11 +154,12 @@
                   (catch Throwable ex
                     [ex
                      nil]))]
-      (if ex
-        ((env-2 :convex.run/fatal)
-         env-2
-         ($.run.err/main-src ($.data/string "Given string cannot be parsed as Convex Lisp")))
-        (-> env-2
-            (assoc :convex.run/trx+ trx+
-                   :convex.sync/ctx (env-2 :convex.sync/ctx-base))
-            $.run.exec/init)))))
+     (if ex
+       ((env-2 :convex.run/fatal)
+        env-2
+        ($.run.err/main-src ($.data/string "Given string cannot be parsed as Convex Lisp")))
+       (-> env-2
+           (assoc :convex.sync/ctx
+                  ($.cvm/fork (env-2 :convex.sync/ctx-base)))
+           ($.run.ctx/precat-trx+ trx+)
+           $.run.exec/init)))))

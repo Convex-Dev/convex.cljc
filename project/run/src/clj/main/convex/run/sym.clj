@@ -53,13 +53,13 @@
 
 
 
+(def ^Symbol $-test
+             ($.data/symbol "$-test"))
+
+
+
 (def ^Symbol $-trx
              ($.data/symbol "$.trx"))
-
-
-
-(def ^Symbol active?
-             ($.data/symbol "*active?*"))
 
 
 

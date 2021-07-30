@@ -8,8 +8,7 @@
                              AVector))
   (:refer-clojure :exclude [compile
                             cycle
-                            eval
-                            load])
+                            eval])
   (:require [convex.cvm        :as $.cvm]
             [convex.data       :as $.data]
             [convex.read       :as $.read]
@@ -17,9 +16,6 @@
             [convex.run.err    :as $.run.err]
             [convex.run.kw     :as $.run.kw]
             [convex.run.sym    :as $.run.sym]))
-
-
-(declare load)
 
 
 ;;;;;;;;;; Private helpers
@@ -258,7 +254,7 @@
   "Evaluates `trx` and interns result in `env/*result*`."
 
   [env trx]
-
+  
   (let [env-2 (eval env
                     trx)]
     (if (env-2 :convex.run/error)
@@ -352,11 +348,7 @@
   [env]
   
   (-> env
-      (dissoc :convex.run/trx+)
       $.run.ctx/cycle
-      ($.run.ctx/def-trx+ (.concat ^AList (env :convex.run/trx+)
-                                   (-current-trx+ env
-                                                  :convex.sync/ctx-base)))
       trx+))
 
 

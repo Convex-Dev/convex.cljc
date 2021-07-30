@@ -34,9 +34,9 @@
   "Used when a main file is read. Looks at the first transaction under `:convex.run/trx+` and computes
    dependencies if it is a `(sreq/dep ...)` form."
 
-  [env]
+  [env trx+]
 
-  (or (when-some [trx (first (env :convex.run/trx+))]
+  (or (when-some [trx (first trx+)]
         (when ($.data/list? trx)
           (let [^AList form (first trx)]
             (when (and ($.data/list? form)
@@ -45,12 +45,9 @@
                        (= (.get form
                                 0)
                           Symbols/LOOKUP)
-                       (let [addr (.get form
-                                        1)]
-                         (or (= addr
-                                $.run.sym/sreq)
-                             (= addr
-                                $.run.ctx/addr-$)))
+                       (= (.get form
+                                1)
+                          $.run.sym/$-main)
                        (= (.get form
                                 2)
                           $.run.sym/dep))
@@ -74,9 +71,7 @@
                                             str
                                             File.
                                             .getCanonicalPath))))
-                          (update env
-                                  :convex.run/trx+
-                                  rest)
+                          ($.run.ctx/drop-trx env)
                           sym->dep)
                   ($.run.err/fail env
                                   (-> ($.data/error ($.data/code-std* :CAST)
@@ -112,7 +107,12 @@
       (assoc :convex.sync/ctx-base
              ($.cvm/fork (env :convex.sync/ctx)))
       (dissoc :convex.sync/ctx)
-      $.run.ctx/main))
+      $.run.ctx/main
+      (as->
+        env-2
+        (assoc env-2
+               :convex.sync/ctx
+               ($.cvm/fork (env-2 :convex.sync/ctx-base))))))
 
 
 ;;;;;;;;;; Error handling aspects
@@ -157,9 +157,8 @@
       ($.run.err/fail env
                       err)
       (-> env
-          (assoc :convex.run/trx+
-                 trx+)
-          sym->dep))))
+          ($.run.ctx/precat-trx+ trx+)
+          (sym->dep trx+)))))
 
 
 ;;;;;;;;;;
@@ -171,17 +170,18 @@
 
   [env]
 
-  (let [env-2 (init env)]
-    (if-some [sym->dep' (env-2 :convex.run/sym->dep)]
-      (let [env-3    (merge env-2
-                            ($.sync/disk ($.cvm/fork (env-2 :convex.sync/ctx-base))
-                                         sym->dep'))]
-        (or (check-err-sync env-3)
-            ($.run.exec/load env-3)))
-      (-> env-2
-          (assoc :convex.sync/ctx
-                 ($.cvm/fork (env-2 :convex.sync/ctx-base)))
-          $.run.exec/init))))
+  (if-some [sym->dep' (env :convex.run/sym->dep)]
+    (let [env-2    (merge env
+                          ($.sync/disk (env :convex.sync/ctx)
+                                       sym->dep'))
+          err-sync (env-2 :convex.sync/error)]
+      (-> (if err-sync
+            ($.run.err/fail env-2
+                            ($.run.err/sync err-sync))
+            env-2)
+          $.run.exec/init))
+    (-> env
+        $.run.exec/init)))
 
 
 ;;;;;;;;;; Eval
@@ -200,9 +200,9 @@
   ([env trx+]
 
    (once (-> env
-             (assoc :convex.run/trx+
-                    trx+)
-             sym->dep))))
+             init
+             ($.run.ctx/precat-trx+ trx+)
+             (sym->dep trx+)))))
 
 
 
@@ -225,6 +225,7 @@
    (let [env-2 (-> env
                    (assoc :convex.run/path
                           path)
+                   init
                    main-file)]
      (if (env-2 :convex.run/error)
        env-2
@@ -242,7 +243,6 @@
                  ($.watch/-start a*env
                                  (-> env
                                      (dissoc :convex.run/error
-                                             :convex.run/juice-last
                                              :convex.run/state-stack
                                              :convex.sync/ctx
                                              :convex.sync/input+
@@ -276,8 +276,8 @@
     ([env ^String path]
 
      (let [a*env (-> env
-                     (assoc :convex.run/watch?
-                            true)
+                     (assoc :convex.run/path   path
+                            :convex.run/watch? true)
                      init
                      (assoc :convex.watch/extra+
                             #{(.getCanonicalPath (File. path))})

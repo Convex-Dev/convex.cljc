@@ -94,10 +94,11 @@
   [& arg+]
 
   (try
+    (println :arg+ arg+ (seq arg+))
     ($.run/eval (if (seq arg+)
                   (clojure.string/join " "
                                        arg+)
-                  "(env/repl.start)"))
+                  "($.repl/start)"))
     (catch Throwable ex
       (println :EX ex)
       (error "An unknown exception happened."
