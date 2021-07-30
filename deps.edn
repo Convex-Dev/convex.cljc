@@ -148,8 +148,7 @@
   {:maestro/doc     "Bundles aliases needed when developping Convex Lisp libraries"
    :maestro/require [:project/break
                      :project/clojurify
-                     :project/cvm
-                     :project/sync]}
+                     :project/cvm]}
 
 
 
@@ -181,8 +180,7 @@
                      :project/clojurify
                      :project/cvx.lab.lib.xform
                      :project/cvx.lib.trust
-                     :project/run
-                     :project/sync]
+                     :project/run]
    :maestro/root    "project/all"}
 
 
@@ -234,8 +232,7 @@
                      "project/break/src/cvx/main"]
    :maestro/doc     "Advanced generative testing against the CVM"
    :maestro/require [:project/clojurify
-                     :project/cvm
-                     :project/sync]
+                     :project/cvm]
    :maestro/root    "project/break"}
 
 
@@ -322,8 +319,7 @@
                      "project/run/src/cvx/main"]
    :maestro/doc     "Core implementation of `:project/app.run`, reusable interface"
    :maestro/require [:project/cvm
-                     :project/io
-                     :project/sync]
+                     :project/io]
    :maestro/root    "project/run"}
 
 
@@ -331,19 +327,4 @@
 
   {:extra-paths     ["project/run/src/clj/dev"
                      "project/run/src/cvx/dev"]
-   :maestro/require [:toggle/tap]}
-
-  ;---
-
-  :project/sync
-
-  {:extra-paths     ["project/sync/src/clj/main"]
-   :maestro/require [:project/cvm]
-   :maestro/doc     "Syncing Convex Lisp code into a CVM context, reference implementation of loading files from disk"
-   :maestro/root    "project/sync"}
-
-
-  :dev/sync
-
-  {:extra-paths     ["project/sync/src/clj/dev"]
-   :maestro/require [:project/break]}}}
+   :maestro/require [:toggle/tap]}}}

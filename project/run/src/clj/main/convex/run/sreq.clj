@@ -98,7 +98,7 @@
   [env _tuple]
 
   ($.run.ctx/def-result env
-                        ($.cvm/log (env :convex.sync/ctx))))
+                        ($.cvm/log (env :convex.run/ctx))))
 
 
 
@@ -296,7 +296,7 @@
   [env tuple]
 
   (update env
-          :convex.sync/ctx
+          :convex.run/ctx
           (fn [ctx]
             ($.cvm/time-advance ctx
                                 (-arg-long tuple)))))
@@ -315,7 +315,7 @@
     (if-some [ctx-restore (peek stack)]
       (-> env
           (assoc :convex.run/state-stack (pop stack)
-                 :convex.sync/ctx         ctx-restore)
+                 :convex.run/ctx         ctx-restore)
           (as->
             env-2
             (if-some [trx (.get tuple
@@ -342,5 +342,5 @@
           :convex.run/state-stack
           (fnil conj
                 '())
-          ($.cvm/fork (env :convex.sync/ctx))))
+          ($.cvm/fork (env :convex.run/ctx))))
 

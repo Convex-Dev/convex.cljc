@@ -138,7 +138,7 @@
   [env sym->value]
 
   (update env
-          :convex.sync/ctx
+          :convex.run/ctx
           (fn [ctx]
             ($.cvm/def ctx
                        sym->value))))
@@ -149,7 +149,7 @@
 
   "Like [[def-current]] but defines symbols in the `env` account.
   
-   By default, operates over the context in `:convex.sync/ctx`.
+   By default, operates over the context in `:convex.run/ctx`.
 
    It is sometimes useful to operate over another context (eg. base one), hence an alternate
    keyword can be provided."
@@ -158,7 +158,7 @@
   ([env sym->value]
 
    (def-env env
-            :convex.sync/ctx
+            :convex.run/ctx
             sym->value))
 
 
@@ -192,7 +192,7 @@
   [env trx+]
 
   (update env
-          :convex.sync/ctx
+          :convex.run/ctx
           (fn [ctx]
             ($.cvm/def ctx
                        addr-$-trx
@@ -210,7 +210,7 @@
   (^AList [env]
 
    (current-trx+ env
-                 :convex.sync/ctx))
+                 :convex.run/ctx))
 
 
   (^AList [env kw-ctx]

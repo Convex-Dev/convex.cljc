@@ -75,7 +75,6 @@
                             load])
   (:require [clojure.java.io]
             [convex.cvm       :as $.cvm]
-            [convex.data      :as $.data]
             [convex.io        :as $.io]
             [convex.read      :as $.read]
             [convex.run.ctx   :as $.run.ctx]
@@ -126,7 +125,7 @@
                      (println err)
                      (flush)
                      (System/exit 42))))
-      (update :convex.sync/ctx-base
+      (update :convex.run/ctx
               #(or %
                    ($.cvm/fork $.run.ctx/base)))))
 
@@ -159,7 +158,5 @@
         env-2
         ($.run.err/reader))
        (-> env-2
-           (assoc :convex.sync/ctx
-                  ($.cvm/fork (env-2 :convex.sync/ctx-base)))
            ($.run.ctx/precat-trx+ trx+)
            $.run.exec/trx+)))))

@@ -21,7 +21,6 @@
            (convex.core.lang.impl ErrorValue)
            (java.nio.file Files)
            (java.nio.file.attribute FileAttribute))
-  (:refer-clojure :exclude [sync])
   (:require [clojure.java.io]
             [clojure.pprint]
             [convex.cvm       :as $.cvm]
@@ -163,8 +162,8 @@
          (assoc :convex.run/error
                 err-2)
          (cond->
-           (env :convex.sync/ctx)
-           (-> (update :convex.sync/ctx
+           (env :convex.run/ctx)
+           (-> (update :convex.run/ctx
                        $.cvm/exception-clear)
                ($.run.ctx/def-result err-2)))))))
 

@@ -4,8 +4,7 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.data AList
-                             AVector))
+  (:import (convex.core.data AVector))
   (:refer-clojure :exclude [compile
                             eval])
   (:require [convex.cvm        :as $.cvm]
@@ -13,29 +12,7 @@
             [convex.read       :as $.read]
             [convex.run.ctx    :as $.run.ctx]
             [convex.run.err    :as $.run.err]
-            [convex.run.kw     :as $.run.kw]
-            [convex.run.sym    :as $.run.sym]))
-
-
-;;;;;;;;;; Private helpers
-
-
-(defn- -current-trx+
-
-  ;;
-
-
-  (^AList [env]
-
-   (-current-trx+ env
-                  :convex.sync/ctx))
-
-
-  (^AList [env kw-ctx]
-
-   (.get ($.cvm/env (env kw-ctx)
-                    $.run.ctx/addr-$-trx)
-         $.run.sym/list)))
+            [convex.run.kw     :as $.run.kw]))
 
 
 ;;;;;;;;;; Values
@@ -59,7 +36,7 @@
 
   (- max-juice
      (-> env
-         :convex.sync/ctx
+         :convex.run/ctx
          $.cvm/juice)))
 
 
@@ -71,7 +48,7 @@
   [env]
 
   (-> env
-      :convex.sync/ctx
+      :convex.run/ctx
       $.cvm/result))
 
 
@@ -85,13 +62,13 @@
   [env kw-phase f trx]
 
   (let [ctx (f (-> env
-                   :convex.sync/ctx
+                   :convex.run/ctx
                    $.cvm/juice-refill)
                trx)
         ex  ($.cvm/exception ctx)]
     (cond->
       (assoc env
-             :convex.sync/ctx
+             :convex.run/ctx
              ctx)
       ex
       ($.run.err/fail (-> ($.run.err/mappify ex)
@@ -307,7 +284,7 @@
   [env]
 
   (loop [env-2 env]
-    (let [trx+ (-current-trx+ env-2)]
+    (let [trx+ ($.run.ctx/current-trx+ env-2)]
       (if (pos? (count trx+))
         (let [env-3 (trx ($.run.ctx/def-trx+ env-2
                                              (.drop trx+
@@ -333,5 +310,5 @@
     [env]
 
     ($.run.ctx/def-trx+ env
-                        (.cons (-current-trx+ env)
+                        (.cons ($.run.ctx/current-trx+ env)
                                trx-pop))))
