@@ -27,10 +27,7 @@
 ;; Prints nice information at the start of a run.
 ;;
 ($.stream/out! (str "\033[H\033[2J"
-                    "Run N°" (inc $/*cycle*)
-                    $/line
-                    $/line
-                    "OUTPUT:"
+                    "Dev"
                     $/line))
 
 
@@ -317,31 +314,30 @@
 ; (repl)
 
 
-(def foo 100)
 
 
-($.stream/out! [:foo foo])
+(defn import
 
-;($.catch/push '($.repl/start))
+  ^{:doc {:description ""}}
+
+  [& dep+]
+
+  (reduce (fn [_acc [filename trx]]
+            ($.trx/precat `(($.file/read ~filename)
+                            ~trx))
+            nil)
+          nil
+          dep+))
 
 
-;($.stream/out! "About to fail")
-;
-;(assert (< 45 2))
 
+(import ["/tmp/foo.cvx"
+         '(def foo2
+               (eval (cons 'do
+                           $/*result*)))])
+
+
+
+($.stream/out! [:got foo2])
 
 ;($.repl/start)
-
-
-;($.stream/out! :foo)
-
-;($.catch/push '($.stream/err! (dissoc $/*result* :trace)))
-
-; ($.catch/safe '($.trx/precat '(($.stream/out! [:trx+ $.trx/*list*])
-;                                (assert false)
-;                                ($.stream/out! :b)))
-;               '($.stream/out! [:err $/*result*])
-;               '($.stream/out! :finally))
-; 
-; 
-; ($.stream/out! :foo)

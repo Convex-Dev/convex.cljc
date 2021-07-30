@@ -157,9 +157,9 @@
      (if ex
        ((env-2 :convex.run/fatal)
         env-2
-        ($.run.err/main-src ($.data/string "Given string cannot be parsed as Convex Lisp")))
+        ($.run.err/reader))
        (-> env-2
            (assoc :convex.sync/ctx
                   ($.cvm/fork (env-2 :convex.sync/ctx-base)))
            ($.run.ctx/precat-trx+ trx+)
-           $.run.exec/init)))))
+           $.run.exec/trx+)))))

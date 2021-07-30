@@ -5,7 +5,8 @@
   {:author "Adam Helinski"}
 
   (:import (java.lang AutoCloseable)
-           (java.io BufferedReader))
+           (java.io BufferedReader
+                    FileNotFoundException))
   (:refer-clojure :exclude [flush])
   (:require [convex.data    :as $.data]
             [convex.io      :as $.io]
@@ -227,10 +228,11 @@
 
   ""
 
-  [env path file str-op]
+  [env path open str-op]
 
   (try
-    (let [id (inc (env :convex.run.stream/id))]
+    (let [file (open path)
+          id   (inc (env :convex.run.stream/id))]
       (-> env
           (assoc :convex.run.stream/id
                  id)
@@ -238,6 +240,9 @@
                      id]
                     file)
           ($.run.ctx/def-result ($.data/long id))))
+
+    ;(catch FileNotFoundException _ex
+
     (catch Throwable _ex
       ($.run.err/fail env
                       ($.data/error $.run.kw/err-stream
@@ -255,7 +260,7 @@
 
   (-file env
          path
-         ($.io/file-in path)
+         $.io/file-in
          #{:read}))
 
 
@@ -268,7 +273,7 @@
 
   (-file env
          path
-         ($.io/file-out path)
+         $.io/file-out
          #{:write}))
 
 

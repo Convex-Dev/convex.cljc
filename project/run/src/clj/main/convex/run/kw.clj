@@ -104,26 +104,6 @@
 
 
 
-(def ^Keyword main
-              ($.data/keyword "main"))
-
-
-
-(def ^Keyword main-eval
-              ($.data/keyword "main.eval"))
-
-
-
-(def ^Keyword main-load
-              ($.data/keyword "main.load"))
-
-
-
-(def ^Keyword main-watch
-              ($.data/keyword "main.watch"))
-
-
-
 (def ^Keyword monitor
               ($.data/keyword "monitor"))
 

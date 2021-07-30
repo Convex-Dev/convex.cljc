@@ -62,8 +62,6 @@
                                     "convex/run/catch.cvx"]
                                    [$.run.sym/$-file
                                     "convex/run/file.cvx"]
-                                   [$.run.sym/$-main
-                                    "convex/run/main.cvx"]
                                    [$.run.sym/$-process
                                     "convex/run/process.cvx"]
                                    [$.run.sym/$-repl
@@ -103,14 +101,6 @@
     ""
 
     (sym->addr $.run.sym/$-catch))
-
-
-
-  (def addr-$-main
-
-    ""
-
-    (sym->addr $.run.sym/$-main))
 
 
 
@@ -224,27 +214,6 @@
   (def-env env
            {$.run.sym/cycle ($.data/long (or (env :convex.watch/cycle)
                                              0))}))
-
-
-
-(defn main
-
-  "Used once at the very beginning for preparing [[base]].
-  
-   `Defines `env/*file*`, the canonical path of the main file (unless there is none)."
-
-  [env]
-      
-  (update env
-          :convex.sync/ctx-base
-          (fn [ctx]
-            ($.cvm/def ctx
-              addr-$-main
-                       {$.run.sym/main?  ($.data/boolean true)
-                        $.run.sym/watch? (-> env
-                                             :convex.run/watch?
-                                             boolean
-                                             $.data/boolean)}))))
 
 
 ;;;;;;;;;;

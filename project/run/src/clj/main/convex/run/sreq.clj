@@ -16,7 +16,6 @@
             [convex.run.err    :as $.run.err]
             [convex.run.exec   :as $.run.exec]
             [convex.run.kw     :as $.run.kw]
-            [convex.run.main   :as $.run.main]
             [convex.run.stream :as $.run.stream]))
 
 
@@ -162,44 +161,6 @@
   ($.run.stream/file-out env
                          (str (.get tuple
                                     2))))
-
-
-;;;;;;;;;; Main
-
-
-(defmethod $.run.exec/sreq
-
-  $.run.kw/main-eval
-
-  [env ^AVector tuple]
-
-  ($.run.main/eval env
-                   (.get tuple
-                         2)))
-
-
-(defmethod $.run.exec/sreq
-
-  $.run.kw/main-load
-
-  [env ^AVector tuple]
-
-  ($.run.main/load env
-                   (str (.get tuple
-                              2))))
-
-
-
-(defmethod $.run.exec/sreq
-
-  $.run.kw/main-watch
-
-  [env ^AVector tuple]
-
-  ($.run.main/watch env
-                    (str (.get tuple
-                               2))))
-
 
 
 ;;;;;;;;;; Process

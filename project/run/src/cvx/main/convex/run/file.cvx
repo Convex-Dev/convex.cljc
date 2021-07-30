@@ -10,7 +10,18 @@
                  :name ""}))
 
 
+;;;;;;;;;;
 
+
+(def $.trx
+
+  ^{:doc {:description ""}}
+
+  (call *registry*
+        (cns-resolve 'convex.run.trx)))
+           
+
+;;;;;;;;;;
 
 
 (defn stream.in
@@ -32,3 +43,29 @@
 
   (assert (str? path))
   [:cvm.sreq :file.out path])
+
+
+;;;;;;;;;;
+
+
+(defn read
+
+  ^{:doc {:description ""}}
+
+  [path]
+
+  ($.trx/precat `(($.file/stream.in ~path)
+                  ($.stream/in+ $/*result*))))
+
+
+
+
+
+(defn exec
+
+  ^{:doc {:description ""}}
+
+  [path]
+
+  ($.trx/prepend '($.trx/precat $/*result*))
+  (read path))

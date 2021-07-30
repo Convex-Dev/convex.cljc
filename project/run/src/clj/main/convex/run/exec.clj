@@ -336,32 +336,3 @@
     ($.run.ctx/def-trx+ env
                         (.cons (-current-trx+ env)
                                trx-pop))))
-
-
-;;;;;;;;;;
-
-
-(defn init
-
-  ""
-
-  [env]
-  
-  (-> env
-      $.run.ctx/cycle
-      trx+))
-
-
-
-(defn watch
-
-  ""
-
-  [env]
-
-  (-> env
-      (assoc :convex.run.stream/id
-             2)
-      (dissoc :convex.run/restore
-              :convex.run/state-stack)
-      init))

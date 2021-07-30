@@ -117,28 +117,18 @@
 
 
 
-(defn main-src
+(defn reader
 
-  "Error map describing failure when preparing the main source."
-
-  ^AMap
-
-  [message]
-
-  (-> (fatal message)
-      (assoc-phase $.run.kw/main)))
-
-
-
-(defn main-src-access
-
-  "Error map describing failure when accessing the main file."
+  ""
 
   ^AMap
 
   []
 
-  (main-src ($.data/string "Main file not found or not accessible")))
+  ($.data/error $.run.kw/err-reader
+                ($.data/string "String cannot be read as Convex Lisp")))
+
+
 
 
 
