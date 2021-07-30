@@ -146,58 +146,6 @@
       (assoc-trx trx)))
 
 
-
-(defn sync
-
-  "Error map describing failure during syncing.
-  
-   See 'sync' project, the [[convex.sync]] namespace."
-
-
-  (^AMap [[kind arg]]
-
-   (sync kind
-         arg))
-
-
-  (^AMap [kind arg]
-
-   (-> ($.data/error ($.data/code-std* :FATAL)
-                     (case kind
-
-                       :eval
-                       ($.data/map {($.data/string arg)
-                                    ($.data/string "Fail to evaluate")})
-
-                       :load
-                       (reduce-kv (fn [^AMap path->reason path reason]
-                                    (.assoc path->reason
-                                            ($.data/string path)
-                                            ($.data/string (case (first reason)
-                                                             :not-found "Dependency file not found or inaccessible"
-                                                             :unknown   "Unknown error while loading and parsing dependency file"))))
-
-                                  ($.data/map)
-                                  arg)
-
-                       "Unknown error while loading dependency file"))
-       (assoc-phase $.run.kw/dep))))
-
-
-
-(defn watcher-setup
-
-  "Error map describing unknown failure when setting up the file watcher."
-
-  ^AMap
-
-  []
-
-  (-> ($.data/error ($.data/code-std* :FATAL)
-                    ($.data/string "Unknown error occured while setting up the file watcher"))
-      (assoc-phase $.run.kw/watch)))
-
-
 ;;;;;;;;;; Signaling errors in Convex Lisp
 
 

@@ -7,7 +7,6 @@
   (:import (convex.core.data AList
                              AVector))
   (:refer-clojure :exclude [compile
-                            cycle
                             eval])
   (:require [convex.cvm        :as $.cvm]
             [convex.data       :as $.data]

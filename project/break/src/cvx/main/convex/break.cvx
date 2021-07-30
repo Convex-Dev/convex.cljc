@@ -8,14 +8,6 @@
 (do
 
 
-  (def foo
-
-    ^{:doc {:description "For checking if loading or watching works properly."}}
-
-    24)
-
-
-
   (defn allowance
 
     ^{:doc {:description "Returns the memory allowance of the current or given address."}}

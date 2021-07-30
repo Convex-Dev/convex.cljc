@@ -10,7 +10,6 @@
   (:import (convex.core.data AList)
            (java.io InputStreamReader)
            (java.nio.charset StandardCharsets))
-  (:refer-clojure :exclude [cycle])
   (:require [clojure.java.io]
             [convex.cvm       :as $.cvm]
             [convex.data      :as $.data]
@@ -198,22 +197,6 @@
             ($.cvm/def ctx
                        addr-$-trx
                        {$.run.sym/list trx+}))))
-
-
-;;;;;;;;;; Miscellaneous utilities
-
-
-(defn cycle
-
-  "Used before each run (which can happen more than once in watch mode).
-  
-   Defines `env/*cycle*`, a number incremented on each run."
-
-  [env]
-
-  (def-env env
-           {$.run.sym/cycle ($.data/long (or (env :convex.watch/cycle)
-                                             0))}))
 
 
 ;;;;;;;;;;

@@ -55,12 +55,6 @@
    :maestro/doc  "Packaging jars and uberjars"}
 
 
-  :ext/hawk
-
-  {:extra-deps  {hawk/hawk {:mvn/version "0.2.11"}}
-   :maestro/doc "File watching"}
-
-
   :ext/kaocha
 
   {:extra-deps  {lambdaisland/kaocha {:mvn/version "1.0.829"}}
@@ -155,8 +149,7 @@
    :maestro/require [:project/break
                      :project/clojurify
                      :project/cvm
-                     :project/sync
-                     :project/watch]}
+                     :project/sync]}
 
 
 
@@ -190,8 +183,7 @@
                      :project/cvx.lab.lib.xform
                      :project/cvx.lib.trust
                      :project/run
-                     :project/sync
-                     :project/watch]
+                     :project/sync]
    :maestro/root    "project/all"}
 
 
@@ -300,12 +292,6 @@
    :maestro/root    "project/lab/lib/xform"
    :maestro/require [:bundle/cvx]}
 
-
-  :dev/cvx.lab.lib.xform
-
-  {:extra-paths ["project/cvx/lab/lib/xform/src/clj/dev"
-                 "project/cvx/lab/lib/xform/src/cvx/dev"]}
-
   ;---
 
   :project/cvx.lib.trust
@@ -315,11 +301,6 @@
    :maestro/require [:bundle/cvx
                      :project/break]
    :maestro/root    "project/lib/trust"}
-
-
-  :dev/cvx.lib.trust
-
-  {:extra-paths ["project/cvx/lib/trust/src/clj/dev"]}
 
 
   :test/cvx.lib.trust
@@ -343,8 +324,7 @@
    :maestro/doc     "Core implementation of `:project/app.run`, reusable interface"
    :maestro/require [:project/cvm
                      :project/io
-                     :project/sync
-                     :project/watch]
+                     :project/sync]
    :maestro/root    "project/run"}
 
 
@@ -367,19 +347,4 @@
   :dev/sync
 
   {:extra-paths     ["project/sync/src/clj/dev"]
-   :maestro/require [:project/break]}
-
-  ;---
-
-  :project/watch
-
-  {:extra-paths     ["project/watch/src/clj/main"]
-   :maestro/doc     "Provides a live-reloading experience of Convex Lisp on top of `:project/sync`"
-   :maestro/require [:ext/hawk
-                     :project/sync]
-   :maestro/root    "project/watch"}
-
-
-  :dev/watch
-
-  {:extra-paths ["project/watch/src/clj/dev"]}}}
+   :maestro/require [:project/break]}}}

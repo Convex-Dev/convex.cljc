@@ -15,8 +15,7 @@
             [convex.run.kw    :as $.run.kw]
             [convex.run.sym   :as $.run.sym]
             [convex.run.sreq]
-            [convex.sync      :as $.sync]
-            [convex.watch     :as $.watch]))
+            [convex.sync      :as $.sync]))
 
 
 ;;;;;;;;;;
@@ -25,23 +24,6 @@
 (comment
 
 
-  ($.run/eval "(sreq/about sreq)")
-
-
-
-  ($.run/load "project/run/src/cvx/dev/convex/run/dev.cvx")
-
-
-
-  (def a*env
-       ($.run/watch "project/run/src/cvx/dev/convex/run/dev.cvx"))
-
-  ($.watch/stop a*env)
-
-  (clojure.pprint/pprint (dissoc @a*env
-                                 :convex.sync/input->code))
-
-  (agent-error a*env)
 
 
   )

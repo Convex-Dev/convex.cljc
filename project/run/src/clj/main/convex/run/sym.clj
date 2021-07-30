@@ -5,8 +5,7 @@
   {:author "Adam Helinski"}
 
   (:import (convex.core.data Symbol))
-  (:refer-clojure :exclude [cycle
-                            list])
+  (:refer-clojure :exclude [list])
   (:require [convex.data :as $.data]))
 
 
@@ -58,11 +57,6 @@
 
 
 
-(def ^Symbol cycle
-             ($.data/symbol "*cycle*"))
-
-
-
 (def ^Symbol dep
              ($.data/symbol "dep"))
 
@@ -100,8 +94,3 @@
 
 (def ^Symbol stack
              ($.data/symbol "*stack*"))
-
-
-
-(def ^Symbol watch?
-             ($.data/symbol "*watch?*"))

@@ -494,11 +494,10 @@
 
   []
 
-  (when-not $.main/*watch?*
-    ($.process/exit (if (> *n-fail*
-                           0)
-                      42
-                      0))))
+  ($.process/exit (if (> *n-fail*
+                         0)
+                    42
+                    0)))
 
 
 
