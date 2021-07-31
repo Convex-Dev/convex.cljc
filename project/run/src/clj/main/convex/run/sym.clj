@@ -32,6 +32,11 @@
 
 
 
+(def ^Symbol $-help
+             ($.cell/symbol "$.help"))
+
+
+
 (def ^Symbol $-process
              ($.cell/symbol "$.process"))
 

@@ -57,12 +57,14 @@
                                   [
                                    [$.run.sym/$-stream
                                     "convex/run/stream.cvx"]
-                                   [$.run.sym/$
-                                    "convex/run.cvx"]
-                                   [$.run.sym/$-trx
-                                    "convex/run/trx.cvx"]
                                    [$.run.sym/$-term
                                     "convex/run/term.cvx"]
+                                   [$.run.sym/$-doc
+                                    "convex/run/doc.cvx"]
+                                   [$.run.sym/$-trx
+                                    "convex/run/trx.cvx"]
+                                   [$.run.sym/$
+                                    "convex/run.cvx"]
                                    [$.run.sym/$-catch
                                     "convex/run/catch.cvx"]
                                    [$.run.sym/$-file
@@ -73,10 +75,10 @@
                                     "convex/run/repl.cvx"]
                                    [$.run.sym/$-time
                                     "convex/run/time.cvx"]
+                                   [$.run.sym/$-help
+                                    "convex/run/help.cvx"]
                                    [$.run.sym/$-test
                                     "convex/run/test.cvx"]
-                                   [$.run.sym/$-doc
-                                    "convex/run/doc.cvx"]
                                    ])]
 
   (def addr-$

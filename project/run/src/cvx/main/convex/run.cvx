@@ -19,6 +19,9 @@
                  :name "Convex Lisp Runner Help and Miscelleneous Utilities"}))
 
 
+;;;;;;;;;;
+
+
 (def $.stream
 
   ^{:doc      {:description ""}
@@ -276,8 +279,6 @@
 
    ($.stream/out! (str-about addr
                              sym))))
-
-
 
 
 ;;;;;;;;;;

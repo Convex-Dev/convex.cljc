@@ -357,8 +357,32 @@
                   ($.file/read "project/run/src/cvx/main/convex/run/doc.cvx")
                   (def $.doc
                        (deploy (cons 'do (next (next $/*result*)))))
+                  ($.file/read "project/run/src/cvx/main/convex/run/help.cvx")
+                  (def $.help
+                       (deploy (cons 'do (next (next $/*result*)))))
                   ($.repl/start)
                   )))
+
+
+
+
+
+(defn foo
+
+  ^{:doc {:description ["This is a test."
+                        "Another line."
+                        "Okay then."]
+          :examples    [{:code    "(foo 4 2)"
+                         :returns "6"}
+                        {:code "(foo 2)"}]
+          :signature   [{:params [a]}
+                        {:params [a b & c]}]}}
+
+  []
+
+  42)
+
+
 
 
 (l)

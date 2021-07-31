@@ -1,0 +1,150 @@
+
+
+(call *registry*
+      (cns-update 'convex.run.help
+                  *address*))
+
+
+(call *registry*
+      (register {:doc  {:description ""}
+                 :name ""}))
+
+
+;;;;;;;;;;
+
+
+(def $.term
+
+  ^{:doc      {:description ""}
+    :private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.run.term)))
+
+
+
+(def $.trx
+
+  ^{:doc      {:description ""}
+    :private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.run.trx)))
+
+
+;;;;;;;;;;
+
+
+(defn section
+
+  ^{:doc {:description ""}}
+
+  [acc heading line+]
+
+  (reduce (fn [acc-2 line]
+            (conj acc-2
+                  $.term/cursor.save
+                  line
+                  $.term/cursor.restore
+                  ($.term/down 1)))
+          (conj acc
+                ($.term/down-begin 2)
+                ($.term/up 1)
+                $.term/bold
+                $.term/fg.blue
+                heading
+                $.term/reset
+                ($.term/right 1)
+                $.term/cursor.save
+                (first line+)
+                $.term/cursor.restore
+                ($.term/down 1))
+          (next line+)))
+
+
+
+(defn -vector?
+
+  ^{:doc      {:description ""}
+    :private? true}
+
+  [x]
+
+  (and (vector? x)
+       (not (empty? x))))
+
+
+
+(def -accent
+
+  ^{:doc {:description ""}}
+
+  (str $.term/bold
+       $.term/fg.blue))
+
+
+
+(defn meta
+
+  ^{:doc {:description ""}}
+
+
+  ([meta]
+
+   (let [doc  (:doc meta)
+         desc (:description doc)
+         acc  (section []
+                       "Description:"
+                       (if (boolean desc)
+                         (if (and (vector? desc)
+                                  (not (zero? (count desc))))
+                           desc
+                           [(str desc)])
+                         ["Not provided."]))
+         sign+ (:signature doc)
+         acc   (if sign+
+                (section acc
+                         "Signature(s):"
+                         (if (-vector? sign+)
+                           (map :params
+                                sign+)
+                           (str sign+)))
+                acc)
+         ex+   (:examples doc)
+         acc   (if ex+
+                 (section acc
+                          "Example(s):"
+                          (if (-vector? sign+)
+                            (map (fn [ex]
+                                   (let [code   (:code ex)
+                                         return (:returns ex)]
+                                     (if (nil? return)
+                                       code
+                                       (str code
+                                            ($.term/right 1)
+                                            -accent
+                                            "->"
+                                            $.term/reset
+                                            ($.term/right 1)
+                                            return))))
+                                 ex+)
+                            (str ex+)))
+                 acc)
+         err+  (:errors doc)
+         acc   (if err+
+                 (section acc
+                          "Error(s):"
+                          (if (and (map? err+)
+                                   (not (empty? err+)))
+                            (map (fn [[code txt]]
+                                   (str code
+                                        -accent
+                                        " <- "
+                                        $.term/reset
+                                        txt))
+                                 err+)
+                            [(str err+)]))
+                 acc)]
+     ($.trx/precat `(($.stream/out! ~(apply str
+                                            acc))
+                     nil)))))

@@ -88,6 +88,25 @@
             :style style))))
 
 
+
+(defn inline
+
+  ^{:doc {:description ""}}
+
+
+  ([item]
+
+   [:inline item])
+
+
+  ([ctx [_tag & item+]]
+
+   (log [:inline item+])
+   (reduce tag
+           ctx
+           item+)))
+
+
 ;;;;;;;;;;
 
 
@@ -95,8 +114,9 @@
 
   ^{:doc {:description ""}}
 
-  {:block block
-   :bold  bold})
+  {:block  block
+   :bold   bold
+   :inline inline})
 
 
 
@@ -106,6 +126,7 @@
 
   [ctx item]
 
+  (log [:tag tag])
   (if (str? item)
     (assoc ctx
            :acc
@@ -137,6 +158,7 @@
 
   ([option+ item+]
 
+   (log [:render item+])
    (apply str
           (:acc (reduce (fn [ctx item]
                           (assert (not (str? item)))

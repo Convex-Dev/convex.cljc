@@ -214,6 +214,22 @@
 
 
 
+(def cursor.save
+
+  ^{:doc {:description ""}}
+
+  "\033[s")
+
+
+
+(def cursor.restore
+
+  ^{:doc {:description ""}}
+
+  "\033[u")
+
+
+
 (defn down
 
   ^{:doc {:description ""}}
