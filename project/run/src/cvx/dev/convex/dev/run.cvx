@@ -374,7 +374,7 @@
                         "Okay then."]
           :examples    [{:code    "(foo 4 2)"
                          :returns "6"}
-                        {:code "(foo 2)"}]
+#_{:code "(foo 2)"}]
           :signature   [{:params [a]}
                         {:params [a b & c]}]}}
 
@@ -382,6 +382,11 @@
 
   42)
 
+
+(def a
+     (deploy '(call *registry*
+                    (register {:description "Foo"
+                               :name        "Some Actor"}))))
 
 
 

@@ -13,6 +13,26 @@
 ;;;;;;;;;;
 
 
+(def core
+
+  ^{:doc      {:description ""}
+    :private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.core)))
+
+
+
+(def $
+
+  ^{:doc      {:description ""}
+    :private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.run)))
+
+
+
 (def $.term
 
   ^{:doc      {:description ""}
@@ -35,6 +55,15 @@
 ;;;;;;;;;;
 
 
+(def -accent
+
+  ^{:doc {:description ""}}
+
+  (str $.term/bold
+       $.term/fg.blue))
+
+
+
 (defn section
 
   ^{:doc {:description ""}}
@@ -43,23 +72,32 @@
 
   (reduce (fn [acc-2 line]
             (conj acc-2
-                  $.term/cursor.save
-                  line
-                  $.term/cursor.restore
-                  ($.term/down 1)))
+                  $/line
+                  "  "
+                  line))
           (conj acc
-                ($.term/down-begin 2)
-                ($.term/up 1)
-                $.term/bold
-                $.term/fg.blue
+                $/line
+                -accent
                 heading
-                $.term/reset
-                ($.term/right 1)
-                $.term/cursor.save
-                (first line+)
-                $.term/cursor.restore
-                ($.term/down 1))
-          (next line+)))
+                $.term/reset)
+          line+))
+
+
+
+(defn key-value
+
+  ^{:doc {:description ""}}
+
+  [acc heading txt]
+
+  (conj acc
+        $/line
+        -accent
+        heading
+        $.term/reset
+        $/line
+        "  "
+        txt))
 
 
 
@@ -75,12 +113,138 @@
 
 
 
-(def -accent
+
+
+(defn -out!
+
+  ^{:doc      {:description ""}
+    :private? true}
+
+  [acc]
+
+  ($.trx/precat `(($.stream/out! ~(apply str
+                                         acc))
+                  nil)))
+
+
+
+(defn description
 
   ^{:doc {:description ""}}
 
-  (str $.term/bold
-       $.term/fg.blue))
+  [acc desc]
+
+  (section acc
+           "Description:"
+           (if (boolean desc)
+             (if (and (vector? desc)
+                      (not (zero? (count desc))))
+               desc
+               [(str desc)])
+             ["No documentation."])))
+
+
+
+(defn -env-line
+
+  ^{:doc      {:description ""}
+    :private? true}
+
+  [acc sym desc]
+
+  (conj acc
+        (str $.term/bold
+             $.term/fg.green
+             sym
+             "  "
+             $.term/reset
+             $/line
+             "    "
+             (let [desc-2 (if desc
+                            (if (str? desc)
+                              desc
+                              (first desc))
+                            "No documentation.")
+                   n-char (count desc-2)
+                   limit  (min 75
+                               n-char)]
+              (loop [char+ []
+                     i     0]
+                (if (< i
+                       limit)
+                  (recur (conj char+
+                               (nth desc-2
+                                    i))
+                         (inc i))
+                  (apply str
+                         (if (< limit
+                                n-char)
+                           (conj char+
+                                 "...")
+                           char+))))))))
+                                    
+
+
+
+(defn account
+
+  ^{:doc {:description ""}}
+
+  [addr]
+
+  (-out! (if-let [account (core/account addr)]
+           (let [meta-reg (call *registry*
+                                (lookup addr))
+                 acc      []
+                 acc      (key-value acc
+                                     "Name:"
+                                     (or (:name meta-reg)
+                                         "Not provided."))
+                 acc      (description acc
+                                       (:description meta-reg))
+                 acc      (key-value acc
+                                     "Allowance:"
+                                     (:allowance account))
+                 acc      (key-value acc
+                                     "Balance:"
+                                     (:balance account))
+                 acc      (key-value acc
+                                     "Controller:"
+                                     (or (:controller account)
+                                         "None"))
+                 acc      (key-value acc
+                                     "Key:"
+                                     (or (:key account)
+                                         "None"))
+                 meta     (:metadata account)
+                 env      (reduce (fn [acc sym]
+                                    (if-let [meta-sym (get meta
+                                                           sym)]
+                                      (if (:private? meta-sym)
+                                        acc
+                                        (-env-line acc
+                                                   sym
+                                                   (get-in meta-sym
+                                                           [:doc
+                                                            :description])))
+                                      (-env-line acc
+                                                 sym
+                                                 nil)))
+                                  []
+                                  (keys (:environment account)))
+                 acc      (if (empty? env)
+                            acc
+                            (section acc
+                                     "Overview:"
+                                     env))
+                 ]
+             acc)
+           [($.term/down-begin 1)
+            $.term/bold
+            $.term/fg.red
+            "Account not found."
+            $.term/reset])))
+
 
 
 
@@ -89,62 +253,54 @@
   ^{:doc {:description ""}}
 
 
-  ([meta]
+  [meta]
 
-   (let [doc  (:doc meta)
-         desc (:description doc)
-         acc  (section []
-                       "Description:"
-                       (if (boolean desc)
-                         (if (and (vector? desc)
-                                  (not (zero? (count desc))))
-                           desc
-                           [(str desc)])
-                         ["Not provided."]))
-         sign+ (:signature doc)
-         acc   (if sign+
+  (let [doc   (:doc meta)
+        desc  (:description doc)
+        acc   (description []
+                           (:description doc))
+        sign+ (:signature doc)
+        acc   (if sign+
+               (section acc
+                        "Signature(s):"
+                        (if (-vector? sign+)
+                          (map :params
+                               sign+)
+                          (str sign+)))
+               acc)
+        ex+   (:examples doc)
+        acc   (if ex+
                 (section acc
-                         "Signature(s):"
+                         "Example(s):"
                          (if (-vector? sign+)
-                           (map :params
-                                sign+)
-                           (str sign+)))
+                           (map (fn [ex]
+                                  (let [code   (:code ex)
+                                        return (:returns ex)]
+                                    (if (nil? return)
+                                      code
+                                      (str code
+                                           ($.term/right 1)
+                                           -accent
+                                           "->"
+                                           $.term/reset
+                                           ($.term/right 1)
+                                           return))))
+                                ex+)
+                           (str ex+)))
                 acc)
-         ex+   (:examples doc)
-         acc   (if ex+
-                 (section acc
-                          "Example(s):"
-                          (if (-vector? sign+)
-                            (map (fn [ex]
-                                   (let [code   (:code ex)
-                                         return (:returns ex)]
-                                     (if (nil? return)
-                                       code
-                                       (str code
-                                            ($.term/right 1)
-                                            -accent
-                                            "->"
-                                            $.term/reset
-                                            ($.term/right 1)
-                                            return))))
-                                 ex+)
-                            (str ex+)))
-                 acc)
-         err+  (:errors doc)
-         acc   (if err+
-                 (section acc
-                          "Error(s):"
-                          (if (and (map? err+)
-                                   (not (empty? err+)))
-                            (map (fn [[code txt]]
-                                   (str code
-                                        -accent
-                                        " <- "
-                                        $.term/reset
-                                        txt))
-                                 err+)
-                            [(str err+)]))
-                 acc)]
-     ($.trx/precat `(($.stream/out! ~(apply str
-                                            acc))
-                     nil)))))
+        err+  (:errors doc)
+        acc   (if err+
+                (section acc
+                         "Error(s):"
+                         (if (and (map? err+)
+                                  (not (empty? err+)))
+                           (map (fn [[code txt]]
+                                  (str code
+                                       -accent
+                                       " <- "
+                                       $.term/reset
+                                       txt))
+                                err+)
+                           [(str err+)]))
+                acc)]
+    (-out! acc)))
