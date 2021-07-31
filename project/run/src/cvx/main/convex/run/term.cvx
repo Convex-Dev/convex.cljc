@@ -170,7 +170,7 @@
 ;;;;;;;;;; Effects
 
 
-(def bright
+(def bold
 
   ^{:doc {:description ""}}
 

@@ -57,6 +57,8 @@
                                     "convex/run.cvx"]
                                    [$.run.sym/$-trx
                                     "convex/run/trx.cvx"]  ;; Must be before others
+                                   [$.run.sym/$-term
+                                    "convex/run/term.cvx"]
                                    [$.run.sym/$-catch
                                     "convex/run/catch.cvx"]
                                    [$.run.sym/$-file
@@ -69,9 +71,6 @@
                                     "convex/run/stream.cvx"]
                                    [$.run.sym/$-time
                                     "convex/run/time.cvx"]
-                                   ;;
-                                   [$.run.sym/$-term
-                                    "convex/run/term.cvx"]
                                    [$.run.sym/$-test
                                     "convex/run/test.cvx"]
                                    ])

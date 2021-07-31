@@ -21,6 +21,15 @@
 
 
 
+(def $.term
+
+  ^{:doc {:description ""}}
+
+  (call *registry*
+        (cns-resolve 'convex.run.term)))
+
+
+
 (def $.trx
 
   ^{:doc {:description ""}}
@@ -48,53 +57,93 @@
 ;;;;;;;;;; BASIC REPL
 
 
+(def prompt
+
+  ^{:doc {:description ""}}
+
+  (str $.term/bold
+       $.term/fg.green
+       "> "
+       $.term/reset))
+
+
+
+(defn -next
+
+  ^{:doc      {:description ""}
+    :private? true}
+
+  [option+ result]
+
+  ($.trx/precat `(($.catch/safe '($.trx/precat '(($.stream/out ~(or (:prompt option+)
+                                                                    prompt))
+                                                 ($.stream/flush)
+                                                 ($.stream/line+)))
+
+                                '(list $/*result*))
+                  (let [form+       $/*result*
+                        n-form      (count form+)
+                        result-real (quote ~result)]
+                    (if (>= n-form
+                            1)
+                      ($.catch/safe `($.trx/precat (quote ~(concat `((quote ~result-real))
+                                                                   form+
+                                                                   '((def $.repl.result
+                                                                          $/*result*)))))
+
+                                    '(def $.repl.result
+                                          $/*result*)
+
+                                    '(when $.repl/*active?*
+                                       ($.trx/precat '(($.stream/out $/line)
+                                                       ($.stream/out! (if (str? $.repl.result)
+                                                                        (str \" $.repl.result \")
+                                                                        $.repl.result))
+                                                       ($.stream/out $/line)
+                                                       ($.stream/flush)
+                                                       (let [result $.repl.result]
+                                                         (undef $.repl.result)
+                                                         (call $.repl
+                                                               (-next ~option+
+                                                                      result)))))))
+                      (call $.repl
+                            (-next ~option+
+                                   nil)))))))
+
+
+(export -next)
+
+
+
+
 (defn start
 
   ^{:doc {:description ""}}
 
+
   ([]
 
-   (start $/*result*))
+   (start nil
+          $/*result*))
 
 
-  ([result]
+  ([option+]
+
+   (start option+
+          $/*result*))
+
+
+  ([option+ result]
  
    (if (= *address*
           self)
-     (do
+     (when-not *active?*
        (def *active?*
             true)
-       ($.trx/precat `(($.catch/safe '($.trx/precat '(($.stream/out "> ")
-                                                      ($.stream/flush)
-                                                      ($.stream/line+)))
-
-                                     '(list $/*result*))
-                       (let [form+       $/*result*
-                             n-form      (count form+)
-                             result-real (quote ~result)]
-                         (if (>= n-form
-                                 1)
-                           ($.catch/safe `($.trx/precat (quote ~(concat `((quote ~result-real))
-                                                                        form+
-                                                                        '((def $.repl.result
-                                                                               $/*result*)))))
-
-                                         '(def $.repl.result
-                                               $/*result*)
-
-                                         '(when $.repl/*active?*
-                                            ($.trx/precat '(($.stream/out $/line)
-                                                            ($.stream/out! (if (str? $.repl.result)
-                                                                             (str \" $.repl.result \")
-                                                                             $.repl.result))
-                                                            ($.stream/out $/line)
-                                                            ($.stream/flush)
-                                                            (let [result $.repl.result]
-                                                              (undef $.repl.result)
-                                                              ($.repl/start result))))))
-                           ($.repl/start nil))))))
+       (-next option+
+              result))
      (call self
-           (start result)))))3
+           (start result)))))
 
 
 (export start)
