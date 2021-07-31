@@ -186,14 +186,14 @@
 
 
 
-(defn account
+(defn address
 
   ^{:doc {:description ""}}
 
 
   ([]
 
-   (account *address*))
+   (address *address*))
 
 
   ([addr]

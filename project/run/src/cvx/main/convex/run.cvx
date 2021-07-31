@@ -97,188 +97,30 @@
 ;;;;;;;;;; PRINTING
 
 
-(defn str-line+
+(defmacro help
 
-  ^{:doc {:description ["Returns a unique string which lays out text sections in a way that is easy to read for humans."
-                        "Used by `str-about`"]
-          :examples    [{:code "(str-line+ [[\"My section\" [\"Line 1\" \"Line 2\"]]])"}]
-          :signature   [{:params [section+]}]
-          :type        :function}}
-
-  [section+]
-
-  (apply str
-         (reduce (fn [acc [section line+]]
-                   (reduce (fn [acc-2 pr-line]
-                             (conj acc-2
-                                   line
-                                   line
-                                   pr-line))
-                           (conj acc
-                                 line
-                                 line
-                                 line
-                                 section
-                                 line
-                                 (loop [acc []
-                                        i   (count section)]
-                                  (if (> i
-                                         0)
-                                    (recur (conj acc
-                                                 "=")
-                                           (dec i))
-                                    (apply str
-                                           acc))))
-                           line+))
-                 []
-                 section+)))
+  ^{:doc {:description ""}}
 
 
-
-(let [-doc (fn [target meta]
-             (let [doc         (:doc meta)
-                   description (:description doc)
-                   example+    (:examples doc)
-                   signature   (:signature doc)
-                   type        (:type doc)
-                   target-sym  (symbol target)
-                   section+    [["HELP"
-                                 [target]]]
-                   section-2+  (if type
-                                 (conj section+
-                                       ["TYPE"
-                                        [type]])
-                                 section+)
-                   section-3+  (if signature
-                                 (conj section-2+
-                                       ["SIGNATURE"
-                                        (map (fn [sign]
-                                               (cons target-sym
-                                                     (:params sign)))
-                                             signature)])
-                                 section-2+)
-                   section-4+  (if description
-                                 (conj section-3+
-                                       ["DESCRIPTION"
-                                        (cond
-                                          (str? description)    [description]
-                                          (vector? description) description
-                                          :else                 ["Malformed, description must be a string or a vector or strings."])])
-                                 section-3+)
-                   section-5+  (if example+
-                                 (conj section-4+
-                                       ["EXAMPLES"
-                                        (map :code
-                                             example+)])
-                                 section-4+)]
-               (str-line+ section-5+)))]
-
-    (defn str-about
-
-      ^{:doc {:description ["Using `str-line+`, prepares a string for displaying useful information about an account or a symbol defined in any account."
-                            "Used by `about`"]
-              :examples    [{:code "(env/str-about sreq)"}
-                            {:code "(env/str-about sreq 'out)"}]
-              :signature   [{:params [addr-or-sym]}
-                            {:params [addr sym]}]
-              :type        :function}}
-
-      ([addr-or-sym]
-
-       (if (symbol? addr-or-sym)
-         (-doc (str addr-or-sym)
-               (lookup-meta addr-or-sym))
-         (if-let [acc (account addr-or-sym)]
-           (let [allowance   (acc :allowance)
-                 balance     (acc :balance)
-                 controller  (acc :controller)
-                 env         (acc :environment)
-                 key         (acc :key)
-                 meta        (acc :metadata)
-                 meta-reg    (call *registry*
-                                   (lookup addr-or-sym))
-                 name        (:name meta-reg)
-                 overview    (:description (:doc meta-reg))
-                 section+    [["ACCOUNT"
-                               [addr-or-sym]]
-                              ["KEY"
-                               [(or key
-                                    "None (this is an actor)")]]
-                              ["ALLOWANCE"
-                               [allowance]]
-                              ["BALANCE"
-                               [balance]]
-                              ["CONTROLLER"
-                               [(or controller
-                                    "None")]]]
-                section-2+    (if name
-                                (conj section+
-                                      ["NAME"
-                                       [name]])
-                                section+)
-                section-3+    (if overview
-                                (conj section-2+
-                                      ["OVERVIEW"
-                                       (if (str? overview)
-                                         [overview]
-                                         overview)])
-                                section-2+)
-                section-4+    (if (> (count env)
-                                     0)
-                                (conj section-3+
-                                      ["ENVIRONMENT (simplified)"
-                                       (reduce (fn [line+ [k _v]]
-                                                 (if-let [desc (get-in meta
-                                                                       [k
-                                                                        :doc
-                                                                        :description])]
-                                                   (conj line+
-                                                         k
-                                                         (str "  "
-                                                              (if (str? desc)
-                                                                desc
-                                                                (first desc))))
-                                                   (conj line+
-                                                         k)))
-                                               []
-                                               env)])
-                                section-3+)]
-             (str-line+ section-4+))
-           (str "Account "
-                addr-of-sym
-                " does not exist."))))
-
-
-      ([addr sym]
-
-       (-doc (str (address addr)
-                           "/"
-                           sym)
-             (lookup-meta addr
-                          sym)))))
-
-
-
-(defn help
-
-  ^{:doc {:description ["Prepares a special request for outputting useful information about an account or a symbol defined in any account."
-                        "Note: if present, the environment description is simplified one. More information about each symbol can be queried."]
-          :examples    [{:code "(env/str sreq)"}
-                        {:code "(env/str sreq 'out)"}]
-          :signature   [{:params [addr-or-sym]}
-                        {:params [addr sym]}]
-          :type        :function}}
+  ([]
+  )
 
 
   ([addr-or-sym]
 
-   ($.stream/out! (str-about addr-or-sym)))
-
-
-  ([addr sym]
-
-   ($.stream/out! (str-about addr
-                             sym))))
+   (if (and (list? addr-or-sym)
+            (= (count addr-or-sym)
+               3)
+            (= (first addr-of-sym)
+               'lookup))
+     `($.help/symbol ~(nth addr-or-sym
+                           1)
+                     (quote ~(nth addr-or-sym
+                                  2)))
+     `(let [x ~addr-or-sym]
+        (if (address? x)
+          ($.help/address x)
+          ($.help/symbol (quote ~addr-or-sym)))))))
 
 
 ;;;;;;;;;;
