@@ -60,13 +60,16 @@
 
   []
 
-  (let [path (or (first *command-line-args*)
-                 (throw (ex-info "Path to directly-linked uberjar required"
-                                 {})))]
+  (let [^String path (or (first *command-line-args*)
+                         (throw (ex-info "Path to directly-linked uberjar required"
+                                         {})))]
     (apply bb.task/shell
            "native-image"
            "-jar"
-           path
+           (str "build/uberjar/"
+                (.substring path
+                            1)
+                ".jar")
            "--initialize-at-build-time"
            "--no-fallback"
            "--no-server"

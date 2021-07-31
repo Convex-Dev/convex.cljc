@@ -19,6 +19,16 @@
                  :name "Convex Lisp Runner Help and Miscelleneous Utilities"}))
 
 
+(def $.stream
+
+  ^{:doc      {:description ""}
+    :private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.run.stream)))
+
+
+
 (def self
 
   ^{:doc {:description ""}}
@@ -246,29 +256,26 @@
 
 
 
-  (defn about
+(defn help
 
-    ^{:doc {:description ["Prepares a special request for outputting useful information about an account or a symbol defined in any account."
-                          "Note: if present, the environment description is simplified one. More information about each symbol can be queried."]
-            :examples    [{:code "(env/str sreq)"}
-                          {:code "(env/str sreq 'out)"}]
-            :signature   [{:params [addr-or-sym]}
-                          {:params [addr sym]}]
-            :type        :function}}
-
-
-    ([addr-or-sym]
-
-     (sreq/out! (str-about addr-or-sym)))
+  ^{:doc {:description ["Prepares a special request for outputting useful information about an account or a symbol defined in any account."
+                        "Note: if present, the environment description is simplified one. More information about each symbol can be queried."]
+          :examples    [{:code "(env/str sreq)"}
+                        {:code "(env/str sreq 'out)"}]
+          :signature   [{:params [addr-or-sym]}
+                        {:params [addr sym]}]
+          :type        :function}}
 
 
-    ([addr sym]
+  ([addr-or-sym]
 
-     (sreq/out! (str-about addr
-                           sym))))
-
+   ($.stream/out! (str-about addr-or-sym)))
 
 
+  ([addr sym]
+
+   ($.stream/out! (str-about addr
+                             sym))))
 
 
 

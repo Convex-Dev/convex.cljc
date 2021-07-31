@@ -145,7 +145,6 @@
 
   ([env string]
 
-   (println :string string)
    (let [env-2  (init env)
          [ex
           trx+] (try

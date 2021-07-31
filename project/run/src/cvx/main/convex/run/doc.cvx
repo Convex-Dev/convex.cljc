@@ -1,0 +1,154 @@
+
+
+(call *registry*
+      (cns-update 'convex.run.doc
+                  *address*))
+
+
+(call *registry*
+      (register {:doc  {:description ""}
+                 :name ""}))
+
+
+;;;;;;;;;;
+
+
+(def $
+
+  ^{:doc      {:description ""}
+    :private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.run)))
+
+
+
+(def $.term
+
+  ^{:doc      {:description ""}
+    :private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.run.term)))
+
+
+;;;;;;;;;;
+
+
+(defn block
+
+  ^{:doc {:description ""}}
+
+  
+  ([item]
+
+   [:block item])
+
+
+  ([ctx [_tag item]]
+
+   (tag (if (ctx :first?)
+          (assoc ctx
+                 :first?
+                 false)
+          (assoc ctx
+                 :acc
+                 (conj (ctx :acc)
+                       (ctx :newline))))
+        item)))
+
+
+
+(defn bold
+
+  ^{:doc {:description ""}}
+
+
+  ([item]
+
+   [:bold item])
+
+
+  ([ctx [_tag item]]
+
+   (let [style (ctx :style)
+         ansi  (ctx :bold)
+         ctx-2 (assoc ctx
+                      :acc   (conj (ctx :acc)
+                                   ansi)
+                      :style (conj style
+                                   ansi))
+         ctx-3 (tag ctx-2
+                    item)]
+     (assoc ctx-3
+            :acc   (conj (ctx-3 :acc)
+                         $.term/reset
+                         (apply str
+                                (ctx :style)))
+            :style style))))
+
+
+;;;;;;;;;;
+
+
+(def tag+
+
+  ^{:doc {:description ""}}
+
+  {:block block
+   :bold  bold})
+
+
+
+(defn tag
+
+  ^{:doc {:description ""}}
+
+  [ctx item]
+
+  (if (str? item)
+    (assoc ctx
+           :acc
+           (conj (ctx :acc)
+                 item))
+    (if-let [f (get-in ctx
+                       [:tag+
+                        (first item)])]
+      (f ctx
+         item)
+      (assoc ctx
+             :acc
+             (conj (ctx :acc)
+                   (second item))))))
+
+
+
+
+(defn render
+
+  ^{:doc {:description ""}}
+
+  
+  ([item+]
+
+   (render nil
+           item+))
+
+
+  ([option+ item+]
+
+   (apply str
+          (:acc (reduce (fn [ctx item]
+                          (assert (not (str? item)))
+                          (tag ctx
+                               item))
+                        {:acc     []
+                         :bold    (or (:bold option+)
+                                      $.term/bold)
+                         :first?  true
+                         :newline (or (:newline option+)
+                                      $/line)
+                         :style   []
+                         :tag+    (or (:tag+ option+)
+                                      tag+)}
+                        item+)))))

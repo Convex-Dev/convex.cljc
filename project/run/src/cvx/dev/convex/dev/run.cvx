@@ -316,28 +316,49 @@
 
 
 
-(defn import
+; (defn import
+; 
+;   ^{:doc {:description ""}}
+; 
+;   [& dep+]
+; 
+;   (reduce (fn [_acc [filename trx]]
+;             ($.trx/precat `(($.file/read ~filename)
+;                             ~trx))
+;             nil)
+;           nil
+;           dep+))
+; 
+; 
+; 
+; (import ["/tmp/foo.cvx"
+;          '(def foo2
+;                (eval (cons 'do
+;                            $/*result*)))])
 
-  ^{:doc {:description ""}}
-
-  [& dep+]
-
-  (reduce (fn [_acc [filename trx]]
-            ($.trx/precat `(($.file/read ~filename)
-                            ~trx))
-            nil)
-          nil
-          dep+))
 
 
-
-(import ["/tmp/foo.cvx"
-         '(def foo2
-               (eval (cons 'do
-                           $/*result*)))])
-
-
-
-($.stream/out! [:got foo2])
+;($.stream/out! [:got foo2])
 
 ;($.repl/start)
+
+
+
+
+(defn l []
+
+  ($.trx/precat '(
+                  ($.repl/stop)
+                  ($.stream/out $.term/clear.screen)
+                  ($.stream/flush)
+                  ($.file/read "project/run/src/cvx/main/convex/run.cvx")
+                  (def $$
+                       (deploy (cons 'do (next (next $/*result*)))))
+                  ($.file/read "project/run/src/cvx/main/convex/run/doc.cvx")
+                  (def $.doc
+                       (deploy (cons 'do (next (next $/*result*)))))
+                  ($.repl/start)
+                  )))
+
+
+(l)
