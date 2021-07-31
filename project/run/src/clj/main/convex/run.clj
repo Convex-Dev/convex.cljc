@@ -72,8 +72,7 @@
   {:author "Adam Helinski"}
 
   (:gen-class)
-  (:refer-clojure :exclude [eval
-                            load])
+  (:refer-clojure :exclude [eval])
   (:require [clojure.string]
             [convex.cvm         :as $.cvm]
             [convex.io          :as $.io]
@@ -146,6 +145,7 @@
 
   ([env string]
 
+   (println :string string)
    (let [env-2  (init env)
          [ex
           trx+] (try
@@ -173,12 +173,10 @@
   [& arg+]
 
   (try
-    (if (seq arg+)
-      (eval (clojure.string/join " "
-                                 arg+))
-      (do
-        (println "Convex Lisp Runner")
-        (eval"($.repl/start)")))
+    (eval (if (seq arg+)
+            (clojure.string/join " "
+                                 arg+)
+            "($.repl/start {:intro? true})"))
     (catch Throwable _ex
       (println "An unknown exception happened.")
       (flush)

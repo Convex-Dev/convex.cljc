@@ -21,6 +21,15 @@
 
 
 
+(def $.stream
+
+  ^{:doc {:description ""}}
+
+  (call *registry*
+        (cns-resolve 'convex.run.stream)))
+
+
+
 (def $.term
 
   ^{:doc {:description ""}}
@@ -62,7 +71,7 @@
   ^{:doc {:description ""}}
 
   (str $.term/bold
-       $.term/fg.green
+       $.term/fg.blue
        "> "
        $.term/reset))
 
@@ -140,10 +149,27 @@
      (when-not *active?*
        (def *active?*
             true)
-       (-next option+
-              result))
+       ($.trx/precat `(~(when (:intro? option+)
+                          ($.stream/out! (str $.term/fg.blue
+                                              $.term/bold
+                                              "Convex Lisp Runner (REPL mode)"
+                                              $.term/reset
+                                              $/line
+                                              $/line
+                                              "Enter transactions and build a new world."
+                                              $/line
+                                              $/line
+                                              "To learn more: "
+                                              $.term/bold
+                                              "($/help)"
+                                              $.term/reset
+                                              $/line)))
+                       (call $.repl
+                             (-next ~option+
+                                    ~result)))))
      (call self
-           (start result)))))
+           (start option+
+                  result)))))
 
 
 (export start)
