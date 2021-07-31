@@ -190,60 +190,66 @@
 
   ^{:doc {:description ""}}
 
-  [addr]
 
-  (-out! (if-let [account (core/account addr)]
-           (let [meta-reg (call *registry*
-                                (lookup addr))
-                 acc      []
-                 acc      (key-value acc
-                                     "Name:"
-                                     (or (:name meta-reg)
-                                         "Not provided."))
-                 acc      (description acc
-                                       (:description meta-reg))
-                 acc      (key-value acc
-                                     "Allowance:"
-                                     (:allowance account))
-                 acc      (key-value acc
-                                     "Balance:"
-                                     (:balance account))
-                 acc      (key-value acc
-                                     "Controller:"
-                                     (or (:controller account)
-                                         "None"))
-                 acc      (key-value acc
-                                     "Key:"
-                                     (or (:key account)
-                                         "None"))
-                 meta     (:metadata account)
-                 env      (reduce (fn [acc sym]
-                                    (if-let [meta-sym (get meta
-                                                           sym)]
-                                      (if (:private? meta-sym)
-                                        acc
-                                        (-env-line acc
-                                                   sym
-                                                   (get-in meta-sym
-                                                           [:doc
-                                                            :description])))
-                                      (-env-line acc
-                                                 sym
-                                                 nil)))
-                                  []
-                                  (keys (:environment account)))
-                 acc      (if (empty? env)
-                            acc
-                            (section acc
-                                     "Overview:"
-                                     env))
-                 ]
-             acc)
-           [($.term/down-begin 1)
-            $.term/bold
-            $.term/fg.red
-            "Account not found."
-            $.term/reset])))
+  ([]
+
+   (account *address*))
+
+
+  ([addr]
+
+   (-out! (if-let [account (core/account addr)]
+            (let [meta-reg (call *registry*
+                                 (lookup addr))
+                  acc      []
+                  acc      (key-value acc
+                                      "Name:"
+                                      (or (:name meta-reg)
+                                          "Not provided."))
+                  acc      (description acc
+                                        (:description meta-reg))
+                  acc      (key-value acc
+                                      "Allowance:"
+                                      (:allowance account))
+                  acc      (key-value acc
+                                      "Balance:"
+                                      (:balance account))
+                  acc      (key-value acc
+                                      "Controller:"
+                                      (or (:controller account)
+                                          "None"))
+                  acc      (key-value acc
+                                      "Key:"
+                                      (or (:key account)
+                                          "None"))
+                  meta     (:metadata account)
+                  env      (reduce (fn [acc sym]
+                                     (if-let [meta-sym (get meta
+                                                            sym)]
+                                       (if (:private? meta-sym)
+                                         acc
+                                         (-env-line acc
+                                                    sym
+                                                    (get-in meta-sym
+                                                            [:doc
+                                                             :description])))
+                                       (-env-line acc
+                                                  sym
+                                                  nil)))
+                                   []
+                                   (keys (:environment account)))
+                  acc      (if (empty? env)
+                             acc
+                             (section acc
+                                      "Overview:"
+                                      env))
+                  ]
+              acc)
+            [($.term/down-begin 1)
+             $.term/bold
+             $.term/fg.red
+             "Account not found."
+             $.term/reset]))))
 
 
 
@@ -255,52 +261,75 @@
 
   [meta]
 
-  (let [doc   (:doc meta)
-        desc  (:description doc)
-        acc   (description []
-                           (:description doc))
-        sign+ (:signature doc)
-        acc   (if sign+
-               (section acc
-                        "Signature(s):"
-                        (if (-vector? sign+)
-                          (map :params
-                               sign+)
-                          (str sign+)))
-               acc)
-        ex+   (:examples doc)
-        acc   (if ex+
-                (section acc
-                         "Example(s):"
-                         (if (-vector? sign+)
-                           (map (fn [ex]
-                                  (let [code   (:code ex)
-                                        return (:returns ex)]
-                                    (if (nil? return)
-                                      code
-                                      (str code
-                                           ($.term/right 1)
-                                           -accent
-                                           "->"
-                                           $.term/reset
-                                           ($.term/right 1)
-                                           return))))
-                                ex+)
-                           (str ex+)))
-                acc)
-        err+  (:errors doc)
-        acc   (if err+
-                (section acc
-                         "Error(s):"
-                         (if (and (map? err+)
-                                  (not (empty? err+)))
-                           (map (fn [[code txt]]
-                                  (str code
-                                       -accent
-                                       " <- "
-                                       $.term/reset
-                                       txt))
-                                err+)
-                           [(str err+)]))
-                acc)]
-    (-out! acc)))
+  (-out! (if meta
+           (let [doc   (:doc meta)
+                 desc  (:description doc)
+                 acc   (description []
+                                    (:description doc))
+                 sign+ (:signature doc)
+                 acc   (if sign+
+                        (section acc
+                                 "Signature(s):"
+                                 (if (-vector? sign+)
+                                   (map :params
+                                        sign+)
+                                   (str sign+)))
+                        acc)
+                 ex+   (:examples doc)
+                 acc   (if ex+
+                         (section acc
+                                  "Example(s):"
+                                  (if (-vector? sign+)
+                                    (map (fn [ex]
+                                           (let [code   (:code ex)
+                                                 return (:returns ex)]
+                                             (if (nil? return)
+                                               code
+                                               (str code
+                                                    ($.term/right 1)
+                                                    -accent
+                                                    "->"
+                                                    $.term/reset
+                                                    ($.term/right 1)
+                                                    return))))
+                                         ex+)
+                                    (str ex+)))
+                         acc)
+                 err+  (:errors doc)
+                 acc   (if err+
+                         (section acc
+                                  "Error(s):"
+                                  (if (and (map? err+)
+                                           (not (empty? err+)))
+                                    (map (fn [[code txt]]
+                                           (str code
+                                                -accent
+                                                " <- "
+                                                $.term/reset
+                                                txt))
+                                         err+)
+                                    [(str err+)]))
+                         acc)]
+             acc)
+          [$/line
+           $.term/bold
+           $.term/fg.red
+           "Symbol is not defined."
+           $.term/reset])))
+
+
+
+(defn symbol
+
+  ^{:doc {:description ""}}
+
+
+  ([sym]
+
+   (meta (lookup-meta sym)))
+
+
+  ([addr sym]
+
+   (meta (lookup-meta addr
+                      sym))))

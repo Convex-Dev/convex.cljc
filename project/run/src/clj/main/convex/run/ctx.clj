@@ -61,6 +61,8 @@
                                     "convex/run/term.cvx"]
                                    [$.run.sym/$-doc
                                     "convex/run/doc.cvx"]
+                                   [$.run.sym/$-help
+                                    "convex/run/help.cvx"]
                                    [$.run.sym/$-trx
                                     "convex/run/trx.cvx"]
                                    [$.run.sym/$
@@ -75,8 +77,6 @@
                                     "convex/run/repl.cvx"]
                                    [$.run.sym/$-time
                                     "convex/run/time.cvx"]
-                                   [$.run.sym/$-help
-                                    "convex/run/help.cvx"]
                                    [$.run.sym/$-test
                                     "convex/run/test.cvx"]
                                    ])]
