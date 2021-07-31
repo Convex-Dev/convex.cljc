@@ -11,6 +11,7 @@
            (java.io InputStreamReader)
            (java.nio.charset StandardCharsets))
   (:require [clojure.java.io]
+            [clojure.string]
             [convex.cell      :as $.cell]
             [convex.cvm       :as $.cvm]
             [convex.read      :as $.read]
@@ -73,26 +74,13 @@
                                     "convex/run/time.cvx"]
                                    [$.run.sym/$-test
                                     "convex/run/test.cvx"]
-                                   ])
-      addr-$              (sym->addr $.run.sym/$)]
-
-  (def base
-
-    "Base context used when initiating a run.
-    
-     Prepares the `env` and `sreq` accounts."
-
-    (-> ctx
-        ($.cvm/def sym->addr)
-        ($.cvm/def addr-$
-                   {$.run.sym/line ($.cell/string (System/lineSeparator))})))
-
+                                   ])]
 
   (def addr-$
 
     "Address of the `env` account fetched from [[base]]."
 
-    addr-$)
+    (sym->addr $.run.sym/$))
   
 
 
@@ -124,7 +112,25 @@
 
     ""
 
-    (sym->addr $.run.sym/$-trx)))
+    (sym->addr $.run.sym/$-trx))
+
+
+
+  (def base
+
+    "Base context used when initiating a run.
+    
+     Prepares the `env` and `sreq` accounts."
+
+    (-> ctx
+        ($.cvm/def sym->addr)
+        ($.cvm/def addr-$
+                   {$.run.sym/line    ($.cell/string (System/lineSeparator))
+                    $.run.sym/version (-> "convex/run/version.txt"
+                                          clojure.java.io/resource
+                                          slurp
+                                          clojure.string/trim-newline
+                                          $.cell/string)}))))
 
 
 ;;;;;;;;;; Defining symbols in the environment's context

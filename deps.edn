@@ -286,7 +286,8 @@
   :project/run
 
   {:extra-paths        ["project/run/src/clj/main"
-                        "project/run/src/cvx/main"]
+                        "project/run/src/cvx/main"
+                        "project/run/src/misc"]
    :maestro/doc        "Convex Lisp Runner"
    :maestro/main-class convex.run
    :maestro/require    [:project/cvm

@@ -26,14 +26,21 @@
   *address*)
 
 
-;;;;;;;;;; STATIC VALUES
+;;;;;;;;;; Static values set by the runner
 
 
 (def line
 
   ^{:doc {:description ""}}
 
-  ;; Set by runner at startup.
+
+  nil)
+
+
+
+(def version
+
+  ^{:doc {:description ""}}
 
   nil)
 

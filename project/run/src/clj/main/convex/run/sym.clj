@@ -99,3 +99,8 @@
 
 (def ^Symbol stack
              ($.cell/symbol "*stack*"))
+
+
+
+(def ^Symbol version
+             ($.cell/symbol "version"))
