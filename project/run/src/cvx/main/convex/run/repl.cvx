@@ -121,10 +121,40 @@
 
                                     '($.trx/precat `(~($.stream/out! (str $/line
                                                                           $.term/bold
-                                                                          $.term/fg.red
-                                                                          $/*result*
+                                                                          $.term/fg.blue
+                                                                          "Exception code:"
                                                                           $.term/reset
-                                                                          $/line))
+                                                                          $/line
+                                                                          "  "
+                                                                          $.term/bold
+                                                                          (:code $/*result*)
+                                                                          $/line
+                                                                          $.term/bold
+                                                                          $.term/fg.blue
+                                                                          "Message:"
+                                                                          $.term/reset
+                                                                          $/line
+                                                                          "  "
+                                                                          (:message $/*result*)
+                                                                          $/line
+                                                                          $.term/bold
+                                                                          $.term/fg.blue
+                                                                          "Trace:"
+                                                                          $.term/reset
+                                                                          (let [trace (:trace $/*result*)]
+                                                                            (if (empty? trace)
+                                                                              (str $/line
+                                                                                   "  None.")
+                                                                              (apply str
+                                                                                     (reduce (fn [acc entry]
+                                                                                               (conj acc
+                                                                                                     $/line
+                                                                                                     "  "
+                                                                                                     entry))
+                                                                                             []
+                                                                                             trace))))
+                                                                          $/line
+                                                                          ))
                                                      (call $.repl                                       
                                                            (-next (quote ~$/*result*))))))
                       (call $.repl
