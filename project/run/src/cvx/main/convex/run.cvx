@@ -127,33 +127,6 @@
 ;;;;;;;;;;
 
 
-(defn log
-
-  ^{:doc {:description ["Retrieves the current CVM log."
-                        "Result is temporarily stored in `env/*result* and is accessible during the next transaction."]
-          :examples    [{:code "(sreq/do '[(log :foo) (sreq/log l) (sreq/out l))"}]
-          :signature   [{:params []}]
-          :type        :function}}
-
-  []
-
-  [:cvm.sreq :log.get])
-
-
-
-(defn log.clear
-
-  ^{:doc {:description ""
-          :examples    [{:code "(sreq/do '[(log :foo) (sreq/log l) (sreq/out l))"}]
-          :signature   [{:params []}]
-          :type        :function}}
-
-  []
-
-  [:cvm.sreq :log.clear])
-
-
-
 (defn monitor
 
   ^{:doc {:description ""}}

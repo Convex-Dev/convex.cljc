@@ -37,6 +37,10 @@
 
 
 
+(def ^Symbol $-log
+             ($.cell/symbol "$.log"))
+
+
 (def ^Symbol $-process
              ($.cell/symbol "$.process"))
 
