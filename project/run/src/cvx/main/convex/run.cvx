@@ -108,3 +108,13 @@
   [trx]
 
   [:cvm.sreq :monitor trx])
+
+
+
+(defn benchmark
+
+  ^{:doc {:description ""}}
+
+  [trx]
+
+  [:cvm.sreq :perf.benchmark trx])

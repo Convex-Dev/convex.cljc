@@ -8,7 +8,8 @@
   {:author "Adam Helinski"}
 
   (:import (convex.core.data AVector)
-           (convex.core.data.prim CVMLong))
+           (convex.core.data.prim CVMLong)
+           (convex.core.lang Context))
   (:require [convex.cell       :as $.cell]
             [convex.cvm        :as $.cvm]
             [convex.read       :as $.read]
@@ -16,7 +17,8 @@
             [convex.run.err    :as $.run.err]
             [convex.run.exec   :as $.run.exec]
             [convex.run.kw     :as $.run.kw]
-            [convex.run.stream :as $.run.stream]))
+            [convex.run.stream :as $.run.stream]
+            [criterium.core    :as criterium]))
 
 
 (set! *warn-on-reflection*
@@ -122,6 +124,27 @@
                       ($.run.err/sreq ($.cell/code-std* :ARGUMENT)
                                       ($.cell/string "Unable to read source")
                                       tuple)))))
+
+
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/perf-benchmark
+
+  [env ^AVector tuple]
+
+  (let [ctx   ($.cvm/fork (env :convex.run/ctx))
+        cell  (.get tuple
+                    2)
+        stat+ (criterium/benchmark* (fn []
+                                      (.query ^Context ctx
+                                              cell))
+                                    {})]
+    ($.run.ctx/def-result env
+                          ($.cell/map {($.cell/keyword "mean")   ($.cell/double (first (stat+ :mean)))
+                                       ($.cell/keyword "stddev") ($.cell/double (Math/sqrt ^double (first (stat+ :variance))))}))))
+
 
 
 ;;;;;;;;;; File

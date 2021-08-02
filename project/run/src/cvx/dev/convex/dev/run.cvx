@@ -392,6 +392,6 @@
 ;(l)
 
 
-($.code/decompile (fn [x] (inc x)))
 
-($.stream/out! [:f $/*result*])
+($/benchmark '(+ 2 2))
+($.stream/out! [:got $/*result*])
