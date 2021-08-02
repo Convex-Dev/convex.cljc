@@ -17,6 +17,11 @@
 
 
 
+(def ^Symbol $-account
+             ($.cell/symbol "$.account"))
+
+
+
 (def ^Symbol $-catch
              ($.cell/symbol "$.catch"))
 
