@@ -1,7 +1,7 @@
 
 
 (call *registry*
-      (cns-update 'convex.run.log
+      (cns-update 'convex.run.account
                   *address*))
 
 

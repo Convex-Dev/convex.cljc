@@ -56,6 +56,9 @@
                                   {:ctx       ($.cvm/ctx)
                                    :sym->addr {}}
                                   [;; No deps.
+                                   [$.run.sym/$-account
+                                    "convex/run/account.cvx"]
+                                   ;; No deps.
                                    [$.run.sym/$
                                     "convex/run.cvx"]
                                    ;; No deps.
@@ -88,18 +91,18 @@
                                    ;; Requires `$.trx`.
                                    [$.run.sym/$-file
                                     "convex/run/file.cvx"]
-                                   ;; Requires `$` + `$.stream` + + `$.term` + `$.trx`
+                                   ;; Requires `$` + `$.stream` + `$.term` + `$.trx`
                                    [$.run.sym/$-help
                                     "convex/run/help.cvx"]
                                    ;; Requires `$` + `$.stream` + `$.term` + `$.trx`.
                                    [$.run.sym/$-repl
                                     "convex/run/repl.cvx"]
-                                   ;; Requires `$` + `$.catch` + `$.process` + `$.time` + `$.trx`
-                                   [$.run.sym/$-test
-                                    "convex/run/test.cvx"]
                                    ;; Requires `$.trx`.
                                    [$.run.sym/$-time
                                     "convex/run/time.cvx"]
+                                   ;; Requires `$` + `$.catch` + `$.process` + `$.term` + `$.time` + `$.trx`
+                                   [$.run.sym/$-test
+                                    "convex/run/test.cvx"]
                                    ])]
 
   (def addr-$

@@ -7,7 +7,7 @@
 ;;
 
 
-;; REGISTERING THE LIBRARY
+;;;;;;;;;; Registering the library
 
 
 (call *registry*
@@ -16,15 +16,15 @@
 
 (call *registry*
       (register {:doc  {:description "Unit testing library for the Convex Lisp Runner."}
-                 :name "Convex Liser Runner Unit Testing"}))
+                 :name "Convex Liser Runner Unit Testing Library"}))
 
 
-;; IMPORTING OTHER LIBRARIES
+;;;;;;;;;; Importing other libraries
 
 
 (def $
 
-  ^{:doc {:description ""}}
+  ^{:private? true}
 
   (call *registry*
         (cns-resolve 'convex.run)))
@@ -33,7 +33,7 @@
 
 (def $.catch
 
-  ^{:doc {:description ""}}
+  ^{:private? true}
 
   (call *registry*
         (cns-resolve 'convex.run.catch)))
@@ -42,16 +42,34 @@
 
 (def $.process
 
-  ^{:doc {:description ""}}
+  ^{:private? true}
 
   (call *registry*
         (cns-resolve 'convex.run.process)))
 
 
 
+(def $.stream
+
+  ^{:private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.run.stream)))
+
+
+
+(def $.term
+
+  ^{:private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.run.term)))
+
+
+
 (def $.time
 
-  ^{:doc {:description ""}}
+  ^{:private? true}
 
   (call *registry*
         (cns-resolve 'convex.run.time)))
@@ -60,24 +78,24 @@
 
 (def $.trx
 
-  ^{:doc      {:description ""}
-    :private? true}
+  ^{:private? true}
 
   (call *registry*
         (cns-resolve 'convex.run.trx)))
 
 
-;; STATIC VALUES
+;;;;;;;;;; Static private values
 
 
-(def self
+(def -self
 
-  ^{:doc {:description "Reference to this library's address."}}
+  ^{:doc      {:description "Reference to this library's address."}
+    :private? true}
 
   *address*)
 
 
-;; ALTERING TEST REPORTS
+;;;;;;;;;; Altering tests reports
 
 
 (def *n-fail*
@@ -90,7 +108,7 @@
 (def *report+*
 
   ^{:doc {:description ["Vector of currently collected test reports."
-                        "Also see `conj-report`"]}}
+                        "Also see `report.conj`"]}}
 
   [])
 
@@ -99,19 +117,18 @@
 (defn report.clear
 
   ^{:doc {:description ["Erases all test reports."
-                        "Used internally by `state.push`."
                         "See `*report+*`."]}}
 
   []
 
   (if (= *address*
-         self)
+         -self)
     (do
       (def *n-fail*
            0)
       (def *report+*
            []))
-    (call self
+    (call -self
           (report.clear)))
   nil)
 
@@ -122,14 +139,14 @@
 
 (defn report.conj
 
-  ^{:doc {:description ["Low-level function for adding a new report to the `state` symbol."
+  ^{:doc {:description ["Low-level function for adding a new report to `*report+*`."
                         "A report summarizes a test assertion."
                         "If strictly required, study the `fail` and `trx` symbols which rely on this function."]}}
 
   [report]
 
   (if (= *address*
-         self)
+         -self)
      (do
        (when-not (:pass? report)
          (def *n-fail*
@@ -141,7 +158,7 @@
                          (assoc (:metadata report)
                                 :path
                                 *path*)))))
-    (call self
+    (call -self
           (report.conj report))))
 
 
@@ -158,7 +175,7 @@
   [n-fail report+]
 
   (if (= *address*
-         self)
+         -self)
     (do
       (def *n-fail*
            (+ *n-fail*
@@ -166,7 +183,7 @@
       (def *report+*
            (concat *report+*
                    report+)))
-    (call self
+    (call -self
           (report.merge n-fail
                         report+))))
 
@@ -174,7 +191,7 @@
 (export report.merge)
 
 
-;; FILTERING TESTS
+;;;;;;;;;; Filtering tests
 
 
 (def *filter*
@@ -208,13 +225,13 @@
   [f]
 
   (if (= *address*
-        self)
+        -self)
     (do
       (assert (or (fn? f)
                   (nil? f)))
       (def *filter*
            f))
-    (call self
+    (call -self
           (filter.set f))))
 
 
@@ -249,31 +266,32 @@
 (defn meta.set
 
   ^{:doc {:description ["Sets `*meta*`."
-                        "Function must takes metadata and returns new metadata."]}}
+                        "Function must takes metadata and returns new metadata."
+                        "Providing nil removes current function."]}}
 
   [f]
 
   (if (= *address*
-         self)
+         -self)
     (do
       (assert (or (fn? f)
                   (nil? f)))
       (def *meta*
            f))
-    (call self
+    (call -self
           (meta.set f))))
 
 
 (export meta.set)
 
 
-;; PATH
+;;;;;;;;;; Test path, abstraction helping in locating a test
 
 
 (def *path*
 
-  ^{:doc {:description ["Vector of arbitrary values that helps locating a particular result."
-                        "Current value is attach to test report under `:path` in `:metadata`."
+  ^{:doc {:description ["Vector of arbitrary values that helps locating a reported test."
+                        "Current value is attached to test report under `:path` in `:metadata`."
                         "Item is added using `path.conj`."]}}
 
   [])
@@ -287,24 +305,26 @@
   [item]
 
   (if (= *address*
-         self)
+         -self)
     (def *path*
          (conj *path*
                item))
-    (call self
+    (call -self
           (path.conj item))))
 
 
 (export path.conj)
 
 
-;; CVM STATE ISOLATION
+;;;;;;;;;; Time traval and global state management
 
 
 (defn group
 
-  ^{:doc {:description ["Encloses given quoted transactions between `state.push` and `state.pop`."
-                        "Optional `trx-pop` is an additional transaction executed on pop."]}}
+  ^{:doc {:description ["Encloses given quoted transactions using `$.time` utililities."
+                        "Before executing firt transaction, CVM state is saved."
+                        "After final transaction, saved state is restored while rememberring new tests results."
+                        "Optional `trx-pop` is an additional transaction executed when state is restored."]}}
 
 
   ([trx+]
@@ -324,9 +344,10 @@
 
 (defn state.pop
 
-  ^{:doc {:description ["Like `(sreq/state.pop)` but ensures tests results are remembered."
-                        "See function `state.push`."
-                        "An additional quoted `trx` can be passed to transfer other user data."]}}
+  ^{:doc      {:description ["Like `($.time/pop)` but ensures tests results are remembered."
+                             "See function `state.push`."
+                             "An additional quoted `trx` can be passed to transfer other user data."]}
+    :private? true}
 
 
   ([]
@@ -336,25 +357,26 @@
 
   ([trx]
 
-   ($.time/pop `($.trx/precat '((~self/report.merge ~self/*n-fail*
-                                                    (quote ~self/*report+*))
+   ($.time/pop `($.trx/precat '((~-self/report.merge ~-self/*n-fail*
+                                                     (quote ~-self/*report+*))
                                 ~trx)))))
 
 
 
 (defn state.push
 
-  ^{:doc {:description ["Like `(sreq/state.push)` but clears the test state from this actor."
-                        "Later, CVM state can be restored with function `state.pop`."
-                        "Provides isolation, side-effects can be discarded in a controlled fashion."]}}
+  ^{:doc      {:description ["Like `($.time/push)` but clears the test state from this actor."
+                             "Later, CVM state can be restored with function `state.pop`."
+                             "Provides isolation, side-effects can be discarded in a controlled fashion."]}
+    :private? true}
 
   []
 
   ($.trx/precat `((~$.time/push)
-                  (~self/report.clear))))
+                  (~-self/report.clear))))
 
 
-;; TESTING TRANSACTIONS
+;;;;;;;;;; Testing transactions
 
 
 (defn fail
@@ -363,7 +385,7 @@
                         "If no exception is throw, test fails."
                         "If an exception is thrown, it is passed to the `expected-fail?` function."
                         "Returning true means the exception was as expected, meaning test passes."
-                        "Most of the time, the `fail-code` function will be used rather than this one."
+                        "Most of the time, the higher-level `fail.code` function will be used rather than this one."
                         "See the `trx` symbol from this library for metadata and how exection is done."]}}
 
 
@@ -383,24 +405,25 @@
                           :trx      (list 'quote
                                           trx)}]
          ($.catch/safe `(let [result ~trx]
-                          (~self/report.conj (assoc ~base-report
-                                                    :result result
-                                                    :passe? false)))
-                       `(~self/report.conj (assoc ~base-report
-                                                  :exception $/*result*
-                                                  :pass?     (~expected-fail? $/*result*)))))))))
+                          (~-self/report.conj (assoc ~base-report
+                                                     :result result
+                                                     :passe? false)))
+                       `(~-self/report.conj (assoc ~base-report
+                                                   :exception (lookup ~$
+                                                                      *result*)
+                                                   :pass?     (~expected-fail? $/*result*)))))))))
 
 
 
-(defn fail-code
+(defn fail.code
 
   ^{:doc {:description ["Like the `fail` function but `expected-code?` receives the exception's code."
                         "A convenient solution is to use a set of expected codes."]
-          :examples    [{:code "(fail-code #{:ASSERT} '(assert (< 42 3)))"}]}}
+          :examples    [{:code "(fail.code #{:ASSERT} '(assert (< 42 3)))"}]}}
 
   ([code-target trx]
 
-   (fail-code code-target
+   (fail.code code-target
               trx
               nil))
 
@@ -419,7 +442,7 @@
 
   ^{:doc {:description ["Tests that the given transaction (a quoted form) return exactly true."
                         "Any other value means the transaction failed."
-                        "Result is reported using `conj-report`."
+                        "Result is reported using `conj.report`."
                         "Metadata is an arbitrary map associated under `:metadata` in the report for providing extra information."
                         "It is advised to provide at least `:description`, a human-readable string explaining the test."]
           :examples    [{:code "(trx '(< 2 3) {:description \"Two should be lesser than three.\"})"}]}}
@@ -427,8 +450,8 @@
 
   ([trx]
 
-   (self/trx trx
-             nil))
+   (-self/trx trx
+              nil))
 
 
   ([trx metadata]
@@ -440,16 +463,17 @@
                           :trx      (list 'quote
                                           trx)}]
          ($.catch/safe `(let [result ~trx]
-                          (~self/report.conj (assoc ~base-report
-                                                    :result result
-                                                    :pass?  (= result
+                          (~-self/report.conj (assoc ~base-report
+                                                     :result result
+                                                     :pass?  (= result
                                                                true))))
-                       `(~self/report.conj (assoc ~base-report
-                                                  :exception $/*result*
-                                                  :pass?     false))))))))
+                       `(~-self/report.conj (assoc ~base-report
+                                                   :exception (lookup ~$
+                                                                      *result*)
+                                                   :pass?     false))))))))
 
 
-;; TRACING
+;;;;;;;;;; Tracing
 
 
 (defmacro is
@@ -473,7 +497,7 @@
       form)))
 
 
-;; REPORTING
+;;;;;;;;;; Reporting
 
 
 (defn exit
@@ -491,7 +515,119 @@
 
 
 
-(defn print-failed
+(defn -print.fail
+
+  ^{:doc      {:description ""}
+    :private? true}
+
+  [n-fail report+]
+
+  (let [acc (reduce (fn [acc report]
+                      (if (:pass? report)
+                        acc
+                        (let [metadata (report :metadata)
+                              ex       (dissoc (report :exception)
+                                               :trx)
+                              res      (report :result)
+                              res?     (contains-key? report
+                                                      :result)
+                              [text
+                               data]   (if (= (report :expect)
+                                              :result)
+                                         (if res?
+                                           ["Returned:"
+                                            res]
+                                           ["Threw:"
+                                            ex])
+                                         (if res?
+                                           ["Instead of exception:"
+                                            res]
+                                           ["Not predicted exception:"
+                                            ex]))]
+                          (conj acc
+                                "---"
+                                $/line
+                                $/line
+                                $.term/bold
+                                (report :trx)
+                                $.term/reset
+                                $/line
+                                $/line
+                                $.term/bold
+                                $.term/fg.blue
+                                text
+                                $.term/reset
+                                $/line
+                                "  "
+                                data
+                                $/line
+                                $.term/bold
+                                $.term/fg.blue
+                                "Path:"
+                                $.term/reset
+                                $/line
+                                "  "
+                                (:path metadata)
+                                $/line
+                                $.term/bold
+                                $.term/fg.blue
+                                "Description:"
+                                $.term/reset
+                                $/line
+                                "  "
+                                (or (:description metadata)
+                                    "Not provided.")
+                                $.term/bold
+                                $.term/fg.blue
+                                $/line
+                                "Other metadata: "
+                                $.term/reset
+                                $/line
+                                "  "
+                                (dissoc metadata
+                                        :description
+                                        :path)
+                                $/line
+                                $/line
+                                ))))
+                      []
+                      report+)]
+    (conj acc
+          "==="
+          $/line
+          $/line
+          $.term/bold
+          $.term/fg.red
+          "Number of failed tests: "
+          $.term/reset
+          n-fail
+          " / "
+          (count report+))))
+
+
+
+(defn -print.success
+
+  ^{:doc      {:description ""}
+    :private? true}
+
+  [report+]
+
+  (let [acc ["==="
+             $/line
+             $/line
+             $.term/bold]]
+    (if (empty? report+)
+      (conj acc
+            $.term/fg.red
+            "No test reports.")
+      (conj acc
+            $.term/fg.green
+            "All tests pass."))))
+
+
+
+(defn print
 
   ^{:doc {:description ["Returns an 'out' special requestion which outputs failed tests in human-readable format."
                         "Prints each failed transaction, why, and its `:description` from `:metadata`."]}}
@@ -499,69 +635,15 @@
 
   ([]
 
-   (print-failed *n-fail*
-                 *report+*))
+   (print *n-fail*
+          *report+*))
 
 
   ([n-fail report+]
 
-   (sreq/out! (apply str
-                     "Number of failed tests: "
-                     n-fail
-                     " / "
-                     (count report+)
-                     (when (> n-fail
-                            0)
-                      (reduce (fn [acc report]
-                                 (if (:pass? report)
-                                   acc
-                                  (let [metadata (report :metadata)
-                                        ex       (dissoc (report :exception)
-                                                         :trx)
-                                        res      (report :result)
-                                        res?     (contains-key? report
-                                                                :result)
-                                        [text
-                                         data]   (if (= (report :expect)
-                                                        :result)
-                                                   (if res?
-                                                     ["Returned: "
-                                                      res]
-                                                     ["Threw: "
-                                                      ex])
-                                                   (if res?
-                                                     ["Instead of exception: "
-                                                      res]
-                                                     ["Not predicted exception: "
-                                                      ex]))]
-                                    (conj acc
-                                          "---"
-                                          $/line
-                                          $/line
-                                          (report :trx)
-                                          $/line
-                                          $/line
-                                          "  "
-                                          text
-                                          data
-                                          $/line
-                                          $/line
-                                          "  Path: "
-                                          (:path metadata)
-                                          $/line
-                                          $/line
-                                          "  "
-                                          (or (:description metadata)
-                                              "No description provided.")
-                                          $/line
-                                          $/line
-                                          "  Other metadata: "
-                                          (dissoc metadata
-                                                  :description
-                                                  :path)
-                                          $/line
-                                          $/line
-                                          ))))
-                              [$/line
-                               $/line]
-                              report+))))))
+   ($.stream/out! (apply str
+                         (conj (if (zero? n-fail)
+                                 (-print.success report+)
+                                 (-print.fail n-fail
+                                              report+))
+                               $.term/reset)))))
