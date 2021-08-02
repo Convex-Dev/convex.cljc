@@ -60,7 +60,8 @@
 
 (def $.trx
 
-  ^{:doc {:description ""}}
+  ^{:doc      {:description ""}
+    :private? true}
 
   (call *registry*
         (cns-resolve 'convex.run.trx)))

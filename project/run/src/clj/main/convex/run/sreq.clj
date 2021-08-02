@@ -18,6 +18,7 @@
             [convex.run.exec   :as $.run.exec]
             [convex.run.kw     :as $.run.kw]
             [convex.run.stream :as $.run.stream]
+            [convex.run.sym    :as $.run.sym]
             [criterium.core    :as criterium]))
 
 
@@ -338,13 +339,8 @@
       (-> env
           (assoc :convex.run/state-stack (pop stack)
                  :convex.run/ctx         ctx-restore)
-          (as->
-            env-2
-            (if-some [trx (.get tuple
-                                2)]
-              ($.run.exec/trx env-2
-                              trx)
-              env-2)))
+          ($.run.ctx/def-trx+ ($.cell/list [(.get tuple
+                                                  2)])))
       ($.run.err/fail env
                       ($.run.err/sreq ($.cell/code-std* :STATE)
                                       ($.cell/string "No state to pop")
@@ -364,5 +360,7 @@
           :convex.run/state-stack
           (fnil conj
                 '())
-          ($.cvm/fork (env :convex.run/ctx))))
-
+          (-> (env :convex.run/ctx)
+              $.cvm/fork
+              ($.cvm/def $.run.ctx/addr-$-trx
+                         {$.run.sym/list nil}))))

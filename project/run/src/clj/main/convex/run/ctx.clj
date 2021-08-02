@@ -7,7 +7,8 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.data AList)
+  (:import (convex.core.data ACell
+                             AList)
            (java.io InputStreamReader)
            (java.nio.charset StandardCharsets))
   (:require [clojure.java.io]
@@ -73,9 +74,6 @@
                                    [$.run.sym/$-term
                                     "convex/run/term.cvx"]
                                    ;; No deps.
-                                   [$.run.sym/$-time
-                                    "convex/run/time.cvx"]
-                                   ;; No deps.
                                    [$.run.sym/$-trx
                                     "convex/run/trx.cvx"]
                                    ;; Requires `$` + `$.stream` + `$.trx`.
@@ -99,6 +97,9 @@
                                    ;; Requires `$` + `$.catch` + `$.process` + `$.time` + `$.trx`
                                    [$.run.sym/$-test
                                     "convex/run/test.cvx"]
+                                   ;; Requires `$.trx`.
+                                   [$.run.sym/$-time
+                                    "convex/run/time.cvx"]
                                    ])]
 
   (def addr-$
@@ -271,7 +272,6 @@
 
   ""
 
-
   [env ^AList trx+]
 
   (if (seq trx+)
@@ -279,3 +279,15 @@
               (.concat trx+
                        (current-trx+ env)))
     env))
+
+
+
+(defn prepend-trx
+
+  ""
+
+  [env ^ACell trx]
+
+  (def-trx+ env
+            (.cons (current-trx+ env)
+                   trx)))

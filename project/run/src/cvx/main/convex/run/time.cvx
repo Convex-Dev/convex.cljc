@@ -10,7 +10,19 @@
                  :name ""}))
 
 
+;;;;;;;;;;
 
+
+(def $.trx
+
+  ^{:doc      {:description ""}
+    :private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.run.trx)))
+
+
+;;;;;;;;;;
 
 
 (defn advance
@@ -40,12 +52,13 @@
 
   ([]
 
-   (state.pop nil))
+   (pop nil))
 
 
   ([trx]
 
-   [:cvm.sreq :time.pop trx]))
+   [:cvm.sreq :time.pop `($.trx/set (quote ~(cons trx
+                                                  $.trx/*list*)))]))
 
 
 

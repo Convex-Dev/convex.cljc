@@ -309,6 +309,5 @@
 
     [env]
 
-    ($.run.ctx/def-trx+ env
-                        (.cons ($.run.ctx/current-trx+ env)
-                               trx-pop))))
+    ($.run.ctx/prepend-trx env
+                           trx-pop)))
