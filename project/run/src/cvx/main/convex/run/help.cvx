@@ -177,10 +177,16 @@
                                     i))
                          (inc i))
                   (apply str
-                         (if (< limit
-                                n-char)
+                         (if (or (< limit
+                                    n-char)
+                                 (and (vector? desc)
+                                      (> (count desc)
+                                         1)))
                            (conj char+
-                                 "...")
+                                 (if (= (last char+)
+                                        \.)
+                                   ".."
+                                   "..."))
                            char+))))))))
                                     
 
