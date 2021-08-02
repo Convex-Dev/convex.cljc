@@ -69,7 +69,7 @@
                                   ($.cell/string "Unsupported special transaction")
                                   tuple)))
 
-;;;;;;;;;; Implementations
+;;;;;;;;;; Miscellaneous
 
 
 (defmethod $.run.exec/sreq
@@ -86,19 +86,6 @@
                   ($.run.err/sreq ($.cell/code-std* :FATAL)
                                   ($.cell/string "CVM special command 'sreq/dep' can only be used as the very first transaction")
                                   tuple)))
-
-
-
-(defmethod $.run.exec/sreq
-  
-  $.run.kw/log
-
-  ;; Interns as result the current CVM log.
-
-  [env _tuple]
-
-  ($.run.ctx/def-result env
-                        ($.cvm/log (env :convex.run/ctx))))
 
 
 
@@ -161,6 +148,35 @@
   ($.run.stream/file-out env
                          (str (.get tuple
                                     2))))
+
+
+;;;;;;;;;; Logging
+
+
+(defmethod $.run.exec/sreq
+  
+  $.run.kw/log-clear
+
+  [env _tuple]
+
+  (update env
+          :convex.run/ctx
+          (fn [ctx]
+            ($.cvm/ctx {:convex.cvm/address ($.cvm/address ctx)
+                        :convex.cvm/state   ($.cvm/state ctx)}))))
+
+
+
+(defmethod $.run.exec/sreq
+  
+  $.run.kw/log-get
+
+  ;; Interns as result the current CVM log.
+
+  [env _tuple]
+
+  ($.run.ctx/def-result env
+                        ($.cvm/log (env :convex.run/ctx))))
 
 
 ;;;;;;;;;; Process

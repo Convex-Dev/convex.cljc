@@ -158,7 +158,6 @@
 
   ([option+ item+]
 
-   (log [:render item+])
    (apply str
           (:acc (reduce (fn [ctx item]
                           (assert (not (str? item)))

@@ -99,8 +99,13 @@
 
 
 
-(def ^Keyword log
-              ($.cell/keyword "log"))
+(def ^Keyword log-clear
+              ($.cell/keyword "log.clear"))
+
+
+
+(def ^Keyword log-get
+              ($.cell/keyword "log.get"))
 
 
 

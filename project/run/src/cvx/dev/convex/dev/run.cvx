@@ -340,7 +340,6 @@
 
 ;($.stream/out! [:got foo2])
 
-;($.repl/start)
 
 
 
@@ -390,4 +389,14 @@
 
 
 
-(l)
+;(l)
+
+
+(log :foo)
+
+($/log.clear)
+($/log)
+
+($.stream/out! $/*result*)
+
+($/help $/log.clear)

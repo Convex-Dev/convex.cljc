@@ -112,7 +112,7 @@
    (if (and (list? addr-or-sym)
             (= (count addr-or-sym)
                3)
-            (= (first addr-of-sym)
+            (= (first addr-or-sym)
                'lookup))
      `($.help/symbol ~(nth addr-or-sym
                            1)
@@ -137,7 +137,20 @@
 
   []
 
-  [:cvm.sreq :log])
+  [:cvm.sreq :log.get])
+
+
+
+(defn log.clear
+
+  ^{:doc {:description ""
+          :examples    [{:code "(sreq/do '[(log :foo) (sreq/log l) (sreq/out l))"}]
+          :signature   [{:params []}]
+          :type        :function}}
+
+  []
+
+  [:cvm.sreq :log.clear])
 
 
 
