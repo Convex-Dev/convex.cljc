@@ -1,0 +1,46 @@
+
+
+;;;;;;;;;; Importing libraries
+
+
+(def T
+
+  ^{:private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.run.test)))
+
+
+;;;;;;;;;; Tests
+
+
+(defn suite.main
+
+  ^{:doc {:description "Main test suite."}}
+
+  []
+
+  (T/group '[(T/path.conj 'convex.run)
+
+             (T/trx '(str? $/line)
+                    {:description "Platform dependent newline is set by the runner."})
+
+             (T/trx '(str? $/version)
+                    {:description "Version is set by the runner."})
+
+             (+ 2
+                42)
+
+             (def res
+                  $/*result*)
+
+             (T/trx '(= 44
+                        res)
+                    {:description "Result symbol is updated."})]))
+
+
+;;;
+
+
+(suite.main)
+(T/print "convex.run")

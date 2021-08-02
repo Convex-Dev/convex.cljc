@@ -633,17 +633,22 @@
                         "Prints each failed transaction, why, and its `:description` from `:metadata`."]}}
 
 
-  ([]
+  ([name]
 
-   (print *n-fail*
+   (print name *n-fail*
           *report+*))
 
 
-  ([n-fail report+]
+  ([name n-fail report+]
 
    ($.stream/out! (apply str
                          (conj (if (zero? n-fail)
                                  (-print.success report+)
                                  (-print.fail n-fail
                                               report+))
-                               $.term/reset)))))
+                               $.term/reset
+                               $/line
+                               $/line
+                               "Tested '"
+                               name
+                               "'.")))))

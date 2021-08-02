@@ -12,11 +12,8 @@
 
 
 (call *registry*
-      (register {:doc  {:description ["Help library for the Convex Lisp Runner."
-                                      "Provides a series of special values named `*xxx*` which hold commonly useful information, such as juice consumption."
-                                      "Also provides the `about` function for printing a description of any account or any symbol defined in any account."
-                                      "For more information, evalute `(env/about env 'about)`."]}
-                 :name "Convex Lisp Runner Help and Miscelleneous Utilities"}))
+      (register {:doc  {:description "Notably provides the `*result*` dynamic value and the `help` function."}
+                 :name "Convex Lisp Runner miscellaneous utilities"}))
 
 
 ;;;;;;;;;; Static values set by the runner
@@ -24,8 +21,7 @@
 
 (def line
 
-  ^{:doc {:description ""}}
-
+  ^{:doc {:description "String representing platform dependent newline."}}
 
   nil)
 
@@ -33,7 +29,7 @@
 
 (def version
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "String representing the version of the runner."}}
 
   nil)
 
@@ -43,7 +39,7 @@
 
 (def *result*
 
-  ^{:doc {:description "Result of the previous transaction."}}
+  ^{:doc {:description "Dynamic value, result of the previous transaction."}}
 
   nil)
 
@@ -53,7 +49,13 @@
 
 (defmacro help
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description ["Arity 0 print a generic help message."
+                        "Arity 1 prints information for an account or a symbol."]
+          :examples    [{:code "($/help)"}
+                        {:code "($/help *address*)"}
+                        {:code "($/help $/help)"}]
+          :signature   [{:params []}
+                        {:params [addr-or-sym]}]}}
 
 
   ([]
