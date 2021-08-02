@@ -279,7 +279,7 @@
                                  (if (-vector? sign+)
                                    (map :params
                                         sign+)
-                                   (str sign+)))
+                                   [(str sign+)]))
                         acc)
                  ex+   (:examples doc)
                  acc   (if ex+
@@ -299,7 +299,7 @@
                                                     ($.term/right 1)
                                                     return))))
                                          ex+)
-                                    (str ex+)))
+                                    [(str ex+)]))
                          acc)
                  err+  (:errors doc)
                  acc   (if err+

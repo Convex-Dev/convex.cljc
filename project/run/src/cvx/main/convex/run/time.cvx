@@ -46,7 +46,8 @@
                         "Quoted transaction, if given, is executed in the context of the restored state, allowing to pass values from one to the other."]
           :examples    [{:code "($.time/pop)"}
                         {:code "($.time/pop `(def bar ~foo))"}]
-          :signatures  [{:params []}]}}
+          :signature   [{:params []}
+                        {:params [trx]}]}}
 
 
   ([]
@@ -63,7 +64,7 @@
 
 (defn push
 
-  ^{:doc {:description ["Returns a request which Pushes the current state of the CVM onto a stack."
+  ^{:doc {:description ["Returns a request which pushes the current state of the CVM onto a stack."
                         "This state can later be restored using `pop`."]
           :examples    [{:code "($.time/push)"}]
           :signature   [{:params []}]}}
