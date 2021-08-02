@@ -53,7 +53,7 @@
   *address*)
 
 
-;;;;;;;;;; DYNAMIC VALUES
+;;;;;;;;;; Dynamic values
 
 
 (def *active?*
@@ -63,7 +63,18 @@
   false)
 
 
-;;;;;;;;;; BASIC REPL
+;;;;;;;;;; Private values
+
+
+(def -prompt
+
+  ^{:doc      {:description ""}
+    :private? true}
+
+  nil)
+
+
+;;;;;;;;;; Basic REPL
 
 
 (def prompt
@@ -82,14 +93,11 @@
   ^{:doc      {:description ""}
     :private? true}
 
-  [option+ result]
+  [result]
 
-  ($.trx/precat `(($.catch/safe '($.trx/precat '(($.stream/out ~(or (:prompt option+)
-                                                                    prompt))
-                                                 ($.stream/flush)
-                                                 ($.stream/line+)))
-
-                                '(list $/*result*))
+  ($.trx/precat `(($.stream/out ~-prompt)
+                  ($.stream/flush)
+                  ($.stream/line+)
                   (let [form+       $/*result*
                         n-form      (count form+)
                         result-real (quote ~result)]
@@ -98,26 +106,29 @@
                       ($.catch/safe `($.trx/precat (quote ~(concat `((quote ~result-real))
                                                                    form+
                                                                    '((def $.repl.result
-                                                                          $/*result*)))))
+                                                                          $/*result*)
+                                                                     (when $.repl/*active?*
+                                                                       ($.trx/precat '(($.stream/out $/line)
+                                                                                       ($.stream/out! (if (str? $.repl.result)
+                                                                                                        (str \" $.repl.result \")
+                                                                                                        $.repl.result))
+                                                                                       ($.stream/out $/line)
+                                                                                       ($.stream/flush)
+                                                                                       (let [result $.repl.result]
+                                                                                         (undef $.repl.result)
+                                                                                         (call $.repl
+                                                                                               (-next result))))))))))
 
-                                    '(def $.repl.result
-                                          $/*result*)
-
-                                    '(when $.repl/*active?*
-                                       ($.trx/precat '(($.stream/out $/line)
-                                                       ($.stream/out! (if (str? $.repl.result)
-                                                                        (str \" $.repl.result \")
-                                                                        $.repl.result))
-                                                       ($.stream/out $/line)
-                                                       ($.stream/flush)
-                                                       (let [result $.repl.result]
-                                                         (undef $.repl.result)
-                                                         (call $.repl
-                                                               (-next ~option+
-                                                                      result)))))))
+                                    '($.trx/precat `(~($.stream/out! (str $/line
+                                                                          $.term/bold
+                                                                          $.term/fg.red
+                                                                          $/*result*
+                                                                          $.term/reset
+                                                                          $/line))
+                                                     (call $.repl                                       
+                                                           (-next (quote ~$/*result*))))))
                       (call $.repl
-                            (-next ~option+
-                                   nil)))))))
+                            (-next (quote ~result))))))))
 
 
 (export -next)
@@ -149,6 +160,9 @@
      (when-not *active?*
        (def *active?*
             true)
+       (def -prompt
+            (or (:prompt option+)
+                prompt))
        ($.trx/precat `(~(when (:intro? option+)
                           ($.stream/out! (str $.term/fg.blue
                                               $.term/bold
@@ -165,8 +179,7 @@
                                               $.term/reset
                                               $/line)))
                        (call $.repl
-                             (-next ~option+
-                                    ~result)))))
+                             (-next ~result)))))
      (call self
            (start option+
                   result)))))
@@ -184,8 +197,12 @@
 
   (if (= *address*
          self)
-    (def *active?*
-         false)
+    (do
+      (def *active?*
+           false)
+      (def -prompt
+           nil)
+      nil)
     (call self
           (stop)))
   nil)
