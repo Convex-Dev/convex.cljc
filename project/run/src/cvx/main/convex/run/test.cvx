@@ -22,8 +22,6 @@
 ;; IMPORTING OTHER LIBRARIES
 
 
-(def foo 400)
-
 (def $
 
   ^{:doc {:description ""}}
@@ -39,15 +37,6 @@
 
   (call *registry*
         (cns-resolve 'convex.run.catch)))
-
-
-
-(def $.main
-
-  ^{:doc {:description ""}}
-
-  (call *registry*
-        (cns-resolve 'convex.run.main)))
 
 
 

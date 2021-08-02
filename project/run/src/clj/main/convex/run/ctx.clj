@@ -54,37 +54,51 @@
                                                        ::path path}))))
                                   {:ctx       ($.cvm/ctx)
                                    :sym->addr {}}
-                                  [
-                                   [$.run.sym/$-stream
-                                    "convex/run/stream.cvx"]
-                                   [$.run.sym/$-term
-                                    "convex/run/term.cvx"]
-                                   [$.run.sym/$-doc
-                                    "convex/run/doc.cvx"]
-                                   [$.run.sym/$-help
-                                    "convex/run/help.cvx"]
-                                   [$.run.sym/$-trx
-                                    "convex/run/trx.cvx"]
-                                   [$.run.sym/$-code
-                                    "convex/run/code.cvx"]
+                                  [;; No deps.
                                    [$.run.sym/$
                                     "convex/run.cvx"]
-                                   [$.run.sym/$-catch
-                                    "convex/run/catch.cvx"]
-                                   [$.run.sym/$-file
-                                    "convex/run/file.cvx"]
-                                   [$.run.sym/$-process
-                                    "convex/run/process.cvx"]
-                                   [$.run.sym/$-repl
-                                    "convex/run/repl.cvx"]
-                                   [$.run.sym/$-time
-                                    "convex/run/time.cvx"]
-                                   [$.run.sym/$-test
-                                    "convex/run/test.cvx"]
+                                   ;; No deps.
                                    [$.run.sym/$-log
                                     "convex/run/log.cvx"]
+                                   ;; No deps.
                                    [$.run.sym/$-perf
                                     "convex/run/perf.cvx"]
+                                   ;; No deps.
+                                   [$.run.sym/$-process
+                                    "convex/run/process.cvx"]
+                                   ;; No deps.
+                                   [$.run.sym/$-stream
+                                    "convex/run/stream.cvx"]
+                                   ;; No deps.
+                                   [$.run.sym/$-term
+                                    "convex/run/term.cvx"]
+                                   ;; No deps.
+                                   [$.run.sym/$-time
+                                    "convex/run/time.cvx"]
+                                   ;; No deps.
+                                   [$.run.sym/$-trx
+                                    "convex/run/trx.cvx"]
+                                   ;; Requires `$` + `$.stream` + `$.trx`.
+                                   [$.run.sym/$-catch
+                                    "convex/run/catch.cvx"]
+                                   ;; Requires `$.trx`.
+                                   [$.run.sym/$-code
+                                    "convex/run/code.cvx"]
+                                   ;; Requires `$` + `$.term`.
+                                   [$.run.sym/$-doc
+                                    "convex/run/doc.cvx"]
+                                   ;; Requires `$.trx`.
+                                   [$.run.sym/$-file
+                                    "convex/run/file.cvx"]
+                                   ;; Requires `$` + `$.stream` + + `$.term` + `$.trx`
+                                   [$.run.sym/$-help
+                                    "convex/run/help.cvx"]
+                                   ;; Requires `$` + `$.stream` + `$.term` + `$.trx`.
+                                   [$.run.sym/$-repl
+                                    "convex/run/repl.cvx"]
+                                   ;; Requires `$` + `$.catch` + `$.process` + `$.time` + `$.trx`
+                                   [$.run.sym/$-test
+                                    "convex/run/test.cvx"]
                                    ])]
 
   (def addr-$

@@ -71,24 +71,7 @@
                                   ($.cell/string "Unsupported special transaction")
                                   tuple)))
 
-;;;;;;;;;; Miscellaneous
-
-
-(defmethod $.run.exec/sreq
-
-  $.run.kw/dep
-
-  ;; Specifying dependency receives special treatment at the beginning of source.
-  ;;
-  ;; It is illegal everywhere else.
-
-  [env ^AVector tuple]
-
-  ($.run.err/fail env
-                  ($.run.err/sreq ($.cell/code-std* :FATAL)
-                                  ($.cell/string "CVM special command 'sreq/dep' can only be used as the very first transaction")
-                                  tuple)))
-
+;;;;;;;;;; Code
 
 
 (defmethod $.run.exec/sreq

@@ -1,5 +1,16 @@
 
 
+(call *registry*
+      (cns-update 'convex.run.process
+                  *address*))
+
+
+(call *registry*
+      (register {:doc  {:description ""}
+                 :name ""}))
+
+
+
 (defn env
 
   ^{:doc {:description ["Retrieves environment variable from the current process. Useful when some information must be passed to the runner from the outside."

@@ -83,7 +83,7 @@
 
 
 (def ^Symbol $-test
-             ($.cell/symbol "$-test"))
+             ($.cell/symbol "$.test"))
 
 
 

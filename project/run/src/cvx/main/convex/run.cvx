@@ -19,26 +19,6 @@
                  :name "Convex Lisp Runner Help and Miscelleneous Utilities"}))
 
 
-;;;;;;;;;;
-
-
-(def $.stream
-
-  ^{:doc      {:description ""}
-    :private? true}
-
-  (call *registry*
-        (cns-resolve 'convex.run.stream)))
-
-
-
-(def self
-
-  ^{:doc {:description ""}}
-
-  *address*)
-
-
 ;;;;;;;;;; Static values set by the runner
 
 
