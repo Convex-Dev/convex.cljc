@@ -290,7 +290,8 @@
                         "project/run/src/misc"]
    :maestro/doc        "Convex Lisp Runner"
    :maestro/main-class convex.run
-   :maestro/require    [:project/cvm
+   :maestro/require    [:ext/criterium
+                        :project/cvm
                         :project/io]
    :maestro/root       "project/run"}
 

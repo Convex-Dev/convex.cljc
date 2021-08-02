@@ -65,6 +65,8 @@
                                     "convex/run/help.cvx"]
                                    [$.run.sym/$-trx
                                     "convex/run/trx.cvx"]
+                                   [$.run.sym/$-code
+                                    "convex/run/code.cvx"]
                                    [$.run.sym/$
                                     "convex/run.cvx"]
                                    [$.run.sym/$-catch

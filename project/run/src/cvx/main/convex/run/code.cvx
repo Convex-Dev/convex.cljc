@@ -1,0 +1,51 @@
+
+
+(call *registry*
+      (cns-update 'convex.run.code
+                  *address*))
+
+
+(call *registry*
+      (register {:doc  {:description ""}
+                 :name ""}))
+
+
+;;;;;;;;;;
+
+
+(def $.trx
+
+  ^{:doc      {:description ""}
+    :private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.run.trx)))
+
+
+;;;;;;;;;;
+
+
+(defn decompile
+
+  ^{:doc {:description ""}}
+
+  [cell]
+
+  ($.trx/precat `((~read+ ~(str cell))
+                  (first $/*result*))))
+
+
+
+(defn read+
+
+  ^{:doc {:description ["Passes the given string through the CVX reader and produces a list of cells."
+                        "Those cells can be compiled, evaluated, ..."
+                        "Result is temporarily stored in `env/*result* and is accessible during the next transaction."]
+          :examples    [{:code "(sreq/read+ \"(+ 2 2)\")"}]
+          :signature   [{:params [string]}]
+          :type        :function}}
+
+  [src]
+
+  (assert (str? src))
+  [:cvm.sreq :read+ src])

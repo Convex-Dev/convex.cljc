@@ -98,7 +98,7 @@
           ($.help/symbol (quote ~addr-or-sym)))))))
 
 
-;;;;;;;;;;
+;;;;;;;;;; Miscellaneous
 
 
 (defn monitor
@@ -108,19 +108,3 @@
   [trx]
 
   [:cvm.sreq :monitor trx])
-
-
-
-(defn read+
-
-  ^{:doc {:description ["Passes the given string through the CVX reader and produces a list of cells."
-                        "Those cells can be compiled, evaluated, ..."
-                        "Result is temporarily stored in `env/*result* and is accessible during the next transaction."]
-          :examples    [{:code "(sreq/read+ \"(+ 2 2)\")"}]
-          :signature   [{:params [string]}]
-          :type        :function}}
-
-  [src]
-
-  (assert (str? src))
-  [:cvm.sreq :read+ src])

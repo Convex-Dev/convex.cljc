@@ -27,6 +27,11 @@
 
 
 
+(def ^Symbol $-code
+             ($.cell/symbol "$.code"))
+
+
+
 (def ^Symbol $-doc
              ($.cell/symbol "$.doc"))
 
@@ -44,6 +49,7 @@
 
 (def ^Symbol $-log
              ($.cell/symbol "$.log"))
+
 
 
 (def ^Symbol $-process

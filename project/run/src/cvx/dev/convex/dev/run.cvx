@@ -392,12 +392,6 @@
 ;(l)
 
 
-(log :foo)
+($.code/decompile (fn [x] (inc x)))
 
-($.log/get)
-($.stream/out! $/*result*)
-($.log/clear)
-($.log/get)
-($.stream/out! $/*result*)
-
-;($/help $/log.clear)
+($.stream/out! [:f $/*result*])
