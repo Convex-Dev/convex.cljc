@@ -109,18 +109,18 @@
 
 
 
-(def ^Keyword monitor
-              ($.cell/keyword "monitor"))
-
-
-
 (def ^Keyword path
               ($.cell/keyword "path"))
 
 
 
-(def ^Keyword perf-benchmark
-              ($.cell/keyword "perf.benchmark"))
+(def ^Keyword perf-bench
+              ($.cell/keyword "perf.bench"))
+
+
+
+(def ^Keyword perf-track
+              ($.cell/keyword "perf-track"))
 
 
 

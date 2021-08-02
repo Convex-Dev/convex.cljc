@@ -243,7 +243,7 @@
 
 
 
-(defn trx-monitor
+(defn trx-track
 
   "Like [[trx]] but result is a map containing `:result` as well as juice values for each steps ([[expand]],
    [[compile]], and [[exec]])."

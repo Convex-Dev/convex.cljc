@@ -83,6 +83,8 @@
                                     "convex/run/test.cvx"]
                                    [$.run.sym/$-log
                                     "convex/run/log.cvx"]
+                                   [$.run.sym/$-perf
+                                    "convex/run/perf.cvx"]
                                    ])]
 
   (def addr-$

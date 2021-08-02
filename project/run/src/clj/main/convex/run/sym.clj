@@ -52,6 +52,11 @@
 
 
 
+(def ^Symbol $-perf
+             ($.cell/symbol "$.perf"))
+
+
+
 (def ^Symbol $-process
              ($.cell/symbol "$.process"))
 

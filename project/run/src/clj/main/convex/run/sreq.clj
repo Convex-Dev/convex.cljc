@@ -93,18 +93,6 @@
 
 (defmethod $.run.exec/sreq
 
-  $.run.kw/monitor
-
-  [env ^AVector tuple]
-
-  ($.run.exec/trx-monitor env
-                          (.get tuple
-                                2)))
-
-
-
-(defmethod $.run.exec/sreq
-
   $.run.kw/read+
 
   ;; Reads the given string and parses to a list of forms.
@@ -124,27 +112,6 @@
                       ($.run.err/sreq ($.cell/code-std* :ARGUMENT)
                                       ($.cell/string "Unable to read source")
                                       tuple)))))
-
-
-
-
-(defmethod $.run.exec/sreq
-
-  $.run.kw/perf-benchmark
-
-  [env ^AVector tuple]
-
-  (let [ctx   ($.cvm/fork (env :convex.run/ctx))
-        cell  (.get tuple
-                    2)
-        stat+ (criterium/benchmark* (fn []
-                                      (.query ^Context ctx
-                                              cell))
-                                    {})]
-    ($.run.ctx/def-result env
-                          ($.cell/map {($.cell/keyword "mean")   ($.cell/double (first (stat+ :mean)))
-                                       ($.cell/keyword "stddev") ($.cell/double (Math/sqrt ^double (first (stat+ :variance))))}))))
-
 
 
 ;;;;;;;;;; File
@@ -200,6 +167,39 @@
 
   ($.run.ctx/def-result env
                         ($.cvm/log (env :convex.run/ctx))))
+
+
+;;;;;;;;;; Performance
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/perf-bench
+
+  [env ^AVector tuple]
+
+  (let [ctx   ($.cvm/fork (env :convex.run/ctx))
+        cell  (.get tuple
+                    2)
+        stat+ (criterium/benchmark* (fn []
+                                      (.query ^Context ctx
+                                              cell))
+                                    {})]
+    ($.run.ctx/def-result env
+                          ($.cell/map {($.cell/keyword "mean")   ($.cell/double (first (stat+ :mean)))
+                                       ($.cell/keyword "stddev") ($.cell/double (Math/sqrt ^double (first (stat+ :variance))))}))))
+
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/perf-track
+
+  [env ^AVector tuple]
+
+  ($.run.exec/trx-track env
+                        (.get tuple
+                              2)))
 
 
 ;;;;;;;;;; Process

@@ -392,6 +392,4 @@
 ;(l)
 
 
-
-($/benchmark '(+ 2 2))
-($.stream/out! [:got $/*result*])
+($.repl/start)

@@ -1,0 +1,32 @@
+
+
+(call *registry*
+      (cns-update 'convex.run.perf
+                  *address*))
+
+
+(call *registry*
+      (register {:doc  {:description ""}
+                 :name ""}))
+
+
+;;;;;;;;;; Miscellaneous
+
+
+(defn bench
+
+  ^{:doc {:description ""}}
+
+  [trx]
+
+  [:cvm.sreq :perf.bench trx])
+
+
+
+(defn track
+
+  ^{:doc {:description ""}}
+
+  [trx]
+
+  [:cvm.sreq :perf.track trx])

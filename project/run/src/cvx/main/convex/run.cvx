@@ -96,25 +96,3 @@
         (if (address? x)
           ($.help/address x)
           ($.help/symbol (quote ~addr-or-sym)))))))
-
-
-;;;;;;;;;; Miscellaneous
-
-
-(defn monitor
-
-  ^{:doc {:description ""}}
-
-  [trx]
-
-  [:cvm.sreq :monitor trx])
-
-
-
-(defn benchmark
-
-  ^{:doc {:description ""}}
-
-  [trx]
-
-  [:cvm.sreq :perf.benchmark trx])
