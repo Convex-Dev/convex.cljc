@@ -12,7 +12,7 @@
 
 
 (call *registry*
-      (register {:doc  {:description "Notably provides the `*result*` dynamic value and the `help` function."}
+      (register {:description "Notably provides the `*result*` dynamic value and the `help` function."
                  :name "Convex Lisp Runner miscellaneous utilities"}))
 
 

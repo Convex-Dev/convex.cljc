@@ -1,0 +1,128 @@
+;;
+;;
+;; Testing `convex.run.time`.
+;;
+;;
+
+
+;;;;;;;;;; Importing libraries
+
+
+(def $.time
+
+  ^{:private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.run.time)))
+
+
+
+(def T
+
+  ^{:private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.run.test)))
+
+
+;;;;;;;;;; Tests
+
+
+(defn suite.advance
+
+  ^{:doc {:description "Advancing time."}}
+
+  []
+
+  (T/group '[(T/path.conj 'advance)
+
+             (def interval
+                  100)
+
+             (def start
+                  *timestamp*)
+
+             (def end
+                  (+ start
+                     interval))
+
+             (schedule (+ start
+                          interval)
+                       (def foo
+                            42))
+
+             ($.time/advance (dec interval))
+
+             (T/trx '(not (defined? foo))
+                    {:description "Scheduled transaction not yet executed."})
+
+             (T/trx '(= (- end
+                           1)
+                        *timestamp*)
+                    {:description "Clock advanced precisely as expected."})
+
+             ($.time/advance 1)
+
+             (T/trx '(= foo
+                        42)
+                    {:description "Scheduled transaction executed."})
+
+             (T/trx '(= end
+                        *timestamp*)
+                    {:description "Timestamp precisely where expected."})]))
+
+
+
+(defn suite.state
+
+  ^{:doc {:description "Pushing and popping state."}}
+
+  []
+
+  (T/group '[(T/path.conj 'push-pop)
+
+             
+             ($.time/push)
+
+             (def foo
+                  42)
+
+             ($.time/pop)
+
+             (T/trx '(not (defined? foo))
+                    {:description "State popped forgetting everything."})
+
+             ($.time/push)
+
+             (def foo
+                  24)
+
+             ($.time/pop `(def bar
+                               ~foo))
+
+             (T/trx '(= 24
+                        bar)
+                    {:description "State popped while remembering something."})]))
+             
+
+;;;
+
+
+(defn suite.main
+
+  ^{:doc {:description "Main test suite."}}
+
+  []
+
+  (T/group '[(T/path.conj 'convex.run.time)
+    
+             (suite.advance)
+
+             (suite.state)]))
+
+
+;;;
+
+
+(suite.main)
+(T/print "convex.run.time")

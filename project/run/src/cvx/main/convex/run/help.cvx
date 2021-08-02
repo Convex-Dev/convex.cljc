@@ -364,6 +364,11 @@
                      "This environment is well-suited for development, testing, and some off-chain computation."
                      $/line
                      $/line
+                     "Some functions or macros returns a \"request\": a vector specifying some special action to perform before the next transation."
+                     $/line
+                     "Since the CVM itself is purely deterministic, such requests allow to perform extra effects like reading STDIN, writing to files, advancing time, etc."
+                     $/line
+                     $/line
                      "To learn more about getting help for accounts and symbols, run: "
                      $.term/bold
                      "($/help $/help)"
