@@ -94,7 +94,7 @@
                      form+))))
 
 
-;;;;;;;;;; PRINTING
+;;;;;;;;;; Getting help
 
 
 (defmacro help
@@ -103,7 +103,8 @@
 
 
   ([]
-  )
+
+   '($.help/main))
 
 
   ([addr-or-sym]

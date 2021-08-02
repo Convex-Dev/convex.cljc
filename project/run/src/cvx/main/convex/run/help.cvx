@@ -333,3 +333,67 @@
 
    (meta (lookup-meta addr
                       sym))))
+
+
+
+(defn main
+
+  ^{:doc {:description ""}}
+
+  []
+
+  (let [account (fn [account text]
+                  (str $/line
+                       $.term/bold
+                       $.term/fg.blue
+                       "  "
+                       account
+                       $.term/reset
+                       ": "
+                       text))
+        text    (str $/line
+                     "The Convex Lisp Runner executes each form as a separate transaction. Each transaction is local, there is no connection to any peer."
+                     $/line
+                     $/line
+                     "This environment is well-suited for development, testing, and some off-chain computation."
+                     $/line
+                     $/line
+                     "To learn more about getting help for accounts and symbols, run: "
+                     $.term/bold
+                     "($/help $/help)"
+                     $.term/reset
+                     $/line
+                     $/line
+                     "Libraries of interest:"
+                     $/line
+                     (account "$"
+                              "miscellaneous utilities such as juice monitoring")
+                     (account "$.catch"
+                              "error handling, catching exceptions")
+                     (account "$.doc"
+                              (str "prototype of a simple document rendering library based on "
+                                   $.term/bold
+                                   "$.term"
+                                   $.term/reset))
+                     (account "$.file"
+                              (str "reading/writing files, open file streams for "
+                                   $.term/bold
+                                   "$.stream"
+                                   $.term/reset))
+                     (account "$.process"
+                              "process utilities, such as reading environment variables")
+                     (account "$.repl"
+                              "starting and stopping the Convex Lisp REPL")
+                     (account "$.stream"
+                              "reading/writing streams (currently files and STDIO)")
+                     (account "$.term"
+                              "produce nice terminal output, such as colored text")
+                     (account "$.test"
+                              "unit testing library")
+                     (account "$.time"
+                              "time-travel utilities")
+                     (account "$.trx"
+                              "modifying the list of pending transactions for execution"))]
+    ($.trx/precat `(($.stream/out! ~text)
+                    nil))
+    nil))
