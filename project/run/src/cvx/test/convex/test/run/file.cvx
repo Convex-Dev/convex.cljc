@@ -15,36 +15,106 @@
 ;;;;;;;;;; Test suites
 
 
-(defn suite.main
+(defn suite.high-level
 
-  ^{:doc {:description ["Main test suite."
-                        "Tests higher-level utilities only since they are based on stream utilities anyways."]}}
+  ^{:doc {:description "High-level utilities built on top of stream utilities."}}
 
   []
 
-  (T/group '[(T/path.conj 'convex.run.file)
+  (T/group '[(T/path.conj 'high-level)
 
              (def cell
                   '(def x
                         {:foo :bar}))
 
              (def path
-                  "/tmp/foo.cvx")
+                  "/tmp/test_file_high-level.cvx")
 
-             ($.file/write path
-                           cell)
-
-             ($.file/read path)
-
-             (T/trx '(= cell
-                        (first $/*result*))
+             (T/trx '($.trx/precat '(($.file/write path
+                                                   cell)
+                                     ($.file/read path)
+                                     (= cell
+                                        (first $/*result*))))
                     {:description "Reading after writing."})
 
              ($.file/exec path)
 
-             (T/trx '(= {:foo :bar}
-                        x)
+             (T/trx '($.trx/precat '(($.file/exec path)
+                                     (= {:foo :bar}
+                                        x)))
                     {:description "File executed."})]))
+
+
+
+(defn suite.stream
+
+  ^{:doc {:description ["Low-level stream utilities."
+                        "Complements tests for `convex.run.streams`."]}}
+
+  []
+
+  (T/group '[(T/path.conj 'stream)
+
+             (def path
+                  "/tmp/test_file_stream.cvx")
+
+             ($.file/stream.out path)
+
+             (def stream.out
+                  $/*result*)
+
+             ($.stream/out! stream.out
+                            :foo)
+
+             ($.stream/out! stream.out
+                            :bar)
+
+             ($.stream/flush stream.out)
+
+             ($.stream/close stream.out)
+
+             (T/fail.code #{:STREAM}
+                          '($.stream/out! stream.out
+                                          :baz)
+                          {:description "Cannot write to closed stream."})
+
+             ($.file/stream.in path)
+
+             (def stream.in
+                  $/*result*)
+
+             (T/trx '($.trx/precat '(($.stream/in+ stream.in)
+                                     (= '(:foo :bar)
+                                        $/*result*)))
+                    {:description "Ensures write was successful by reading back."})
+
+             (T/fail.code #{:STREAM}
+                          '($.stream/in+ stream.in)
+                          {:description "Input stream autoclosed, cannot read again."})
+
+             ($.file/stream.in path)
+
+             (def stream.line
+                  $/*result*)
+
+             (T/trx '($.trx/precat '(($.stream/line+ stream.line)
+                                     (= '(:foo)
+                                        $/*result*)))
+                    {:description "Read only first line."})]))
+
+
+;;;
+
+
+(defn suite.main
+
+  ^{:doc {:description ["Main test suite gathering other suites."]}}
+
+  []
+
+  (T/group '[(T/path.conj 'convex.run.file)
+             (suite.high-level)
+             (suite.stream)]))
 
 
 ;;;

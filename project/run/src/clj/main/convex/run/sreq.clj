@@ -277,8 +277,8 @@
 
   [env tuple]
 
-  ($.run.stream/in-line+ env
-                         (-stream tuple)))
+  ($.run.stream/line+ env
+                      (-stream tuple)))
 
 
 

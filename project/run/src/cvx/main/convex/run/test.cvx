@@ -404,7 +404,8 @@
                           :metadata metadata-2
                           :trx      (list 'quote
                                           trx)}]
-         ($.catch/safe `($.trx/precat '(~trx
+         ($.catch/safe `($.trx/precat '((quote ~$/*result*)
+                                        ~trx
                                         (~-self/report.conj (assoc ~base-report
                                                                    :result $/*result*
                                                                    :passe? false))))
@@ -462,7 +463,8 @@
                           :metadata metadata-2
                           :trx      (list 'quote
                                           trx)}]
-         ($.catch/safe `($.trx/precat '(~trx
+         ($.catch/safe `($.trx/precat '((quote~ $/*result*)
+                                        ~trx
                                         (~-self/report.conj (assoc ~base-report
                                                                    :result $/*result*
                                                                    :pass?  (= $/*result*
