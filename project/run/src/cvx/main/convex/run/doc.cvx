@@ -1,22 +1,19 @@
-
-
 (call *registry*
       (cns-update 'convex.run.doc
                   *address*))
 
 
 (call *registry*
-      (register {:doc  {:description ""}
-                 :name ""}))
+      (register {:description "Very experimental library for rendering very simple documents in the terminal. WIP"
+                 :name        "Basic document rendering library"}))
 
 
-;;;;;;;;;;
+;;;;;;;;;; Importing libraries
 
 
 (def $
 
-  ^{:doc      {:description ""}
-    :private? true}
+  ^{:private? true}
 
   (call *registry*
         (cns-resolve 'convex.run)))
@@ -25,19 +22,18 @@
 
 (def $.term
 
-  ^{:doc      {:description ""}
-    :private? true}
+  ^{:private? true}
 
   (call *registry*
         (cns-resolve 'convex.run.term)))
 
 
-;;;;;;;;;;
+;;;;;;;;;; API
 
 
 (defn block
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Renders a block item, akin to a paragraph."}}
 
   
   ([item]
@@ -61,7 +57,7 @@
 
 (defn bold
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Renders an item in bold."}}
 
 
   ([item]
@@ -91,7 +87,7 @@
 
 (defn inline
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Adds an inline item inside outer item."}}
 
 
   ([item]
@@ -112,7 +108,7 @@
 
 (def tag+
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Maps of "}}
 
   {:block  block
    :bold   bold
@@ -122,11 +118,10 @@
 
 (defn tag
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Renders a tag following `:tag+` functions in `ŧag+`."}}
 
   [ctx item]
 
-  (log [:tag tag])
   (if (str? item)
     (assoc ctx
            :acc
@@ -147,7 +142,7 @@
 
 (defn render
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Top-level function for rendering a vector of items."}}
 
   
   ([item+]
