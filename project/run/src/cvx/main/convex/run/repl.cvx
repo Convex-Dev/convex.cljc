@@ -1,20 +1,19 @@
-
-
 (call *registry*
       (cns-update 'convex.run.repl
                   *address*))
 
 
 (call *registry*
-      (register {:doc  {:description ""}
-                 :name ""}))
+      (register {:description "Starting and stopping the Convex Lisp REPL provided by the Convex Lisp Runner."
+                 :name        "Convex Lisp REPL"}))
 
 
+;;;;;;;;;; Importing libraries
 
 
 (def $
 
-  ^{:doc {:description ""}}
+  ^{:private? true}
 
   (call *registry*
         (cns-resolve 'convex.run)))
@@ -23,7 +22,7 @@
 
 (def $.stream
 
-  ^{:doc {:description ""}}
+  ^{:private? true}
 
   (call *registry*
         (cns-resolve 'convex.run.stream)))
@@ -32,7 +31,7 @@
 
 (def $.term
 
-  ^{:doc {:description ""}}
+  ^{:private? true}
 
   (call *registry*
         (cns-resolve 'convex.run.term)))
@@ -41,45 +40,36 @@
 
 (def $.trx
 
-  ^{:doc {:description ""}}
+  ^{:private? true}
 
   (call *registry*
         (cns-resolve 'convex.run.trx)))
 
 
+;;;;;;;;;; Private values
 
-(def self
+
+(def -self
+
+  ^{:private? true}
 
   *address*)
 
 
-;;;;;;;;;; Dynamic values
+;;;;;;;;;; Public values
 
 
 (def *active?*
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Set to true if the REPL is currently running."}}
 
   false)
 
 
-;;;;;;;;;; Private values
-
-
-(def -prompt
-
-  ^{:doc      {:description ""}
-    :private? true}
-
-  nil)
-
-
-;;;;;;;;;; Basic REPL
-
 
 (def prompt
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Prompt string used by default."}}
 
   (str $.term/bold
        $.term/fg.blue
@@ -87,11 +77,26 @@
        $.term/reset))
 
 
+;;;;;;;;;; Private values
+
+
+(def -prompt
+
+  ^{:doc      {:description "Currently used prompt."}
+    :private? true}
+
+  nil)
+
+
+;;;;;;;;;; Internal
+
 
 (defn -next
 
-  ^{:doc      {:description ""}
-    :private? true}
+  ^{:callable? true
+    :doc       {:description ["After `start`, loops Read-Eval-Print until `stop` is called."
+                              "Ensures last result produced by the user is available under `$/*result*`."]}
+    :private?  true}
 
   [result]
 
@@ -161,14 +166,19 @@
                             (-next (quote ~result))))))))
 
 
-(export -next)
-
-
+;;;;;;;;;; API
 
 
 (defn start
 
-  ^{:doc {:description ""}}
+  ^{:callable? true
+    :doc       {:description ["Starts the Convex Lisp REPL on next transaction."
+                              "User can then enter transactions and see results."
+                              "For stopping, see `stop`."]
+                :examples    [{:code "($.repl/start)"}
+                              {:code "($.repl/start {:prompt \"my-repl>>> \"})"}]
+                :signature   [{:params []}
+                              {:params [option+]}]}}
 
 
   ([]
@@ -186,7 +196,7 @@
   ([option+ result]
  
    (if (= *address*
-          self)
+          -self)
      (when-not *active?*
        (def *active?*
             true)
@@ -210,32 +220,29 @@
                                               $/line)))
                        (call $.repl
                              (-next ~result)))))
-     (call self
+     (call -self
            (start option+
                   result)))))
-
-
-(export start)
 
 
 
 (defn stop
 
-  ^{:doc {:description ""}}
+  ^{:callable? true
+    :doc       {:description "If currently running, stops the Convex Lisp REPL on next transaction."
+                :examples    [{:code "($.repl/stop)"}]
+                :signature   [{:params []}]}}
 
   []
 
   (if (= *address*
-         self)
+         -self)
     (do
       (def *active?*
            false)
       (def -prompt
            nil)
       nil)
-    (call self
+    (call -self
           (stop)))
   nil)
-
-
-(export stop)
