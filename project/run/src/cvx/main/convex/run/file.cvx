@@ -55,6 +55,19 @@
 ;;;;;;;;;; Higher-level utilities built on stream utilities
 
 
+(defn exec
+
+  ^{:doc {:description "Like `read` but the read cells are passed to `$.trx/precat` for executing as transactions."
+          :examples    [{:code "($.file/exec \"./my/file.cvx\")"}]
+          :signature   [{:params [path]}]}}
+
+  [path]
+
+  ($.trx/prepend '($.trx/precat $/*result*))
+  (read path))
+
+
+
 (defn read
 
   ^{:doc {:description ["Returns a request for reading the Convex Lisp file located under `path` in one go."
@@ -69,14 +82,19 @@
 
 
 
+(defn write
 
-(defn exec
+  ^{:doc {:description "Returns a request for writing `cell` to the Convex Lisp file located under `path`, in one go."
+          :examples    [{:code "($.file/write \"./my/file.cvx\") {:foo :bar}"}]
+          :signature   [{:params [path cell]}]}}
 
-  ^{:doc {:description "Like `read` but the read cells are passed to `$.trx/precat` for executing as transactions."
-          :examples    [{:code "($.file/exec \"./my/file.cvx\")"}]
-          :signature   [{:params [path]}]}}
+  [path cell]
 
-  [path]
-
-  ($.trx/prepend '($.trx/precat $/*result*))
-  (read path))
+  ($.trx/precat `(($.file/stream.out ~path)
+                  (def convex.run.file.stream
+                       $/*result*)
+                  ($.stream/out! convex.run.file.stream
+                                 (quote ~cell))
+                  ($.stream/close convex.run.file.stream)
+                  (undef convex.run.file.stream)
+                  nil)))

@@ -1,0 +1,54 @@
+;;
+;;
+;; Testing `convex.run.file`.
+;;
+;;
+
+
+;;;;;;;;;;
+
+
+(def T
+     $.test)
+
+
+;;;;;;;;;; Test suites
+
+
+(defn suite.main
+
+  ^{:doc {:description ["Main test suite."
+                        "Tests higher-level utilities only since they are based on stream utilities anyways."]}}
+
+  []
+
+  (T/group '[(T/path.conj 'convex.run.file)
+
+             (def cell
+                  '(def x
+                        {:foo :bar}))
+
+             (def path
+                  "/tmp/foo.cvx")
+
+             ($.file/write path
+                           cell)
+
+             ($.file/read path)
+
+             (T/trx '(= cell
+                        (first $/*result*))
+                    {:description "Reading after writing."})
+
+             ($.file/exec path)
+
+             (T/trx '(= {:foo :bar}
+                        x)
+                    {:description "File executed."})]))
+
+
+;;;
+
+
+(suite.main)
+(T/print "convex.run.file")
