@@ -67,12 +67,12 @@
 
   (if (= *address*
          -self)
-    (do
-      (when (> (count *stack*)
-               1)
+    (when (> (count *stack*)
+             1)
+      (let [trx (first *stack*)]
         (def *stack*
-             (next *stack*)))
-      $/*result*)
+             (next *stack*))
+        trx))
     (call -self
           (drop))))
 
@@ -117,9 +117,11 @@
 
   (if (= *address*
          -self)
-    (def *stack*
-         (conj *stack*
-               trx))
+    (do
+      (def *stack*
+           (conj *stack*
+                 trx))
+      trx)
     (call -self
           (push trx))))
 

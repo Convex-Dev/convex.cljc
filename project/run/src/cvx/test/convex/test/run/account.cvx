@@ -15,9 +15,6 @@
 ;;;;;;;;;; Test suites
 
 
-;;;
-
-
 (defn suite.main
 
   ^{:doc {:description "Main test suite."}}
