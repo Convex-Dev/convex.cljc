@@ -27,8 +27,6 @@
                   ($.account/zombie (def foo
                                          42)))
 
-             ($.stream/out! [:actor (:key (account actor)) $.account/fake-key])
-
              (T/trx '(= 42
                         actor/foo)
                     {:description "Actor deployed."})

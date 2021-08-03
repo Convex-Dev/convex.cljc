@@ -612,6 +612,7 @@
                       []
                       report+)]
     (conj acc
+          $/line
           "==="
           $/line
           $/line
@@ -633,7 +634,8 @@
 
   [report+]
 
-  (let [acc ["==="
+  (let [acc [$/line
+             "==="
              $/line
              $/line
              $.term/bold]]
@@ -643,7 +645,7 @@
             "No test reports.")
       (conj acc
             $.term/fg.green
-            "All tests pass."))))
+            "All tests passed."))))
 
 
 
