@@ -1,13 +1,11 @@
-
-
 (call *registry*
       (cns-update 'convex.run.file
                   *address*))
 
 
 (call *registry*
-      (register {:doc  {:description ""}
-                 :name ""}))
+      (register {:description "Utilities for reading and writing Convex Lisp files."
+                 :name        "File library for the Convex Lisp Runner"}))
 
 
 ;;;;;;;;;;
@@ -15,18 +13,22 @@
 
 (def $.trx
 
-  ^{:doc {:description ""}}
+  ^{:private? true}
 
   (call *registry*
         (cns-resolve 'convex.run.trx)))
            
 
-;;;;;;;;;;
+;;;;;;;;;; Opening streams
 
 
 (defn stream.in
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description ["Returns a request for opening an input stream for the Convex Lisp file located under `path`."
+                        "Stream is available during next transaction under `$/*result*`."
+                        "See the `$.stream` library."]
+          :examples    [{:code "($.file/stream.in \"./my/file.cvx\")"}]
+          :signature   [{:params [path]}]}}
 
   [path]
 
@@ -37,7 +39,12 @@
 
 (defn stream.out
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description ["Returns a request for opening an output stream for the Convex Lisp file located under `path`."
+                        "Stream is available during next transaction under `$/*result*`."
+                        "See the `$.stream` library."]
+          :examples    [{:code "($.file/stream.in \"./my/file.cvx\")"}]
+          :signature   [{:params [path]}]}}
+
 
   [path]
 
@@ -45,12 +52,15 @@
   [:cvm.sreq :file.out path])
 
 
-;;;;;;;;;;
+;;;;;;;;;; Higher-level utilities built on stream utilities
 
 
 (defn read
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description ["Returns a request for reading the Convex Lisp file located under `path` in one go."
+                        "List of read cells is available during next transaction under `$/*result*`."]
+          :examples    [{:code "($.file/read \"./my/file.cvx\")"}]
+          :signature   [{:params [path]}]}}
 
   [path]
 
@@ -62,7 +72,9 @@
 
 (defn exec
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Like `read` but the read cells are passed to `$.trx/precat` for executing as transactions."
+          :examples    [{:code "($.file/exec \"./my/file.cvx\")"}]
+          :signature   [{:params [path]}]}}
 
   [path]
 
