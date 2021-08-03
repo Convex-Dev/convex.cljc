@@ -1,26 +1,27 @@
-
-
 (call *registry*
       (cns-update 'convex.run.process
                   *address*))
 
 
 (call *registry*
-      (register {:doc  {:description ""}
-                 :name ""}))
+      (register {:description "Process-related utilities, such as reading environment variables."
+                 :name        "Process library for the Convex Lisp Runner"}))
 
+
+;;;;;;;;;;
 
 
 (defn env
 
-  ^{:doc {:description ["Retrieves environment variable from the current process. Useful when some information must be passed to the runner from the outside."
-                        "When a env variable is given as well, defines only the value for that variable"
-                        "Result is temporarily stored in `env/*result* and is accessible during the next transaction."]
-          :examples    [{:code "(sreq/env}"}
-                        {:code "(sreq/env \"MY_X\")"}]
+  ^{:doc {:description ["Returns a request for retrieving environment variables for the current process."
+                        "Useful when some information must be passed to the runner from the outside."
+                        "When a environment variable is given as well, retrieves only the value for that variable."
+                        "Otherwise, whole map of variables and their values is retrieved."
+                        "Result will be available during next transaction under `$/*result*`."]
+          :examples    [{:code "($.process/env}"}
+                        {:code "(s.process/env \"MY_X\")"}]
           :signature   [{:params [sym]}
-                        {:params [sym env-var]}]
-          :type        :function}}
+                        {:params [sym env-var]}]}}
 
 
   ([]
@@ -28,23 +29,22 @@
    (env nil))
 
 
-  ([var]
+  ([env-var]
 
-   (assert (or (str? var)
-               (nil? var)))
-   [:cvm.sreq :process.env var]))
+   (assert (or (str? env-var)
+               (nil? env-var)))
+   [:cvm.sreq :process.env env-var]))
 
 
 
 (defn exit
 
-  ^{:doc {:description ["Stops execution and exits process with given `status` code (a long)."
-                        "Depending on the operating system, by convention, a non-zero value means an error occured."]
-          :examples    [{:code "(sreq/exit 42)"}]
-          :signature   [{:params [status]}]
-          :type        :function}}
+  ^{:doc {:description ["Returns a requestion for terminating the process with `status` code (a long)"
+                        "By convention, a non-zero value means an error occured."]
+          :examples    [{:code "($.process/exit 42)"}]
+          :signature   [{:params [status]}]}}
 
   [status]
 
   (assert (long? status))
-  [:cvm.sreq :exit status])
+  [:cvm.sreq :process.exit status])
