@@ -77,15 +77,17 @@
 
              (T/group '[(T/path.conj 'success)
 
+                        true
+
                         ($.catch/safe '(def x
-                                            true)
+                                            $/*result*)
                                       '(def x-err
                                             true)
                                       '(def x-finally
                                             true))
 
                         (T/trx 'x
-                               {:description "Normal transaction executed."})
+                               {:description "Normal transaction executed with access to previous result."})
 
                         (T/trx '(not (defined? x-err))
                                {:description "Error transaction not executed."})

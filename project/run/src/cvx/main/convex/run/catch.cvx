@@ -143,7 +143,8 @@
    (push `(do
             ($.trx/set (quote ~$.trx/*list*))
             ~trx-catch))
-   ($.trx/precat `(~trx-try
+   ($.trx/precat `((quote ~$/*result*)
+                   ~trx-try
                    ($.catch/drop))))
 
   ([trx-try trx-catch trx-finally]
