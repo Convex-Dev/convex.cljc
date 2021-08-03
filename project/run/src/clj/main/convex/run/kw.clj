@@ -20,6 +20,11 @@
 
 
 
+(def ^Keyword code-read+
+              ($.cell/keyword "code.read+"))
+
+
+
 (def ^Keyword compile
               ($.cell/keyword "compile"))
 
@@ -120,7 +125,7 @@
 
 
 (def ^Keyword perf-track
-              ($.cell/keyword "perf-track"))
+              ($.cell/keyword "perf.track"))
 
 
 
@@ -136,11 +141,6 @@
 
 (def ^Keyword process-exit
               ($.cell/keyword "process.exit"))
-
-
-
-(def ^Keyword read+
-              ($.cell/keyword "read+"))
 
 
 

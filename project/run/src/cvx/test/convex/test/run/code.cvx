@@ -1,0 +1,44 @@
+;;
+;;
+;; Testing `convex.run.code`.
+;;
+;;
+
+
+;;;;;;;;;;
+
+
+(def T
+     $.test)
+
+
+;;;;;;;;;; Test suites
+
+
+(defn suite.main
+
+  ^{:doc {:description "Main test suite."}}
+
+  []
+
+  (T/group '[(T/path.conj 'convex.run.code)
+
+             ($.code/read+ "(+ 2 2) (fn [x] (inc x))")
+
+             (T/trx '(= '((+ 2 2)
+                          (fn [x] (inc x)))
+                        $/*result*)
+                    {:description "Reading source."})
+
+             ($.code/decompile (fn [x] (inc x)))
+
+             (T/trx '(= '(fn [x] (inc %0))
+                        $/*result*)
+                    {:description "Experimental decompilation."})]))
+
+
+;;;
+
+
+(suite.main)
+(T/print "convex.run.code")

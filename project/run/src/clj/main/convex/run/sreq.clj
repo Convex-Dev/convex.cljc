@@ -77,7 +77,7 @@
 
 (defmethod $.run.exec/sreq
 
-  $.run.kw/read+
+  $.run.kw/code-read+
 
   ;; Reads the given string and parses to a list of forms.
 
