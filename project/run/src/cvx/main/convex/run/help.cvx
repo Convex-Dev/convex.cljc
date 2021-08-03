@@ -1,22 +1,19 @@
-
-
 (call *registry*
       (cns-update 'convex.run.help
                   *address*))
 
 
 (call *registry*
-      (register {:doc  {:description ""}
-                 :name ""}))
+      (register {:description "Implementations for all capabilities behind `$/help`. Rarely used directly."
+                 :name        "Help library for the Convex Lisp Runner"}))
 
 
-;;;;;;;;;;
+;;;;;;;;;; Importing libraries
 
 
 (def core
 
-  ^{:doc      {:description ""}
-    :private? true}
+  ^{:private? true}
 
   (call *registry*
         (cns-resolve 'convex.core)))
@@ -25,8 +22,7 @@
 
 (def $
 
-  ^{:doc      {:description ""}
-    :private? true}
+  ^{:private? true}
 
   (call *registry*
         (cns-resolve 'convex.run)))
@@ -35,8 +31,7 @@
 
 (def $.term
 
-  ^{:doc      {:description ""}
-    :private? true}
+  ^{:private? true}
 
   (call *registry*
         (cns-resolve 'convex.run.term)))
@@ -45,79 +40,31 @@
 
 (def $.trx
 
-  ^{:doc      {:description ""}
-    :private? true}
+  ^{:private? true}
 
   (call *registry*
         (cns-resolve 'convex.run.trx)))
 
 
-;;;;;;;;;;
+;;;;;;;;;; Values
 
 
 (def -accent
 
-  ^{:doc {:description ""}}
+  ^{:doc      {:description "Sets style for bold blue."}
+    :private? true}
 
   (str $.term/bold
        $.term/fg.blue))
 
 
-
-(defn section
-
-  ^{:doc {:description ""}}
-
-  [acc heading line+]
-
-  (reduce (fn [acc-2 line]
-            (conj acc-2
-                  $/line
-                  "  "
-                  line))
-          (conj acc
-                $/line
-                -accent
-                heading
-                $.term/reset)
-          line+))
-
-
-
-(defn key-value
-
-  ^{:doc {:description ""}}
-
-  [acc heading txt]
-
-  (conj acc
-        $/line
-        -accent
-        heading
-        $.term/reset
-        $/line
-        "  "
-        txt))
-
-
-
-(defn -vector?
-
-  ^{:doc      {:description ""}
-    :private? true}
-
-  [x]
-
-  (and (vector? x)
-       (not (empty? x))))
-
-
-
+;;;;;;;;;; Private helpers
 
 
 (defn -out!
 
-  ^{:doc      {:description ""}
+  ^{:doc      {:description "Produces a string out of `acc` (a vector of cells) and prints it to default output."
+               :signature   [{:params [acc]}]}
     :private? true}
 
   [acc]
@@ -128,9 +75,25 @@
 
 
 
+(defn -vector?
+
+  ^{:doc      {:description "Returns true is `x` is a non-empty vector."
+               :signature   [{:params [x]}]}
+    :private? true}
+
+  [x]
+
+  (and (vector? x)
+       (not (empty? x))))
+
+
+;;;;;;;;;; Generic printing
+
+
 (defn description
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Like `section` but for `:description` in `:doc` metadata."
+          :signature   [{:params [acc description]}]}}
 
   [acc desc]
 
@@ -145,10 +108,11 @@
 
 
 
-(defn -env-line
+(defn env-entry
 
-  ^{:doc      {:description ""}
-    :private? true}
+  ^{:doc {:description ["Appends to `acc` (a vector of cells) an overview for a environment symbol."
+                        "Description is fetched from that symbols' metadata."]
+          :signature   [{:params [acc sym description]}]}}
 
   [acc sym desc]
 
@@ -188,13 +152,58 @@
                                    ".."
                                    "..."))
                            char+))))))))
-                                    
 
+
+
+(defn key-value
+
+  ^{:doc {:description "Like `section` but involves only one line."
+          :examples    [{:code "($.help/key-value [] \"Title:\" \"Some text\")"}]
+          :signature   [{:params [acc heading line]}]}}
+
+  [acc heading line]
+
+  (conj acc
+        $/line
+        -accent
+        heading
+        $.term/reset
+        $/line
+        "  "
+        line))
+
+
+
+(defn section
+
+  ^{:doc {:description "Appends to `acc` strings where `heading` is accented and each line in `line+` appears shifted on a new line."
+          :examples    [{:code "($.help/section [] \"Title:\" [\"A\" \"B\"])"}]
+          :signature   [{:params [acc heading line+]}]}}
+
+  [acc heading line+]
+
+  (reduce (fn [acc-2 line]
+            (conj acc-2
+                  $/line
+                  "  "
+                  line))
+          (conj acc
+                $/line
+                -accent
+                heading
+                $.term/reset)
+          line+))
+
+
+;;;;;;;;;; Printing entities
 
 
 (defn address
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Prints help to default output for the given `address` (or the value of `*address*` alternatively."
+          :examples    [{:code "($.help/address #8)"}]
+          :signature   [{:params []}
+                        {:params [address]}]}}
 
 
   ([]
@@ -234,12 +243,12 @@
                                                             sym)]
                                        (if (:private? meta-sym)
                                          acc
-                                         (-env-line acc
+                                         (env-entry acc
                                                     sym
                                                     (get-in meta-sym
                                                             [:doc
                                                              :description])))
-                                       (-env-line acc
+                                       (env-entry acc
                                                   sym
                                                   nil)))
                                    []
@@ -259,10 +268,11 @@
 
 
 
-
 (defn meta
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Prints help to default output for the given symbol `meta`data."
+          :examples    [{:code "($.help/meta (lookup-meta '+))"}]
+          :signature   [{:params [meta]}]}}
 
 
   [meta]
@@ -327,7 +337,12 @@
 
 (defn symbol
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description ["Prints to default output help for the given `symbol`."
+                        "Smaller helper over `meta`."]
+          :examples    [{:code "($.help/symbol '+)"}
+                        {:code "($.help/symbol #8 '+)"}]
+          :signature   [{:params [symbol]}
+                        {:params [address symbol]}]}}
 
 
   ([sym]
@@ -341,10 +356,12 @@
                       sym))))
 
 
+;;;
+
 
 (defn main
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Prints to default output the general help message."}}
 
   []
 
@@ -364,7 +381,7 @@
                      "This environment is well-suited for development, testing, and some off-chain computation."
                      $/line
                      $/line
-                     "Some functions or macros returns a \"request\": a vector specifying some special action to perform before the next transation."
+                     "Some functions or macros returns a \"request\": a vector specifying some special action to perform before the next transaction."
                      $/line
                      "Since the CVM itself is purely deterministic, such requests allow to perform extra effects like reading STDIN, writing to files, advancing time, etc."
                      $/line
@@ -378,11 +395,15 @@
                      "Libraries of interest:"
                      $/line
                      (account "$"
-                              "miscellaneous utilities such as juice monitoring")
+                              "miscellaneous utilities")
+                     (account "$.account"
+                              "account related utilities, such as creating zombie accounts")
                      (account "$.catch"
                               "error handling, catching exceptions")
+                     (account "$.code"
+                              "code related utilities, such as parsing source as cells")
                      (account "$.doc"
-                              (str "prototype of a simple document rendering library based on "
+                              (str "very experimental prototype of a simple document rendering library based on "
                                    $.term/bold
                                    "$.term"
                                    $.term/reset))
@@ -391,6 +412,10 @@
                                    $.term/bold
                                    "$.stream"
                                    $.term/reset))
+                     (account "$.log"
+                              "accessing the CVM log")
+                     (account "$.perf"
+                              "performance tracking, such as juice monitoring")
                      (account "$.process"
                               "process utilities, such as reading environment variables")
                      (account "$.repl"
