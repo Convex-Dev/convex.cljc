@@ -74,11 +74,11 @@
                                    [$.run.sym/$-stream
                                     "convex/run/stream.cvx"]
                                    ;; No deps.
-                                   [$.run.sym/$-term
-                                    "convex/run/term.cvx"]
-                                   ;; No deps.
                                    [$.run.sym/$-trx
                                     "convex/run/trx.cvx"]
+                                   ;; Requires `$`.
+                                   [$.run.sym/$-term
+                                    "convex/run/term.cvx"]
                                    ;; Requires `$` + `$.stream` + `$.trx`.
                                    [$.run.sym/$-catch
                                     "convex/run/catch.cvx"]

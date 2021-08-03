@@ -9,6 +9,16 @@
                                "To learn more about ANSI escape codes, see https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797."]
                  :name        "Terminal library for the Convex Lisp Runner"}))
 
+;;;;;;;;;; Importing libraries
+
+
+(def $
+
+  ^{:private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.run)))
+
 
 ;;;;;;;;;; Background colors
 
@@ -52,20 +62,19 @@
   "\033[45m")
 
 
+(def bg.red
+
+  ^{:doc {:description "Background color red."}}
+
+  "\033[41m")
+
+
 
 (def bg.white
 
   ^{:doc {:description "Background color white."}}
 
   "\033[47m")
-
-
-
-(def bg.red
-
-  ^{:doc {:description "Background color red."}}
-
-  "\033[41m")
 
 
 
@@ -366,3 +375,96 @@
   ^{:doc {:description "Escape code for clearing the whole screen."}}
 
   "\033[H\033[2J")
+
+
+;;;;;;;;;;
+
+
+(defn demo
+
+  ^{:doc {:description "Returns a string that can be printed for a demo of producing colored output."
+          :examples    [{:code "($.stream/out! ($.term/demo))"}]
+          :signature   [{:params []}]}}
+  []
+
+  (str bg.black
+       "BG black"
+       reset
+       $/line
+       bg.blue
+       "BG blue"
+       reset
+       $/line
+       bg.cyan
+       "BG cyan"
+       reset
+       $/line
+       bg.green
+       "BG green"
+       reset
+       $/line
+       bg.magenta
+       "BG magenta"
+       reset
+       $/line
+       bg.red
+       "BG red"
+       reset
+       $/line
+       bg.white
+       fg.black
+       "BG white"
+       reset
+       $/line
+       bg.yellow
+       "BG yellow"
+       reset
+       $/line
+       (bg.rgb 100 200 150)
+       "BG RGB 100 200 150"
+       reset
+       $/line
+       fg.black
+       "FG black"
+       reset
+       $/line
+       fg.blue
+       "FG blue"
+       reset
+       $/line
+       fg.cyan
+       "FG cyan"
+       reset
+       $/line
+       fg.green
+       "FG green"
+       reset
+       $/line
+       fg.magenta
+       "FG magenta"
+       reset
+       $/line
+       fg.red
+       "FG red"
+       reset
+       $/line
+       fg.white
+       fg.black
+       "FG white"
+       reset
+       $/line
+       fg.yellow
+       "FG yellow"
+       reset
+       $/line
+       (fg.rgb 100 200 150)
+       "FG RGB 100 200 150"
+       reset
+       $/line
+       bold
+       "Bold text"
+       $/line
+       fg.blue
+       "Bold makes also colors brighter"
+       reset))
+
