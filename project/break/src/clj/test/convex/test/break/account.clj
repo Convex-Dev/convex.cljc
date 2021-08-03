@@ -19,54 +19,6 @@
 ;;;;;;;;;; Suites - Miscellaneous
 
 
-(defn suite-export
-
-  "Tests exportings symbols in user accounts only.
-  
-   See [[convex.clj.test.core.actor]] namespace for more thorough tests involving
-   actors."
-
-  [ctx sym+]
-
-  (mprop/check
-    
-    "Exporting symbols in user account"
-
-    (let [ctx-2 ($.clj.eval/ctx* ctx
-                                 (do
-                                   (def -export+
-                                        ~(into #{}
-                                               (map $.clj/quoted)
-                                               sym+))
-                                   (def -result-export
-                                        (export ~@sym+))))]
-      (mprop/mult
-
-        "`export` returns `*exports*`"
-
-        ($.clj.eval/result ctx-2
-                           '(= -result-export
-                               *exports*))
-
-
-        "`*export*` has been updated"
-
-        ($.clj.eval/result ctx-2
-                           '(= -export+
-                               *exports*))
-
-        ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/136
-        ;;
-        ;; "`exports?`"
-        ;; ($.clj.eval/result ctx-2
-        ;;                      '($/every? (fn [sym]
-        ;;                                   (exports? *address*
-        ;;                                             sym))
-        ;;                                 -export+))
-        ))))
-
-
-
 (defn suite-new
 
   "Every new account, actor or user, must pass this suite.
@@ -124,7 +76,7 @@
 
 
       "Comparing `account` with *state*"
-      
+
       ($.clj.eval/result ctx
                          '(= (account addr)
                              (get-in *state*
@@ -563,8 +515,7 @@
 
   {:ratio-num 2}
 
-  (TC.prop/for-all [export-sym+   (TC.gen/vector $.clj.gen/symbol)
-                    faulty-amount $.break.gen/not-long
+  (TC.prop/for-all [faulty-amount $.break.gen/not-long
                     holding       $.clj.gen/any
                     pubkey        $.clj.gen/blob-32
                     percent       $.break.gen/percent]
@@ -573,9 +524,7 @@
           ctx-*holdings* (ctx-holding ctx
                                       '*address*
                                       holding)]
-      (mprop/and (suite-export ctx
-                               export-sym+)
-                 (suite-*holdings* ctx-*holdings*)
+      (mprop/and (suite-*holdings* ctx-*holdings*)
                  (suite-holding ctx-*holdings*)
                  (suite-holding (ctx-holding ctx
                                              'addr
@@ -615,13 +564,6 @@
 
       ($.clj.eval/code?* :CAST
                          (balance ~x))
-
-
-      "`exports?`"
-
-      ($.clj.eval/code?* :CAST
-                         (exports? ~x
-                                   'foo))
 
 
       "`get-holding`"
