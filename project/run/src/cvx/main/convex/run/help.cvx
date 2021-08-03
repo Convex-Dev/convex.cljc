@@ -429,7 +429,7 @@
                      (account "$.time"
                               "time-travel utilities")
                      (account "$.trx"
-                              "modifying the list of pending transactions for execution"))]
+                              "modifying the list of transactions pending for execution, powerful metaprogramming"))]
     ($.trx/precat `(($.stream/out! ~text)
                     nil))
     nil))

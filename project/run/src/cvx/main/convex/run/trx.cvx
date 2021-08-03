@@ -1,56 +1,70 @@
 
 
-
 (call *registry*
       (cns-update 'convex.run.trx
                   *address*))
 
 
 (call *registry*
-      (register {:doc  {:description ""}
-                 :name ""}))
+      (register {:description ["Utilities for manipulating the list of transactions pending for execution."
+                               "Used by other libraries for a varity of features since this ability provides very powerful metaprogramming."]
+                 :name        "Transaction handling library for the Convex Lisp Runner"}))
 
 
+;;;;;;;;;; Private values
 
-(def self
 
-  ^{:doc {:description ""}}
+(def -self
+
+  ^{:doc      {:description "Address to this library."}
+    :private? true}
 
   *address*)
 
 
+;;;;;;;;;; Public values
+
 
 (def *list*
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description ["List of transactions pending for execution."
+                        "This list can be altered for many different reasons, from instrumentation to halting."
+                        "See `set` and other functions from this account."]}}
 
   '())
 
 
+;;;;;;;;;; API
+
 
 (defn set
 
-  ^{:doc {:description ""}}
+  ^{:callable? true
+    :doc       {:description ["Replaces `*list*` with the given list of transactions."
+                              "Low-level, most of the time other functions such as `precat` are used."]
+                :examples    [{:code "($.trx/set '((def foo 42) ($.stream/out! [:foo foo])))"}]
+                :signature   [{:params [trx+]}]}}
 
   [trx+]
 
   (if (= *address*
-         self)
+         -self)
     (def *list*
          (do
            (assert (list? trx+))
            trx+))
-    (call self
+    (call -self
           (set trx+))))
 
 
-(export set)
-
+;;;
 
 
 (defn halt
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Empties `*list*`, and since there will be no transactions to execute anymore, program will halt."
+          :examples    [{:code "($.trx/halt)"}]
+          :signature   [{:params []}]}}
 
   []
 
@@ -60,7 +74,10 @@
 
 (defn append
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Appends `trx` to `*list*, in last position."
+          :examples    [{:code "($.trx/append '($.steam/out! \"Finished!\"))"}]
+          :signature   [{:params [trx]}]}}
+    
 
   [trx]
 
@@ -70,7 +87,10 @@
 
 (defn precat
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description ["Replaces `*list*` with the concatenation of `trx+` and the current value of `*list*`."
+                        "Must be a list as well."]
+          :examples    [{:code "($.trx/precat '((def foo 42) ($.stream/out! [:foo foo])))"}]
+          :signature   [{:params [trx+]}]}}
 
   [trx+]
 
@@ -81,7 +101,9 @@
 
 (defn prepend
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Prepends `trx` to `*list*`, in first position, so that it is executed right after the current transaction."
+          :examples    [{:code "($.trx/prepend '(def foo 42))"}]
+          :signature   [{:params [trx]}]}}
 
   [trx]
 
@@ -92,9 +114,11 @@
 
 (defn postcat
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Opposite of `precat`, concatenates the current value of `*list*` and given `trx+`."
+          :examples    [{:code "($.trx/postcat '((def msg \"Finished!\") ($.stream/out! msg)))"}]
+          :signature   [{:params [trx+]}]}}
 
-  [ŧrx]
+  [trx+]
 
   (set (concat *list*
                trx+)))
