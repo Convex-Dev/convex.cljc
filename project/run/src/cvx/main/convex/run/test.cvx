@@ -1,25 +1,20 @@
-;;
-;;
-;; Unit testing library for the Convex Lisp Runner
-;;
-;; Provides a simple but flexible framework where a test assertion is a transaction.
-;;
-;;
-
-
-;;;;;;;;;; Registering the library
-
-
 (call *registry*
       (cns-update 'convex.run.test
                   *address*))
 
 (call *registry*
-      (register {:doc  {:description "Unit testing library for the Convex Lisp Runner."}
-                 :name "Convex Liser Runner Unit Testing Library"}))
+      (register {:description ["Provides a flexible framework for unit testing where each assertion is a transaction."
+                               "Central function for testing assertions is `trx`."
+                               "Functions `fail` and `fail.code` are used to ensure expected failures."
+                               "Those functions generate a report for each test and those reports are appended to `*report+*`."
+                               "When done, reports can be printed using `print` and cleared using `report.clear`."
+                               "For testing groups of assertions safely without altering global state, see `group`."
+                               "Each assertion can receive metadata which is added to its report."
+                               "For filtering assertions and preventing execution based on metadata, see `filter.set`."]
+                 :name        "Unit testing library for the Convex Lisp Runner"}))
 
 
-;;;;;;;;;; Importing other libraries
+;;;;;;;;;; Importing libraries
 
 
 (def $
@@ -105,6 +100,7 @@
   0)
 
 
+
 (def *report+*
 
   ^{:doc {:description ["Vector of currently collected test reports."
@@ -116,8 +112,11 @@
 
 (defn report.clear
 
-  ^{:doc {:description ["Erases all test reports."
-                        "See `*report+*`."]}}
+  ^{:callable? true
+    :doc       {:description ["Erases all test reports."
+                              "See `*report+*`."]
+                :examples    [{:code "($.test/report.clear)"}]
+                :signature   [{:params []}]}}
 
   []
 
@@ -133,15 +132,14 @@
   nil)
 
 
-(export report.clear)
-
-
 
 (defn report.conj
 
-  ^{:doc {:description ["Low-level function for adding a new report to `*report+*`."
-                        "A report summarizes a test assertion."
-                        "If strictly required, study the `fail` and `trx` symbols which rely on this function."]}}
+  ^{:callable? true
+    :doc       {:description ["Low-level function for adding a new report to `*report+*`."
+                              "A report summarizes a test assertion."
+                              "If strictly required, study the `fail` and `trx` symbols which rely on this function."]
+                :signature   [{:params [report]}]}}
 
   [report]
 
@@ -163,14 +161,12 @@
 
 
 
-(export report.conj)
-
-
-
 (defn report.merge
 
-  ^{:doc {:description ["Merges the given argument into `*n-fail*` and `*report+*`."
-                        "Used by `state.pop` for remembering tests reults after restoring previous state."]}}
+  ^{:callable? true
+    :doc       {:description ["Low-level function for merging the given argument into `*n-fail*` and `*report+*`."
+                              "Used by `group` for remembering tests reults after restoring previous state."]
+                :signature   [{:params [n-fail report+]}]}}
 
   [n-fail report+]
 
@@ -188,9 +184,6 @@
                         report+))))
 
 
-(export report.merge)
-
-
 ;;;;;;;;;; Filtering tests
 
 
@@ -206,7 +199,9 @@
 (defn filter.allow?
 
   ^{:doc {:description ["Returns a boolean indicating if a test should be executed based on its metadata."
-                        "See `*filter*`."]}}
+                        "Low-level functions used by `trx` and similar."
+                        "See `*filter*`."]
+          :signature   [{:params [metadata]}]}}
 
   [metadata]
 
@@ -218,9 +213,12 @@
 
 (defn filter.set
 
-  ^{:doc {:description ["Sets `*filter*`."
-                        "Function must take metadata and return nil or false if test must be ignored."
-                        "Providing nil removes current filter."]}}
+  ^{:callable? true
+    :doc       {:description ["Sets `*filter*`."
+                              "Function must take metadata and return nil or false if test must be ignored."
+                              "Providing nil removes current filter."]
+                :examples    [{:code "($.test/filter.set (fn [meta] (not (:slow meta))))"}]
+                :signature   [{:params [f]}]}}
 
   [f]
 
@@ -235,9 +233,6 @@
           (filter.set f))))
 
 
-(export filter.set)
-
-
 ;; DEFAULT METADATA
 
 
@@ -245,6 +240,7 @@
 
   ^{:doc {:description ["User defined function for altering metadata."
                         "Altering happens before filtering. See `*filter*`."
+                        "Typically used in transactions enclosed by `group`."
                         "See `meta.set`."]}}
 
   nil)
@@ -253,7 +249,8 @@
 
 (defn meta.map
 
-  ^{:doc {:description "Maps `metadata` using `*meta*` if it is set to a function."}}
+  ^{:doc {:description "Maps `metadata` using `*meta*` if it is set to a function."
+          :signature   [{:params [metadata]}]}}
 
   [metadata]
 
@@ -265,9 +262,12 @@
 
 (defn meta.set
 
-  ^{:doc {:description ["Sets `*meta*`."
-                        "Function must takes metadata and returns new metadata."
-                        "Providing nil removes current function."]}}
+  ^{:callable? true
+    :doc       {:description ["Sets `*meta*`."
+                              "Function must takes metadata and returns new metadata."
+                              "Providing nil removes current function."]
+                :examples    [{:code "($.test/meta.set (fn [meta] (assoc meta :important? true)))"}]
+                :signature   [{:params [f]}]}}
 
   [f]
 
@@ -280,9 +280,6 @@
            f))
     (call -self
           (meta.set f))))
-
-
-(export meta.set)
 
 
 ;;;;;;;;;; Test path, abstraction helping in locating a test
@@ -300,7 +297,10 @@
 
 (defn path.conj
 
-  ^{:doc {:description "Adds an arbitrary item to `*path*`."}}
+  ^{:callable? true
+    :doc       {:description "Adds an arbitrary item to `*path*`."
+                :examples    [{:code "($.test/path.conj 'my.test.suite)"}]
+                :signature   [{:params [item]}]}}
 
   [item]
 
@@ -313,18 +313,20 @@
           (path.conj item))))
 
 
-(export path.conj)
-
-
 ;;;;;;;;;; Time traval and global state management
 
 
 (defn group
 
-  ^{:doc {:description ["Encloses given quoted transactions using `$.time` utililities."
-                        "Before executing firt transaction, CVM state is saved."
-                        "After final transaction, saved state is restored while rememberring new tests results."
-                        "Optional `trx-pop` is an additional transaction executed when state is restored."]}}
+  ^{:doc {:description ["Encloses given transactions using `$.time` utililities."
+                        "Any state change induced by those transactions will ultimately be discarded."
+                        "Before executing the first transaction, CVM state is saved."
+                        "After the final transaction, saved state is restored while rememberring new tests results."
+                        "Optional `trx-pop` is an additional transaction executed when state is restored."]
+          :examples    [{:code "($.test/group '[(def foo 42) ($.test/trx '(= 42 foo))])"}]
+          :signature   [{:params [trx+]}
+                        {:params [trx+ trx-pop]}]}}
+
 
 
   ([trx+]
@@ -346,7 +348,9 @@
 
   ^{:doc      {:description ["Like `($.time/pop)` but ensures tests results are remembered."
                              "See function `state.push`."
-                             "An additional quoted `trx` can be passed to transfer other user data."]}
+                             "An additional quoted `trx` can be passed to transfer other user data."]
+               signature    [{:params []}
+                             {:params [trx]}]}
     :private? true}
 
 
@@ -367,7 +371,8 @@
 
   ^{:doc      {:description ["Like `($.time/push)` but clears the test state from this actor."
                              "Later, CVM state can be restored with function `state.pop`."
-                             "Provides isolation, side-effects can be discarded in a controlled fashion."]}
+                             "Provides isolation, side-effects can be discarded in a controlled fashion."]
+               :signature   [{:params []}]}
     :private? true}
 
   []
@@ -382,11 +387,14 @@
 (defn fail
 
   ^{:doc {:description ["Tests that the given `trx` quoted transaction throws an exception."
-                        "If no exception is throw, test fails."
+                        "If no exception is thrown, test fails."
                         "If an exception is thrown, it is passed to the `expected-fail?` function."
                         "Returning true means the exception was as expected, meaning test passes."
                         "Most of the time, the higher-level `fail.code` function will be used rather than this one."
-                        "See the `trx` symbol from this library for metadata and how exection is done."]}}
+                        "See `trx` from this library for metadata and how execution is done."]
+          :examples    [{:code "($.test/fail (fn [ex] (= \"Bar\" (:message ex))) '(fail :foo \"Bar\"))"}]
+          :signature   [{:params [expected-fail? trx]}
+                        {:params [expected-fail? trx metadata]}]}}
 
 
   ([expected-fail? trx]
@@ -419,8 +427,11 @@
 (defn fail.code
 
   ^{:doc {:description ["Like the `fail` function but `expected-code?` receives the exception's code."
-                        "A convenient solution is to use a set of expected codes."]
-          :examples    [{:code "(fail.code #{:ASSERT} '(assert (< 42 3)))"}]}}
+                        "A convenient solution is to use a set of expected codes since sets are functions as well."]
+          :examples    [{:code "($.test/fail.code #{:ASSERT} '(assert (< 42 3)))"}]
+          :signature   [{:params [code-target trx]}
+                        {:params [code-target trx metadata]}]}}
+
 
   ([code-target trx]
 
@@ -441,12 +452,14 @@
 
 (defn trx
 
-  ^{:doc {:description ["Tests that the given transaction (a quoted form) return exactly true."
+  ^{:doc {:description ["Tests that the `trx` (a quoted form) return exactly true."
                         "Any other value means the transaction failed."
                         "Result is reported using `conj.report`."
-                        "Metadata is an arbitrary map associated under `:metadata` in the report for providing extra information."
+                        "Metadata is an arbitrary map associated under `:metadata` in the report, used for filtering and providing extra information."
                         "It is advised to provide at least `:description`, a human-readable string explaining the test."]
-          :examples    [{:code "(trx '(< 2 3) {:description \"Two should be lesser than three.\"})"}]}}
+          :examples    [{:code "($.test/trx '(< 2 3) {:description \"Two should be lesser than three.\"})"}]
+          :signature   [{:params [trx]}
+                        {:params [trx metadata]}]}}
 
 
   ([trx]
@@ -470,8 +483,7 @@
                                                                    :pass?  (= $/*result*
                                                                               true)))))
                        `(~-self/report.conj (assoc ~base-report
-                                                   :exception (lookup ~$
-                                                                      *result*)
+                                                   :exception $/*result*
                                                    :pass?     false))))))))
 
 
@@ -480,7 +492,11 @@
 
 (defmacro is
 
-  ^{:doc {:description "Macro for tracing the given `form`: it it does not return true, result is returned as well as arguments (assumes `form` is a function call)."}}
+  ^{:doc {:description ["Macro for tracing the given `form`: it it does not return true, result is returned as well as arguments."
+                        "Assumes `form` is a function call."
+                        "Can be useful when a test is failing in an opaque fashion."]
+          :examples    [{:code "($.test/is '(= a (+ b c)))"}]
+          :signature   [{:params [form]}]}}
 
   [form]
 
@@ -504,9 +520,9 @@
 
 (defn exit
 
-  ^{:doc {:description ["Returns an 'exit' special request to terminate the process."
-                        "A non-zero status code is issued in case not all tests pass."
-                        "Meant to be used at the end of the run indicating failure or success."]}}
+  ^{:doc {:description "Uses `$.process/exit` to terminate process with a non-zero status if `(> *n-fail* 0)`."
+          :examples    [{:code "($.test/exit)"}]
+          :signature   [{:params []}]}}
 
   []
 
@@ -519,7 +535,8 @@
 
 (defn -print.fail
 
-  ^{:doc      {:description ""}
+  ^{:doc      {:description "Used for printing test reports when some assertions failed."
+               :signature   [{:params [n-fail report+]}]}
     :private? true}
 
   [n-fail report+]
@@ -539,7 +556,7 @@
                                          (if res?
                                            ["Returned:"
                                             res]
-                                           ["Threw:"
+                                           ["Thrown:"
                                             ex])
                                          (if res?
                                            ["Instead of exception:"
@@ -610,7 +627,8 @@
 
 (defn -print.success
 
-  ^{:doc      {:description ""}
+  ^{:doc      {:description "Used for printing test reports when all assertions passed."
+               :signature   [{:params [report+]}]}
     :private? true}
 
   [report+]
@@ -631,8 +649,11 @@
 
 (defn print
 
-  ^{:doc {:description ["Returns an 'out' special requestion which outputs failed tests in human-readable format."
-                        "Prints each failed transaction, why, and its `:description` from `:metadata`."]}}
+  ^{:doc {:description ["Uses `$.stream/out!` to print current test reports in human-redable format."
+                        "Afterwards, it is typically a good idea using `report.clear`, especially if more test will be run."
+                        "Name is simply used at the end of the report for identifying that report."]
+          :examples    [{:code "($.test/print 'my.lib)"}]
+          :signature   [{:params [name]}]}}
 
 
   ([name]
