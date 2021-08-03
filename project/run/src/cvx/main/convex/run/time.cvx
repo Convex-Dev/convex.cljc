@@ -1,5 +1,3 @@
-
-
 (call *registry*
       (cns-update 'convex.run.time
                   *address*))

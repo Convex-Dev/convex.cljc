@@ -1,11 +1,3 @@
-;;
-;;
-;; Help library for the Convex Lisp Runner offering a series of values dynamically set by the runner (eg. `env/*error*` when a CVM error occurs) and the `about`
-;; function for navigating documentation metadata.
-;;
-;;
-
-
 (call *registry*
       (cns-update 'convex.run
                   *address*))
@@ -13,7 +5,7 @@
 
 (call *registry*
       (register {:description "Notably provides the `*result*` dynamic value and the `help` function."
-                 :name "Convex Lisp Runner miscellaneous utilities"}))
+                 :name        "Convex Lisp Runner miscellaneous utilities"}))
 
 
 ;;;;;;;;;; Static values set by the runner

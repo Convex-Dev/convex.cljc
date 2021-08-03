@@ -1,46 +1,42 @@
-
-
 (call *registry*
       (cns-update 'convex.run.catch
                   *address*))
 
 
 (call *registry*
-      (register {:doc  {:description ""}
-                 :name ""}))
+      (register {:description ["Handling exceptions in a flexible way."
+                               "When an exception is thrown, it is made accessible through `$/*result*`."
+                               "Then, the runner uses `pop` to prepare a transaction for handling the error."
+                               "Users can use `push` to register an error handler but most of the time, the `safe` idiom is rather used."]
+                 :name        "Exception handling"}))
 
+
+;;;;;;;;;; Importing libraries
 
 
 (def $
 
-  ^{:doc {:description ""}}
+  ^{:private? true}
 
   (call *registry*
         (cns-resolve 'convex.run)))
 
 
 
-(def $.stream
-
-  ^{:doc {:description ""}}
-
-  (call *registry*
-        (cns-resolve 'convex.run.stream)))
-
-
-
 (def $.trx
 
-  ^{:doc {:description ""}}
+  ^{:private? true}
 
   (call *registry*
         (cns-resolve 'convex.run.trx)))
 
 
+;;;;;;;;;; Static values
 
-(def self
 
-  ^{:doc {:description ""}}
+(def -self
+
+  ^{:private? true}
 
   *address*)
 
@@ -48,52 +44,36 @@
 
 (def *stack*
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description ["List of transactions used as error handlers."
+                        "When an exception is thrown, runner uses `pop`."
+                        "If another exception occurs, the runner keeps popping."
+                        "Always contains at least the default error handler which is unpoppable."]}}
 
   '((do
       ($.trx/halt)
       ($.stream/err! $/*result*))))
 
 
-
-(defn pop
-
-  ^{:doc {:description ""}}
-
-  []
-
-  (if (= *address*
-         self)
-    (do
-      ($.trx/prepend (first *stack*))
-      (when (> (count *stack*)
-               1)
-        (def *stack*
-             (next *stack*)))
-      $/*result*)
-    (call self
-          (pop))))
-
-
-(export pop)
-
+;;;;;;;;;; API
 
 
 (defn drop
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description ["Removes the next transaction from `*stack*`."
+                        "Unlike `pop`, the tranaction is simply forgotten about."]
+          :signature   [{:params []}]}}
 
   []
 
   (if (= *address*
-         self)
+         -self)
     (do
       (when (> (count *stack*)
                1)
         (def *stack*
              (next *stack*)))
       $/*result*)
-    (call self
+    (call -self
           (drop))))
 
 
@@ -101,19 +81,46 @@
 
 
 
+(defn pop
+
+  ^{:doc        {:description ["Pops the next transaction from `*stack*` and prepends it to `$.trx/*list*`."
+                               "Used by the runner when an exception is thrown."]}
+    :signatures [{:params []}]}
+
+  []
+
+  (if (= *address*
+         -self)
+    (do
+      ($.trx/prepend (first *stack*))
+      (when (> (count *stack*)
+               1)
+        (def *stack*
+             (next *stack*)))
+      $/*result*)
+    (call -self
+          (pop))))
+
+
+(export pop)
+
+
 
 (defn push
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description ["Pushes `trx` onto `*stack*`."
+                        "When an exception is thrown, the runner uses `pop`."]
+          :examples    [{:code "($.catch/push '(when (= :NOBODY (:code $/*result*)) ...))"}]
+          :signature   [{:params [trx]}]}}
 
   [trx]
 
   (if (= *address*
-         self)
+         -self)
     (def *stack*
          (conj *stack*
                trx))
-    (call self
+    (call -self
           (push trx))))
 
 
