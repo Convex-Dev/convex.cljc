@@ -1,24 +1,32 @@
-
-
-
-
 (call *registry*
       (cns-update 'convex.run.stream
                   *address*))
 
 
 (call *registry*
-      (register {:doc  {:description ""}
-                 :name ""}))
+      (register {:description ["IO utilities for reading and writing streams."
+                               "Input streams are able to parse text as cells."
+                               "Output streams are able to print cells as text."
+                               "This account keeps references to STDIO streams."
+                               "The `$.file` library offers utilities for opening file streams."]
+                 :name        "Stream library for the Convex Lisp Runner"}))
 
 
 
 ;;;;;;;;;; STDIO streams
 
 
+(def stderr
+
+  ^{:doc {:description "Stream for STDERR"}}
+
+  2)
+
+
+
 (def stdin
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Stream for STDIN."}}
 
   0)
 
@@ -26,25 +34,18 @@
 
 (def stdout
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Stream for STDOUT"}}
 
   1)
 
 
-
-(def stderr
-
-  ^{:doc {:description ""}}
-
-  2)
-
-
-;;;;;;;;;; Dynamic values
+;;;;;;;;;; Default streams
 
 
 (def *err*
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description ["Default error stream, originally set to `stderr`."
+                        "See `set.err`."]}}
 
   stderr)
 
@@ -52,7 +53,8 @@
 
 (def *in*
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description ["Default input stream, originally set to `stdin`."
+                        "See `set.in`."]}}
 
   stdin)
 
@@ -60,7 +62,8 @@
 
 (def *out*
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description ["Default output stream, originally set to `stdout`."
+                        "See `set.out`."]}}
 
   stdout)
 
@@ -68,51 +71,11 @@
 ;;;;;;;;;; Setting dynamic values
 
 
-
-(defn set.in
-
-  ^{:doc {:description ""}}
-
-  [stream]
-
-  (if (= *address*
-         self)
-    (def *in*
-         (do
-           (assert (long? stream))
-           stream))
-    (call self
-          (set.in stream))))
-
-
-(export set.in)
-
-
-
-
-(defn set.out
-
-  ^{:doc {:description ""}}
-
-  [stream]
-
-  (if (= *address*
-         self)
-    (def *out*
-         (do
-           (assert (long? stream))
-           stream))
-    (call self
-          (set.out stream))))
-
-
-(export set.out)
-
-
-
 (defn set.err
 
-  ^{:doc {:description ""}}
+  ^{:callable? true
+    :doc       {:description "Sets `*err*` to the given `stream`."
+                :signature   [{:params [stream]}]}}
 
   [stream]
 
@@ -126,7 +89,41 @@
           (set.err stream))))
 
 
-(export set.err)
+(defn set.in
+
+  ^{:callable? true
+    :doc       {:description "Sets `*in*` to the given `stream`."
+                :signature   [{:params [stream]}]}}
+
+  [stream]
+
+  (if (= *address*
+         self)
+    (def *in*
+         (do
+           (assert (long? stream))
+           stream))
+    (call self
+          (set.in stream))))
+
+
+
+(defn set.out
+
+  ^{:callable? true
+    :doc       {:description "Sets `*out* to the given `stream`."
+                :signature   [{:params [stream]}]}}
+
+  [stream]
+
+  (if (= *address*
+         self)
+    (def *out*
+         (do
+           (assert (long? stream))
+           stream))
+    (call self
+          (set.out stream))))
 
 
 ;;;;;;;;;; Requests for handling streams
@@ -134,7 +131,9 @@
 
 (defn close
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Returns a request for closing the given `stream`?"
+          :examples    [{:code "($.stream/close $.stream/stdout)"}]
+          :signature   [{:params [stream]}]}}
 
   [stream]
 
@@ -146,7 +145,9 @@
 
 (defn err!
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Uses `out!` ont `*err*` for printing `x` to the default error stream."
+          :examples    [{:code "($.stream/err! {:some :error})"}]
+          :signature   [{:params [x]}]}}
 
   [x]
 
@@ -156,7 +157,11 @@
 
 (defn flush
 
-  ^{:doc {:description "Flushes what has been outputted with `out`."}}
+  ^{:doc {:description ["Returns a request for flushing the given output `stream` and ensuring all outputs are processed."
+                        "Flushes `*out*` by default."]
+          :examples    [{:code "($.stream/flush)"}]
+          :signature   [{:params []}
+                        {:params [stream]}]}}
 
 
   ([]
@@ -172,8 +177,13 @@
 
 (defn in+
 
-  ^{:doc {:description ["Reads a cell form from input."
-                        "See `out.bin`."]}}
+  ^{:doc {:description ["Returns a request for reading the given input `stream`."
+                        "Reads from `*in*` by default."
+                        "Whole input is read and `stream` is automatically closed."
+                        "List of read cells becomes available during next transaction under `$/*result*`."]
+          :examples    [{:code "($.stream/in+ $.stream/stdin)"}]
+          :signature   [{:params []}
+                        {:params [stream]}]}}
 
 
   ([]
@@ -189,9 +199,13 @@
 
 (defn line+
 
-  ^{:doc {:description ["Reads a line from STDIN."
-                        "Returns a list of forms."
-                        "See `out.ln`."]}}
+  ^{:doc {:description ["Returns a request for reading a line from the given input `stream`."
+                        "Reads from `*in*` by default."
+                        "Stops when a new line is encountered."
+                        "List of read cells becomes available during next transaction under `$/*result*`."]
+          :examples    [{:code "($.stream/in* $.stream/stdin)"}]
+          :signature   [{:params []}
+                        {:params [stream]}]}}
 
 
   ([]
@@ -207,11 +221,11 @@
 
 (defn out
 
-  ^{:doc {:description ["Writes the given argument to STDOUT as text."
-                        "See `out.flush`."]
-          :examples    [{:code "(sreq/out 42)"}]
-          :signature   [{:params [x]}]
-          :type        :function}}
+  ^{:doc {:description ["Returns a request for writing `x` to the given output `stream`."
+                        "Writes to `*out*` by default."]
+          :examples    [{:code "($.stream/out :foo)"}]
+          :signature   [{:params [x]}
+                        {:params [stream x]}]}}
 
 
   ([x]
@@ -228,11 +242,10 @@
 
 (defn out!
 
-  ^{:doc {:description ["Writes the given argument to STDOUT as text."
-                        "See `out.flush`."]
-          :examples    [{:code "(sreq/out 42)"}]
-          :signature   [{:params [x]}]
-          :type        :function}}
+  ^{:doc {:description "Likes `out` but also outputs a new line and flushes the `stream`."
+          :examples    [{:code "($.stream/out! :foo)"}]
+          :signature   [{:params [x]}
+                        {:params [stream x]}]}}
 
 
   ([x]
