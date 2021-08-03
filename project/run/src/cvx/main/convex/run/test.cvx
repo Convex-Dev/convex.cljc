@@ -404,10 +404,10 @@
                           :metadata metadata-2
                           :trx      (list 'quote
                                           trx)}]
-         ($.catch/safe `(let [result ~trx]
-                          (~-self/report.conj (assoc ~base-report
-                                                     :result result
-                                                     :passe? false)))
+         ($.catch/safe `($.trx/precat '(~trx
+                                        (~-self/report.conj (assoc ~base-report
+                                                                   :result $/*result*
+                                                                   :passe? false))))
                        `(~-self/report.conj (assoc ~base-report
                                                    :exception (lookup ~$
                                                                       *result*)
@@ -462,11 +462,11 @@
                           :metadata metadata-2
                           :trx      (list 'quote
                                           trx)}]
-         ($.catch/safe `(let [result ~trx]
-                          (~-self/report.conj (assoc ~base-report
-                                                     :result result
-                                                     :pass?  (= result
-                                                               true))))
+         ($.catch/safe `($.trx/precat '(~trx
+                                        (~-self/report.conj (assoc ~base-report
+                                                                   :result $/*result*
+                                                                   :pass?  (= $/*result*
+                                                                              true)))))
                        `(~-self/report.conj (assoc ~base-report
                                                    :exception (lookup ~$
                                                                       *result*)
