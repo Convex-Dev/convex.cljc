@@ -36,13 +36,19 @@
 ;;;;;;;;;;
 
 
+(when (and (defined? fast?)
+           fast?)
+  ($.test/filter.set (fn [meta]
+                       (not (:slow? meta)))))
+
+
 (exec "run")
 (exec "run/account")
 (exec "run/catch")
 (exec "run/code")
 (exec "run/file")
 (exec "run/log")
-;(exec "run/perf")
+(exec "run/perf")
 (exec "run/process")
 (exec "run/stream")
 (exec "run/test")

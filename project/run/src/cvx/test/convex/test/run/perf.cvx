@@ -23,23 +23,22 @@
 
   (T/group '[(T/path.conj 'convex.run.perf)
 
-             ($.perf/track '(+ 2 2))
+             (T/trx '($.trx/precat '(($.perf/bench '(+ 2 2))
+                                     (and (map? $/*result*)
+                                     (< ($/*result* :stddev)
+                                        ($/*result* :mean)))))
+                    {:description "Benchmarking."
+                     :slow?       true})
 
-             (T/trx '(and (map? $/*result*)
-                          (= 4
-                             (:result $/*result*))
-                          (= (:juice $/*result*)
-                             (+ (:juice.expand $/*result*)
-                                (:juice.compile $/*result*)
-                                (:juice.exec $/*result*))))
-                    {:description "Tracking."})
-
-             ($.perf/bench '(+ 2 2))
-
-             (T/trx '(and (map? $/*result*)
-                          (< ($/*result* :stddev)
-                             ($/*result* :mean)))
-                    {:description "Benchmarking."})]))
+             (T/trx '($.trx/precat '(($.perf/track '(+ 2 2))
+                                     (and (map? $/*result*)
+                                         (= 4
+                                            (:result $/*result*))
+                                         (= (:juice $/*result*)
+                                            (+ (:juice.expand $/*result*)
+                                               (:juice.compile $/*result*)
+                                               (:juice.exec $/*result*))))))
+                    {:description "Tracking."})]))
 
 
 ;;;
