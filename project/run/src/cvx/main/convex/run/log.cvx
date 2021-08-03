@@ -13,7 +13,7 @@
 
 (defn clear
 
-  ^{:doc {:description "Returns a request for clearing the CVM log."
+  ^{:doc {:description "Returns a request for clearing the state of the CVM log."
           :signature   [{:params []}]}}
 
   []
@@ -24,7 +24,7 @@
 
 (defn get
 
-  ^{:doc {:description ["Retrieves the current CVM log."
+  ^{:doc {:description ["Returns a request for retrieving the current state of the CVM log."
                         "Result is available during next transaction under `$/*result*`."]
           :signature   [{:params []}]}}
 

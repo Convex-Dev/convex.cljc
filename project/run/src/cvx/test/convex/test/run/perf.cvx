@@ -1,0 +1,49 @@
+;;
+;;
+;; Testing `convex.run.perf`.
+;;
+;;
+
+
+;;;;;;;;;;
+
+
+(def T
+     $.test)
+
+
+;;;;;;;;;; Test suites
+
+
+(defn suite.main
+
+  ^{:doc {:description "Main test suite."}}
+
+  []
+
+  (T/group '[(T/path.conj 'convex.run.perf)
+
+             ($.perf/track '(+ 2 2))
+
+             (T/trx '(and (map? $/*result*)
+                          (= 4
+                             (:result $/*result*))
+                          (= (:juice $/*result*)
+                             (+ (:juice.expand $/*result*)
+                                (:juice.compile $/*result*)
+                                (:juice.exec $/*result*))))
+                    {:description "Tracking."})
+
+             ($.perf/bench '(+ 2 2))
+
+             (T/trx '(and (map? $/*result*)
+                          (< ($/*result* :stddev)
+                             ($/*result* :mean)))
+                    {:description "Benchmarking."})]))
+
+
+;;;
+
+
+(suite.main)
+(T/print "convex.run.perf")

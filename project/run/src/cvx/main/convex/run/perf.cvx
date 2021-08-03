@@ -1,21 +1,25 @@
-
-
 (call *registry*
       (cns-update 'convex.run.perf
                   *address*))
 
 
 (call *registry*
-      (register {:doc  {:description ""}
-                 :name ""}))
+      (register {:description "Performance-related utilities."
+                 :name        "Performance library for the Convex Lisp Runner"}))
 
 
-;;;;;;;;;; Miscellaneous
+;;;;;;;;;; API
 
 
 (defn bench
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description ["Returns a request for measuring the mean execution time of the given transaction."
+                        "Executed in a query a high number of times."
+                        "Highly experimental, probably useful for CVM developpers only."
+                        "Depending on the given transaction, takes between one and several minutes to complete."
+                        "Report map is available during next transaction under `$/*result*`."]
+          :examples    [{:code "($.perf/bench (compile '(+ 2 2)))"}]}}
+
 
   [trx]
 
@@ -25,7 +29,10 @@
 
 (defn track
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description ["Returns a request for tracking juice consumption of each execution step (expansion, compilation, evaluation)."
+                        "Also pinpoints which step fails in case of error."
+                        "Report map is available during next transacation under `$/*result*`."]}}
+
 
   [trx]
 
