@@ -59,9 +59,10 @@
 
 (defn drop
 
-  ^{:doc {:description ["Removes the next transaction from `*stack*`."
-                        "Unlike `pop`, the tranaction is simply forgotten about."]
-          :signature   [{:params []}]}}
+  ^{:callable? true
+    :doc       {:description ["Removes the next transaction from `*stack*`."
+                              "Unlike `pop`, the tranaction is simply forgotten about."]
+                :signature   [{:params []}]}}
 
   []
 
@@ -77,15 +78,13 @@
           (drop))))
 
 
-(export drop)
-
-
 
 (defn pop
 
-  ^{:doc        {:description ["Pops the next transaction from `*stack*` and prepends it to `$.trx/*list*`."
-                               "Used by the runner when an exception is thrown."]}
-    :signatures [{:params []}]}
+  ^{:callable?  true
+    :doc        {:description ["Pops the next transaction from `*stack*` and prepends it to `$.trx/*list*`."
+                               "Used by the runner when an exception is thrown."]
+                 :signatures [{:params []}]}}
 
   []
 
@@ -102,16 +101,14 @@
           (pop))))
 
 
-(export pop)
-
-
 
 (defn push
 
-  ^{:doc {:description ["Pushes `trx` onto `*stack*`."
-                        "When an exception is thrown, the runner uses `pop`."]
-          :examples    [{:code "($.catch/push '(when (= :NOBODY (:code $/*result*)) ...))"}]
-          :signature   [{:params [trx]}]}}
+  ^{:callable? true
+    :doc       {:description ["Pushes `trx` onto `*stack*`."
+                              "When an exception is thrown, the runner uses `pop`."]
+                :examples    [{:code "($.catch/push '(when (= :NOBODY (:code $/*result*)) ...))"}]
+                :signature   [{:params [trx]}]}}
 
   [trx]
 
@@ -126,13 +123,13 @@
           (push trx))))
 
 
-(export push)
-
-
 
 (defn safe
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description ["Try-catch idiom."
+                        "If `trx-try` transaction fails, `trx-catch` is executed."
+                        "In any argument, `$.trx/precat` or `$.trx/prepend` can be used if more than one transaction must be executed."
+                        "In any case, `trx-finally` is finally executed if given."]}}
 
 
   ([trx-try]
