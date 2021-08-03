@@ -5,18 +5,14 @@
 ;;
 
 
-;;;;;;;;;; Importing libraries
+;;;;;;;;;;
 
 
 (def T
-
-  ^{:private? true}
-
-  (call *registry*
-        (cns-resolve 'convex.run.test)))
+     $.test)
 
 
-;;;;;;;;;; Tests
+;;;;;;;;;; Test suite
 
 
 (defn suite.main

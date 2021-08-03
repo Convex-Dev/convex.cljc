@@ -8,24 +8,11 @@
 ;;;;;;;;;; Importing libraries
 
 
-(def $.time
-
-  ^{:private? true}
-
-  (call *registry*
-        (cns-resolve 'convex.run.time)))
-
-
-
 (def T
-
-  ^{:private? true}
-
-  (call *registry*
-        (cns-resolve 'convex.run.test)))
+     $.test)
 
 
-;;;;;;;;;; Tests
+;;;;;;;;;; Test suites
 
 
 (defn suite.advance

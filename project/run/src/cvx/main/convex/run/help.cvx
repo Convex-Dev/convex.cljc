@@ -285,7 +285,7 @@
                  acc   (if ex+
                          (section acc
                                   "Example(s):"
-                                  (if (-vector? sign+)
+                                  (if (-vector? ex+)
                                     (map (fn [ex]
                                            (let [code   (:code ex)
                                                  return (:returns ex)]

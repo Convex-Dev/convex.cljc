@@ -6,8 +6,8 @@
 
 
 (call *registry*
-      (register {:doc  {:description ""}
-                 :name ""}))
+      (register {:description "Miscellaneous account utilities."
+                 :name        "Convex Lisp Runner account library"}))
 
 
 ;;;;;;;;;;
@@ -15,7 +15,8 @@
 
 (def fake-key
 
-  ^{:doc {:description "Fake key for turning an actor into a user account with standard `set-key`."}}
+  ^{:doc {:description "Fake key for turning an actor into a user account with standard `set-key`."
+          :examples    [{:code "(deploy '(do (set-key $.account/fake-key) ...))"}]}}
 
   0x0000000000000000000000000000000000000000000000000000000000000000)
 
@@ -23,9 +24,10 @@
 
 (defmacro zombie
 
-  ^{:doc {:description "Wraps forms into deploy code which turns the actor into a user account with `fake-key` and make it controllable with `eval-as`."
-          :examples    [{:code "(def a (env/zombie (def foo 42)))"}]
-          :type        :macro}}
+  ^{:doc {:description ["Macro which wraps forms into deploy code that turns the actor into a user account with `fake-key` and makes it controllable."
+                        "Account can be controlled using standard `eval-as`."]
+          :examples    [{:code "(def a ($.account/zombie (def foo 42)))"}]
+          :signature   [{:params [& form+]}]}}
 
   [& form+]
 

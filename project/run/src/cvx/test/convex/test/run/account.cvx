@@ -1,0 +1,61 @@
+;;
+;;
+;; Testing `convex.run.account`.
+;;
+;;
+
+
+;;;;;;;;;;
+
+
+(def T
+     $.test)
+
+
+;;;;;;;;;; Test suites
+
+
+;;;
+
+
+(defn suite.main
+
+  ^{:doc {:description "Main test suite."}}
+
+  []
+
+  (T/group '[(T/path.conj 'convex.run.account)
+
+             (def actor
+                  ($.account/zombie (def foo
+                                         42)))
+
+             ($.stream/out! [:actor (:key (account actor)) $.account/fake-key])
+
+             (T/trx '(= 42
+                        actor/foo)
+                    {:description "Actor deployed."})
+
+
+             (T/trx '(= $.account/fake-key
+                        (blob (:key (account actor))))
+                    {:description "Fake key set."})
+
+             (T/trx '(= *address*
+                        (:controller (account actor)))
+                    {:description "Controller set."})
+
+             (T/trx '(= 24
+                        (do
+                          (eval-as actor
+                                   '(def foo
+                                         24))
+                          actor/foo))
+                    {:description "Able to use `eval-as`"})]))
+
+
+;;;
+
+
+(suite.main)
+(T/print "convex.run.account")
