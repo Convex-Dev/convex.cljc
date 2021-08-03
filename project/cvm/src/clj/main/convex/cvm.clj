@@ -443,6 +443,19 @@
 
 
 
+(defn result-set
+
+  "Attaches the given `result` to `ctx`, as if it was the result of a transaction."
+
+  ^Context
+
+  [^Context ctx ^ACell result]
+
+  (.withResult ctx
+               result))
+
+
+
 (defn state-set
 
   "Replaces the CVM state in the `ctx` with the given one.

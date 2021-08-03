@@ -29,7 +29,7 @@
 ;;;;;;;;;; Helpers
 
 
-(defn- -arg-long
+(defn- -stream
 
   ;;
 
@@ -37,11 +37,6 @@
 
   (.longValue ^CVMLong (.get tuple
                              2)))
-
-
-
-(def ^:private -stream
-               -arg-long)
 
 
 ;;;;;;;;;; Setup
@@ -53,9 +48,10 @@
 
   ;; No special request.
 
-  [env _result]
+  [env result]
 
-  env)
+  ($.run.ctx/def-result env
+                        result))
 
 
 
@@ -133,11 +129,13 @@
 
   [env _tuple]
 
-  (update env
-          :convex.run/ctx
-          (fn [ctx]
-            ($.cvm/ctx {:convex.cvm/address ($.cvm/address ctx)
-                        :convex.cvm/state   ($.cvm/state ctx)}))))
+  (let [ctx   (env :convex.run/ctx)
+        ctx-2 ($.cvm/ctx {:convex.cvm/address ($.cvm/address ctx)
+                          :convex.cvm/state   ($.cvm/state ctx)})]
+    (-> env
+        (assoc :convex.run/ctx
+               ctx-2)
+        ($.run.ctx/def-result ($.cvm/log ctx-2)))))
 
 
 
@@ -318,11 +316,14 @@
 
   [env tuple]
 
-  (update env
-          :convex.run/ctx
-          (fn [ctx]
-            ($.cvm/time-advance ctx
-                                (-arg-long tuple)))))
+  (let [^CVMLong interval (.get tuple
+                                2)]
+    (-> env
+        (update :convex.run/ctx
+                (fn [ctx]
+                  ($.cvm/time-advance ctx
+                                      (.longValue interval))))
+        ($.run.ctx/def-result interval))))
 
 
 

@@ -118,25 +118,6 @@
   :default :unknown)
 
 
-
-(defn sreq-safe
-
-  "Calls [[sreq]] while wrapped in a try-catch.
-  
-   Errors are reported using [[$.run.err/fail]]."
-
-  [env trx result]
-
-  (try
-    (sreq env
-          result)
-    (catch Throwable _ex
-      ($.run.err/fail env
-                      ($.run.err/sreq ($.cell/code-std* :FATAL)
-                                      ($.cell/string "Unknown error happened while finalizing transaction")
-                                      trx)))))
-
-
 ;;;;;;;;;; Execution steps
 
 
@@ -235,18 +216,17 @@
                     trx)]
     (if (env-2 :convex.run/error)
       env-2
-      (let [res (result env-2)]
-        (sreq ($.run.ctx/def-result env-2
-                                    res)
-              ;trx
-              res)))))
+        (sreq env-2
+        (result env-2)))))
 
 
 
 (defn trx-track
 
   "Like [[trx]] but result is a map containing `:result` as well as juice values for each steps ([[expand]],
-   [[compile]], and [[exec]])."
+   [[compile]], and [[exec]]).
+  
+   Special requests are not performed."
 
   [env trx]
 
@@ -262,18 +242,15 @@
                 env-4         (exec env-3)]
             (if (env-4 :convex.run/error)
               env-4
-              (let [juice-exec (juice env-4)
-                    res        (result env-4)]
-                (sreq ($.run.ctx/def-result env-4
-                                            ($.cell/map {$.run.kw/juice         ($.cell/long (+ juice-expand
-                                                                                                juice-compile
-                                                                                                juice-exec))
-                                                         $.run.kw/juice-expand  ($.cell/long juice-expand)
-                                                         $.run.kw/juice-compile ($.cell/long juice-compile)
-                                                         $.run.kw/juice-exec    ($.cell/long juice-exec)
-                                                         $.run.kw/result        res}))
-                      ;trx
-                      res)))))))))
+              (let [juice-exec (juice env-4)]
+                ($.run.ctx/def-result env-4
+                                      ($.cell/map {$.run.kw/juice         ($.cell/long (+ juice-expand
+                                                                                          juice-compile
+                                                                                          juice-exec))
+                                                   $.run.kw/juice-expand  ($.cell/long juice-expand)
+                                                   $.run.kw/juice-compile ($.cell/long juice-compile)
+                                                   $.run.kw/juice-exec    ($.cell/long juice-exec)
+                                                   $.run.kw/result        (result env-2)}))))))))))
 
 
 

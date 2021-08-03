@@ -38,7 +38,10 @@
                        (def foo
                             42))
 
-             ($.time/advance (dec interval))
+             (T/trx '($.trx/precat '(($.time/advance (dec interval))
+                                     (= (dec interval)
+                                         $/*result*)))
+                    {:description "Advancing time returns given interval."})
 
              (T/trx '(not (defined? foo))
                     {:description "Scheduled transaction not yet executed."})
@@ -48,10 +51,9 @@
                         *timestamp*)
                     {:description "Clock advanced precisely as expected."})
 
-             ($.time/advance 1)
-
-             (T/trx '(= foo
-                        42)
+             (T/trx '($.trx/precat '(($.time/advance 1)
+                                     (= foo
+                                        42)))
                     {:description "Scheduled transaction executed."})
 
              (T/trx '(= end
@@ -67,28 +69,22 @@
   []
 
   (T/group '[(T/path.conj 'push-pop)
-
              
-             ($.time/push)
-
-             (def foo
-                  42)
-
-             ($.time/pop)
-
-             (T/trx '(not (defined? foo))
+             (T/trx '($.trx/precat '(42
+                                     ($.time/push)
+                                     (def foo
+                                          $/*result*)
+                                     ($.time/pop)
+                                     (not (defined? foo))))
                     {:description "State popped forgetting everything."})
 
-             ($.time/push)
-
-             (def foo
-                  24)
-
-             ($.time/pop `(def bar
-                               ~foo))
-
-             (T/trx '(= 24
-                        bar)
+             (T/trx '($.trx/precat '(($.time/push)
+                                     (def foo
+                                          24)
+                                     ($.time/pop `(def bar
+                                                       ~foo))
+                                     (= 24
+                                        bar)))
                     {:description "State popped while remembering something."})]))
              
 
@@ -102,9 +98,7 @@
   []
 
   (T/group '[(T/path.conj 'convex.run.time)
-    
              (suite.advance)
-
              (suite.state)]))
 
 

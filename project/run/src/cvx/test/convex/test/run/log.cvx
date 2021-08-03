@@ -39,6 +39,10 @@
 
              ($.log/clear)
 
+             (T/trx '(= []
+                        $/*result*)
+                    {:description "Clearing returns empty log."})
+
              ($.log/get)
 
              (T/trx '(= []
