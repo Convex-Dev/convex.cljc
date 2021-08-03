@@ -1,24 +1,20 @@
-
-
 (call *registry*
       (cns-update 'convex.run.log
                   *address*))
 
 
 (call *registry*
-      (register {:doc  {:description ""}
-                 :name ""}))
+      (register {:description "Utilities related to the CVM log."
+                 :name        "CVM log library"}))
 
 
-;;;;;;;;;;
+;;;;;;;;;; API
 
 
 (defn clear
 
-  ^{:doc {:description ""
-          :examples    [{:code "(sreq/do '[(log :foo) (sreq/log l) (sreq/out l))"}]
-          :signature   [{:params []}]
-          :type        :function}}
+  ^{:doc {:description "Returns a request for clearing the CVM log."
+          :signature   [{:params []}]}}
 
   []
 
@@ -29,10 +25,8 @@
 (defn get
 
   ^{:doc {:description ["Retrieves the current CVM log."
-                        "Result is temporarily stored in `env/*result* and is accessible during the next transaction."]
-          :examples    [{:code "(sreq/do '[(log :foo) (sreq/log l) (sreq/out l))"}]
-          :signature   [{:params []}]
-          :type        :function}}
+                        "Result is available during next transaction under `$/*result*`."]
+          :signature   [{:params []}]}}
 
   []
 
