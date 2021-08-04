@@ -2,9 +2,10 @@
 
 Convex Lisp is particularly close to Clojure on many aspects.
 
-[`:project/cvm`](../cvm) exposes low-level features for executing Convex Lisp code via a CVM context and handling Convex data.
-This project offers high-productivity utilities for producing Convex Lisp code from Clojure data structures. Those utilities
-are especially useful during development and testing (eg. see [`:project/break`](../break)).
+[`:project/cvm`](../cvm) exposes low-level features for executing Convex Lisp code via a CVM context and handling cells.
+
+This project offers high-productivity utilities for producing Convex Lisp source code from Clojure data structures. Those
+utilities are especially useful during development and testing (eg. see [`:project/break`](../break)).
 
 
 ## Writing Convex Lisp as Clojure data structures
