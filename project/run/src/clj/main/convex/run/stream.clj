@@ -231,7 +231,7 @@
   [env path open str-op]
 
   (try
-    (let [file (open path)
+    (let [file (open (str path))
           id   (inc (env :convex.run.stream/id))]
       (-> env
           (assoc :convex.run.stream/id
@@ -246,7 +246,7 @@
     (catch Throwable _ex
       ($.run.err/fail env
                       ($.cell/error $.run.kw/err-stream
-                                    ($.cell/string (format "Unable to open file for %s: %s"
+                                    ($.cell/string (format "Unable to open file for '%s': %s"
                                                            path
                                                            str-op)))))))
 

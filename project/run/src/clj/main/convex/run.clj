@@ -122,7 +122,7 @@
               #(or %
                    (fn [_env err]
                      (print "FATAL: ")
-                     (println err)
+                     (println (str err))
                      (flush)
                      (System/exit 42))))
       (update :convex.run/ctx
@@ -178,6 +178,7 @@
             "($.repl/start {:intro? true})"))
     (catch Throwable _ex
       (println "An unknown exception happened.")
+      (println _ex)
       (flush)
       (when (not= (System/getenv "CONVEX_DEV")
                   "true")

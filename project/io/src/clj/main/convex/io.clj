@@ -16,6 +16,10 @@
                             newline]))
 
 
+(set! *warn-on-reflection*
+      true)
+
+
 ;;;;;;;;;; STDIO streams
 
 
@@ -107,7 +111,7 @@
 
   ""
 
-  [path]
+  [^String path]
 
   (let [file (File. path)]
     (-> file

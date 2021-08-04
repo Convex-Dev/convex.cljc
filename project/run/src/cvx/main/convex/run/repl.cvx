@@ -219,7 +219,7 @@
                                               $.term/reset
                                               $/line)))
                        (call $.repl
-                             (-next ~result)))))
+                             (-next (quote ~result))))))
      (call -self
            (start option+
                   result)))))

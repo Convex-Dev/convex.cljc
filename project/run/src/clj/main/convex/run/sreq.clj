@@ -314,7 +314,7 @@
 
   ;; Advances the timestamp.
 
-  [env tuple]
+  [env ^AVector tuple]
 
   (let [^CVMLong interval (.get tuple
                                 2)]

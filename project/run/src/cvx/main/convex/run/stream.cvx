@@ -12,6 +12,20 @@
                  :name        "Stream library for the Convex Lisp Runner"}))
 
 
+;;;;;;;;; Private
+
+
+(defn -stream
+
+  ^{:doc {:description ["Asserts that `stream` is indeed a stream."
+                        "Returns its argument or throw an exception."]
+          :signature   [{:params [stream]}]}}
+
+  [stream]
+
+  (assert (long? stream))
+  stream)
+
 
 ;;;;;;;;;; STDIO streams
 
@@ -82,9 +96,7 @@
   (if (= *address*
          self)
     (def *err*
-         (do
-           (assert (long? stream))
-           stream))
+         (-stream stream))
     (call self
           (set.err stream))))
 
@@ -100,9 +112,7 @@
   (if (= *address*
          self)
     (def *in*
-         (do
-           (assert (long? stream))
-           stream))
+         (-stream stream))
     (call self
           (set.in stream))))
 
@@ -119,9 +129,7 @@
   (if (= *address*
          self)
     (def *out*
-         (do
-           (assert (long? stream))
-           stream))
+         (-stream stream))
     (call self
           (set.out stream))))
 
@@ -131,7 +139,8 @@
 
 (defn close
 
-  ^{:doc {:description "Returns a request for closing the given `stream`?"
+  ^{:doc {:description ["Returns a request for closing the given `stream`."
+                        "`stderr` cannot be closed."]
           :examples    [{:code "($.stream/close $.stream/stdout)"}]
           :signature   [{:params [stream]}]}}
 
@@ -139,7 +148,7 @@
 
   (assert (not (= stream
                   stderr)))
-  [:cvm.sreq :stream.close stream])
+  [:cvm.sreq :stream.close (-stream stream)])
 
 
 
@@ -171,7 +180,7 @@
 
   ([stream]
 
-   [:cvm.sreq :stream.flush stream]))
+   [:cvm.sreq :stream.flush (-stream stream)]))
 
 
 
@@ -193,7 +202,7 @@
 
   ([stream]
 
-   [:cvm.sreq :stream.in+ stream]))
+   [:cvm.sreq :stream.in+ (-stream stream)]))
 
 
 
@@ -215,7 +224,7 @@
 
   ([stream]
 
-   [:cvm.sreq :stream.line+ stream]))
+   [:cvm.sreq :stream.line+ (-stream stream)]))
 
 
 
@@ -236,7 +245,7 @@
 
   ([stream x]
 
-   [:cvm.sreq :stream.out stream x]))
+   [:cvm.sreq :stream.out (-stream stream) x]))
 
 
 
@@ -256,4 +265,4 @@
 
   ([stream x]
 
-   [:cvm.sreq :stream.out! stream x]))
+   [:cvm.sreq :stream.out! (-stream stream) x]))

@@ -46,7 +46,7 @@
 (exec "run/account")
 (exec "run/catch")
 (exec "run/code")
-(exec "run/file")
+;(exec "run/file")
 (exec "run/log")
 (exec "run/perf")
 (exec "run/process")
