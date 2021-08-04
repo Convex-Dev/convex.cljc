@@ -145,54 +145,33 @@
       (assoc-trx trx)))
 
 
-;;;;;;;;;; Signaling errors in Convex Lisp
+;;;;;;;;;; Fatal
 
 
-(defn fail
-
-  ""
-
-  [env ^AMap err]
-
-  (let [err-2 (.assoc err
-                      $.run.kw/exception?
-                      ($.cell/boolean true))]
-    ((env :convex.run/fail)
-     (-> env
-         (assoc :convex.run/error
-                err-2)
-         (cond->
-           (env :convex.run/ctx)
-           (-> (update :convex.run/ctx
-                       $.cvm/exception-clear)
-               ($.run.ctx/def-result err-2)))))))
-
-
-
-(defn report
-
-  "Uses [[fail]] with `err` but associates to it a `:report` key pointing to a temp file
-   where an EDN file has been written.
-  
-   This EDN file pretty-prints the given `env` with `ex` under `:convex.run/exception` (the Java exception
-   that caused the failure).
-  
-   The error in Convex data under `:convex.run/error` is stringified for better readibility."
-
-  [env ^AMap err ex]
-
-  (let [path  (str (Files/createTempFile "cvx_report_"
-                                         ".edn"
-                                         (make-array FileAttribute
-                                                     0)))
-        env-2 (fail env
-                    (.assoc err
-                            $.run.kw/report
-                            ($.cell/string path)))]
-    (clojure.pprint/pprint (-> env-2
-                               (update :convex.run/error
-                                       str)
-                               (assoc :convex.run/exception
-                                      ex))
-                           (clojure.java.io/writer path))
-    env-2))
+; (defn report
+; 
+;   "Uses [[fail]] with `err` but associates to it a `:report` key pointing to a temp file
+;    where an EDN file has been written.
+;   
+;    This EDN file pretty-prints the given `env` with `ex` under `:convex.run/exception` (the Java exception
+;    that caused the failure).
+;   
+;    The error in Convex data under `:convex.run/error` is stringified for better readibility."
+; 
+;   [env ^AMap err ex]
+; 
+;   (let [path  (str (Files/createTempFile "cvx_report_"
+;                                          ".edn"
+;                                          (make-array FileAttribute
+;                                                      0)))
+;         env-2 (fail env
+;                     (.assoc err
+;                             $.run.kw/report
+;                             ($.cell/string path)))]
+;     (clojure.pprint/pprint (-> env-2
+;                                (update :convex.run/error
+;                                        str)
+;                                (assoc :convex.run/exception
+;                                       ex))
+;                            (clojure.java.io/writer path))
+;     env-2))

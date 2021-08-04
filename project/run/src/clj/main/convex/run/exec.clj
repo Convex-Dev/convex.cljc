@@ -4,7 +4,8 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.data AVector))
+  (:import (convex.core.data AMap
+                             AVector))
   (:refer-clojure :exclude [compile
                             eval])
   (:require [convex.cell    :as $.cell]
@@ -13,6 +14,9 @@
             [convex.run.ctx :as $.run.ctx]
             [convex.run.err :as $.run.err]
             [convex.run.kw  :as $.run.kw]))
+
+
+(declare fail)
 
 
 ;;;;;;;;;; Values
@@ -71,9 +75,9 @@
              :convex.run/ctx
              ctx)
       ex
-      ($.run.err/fail (-> ($.run.err/mappify ex)
-                          ($.run.err/assoc-phase kw-phase)
-                          ($.run.err/assoc-trx trx))))))
+      (fail (-> ($.run.err/mappify ex)
+                ($.run.err/assoc-phase kw-phase)
+                ($.run.err/assoc-trx trx))))))
 
 
 ;;;;;;;;;; Special transactions
@@ -284,7 +288,17 @@
 
     ""
 
-    [env]
+    [env ^AMap err]
 
-    ($.run.ctx/prepend-trx env
-                           trx-pop)))
+    (let [err-2 (.assoc err
+                        $.run.kw/exception?
+                        ($.cell/boolean true))]
+      (-> env
+          (assoc :convex.run/error
+                 err-2)
+          (cond->
+            (env :convex.run/ctx)
+            (-> (update :convex.run/ctx
+                        $.cvm/exception-clear)
+                ($.run.ctx/def-result err-2)))
+          ($.run.ctx/prepend-trx trx-pop)))))

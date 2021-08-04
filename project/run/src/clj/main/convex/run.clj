@@ -115,9 +115,6 @@
                                    2 $.io/stderr-txt}
              :convex.run/watch?    false
              :convex.run.stream/id 2)
-      (update :convex.run/fail
-              #(or %
-                   $.run.exec/fail))
       (update :convex.run/fatal
               #(or %
                    (fn [_env err]

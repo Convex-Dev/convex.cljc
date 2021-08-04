@@ -8,13 +8,13 @@
            (java.io BufferedReader
                     FileNotFoundException))
   (:refer-clojure :exclude [flush])
-  (:require [convex.cell    :as $.cell]
-            [convex.io      :as $.io]
-            [convex.read    :as $.read]
-            [convex.run.ctx :as $.run.ctx]
-            [convex.run.err :as $.run.err]
-            [convex.run.kw  :as $.run.kw]
-            [convex.write   :as $.write]))
+  (:require [convex.cell     :as $.cell]
+            [convex.io       :as $.io]
+            [convex.read     :as $.read]
+            [convex.run.ctx  :as $.run.ctx]
+            [convex.run.exec :as $.run.exec]
+            [convex.run.kw   :as $.run.kw]
+            [convex.write    :as $.write]))
 
 
 (set! *warn-on-reflection*
@@ -50,8 +50,8 @@
     ((env :convex.run/fatal)
      env
      err)
-    ($.run.err/fail env
-                    err)))
+    ($.run.exec/fail env
+                     err)))
 
 
 
@@ -244,11 +244,11 @@
     ;(catch FileNotFoundException _ex
 
     (catch Throwable _ex
-      ($.run.err/fail env
-                      ($.cell/error $.run.kw/err-stream
-                                    ($.cell/string (format "Unable to open file for '%s': %s"
-                                                           path
-                                                           str-op)))))))
+      ($.run.exec/fail env
+                       ($.cell/error $.run.kw/err-stream
+                                     ($.cell/string (format "Unable to open file for '%s': %s"
+                                                            path
+                                                            str-op)))))))
 
 
 

@@ -63,10 +63,10 @@
 
   [env tuple]
 
-  ($.run.err/fail env
-                  ($.run.err/sreq ($.cell/code-std* :ARGUMENT)
-                                  ($.cell/string "Unsupported special transaction")
-                                  tuple)))
+  ($.run.exec/fail env
+                   ($.run.err/sreq ($.cell/code-std* :ARGUMENT)
+                                   ($.cell/string "Unsupported special transaction")
+                                   tuple)))
 
 ;;;;;;;;;; Code
 
@@ -88,10 +88,10 @@
                               str
                               $.read/string+))
     (catch Throwable _err
-      ($.run.err/fail env
-                      ($.run.err/sreq ($.cell/code-std* :ARGUMENT)
-                                      ($.cell/string "Unable to read source")
-                                      tuple)))))
+      ($.run.exec/fail env
+                       ($.run.err/sreq ($.cell/code-std* :ARGUMENT)
+                                       ($.cell/string "Unable to read source")
+                                       tuple)))))
 
 
 ;;;;;;;;;; File
@@ -342,10 +342,10 @@
                  :convex.run/ctx         ctx-restore)
           ($.run.ctx/def-trx+ ($.cell/list [(.get tuple
                                                   2)])))
-      ($.run.err/fail env
-                      ($.run.err/sreq ($.cell/code-std* :STATE)
-                                      ($.cell/string "No state to pop")
-                                      tuple)))))
+      ($.run.exec/fail env
+                       ($.run.err/sreq ($.cell/code-std* :STATE)
+                                       ($.cell/string "No state to pop")
+                                       tuple)))))
 
 
 
