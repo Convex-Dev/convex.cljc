@@ -1,25 +1,92 @@
 # `:project/run`
 
-**Namespaces of interest**: `$.run`
+Convex Lisp Runner.
 
-Built on top of [`:project/sync`](../sync) and [`:project/watch`](../watch), this project hosts the core implementation of the Convex Lisp Runner
-written in [`:project/app.run`](../app/run) which is a very light CLI interface. Go there for concepts and rationale. The 3 evaluation modes it
-supports are directly accessible with functions `eval`, `load`, and `watch`, which can be reused for different purposes.
+One-size fits all tool for sophisticated development, testing, and analysis of Convex Lisp in a fun
+and highly productive environment.
 
-For instance:
+Executes transactions provided as command-line arguments. If none is given, starts the Convex Lisp REPL where
+user can work interactively.
 
-```clojure
-(def env
-     ($.run/load {:convex.run.hook/out (fn [env x]
-                                         (println x)
-                                         (flush)
-                                         env)}
-                 "./path/to/file.cvx"))
+Transactions are executed successively and deterministically by the CVM. However, a given transaction can return a
+*request* for performing operations beyond the scope of the CVM. A plethora of CVX libraries is embedded
+in the runner, building on those supported requests for providing features like file IO, time-travel, exception
+handling, etc.
+
+As a result, Convex Lisp becomes more like a scripting language with advanced metaprogramming and pushes the
+boundaries of smart contract development to unforeseen heights with very fast feedback.
+
+In the future, the runner will also integrate client capabilities, allowing for scripted or dynamic interactions
+with networks of peers.
+
+
+## Usage
+
+Install latest release on your system.
+
+Native version is highly recommended, a jar file is provided in case your operating system is not supported.
+
+Assuming binary is available on your path as `cvx`:
+
+```bash
+# No arguments starts the REPL and transactions can be entered interactively
+
+$ cvx
+
+# Transactions can be provided directly as command-line arguments
+
+$ cvx '(def foo :hello)'  '($.stream/out! foo)'
 ```
 
-Other functions and namespaces serve the implementation and are probably not of public interest but for studying the method.
+In the grand tradition of Lisp languages, the runner is self-documented. REPL invites the user to query help
+by running `($/help)` which takes the lead from there, informs about available features and how to query
+more help for those features and everything else.
 
 
-## For maintainers
+## Improved REPL experience
 
-Namespaces are documented and pretty straightforward. Special requests are implemented as multimethods in `$.run.sreq`.
+It is highly advised using [rlwrap](https://github.com/hanslub42/rlwrap) when working at the REPL since it
+provides command history and navigation using arrow keys, among other features. Linux package managers typically
+host this common program.
+
+For instance, on Ubuntu:
+
+```bash
+$ sudo apt install rlwrap
+
+# Starts a comfortable REPL
+
+$ rlwrap cvx
+```
+
+
+## Build
+
+For building the runner, commands must be issued from the root of this repository and it is assumed tools
+mentioned in the [general README](../../README.md) are available. 
+
+First, an uberjar with direct-linking must be created:
+
+```bash
+$ bb uberjar:direct :project/run
+```
+
+Uberjar should now be located under `./build/uberjar/project/run.jar`. It is usable with any JVM:
+
+```bash
+$ java -jar ./build/uberjar/project/run.jar
+```
+
+For native compilation, [GraalVM](https://www.graalvm.org/docs/getting-started/) must be installed as well
+as its companion tool [Native Image](https://www.graalvm.org/reference-manual/native-image/#install-native-image).
+
+We recommend [SDKMan](https://sdkman.io/) for easy installation of GraalVM tools.
+
+Assuming everything is ready and the uberjar has been built:
+
+```bash
+$ bb native:image :project/jar
+```
+
+After a few minutes of work and lots of memory usage, native binary for your system will be available under
+`./build/native/project/run`.
