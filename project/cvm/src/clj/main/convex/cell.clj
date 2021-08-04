@@ -1,6 +1,8 @@
 (ns convex.cell
 
-  "Constructors for CVX cells and type predicate functions."
+  "Constructors for CVX cells and related type predicate functions.
+  
+   Also constructors for a few common idioms such as creating a [[def]] form."
 
   {:author "Adam Helinski"}
 
@@ -77,7 +79,7 @@
 
 (defn address
 
-  "Creates a CVM address from a long."
+  "Creates a CVX address from a long."
 
   ^Address
 
@@ -89,7 +91,7 @@
 
 (defn blob
 
-  "Creates a CVM blob from a byte array."
+  "Creates a CVX blob from a byte array."
 
   ^Blob
 
@@ -101,7 +103,7 @@
 
 (defn boolean
 
-  "Creates a CVM boolean given a falsy or truthy value."
+  "Creates a CVX boolean given a falsy or truthy value."
 
   ^CVMBool
   
@@ -113,7 +115,7 @@
 
 (defn byte
 
-  "Creates a CVM byte from a value between 0 and 255 inclusive."
+  "Creates a CVX byte from a value between 0 and 255 inclusive."
 
   ^CVMByte
 
@@ -198,7 +200,7 @@
 
 (defn char
 
-  "Creates a CVM character from a regular characer."
+  "Creates a CVX character from a regular character."
 
   ^CVMChar
 
@@ -210,7 +212,7 @@
 
 (defn double
 
-  "Creates a CVM double."
+  "Creates a CVX double."
 
   ^CVMDouble
 
@@ -222,9 +224,9 @@
 
 (defn key
 
-  "Creates an account key from a 32-byte `blob`.
+  "Creates an account key from a 32-byte [[blob]].
 
-   Returns nil if the given `blob` is of wrong size."
+   Returns nil if the given [[blob]] is of wrong size."
 
   ^AccountKey
 
@@ -244,7 +246,7 @@
 
 (defn keyword
 
-  "Creates a CVM keyword from a Clojure keyword."
+  "Creates a CVX keyword from a string."
 
   ^Keyword
 
@@ -260,8 +262,8 @@
   
     "An error value as Convex data.
 
-     `code` is often a CVM keyword (`:ASSERT` by default), `message` could be any CVM value, and `trace` is
-     an optional stacktrace (CVM vector of CVM strings)."
+     `code` is often a CVX keyword (`:ASSERT` by default), `message` could be any CVX value (albeit often a human-readable
+     string), and `trace` is an optional stacktrace (CVX vector of CVX strings)."
   
   
     ([message]
@@ -286,7 +288,7 @@
 
 (defn list
 
-  "Creates a CVM list from a collection of CVM items."
+  "Creates a CVX list from a collection of CVX items."
 
 
   (^AList []
@@ -302,7 +304,7 @@
 
 (defn long
 
-  "Creates a CVM long."
+  "Creates a CVX long."
 
   ^CVMLong
 
@@ -314,7 +316,7 @@
 
 (defn map
 
-  "Creates a CVM map from a collection of `[key value]`."
+  "Creates a CVX map from a collection of `[key value]`."
 
 
   (^AMap []
@@ -333,7 +335,7 @@
 
 (defn set
 
-  "Creates a CVM set from a collection of CVM items."
+  "Creates a CVX set from a collection of CVX items."
 
 
   (^ASet []
@@ -349,7 +351,7 @@
 
 (defn string
 
-  "Creates a CVM string from a regular string."
+  "Creates a CVX string from a regular string."
 
   ^AString
 
@@ -361,7 +363,7 @@
 
 (defn symbol
 
-  "Creates a CVM symbol from a string."
+  "Creates a CVX symbol from a string."
 
   ^Symbol
 
@@ -373,7 +375,7 @@
 
 (defn vector
 
-  "Creates a CVM vector from a collection of CVM items."
+  "Creates a CVX vector from a collection of CVX items."
 
 
   (^AVector []
@@ -391,7 +393,7 @@
 
 (defn- -sym
 
-  ;;
+  ;; Casts `sym` to a CVX symbol if it is a CLJ one.
 
   [sym]
 
@@ -403,7 +405,7 @@
 
 (defn def
 
-  ""
+  "Creates a `def` form which interns `x` under `sym`."
 
   [sym x]
 
@@ -415,7 +417,9 @@
 
 (defn deploy
 
-  ""
+  "Creates a `deploy` form which deploys `code`.
+  
+   If `sym` is provided, the deploy form is embedded in a [[def]]."
 
 
   ([code]
@@ -437,18 +441,18 @@
 
 (defn do
 
-  ""
+  "Creates a `do` form embedded the given cells."
   
-  [form+]
+  [cell+]
 
   (list (cons Symbols/DO
-              form+)))
+              cell+)))
 
 
 
 (defn import
 
-  ""
+  "Creates an `import` form which imports `x` as `as`."
 
   [x as]
 
@@ -461,7 +465,7 @@
 
 (defn quote
 
-  ""
+  "Creates form which quotes `x`."
 
   [x]
 
@@ -472,7 +476,7 @@
 
 (defn undef
 
-  ""
+  "Opposite of [[def]]."
 
   [sym]
 
@@ -507,7 +511,7 @@
 
 (defn boolean?
 
-  "Is `x` a CVM boolean?"
+  "Is `x` a CVX boolean?"
 
   [x]
 
@@ -518,7 +522,7 @@
 
 (defn byte?
 
-  "Is `x` a CVM byte?"
+  "Is `x` a CVX byte?"
 
   [x]
 
@@ -529,7 +533,7 @@
 
 (defn char?
 
-  "Is `x` a CVM char?"
+  "Is `x` a CVX char?"
 
   [x]
 
@@ -540,7 +544,7 @@
 
 (defn double?
 
-  "Is `x` a CVM double?"
+  "Is `x` a CVX double?"
 
   [x]
 
@@ -551,7 +555,7 @@
 
 (defn keyword?
 
-  "Is `x` a CVM keyword?"
+  "Is `x` a CVX keyword?"
 
   [x]
 
@@ -562,7 +566,7 @@
 
 (defn list?
 
-  "Is `x` a CVM list?"
+  "Is `x` a CVX list?"
 
   [x]
 
@@ -573,7 +577,7 @@
 
 (defn long?
 
-  "Is `x` a CVM long?"
+  "Is `x` a CVX long?"
 
   [x]
 
@@ -584,7 +588,7 @@
 
 (defn map?
 
-  "Is `x` a CVM map?"
+  "Is `x` a CVX map?"
 
   [x]
 
@@ -595,7 +599,7 @@
 
 (defn set?
 
-  "Is `x` a CVM set?"
+  "Is `x` a CVX set?"
 
   [x]
 
@@ -606,7 +610,7 @@
 
 (defn string?
 
-  "Is `x` a CVM string?"
+  "Is `x` a CVX string?"
 
   [x]
 
@@ -617,7 +621,7 @@
 
 (defn symbol?
 
-  "Is `x` a CVM symbol?"
+  "Is `x` a CVX symbol?"
 
   [x]
 
@@ -628,7 +632,7 @@
 
 (defn vector?
 
-  "Is `x` a CVM vector?"
+  "Is `x` a CVX vector?"
 
   [x]
 

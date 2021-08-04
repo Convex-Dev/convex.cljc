@@ -5,7 +5,7 @@
    Central entities of this namespaces are contextes and they can be created using [[ctx]].
 
    All other functions revolve around them. While the design of a context is mostly immutable, whenever an altering function
-   is applied (eg. [[juice-set]]) or code is handled in any way (eg. [[eval]]), old context must be discard and only returned
+   is applied (eg. [[juice-set]]) or code is handled in any way (eg. [[eval]]), old context must be discarded and only returned
    one should be used.
 
    Cheap copies can be created using [[fork]].

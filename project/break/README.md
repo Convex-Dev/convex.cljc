@@ -6,8 +6,8 @@ Builds upon [`:project/clojurify`](../clojurify) which provides utilities for qu
 evaluating such code for different scenarios. It also defines a series of useful [test.check](https://github.com/clojure/test.check)
 generators used extensively in this project.
 
-This great combination is showcased in all the [test files](./src/clj/test) from this project. Those tests helped uncovering dozens of issues
-and bugs in the CVM, contributing to making it strong and robust, and serve as a prime example.
+This great combination is showcased in all the [test files](./src/clj/test/convex/test/break) from this project. Those tests helped
+uncovering dozens of issues and bugs in the CVM, contributing to making it particularly strong and robust, and serve as a prime example.
 
 Generative assertions are structured using the [Mprop](https://github.com/helins/mprop.cljc) library. It is highly recommended for writing
 such sophisticated tests fearlessly.

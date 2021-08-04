@@ -2,10 +2,10 @@
 
   "Reading, parsing various kind of sources into CVX cells without any evaluation.
 
-   Attention, currently, function that read only one cell fail if the input contains more than one.
+   Attention, currently, functions that read only one cell fail when the input contains more than one.
    In the future, behavior should be improved. For instance, consuming cells one by one from a stream.
 
-   Also see [[convex.write]] for the opposite idea."
+   Also see the [[convex.write]] namespace for the opposite idea."
 
   {:author "Adam Helinski"}
 
@@ -68,7 +68,7 @@
 
 (defn- -resource-reader
 
-  ;; Turns path to resource into a `Reader`.
+  ;; Turns resource path into a `Reader`.
 
   ^Reader
 
@@ -288,5 +288,3 @@
 ;       (recur (conj acc
 ;                    cell))
 ;       ($.cell/list acc))))
-
-

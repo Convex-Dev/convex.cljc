@@ -44,8 +44,7 @@
             [convex.test.cvm]
             [convex.test.cvx.lib.trust]
             [convex.write                  :as $.write]
-            [clojure.test.check.generators :as TC.gen]
-            [hawk.core                     :as hawk]))
+            [clojure.test.check.generators :as TC.gen]))
 
 
 (set! *warn-on-reflection*

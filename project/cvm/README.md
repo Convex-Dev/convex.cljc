@@ -2,150 +2,101 @@
 
 The Convex Virtual Machine executes operations over state, as described in [CAD 005](https://github.com/Convex-Dev/design/blob/main/cad/005_cvmex/README.md).
 
-This project offers a toolset running a CVM locally, purely in memory, without requiring any database or network setup. Ultimately, the goal is to execute
-Convex Lisp and gain various insights.
+It inputs cells and outputs cells, the word "cell" designating immutable Convex objects such as values, data structures, or functions.
+[CAD 002](https://github.com/Convex-Dev/design/tree/main/cad/002_values) offers an overview of main data types.
+
+This project provides utilities crafted around cells and the CVM:
+
+| Namespace | Purpose |
+|-----------|---------|
+| `$.cell`  | Constructors and predicate functions for cells          |
+| `$.cvm`   | CVM execution, manipulation, gathering various insights |
+| `$.read`  | Parse text source into cells                            |
+| `$.write` | Convert cells into text source                          |
+
+Those namespaces are built on top of [`convex-core` in the core Java repository](https://github.com/Convex-Dev/convex) and provide
+commonly needed features for building tools. Prime example is the Convex Lisp Runner from [:project/run](../run).
 
 
-## Convex data
+## Usage
 
-**Namespaces of interest:** `$.cell`
+Namespaces are well-documented. The following sections are but very brief overviews providing a sense of where this is going.
 
-CVM types are described in [CAD 002] and consist of immutable Java objects.
 
-The `$.cell` namespace provides a set of functions for creating those objects from scratch, type predicate functions, and a few higher-level utilities:
+### Handling source and cells
+
+Reading is the act of parsing source (strings, files, streams) into cells:
 
 ```clojure
-;; Creating a CVM vector.
-;;
+(def source
+     "[#42 24 :foo]")
+
+
 (def v
-     ($.cell/vector [($.cell/address 42)
-                     ($.cell/long 24)
-                     ($.cell/keyword "foo")]))
+     ($.read/string source))
 
 
-;; Yes, it is a vector indeed
-;;
-($.cell/vector? v)
-
-
-;; Creating a `def` form for that vector
-;;
-(def def-form
-     ($.cell/def ($.cell/symbol "my-vector")
-                 v))
-
-
-;; It is only a form: `(def my vector [#42 24 :foo])` expressed in CVM objects
-;;
-($.cell/list? def-form)
+($.cell/vector? v)  ;; True
 ```
 
-Some types works with some aspects of Clojure. For instance, `first` can be applied to collections. Overall, it is safer and more effective to use the Java API
-(#TODO Link when public).
-
-
-## Reading Convex Lisp
-
-**Namespaces of interest:** `$.read`
-
-Reading is the process of parsing source code (text) into a Convex list of Convex data.
+While writing takes cells and produces source:
 
 ```clojure
-(def form+
-     ($.read/string+ "(inc 42) :foo"))
-
-
-;; Two forms have been read.
-;;
-(= 2
-   (count form+))
-
-
-;; Nothing has been evaluated yet.
-;;
-($.cell/list? (first form+))
+(= source
+   ($.write/string v))  ;; True
 ```
 
-The `$.read` namespace provides functions for reading source from strings, files, and others means.
-
-
-## Creating and handling a CVM context
-
-**Namespaces of interest:** `$.cvm`
-
-A CVM context holds the CVM state as well as extra information. It is needed for evaluating Convex Lisp code and doing anything useful.
+Especially when working on tooling, cells can be built from scratch:
 
 ```clojure
-(def ctx
-     ($.cvm/ctx))
+(= v
+   ($.cell/vector [($.cell/address 42)
+                   ($.cell/long 24)
+                   ($.cell/keyword "foo")]))
 ```
 
-Functions `ctx` -> `ctx` are common in the `$.cvm` namespace. While a context is mostly immutable, when using such functions, the input context **MUST**
-be discarded in favor of the output context.
 
-The only exception is forking which creates a cheap copy. Whatever happens with a copy has absolutely no effect on the original. It is commonly used for
-preparing a "base" context that is then copied and reused in many situations.
+### Execution
+
+Cells can be executed using a CVM context, consuming juice in the process, as described in [CAD 007](https://github.com/Convex-Dev/design/tree/main/cad/007_juice).
 
 ```clojure
-(def ctx-copy
-     ($.cvm/fork ctx))
+(def code
+     ($.read/string "(+ 2 2)"))
 ```
 
-
-## Expand, compile, exec (aka eval)
-
-**Namespaces of interest:** `$.cvm`
-
-Any computation ultimately relies on 3 steps. 
-
-Expansion and compilation are explained in [CAD 008](https://github.com/Convex-Dev/design/blob/main/cad/008_compiler/README.md).
-Only after compilation code can effectively be executed
-
-Each step is a function `(ctx, form)` -> `ctx`. The output context holds either a result for the next step or a CVM exception in case
-of error.
-
-Evaluation condenses those 3 steps:
+Usually, evaluation is sufficient and it is the shorted path:
 
 ```clojure
-(let [ctx-2 ($.cvm/eval ctx
-                        ($.read/string "(+ 2 2)"))
-      ex    ($.cvm/exception ctx-2)]
-  (if ex
-     :error-handling
-     ($.cvm/result ctx-2)))
+(= ($.cell/long 4)
+
+   (-> ($.cvm/eval ($.cvm/ctx)
+                   code)
+       $.cvm/result))
 ```
 
-Step-by-step with error handling would be structured similarly to:
+In reality, 3 steps are performed as described in [CAD 008](https://github.com/Convex-Dev/design/tree/main/cad/008_compiler).
+Sometimes, it is useful performing them manually.
+
+First, expansion which takes a cell and produces a canonical cell by applying macros, meaning it cannot be expanded any further.
+[CAD 009](https://github.com/Convex-Dev/design/tree/main/cad/009_expanders) goes into greater details if needed.
+
+Second, canonical cell is compiled into an operation.
+
+And third, operation is actually executed.
 
 ```clojure
-(let [ctx-expand ($.cvm/expand ctx
-                               ($.read/string "(+ 2 2)"))
-      ex-expand  ($.cvm/exception ctx-expand)]
-  (if ex-expand
-    :error-handling
-    (let [ctx-compile ($.cvm/exec ctx-expand
-                                  ($.cvm/result ctx-expand))
-          ex-compile  ($.cvm/exception ctx-2)]
-      (if ex-expand
-        :error-handling
-        (let [ctx-exec ($.cvm/exec ctx-compile
-                                   ($.cvm/result ctx-compile))
-              ex-exec  ($.cvm/exception ctx-exec)]
-          (if ex-exec
-             :error-handling
-             ($.cvm/result ctx-exec)))))))
+(= ($.cell/long 4)
+
+   (-> ($.cvm/ctx)
+       ($.cvm/expand code)
+       $.cvm/compile
+       $.cvm/exec
+       $.cvm/result))
 ```
 
-Hence, user can have full control over those steps, and when something has been compiled, the results can be reused at will.
+Any result of any steps can be retrieved by using `$.cvm/result` (done automatically in previous example). However, in practice,
+a CVM exception is thrown in case of failure, meaning users should defensively check for errors using `$.cvm/exception` first.
 
-All those steps consume juice as described in [CAD 007](https://github.com/Convex-Dev/design/blob/main/cad/007_juice/README.md).
-
-
-## Getting insights and altering context properties
-
-**Namespaces of interest:** `$.cvm`
-
-The API offers utilities for retrieving and altering a variety of common properties from a context and its state: getting/setting juice,
-timestamp, defining symbols in accounts, etc.
-
-It has been designed to fullfill common use cases. If not sufficient, the Java API offers wider possibilities.
+Other utilities from the `$.cvm` namespace serve to gain insights from contextes (eg. track juice consumption) or alter them
+(eg. set juice).
