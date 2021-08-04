@@ -1,6 +1,8 @@
 (ns convex.run.exec
 
-  "All aspects of executing transactions for the [[convex.run]] namespace."
+  "All aspects of actually executing transactions.
+  
+   When an error is detected, [[fail]] is called."
 
   {:author "Adam Helinski"}
 
@@ -191,7 +193,7 @@
 
 (defn eval
 
-  ""
+  "Evaluates `trx`."
 
   ([env]
 
@@ -199,12 +201,12 @@
          (result env)))
 
 
-  ([env cell]
+  ([env trx]
 
    (update-ctx env
                $.run.kw/eval
                $.cvm/eval
-               cell)))
+               trx)))
 
 
 ;;;;;;;;;; Transactions
@@ -212,7 +214,7 @@
 
 (defn trx
 
-  "Evaluates `trx` and interns result in `env/*result*`."
+  "Evaluates `trx` and forwards result to [[sreq]] unless an error occured."
 
   [env trx]
   
@@ -220,17 +222,18 @@
                     trx)]
     (if (env-2 :convex.run/error)
       env-2
-        (sreq env-2
-        (result env-2)))))
+      (sreq env-2
+            (result env-2)))))
 
 
 
 (defn trx-track
 
-  "Like [[trx]] but result is a map containing `:result` as well as juice values for each steps ([[expand]],
-   [[compile]], and [[exec]]).
-  
-   Special requests are not performed."
+  "Similar to [[trx]].
+
+   However, requests are not performed and juice consumption is tracked by going manually through
+   [[expand]], [[compile]], and [[exec]]. Those are reported with the actual result in a map interned
+   under `$/*result*`."
 
   [env trx]
 
@@ -260,7 +263,7 @@
 
 (defn trx+
 
-  ""
+  "Executes transactions located in `$.trx/*list*` in the context until that list becomes empty."
 
   [env]
 
@@ -272,10 +275,8 @@
                                                     1))
                          (.get trx+
                                0))]
-          (if (not (map? env-3))
-            env-3
-            (recur (dissoc env-3
-                           :convex.run/error))))
+          (recur (dissoc env-3
+                         :convex.run/error)))
         env-2))))
 
 
@@ -286,7 +287,16 @@
 
   (defn fail
 
-    ""
+    "Must be called in case of failure, `err` being an error map (see the [[convex.run.err]] namespace).
+    
+     Under `$.catch/*stack*` in the context is a stack of error handling transactions. This functions pops
+     the next error handling transaction and prepends it to `$.trx/*list*`, the list of transactions pending
+     for execution.
+
+     Also, error becomes available under `$/*result*`.
+
+     This simple scheme allows sophisticated exception handling to be implemented from CVX, as seen in the
+     `$.catch` acccount."
 
     [env ^AMap err]
 

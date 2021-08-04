@@ -1,31 +1,23 @@
 (ns convex.run.err
 
-  "Error handling for the [[convex.run]] namespace.
-  
-   When any exception (CVM or Java) or other error occurs, it is turned into a descriptive CVM map. Standard keys are:
+  "Errors are CVX maps, either mappified CVM exceptions or built from scratch.
 
-   | Key | Value | Mandatory?
-   |---|---|---|
-   | `:cause` | Points to error that occured before this one | False |
-   | `:code` | CVM exception code (often a keyword) | True |
-   | `:message| CVM exception message (often a string) | True |
-   | `:trace` | Stacktrace, vector of strings | False |
+   Using [[convex.run.exec/fail]], they are reported back to the CVX executing environment
+   and can be handled from CVX.
 
-   This map is passed to [[fail]] so that it becomes attached to the current environment and forwarded to `:convex.run/fail` in env.
-   Consumers can control what `:convex.run/fail` does, default is [[convex.run.exec/fail]]."
+   This namespace provides functions for building recurrent error maps."
 
   {:author "Adam Helinski"}
 
   (:import (convex.core.data ACell
                              AMap)
            (convex.core.lang.impl ErrorValue)
-           (java.nio.file Files)
-           (java.nio.file.attribute FileAttribute))
+           ; (java.nio.file Files)
+           ; (java.nio.file.attribute FileAttribute)
+           )
   (:require [clojure.java.io]
             [clojure.pprint]
             [convex.cell      :as $.cell]
-            [convex.cvm       :as $.cvm]
-            [convex.run.ctx   :as $.run.ctx]
             [convex.run.kw    :as $.run.kw]))
 
 
@@ -34,22 +26,6 @@
 
 
 ;;;;;;;;;; Altering error maps
-
-
-(defn assoc-cause
-
-  "Associates a `cause` to the given `err`.
-  
-   Ressembling Java exceptions, a cause is another error that preceded `err`."
-
-  ^AMap
-
-  [^AMap err ^ACell cause]
-
-  (.assoc err
-          $.run.kw/cause
-          cause))
-
 
 
 (defn assoc-phase
@@ -94,9 +70,9 @@
 
 (defn mappify
 
-  "Transforms the given CVM error value into a CVM map meant to be ultimately used with [[fail]].
+  "Transforms the given CVM exception into a map.
   
-   If prodived, associates to the resulting error map a [[phase]] and the current, responsible transaction."
+   If prodived, associates to the resulting error map a [[phase]] and the current transaction that caused this error."
 
 
   (^AMap [^ErrorValue ex]
@@ -118,7 +94,7 @@
 
 (defn reader
 
-  ""
+  "Creates a `:READER` error map, for when the CVX reader fails."
 
   ^AMap
 
@@ -133,7 +109,7 @@
 
 (defn sreq
 
-  "Error map describing an error that occured when performing an operation for a special request."
+  "Error map describing an error that occured when performing an operation for a request."
 
   ^AMap
 

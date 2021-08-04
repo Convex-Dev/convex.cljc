@@ -1,6 +1,6 @@
 (ns convex.run.sym
 
-  "CVM symbols used by the [[convex.run]] namespace and its children."
+  "CVX symbols used by the runner."
 
   {:author "Adam Helinski"}
 
@@ -89,16 +89,6 @@
 
 (def ^Symbol $-trx
              ($.cell/symbol "$.trx"))
-
-
-
-(def ^Symbol dep
-             ($.cell/symbol "dep"))
-
-
-
-(def ^Symbol env
-             ($.cell/symbol "env"))
 
 
 

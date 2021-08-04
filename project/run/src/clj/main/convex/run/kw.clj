@@ -1,6 +1,6 @@
 (ns convex.run.kw
 
-  "CVM keywords used by the [[convex.run]] namespace and its children."
+  "CVX keywords used by the runner."
 
   {:author "Adam Helinski"}
 
@@ -15,11 +15,6 @@
 ;;;;;;;;;;
 
 
-(def ^Keyword cause
-              ($.cell/keyword "cause"))
-
-
-
 (def ^Keyword code-read+
               ($.cell/keyword "code.read+"))
 
@@ -32,11 +27,6 @@
 
 (def ^Keyword cvm-sreq
               ($.cell/keyword "cvm.sreq"))
-
-
-
-(def ^Keyword dep
-              ($.cell/keyword "dep"))
 
 
 

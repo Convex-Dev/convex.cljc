@@ -1,6 +1,12 @@
 (ns convex.run.stream
 
-  ""
+  "Handling files and STDIO streams.
+
+   A stream is an id that represents an opened file or a STDIO streams. Those ids are kept in env.
+
+   All operations, such as closing a stream or reading one, rely on [[operation]].
+
+   Used for implementing IO requests."
 
   {:author "Adam Helinski"}
 
@@ -24,22 +30,26 @@
 (declare out!)
 
 
-;;;;;;;;;;
+;;;;;;;;;; Values
 
 
 (def id-stderr
 
-  ""
+  "Id of STDERR."
 
   2)
 
 
-;;;;;;;;;;
+;;;;;;;;;; Private
 
 
 (defn- -fail
 
+  ;; Used in case of failure.
   ;;
+  ;; Reports error using [[convex.run.exec/fail]], as expected, unless operation was involving writing to STDERR.
+  ;; If writing to STDERR fails for some odd reason, then it is highly problematic as it is the ultimate place for
+  ;; reporting errors. Env and error are passed to the function under `:convex.fun/fatal` expecting things to halt.
 
   [env id op+ err]
 
@@ -55,9 +65,28 @@
 
 
 
+(defn- -dissoc
+
+  ;; Dissociates the requested stream from env.
+
+  [env id]
+
+  (update env
+          :convex.run/stream+
+          dissoc
+          id))
+
+
+;;;;;;;;;; Operations
+
+
 (defn operation
 
-  ""
+  "Generic function for carrying out an operation.
+  
+   Retrieves the stream associated with `id` and executes `(f env stream`).
+  
+   Takes care of failure."
 
   [env id op+ f]
 
@@ -96,25 +125,12 @@
                                                 id))))))
 
 
-
-
-(defn- -dissoc
-
-  ;;
-
-  [env id]
-
-  (update env
-          :convex.run/stream+
-          dissoc
-          id))
-
-
+;;;
 
 
 (defn close
 
-  ""
+  "Closes the requested stream."
 
   [env id]
 
@@ -130,7 +146,7 @@
 
 (defn flush
 
-  ""
+  "Flushes the requested stream."
 
   [env id]
 
@@ -145,7 +161,7 @@
 
 (defn in
 
-  ""
+  "Reads a single cell from the requested stream."
 
   [env id]
 
@@ -159,7 +175,7 @@
 
 (defn in+
 
-  ""
+  "Reads all available cells from the requested stream and closes it."
 
   [env id]
 
@@ -173,7 +189,7 @@
 
 (defn line+
 
-  ""
+  "Reads a line from the requested stream and parses it into a list of cells."
 
   [env id]
 
@@ -189,7 +205,7 @@
 
 (defn out
 
-  ""
+  "Writes `cell` to the requested stream."
 
   [env id cell]
 
@@ -205,7 +221,7 @@
 
 (defn out!
 
-  ""
+  "Like [[out]] but appends a new line and flushes the stream."
 
   [env id cell]
 
@@ -221,12 +237,12 @@
                cell)))
 
 
-;;;;;;;;;;
+;;;;;;;;;; Opening file streams
 
 
 (defn- -file
 
-  ""
+  ;; Used by [[file-in]] and [[file-out]].
 
   [env path open str-op]
 
@@ -254,7 +270,7 @@
 
 (defn file-in
 
-  ""
+  "Opens an input stream for file under `path`."
 
   [env path]
 
@@ -267,7 +283,7 @@
 
 (defn file-out
 
-  ""
+  "Opens an output stream for file under `path`."
 
   [env path]
 
@@ -277,12 +293,14 @@
          #{:write}))
 
 
-;;;;;;;;;;
+;;;;;;;;;; Miscellaneous
 
 
 (defn close-all
 
-  ""
+  "Closes all streams in env.
+  
+   Not needed if the runner is run standalone since the OS closes them when the process terminates."
 
   [{:as              env
     :convex.run/keys [stream+]}]

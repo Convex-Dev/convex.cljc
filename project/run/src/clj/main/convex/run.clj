@@ -1,71 +1,28 @@
 (ns convex.run
 
-  "Core namespace implementing a Convex Lisp runner.
+  "Convex Lisp Runner.
 
-   The purpose of a runner is to provide a convenient framework for evaluating a Convex Lisp main file and
-   related dependencies.
+   Executes each form as a transaction, moving from transaction to transaction.
 
+   A transaction can return a request to perform operations beyond the scope of the CVM, such as file IO or
+   advancing time. Those requests turn Convex Lisp, a somewhat limited and fully deterministic language, into
+   a scripting facility.
 
-   ENV
-   ===
+   Requests are vectors following expected conventions and implementations can be found in the [[convex.run.sreq]]
+   namespace.
 
-   Those utilities are built using the 'sync' project and the 'watch' project. Just as in those project, a runner
-   operates over an \"environment\" map. See [[init]].
-
-   In a main file, each form is evaluated as a transaction and gradually modifies an environment.
-
-
-   EVALUATION
-   ==========
-
-   [[eval]] serves to evaluate a given string as if it was a main file ; [[load]] reads and executes a main file ;
-   [[watch]] behaves like [[load]] but provides a live-reloading experience.
-
-
-   SPECIAL REQUESTS
-   ================
-
-   A runner can do useful side-effects on-demand called \"special requests\", such as outputting a value. Those special
-   requests are nothing more than vector that the runner interprets at runtime.
+   A series of CVX libraries is embedded, building on those requests and the way the runner generally operates,
+   providing features such as reading CVX files, unit testing, a REPL, or time-travel. All features are self
+   documented in the grand tradition of Lisp languages.
   
-   See the [[convex.run.sreq]] namespace.
-
+   Functions throughout these namespaces often refer to `env`. It is an environment map passed around containing
+   everything that is need by an instance: current CVM context, opened streams, current error if any, etc.
   
-   DYNAMIC VALUES AND HELP
-   =======================
-
-   A runner maintains a set of dynamic values that users can access in the address aliased by default as `env`. For more
-   information, use [[eval]] to evaluate `(env/about env)`.
-
-
-   OUTPUT
-   ======
-
-   Any value that is requested to be outputted (by the `(sreq/out ...)` special request) goes through the output hook.
-   See hook section.
-
-
-   ERRORS
-   ======
-
-   When a CVM exception or any other error occurs, [[convex.run.err/fail]] must be called with a CVX error map (built from
-   scratch or by mappifying an actual CVM exception).
-
-
-   HOOKS
-   =====
-
-   Hooks are transactions executed by the runner at key moments. They are defined through the `env` account:
-
-   - `hook.end`
-   - `hook.error`
-
-
-   CLI APP
-   =======
-
-   The CLI Convex Lisp Runner is a light layer built on top of this project. It is not much more than a CLI interface with
-   a description. See `:project/app.run` in Deps."
+   In case of error, [[convex.run.exec/fail]] must be used so that the error is reported to the CVX executing environment.
+  
+   List of transactions pending for execution is accessible in the CVX execution environment under `$.trx/*list*`. This list
+   can be modified by the user, allowing for powerful metaprogramming. Besides above-mentioned requests, this feature is used
+   to implement another series of useful utilities such as exception catching."
 
   ;; TODO. Improve reader error reporting when ANTLR gets stabilized.
 
@@ -83,29 +40,19 @@
             [convex.run.sreq]))
 
 
-(declare sym->dep)
-
-
 ;;;;;;;;;; Initialization
 
 
 (defn init
 
-  "Initializes important functions and values in the given `env`, using defaults when relevant.
+  "Used by [[eval]] to initiate `env`.
 
-   Must be used prior to other preparatory functions such as [[main-file]].
+   Notably, prepares:
 
-   Operates over:
-
-   | Key | Action | Mandatory |
-   |---|---|---|
-   | `:convex.run/path` | If present, ensures the path to the main file is canonical |
-   | `:convex.run.hook/end` | Ensures a default end hook, see namespace description |
-   | `:convex.run.hook/error` | Ensures a default error hook, see namespace description |
-   | `:convex.run.hook/out` | Ensures a default output hook, see namespace description |
-   | `:convex.run/single-run? | Whether code is run once or more (watch mode), defaults to false |
-   | `:convex.sync/cx-base | Ensures a default base context, see [[convex.run.ctx/base]] |"
-
+   - STDIO streams
+   - Initial context
+   - Function under `:convex.run/fatal`, akin to [[convex.run.exec/fail]], called only in case of
+   a fatal error that cannot be reported to the CVX environment (seldom)"
 
   [env]
 
@@ -113,7 +60,6 @@
       (assoc :convex.run/stream+  {0 $.io/stdin-txt
                                    1 $.io/stdout-txt
                                    2 $.io/stderr-txt}
-             :convex.run/watch?    false
              :convex.run.stream/id 2)
       (update :convex.run/fatal
               #(or %
@@ -132,7 +78,10 @@
 
 (defn eval
 
-  ""
+  "Uses [[init]], reads the given `string` of transactions and starts executing them.
+  
+   Used by [[-main]]."
+
 
   ([string]
 
@@ -159,23 +108,24 @@
            $.run.exec/trx+)))))
 
 
-;;;;;;;;;;
+;;;;;;;;;; Main functions
 
 
 (defn -main
 
-  ""
+  "Reads and executes transactions.
+  
+   If no transaction is provided, starts the REPL."
 
-  [& arg+]
+  [& trx+]
 
   (try
-    (eval (if (seq arg+)
+    (eval (if (seq trx+)
             (clojure.string/join " "
-                                 arg+)
+                                 trx+)
             "($.repl/start {:intro? true})"))
     (catch Throwable _ex
       (println "An unknown exception happened.")
-      (println _ex)
       (flush)
       (when (not= (System/getenv "CONVEX_DEV")
                   "true")

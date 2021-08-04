@@ -93,9 +93,6 @@
        (def trust
             ~self)
 
-       (export check-trusted?
-               set-trusted)
-
        (def blacklist
 
          ;;  blacklist of addresses that are denied.
@@ -112,6 +109,8 @@
 
        (defn check-trusted?
 
+         ^{:callable? true}
+
          [subject action object]
 
          (not (contains-key? blacklist
@@ -119,6 +118,8 @@
 
 
        (defn set-trusted
+
+         ^{:callable? true}
 
          [subject allow?]
 
@@ -156,9 +157,6 @@
         (def trust
              ~self)
 
-       (export check-trusted?
-               set-trusted)
-
 
        (def whitelist
 
@@ -176,6 +174,8 @@
 
        (defn check-trusted?
 
+         ^{:callable? true}
+
          [subject action object]
 
          (contains-key? whitelist
@@ -183,6 +183,8 @@
 
 
        (defn set-trusted
+
+         ^{:callable? true}
 
          [subject allow?]
 
@@ -216,14 +218,14 @@
         (def trust
              ~self)
 
-        (export upgrade)
-
 
         (def upgradable-root
              ~root)
 
 
         (defn upgrade
+
+          ^{:callable? true}
 
           [code]
 
@@ -250,8 +252,5 @@
             '(do 
                ;; Undefine things used for upgradability
                (undef upgrade)
-               (undef upgradable-root)
-               (def *exports*
-                    (disj *exports*
-                          'upgrade))))))
+               (undef upgradable-root)))))
   nil)

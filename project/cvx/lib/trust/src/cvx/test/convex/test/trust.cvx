@@ -1,41 +1,35 @@
 ;;
 ;;
-;; Testing the `asset.box` actor.
+;; Testing `convex.trust`.
 ;;
 ;;
 
 
-(sreq/dep {trust "project/cvx/lib/trust/src/cvx/main/convex/trust.cvx"})
+($.stream/out! (str $.term/clear.screen
+                    "Testing `convex.trust`"))
 
 
-;; Deploying test version of `convex.fungible` instead of importing stable version.
-;;
+;;;;;;;;;; Setup
+
+
+(def T
+     $.test)
+
+
+($.file/read "project/cvx/lib/trust/src/cvx/main/convex/trust.cvx")
+
+
 (eval `(def trust
             (deploy (quote ~(cons 'do
-                                  (next (next trust)))))))
-
-
-;; Importing stable versions
-;;
-(import convex.run.test :as T)
-
-
-;; Setup. Print test results at the end
-;;
-(sreq/hook.end '[(suite.main)
-                 (T/print-failed)])
-(sreq/screen.clear)
-(sreq/out "Testing `convex.trust`library\n")
+                                  (next (next $/*result*)))))))
 
 
 ;; Default account is an actor, key is set to transform it into a user account.
 ;;
-(set-key help/fake-key)
+(set-key $.account/fake-key)
 
 
-
-
-;; Test suites
+;;;;;;;;;; Test suites
 
 
 (defn suite.blacklist
@@ -44,7 +38,7 @@
 
   []
 
-  (T/group '[(T/path.conj 'suite.white-list)
+  (T/group '[(T/path.conj 'black-list)
 
              (T/trx '(address? (def bl
                                     (deploy (trust/build-blacklist nil))))
@@ -54,22 +48,22 @@
                                           *address*))
                     {:description "Controller is not trusted by default when no list is provided."})
 
-             (T/fail-code #{:CAST}
+             (T/fail.code #{:CAST}
                           '(trust/trusted? bl
                                            nil)
                           {:description "Cannot check nil."})
 
-             (T/fail-code #{:CAST}
+             (T/fail.code #{:CAST}
                           '(trust/trusted? bl
                                            [])
                           {:description "Cannot trust something that is not an address."})
 
-             (T/fail-code #{:CAST}
+             (T/fail.code #{:CAST}
                           '(trust/trusted? nil
                                            *address*)
                           {:description "List cannot be nil."})
 
-             (T/fail-code #{:CAST}
+             (T/fail.code #{:CAST}
                           '(trust/trusted? []
                                            *address*)
                           {:description "List must be an address, obviously."})
@@ -124,42 +118,42 @@
                                                      ~user-2)))
                     {:description "Non-controller can check monitor for untrusted address."})
 
-             (T/fail-code #{:TRUST}
+             (T/fail.code #{:TRUST}
                           '(eval-as user-1
                                     `(call ~bl
                                            (set-trusted ~user-1
                                                         false)))
                           {:description "Non-controller trying to remove trust for itself fails."})
 
-             (T/fail-code #{:TRUST}
+             (T/fail.code #{:TRUST}
                           '(eval-as user-1
                                     `(call ~bl
                                            (set-trusted ~user-1
                                                         true)))
                           {:description "Non-controller cannot grant trust in itself."})
 
-             (T/fail-code #{:TRUST}
+             (T/fail.code #{:TRUST}
                           '(eval-as user-1
                                     `(call ~bl
                                            (set-trusted ~user-2
                                                         true)))
                           {:description "Non-controller cannot grant trust to another account."})
 
-             (T/fail-code #{:TRUST}
+             (T/fail.code #{:TRUST}
                           '(eval-as user-1
                                     `(call ~bl
                                            (set-trusted ~user-2
                                                         false)))
                           {:description "Non-controller trying to remove trust for another account fails."})
 
-             (T/fail-code #{:TRUST}
+             (T/fail.code #{:TRUST}
                           '(eval-as user-1
                                     `(call ~bl
                                            (set-trusted ~*address*
                                                         true)))
                           {:description "Non-controller cannot grant trust to trusted account."})
 
-             (T/fail-code #{:TRUST}
+             (T/fail.code #{:TRUST}
                           '(eval-as user-1
                                     `(call ~bl
                                            (set-trusted ~*address*
@@ -174,7 +168,7 @@
 
   []
 
-  (T/group '[(T/path.conj 'suite.self-trust)
+  (T/group '[(T/path.conj 'self-trust)
 
              (T/trx '(trust/trusted? *address*
                                      *address*)
@@ -201,7 +195,7 @@
 
   []
 
-  (T/group '[(T/path.conj 'suite.upgrade)
+  (T/group '[(T/path.conj 'upgrade)
 
              (T/trx '(address? (def target
                                     (deploy `(do
@@ -222,7 +216,7 @@
                                     (help/zombie)))
                     {:description "Accoutn deployed."})
 
-             (T/fail-code #{:TRUST}
+             (T/fail.code #{:TRUST}
                           '(eval-as not-root
                                     `(call ~target
                                            (upgrade '(def foo
@@ -232,7 +226,7 @@
              (T/trx '(nil? (trust/remove-upgradability! target))
                     {:description "Upgrade utilities removed (returns nil)."})
 
-             (T/fail-code #{:STATE}
+             (T/fail.code #{:STATE}
                           '(call target
                                  (updade '(def foo
                                                1001)))
@@ -250,7 +244,7 @@
 
   []
 
-  (T/group '[(T/path.conj 'suite.white-list)
+  (T/group '[(T/path.conj 'white-list)
 
              (T/trx '(address? (def wl
                                     (deploy (trust/build-whitelist nil))))
@@ -260,22 +254,22 @@
                                      *address*)
                     {:description "Controller is trusted by default when no list is provided."})
 
-             (T/fail-code #{:CAST}
+             (T/fail.code #{:CAST}
                           '(trust/trusted? wl
                                            nil)
                           {:description "Cannot check nil."})
 
-             (T/fail-code #{:CAST}
+             (T/fail.code #{:CAST}
                           '(trust/trusted? wl
                                            [])
                           {:description "Cannot trust something that is not an address."})
 
-             (T/fail-code #{:CAST}
+             (T/fail.code #{:CAST}
                           '(trust/trusted? nil
                                            *address*)
                           {:description "List cannot be nil."})
 
-             (T/fail-code #{:CAST}
+             (T/fail.code #{:CAST}
                           '(trust/trusted? []
                                            *address*)
                           {:description "List must be an address, obviously."})
@@ -330,42 +324,42 @@
                                                 ~user-2))
                     {:description "Non-controller can check monitor for trusted address."})
 
-             (T/fail-code #{:TRUST}
+             (T/fail.code #{:TRUST}
                           '(eval-as user-1
                                     `(call ~wl
                                            (set-trusted ~user-1
                                                         true)))
                           {:description "Non-controller cannot grant trust to itself."})
 
-             (T/fail-code #{:TRUST}
+             (T/fail.code #{:TRUST}
                           '(eval-as user-1
                                     `(call ~wl
                                            (set-trusted ~user-1
                                                         false)))
                           {:description "Non-controller trying to remove trust for itself fails."})
 
-             (T/fail-code #{:TRUST}
+             (T/fail.code #{:TRUST}
                           '(eval-as user-1
                                     `(call ~wl
                                            (set-trusted ~user-2
                                                         true)))
                           {:description "Non-controller cannot grant trust to another account."})
 
-             (T/fail-code #{:TRUST}
+             (T/fail.code #{:TRUST}
                           '(eval-as user-1
                                     `(call ~wl
                                            (set-trusted ~user-2
                                                         false)))
                           {:description "Non-controller trying to remove trust for another account fails."})
 
-             (T/fail-code #{:TRUST}
+             (T/fail.code #{:TRUST}
                           '(eval-as user-1
                                     `(call ~wl
                                            (set-trusted ~*address*
                                                         true)))
                           {:description "Non-controller cannot grant trust to trusted account."})
 
-             (T/fail-code #{:TRUST}
+             (T/fail.code #{:TRUST}
                           '(eval-as user-1
                                     `(call ~wl
                                            (set-trusted ~*address*
@@ -373,7 +367,7 @@
                           {:description "Non-controller trying to remove trust for trusted account fails."})]))
 
 
-;;
+;;;
 
 
 (defn suite.main
@@ -382,7 +376,15 @@
 
   []
 
-  (sreq/do '[(suite.blacklist)
+  (T/group '[(T/path.conj 'convex.trust)
+             (suite.blacklist)
              (suite.self-trust)
              (suite.upgrade)
              (suite.whitelist)]))
+
+
+;;;
+
+
+(suite.main)
+(T/print "convex.trust")

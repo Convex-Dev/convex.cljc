@@ -1,9 +1,9 @@
 (ns convex.run.sreq
 
-  "Implemetation of special requests interpreted by the runner.
+  "Implementation of requests interpreted by the runner between transactions.
   
-   A special requestion is merely a CVM vector respecting some particular shape that the
-   runner follows typically for producing useful side-effects."
+   A reqest is merely a CVX vector following some particular convention that the
+   runner follows for producing effects beyond the scope of the CVM."
 
   {:author "Adam Helinski"}
 
@@ -31,7 +31,7 @@
 
 (defn- -stream
 
-  ;;
+  ;; Given a request, returns the stream values it contains as a Java long.
 
   [^AVector tuple]
 
@@ -46,7 +46,7 @@
   
   nil
 
-  ;; No special request.
+  ;; No request, simply finalizes a regular transactions.
 
   [env result]
 
@@ -59,7 +59,7 @@
   
   :unknown
 
-  ;; Unknown special request, forwards an error to the error hook.
+  ;; Unknown request, consided as failure.
 
   [env tuple]
 
@@ -75,7 +75,7 @@
 
   $.run.kw/code-read+
 
-  ;; Reads the given string and parses to a list of forms.
+  ;; Reads the given string and parses it to a list of forms.
 
   ;; TODO. Improve error reporting.
   
@@ -101,6 +101,8 @@
 
   $.run.kw/file-in
 
+  ;; Opens a file for reading.
+
   [env ^AVector tuple]
 
   ($.run.stream/file-in env
@@ -112,6 +114,8 @@
 (defmethod $.run.exec/sreq
 
   $.run.kw/file-out
+
+  ;; Opens a file for writing.
 
   [env ^AVector tuple]
 
@@ -126,6 +130,8 @@
 (defmethod $.run.exec/sreq
   
   $.run.kw/log-clear
+
+  ;; Clears the CVM log.
 
   [env _tuple]
 
@@ -143,7 +149,7 @@
   
   $.run.kw/log-get
 
-  ;; Interns as result the current CVM log.
+  ;; Interns the current state of the CVM log under `$/*result*`.
 
   [env _tuple]
 
@@ -157,6 +163,8 @@
 (defmethod $.run.exec/sreq
 
   $.run.kw/perf-bench
+
+  ;; Benchmarks a transaction using Criterium.
 
   [env ^AVector tuple]
 
@@ -176,6 +184,8 @@
 (defmethod $.run.exec/sreq
 
   $.run.kw/perf-track
+
+  ;; Tracks juice consumption of the given transaction.
 
   [env ^AVector tuple]
 
@@ -209,7 +219,7 @@
 
   $.run.kw/process-env
   
-  ;; Interns as result the process environment map or a single request property.
+  ;; Interns under `$/*result*` the process environment map or a single requested variable.
 
   [env ^AVector tuple]
 
@@ -231,6 +241,8 @@
 
   $.run.kw/stream-close
 
+  ;; Closes the given stream.
+
   [env tuple]
 
   ($.run.stream/close env
@@ -242,6 +254,8 @@
 
   $.run.kw/stream-flush
 
+  ;; Flushes the given stream.
+
   [env ^AVector tuple]
 
   ($.run.stream/flush env
@@ -250,6 +264,8 @@
 (defmethod $.run.exec/sreq
 
   $.run.kw/stream-in
+
+  ;; Reads a single cell from the given stream.
 
   [env tuple]
 
@@ -262,6 +278,8 @@
 
   $.run.kw/stream-in+
 
+  ;; Reads all available cells from the given stream.
+
   [env tuple]
 
   ($.run.stream/in+ env
@@ -272,6 +290,8 @@
 (defmethod $.run.exec/sreq
 
   $.run.kw/stream-line+
+
+  ;; Reads line from the given stream and extracts all available cells.
 
   [env tuple]
 
@@ -284,6 +304,8 @@
 
   $.run.kw/stream-out
 
+  ;; Writes a cell to the given stream.
+
   [env ^AVector tuple]
 
   ($.run.stream/out env
@@ -294,6 +316,8 @@
 
 
 (defmethod $.run.exec/sreq
+
+  ;; Writes a cell to the given stream, appends a new line, and flushes everything.
 
   $.run.kw/stream-out!
 
@@ -331,7 +355,7 @@
 
   $.run.kw/time-pop
 
-  ;; Pops the CVM context saved with `(sreq/state.push)`.
+  ;; Pops the last context saved with `$.time/push`.
 
   [env ^AVector tuple]
 
@@ -353,7 +377,7 @@
 
   $.run.kw/time-push
 
-  ;; Saves the current CVM context which can later be restore with `(sreq/state.pop)`'.
+  ;; Saves a fork of the current context which can later be restored using `$.time/pop`.
 
   [env _tuple]
 

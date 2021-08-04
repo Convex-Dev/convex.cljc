@@ -33,7 +33,7 @@
 
 
              (T/trx '(= $.account/fake-key
-                        (blob (:key (account actor))))
+                        (:key (account actor)))
                     {:description "Fake key set."})
 
              (T/trx '(= *address*

@@ -1,9 +1,6 @@
 (ns convex.run.ctx
 
-  "Preparing CVM contextes for runner operations.
-  
-   Mosting about defining symbols at key moments, all those dynamic values in the `env`
-   account (eg. `env/*error*`, ...)."
+  "Altering and quering informations about the CVM context attached to an env."
 
   {:author "Adam Helinski"}
 
@@ -19,7 +16,7 @@
             [convex.run.sym   :as $.run.sym]))
 
 
-;;;;;;;;;; Loading libraries
+;;;;;;;;;; Preparing a base context, loading libraries
 
 
 (let [{:keys [ctx
@@ -107,49 +104,23 @@
 
   (def addr-$
 
-    "Address of the `env` account fetched from [[base]]."
+    "Address of the `convex.run` account in [[base]]."
 
     (sym->addr $.run.sym/$))
   
 
-
-  (def addr-$-catch
-
-    ""
-
-    (sym->addr $.run.sym/$-catch))
-
-
-
-  (def addr-$-repl
-
-    ""
-
-    (sym->addr $.run.sym/$-repl))
-
-
-
-  (def addr-$-stream
-
-    ""
-
-    (sym->addr $.run.sym/$-stream))
-
-
-
   (def addr-$-trx
 
-    ""
+    "Address of the `convex.run.trx` account in [[base]]."
 
     (sym->addr $.run.sym/$-trx))
 
 
-
   (def base
 
-    "Base context used when initiating a run.
+    "Base context used by default when executing transactions.
     
-     Prepares the `env` and `sreq` accounts."
+     Interns all the CVX runner libraries."
 
     (-> ctx
         ($.cvm/def sym->addr)
@@ -181,49 +152,24 @@
 
 
 
-(defn def-env
-
-  "Like [[def-current]] but defines symbols in the `env` account.
-  
-   By default, operates over the context in `:convex.run/ctx`.
-
-   It is sometimes useful to operate over another context (eg. base one), hence an alternate
-   keyword can be provided."
-
-
-  ([env sym->value]
-
-   (def-env env
-            :convex.run/ctx
-            sym->value))
-
-
-  ([env kw-ctx sym->value]
-
-   (update env
-           kw-ctx
-           (fn [ctx]
-             ($.cvm/def ctx
-                        addr-$
-                        sym->value)))))
-
-
-
 (defn def-result
 
-  "Defines `env/*result*` with the given `result`."
+  "Defines `$/*result*` with the given CVX `result`."
 
   [env result]
 
-  (def-env env
-            {$.run.sym/result result}))
-
+  (update env
+          :convex.run/ctx
+          (fn [ctx]
+            ($.cvm/def ctx
+                       addr-$
+                       {$.run.sym/result result}))))
 
 
 
 (defn def-trx+
 
-  ""
+  "Defines the given CVX list of transactions under `$.trx/*list*`."
 
   [env trx+]
 
@@ -240,27 +186,21 @@
 
 (defn current-trx+
 
-  ;;
+  "Returns the current list of transactions under `$.trx/*list*`."
 
+  ^AList
 
-  (^AList [env]
+  [env]
 
-   (current-trx+ env
-                 :convex.run/ctx))
-
-
-  (^AList [env kw-ctx]
-
-   (.get ($.cvm/env (env kw-ctx)
-                    addr-$-trx)
-         $.run.sym/list)))
+  (.get ($.cvm/env (env :convex.run/ctx)
+                   addr-$-trx)
+        $.run.sym/list))
 
 
 
 (defn drop-trx
 
-  ""
-
+  "Drops the next transaction under `$.trx/*list*`."
 
   [env]
 
@@ -270,10 +210,9 @@
 
 
 
-
 (defn precat-trx+
 
-  ""
+  "Prepends the given CVX list of transactions to the current list under `$.trx/*list*`."
 
   [env ^AList trx+]
 
@@ -287,7 +226,7 @@
 
 (defn prepend-trx
 
-  ""
+  "Prepends a single transaction to the current list under `$.trx/*list*`."
 
   [env ^ACell trx]
 
