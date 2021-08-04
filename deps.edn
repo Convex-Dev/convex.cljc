@@ -278,7 +278,7 @@
   :project/io
 
   {:extra-paths  ["project/io/src/clj/main"]
-   :maestro/doc  "Basic IO utilities."
+   :maestro/doc  "Basic IO utilities and STDIO."
    :maestro/root "project/io"}
 
   ;---

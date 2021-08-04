@@ -1,6 +1,9 @@
 (ns convex.io
 
-  "Basic IO utilities."
+  "Basic IO utilities and STDIO.
+  
+   Text streams are meant for reading characters (`Reader` and `Writer`) while binary streams are meant to handle
+   raw bytes (`InputStream` and `OutputStream`)."
 
   {:author "Adam Helinski"}
 
@@ -25,7 +28,7 @@
 
 (def ^FileDescriptor stderr
 
-  ""
+  "File descriptor for STDERR."
 
   FileDescriptor/err)
 
@@ -33,7 +36,7 @@
 
 (def ^FileOutputStream stderr-bin
 
-  ""
+  "Binary stream for STDERR."
 
   (FileOutputStream. stderr))
 
@@ -41,7 +44,7 @@
 
 (def ^FileWriter stderr-txt
 
-  ""
+  "Text stream for STDERR."
 
   (FileWriter. stderr))
 
@@ -49,7 +52,7 @@
 
 (def ^FileDescriptor stdin
 
-  ""
+  "File descriptor for STDIN."
 
   FileDescriptor/in)
 
@@ -57,7 +60,7 @@
 
 (def ^FileInputStream stdin-bin
 
-  ""
+  "Binary stream for STDIN."
 
   (FileInputStream. stdin))
 
@@ -65,7 +68,7 @@
 
 (def ^FileReader stdin-txt
 
-  ""
+  "Text stream for STDIN."
 
   (FileReader. FileDescriptor/in))
 
@@ -73,7 +76,7 @@
 
 (def ^FileDescriptor stdout
 
-  ""
+  "File descriptor for STDOUT."
 
   FileDescriptor/out)
 
@@ -81,7 +84,7 @@
 
 (def ^FileOutputStream stdout-bin
 
-  ""
+  "Binary stream for STDOUT."
 
   (FileOutputStream. stdout))
 
@@ -89,7 +92,7 @@
 
 (def ^FileWriter stdout-txt
 
-  ""
+  "Text stream for STDOUT."
   
   (FileWriter. FileDescriptor/out))
 
@@ -99,7 +102,7 @@
 
 (defn file-in
 
-  ""
+  "Opens an input text stream for the file located under `path`."
 
   [^String path]
 
@@ -109,7 +112,7 @@
 
 (defn file-out
 
-  ""
+  "Opens an output text stream for the file located under `path`."
 
   [^String path]
 
@@ -136,7 +139,7 @@
 
 (defn newline
 
-  ""
+  "Writes a new line to the given text output stream."
 
   [^Writer out]
 
