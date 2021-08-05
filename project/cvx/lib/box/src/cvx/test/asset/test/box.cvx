@@ -5,43 +5,44 @@
 ;;
 
 
-(sreq/dep {asset.test "project/cvx/lib/asset/src/cvx/test/convex/test/asset.cvx"
-           box        "project/cvx/lib/box/src/cvx/main/asset/box.cvx"})
-
-
 ;; Deploying test version of `asset.box` instead of importing stable version.
 ;;
+($.file/read "project/cvx/lib/box/src/cvx/main/asset/box.cvx")
+
 (eval `(def box
             (deploy (quote ~(cons 'do
-                                  (next (next box)))))))
+                                  (next (next $/*result*)))))))
+
 
 ;; Requiring test suites for `convex.asset` since this library implement that interface.
 ;;
+($.file/read "project/cvx/lib/asset/src/cvx/test/convex/test/asset.cvx")
+
 (def asset.test
      (deploy (cons 'do
-                    asset.test)))
+                   $/*result*)))
 
 
 (asset.test/setup)
 
 
-;; Importing stable versions
-;;
+;; Other imports
+
 (import convex.fungible :as fungible)
-(import convex.run.test :as T)
+
+(def T
+     $.test)
 
 
 ;; Setup. Print test results at the end
 ;;
-(sreq/hook.end '[(suite.main)
-                 (T/print-failed)])
-(sreq/screen.clear)
-(sreq/out "Testing `asset.box` actor\n")
+($.stream/out! (str $.term/clear.screen
+                    "Testing `asset.box`"))
 
 
 ;; Default account is an actor, key is set to transform it into a user account.
 ;;
-(set-key help/fake-key)
+(set-key $.account/fake-key)
 
 
 
@@ -87,7 +88,7 @@
 
   []
 
-  (T/group '[(T/path.conj 'suite.asset)
+  (T/group '[(T/path.conj 'asset)
 
              (create-box+ 4)
 
@@ -96,11 +97,11 @@
                     {:description "Box actor owns all its boxes."})
 
              (T/trx '(address? (def user-1
-                                    (help/zombie)))
+                                    ($.account/zombie)))
                     {:description "User 1 created."})
 
              (T/trx '(address? (def user-2
-                                    (help/zombie)))
+                                    ($.account/zombie)))
                     {:description "User 2 created."})
 
 
@@ -122,8 +123,7 @@
 
              (asset.test/suite.main box
                                     user-1
-                                    user-2)
-             ]))
+                                    user-2)]))
 
 
 
@@ -133,7 +133,7 @@
 
   []
 
-  (T/group '[(T/path.conj 'suite.content)
+  (T/group '[(T/path.conj 'content)
 
              (create-box+ 4)  ;; defines `total` containing all boxes and `b-X` for each numbered box
 
@@ -153,6 +153,7 @@
                                        b-2}]))
                     {:description "Put b-1 and b-2 in b-0 since boxes are assets themselves."})
 
+  
              (T/trx '(not (asset/owns? *address*
                                        #{b-1
                                          b-2}))
@@ -198,7 +199,7 @@
                                        *address*))
                     {:description "Removed boxes owned again."})
 
-             (T/fail-code #{:ASSERT}
+             (T/fail.code #{:ASSERT}
                           '(box/insert b-0
                                        [box
                                         #{b-0}])
@@ -233,13 +234,13 @@
                                        box))
                     {:description "Box actor holds 3000 foocoin after insertions."})
 
-             (T/fail-code #{:ASSERT}
+             (T/fail.code #{:ASSERT}
                           '(box/remove b-1
                                        [foocoin
                                         1001])
                           {:description "Cannot remove too much from a box."})
 
-             (T/fail-code #{:ASSERT}
+             (T/fail.code #{:ASSERT}
                           '(box/remove b-1
                                        [foocoin
                                         -1])
@@ -267,7 +268,7 @@
                     {:description "Box balance in foocoin adjusted after removing some."})]))
 
 
-;;
+;;;
 
 
 (defn suite.main
@@ -276,5 +277,13 @@
 
   []
 
-  (suite.asset)
-  (suite.content))
+  (T/group '[(T/path.conj "asset.box")
+             (suite.asset)
+             (suite.content)]))
+
+
+;;;
+
+
+(suite.main)
+(T/print "asset.box")

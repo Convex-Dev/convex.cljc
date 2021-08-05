@@ -1,4 +1,6 @@
-{:deps  {io.helins/maestro {:local/root "private/maestro.jar"}}
+{:deps  {io.helins/maestro         {:mvn/version "0.0.0-alpha0"}
+         io.helins/maestro.depstar {:mvn/version "0.0.0-alpha0"}
+         io.helins/maestro.kaocha  {:mvn/version "0.0.0-alpha0"}}
  :paths ["script"]
 
 

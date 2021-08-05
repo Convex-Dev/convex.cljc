@@ -27,19 +27,6 @@
 (import convex.asset :as asset-lib)
 
 
-(export accept
-        balance
-        burn
-        create-box
-        direct-transfer
-        offer
-        quantity-add
-        quantity-sub
-        quantity-subset?
-        receive-asset
-        remove-asset)
-
-
 ;; VALUES
 
 
@@ -106,6 +93,8 @@
 
 (defn accept
 
+  ^{:callable? true}
+
   [sender quantity]
 
   (let [sender           (address sender)
@@ -135,6 +124,8 @@
 
 (defn balance
 
+  ^{:callable? true}
+
   [owner]
 
   (or (get ownership
@@ -145,6 +136,8 @@
 
 (defn direct-transfer
 
+  ^{:callable? true}
+
   [receiver quantity]
 
   (internal-direct-transfer *caller*
@@ -154,6 +147,8 @@
 
 
 (defn offer
+
+  ^{:callable? true}
 
   [receiver quantity]
 
@@ -185,6 +180,8 @@
 
   ;; TODO. Improve failure messages, add code.
 
+  ^{:callable? true}
+
   [asset box-id]
 
   (let [box-id (long box-id)]
@@ -211,11 +208,27 @@
 ;; QUANTITY FUNCTION FOR ASSET LIBRARY
 
 
-(def quantity-add union)
+(def quantity-add
 
-(def quantity-sub difference)
+  ^{:callable? true}
 
-(def quantity-subset? subset?)
+  union)
+
+
+
+(def quantity-sub
+
+  ^{:callable? true}
+
+  difference)
+
+
+
+(def quantity-subset?
+
+  ^{:callable? true}
+
+  subset?)
 
 
 ;; API, meant to be used as actor calls
@@ -226,6 +239,8 @@
   ;; Contract for Destroying a set of boxes. Boxes must be owned and empty.
 
   ;; TODO. Better return value?
+
+  ^{:callable? true}
 
   [box-set]
 
@@ -255,6 +270,8 @@
 
   ;; Contract for creating a new box, with a fresh ID.
 
+  ^{:callable? true}
+
   []
 
   (let [id          counter
@@ -280,6 +297,8 @@
 (defn remove-asset
 
   ;; Contract for removing an asset.
+
+  ^{:callable? true}
 
   [box-id asset]
 

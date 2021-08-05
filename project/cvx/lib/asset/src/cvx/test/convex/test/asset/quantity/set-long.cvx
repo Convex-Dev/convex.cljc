@@ -1,8 +1,8 @@
-
-
 (defn suite.quantity
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description ["Asset quantity tests for when quantities are long, which is quite common."
+                        "Assumes `convex.asset` is imported as `asset`."]
+          :signature   [{:params [token]}]}}
 
   [token]
 

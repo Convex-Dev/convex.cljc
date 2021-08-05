@@ -11,8 +11,8 @@
 ;; Setup
 
 
-(import convex.run.sreq :as sreq)
 (import convex.run.test :as T)
+(import convex.run.trx  :as $.trx)
 
 
 (defn setup
@@ -21,7 +21,7 @@
 
   []
 
-  (sreq/do '[(import convex.asset :as asset)]))
+  ($.trx/prepend '(import convex.asset :as asset)))
 
 
 ;; Internal tests suites
@@ -100,7 +100,7 @@
   (T/group `[(T/path.conj '[convex.asset.test
                             suite.main])
              (def tester
-                  (help/zombie))
+                  ($.account/zombie))
 
              (def quantity-zero
                   (asset/quantity-zero ~token))
