@@ -1,42 +1,42 @@
 ;;
 ;;
-;; Testing the `asset.nft-tokens` library.
+;; Testing the `asset.nft-tokens`.
 ;;
 ;;
 
 
-(sreq/dep {asset.test.quantity.set-long "project/cvx/lib/asset/src/cvx/test/convex/test/asset/quantity/set-long.cvx"
-           nft                          "project/cvx/lib/nft-tokens/src/cvx/main/asset/nft-tokens.cvx"})
+;;;;;;;;;; Setup
+
+
+($.stream/out! (str $.term/clear.screen
+                    "Testing `asset.nft-tokens` library"))
 
 
 ;; Deploying test version of `asset.simple-nft` instead of importing stable version.
 ;;
+($.file/read "project/cvx/lib/nft-tokens/src/cvx/main/asset/nft-tokens.cvx")
+
+
 (eval `(def nft
             (deploy (quote ~(cons 'do
-                                  (next (next nft)))))))
+                                  (next (next $/*result*)))))))
 
 
-(eval (cons 'do
-             asset.test.quantity.set-long))
+($.file/exec "project/cvx/lib/asset/src/cvx/test/convex/test/asset/quantity/set-long.cvx")
+
 
 
 ;; Importing stable versions
 ;;
-(import convex.asset    :as asset)
-(import convex.run.test :as T)
+(import convex.asset :as asset)
 
-
-;; Setup. Print test results at the end
-;;
-(sreq/hook.end '[;(suite.main)
-                 (T/print-failed)])
-(sreq/screen.clear)
-(sreq/out "Testing `asset.nft-tokens` library\n")
+(def T
+     $.test)
 
 
 ;; Default account is an actor, key is set to transform it into a user account.
 ;;
-(set-key help/fake-key)
+(set-key $.account/fake-key)
 
 
 ;; Test suites
@@ -48,7 +48,7 @@
 
   []
 
-  (T/group '[(T/path.conj 'suite.mono)
+  (T/group '[(T/path.conj 'mono)
 
              (def uri
                   "https://www.mysite.com")
@@ -172,7 +172,7 @@
                            (destroy-token token))
                     {:description "NFT destroyed."})
 
-             (T/fail-code #{:ASSERT}
+             (T/fail.code #{:ASSERT}
                           '(call nft
                                  (destroy-token -1))
                           {:description "Cannot destroyed NFT."})
@@ -192,12 +192,22 @@
                     {:description "NFT record destroyed."})]))
 
 
+;;;
 
 
+(defn suite.main
+
+  ^{:doc {:description "Main suite gathering other suites."}}
+
+  []
+
+  (T/group '[(T/path.conj 'asset.nft-tokens)
+             (suite.mono)
+             (suite.quantity nft)]))
+
+;;;
 
 
-;;
-
-
-(suite.mono)
-(suite.quantity nft)
+(T/report.clear)
+(suite.main)
+(T/print "asset.nft-tokens")

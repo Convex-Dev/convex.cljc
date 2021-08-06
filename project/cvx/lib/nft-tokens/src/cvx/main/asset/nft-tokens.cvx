@@ -84,40 +84,46 @@
 
 ;; Some useful getter functions, which are exported for general use
 (defn get-token-owner
-  ^{:doc {:description "Gets owner of token.",
-          :examples [{:code "(get-token-owner 1234)"}]
-          :type :function
-          :signature [{:params [id]}]}}
+  ^{:callable? true
+    :doc       {:description "Gets owner of token.",
+                :examples [{:code "(get-token-owner 1234)"}]
+                :type :function
+                :signature [{:params [id]}]}}
   [id]
   (get-in token-records [id :owner]))
 
 (defn get-token-creator
-  ^{:doc {:description "Gets creator of token.",
-          :examples [{:code "(get-token-creator 1234)"}]
-          :type :function
-          :signature [{:params [id]}]}}
+  ^{:callable? true
+    :doc       {:description "Gets creator of token.",
+                :examples [{:code "(get-token-creator 1234)"}]
+                :type :function
+                :signature [{:params [id]}]}}
   [id]
   (get-in token-records [id :creator]))
 
 (defn get-token-data
-  ^{:doc {:description "Gets data map associated with token.",
-          :examples [{:code "(get-token-data 1234)"}]
-          :type :function
-          :signature [{:params [id]}]}}
+  ^{:callable? true
+    :doc       {:description "Gets data map associated with token.",
+                :examples [{:code "(get-token-data 1234)"}]
+                :type :function
+                :signature [{:params [id]}]}}
   [id]
   (get-in token-records [id :data]))
 
 (defn get-token-class
-  ^{:doc {:description "Gets class actor for token, returns nil if it is a singleton token with policy map.",
-          :examples [{:code "(get-token-class 1234)"}]
-          :type :function
-          :signature [{:params [id]}]}}
+  ^{:callable? true
+    :doc       {:description "Gets class actor for token, returns nil if it is a singleton token with policy map.",
+                :examples [{:code "(get-token-class 1234)"}]
+                :type :function
+                :signature [{:params [id]}]}}
   [id]
   (get-in token-records [id :class]))
 
 ;; It is common for nfts to have a uri where we can retrieve off-chain data associated with this token
 ;; The class actor handles this call, if available, otherwise we look in the token's data for :uri.
-(defn get-uri [id]
+(defn get-uri
+  ^{:callable? true}
+  [id]
   (let [record (get token-records id)
         class (:class record)]
     (if (and class (exports? class 'get-uri))
@@ -125,7 +131,9 @@
       (:uri (:data record)))))
 
 ;; Implements the balance function for convex.asset.
-(defn balance [owner]
+(defn balance
+  ^{:callable? true}
+  [owner]
   (or (get-holding (address owner)) #{}))
 
 ;; check-trusted? determines whether a given address has certain rights.
@@ -147,7 +155,9 @@
 ;; [policy-key key] defaults to policy for policy-key
 ;; Otherwise, a nil policy defaults to :owner
 
-(defn check-trusted? [addr policy-key id]
+(defn check-trusted?
+  ^{:callable? true}
+  [addr policy-key id]
   (let [token-record (get token-records id)]
     (if-let [class (:class token-record)]
       (call class (check-trusted? addr policy-key id))
@@ -174,12 +184,13 @@
 ;; returns id of newly created token
 
 (defn create-token
-  ^{:doc {:description "Creates token with initial data map. Can specify a policy map or a class actor. Returns id of newly created token.",
-          :examples [{:code "(create-token {:name \"My Amazing Artwork\"} nil)"}
-                     {:code "(create-token {:name \"Concert ticket\", :redeemed? false} {:destroy :owner, :update :creator, :transfer :creator})"}
-                     {:code "(create-token {:name \"House\"} real-estate-class-actor)"}]
-          :type :function
-          :signature [{:params [initial-data policy-map-or-class]}]}}
+  ^{:callable? true
+    :doc       {:description "Creates token with initial data map. Can specify a policy map or a class actor. Returns id of newly created token.",
+                :examples [{:code "(create-token {:name \"My Amazing Artwork\"} nil)"}
+                           {:code "(create-token {:name \"Concert ticket\", :redeemed? false} {:destroy :owner, :update :creator, :transfer :creator})"}
+                           {:code "(create-token {:name \"House\"} real-estate-class-actor)"}]
+                :type :function
+                :signature [{:params [initial-data policy-map-or-class]}]}}
   [initial-data policy-map-or-class]
   (assert (or (nil? initial-data) (map? initial-data))
           (or (nil? policy-map-or-class) (map? policy-map-or-class)
@@ -201,10 +212,11 @@
     id))
 
 (defn destroy-token
-  ^{:doc {:description "Destroys token, if (check-trusted? *caller* :destroy id)",
-          :examples [{:code "(destroy-token 1234)"}]
-          :type :function
-          :signature [{:params [id]}]}}
+  ^{:callable? true
+    :doc       {:description "Destroys token, if (check-trusted? *caller* :destroy id)",
+                :examples [{:code "(destroy-token 1234)"}]
+                :type :function
+                :signature [{:params [id]}]}}
   [id]
   (if (not (check-trusted? *caller* :destroy id))
     (fail "No right to destroy token")
@@ -217,11 +229,13 @@
         (call class (destroy-token *caller* id)))
       true)))
 
-(defn set-token-data [id data]
-  ^{:doc {:description "Replaces data map, if (check-trusted? *caller* :update id).",
-          :examples [{:code "(set-token-data 1234 {:name \"New name\", :redeemed? false})"}]
-          :type :function
-          :signature [{:params [id data]}]}}       
+(defn set-token-data
+  ^{:callable? true
+    :doc       {:description "Replaces data map, if (check-trusted? *caller* :update id).",
+                :examples [{:code "(set-token-data 1234 {:name \"New name\", :redeemed? false})"}]
+                :type :function
+                :signature [{:params [id data]}]}}       
+  [id data]
   (if (not (check-trusted? *caller* :update id))
     (fail "No right to update token's data")
     (let [class (get-token-class id)]
@@ -230,11 +244,13 @@
         (call class (set-token-data *caller* id data)))
       data)))
 
-(defn merge-token-data [id data]
-  ^{:doc {:description "Merges data into token's data map, if caller has the right to update overall data map or all the relevant fields. In other words, if (check-trusted? *caller* :update id) OR (check-trusted? *caller* [:update key] id) holds for every key in data.",
-          :examples [{:code "(merge-token-data 1234 {:redeemed? true})"}]
-          :type :function
-          :signature [{:params [id data]}]}}              
+(defn merge-token-data
+  ^{:callable? true
+    :doc       {:description "Merges data into token's data map, if caller has the right to update overall data map or all the relevant fields. In other words, if (check-trusted? *caller* :update id) OR (check-trusted? *caller* [:update key] id) holds for every key in data.",
+                :examples [{:code "(merge-token-data 1234 {:redeemed? true})"}]
+                :type :function
+                :signature [{:params [id data]}]}}              
+  [id data]
   (if (not (or (check-trusted? *caller* :update id)
                (every? (fn [k] (check-trusted? *caller* [:update k] id)) (keys data))))
     (fail "No right to update token's data fields")
@@ -257,7 +273,9 @@
 
 ;; Returns string explaining restriction, or nil if no restriction on transfer
 ;; Implemented for convex.asset
-(defn check-transfer [sender receiver id-set]
+(defn check-transfer
+  ^{:callable? true}
+  [sender receiver id-set]
   (let [id-set (num->set id-set),
         sender (address sender),
         msg (reduce (fn [_ id]
@@ -287,7 +305,9 @@
 ;; direct-transfer is the interface for a sender to call the private perform-transfer function
 ;; This does not use the offer/accept model, and does not check whether the receiver wants to receive it.
 ;; Therefore, it is preferred to use `asset/transfer` to transfer assets.
-(defn direct-transfer [receiver id-set]
+(defn direct-transfer
+  ^{:callable? true}
+  [receiver id-set]
   (perform-transfer *caller* receiver (num->set id-set)))
 
 ;; private function, to optimize memory use in offers
@@ -299,7 +319,9 @@
 ;; offer-asset is one of the API functions for generalized transfer, called by the sender
 ;; can cancel existing offer by passing in [addr #{}]
 ;; Implemented for convex.asset
-(defn offer [receiver id-set]
+(defn offer
+  ^{:callable? true}
+  [receiver id-set]
   (let [sender *caller*,
         receiver (address receiver)
         id-set (num->set id-set)]
@@ -308,25 +330,29 @@
       :else (def offers (assoc-in offers [sender receiver] id-set)))))
 
 (defn get-offers
-  ^{:doc {:description "Gets all the offers from a given sender.",
-          :examples [{:code "(get-offers sender)"}]
-          :type :function
-          :signature [{:params [sender]}]}}
+  ^{:callable? true
+    :doc       {:description "Gets all the offers from a given sender.",
+                :examples [{:code "(get-offers sender)"}]
+                :type :function
+                :signature [{:params [sender]}]}}
   [sender]
   (get offers (address sender)))
 
 ;; get-offer is one of the API functions in the asset library
 (defn get-offer
-  ^{:doc {:description "Gets the offer from a given sender to a given receiver.",
-          :examples [{:code "(get-offer sender receiver)"}]
-          :type :function
-          :signature [{:params [sender receiver]}]}}
+  ^{:callable? true
+    :doc       {:description "Gets the offer from a given sender to a given receiver.",
+                :examples [{:code "(get-offer sender receiver)"}]
+                :type :function
+                :signature [{:params [sender receiver]}]}}
   [sender receiver]
   (get-in offers [sender receiver]))
 
 ;; accept-offer is one of the API functions for generalized transfer, called by receiver
 ;; Implemented for convex.asset
-(defn accept [sender accepted-id-set]
+(defn accept
+  ^{:callable? true}
+  [sender accepted-id-set]
   (let [sender (address sender),
         receiver *caller*,
         accepted-id-set (num->set accepted-id-set)
@@ -338,13 +364,16 @@
       (def offers (assoc-in offers [sender receiver] (difference offered-id-set accepted-id-set))))
     (perform-transfer sender receiver accepted-id-set)))
 
-(def quantity-add union)
+(def quantity-add
+  ^{:callable? true}
+  union)
 
-(def quantity-sub difference)
+(def quantity-sub
+  ^{:callable? true}
+  difference)
 
-(defn quantity-subset? [a b]
+(defn quantity-subset? 
+  ^{:callable? true}
+  [a b]
   ;; hack - treat longs as singleton set
   (if (long? a) (contains-key? b a) (subset? a b)))
-
-
-(export create-token quantity-add quantity-sub quantity-subset? destroy-token get-token-owner get-token-creator get-token-data get-token-class balance get-offers get-offer check-trusted? set-token-data merge-token-data check-transfer direct-transfer offer accept  get-uri)
