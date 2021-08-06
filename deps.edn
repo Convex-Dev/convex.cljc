@@ -37,8 +37,7 @@
 
   :ext/convex
 
-  {:extra-deps      {world.convex/convex {:local/root "cvm/7598e7b1ceea06c829761ac25b1f2f1fe446093e.jar"
-                                                      #_"cvm/hack.jar"}}
+  {:extra-deps      {world.convex/convex {:local/root "cvm/ff215a064771a32b138daf50b0985b9891ba7b45.jar"}}
    :maestro/doc     "Java implementation of the CVM and related utilities"
    :maestro/require [:ext/slf4j-timbre]}
 

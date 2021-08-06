@@ -65,6 +65,8 @@
 
        (defn burn
 
+         ^{:callable? true}
+
          [amount]
 
          (when-not (trust/trusted? minter
@@ -86,6 +88,8 @@
 
 
        (defn mint
+
+         ^{:callable? true}
 
          [amount]
 
@@ -112,10 +116,7 @@
            (set-holding *caller*
                         new-bal)
            (def supply
-                new-supply)))
-
-       (export burn
-               mint))))
+                new-supply))))))
 
 
 
@@ -148,6 +149,8 @@
        ;; Functions of the interface described in the `convex.asset` library
 
        (defn accept 
+
+         ^{:callable? true}
 
          [sender quantity]
 
@@ -198,6 +201,8 @@
 
        (defn balance
 
+         ^{:callable? true}
+
          [addr]
 
          (or (get-holding addr)
@@ -208,12 +213,16 @@
        ;;
        (defn check-transfer
 
+         ^{:callable? true}
+
          [_sender _receiver _quantity]
 
          nil)
 
 
        (defn direct-transfer
+
+         ^{:callable? true}
 
          [addr amount]
 
@@ -244,6 +253,8 @@
 
        (defn get-offer
 
+         ^{:callable? true}
+
          [sender receiver]
 
          (or (get-in offers
@@ -253,6 +264,8 @@
 
 
        (defn offer
+
+         ^{:callable? true}
 
          [receiver quantity]
 
@@ -284,6 +297,8 @@
 
        (defn quantity-add
 
+         ^{:callable? true}
+
          [a b]
 
          (let [a (if a
@@ -296,6 +311,8 @@
 
 
        (defn quantity-sub
+
+         ^{:callable? true}
 
          [a b]
 
@@ -313,6 +330,8 @@
 
        (defn quantity-subset?
 
+         ^{:callable? true}
+
          [a b]
 
          (<= (if a
@@ -320,18 +339,7 @@
                0)
              (if b
                (long b)
-               0)))
-
-
-       (export accept
-               balance
-               check-transfer
-               direct-transfer
-               get-offer
-               offer
-               quantity-add
-               quantity-sub
-               quantity-subset?))))
+               0))))))
 
 
 ;; CALLING ACTOR FUNCTIONS FROM A TOKEN

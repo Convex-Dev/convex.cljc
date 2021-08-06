@@ -1,46 +1,49 @@
 ;;
 ;;
-;; Testing the `convex.fungible` library.
+;; Testing `convex.fungible`.
 ;;
 ;;
 
 
-(sreq/dep {asset.test "project/cvx/lib/asset/src/cvx/test/convex/test/asset.cvx"
-           fungible   "project/cvx/lib/fungible/src/cvx/main/convex/fungible.cvx"})
+($.stream/out! (str $.term/clear.screen
+                    "Testing `convex.fungible` library"))
 
 
 ;; Deploying test version of `convex.fungible` instead of importing stable version.
 ;;
+($.file/read "project/cvx/lib/fungible/src/cvx/main/convex/fungible.cvx")
+
+
 (eval `(def fungible
             (deploy (quote ~(cons 'do
-                                  (next (next fungible)))))))
+                                  (next (next $/*result*)))))))
+
 
 ;; Requiring test suites for `convex.asset` since fungible tokens implement that interface.
 ;;
+($.file/read "project/cvx/lib/asset/src/cvx/test/convex/test/asset.cvx")
+
+
 (def asset.test
      (deploy (cons 'do
-                    asset.test)))
+                    $/*result*)))
+
 
 (asset.test/setup)
 
 
-;; Importing stable versions
+;; Other imports.
 ;;
 (import convex.asset    :as asset)
-(import convex.run.test :as T)
 
 
-;; Setup. Print test results at the end
-;;
-(sreq/hook.end '[(suite.main)
-                 (T/print-failed)])
-(sreq/screen.clear)
-(sreq/out "Testing `convex.fungible` library\n")
+(def T
+     $.test)
 
 
 ;; Default account is an actor, key is set to transform it into a user account.
 ;;
-(set-key help/fake-key)
+(set-key $.account/fake-key)
 
 
 
@@ -86,7 +89,7 @@
 
              (asset.test/suite.main ~token
                                     ~user
-                                    (let [user-2 (help/zombie)]
+                                    (let [user-2 ($.account/zombie)]
                                       (asset/transfer user-2
                                                       [~token
                                                        (long (/ ~supply
@@ -119,7 +122,7 @@
              ;; Transfers
 
              (def receiver
-                  (help/zombie))
+                  ($.account/zombie))
 
              (T/trx '(= 500
                         (asset/offer receiver
@@ -316,7 +319,7 @@
                     {:description "Token deployed"})
 
              (def receiver
-                  (help/zombie))
+                  ($.account/zombie))
 
              (def supply
                   (fungible/balance token
@@ -343,13 +346,13 @@
                                           receiver))
                     {:description "Balance of receiver updated after transfer."})
 
-             (T/fail-code #{:ASSERT}
+             (T/fail.code #{:ASSERT}
                           '(fungible/transfer token
                                               receiver
                                               -1)
                           {:description "Cannot transfer negative amount."})
 
-             (T/fail-code #{:ASSERT}
+             (T/fail.code #{:ASSERT}
                           '(fungible/transfer token
                                               receiver
                                               (inc (fungible/balance token
@@ -386,7 +389,7 @@
   (T/group `[(T/path.conj 'suite.mint)
 
              (def receiver
-                  (help/zombie))
+                  ($.account/zombie))
 
              (def supply.init
                   100)
@@ -410,7 +413,7 @@
 
              ;; Minting
 
-             (T/fail-code #{:ASSERT}
+             (T/fail.code #{:ASSERT}
                           '(fungible/mint token (inc supply.mintable))
                           {:description "Cannot mint more than max supply."})
 
@@ -441,7 +444,7 @@
                                                   (- supply.init)))
                                {:description "Negative mint down to 0."})
 
-                        (T/fail-code #{:ASSERT}
+                        (T/fail.code #{:ASSERT}
                                      '(fungible/mint token
                                                      -1)
                                      {:description "Cannot negative mint more than currently hold."})])
@@ -463,7 +466,7 @@
                                                   supply.init))
                                {:description "Burning down to 0."})
 
-                        (T/fail-code #{:ASSERT}
+                        (T/fail.code #{:ASSERT}
                                      '(fungible/burn token
                                                      1)
                                      {:description "Cannot burn more than currently hold."})])
@@ -488,13 +491,13 @@
                                       supply.receiver))
                    {:description "Can still burn hold tokens."})
 
-            (T/fail-code #{:ASSERT}
+            (T/fail.code #{:ASSERT}
                          '(fungible/burn token
                                          (inc (fungible/balance token
                                                                 *address*)))
                          {:description "Cannot burn more than currently holding."})
 
-            (T/fail-code #{:ASSERT}
+            (T/fail.code #{:ASSERT}
                          '(fungible/mint token
                                          (inc supply.receiver))
                          {:description "After transfer, still Cannot mint more than max supply."})
@@ -505,25 +508,25 @@
                                                                *address*))))
                    {:description "Can burn all currently hold tokens."})
 
-            (T/fail-code #{:TRUST}
+            (T/fail.code #{:TRUST}
                          '(eval-as receiver
                                    `(~fungible/mint ~token
                                                     1))
                          {:description "Non-owner cannot mint anything."})
 
-            (T/fail-code #{:TRUST}
+            (T/fail.code #{:TRUST}
                          '(eval-as receiver
                                    `(~fungible/mint ~token
                                                     ~(inc supply.max)))
                          {:description "Trust verified before amount during minting."})
 
-            (T/fail-code #{:TRUST}
+            (T/fail.code #{:TRUST}
                          `(eval-as receiver
                                    `(~fungible/burn ~token
                                                     1))
                          {:description "Non-owner cannot burn anything."})
 
-            (T/fail-code #{:TRUST}
+            (T/fail.code #{:TRUST}
                          '(eval-as receiver
                                    `(~fungible/burn ~token
                                                     ~(inc supply.max)))
@@ -531,7 +534,7 @@
 
 
 
-;;
+;;;
 
 
 (defn suite.main
@@ -540,6 +543,14 @@
 
   []
 
-  (sreq/do '[(suite.asset)
+  (T/group '[(T/path.conj 'convex.fungible)
+             (suite.asset)
              (suite.build-token)
              (suite.mint)]))
+
+
+;;;
+
+
+(suite.main)
+(T/print "convex.fungible")

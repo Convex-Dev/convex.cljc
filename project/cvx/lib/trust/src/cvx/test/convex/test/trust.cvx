@@ -69,7 +69,7 @@
                           {:description "List must be an address, obviously."})
 
              (T/trx '(address? (def user-1
-                                    (help/zombie)))
+                                    ($.account/zombie)))
                     {:description "User 1 deployed."})
 
              (T/trx '(trust/trusted? bl
@@ -98,7 +98,7 @@
                     {:description "New account is trusted again."})
 
              (T/trx '(address? (def user-2
-                                    (help/zombie)))
+                                    ($.account/zombie)))
                     {:description "User 2 deployed."})
 
              (T/trx '(= #{*address*
@@ -213,7 +213,7 @@
                     {:description "Eval arbitrary code in list actor."})
 
              (T/trx '(address? (def not-root
-                                    (help/zombie)))
+                                    ($.account/zombie)))
                     {:description "Accoutn deployed."})
 
              (T/fail.code #{:TRUST}
@@ -275,7 +275,7 @@
                           {:description "List must be an address, obviously."})
 
              (T/trx '(address? (def user-1
-                                    (help/zombie)))
+                                    ($.account/zombie)))
                     {:description "User 1 deployed."})
 
              (T/trx '(not (trust/trusted? wl
@@ -304,7 +304,7 @@
                     {:description "New account is not trusted anymore."})
 
              (T/trx '(address? (def user-2
-                                    (help/zombie)))
+                                    ($.account/zombie)))
                     {:description "User 2 deployed."})
 
              (T/trx '(= #{*address*
