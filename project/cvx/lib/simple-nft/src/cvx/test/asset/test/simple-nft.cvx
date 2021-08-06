@@ -1,50 +1,50 @@
 ;;
 ;;
-;; Testing the `asset.simple-nft` library.
+;; Testing `asset.simple-nft`.
 ;;
 ;;
 
 
-(sreq/dep {asset.test "project/cvx/lib/asset/src/cvx/test/convex/test/asset.cvx"
-           nft        "project/cvx/lib/simple-nft/src/cvx/main/asset/simple-nft.cvx"})
+;;;;;;;;;; Setup
+
+($.stream/out! (str $.term/clear.screen
+                    "Testing `asset.simple-nft`"))
 
 
 ;; Deploying test version of `asset.simple-nft` instead of importing stable version.
 ;;
+($.file/read "project/cvx/lib/simple-nft/src/cvx/main/asset/simple-nft.cvx")
+
+
 (eval `(def nft
             (deploy (quote ~(cons 'do
-                                  (next (next nft)))))))
-
+                                  (next (next $/*result*)))))))
 
 ;; Requiring test suites for `convex.asset` since this library implement that interface.
 ;;
+($.file/read "project/cvx/lib/asset/src/cvx/test/convex/test/asset.cvx")
+
+
 (def asset.test
      (deploy (cons 'do
-                    asset.test)))
+                   $/*result*)))
 
 
 (asset.test/setup)
 
 
-;; Importing stable versions
+;; Other libraries
 ;;
-(import convex.run.test :as T)
-
-
-;; Setup. Print test results at the end
-;;
-(sreq/hook.end '[(suite.main)
-                 (T/print-failed)])
-(sreq/screen.clear)
-(sreq/out "Testing `asset.simple-nft` library\n")
+(def T
+     $.test)
 
 
 ;; Default account is an actor, key is set to transform it into a user account.
 ;;
-(set-key help/fake-key)
+(set-key $.account/fake-key)
 
 
-;; Test suites
+;;;;;;;;;; Test suites
 
 
 (defn suite.asset
@@ -53,7 +53,7 @@
 
   []
 
-  (T/group '[(T/path.conj 'suite.asset)
+  (T/group '[(T/path.conj 'asset)
 
              ;; Quantities
 
@@ -127,11 +127,11 @@
                     {:description "Initially, creator owns all NFTs."})
 
              (T/trx '(address? (def user-1
-                                    (help/zombie)))
+                                    ($.account/zombie)))
                     {:description "User 1 deployed."})
 
              (T/trx '(address? (def user-2
-                                    (help/zombie)))
+                                    ($.account/zombie)))
                     {:description "User 2 deployed."})
 
              (def balance-creator
@@ -223,9 +223,9 @@
 
   []
 
-  (T/group '[(T/path.conj 'suite.burn)
+  (T/group '[(T/path.conj 'burn)
 
-             (T/fail-code #{:TRUST}
+             (T/fail.code #{:TRUST}
                           '(call nft
                                  (burn #{-1}))
                           {:description "Cannot burn inexistant NFT."})
@@ -239,7 +239,7 @@
                               (burn #{piece})))
                     {:description "NFT burned."})
 
-             (T/fail-code #{:TRUST}
+             (T/fail.code #{:TRUST}
                           '(call nft
                                  (burn #{piece}))
                           {:description "Impossible to double-burn."})
@@ -255,7 +255,7 @@
                     {:description "Cannot own burned NFT."})]))
 
 
-;;
+;;;
 
 
 (defn suite.main
@@ -264,5 +264,14 @@
 
   []
 
-  (sreq/do '[(suite.asset)
+  (T/group '[(T/path.conj 'asset.simple-nft)
+             (suite.asset)
              (suite.burn)]))
+
+
+;;;
+
+
+(T/report.clear)
+(suite.main)
+(T/print "suite.main")

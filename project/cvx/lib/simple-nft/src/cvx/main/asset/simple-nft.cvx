@@ -21,24 +21,6 @@
       (register {:name "Simple NFT Library"}))
 
 
-
-
-;; ACTOR INTERFACE
-
-
-(export accept
-        balance
-        burn
-        create-nft
-        direct-transfer
-        offer 
-        quantity-add
-        quantity-sub
-        quantity-subset?)
-
-
-
-
 ;; VALUES
 
 
@@ -63,11 +45,12 @@
   *address*)
 
 
-
 ;; IMPLEMENTING `convex.asset` INTERFACE
 
 
 (defn balance
+
+  ^{:callable? true}
 
   [owner]
 
@@ -77,6 +60,8 @@
 
 
 (defn offer
+
+  ^{:callable? true}
 
   [receiver quantity]
 
@@ -100,14 +85,28 @@
            (get-holding owner)))
 
 
+
 (def quantity-add
-     union)
+
+  ^{:callable? true}
+
+  union)
+
+
 
 (def quantity-sub
-     difference)
+
+  ^{:callable? true}
+
+  difference)
+
+
 
 (def quantity-subset?
-     subset?)
+
+  ^{:callable? true}
+
+  subset?)
 
 
 
@@ -130,6 +129,8 @@
                                    quantity)]
 
   (defn accept
+
+    ^{:callable? true}
 
     [sender quantity]
 
@@ -162,6 +163,8 @@
 
   (defn direct-transfer
 
+    ^{:callable? true}
+
     [receiver quantity]
 
     (internal-direct-transfer *caller*
@@ -176,7 +179,8 @@
 
 (defn burn
 
-  ^{:doc {:description "Destroys a set of NFTs. NFTs must be owned by the caller."}}
+  ^{:callable? true
+    :doc       {:description "Destroys a set of NFTs. NFTs must be owned by the caller."}}
 
   [nft-set]
 
@@ -209,7 +213,8 @@
 
 (defn create-nft
 
-  ^{:doc {:description "Contract to create a new NFT, with a fresh ID and arbitrary metadata."}}
+  ^{:callable? true
+    :doc       {:description "Contract to create a new NFT, with a fresh ID and arbitrary metadata."}}
 
   []
 
