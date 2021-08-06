@@ -290,7 +290,42 @@
                                            token))
                     {:description "Someone else can update status as decided."})
 
+             (T/trx '(= {:name   "Token"
+                         :status true}
+                        (eval-as someone
+                                 `(call ~nft
+                                        (merge-token-data ~token
+                                                          {:status true}))))
+                    {:description "Status changed."})
 
+             (T/trx '(= {:name   "Token"
+                         :status true}
+                         (call nft
+                               (get-token-data token)))
+                    {:description "Status permanently updated."})
+
+
+             (T/trx '(call nft
+                           (destroy-token token))
+                    {:description "Token destroyed."})
+
+             (T/trx '(not (asset/owns? receiver
+                                       [nft
+                                        token]))
+                    {:description "Receiver cannot own destroyed token."})
+
+             (T/trx '(not (asset/owns? *address*
+                                       [nft
+                                        token]))
+                    {:description "Original owner cannot own destroyed token eiter."})
+
+             (T/trx '(empty? (asset/balance nft
+                                            *address*))
+                    {:description "Empty balance."})
+
+             (T/trx '(empty? (asset/balance nft
+                                            receiver))
+                    {:description "Receiver has empty balance after destruction."})
              
              
 
