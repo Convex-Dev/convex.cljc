@@ -449,6 +449,11 @@
                              token))
                     {:description "Accurate token record."})
 
+             (T/trx '(= logger
+                        (call nft
+                              (get-token-class token)))
+                    {:description "Class reported."})
+
              (create.check (fn []
                              `(def history
                                    ~(call logger
@@ -480,6 +485,128 @@
 
              (T/trx '(nil? history-2)
                     {:description "History removed at destruction."}))))
+
+
+
+(defn suite.class.restrict
+
+  ^{:doc {:description ""}}
+
+  []
+
+  (T/group '((T/path.conj 'class.restrict)
+
+             (def receiver
+                  ($.account/zombie))
+
+             (def transfer-max-twice
+                  (deploy
+                   `(do
+
+                      (def nft
+                           ~nft)
+
+                      (def transfer-count 
+                           {})
+
+                      (defn check-transfer
+                        ^{:callable? true}
+                        [caller sender receiver id-set]
+                        (reduce (fn [_ id]
+                                 (when (>= (get transfer-count
+                                                id)
+                                           2)
+                                   (reduced (str "Token " id " has already been transferred twice"))))
+                                nil
+                                id-set))
+
+                      (defn check-trusted?
+                        ^{:callable? true}
+                        [addr policy-key id]
+                        (if (contains-key? #{:destroy
+                                             :transfer}
+                                           policy-key)
+                          (= (call nft
+                                   (get-token-creator id))
+                              addr)
+                          (= (call nft
+                                   (get-token-owner id))
+                             addr)))
+
+                      (defn create-token
+                        ^{:callable? true}
+                        [caller id initial-data]
+                        (def transfer-count
+                             (assoc transfer-count
+                                    id
+                                    0)))
+
+                      (defn destroy-token
+                        ^{:callable? true}
+                        [caller id]
+                        (def transfer-count
+                             (dissoc transfer-count
+                                     id)))
+
+                      (defn perform-transfer
+                        ^{:callable? true}
+                        [caller sender receiver id-set]
+                        (def transfer-count
+                             (reduce (fn [tc id]
+                                       (assoc tc
+                                              id
+                                              (inc (get tc
+                                                    id))))
+                                  transfer-count
+                                  id-set))))))
+                                  
+             (def data
+                   {:name "Token"
+                    :uri  "https://www.mysite.com"})
+
+             (T/trx '(zero? (def token
+                                 (call nft
+                                       (create-token data
+                                                     transfer-max-twice))))
+                     {:description "Token created."})
+
+             (T/trx '(= {:class   transfer-max-twice
+                         :creator *address*
+                         :data    data
+                         :owner   *address*}
+                        (get nft/token-records
+                             token))
+                    {:description "Accurate token record."})
+
+             (T/trx '(= transfer-max-twice
+                        (call nft
+                              (get-token-class token)))
+                    {:description "Class reported."})
+
+             (create.check nil)
+
+             (T/trx '(= [nft
+                         #{token}]
+                        (asset/transfer receiver
+                                        [nft
+                                         token]))
+                    {:description "First transfer."})
+
+             (T/trx '(= [nft
+                         #{token}]
+                        (asset/transfer *address*
+                                        [nft
+                                         token]))
+                    {:description "First transfer."})
+
+
+             (T/fail.code #{:ASSERT}
+                          '(= [nft
+                               #{token}]
+                              (asset/transfer receiver
+                                              [nft
+                                               token]))
+                          {:description "Fail, already transferred twice."}))))
 
 
 
@@ -826,6 +953,7 @@
 
   (T/group '((T/path.conj 'asset.nft-tokens)
              (suite.class)
+             (suite.class.restrict)
              (suite.policy)
              (suite.quantity nft)  ;; From `asset/quantity/set-long` test file.
              (suite.self)
