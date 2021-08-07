@@ -76,7 +76,7 @@
 
 (defn suite.api
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Testing core API functions."}}
 
   []
 
@@ -227,7 +227,7 @@
 
 (defn suite.deployed-currencies
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Testing already deployed currencies."}}
 
   []
 
@@ -247,7 +247,7 @@
 
 (defn suite.initial-token-market
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Testing common operations (adding liquidity, buy, sell, ...) on a new token market."}}
 
   []
 
@@ -461,7 +461,7 @@
 
 (defn suite.missing-market
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Testing facts about markets which do not exist or have no liquidity."}}
 
   []
 
@@ -482,7 +482,7 @@
 
 (defn suite.main
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Main suite gathering all other suites."}}
 
   []
 
