@@ -21,7 +21,7 @@
 
   []
 
-  (T/group '[(T/path.conj 'advance)
+  (T/group '((T/path.conj 'advance)
 
              (def interval
                   100)
@@ -58,7 +58,7 @@
 
              (T/trx '(= end
                         *timestamp*)
-                    {:description "Timestamp precisely where expected."})]))
+                    {:description "Timestamp precisely where expected."}))))
 
 
 
@@ -68,7 +68,7 @@
 
   []
 
-  (T/group '[(T/path.conj 'push-pop)
+  (T/group '((T/path.conj 'push-pop)
              
              (T/trx '($.trx/precat '(42
                                      ($.time/push)
@@ -85,7 +85,7 @@
                                                        ~foo))
                                      (= 24
                                         bar)))
-                    {:description "State popped while remembering something."})]))
+                    {:description "State popped while remembering something."}))))
              
 
 ;;;
@@ -97,9 +97,9 @@
 
   []
 
-  (T/group '[(T/path.conj 'convex.run.time)
+  (T/group '((T/path.conj 'convex.run.time)
              (suite.advance)
-             (suite.state)]))
+             (suite.state))))
 
 
 ;;;

@@ -33,7 +33,7 @@
 
   [path quantity-zero balance]
 
-  (T/group `[(T/path.conj ['convex.asset.test
+  (T/group `((T/path.conj ['convex.asset.test
                            'suite.balance
                            ~path])
 
@@ -42,7 +42,7 @@
 
              (T/trx '(not (= ~quantity-zero
                              ~balance))
-                    {:description "Balance is not empty"})]))
+                    {:description "Balance is not empty"}))))
 
 
 
@@ -52,7 +52,7 @@
 
   [path token user known-balance]
 
-  (T/group `[(T/path.conj ['convex.asset.test
+  (T/group `((T/path.conj ['convex.asset.test
                            'suite.user
                            ~path])
 
@@ -84,7 +84,7 @@
              (T/trx '(asset/owns? ~user
                                   [~token
                                    nil])
-                    {:description "User owns at least \"nothing\"."})]))
+                    {:description "User owns at least \"nothing\"."}))))
 
 
 ;;
@@ -97,7 +97,7 @@
 
   [token user-1 user-2]
 
-  (T/group `[(T/path.conj '[convex.asset.test
+  (T/group `((T/path.conj '[convex.asset.test
                             suite.main])
              (def tester
                   ($.account/zombie))
@@ -165,4 +165,4 @@
              (T/trx '(= supply
                         (asset/balance ~token
                                        tester))
-                    {:description "Tester has whole supply."})]))
+                    {:description "Tester has whole supply."}))))

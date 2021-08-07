@@ -56,7 +56,7 @@
 
   [token supply user]
 
-  (T/group `[(T/path.conj 'suite.fungible)
+  (T/group `((T/path.conj 'suite.fungible)
 
              (T/trx '(= ~supply
                         (asset/balance ~token
@@ -94,7 +94,7 @@
                                                       [~token
                                                        (long (/ ~supply
                                                                 3))])
-                                      user-2))]))
+                                      user-2)))))
 
 
 ;; Top-level test suites
@@ -106,7 +106,7 @@
 
   []
 
-  (T/group `[(T/path.conj 'suite.asset)
+  (T/group `((T/path.conj 'suite.asset)
 
              (def supply
                   1000000)
@@ -302,7 +302,7 @@
 
              (T/trx '(not (asset/quantity-contains? token
                                                     nil
-                                                    110)))]))
+                                                    110))))))
 
 
 
@@ -312,7 +312,7 @@
 
   []
 
-  (T/group '[(T/path.conj 'suite.build-token)
+  (T/group '((T/path.conj 'suite.build-token)
 
              (T/trx '(address? (def token
                                     (deploy (fungible/build-token {}))))
@@ -359,7 +359,7 @@
                                                                      *address*)))
                           {:description "Cannot transfer more than hold."})
 
-             (T/group '[(T/trx '(= supply
+             (T/group '((T/trx '(= supply
                                    (fungible/transfer token
                                                       receiver
                                                       (fungible/balance token
@@ -375,8 +375,7 @@
                                    (fungible/balance token
                                                      receiver))
                                {:description "Receiver holds whole supply."})
-                        ])
-             ]))
+                        )))))
 
 
 
@@ -386,7 +385,7 @@
 
   []
 
-  (T/group `[(T/path.conj 'suite.mint)
+  (T/group `((T/path.conj 'suite.mint)
 
              (def receiver
                   ($.account/zombie))
@@ -427,7 +426,7 @@
                                           *address*))
                     {:description "Minted tokens added to balance."})
 
-             (T/group `[(T/path.conj :negative-minting)
+             (T/group `((T/path.conj :negative-minting)
 
                         (T/trx '(= supply.init
                                    (fungible/mint token
@@ -447,9 +446,9 @@
                         (T/fail.code #{:ASSERT}
                                      '(fungible/mint token
                                                      -1)
-                                     {:description "Cannot negative mint more than currently hold."})])
+                                     {:description "Cannot negative mint more than currently hold."})))
 
-             (T/group `[(T/path.conj :burning)
+             (T/group `((T/path.conj :burning)
 
                         (T/trx '(= supply.init
                                    (fungible/burn token
@@ -469,7 +468,7 @@
                         (T/fail.code #{:ASSERT}
                                      '(fungible/burn token
                                                      1)
-                                     {:description "Cannot burn more than currently hold."})])
+                                     {:description "Cannot burn more than currently hold."})))
             (def supply.receiver
                  (long (/ supply.max
                           5)))
@@ -530,7 +529,7 @@
                          '(eval-as receiver
                                    `(~fungible/burn ~token
                                                     ~(inc supply.max)))
-                         {:description "Trust verified before amount during minting."})]))
+                         {:description "Trust verified before amount during minting."}))))
 
 
 
@@ -543,10 +542,10 @@
 
   []
 
-  (T/group '[(T/path.conj 'convex.fungible)
+  (T/group '((T/path.conj 'convex.fungible)
              (suite.asset)
              (suite.build-token)
-             (suite.mint)]))
+             (suite.mint))))
 
 
 ;;;

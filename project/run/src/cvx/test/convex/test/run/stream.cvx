@@ -23,7 +23,7 @@
 
   []
 
-  (T/group '[(T/path.conj 'convex.run.stream)
+  (T/group '((T/path.conj 'convex.run.stream)
 
              (T/trx '(= 0
                         $.stream/stdin)
@@ -73,7 +73,7 @@
              (T/fail.code #{:STREAM}
                           '($.stream/out! 42
                                           :foo)
-                          {:description "Cannot write and flush cell to inexistent stream."})]))
+                          {:description "Cannot write and flush cell to inexistent stream."}))))
 
 
 ;;;

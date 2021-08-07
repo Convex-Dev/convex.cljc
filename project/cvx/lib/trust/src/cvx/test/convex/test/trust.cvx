@@ -38,7 +38,7 @@
 
   []
 
-  (T/group '[(T/path.conj 'black-list)
+  (T/group '((T/path.conj 'black-list)
 
              (T/trx '(address? (def bl
                                     (deploy (trust/build-blacklist nil))))
@@ -158,7 +158,7 @@
                                     `(call ~bl
                                            (set-trusted ~*address*
                                                         false)))
-                          {:description "Non-controller trying to remove trust for trusted account fails."})]))
+                          {:description "Non-controller trying to remove trust for trusted account fails."}))))
 
 
 
@@ -168,7 +168,7 @@
 
   []
 
-  (T/group '[(T/path.conj 'self-trust)
+  (T/group '((T/path.conj 'self-trust)
 
              (T/trx '(trust/trusted? *address*
                                      *address*)
@@ -185,7 +185,7 @@
              (T/trx '(and (nil? (account #666666))
                           (not (trust/trusted? *address*
                                                #666666)))
-                    {:description "Cannot trust an inexistent address."})]))
+                    {:description "Cannot trust an inexistent address."}))))
 
 
 
@@ -195,7 +195,7 @@
 
   []
 
-  (T/group '[(T/path.conj 'upgrade)
+  (T/group '((T/path.conj 'upgrade)
 
              (T/trx '(address? (def target
                                     (deploy `(do
@@ -234,7 +234,7 @@
 
              (T/trx '(= 1
                         target/bar)
-                    {:description "Rest of environment is preserved after loosing upgradability."})]))
+                    {:description "Rest of environment is preserved after loosing upgradability."}))))
 
 
 
@@ -244,7 +244,7 @@
 
   []
 
-  (T/group '[(T/path.conj 'white-list)
+  (T/group '((T/path.conj 'white-list)
 
              (T/trx '(address? (def wl
                                     (deploy (trust/build-whitelist nil))))
@@ -364,7 +364,7 @@
                                     `(call ~wl
                                            (set-trusted ~*address*
                                                         false)))
-                          {:description "Non-controller trying to remove trust for trusted account fails."})]))
+                          {:description "Non-controller trying to remove trust for trusted account fails."}))))
 
 
 ;;;
@@ -376,11 +376,11 @@
 
   []
 
-  (T/group '[(T/path.conj 'convex.trust)
+  (T/group '((T/path.conj 'convex.trust)
              (suite.blacklist)
              (suite.self-trust)
              (suite.upgrade)
-             (suite.whitelist)]))
+             (suite.whitelist))))
 
 
 ;;;

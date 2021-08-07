@@ -21,7 +21,7 @@
 
   []
 
-  (T/group '[(T/path.conj 'convex.run.code)
+  (T/group '((T/path.conj 'convex.run.code)
 
              ($.code/read+ "(+ 2 2) (fn [x] (inc x))")
 
@@ -34,7 +34,7 @@
 
              (T/trx '(= '(fn [x] (inc %0))
                         $/*result*)
-                    {:description "Experimental decompilation."})]))
+                    {:description "Experimental decompilation."}))))
 
 
 ;;;

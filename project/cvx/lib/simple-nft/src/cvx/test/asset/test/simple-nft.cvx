@@ -53,7 +53,7 @@
 
   []
 
-  (T/group '[(T/path.conj 'asset)
+  (T/group '((T/path.conj 'asset)
 
              ;; Quantities
 
@@ -213,7 +213,7 @@
 
              (asset.test/suite.main nft
                                     user-1
-                                    user-2)]))
+                                    user-2))))
 
 
 
@@ -223,7 +223,7 @@
 
   []
 
-  (T/group '[(T/path.conj 'burn)
+  (T/group '((T/path.conj 'burn)
 
              (T/fail.code #{:TRUST}
                           '(call nft
@@ -252,7 +252,7 @@
              (T/trx '(not (asset/owns? *address*
                                        [nft
                                         #{piece} ]))
-                    {:description "Cannot own burned NFT."})]))
+                    {:description "Cannot own burned NFT."}))))
 
 
 ;;;
@@ -264,9 +264,9 @@
 
   []
 
-  (T/group '[(T/path.conj 'asset.simple-nft)
+  (T/group '((T/path.conj 'asset.simple-nft)
              (suite.asset)
-             (suite.burn)]))
+             (suite.burn))))
 
 
 ;;;

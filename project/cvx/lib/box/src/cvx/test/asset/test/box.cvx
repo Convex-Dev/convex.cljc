@@ -88,7 +88,7 @@
 
   []
 
-  (T/group '[(T/path.conj 'asset)
+  (T/group '((T/path.conj 'asset)
 
              (create-box+ 4)
 
@@ -123,7 +123,7 @@
 
              (asset.test/suite.main box
                                     user-1
-                                    user-2)]))
+                                    user-2))))
 
 
 
@@ -133,7 +133,7 @@
 
   []
 
-  (T/group '[(T/path.conj 'content)
+  (T/group '((T/path.conj 'content)
 
              (create-box+ 4)  ;; defines `total` containing all boxes and `b-X` for each numbered box
 
@@ -265,7 +265,7 @@
              (T/trx '(= 2500
                         (asset/balance foocoin
                                        box))
-                    {:description "Box balance in foocoin adjusted after removing some."})]))
+                    {:description "Box balance in foocoin adjusted after removing some."}))))
 
 
 ;;;
@@ -277,9 +277,9 @@
 
   []
 
-  (T/group '[(T/path.conj "asset.box")
+  (T/group '((T/path.conj "asset.box")
              (suite.asset)
-             (suite.content)]))
+             (suite.content))))
 
 
 ;;;

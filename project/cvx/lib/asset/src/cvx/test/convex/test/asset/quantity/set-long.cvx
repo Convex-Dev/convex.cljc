@@ -6,7 +6,7 @@
 
   [token]
 
-  (T/group `[(T/path.conj "convex/asset/quantity/set-long")
+  (T/group `((T/path.conj "convex/asset/quantity/set-long")
 
              (def token
                   ~token)
@@ -56,4 +56,4 @@
 
              (T/trx '(not (asset/quantity-contains? token
                                                     #{1 2 3}
-                                                    #{4 5 6})))]))
+                                                    #{4 5 6}))))))

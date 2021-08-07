@@ -21,7 +21,7 @@
 
   []
 
-  (T/group '[(T/path.conj 'convex.run.log)
+  (T/group '((T/path.conj 'convex.run.log)
 
              ($.log/get)
 
@@ -47,7 +47,7 @@
 
              (T/trx '(= []
                         $/*result*)
-                    {:description "Log has been cleared."})]))
+                    {:description "Log has been cleared."}))))
 
 
 ;;;

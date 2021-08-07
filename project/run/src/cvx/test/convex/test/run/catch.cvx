@@ -21,7 +21,7 @@
 
   []
 
-  (T/group '[(T/path.conj 'low-level)
+  (T/group '((T/path.conj 'low-level)
 
              (def handler-1
                   '(def foo
@@ -53,7 +53,7 @@
                      {:description "Pop."})
 
 
-              (T/group '[(T/path.conj 'catching)
+              (T/group '((T/path.conj 'catching)
 
                          ($.catch/push handler-1)
 
@@ -63,7 +63,7 @@
 
                          (T/trx '(= :handler-1
                                     foo)
-                                {:description "Error bubbled to non-failing handler."})])]))
+                                {:description "Error bubbled to non-failing handler."}))))))
 
 
 
@@ -73,9 +73,9 @@
 
   []
 
-  (T/group '[(T/path.conj 'safe)
+  (T/group '((T/path.conj 'safe)
 
-             (T/group '[(T/path.conj 'success)
+             (T/group '((T/path.conj 'success)
 
                         true
 
@@ -93,9 +93,9 @@
                                {:description "Error transaction not executed."})
 
                         (T/trx 'x-finally
-                               {:description "Finally transaction executed."})])
+                               {:description "Finally transaction executed."})))
 
-             (T/group '[(T/path.conj 'fail)
+             (T/group '((T/path.conj 'fail)
 
                         ($.catch/safe '($.trx/precat '((def x-1
                                                             true)
@@ -117,7 +117,7 @@
                                {:description "Error transaction executed."})
 
                         (T/trx 'x-finally
-                               {:description "Finally transaction executed."})])]))
+                               {:description "Finally transaction executed."}))))))
 
 
 ;;;
@@ -129,9 +129,9 @@
 
   []
 
-  (T/group '[(T/path.conj 'convex.run.account)
+  (T/group '((T/path.conj 'convex.run.account)
              (suite.low-level)
-             (suite.safe)]))
+             (suite.safe))))
 
 
 ;;;

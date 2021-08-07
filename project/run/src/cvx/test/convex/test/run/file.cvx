@@ -21,7 +21,7 @@
 
   []
 
-  (T/group '[(T/path.conj 'high-level)
+  (T/group '((T/path.conj 'high-level)
 
              (def cell
                   '(def x
@@ -42,7 +42,7 @@
              (T/trx '($.trx/precat '(($.file/exec path)
                                      (= {:foo :bar}
                                         x)))
-                    {:description "File executed."})]))
+                    {:description "File executed."}))))
 
 
 
@@ -53,7 +53,7 @@
 
   []
 
-  (T/group '[(T/path.conj 'stream)
+  (T/group '((T/path.conj 'stream)
 
              (def path
                   "/tmp/test_file_stream.cvx")
@@ -100,7 +100,7 @@
              (T/trx '($.trx/precat '(($.stream/line+ stream.line)
                                      (= '(:foo)
                                         $/*result*)))
-                    {:description "Read only first line."})]))
+                    {:description "Read only first line."}))))
 
 
 ;;;
@@ -112,9 +112,9 @@
 
   []
 
-  (T/group '[(T/path.conj 'convex.run.file)
+  (T/group '((T/path.conj 'convex.run.file)
              (suite.high-level)
-             (suite.stream)]))
+             (suite.stream))))
 
 
 ;;;

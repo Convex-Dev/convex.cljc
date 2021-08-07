@@ -41,7 +41,7 @@
 
 (defmacro help
 
-  ^{:doc {:description ["Arity 0 print a generic help message."
+  ^{:doc {:description ["Arity 0 prints a generic help message."
                         "Arity 1 prints information for an account or a symbol."]
           :examples    [{:code "($/help)"}
                         {:code "($/help *address*)"}

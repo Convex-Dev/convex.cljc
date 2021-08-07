@@ -21,7 +21,7 @@
 
   []
 
-  (T/group '[(T/path.conj 'convex.run)
+  (T/group '((T/path.conj 'convex.run)
 
              (T/trx '(str? $/line)
                     {:description "Platform dependent newline is set by the runner."})
@@ -37,7 +37,7 @@
 
              (T/trx '(= 44
                         res)
-                    {:description "Result symbol is updated."})]))
+                    {:description "Result symbol is updated."}))))
 
 
 ;;;

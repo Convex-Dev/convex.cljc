@@ -21,7 +21,7 @@
 
   []
 
-  (T/group '[(T/path.conj 'convex.run.process)
+  (T/group '((T/path.conj 'convex.run.process)
 
              ($.process/env)
 
@@ -43,7 +43,7 @@
 
              (T/trx '(= value
                         $/*result*)
-                    {:description "Retrieve only one variable."})]))
+                    {:description "Retrieve only one variable."}))))
 
 
 ;;;

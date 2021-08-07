@@ -318,11 +318,12 @@
 
 (defn group
 
-  ^{:doc {:description ["Encloses given transactions using `$.time` utililities."
+  ^{:doc {:description ["Encloses given list of transactions using `$.time` utililities."
                         "Any state change induced by those transactions will ultimately be discarded."
                         "Before executing the first transaction, CVM state is saved."
                         "After the final transaction, saved state is restored while rememberring new tests results."
-                        "Optional `trx-pop` is an additional transaction executed when state is restored."]
+                        "Optional `prepare-trx-pop` function in invoked to produce a transaction that will be executed after restoring state."
+						"Useful for rememberring something."]
           :examples    [{:code "($.test/group '[(def foo 42) ($.test/trx '(= 42 foo))])"}]
           :signature   [{:params [trx+]}
                         {:params [trx+ trx-pop]}]}}
@@ -335,12 +336,12 @@
           nil))
 
 
-  ([trx+ trx-pop]
+  ([trx+ prepare-trx-pop]
 
-   ($.trx/precat (cons (list state.push)
-                       (conj trx+
-                             (list state.pop
-                                   trx-pop))))))
+   ($.trx/prepend `(~state.pop ~(when prepare-trx-pop
+								  (list prepare-trx-pop))))
+   ($.trx/precat trx+)
+   ($.trx/prepend (list state.push))))
 
 
 

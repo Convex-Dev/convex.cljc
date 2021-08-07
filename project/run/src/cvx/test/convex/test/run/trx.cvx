@@ -21,7 +21,7 @@
 
   []
 
-  (T/group '[(T/path.conj 'convex.run.trx)
+  (T/group '((T/path.conj 'convex.run.trx)
 
              ($.trx/prepend '(def foo
                                   42))
@@ -67,7 +67,7 @@
                                    foo)
                                 (= :bar
                                    bar)))))
-                    {:description "Append a list of transactions."})]))
+                    {:description "Append a list of transactions."}))))
 
 
 ;;;

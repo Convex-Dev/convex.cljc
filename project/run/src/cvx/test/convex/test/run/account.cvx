@@ -21,7 +21,7 @@
 
   []
 
-  (T/group '[(T/path.conj 'convex.run.account)
+  (T/group '((T/path.conj 'convex.run.account)
 
              (def actor
                   ($.account/zombie (def foo
@@ -46,7 +46,7 @@
                                    '(def foo
                                          24))
                           actor/foo))
-                    {:description "Able to use `eval-as`"})]))
+                    {:description "Able to use `eval-as`"}))))
 
 
 ;;;

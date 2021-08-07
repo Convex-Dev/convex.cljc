@@ -21,7 +21,7 @@
 
   []
 
-  (T/group '[(T/path.conj 'convex.run.perf)
+  (T/group '((T/path.conj 'convex.run.perf)
 
              (T/trx '($.trx/precat '(($.perf/bench '(+ 2 2))
                                      (and (map? $/*result*)
@@ -38,7 +38,7 @@
                                             (+ (:juice.expand $/*result*)
                                                (:juice.compile $/*result*)
                                                (:juice.exec $/*result*))))))
-                    {:description "Tracking."})]))
+                    {:description "Tracking."}))))
 
 
 ;;;
