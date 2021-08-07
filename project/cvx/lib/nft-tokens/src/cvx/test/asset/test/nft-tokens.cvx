@@ -44,7 +44,7 @@
 
 (defn create.check
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Checks generic facts about `token`, a newly created token."}}
 
   [prepare-trx-pop]
 
@@ -137,7 +137,7 @@
 
 (defn destroy.check
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Destroys token interned as `token` and checks generic facts."}}
 
   [prepare-trx-pop]
 
@@ -178,7 +178,7 @@
 
 (defn separate-offer-accept
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Tests transfer scenario where the offer is accepted separatelu from emission."}}
 
   [receiver]
 
@@ -231,7 +231,7 @@
 
 (defn transfer.check
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Ensures basic facts are respected after a preliminary transfer between `sender` and `receiver`."}}
 
 
   ([token]
@@ -338,7 +338,7 @@
 
 (defn transfer.do
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Performs a transfer to internet `receiver`."}}
 
   [load]
 
@@ -355,7 +355,7 @@
 
 (defn transfer.mono
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Tests scenarios of a single token transfer."}}
 
   [path-item make-account]
 
@@ -380,7 +380,7 @@
 
 (defn suite.class
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Tests creating a token with a class that logs all events."}}
 
   []
 
@@ -541,7 +541,7 @@
 
 (defn suite.class.restrict
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Tests creating a token with a class that limits the number of token transfer to 2."}}
 
   []
 
@@ -663,7 +663,7 @@
 
 (defn suite.policy
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Ensures token policies are respected."}}
 
   []
 
@@ -799,7 +799,7 @@
 
 (defn suite.self
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Ensures basic facts about a token, without any transfer or more sophisticated operations."}}
 
   []
 
@@ -842,7 +842,7 @@
 
 (defn suite.separate-offer-accept
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Tests transferring a token while separating offer and accepting the offer."}}
 
   []
 
@@ -852,7 +852,7 @@
 
 (defn suite.separate-offer-accept.actor
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Like `suite.separate-offer-accept` but with an actor."}}
 
   []
 
@@ -862,7 +862,7 @@
 
 (defn suite.transfer
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Applies `transfer.mono` to a user account."}}
 
   []
 
@@ -873,27 +873,23 @@
 
 (defn suite.transfer.actor
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Applies `transfer.mono` to an actor."}}
 
   []
 
   (transfer.mono 'transfer.actor
-                 '(deploy
-                    '(do
-
-                       (import convex.asset :as asset)
-
-                       (defn receive-asset
-                         ^{:callable? true}
-                         [offer _data]
-                         (asset/accept *caller*
-                                       offer))))))
+                 `(deploy
+                    '(defn receive-asset
+                        ^{:callable? true}
+                        [offer _data]
+                        (~asset/accept *caller*
+                                       offer)))))
 
 
 
 (defn suite.transfer.multi
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Tests transferring several tokens."}}
 
   []
 
@@ -947,7 +943,7 @@
 
 (defn suite.transfer.multi.partial
 
-  ^{:doc {:description ""}}
+  ^{:doc {:description "Like `suite.transfer.multi` but not all tokens are accepted."}}
 
   []
 
