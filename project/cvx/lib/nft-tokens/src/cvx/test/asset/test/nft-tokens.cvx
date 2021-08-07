@@ -176,6 +176,57 @@
 
 
 
+(defn separate-offer-accept
+
+  ^{:doc {:description ""}}
+
+  [receiver]
+
+  (T/group `((T/path.conj 'separate-offer-accept)
+
+             (def receiver
+                  ~receiver)
+
+             (T/trx '(zero? (def token
+                                 (call nft
+                                       (create-token {:name "Token"}
+                                                     nil))))
+                    {:description "Token created."})
+
+             (T/trx '(= {*address* {receiver #{token}}}
+                        (asset/offer receiver
+                                     [nft
+                                      token]))
+                    {:description "Send offer."})
+
+             (T/trx '(asset/owns? *address*
+                                  [nft
+                                   token])
+                    {:description "Still owner, offer not yet accepted."})
+              
+             (T/trx '(not (asset/owns? receiver
+                                       [nft
+                                        token]))
+                    {:description "Receiver not yet owner, has not accepted yet."})
+
+             (T/trx '(= [nft
+                         #{token}]
+                        (eval-as receiver
+                                 `(~asset/accept ~*address*
+                                                 [~nft
+                                                  ~token])))
+                    {:description "Receiver accepts offer."})
+
+             (T/trx '(not (asset/owns? *address*
+                                       [nft
+                                        token]))
+                    {:description "Lost ownership after offer got accepted."})
+              
+             (T/trx '(asset/owns? receiver
+                                  [nft
+                                   token])
+                    {:description "Receiver gained ownership after accepting."}))))
+
 
 
 (defn transfer.check
@@ -789,6 +840,26 @@
 
 
 
+(defn suite.separate-offer-accept
+
+  ^{:doc {:description ""}}
+
+  []
+
+  (separate-offer-accept ($.account/zombie)))
+
+
+
+(defn suite.separate-offer-accept.actor
+
+  ^{:doc {:description ""}}
+
+  []
+
+  (separate-offer-accept (deploy `(set-controller ~*address*))))
+
+
+
 (defn suite.transfer
 
   ^{:doc {:description ""}}
@@ -957,6 +1028,8 @@
              (suite.policy)
              (suite.quantity nft)  ;; From `asset/quantity/set-long` test file.
              (suite.self)
+             (suite.separate-offer-accept)
+             (suite.separate-offer-accept.actor)
              (suite.transfer)
              (suite.transfer.actor)
              (suite.transfer)
