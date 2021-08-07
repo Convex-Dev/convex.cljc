@@ -18,6 +18,8 @@
             (deploy (quote ~(cons 'do
                                   (next (next $/*result*)))))))
 
+($.file/exec "project/cvx/lib/fungible/src/cvx/test/convex/test/fungible/generic.cvx")
+
 
 ;; Requiring test suites for `convex.asset` since fungible tokens implement that interface.
 ;;
@@ -34,7 +36,7 @@
 
 ;; Other imports.
 ;;
-(import convex.asset    :as asset)
+(import convex.asset :as asset)
 
 
 (def T
@@ -44,57 +46,6 @@
 ;; Default account is an actor, key is set to transform it into a user account.
 ;;
 (set-key $.account/fake-key)
-
-
-
-;; Reusable test suites
-
-
-(defn suite.fungible
-
-  ^{:doc {:description "Reusable fungability tests with the `convex.asset` interface."}}
-
-  [token supply user]
-
-  (T/group `((T/path.conj 'suite.fungible)
-
-             (T/trx '(= ~supply
-                        (asset/balance ~token
-                                       ~user))
-                    {:description "Initially, user owns total supply."})
-
-             (T/trx '(= 0
-                        (asset/balance ~token
-                                       (deploy nil)))
-                    {:description "Newly created account has no token."})
-
-             (T/trx '(do
-                      (asset/transfer ~user
-                                      [~token
-                                       (asset/balance ~token
-                                                      ~user)])
-                      (= ~supply
-                         (asset/balance ~token
-                                        ~user)))
-                    {:description "Self-transfer does not affect balance."})
-
-             (T/trx '(do
-                       (asset/transfer ~user
-                                       [~token
-                                        nil])
-                       (= ~supply
-                          (asset/balance ~token
-                                         ~user)))
-                    {:description "Self-transfer of nothing does not affect balance."})
-
-             (asset.test/suite.main ~token
-                                    ~user
-                                    (let [user-2 ($.account/zombie)]
-                                      (asset/transfer user-2
-                                                      [~token
-                                                       (long (/ ~supply
-                                                                3))])
-                                      user-2)))))
 
 
 ;; Top-level test suites

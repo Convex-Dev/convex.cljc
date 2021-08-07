@@ -22,11 +22,29 @@
 
 (import convex.asset    :as asset)
 (import convex.fungible :as fungible)
-(import torus.exchange  :as torus)
+;(import torus.exchange  :as torus)
 
 
 ($.stream/out! (str $.term/clear.screen
                     "Testing `torus.exchange`"))
+
+
+;; Generic fungiblity suites.
+;;
+($.file/exec "project/cvx/lib/fungible/src/cvx/test/convex/test/fungible/generic.cvx")
+
+
+;; Requiring test suites for `convex.asset` as required for generic fungibility tests.
+;;
+($.file/read "project/cvx/lib/asset/src/cvx/test/convex/test/asset.cvx")
+
+
+(def asset.test
+     (deploy (cons 'do
+                    $/*result*)))
+
+
+(asset.test/setup)
 
 
 ;; Easier to buy/sell as a user account, no need to implement `receive-coin`.
@@ -38,11 +56,11 @@
 
 
 (def GBP.token
-     (deploy (fungible/build-token {:supply 100000000})))
+     (deploy (fungible/build-token {:supply 1000000000})))
 
 
 (def USD.token
-     (deploy (fungible/build-token {:supply 100000000})))
+     (deploy (fungible/build-token {:supply 1000000000})))
 
 
 (def USD.market
@@ -215,14 +233,229 @@
 
   (T/group '((T/path.conj 'deployed-currencies)
 
-             (import currency.GBP :as GBP.default)
-             (import currency.USD :as USD.default)
+             (import currency.GBP   :as GBP.default)
+             (import currency.USD   :as USD.default)
+             (import torus.exchange :as torus-old)
 
              ;; TODO. Missing `double?` in core. See https://github.com/Convex-Dev/convex/issues/92
              ;;
-             (T/trx '(number? (torus/price GBP.default
-                                           USD.default))
+             (T/trx '(number? (torus-old/price GBP.default
+                                               USD.default))
                     {:description "Price of USD per GBP token."}))))
+
+
+
+(defn suite.initial-token-market
+
+  ^{:doc {:description ""}}
+
+  []
+
+  (T/group '((T/path.conj 'initial-token-market)
+
+             (T/trx '(nil? (call USD.market
+                                 (price)))
+                    {:description "No price since zero liquidity."})
+
+             (T/trx '(= 20000000
+                        (asset/offer USD.market
+                                     [USD.token
+                                      20000000]))
+                    {:description "Initial token offering for market (200K USD)."})
+
+             (T/trx '(= 20000000
+                        (asset/get-offer USD.token
+                                         *address*
+                                         USD.market))
+                    {:description "Accept initial offer."})
+
+             ;; Adding liquidity.
+
+             (T/trx '(do
+                       (def shares.initial
+                            (call USD.market
+                                  1000000000000
+                                  (add-liquidity 10000000)))
+                       true)
+                    {:description "Initial deposit of 100K USD for 1000 CVX Gold."})
+
+             (T/trx '(= 10000000
+                        (asset/balance USD.token
+                                       USD.market))
+                    {:description "Market has balance of 100K USD."})
+
+             (T/trx '(= 1000000000000
+                        (balance USD.market))
+                    {:description "Market has CVX balance of 1000 Gold."})
+
+             (T/trx '(= shares.initial
+                        (asset/balance USD.market
+                                       *address*))
+                    {:description "Initial pool shares, accessible as a fungible asset balance."})
+
+             (T/trx '(= 10000000
+                        (asset/get-offer USD.token
+                                         *address*
+                                         USD.market))
+                    {:description "Consumed half the full offer of tokens."})
+
+             (T/trx '(= 100000.0
+                        (call USD.market
+                              (price)))
+                    {:description "Price should be 100000 CVX / US Cent."})
+
+             ;; More liquidity.
+
+             (T/trx '(do
+                       (def shares.new
+                            (call USD.market
+                                  1000000000000
+                                  (add-liquidity 10000000)))
+                       true)
+                    {:description "Initial deposit of 100K USD for 1000 CVX Gold."})
+
+             (T/trx '(= 20000000
+                        (asset/balance USD.token
+                                       USD.market))
+                    {:description "Market has balance of 100K USD."})
+
+             (T/trx '(= (+ shares.initial
+                           shares.new)
+                        (asset/balance USD.market
+                                       *address*))
+                    {:description "New pool shares, accessible as a fungible asset balance."})
+
+             (T/trx '(= 100000.0
+                        (call USD.market
+                              (price)))
+                    {:description "Price remains unchanged with new pool."})
+
+             (T/trx '(zero? (asset/get-offer USD.token
+                                             *address*
+                                             USD.market))
+                    {:description "Whole offer consumed."})
+
+             ;; Withdraw half of liquidity
+
+             (def balance-before-withdrawal
+                  *balance*)
+
+             (T/trx '(= shares.new
+                        (call USD.market
+                              (withdraw-liquidity shares.new)))
+                    {:description "Withdrawing half of liquidify."})
+
+             (T/trx '(= shares.initial
+                        (asset/balance USD.market
+                                       *address*))
+                    {:description "Remaining liquidity."})
+
+             (T/trx '(= 10000000
+                        (asset/balance USD.token
+                                       USD.market)))
+
+             (T/trx '(= 990000000
+                        (asset/balance USD.token
+                                       *address*)))
+
+             (T/trx '(> *balance*
+                        balance-before-withdrawal))
+
+             (T/trx '(= 1000000000000
+                        (balance USD.market))
+                    {:description "CVX balance of market back to start."})
+
+             ;; Generic fungible tests on shares
+
+             (suite.fungible USD.market
+                             shares.initial
+                             *address*)
+
+             ;; Buy half of all tokens (50K USD)
+
+             (T/trx '(long? (def cvx.paid
+                                 (call USD.market
+                                       *balance*
+                                       (buy-tokens 5000000))))
+                    {:description "Buy half of all tokens."})
+
+             (T/trx '(> cvx.paid
+                        1000000000000)
+                    {:description "Should cost more than pool CVX balance after fee."})
+
+             (T/trx '(< cvx.paid
+                        1100000000000)
+                    {:description "Should cost less than 10% fee."})
+
+             (T/trx '(= 5000000
+                        (asset/balance USD.token
+                                       USD.market))
+                    {:description "Half tokens remaining in the market."})
+
+             (T/trx '(= 995000000
+                        (asset/balance USD.token
+                                       *address*)))
+
+             (T/trx '(= shares.initial
+                        (asset/balance USD.market
+                                       *address*)))
+
+             ;; Sell back tokens (50K USD)
+
+             (T/trx '(= 5000000
+                        (asset/offer USD.market
+                                     [USD.token
+                                      5000000]))
+                    {:description "Sell back tokens."})
+
+             (T/trx '(long? (def cvx.gained
+                                 (call USD.market
+                                       (sell-tokens 5000000)))))
+
+             (T/trx '(> cvx.gained
+                        900000000000)
+                    {:description "Should gain most of money bach."})
+
+             (T/trx '(< cvx.gained
+                        cvx.paid)
+                    {:description "Gain less than cost because of fees."})
+
+             (T/trx '(= 10000000
+                        (asset/balance USD.token
+                                       USD.market)))
+
+             (T/trx '(= 990000000
+                        (asset/balance USD.token
+                                       *address*)))
+
+             (T/trx '(= shares.initial
+                        (asset/balance USD.market
+                                       *address*)))
+
+             ;; Withdraw all liquidity
+
+             (T/trx '(long? (def shares.remaining
+                                 (asset/balance USD.market
+                                                *address*))))
+
+             (T/trx '(> shares.remaining
+                        0))
+
+             (T/trx '(= shares.remaining
+                        (torus/withdraw-liquidity USD.token
+                                                  shares.remaining))
+                    {:description "Withdraw all remaining shares."})
+
+             (T/trx '(zero? (asset/balance USD.market
+                                           *address*))
+                    {:description "No shares left."})
+
+             (T/trx '(zero? (asset/balance USD.token
+                                           USD.market))
+                    {:description "No USD tokens left in liquidity pool."})
+
+             (T/trx '(zero? (balance USD.market))
+                    {:description "No CVX left in liquidity pool."}))))
 
 
 
@@ -256,8 +489,8 @@
   (T/group '((T/path.conj 'torus.exchange)
              (suite.api)
              (suite.deployed-currencies)
-             (suite.missing-market)
-             )))
+             (suite.initial-token-market)
+             (suite.missing-market))))
 
 
 ;;;;;;;;;;
