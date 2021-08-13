@@ -8,6 +8,11 @@ This project offers high-productivity utilities for producing Convex Lisp source
 utilities are especially useful during development and testing (eg. see [`:project/break`](../break)).
 
 
+**EXPERIMENTAL**. Running and hacking on Convex Lisp has become a lot more convenient due to the development of `:project/run`.
+As such, the need for using Clojure for that kind of utilities has lessened. In the future, especially when `:project/run`
+implements generative testing, this project might disappear.
+
+
 ## Writing Convex Lisp as Clojure data structures
 
 **Namespaces of interest:** `$.clj`
