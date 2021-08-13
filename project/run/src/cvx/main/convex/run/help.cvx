@@ -252,7 +252,8 @@
                                                   sym
                                                   nil)))
                                    []
-                                   (keys (:environment account)))
+                                   (when-let [env (:environment account)]
+                                     (keys env)))
                   acc      (if (empty? env)
                              acc
                              (section acc
