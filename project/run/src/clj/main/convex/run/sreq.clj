@@ -388,4 +388,4 @@
           (-> (env :convex.run/ctx)
               $.cvm/fork
               ($.cvm/def $.run.ctx/addr-$-trx
-                         {$.run.sym/list nil}))))
+                         {$.run.sym/list* nil}))))

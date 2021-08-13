@@ -170,7 +170,7 @@
           (fn [ctx]
             ($.cvm/def ctx
                        addr-$
-                       {$.run.sym/result result}))))
+                       {$.run.sym/result* result}))))
 
 
 
@@ -185,7 +185,7 @@
           (fn [ctx]
             ($.cvm/def ctx
                        addr-$-trx
-                       {$.run.sym/list trx+}))))
+                       {$.run.sym/list* trx+}))))
 
 
 ;;;;;;;;;;
@@ -201,7 +201,7 @@
 
   (.get ($.cvm/env (env :convex.run/ctx)
                    addr-$-trx)
-        $.run.sym/list))
+        $.run.sym/list*))
 
 
 

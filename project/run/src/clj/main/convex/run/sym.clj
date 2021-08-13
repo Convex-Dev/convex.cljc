@@ -5,11 +5,23 @@
   {:author "Adam Helinski"}
 
   (:import (convex.core.data Symbol))
-  (:refer-clojure :exclude [list])
+  (:refer-clojure :exclude [list*])
   (:require [convex.cell :as $.cell]))
 
 
-;;;;;;;;;;
+;;;;;;;;;; Dynamic symbols
+
+
+(def ^Symbol list*
+             ($.cell/symbol "*list*"))
+
+
+
+(def ^Symbol result*
+             ($.cell/symbol "*result*"))
+
+
+;;;;;;;;;; Static symbols
 
 
 (def ^Symbol $
@@ -92,33 +104,8 @@
 
 
 
-(def ^Symbol err
-             ($.cell/symbol "*err*"))
-
-
-
 (def ^Symbol line
              ($.cell/symbol "line"))
-
-
-
-(def ^Symbol list
-             ($.cell/symbol "*list*"))
-
-
-
-(def ^Symbol result
-             ($.cell/symbol "*result*"))
-
-
-
-(def ^Symbol sreq
-             ($.cell/symbol "sreq"))
-
-
-
-(def ^Symbol stack
-             ($.cell/symbol "*stack*"))
 
 
 
