@@ -1,3 +1,5 @@
+;; Meant to be copied as `dev.clj` and used privately for development.
+;;
 (ns convex.clj.dev
 
   "Daydreaming at the REPL."

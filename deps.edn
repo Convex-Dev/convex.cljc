@@ -280,14 +280,6 @@
 
   ;---
 
-  :project/io
-
-  {:extra-paths  ["project/io/src/clj/main"]
-   :maestro/doc  "Basic IO utilities and STDIO."
-   :maestro/root "project/io"}
-
-  ;---
-
   :project/run
 
   {:extra-paths        ["project/run/src/clj/main"
@@ -296,8 +288,7 @@
    :maestro/doc        "Convex Lisp Runner"
    :maestro/main-class convex.run
    :maestro/require    [:ext/criterium
-                        :project/cvm
-                        :project/io]
+                        :project/cvm]
    :maestro/root       "project/run"}
 
 

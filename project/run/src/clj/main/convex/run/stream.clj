@@ -15,10 +15,10 @@
                     FileNotFoundException))
   (:refer-clojure :exclude [flush])
   (:require [convex.cell     :as $.cell]
-            [convex.io       :as $.io]
             [convex.read     :as $.read]
             [convex.run.ctx  :as $.run.ctx]
             [convex.run.exec :as $.run.exec]
+            [convex.run.io   :as $.run.io]
             [convex.run.kw   :as $.run.kw]
             [convex.write    :as $.write]))
 
@@ -154,7 +154,7 @@
              id
              #{:flush}
              (fn [stream]
-               ($.io/flush stream)
+               ($.run.io/flush stream)
                nil)))
 
 
@@ -232,8 +232,8 @@
              (fn [stream]
                ($.write/stream stream
                                cell)
-               ($.io/newline stream)
-               ($.io/flush stream)
+               ($.run.io/newline stream)
+               ($.run.io/flush stream)
                cell)))
 
 
@@ -276,7 +276,7 @@
 
   (-file env
          path
-         $.io/file-in
+         $.run.io/file-in
          #{:read}))
 
 
@@ -289,7 +289,7 @@
 
   (-file env
          path
-         $.io/file-out
+         $.run.io/file-out
          #{:write}))
 
 

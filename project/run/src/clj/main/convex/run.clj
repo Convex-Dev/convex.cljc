@@ -32,11 +32,11 @@
   (:refer-clojure :exclude [eval])
   (:require [clojure.string]
             [convex.cvm         :as $.cvm]
-            [convex.io          :as $.io]
             [convex.read        :as $.read]
             [convex.run.ctx     :as $.run.ctx]
             [convex.run.err     :as $.run.err]
             [convex.run.exec    :as $.run.exec]
+            [convex.run.io      :as $.run.io]
             [convex.run.sreq]))
 
 
@@ -57,9 +57,9 @@
   [env]
 
   (-> env
-      (assoc :convex.run/stream+  {0 $.io/stdin-txt
-                                   1 $.io/stdout-txt
-                                   2 $.io/stderr-txt}
+      (assoc :convex.run/stream+  {0 $.run.io/stdin-txt
+                                   1 $.run.io/stdout-txt
+                                   2 $.run.io/stderr-txt}
              :convex.run.stream/id 2)
       (update :convex.run/fatal
               #(or %
