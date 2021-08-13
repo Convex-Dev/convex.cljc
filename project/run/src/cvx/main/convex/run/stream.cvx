@@ -17,9 +17,10 @@
 
 (defn -stream
 
-  ^{:doc {:description ["Asserts that `stream` is indeed a stream."
-                        "Returns its argument or throw an exception."]
-          :signature   [{:params [stream]}]}}
+  ^{:doc      {:description ["Asserts that `stream` is indeed a stream."
+                             "Returns its argument or throw an exception."]
+               :signature   [{:params [stream]}]}
+    :private? true}
 
   [stream]
 

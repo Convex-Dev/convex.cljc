@@ -29,7 +29,9 @@
                                                                     (InputStreamReader. StandardCharsets/UTF_8)
                                                                     $.read/stream+
                                                                     $.cell/do
-                                                                    $.cell/deploy))
+                                                                    (cond->
+                                                                      sym
+                                                                      $.cell/deploy)))
                                               ex    ($.cvm/exception ctx-2)]
                                           (when ex
                                             (throw (ex-info "While deploying prelude CVX file"
@@ -39,9 +41,11 @@
                                           (-> acc
                                               (assoc :ctx
                                                      ($.cvm/juice-refill ctx-2))
-                                              (assoc-in [:sym->addr
-                                                         sym]
-                                                        ($.cvm/result ctx-2))))
+                                              (cond->
+                                                sym
+                                                (assoc-in [:sym->addr
+                                                           sym]
+                                                          ($.cvm/result ctx-2)))))
                                         (catch Throwable ex
                                           (throw (ex-info "While reading prelude CVX file"
                                                           {::base :read
@@ -52,7 +56,10 @@
                                                        ::path path}))))
                                   {:ctx       ($.cvm/ctx)
                                    :sym->addr {}}
-                                  [;; No deps.
+                                  [;; Not a library.
+                                   [nil
+                                    "convex/run/self.cvx"]
+                                   ;; No deps.
                                    [$.run.sym/$-account
                                     "convex/run/account.cvx"]
                                    ;; No deps.

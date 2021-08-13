@@ -1,0 +1,146 @@
+;;
+;;
+;; Evaluated by the runner.
+;;
+;; Hides aliases to libraries and provides some documentation at the account level.
+;;
+;;
+
+
+(call *registry*
+      (cns-update 'self
+                  *address*))
+
+
+(call *registry*
+      (register {:description ["Used for executing transactions."
+                               "Does not have a key, hence is considered as an actor."
+                               "For turning into a proper user account, execute `(set-key $.account/fake-key)`."]
+                 :name        "Account used by the Convex Lisp Runner"}))
+
+
+(def $
+
+  ^{:private? true}
+
+  nil)
+
+
+
+(def $.account
+
+  ^{:private? true}
+
+  nil)
+
+
+
+(def $.catch
+
+  ^{:private? true}
+
+  nil)
+
+
+
+(def $.code
+
+  ^{:private? true}
+
+  nil)
+
+
+
+(def $.doc
+
+  ^{:private? true}
+
+  nil)
+
+
+
+(def $.help
+
+  ^{:private? true}
+
+  nil)
+
+
+
+(def $.file
+
+  ^{:private? true}
+
+  nil)
+
+
+
+(def $.log
+
+  ^{:private? true}
+
+  nil)
+
+
+
+(def $.perf
+
+  ^{:private? true}
+
+  nil)
+
+
+
+(def $.process
+
+  ^{:private? true}
+
+  nil)
+
+
+
+(def $.repl
+
+  ^{:private? true}
+
+  nil)
+
+
+
+(def $.stream
+
+  ^{:private? true}
+
+  nil)
+
+
+
+(def $.term
+
+  ^{:private? true}
+
+  nil)
+
+
+
+(def $.test
+
+  ^{:private? true}
+
+  nil)
+
+
+
+(def $.time
+
+  ^{:private? true}
+
+  nil)
+
+
+
+(def $.trx
+
+  ^{:private? true}
+
+  nil)
