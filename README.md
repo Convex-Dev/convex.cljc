@@ -14,7 +14,6 @@ Overview of main folders in the [./project](./project) directory:
 | [break](./project/break) | `:project/break` | Advanced generative test suite for the CVM ; prime example of testing Convex Lisp thoroughly |
 | [clojurify](./project/clojurify) | `:project/clojurify` |Convex <-> Clojure data conversions, quick evaluation, useful `test.check` generators for testing |
 | [cvm](./project/cvm) | `:project/cvm` | Handling Convex data and the CVM, low-level utilities |
-| [cvx](./project/cvx) | `:project/cvx.XXX` | Experimental and stable Convex Lisp actors and libraries officially managed by the Convex Foundation |
 | [run](./project/run) | `:project/run` | Convex Lisp Runner and REPL, advanced terminal environment |
 
 
