@@ -1,10 +1,7 @@
 # Advanced tooling for Convex Lisp and the CVM
 
-This monorepo offers a variety of applications and libraries written in Clojure for working with the Convex Virual Machine
-and Convex Lisp.
-
-In addition, it hosts Convex Lisp implementations for actors and libraries officially managed by the Convex Foundation (WIP) as
-well as the [Convex Lisp Runner](./project/run).
+This monorepo offers a variety of applications and libraries written in Clojure for working with the [Convex Virual Machine
+and Convex Lisp](https://github.com/Convex-Dev/convex).
 
 Overview of main folders in the [./project](./project) directory:
 
@@ -37,10 +34,6 @@ The following conventions are enforced in READMEs and source files:
 
 
 ## Setup
-
-Currently, none of it has been publicly released. User is expected to fork this repository and use what is needed.
-
-This monorepo is managed with [Maestro](https://github.com/helins/maestro.clj).
 
 
 ### Clojure Deps
@@ -75,19 +68,6 @@ $ bb dev :project/cvm:nrepl
 # Testings all namespaces for project 'break' and dependencies
 $ bb test :project/break
 ```
-
-
-### CVM
-
-The CVM and other needed Java utilities are kept private at the moment. Manual installation is needed:
-
-- Clone or fork the [Java repository](https://github.com/Convex-Dev/convex)
-- Enter directory
-- Ensure [Maven](https://maven.apache.org/) is installed
-- Build: `$ mvn install`
-- Jar is now located at `./target/convex.jar`
-- Good idea to name `$COMMIT_HASH.jar` instead of `convex.jar`, keep track of what is being used
-- Copy where relevant, make sure `deps.edn` file points to it
 
 
 ## Dev
