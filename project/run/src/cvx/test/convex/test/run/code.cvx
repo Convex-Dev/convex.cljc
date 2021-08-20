@@ -30,9 +30,9 @@
                         $/*result*)
                     {:description "Reading source."})
 
-             ($.code/decompile (fn [x] (inc x)))
+             ($.code/decompile (fn [x] x))
 
-             (T/trx '(= '(fn [x] (inc %0))
+             (T/trx '(= '(fn [x] %0)
                         $/*result*)
                     {:description "Experimental decompilation."}))))
 
