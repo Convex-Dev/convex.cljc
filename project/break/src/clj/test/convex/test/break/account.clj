@@ -29,7 +29,7 @@
 
   (mprop/check
 
-
+    "Every new account must pass this suite"
 
     (mprop/mult
 

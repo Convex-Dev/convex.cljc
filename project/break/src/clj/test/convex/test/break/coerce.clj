@@ -109,8 +109,6 @@
 
 (mprop/deftest blob--
 
-  ;; TODO. Also test hashes, special type of blob that can be coerced to an actual blob.
-
   {:ratio-num 100}
 
   (prop-coerce 'blob
@@ -198,8 +196,6 @@
 
 (mprop/deftest hash--
 
-  ;; Also tests `hash?`.
-
   {:ratio-num 100}
 
   (TC.prop/for-all [x (TC.gen/one-of [$.clj.gen/address
@@ -208,12 +204,6 @@
                                     (hash ~x)))]
       (mprop/mult
 
-        "`hash?`"
-
-        ($.clj.eval/result ctx
-                           '(hash? -hash))
-
-
         "Hashing is deterministic"
 
         ($.clj.eval/result* ctx
@@ -221,16 +211,16 @@
                                (hash ~x)))
 
 
-        "Hashes are not mere blobs"
+        "Hashes are blobs"
 
         ($.clj.eval/result ctx
-                           '(not (blob? -hash)))
+                           '(blob? -hash))
 
-
-        "Hashing a hash produces a hash"
+        "Hashes are 32-byte long"
 
         ($.clj.eval/result ctx
-                           '(hash? (hash -hash)))))))
+                           '(= 32
+                               (count -hash)))))))
 
 
 
