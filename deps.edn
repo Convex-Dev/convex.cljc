@@ -42,15 +42,9 @@
    :maestro/require [:ext/slf4j-timbre]}
 
 
-  :ext/deploy
-
-  {:replace-deps {slipset/deps-deploy {:mvn/version "0.1.5"}}
-   :maestro/doc  "Installation and deployment"}
-
-
   :ext/depstar
 
-  {:replace-deps {com.github.seancorfield/depstar {:mvn/version "2.1.245"}}
+  {:replace-deps {com.github.seancorfield/depstar {:mvn/version "2.1.278"}}
    :maestro/doc  "Packaging jars and uberjars"}
 
 
@@ -82,6 +76,12 @@
 
   ;; FOR TASKS
 
+  :task/deploy
+  {:exec-args    {:installer :remote}
+   :exec-fn      deps-deploy.deps-deploy/deploy
+   :replace-deps {slipset/deps-deploy {:mvn/version "0.1.5"}}
+   :maestro/doc  "Deploy to Clojars"}
+
 
   :task/dev
 
@@ -90,6 +90,13 @@
    :maestro/env     {"CONVEX_DEV" "true"}
    :maestro/require [:ext/criterium
                      :task/no-main]}
+
+
+  :task/install
+  {:exec-args    {:installer :local}
+   :exec-fn      deps-deploy.deps-deploy/deploy
+   :replace-deps {slipset/deps-deploy {:mvn/version "0.1.5"}}
+   :maestro/doc  "Local install"}
 
 
   :task/jar
@@ -150,7 +157,7 @@
 
 
 
-  ;; GOD MODE - Requiring pretty much everything
+  ;; GOD MODE - Requiring much everything
   
 
   :project/all
@@ -163,8 +170,6 @@
                      :project/break
                      :project/cvm
                      :project/clojurify
-                     :project/cvx.lab.lib.xform
-                     :project/cvx.lib.trust
                      :project/run]
    :maestro/root    "project/all"}
 
@@ -226,13 +231,13 @@
 
   :release/cvm
 
-  {:extra-deps {world.convex/tool.cvm {:mvn/version "0.0.0-alpha0"}}}
+  {:extra-deps {world.convex/cvm.clj {:mvn/version "0.0.0-alpha0"}}}
 
 
   :test/cvm
 
   {:extra-paths ["project/cvm/src/clj/test"]}
- 
+
   ;---
 
   :project/clojurify
@@ -250,33 +255,14 @@
   {:extra-paths ["project/clojurify/src/clj/dev"]}
 
 
+  :release/clojurify
+
+  {:extra-deps {world.convex/clojurify.clj {:mvn/version "0.0.0-alpha0"}}}
+
+
   :test/clojurify
 
   {:extra-paths ["project/clojurify/src/clj/test"]}
-
-  ;---
-
-  :project/cvx.lab.lib.xform
-
-  {:extra-paths     ["project/cvx/lab/lib/xform/src/cvx/main"]
-   :maestro/doc     "Experimental transducer library for Convex Lisp"
-   :maestro/root    "project/lab/lib/xform"
-   :maestro/require [:bundle/cvx]}
-
-  ;---
-
-  :project/cvx.lib.trust
-
-  {:extra-paths     ["project/cvx/lib/trust/src/cvx/main"]
-   :maestro/doc     "Trust library for Convex Lisp"
-   :maestro/require [:bundle/cvx
-                     :project/break]
-   :maestro/root    "project/lib/trust"}
-
-
-  :test/cvx.lib.trust
-
-  {:extra-paths ["project/cvx/lib/trust/src/clj/test"]}
 
   ;---
 
@@ -288,7 +274,8 @@
    :maestro/doc        "Convex Lisp Runner"
    :maestro/main-class convex.run
    :maestro/require    [:ext/criterium
-                        :project/cvm]
+                        {default :project/cvm
+                         release :release/cvm}]
    :maestro/root       "project/run"}
 
 
@@ -296,4 +283,11 @@
 
   {:extra-paths     ["project/run/src/clj/dev"
                      "project/run/src/cvx/dev"]
-   :maestro/require [:toggle/tap]}}}
+   :maestro/require [:toggle/tap]}}
+
+
+  :release/run
+
+  {:extra-deps         {world.convex/run.clj "0.0.0-alpha0"}
+   :maestro/main-class convex.run
+   :maestro/root       "project/run"}}

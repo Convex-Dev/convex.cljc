@@ -4,7 +4,7 @@
   <groupId>world.convex</groupId>
   <artifactId>clojurify.clj</artifactId>
   <version>0.0.0-alpha0</version>
-  <name>Convex Lisp Runner</name>
+  <name>Clojurify</name>
   <description>Translation between Convex Lisp and Clojure</description>
   <url>https://github.com/Convex-Dev/convex.cljc/tree/main/project/clojurify</url>
   <licenses>
@@ -31,6 +31,16 @@
       <groupId>org.clojure</groupId>
       <artifactId>clojure</artifactId>
       <version>1.10.3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.clojure</groupId>
+      <artifactId>test.check</artifactId>
+      <version>1.1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>world.convex</groupId>
+      <artifactId>cvm.clj</artifactId>
+      <version>0.0.0-alpha0</version>
     </dependency>
   </dependencies>
   <repositories>

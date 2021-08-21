@@ -4,7 +4,7 @@
   <groupId>world.convex</groupId>
   <artifactId>cvm.clj</artifactId>
   <version>0.0.0-alpha0</version>
-  <name>Clojure CVM utilities</name>
+  <name>Clojure wrapper over the Convex Virtual Machine</name>
   <description>Interact with Convex Lisp and the Convex Virtual Machine</description>
   <url>https://github.com/Convex-Dev/convex.cljc/tree/main/project/cvm</url>
   <licenses>
@@ -31,6 +31,16 @@
       <groupId>org.clojure</groupId>
       <artifactId>clojure</artifactId>
       <version>1.10.3</version>
+    </dependency>
+    <dependency>
+      <groupId>world.convex</groupId>
+      <artifactId>convex-core</artifactId>
+      <version>0.7.0-rc1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fzakaria</groupId>
+      <artifactId>slf4j-timbre</artifactId>
+      <version>0.3.21</version>
     </dependency>
   </dependencies>
   <repositories>

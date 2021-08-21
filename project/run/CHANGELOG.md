@@ -31,6 +31,7 @@ All notable changes to this project will be documented in this file.
     - Time travel (`$.time`)
     - Unit testing (`$.test`)
     - Miscellaneous utilities (`$.account`, `$.code`, `$.log`, `$.process`, `$.term`)
+- Depends on `:project/cvm` 0.0.0-alpha0
 
 
 

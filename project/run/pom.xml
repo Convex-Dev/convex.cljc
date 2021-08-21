@@ -32,6 +32,21 @@
       <artifactId>clojure</artifactId>
       <version>1.10.3</version>
     </dependency>
+    <dependency>
+      <groupId>criterium</groupId>
+      <artifactId>criterium</artifactId>
+      <version>0.4.6</version>
+    </dependency>
+    <dependency>
+      <groupId>world.convex</groupId>
+      <artifactId>convex-core</artifactId>
+      <version>0.7.0-rc1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fzakaria</groupId>
+      <artifactId>slf4j-timbre</artifactId>
+      <version>0.3.21</version>
+    </dependency>
   </dependencies>
   <repositories>
     <repository>

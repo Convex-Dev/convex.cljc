@@ -19,11 +19,38 @@
           :task     (maestro.cp/rm)}
 
 
+         deploy
+
+         {:doc  "Deploy to Clojars ; needs username, filename leading to Clojars token, and project alias"
+          :task (clojure {:extra-env {"CLOJARS_USERNAME" (first *command-line-args*)
+                                      "CLOJARS_PASSWORD" (slurp (second *command-line-args*))}}
+                         (let [dir (.substring (nth *command-line-args*
+                                                    2)
+                                               1)]
+                           (format "-X:task/deploy :artifact '%s' :pom-file '%s'"
+                                     (pr-str (format "build/jar/%s.jar"
+                                                     dir))
+                                     (pr-str (format "%s/pom.xml"
+                                                     dir)))))}
+
+
          dev
 
          {:doc      "Starts dev mode (using '-M' by default) ; same arguments as Clojure CLI"
           :requires ([helins.maestro.run :as maestro.run])
           :task     (maestro.run/dev)}
+
+
+         install
+
+         {:doc  "Install alias to local Maven repo"
+          :task (clojure (let [dir (.substring (first *command-line-args*)
+                                               1)]
+                           (format "-X:task/install :artifact '%s' :pom-file '%s'"
+                                   (pr-str (format "build/jar/%s.jar"
+                                                   dir))
+                                   (pr-str (format "%s/pom.xml"
+                                                   dir)))))}
 
 
          jar

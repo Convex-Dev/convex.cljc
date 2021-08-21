@@ -16,7 +16,7 @@ All notable changes to this project will be documented in this file.
 
 
 
-## 0.0.0-alpha0 - 2021-xx-xx
+## 0.0.0-alpha0 - 2021-08-21
 
 ### Added
 
@@ -25,6 +25,7 @@ All notable changes to this project will be documented in this file.
     - Executing CVX code, handling CVM contextes
     - Converting CVX source into cells in various ways
     - Converting cells into CVX source in various ways
+- Depends on Java `convex-core/0.7.0-rc1`
 
 
 

@@ -16,7 +16,7 @@ All notable changes to this project will be documented in this file.
 
 
 
-## 0.0.0-alpha0 - 2021-xx-xx
+## 0.0.0-alpha0 - 2021-08-21
 
 ### Added
 
@@ -26,6 +26,7 @@ All notable changes to this project will be documented in this file.
     - Eval shorcuts
     - Integration with `test.check`
     - Translating CVX into CLJ
+- Depends on `:project/cvm` 0.0.0-alpha0
 
 
 
