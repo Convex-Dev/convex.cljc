@@ -1,5 +1,9 @@
 # `:project/run`
 
+[![Clojars](https://img.shields.io/clojars/v/world.convex/run.clj.svg)](https://clojars.org/world.convex/run.clj)
+[![cljdoc](https://cljdoc.org/badge/world.convex/run.clj)](https://cljdoc.org/d/world.convex/cvm.clj/CURRENT)
+[Lastest downloads](https://github.com/Convex-Dev/convex.cljc/releases/tag/run%2F0.0.0-alpha1)
+
 Convex Lisp Runner.
 
 One-size fits all tool for sophisticated development, testing, and analysis of Convex Lisp in a fun
@@ -26,7 +30,7 @@ Install latest release on your system.
 
 Native version is highly recommended, a jar file is provided in case your operating system is not supported.
 
-Assuming binary is available on your path as `cvx`:
+Assuming binary is executable and available on your path as `cvx`:
 
 ```bash
 # No arguments starts the REPL and transactions can be entered interactively

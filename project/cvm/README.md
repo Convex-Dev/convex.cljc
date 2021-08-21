@@ -1,5 +1,8 @@
 # `:project/cvm`
 
+[![Clojars](https://img.shields.io/clojars/v/world.convex/cvm.clj.svg)](https://clojars.org/world.convex/cvm.clj)
+[![cljdoc](https://cljdoc.org/badge/world.convex/cvm.clj)](https://cljdoc.org/d/world.convex/cvm.clj/CURRENT)
+
 The Convex Virtual Machine executes operations over state, as described in [CAD 005](https://github.com/Convex-Dev/design/blob/main/cad/005_cvmex/README.md).
 
 It inputs cells and outputs cells, the word "cell" designating immutable Convex objects such as values, data structures, or functions.

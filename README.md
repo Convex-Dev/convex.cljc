@@ -5,13 +5,24 @@ and Convex Lisp](https://github.com/Convex-Dev/convex).
 
 Overview of main folders in the [./project](./project) directory:
 
-| Project | `deps.edn` alias | Purpose |
-|---|---|---|
-| [app/fuzz](./project/app/fuzz) | `:project/app.fuzz` | CLI multicore fuzzy tester, generates and tests random Convex Lisp forms | 
-| [break](./project/break) | `:project/break` | Advanced generative test suite for the CVM ; prime example of testing Convex Lisp thoroughly |
-| [clojurify](./project/clojurify) | `:project/clojurify` |Convex <-> Clojure data conversions, quick evaluation, useful `test.check` generators for testing |
-| [cvm](./project/cvm) | `:project/cvm` | Handling Convex data and the CVM, low-level utilities |
-| [run](./project/run) | `:project/run` | Convex Lisp Runner and REPL, advanced terminal environment |
+| Project | Purpose |
+|---|---|
+| [`:project/app.fuzz`](./project/app/fuzz) | CLI multicore fuzzy tester, generates and tests random Convex Lisp forms | 
+| [`:project/break`](./project/break) | Advanced generative test suite for the CVM ; novel smart contract testing |
+| [`:project/clojurify`](./project/clojurify) | Convex <-> Clojure data conversions, quick evaluation, useful `test.check` generators |
+| [`:project/cvm`](./project/cvm) | Handling Convex data and the CVM, low-level utilities |
+| [`:project/run`](./project/run) | Convex Lisp Runner and REPL, advanced terminal environment |
+
+
+## Releases
+
+Released applications and libraries:
+
+| Project | Library | Cljdoc | Download |
+|---|---|---|---|
+| [`:project/cvm`](./project/cvm) | [![Clojars](https://img.shields.io/clojars/v/world.convex/cvm.clj.svg)](https://clojars.org/world.convex/cvm.clj) | [![cljdoc](https://cljdoc.org/badge/world.convex/cvm.clj)](https://cljdoc.org/d/world.convex/cvm.clj/CURRENT) | / |
+| [`:project/clojurify`](./project/clojurify) | [![Clojars](https://img.shields.io/clojars/v/world.convex/clojurify.clj.svg)](https://clojars.org/world.convex/clojurify.clj) | [![cljdoc](https://cljdoc.org/badge/world.convex/clojurify.clj)](https://cljdoc.org/d/world.convex/clojurify.clj/CURRENT) | / |
+| [`:project/run`](./project/run) | [![Clojars](https://img.shields.io/clojars/v/world.convex/run.clj.svg)](https://clojars.org/world.convex/run.clj) | [![cljdoc](https://cljdoc.org/badge/world.convex/run.clj)](https://cljdoc.org/d/world.convex/cvm.clj/CURRENT) | [CVX runner](https://github.com/Convex-Dev/convex.cljc/releases/tag/run%2F0.0.0-alpha1) |
 
 
 ## Structure
@@ -22,7 +33,6 @@ Each project follows a predictable structure:
 - All source is located under the `./src` directory of each project or subproject
 - Source is subdivided by language (eg. `clj`, `cvx`) and then by purpose (eg. `main`, `test`)
 - All scripts and tasks are located and executed at the root of this repository
-- All namespaces and source files are properly documented
 
 
 ## Conventions
@@ -34,6 +44,8 @@ The following conventions are enforced in READMEs and source files:
 
 
 ## Setup
+
+Following sections are only useful for managing this repository or experimenting with a clone/fork.
 
 
 ### Clojure Deps

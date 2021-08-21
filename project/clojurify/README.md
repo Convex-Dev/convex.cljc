@@ -1,5 +1,8 @@
 # `:project/clojurify`
 
+[![Clojars](https://img.shields.io/clojars/v/world.convex/clojurify.clj.svg)](https://clojars.org/world.convex/clojurify.clj)
+[![cljdoc](https://cljdoc.org/badge/world.convex/clojurify.clj)](https://cljdoc.org/d/world.convex/clojurify.clj/CURRENT)
+
 Convex Lisp is particularly close to Clojure on many aspects.
 
 [`:project/cvm`](../cvm) exposes low-level features for executing Convex Lisp code via a CVM context and handling cells.
