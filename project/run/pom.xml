@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>world.convex</groupId>
   <artifactId>run.clj</artifactId>
-  <version>0.0.0-alpha0</version>
+  <version>0.0.0-alpha1</version>
   <name>Convex Lisp Runner</name>
   <description>Run Convex Lisp in the terminal, and much more</description>
   <url>https://github.com/Convex-Dev/convex.cljc/tree/main/project/run</url>
@@ -39,13 +39,8 @@
     </dependency>
     <dependency>
       <groupId>world.convex</groupId>
-      <artifactId>convex-core</artifactId>
-      <version>0.7.0-rc1</version>
-    </dependency>
-    <dependency>
-      <groupId>com.fzakaria</groupId>
-      <artifactId>slf4j-timbre</artifactId>
-      <version>0.3.21</version>
+      <artifactId>cvm.clj</artifactId>
+      <version>0.0.0-alpha0</version>
     </dependency>
   </dependencies>
   <repositories>
