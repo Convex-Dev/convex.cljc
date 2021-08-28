@@ -1,6 +1,6 @@
 (ns convex.test.ref
 
-  "Testing the `convex.core.data.Ref` wrapper."
+  "Testing `convex.ref`."
 
   {:author "Adam Helinski"}
 
