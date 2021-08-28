@@ -35,11 +35,17 @@
    :maestro/doc "Benchmarking"}
 
 
-  :ext/convex
+  :ext/convex-core
 
   {:extra-deps      {world.convex/convex-core {:mvn/version "0.7.0-rc1"}}
    :maestro/doc     "Java implementation of the CVM and related utilities"
    :maestro/require [:ext/slf4j-timbre]}
+
+
+  :ext/convex-peer
+
+  {:extra-deps  {world.convex/convex-peer {:mvn/version "0.7.0-rc1"}}
+   :maestro/doc "Mostly used for its Convex binary client."}
 
 
   :ext/depstar
@@ -216,11 +222,32 @@
 
   ;---
 
+  :project/net
+
+  {:extra-paths     ["project/net/src/clj/main"]
+   :maestro/doc     "Convex network utilities"
+   :maestro/require [:ext/convex-peer
+                     {default :project/cvm
+                      release :release/cvm}]
+   :maestro/root    "project/net"}
+
+
+  :dev/net
+
+  {:extra-paths ["project/net/src/clj/dev"]}
+
+
+  :test/net
+
+  {:extra-paths ["project/net/src/clj/test"]}
+
+  ;---
+
   :project/cvm
 
   {:extra-paths     ["project/cvm/src/clj/main"]
    :maestro/doc     "Handling CVM contextes and Convex data"
-   :maestro/require [:ext/convex]
+   :maestro/require [:ext/convex-core]
    :maestro/root    "project/cvm"}
 
 
