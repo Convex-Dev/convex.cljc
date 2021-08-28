@@ -17,6 +17,7 @@
                              AString
                              AVector
                              Blob
+                             Blobs
                              Format
                              Hash
                              Keyword
@@ -99,9 +100,21 @@
 
   ^Blob
 
-  [byte-array]
+  [^bytes byte-array]
 
   (Blob/create byte-array))
+
+
+
+(defn blob<-hex
+
+  "Creates a CVX blob from a hex string."
+
+  ^Blob
+
+  [hex-string]
+
+  (Blobs/fromHex hex-string))
 
 
 
@@ -249,6 +262,18 @@
   [^ACell cell]
 
   (Hash/compute cell))
+
+
+
+(defn hash<-hex
+
+  "Creates a [[hash]] from a hex string."
+
+  ^Hash
+
+  [^String hex-string]
+
+  (Hash/fromHex hex-string))
 
 
 

@@ -8,7 +8,8 @@
                              Hash
                              Ref)
            (convex.core.store AStore
-                              MemoryStore)
+                              MemoryStore
+                              Stores)
            (java.io File)
            (etch EtchStore))
   (:refer-clojure :exclude [flush
@@ -111,13 +112,18 @@
 
   ""
 
-  ^ACell
+  
+  (^ACell [hash]
 
-  [db hash]
+   (read (Stores/current)
+         hash))
 
-  (when-some [^Ref r (read-ref db
-                               hash)]
-    (.getValue r)))
+
+  (^ACell [db hash]
+
+   (some-> ^Ref (read-ref db
+                          hash)
+           .getValue)))
 
 
 
@@ -125,12 +131,17 @@
 
   ""
 
-  ^Ref
 
-  [^AStore db ^Hash hash]
+  (^Ref [hash]
 
-  (.refForHash db
-               hash))
+   (read-ref (Stores/current)
+             hash))
+
+
+  (^Ref [^AStore db ^Hash hash]
+
+   (.refForHash db
+                hash)))
 
 
 
@@ -138,12 +149,16 @@
 
   ""
 
-  ^ACell
 
-  [db]
+  (^ACell []
 
-  (read db
-       (read-root-hash db)))
+   (read-root (Stores/current)))
+
+
+  (^ACell [db]
+
+   (read db
+         (read-root-hash db))))
 
 
 
@@ -151,11 +166,15 @@
 
   ""
 
-  ^Hash
 
-  [^AStore db]
+  (^Hash []
 
-  (.getRootHash db))
+   (read-root-hash (Stores/current)))
+
+
+  (^Hash [^AStore db]
+
+   (.getRootHash db)))
 
 
 
@@ -163,12 +182,16 @@
 
   ""
 
-  ^Ref
 
-  [db]
+  (^Ref []
 
-  (read-ref db
-            (read-root-hash db)))
+   (read-root-ref (Stores/current)))
+
+
+  (^Ref [db]
+
+   (read-ref db
+             (read-root-hash db))))
 
 
 ;;;;;;;;;; Writing
@@ -178,12 +201,16 @@
 
   ""
 
-  ^Ref
 
-  [db ^ACell x]
+  (^Ref [^ACell cell]
 
-  (write-ref db
-             (.getRef x)))
+   (ACell/createPersisted cell))
+
+
+  (^Ref [db ^ACell cell]
+
+   (write-ref db
+              (Ref/get cell))))
 
 
 
@@ -191,14 +218,18 @@
 
   ""
 
-  ^Ref
 
-  [^AStore db x]
+  (^Ref [^Ref ref]
 
-  (.storeTopRef db
-                x
-                Ref/PERSISTED
-                nil))
+   (.persist ref))
+
+
+  (^Ref [^AStore db ref]
+
+   (.storeTopRef db
+                 ref
+                 Ref/PERSISTED
+                 nil)))
 
 
 
@@ -206,12 +237,17 @@
 
   ""
 
-  ^Ref
 
-  [db ^ACell x]
+  (^Ref [cell]
 
-  (write-root-ref db
-                  (.getRef x)))
+   (write-root (Stores/current)
+               cell))
+
+
+  (^Ref [db ^ACell cell]
+
+   (write-root-ref db
+                   (Ref/get cell))))
 
 
 
@@ -219,13 +255,18 @@
 
   ""
 
-  ^AStore
 
-  [^AStore db hash]
+  (^Hash [hash]
 
-  (.setRootHash db
-                hash)
-  hash)
+   (write-root-hash (Stores/current)
+                    hash))
+
+
+  (^Hash [^AStore db hash]
+
+   (.setRootHash db
+                 hash)
+   hash))
 
   
 
@@ -233,12 +274,17 @@
 
   ""
 
-  ^Ref
 
-  [db x]
+  (^Ref [ref]
 
-  (let [^Ref r (write-ref db
-                          x)]
-    (write-root-hash db
-                     (.cachedHash r))
-    r))
+   (write-root-ref (Stores/current)
+                   ref))
+
+
+  (^Ref [db ref]
+
+   (let [^Ref ref-2 (write-ref db
+                               ref)]
+     (write-root-hash db
+                      (.cachedHash ref-2))
+     ref-2)))
