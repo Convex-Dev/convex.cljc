@@ -10,11 +10,13 @@
   {:author "Adam Helinski"}
 
   (:import (convex.core.data ACell
+                             Blob
                              Hash
                              Ref
                              RefDirect
                              RefSoft))
-  (:refer-clojure :exclude [resolve]))
+  (:refer-clojure :exclude [hash
+                            resolve]))
 
 
 ;;;;;;;;;; Creating refs
@@ -85,6 +87,34 @@
   (.isPersisted ref))
 
 
+;;;;;;;;;; Data
+
+
+(defn encoding
+
+  "Returns the encoding of the cell assocaited with the given `ref`.
+
+   Reads from the thread-local database if `ref` is soft and lost its cell."
+
+  ^Blob
+
+  [^Ref ref]
+
+  (.getEncoding ref))
+
+
+
+(defn hash
+
+  "Returns the hash of the cell associated with the given `ref`."
+
+  ^Hash
+
+  [^Ref ref]
+
+  (.getHash ref))
+
+
 ;;;;;;;;;; Potential reads
 
 
@@ -103,7 +133,9 @@
 
 (defn resolve
 
-  "Returns the `cell` associated with the given `ref` in the thread-local database."
+  "Returns the `cell` associated with the given `ref`.
+
+   Reads from the thread-local database if `ref` is soft and lost its cell."
 
   ^ACell
 

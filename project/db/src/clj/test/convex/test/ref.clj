@@ -21,6 +21,11 @@
 
 
 
+(def cell-encoding
+     ($.cell/encoding cell))
+
+
+
 (def hash
      ($.cell/hash<-hex "0000000000000000000000000000000000000000000000000000000000000000"))
 
@@ -107,6 +112,20 @@
 
   (T/is (true? ($.ref/persisted? persisted))
         "Must be reported as persisted after write at setup"))
+
+
+;;;;;;;;;; Data
+
+
+(T/deftest encoding
+
+  (T/is (= cell-encoding
+           ($.ref/encoding direct-))
+        "Direct")
+
+  (T/is (= cell-encoding
+           ($.ref/encoding soft-from-direct))
+        "Direct -> Soft"))
 
 
 ;;;;;;;;;; Potential reads

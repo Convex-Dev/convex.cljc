@@ -122,7 +122,6 @@
 
   (^ACell [db hash]
 
-          (println :read db)
    (some-> ^Ref (read-ref db
                           hash)
            .getValue)))
@@ -142,7 +141,6 @@
 
   (^Ref [^AStore db ^Hash hash]
 
-        (println :read-ref db)
    (.refForHash db
                 hash)))
 
