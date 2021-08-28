@@ -5,23 +5,37 @@
   {:author "Adam Helinski"}
 
   (:import (convex.core.data ACell
+                             Hash
                              Ref
-                             RefDirect))
+                             RefDirect
+                             RefSoft))
   (:refer-clojure :exclude [resolve]))
 
 
-;;;;;;;;;; Lifecycle
+;;;;;;;;;; Creating refs
 
 
-(defn create
+(defn create-direct
+
+  ""
+
+  ^RefDirect
+
+  [^ACell cell]
+
+  (RefDirect/create cell))
+
+
+
+(defn create-soft
 
   ""
 
   ^Ref
 
-  [^ACell cell]
+  [^Hash hash]
 
-  (Ref/get cell))
+  (RefSoft/createForHash hash))
 
 
 ;;;;;;;;;; Predicates

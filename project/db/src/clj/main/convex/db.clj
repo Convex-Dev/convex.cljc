@@ -211,7 +211,7 @@
   (^Ref [db ^ACell cell]
 
    (write-ref db
-              ($.ref/create cell))))
+              ($.ref/create-direct cell))))
 
 
 
@@ -248,7 +248,7 @@
   (^Ref [db ^ACell cell]
 
    (write-root-ref db
-                   ($.ref/create cell))))
+                   ($.ref/create-direct cell))))
 
 
 
