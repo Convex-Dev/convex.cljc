@@ -205,7 +205,10 @@
 
   (^Ref [^ACell cell]
 
-   (ACell/createPersisted cell))
+    ;; TODO. Cannot user `ACell.createPersisted()` because of https://github.com/Convex-Dev/convex/issues/298
+    ;;
+    (write ($.cvm.db/local)
+           cell))
 
 
   (^Ref [db ^ACell cell]
@@ -220,13 +223,13 @@
   ""
 
 
-  (^Ref [^Ref ref]
+  (^Ref [ref]
 
    (write-ref ($.cvm.db/local)
               ref))
 
 
-  (^Ref [^AStore db ref]
+  (^Ref [^AStore db ^Ref ref]
 
    (.storeTopRef db
                  ref
