@@ -8,12 +8,13 @@
                              Hash
                              Ref)
            (convex.core.store AStore
-                              MemoryStore
-                              Stores)
+                              MemoryStore)
            (java.io File)
            (etch EtchStore))
   (:refer-clojure :exclude [flush
-                            read]))
+                            read])
+  (:require [convex.cvm.db :as $.cvm.db]
+            [convex.ref    :as $.ref]))
 
 
 (set! *warn-on-reflection*
@@ -115,7 +116,7 @@
   
   (^ACell [hash]
 
-   (read (Stores/current)
+   (read ($.cvm.db/local)
          hash))
 
 
@@ -134,7 +135,7 @@
 
   (^Ref [hash]
 
-   (read-ref (Stores/current)
+   (read-ref ($.cvm.db/local)
              hash))
 
 
@@ -152,7 +153,7 @@
 
   (^ACell []
 
-   (read-root (Stores/current)))
+   (read-root ($.cvm.db/local)))
 
 
   (^ACell [db]
@@ -169,7 +170,7 @@
 
   (^Hash []
 
-   (read-root-hash (Stores/current)))
+   (read-root-hash ($.cvm.db/local)))
 
 
   (^Hash [^AStore db]
@@ -185,7 +186,7 @@
 
   (^Ref []
 
-   (read-root-ref (Stores/current)))
+   (read-root-ref ($.cvm.db/local)))
 
 
   (^Ref [db]
@@ -210,7 +211,7 @@
   (^Ref [db ^ACell cell]
 
    (write-ref db
-              (Ref/get cell))))
+              ($.ref/create cell))))
 
 
 
@@ -240,14 +241,14 @@
 
   (^Ref [cell]
 
-   (write-root (Stores/current)
+   (write-root ($.cvm.db/local)
                cell))
 
 
   (^Ref [db ^ACell cell]
 
    (write-root-ref db
-                   (Ref/get cell))))
+                   ($.ref/create cell))))
 
 
 
@@ -258,7 +259,7 @@
 
   (^Hash [hash]
 
-   (write-root-hash (Stores/current)
+   (write-root-hash ($.cvm.db/local)
                     hash))
 
 
@@ -277,7 +278,7 @@
 
   (^Ref [ref]
 
-   (write-root-ref (Stores/current)
+   (write-root-ref ($.cvm.db/local)
                    ref))
 
 

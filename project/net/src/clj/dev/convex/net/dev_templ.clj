@@ -6,8 +6,8 @@
                                  :unused-namespace {:level :off}}}}
 
   (:require [convex.cell   :as $.cell]
-            [convex.client :as $.client]
             [convex.cvm    :as $.cvm]
+            [convex.cvm.db :as $.cvm.db]
             [convex.read   :as $.read]
             [convex.ref    :as $.ref]))
 
