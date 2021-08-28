@@ -10,12 +10,15 @@
            (convex.core.data AccountKey
                              Address
                              ABlob
+                             ACell
                              AList
                              AMap
                              ASet
                              AString
                              AVector
                              Blob
+                             Format
+                             Hash
                              Keyword
                              Keywords
                              Lists
@@ -43,6 +46,7 @@
                             double
                             double?
                             import
+                            hash
                             key
                             keyword
                             keyword?
@@ -219,6 +223,32 @@
   [x]
 
   (CVMDouble/create x))
+
+
+
+(defn encoding
+
+  "Returns a [[blob]] representing the encoding of the given `cell`."
+
+  ^Blob
+
+  [cell]
+
+  (Format/encodedBlob cell))
+
+
+
+(defn hash
+
+  "Returns the hash of the given `cell`.
+  
+   A hash is a specialized 32-byte [[blob]]."
+
+  ^Hash
+
+  [^ACell cell]
+
+  (Hash/compute cell))
 
 
 
