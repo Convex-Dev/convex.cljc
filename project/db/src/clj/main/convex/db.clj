@@ -7,6 +7,8 @@
   (:import (convex.core.data ACell
                              Hash
                              Ref)
+           (convex.core.store AStore
+                              MemoryStore)
            (java.io File)
            (etch EtchStore))
   (:refer-clojure :exclude [flush
@@ -38,6 +40,19 @@
 
 
 
+(defn create-in-memory
+
+  ""
+
+  ^MemoryStore
+
+  []
+
+  (MemoryStore.))
+
+  
+
+
 (defn create-temp
 
   ""
@@ -60,7 +75,7 @@
 
   ""
 
-  [^EtchStore db]
+  [^AStore db]
 
   (.close db)
   nil)
@@ -112,7 +127,7 @@
 
   ^Ref
 
-  [^EtchStore db ^Hash hash]
+  [^AStore db ^Hash hash]
 
   (.refForHash db
                hash))
@@ -138,7 +153,7 @@
 
   ^Hash
 
-  [^EtchStore db]
+  [^AStore db]
 
   (.getRootHash db))
 
@@ -178,7 +193,7 @@
 
   ^Ref
 
-  [^EtchStore db x]
+  [^AStore db x]
 
   (.storeTopRef db
                 x
@@ -204,9 +219,9 @@
 
   ""
 
-  ^EtchStore
+  ^AStore
 
-  [^EtchStore db hash]
+  [^AStore db hash]
 
   (.setRootHash db
                 hash)
