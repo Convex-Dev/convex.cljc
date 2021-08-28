@@ -122,6 +122,7 @@
 
   (^ACell [db hash]
 
+          (println :read db)
    (some-> ^Ref (read-ref db
                           hash)
            .getValue)))
@@ -141,6 +142,7 @@
 
   (^Ref [^AStore db ^Hash hash]
 
+        (println :read-ref db)
    (.refForHash db
                 hash)))
 
@@ -222,7 +224,8 @@
 
   (^Ref [^Ref ref]
 
-   (.persist ref))
+   (write-ref ($.cvm.db/local)
+              ref))
 
 
   (^Ref [^AStore db ref]
