@@ -5,7 +5,8 @@
   {:author "Adam Helinski"}
 
   (:import (convex.core.data Keywords)
-           (convex.peer Server)
+           (convex.peer IServerEvent
+                        Server)
            (java.net InetSocketAddress)
            (java.util HashMap)))
 
@@ -30,26 +31,49 @@
 
   (^Server [keypair option+]
 
-   (Server/create (doto (HashMap. 10)
-                    (.put Keywords/KEYPAIR
+   (Server/create (let [h (HashMap. 10)]
+                    (when-some [hook (:convex.server/hook option+)]
+                      (.put h
+                            Keywords/EVENT_HOOK
+                            (reify IServerEvent
+                              (onServerChange [_this event]
+                                (hook event)))))
+                    (.put h
+                          Keywords/KEYPAIR
                           keypair)
-                    (.put Keywords/PERSIST
+                    (.put h
+                          Keywords/PERSIST
                           true)
-                    (.put Keywords/PORT
-                          (:convex.server/port option+))
-                    (.put Keywords/RESTORE
-                          (:convex.server/restore? option+))
-                    (.put Keywords/SOURCE
-                          (when-some [host (:convex.server.sync/host option+)]
+                    (.put h
+                          Keywords/PORT
+                          (if-some [port (:convex.server/port option+)]
+                            (if (identical? port
+                                            :random)
+                              nil
+                              port)
+                            Server/DEFAULT_PORT))
+                    (.put h
+                          Keywords/RESTORE
+                          (boolean (:convex.server/restore? option+)))
+                    (when-some [host (:convex.server.sync/host option+)]
+                      (.put h
+                            Keywords/SOURCE
                             (InetSocketAddress. ^String host
                                                 (long (or (:convex.server.sync/port option+)
                                                           Server/DEFAULT_PORT)))))
-                    (.put Keywords/STATE
-                          (:convex.server/state option+))
-                    (.put Keywords/STORE
-                          (:convex.server/db option+))
-                    (.put Keywords/TIMEOUT
-                          (:convex.server.sync/timeout option+))))))
+                    (when-some [state (:convex.server/state option+)]
+                      (.put h
+                            Keywords/STATE
+                            state))
+                    (when-some [store (:convex.server/db option+)]
+                      (.put h
+                            Keywords/STORE
+                            store))
+                    (when-some [sync-timeout (:convex.server.sync/timeout option+)]
+                      (.put h
+                            Keywords/TIMEOUT
+                            sync-timeout))
+                    h))))
 
 
 ;;;;;;;;;; Lifecycle
