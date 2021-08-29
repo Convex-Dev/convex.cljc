@@ -1,6 +1,26 @@
 (ns convex.db
 
-  ""
+  "Etch is a fast, immutable, append-only database specially tailored for cells.
+
+   This namespace provides an API for creating an instance by pointing to a single file. This file
+   hosts an arbitrarily large map of `hash of the encoding of a cell` -> `cell`. Hence, reading require
+   hashes (see `convex.cell/hash` from `:project/cvm`) and writes primarilty return refs or nil
+   when not found (see [[convex.ref]]).
+
+   Lastly, a root hash can be stored and retrieved. Cell stored at root is typically used to maintain
+   some sort of global state or table tracking what is needed.
+
+   **Attention.** By default, R/W functions use the current thread-local database (see [[convex.cvm.db]]).
+   Providing an instance explicitly is tricky because when reading, not all data might be retrieved at once.
+   This is what allows large data, even larger than memory, to be queried: large structures are split into refs
+   and not all refs are necessarily resolved right away. However, any unresolved ref will be resolved against
+   the current thread-local database when needed, not the one that was explicitly provided when reading.
+  
+   In other words, when handling a custom instance, it is best to work on a dedicated thread and call
+   [[convex.cvm.db/local-set]].
+  
+   That being said, instances support multithreading. Being immutable, no thread has to worry that some data might
+   be removed or updated in place."
 
   {:author "Adam Helinski"}
 
@@ -30,9 +50,15 @@
 ;;;;;;;;;; Creating new DBs
 
 
-(defn create
+(defn open
 
-  ""
+  "Opens a db at the given `path`:
+  
+   ```clojure
+   (open \"some_dir/my-db\")
+   ```
+  
+   File is created if needed."
 
   ^EtchStore
 
@@ -42,9 +68,11 @@
 
 
 
-(defn create-in-memory
+(defn open-in-memory
 
-  ""
+  "Alternatively, an in-memory db can be used for some use cases.
+  
+   However, [[open]] is typically recommended."
 
   ^MemoryStore
 
@@ -55,9 +83,11 @@
   
 
 
-(defn create-temp
+(defn open-temp
 
-  ""
+  "Like [[open]] but works with a temporariy file.
+  
+   A prefix string may be provided."
 
 
   (^EtchStore []
@@ -75,7 +105,7 @@
 
 (defn close
 
-  ""
+  "Closes the given `db`."
 
   [^AStore db]
 
@@ -86,7 +116,9 @@
 
 (defn flush
 
-  ""
+  "Flushes the given `db`, ensuring all changes are persisted to disk.
+  
+   Does not work with in-memory instances."
 
   ^EtchStore
 
@@ -99,7 +131,9 @@
 
 (defn path
 
-  ""
+  "Returns the path of the given `db`.
+  
+   Does not work with in-memory instances."
 
   [^EtchStore db]
 
@@ -111,7 +145,9 @@
 
 (defn read
 
-  ""
+  "Like [[read-ref]] but ref is directly resolved to its cell.
+  
+   Convenient, but returns nil both when not found or when the stored cell is nil."
 
   
   (^ACell [hash]
@@ -130,7 +166,7 @@
 
 (defn read-ref
 
-  ""
+  "Given a `hash`, reads a ref to a cell stored in the `db`, or nil if not found."
 
 
   (^Ref [hash]
@@ -148,7 +184,7 @@
 
 (defn read-root
 
-  ""
+  "Like [[read-root-ref]] but ref is directly resolved to its cell, akin to [[read]]."
 
 
   (^ACell []
@@ -165,7 +201,7 @@
 
 (defn read-root-hash
 
-  ""
+  "Reads the hash stored as root."
 
 
   (^Hash []
@@ -181,7 +217,7 @@
 
 (defn read-root-ref
 
-  ""
+  "Like [[read-ref]] but uses the hash from [[read-root-hash]]."
 
 
   (^Ref []
@@ -200,7 +236,7 @@
 
 (defn write
 
-  ""
+  "Wraps `cell` in a ref and calls [[write-ref]]."
 
 
   (^Ref [^ACell cell]
@@ -220,7 +256,7 @@
 
 (defn write-ref
 
-  ""
+  "Given a ref, writes its associated cell."
 
 
   (^Ref [ref]
@@ -240,7 +276,7 @@
 
 (defn write-root
 
-  ""
+  "Wraps `cell` in a ref and calls [[write-root-ref]]."
 
 
   (^Ref [cell]
@@ -258,7 +294,7 @@
 
 (defn write-root-hash
 
-  ""
+  "Writes the given `hash` as root."
 
 
   (^Hash [hash]
@@ -277,7 +313,7 @@
 
 (defn write-root-ref
 
-  ""
+  "Writes `ref` and then sets its hash as root."
 
 
   (^Ref [ref]

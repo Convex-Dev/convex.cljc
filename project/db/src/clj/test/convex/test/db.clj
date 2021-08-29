@@ -22,7 +22,7 @@
 
 
 (def etch
-     ($.db/create-temp))
+     ($.db/open-temp))
 
 
 
@@ -36,7 +36,7 @@
 (T/deftest close
 
   (T/is (thrown? Exception
-                 (let [db ($.db/create-temp)]
+                 (let [db ($.db/open-temp)]
                    (.close db)
                    ($.db/write db
                                ($.read/string "[:a :b]"))))))
@@ -99,7 +99,7 @@
   {:ratio-num  30
    :ratio-size 5}
 
-  (let [etch ($.db/create-temp)]
+  (let [etch ($.db/open-temp)]
     ($.cvm.db/local-set etch)
     ($.db/write-root etch
                      ($.cell/vector))
