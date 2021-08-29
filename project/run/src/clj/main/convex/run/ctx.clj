@@ -12,6 +12,7 @@
             [clojure.string]
             [convex.cell      :as $.cell]
             [convex.cvm       :as $.cvm]
+            [convex.form      :as $.form]
             [convex.read      :as $.read]
             [convex.run.sym   :as $.run.sym]))
 
@@ -28,10 +29,10 @@
                                                                     .openStream
                                                                     (InputStreamReader. StandardCharsets/UTF_8)
                                                                     $.read/stream+
-                                                                    $.cell/do
+                                                                    $.form/do
                                                                     (cond->
                                                                       sym
-                                                                      $.cell/deploy)))
+                                                                      $.form/deploy)))
                                               ex    ($.cvm/exception ctx-2)]
                                           (when ex
                                             (throw (ex-info "While deploying prelude CVX file"
