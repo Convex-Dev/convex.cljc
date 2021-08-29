@@ -5,6 +5,7 @@
   {:author "Adam Helinski"}
 
   (:import (convex.core.data AVector))
+  (:refer-clojure :exclude [ref])
   (:require [clojure.test                  :as T]
             [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
@@ -45,9 +46,12 @@
 
 (defn suite-rw
 
-  ""
+  "Writes and read back `cell`, flushing in between if required by `flush?`.
 
-  [db cell]
+   Also maintains a vector of all `[hash cell]` in root. Each time this suite is called, ensures all those cells
+   are still accessible from their hash. Past cannot be disturbed by new entries."
+
+  [db cell flush?]
 
   (mprop/mult
 
@@ -58,6 +62,11 @@
 
     "Write is persisted"
     ($.ref/persisted? ref)
+
+    "Flush"
+    (if flush?
+      ($.db/flush db)
+      true)
 
     "Read"
     (= cell
@@ -87,17 +96,19 @@
 
 (mprop/deftest rw
 
-  {:ratio-num  10
-   :ratio-size 1}
+  {:ratio-num  30
+   :ratio-size 5}
 
   (let [etch ($.db/create-temp)]
     ($.cvm.db/local-set etch)
     ($.db/write-root etch
                      ($.cell/vector))
-    (TC.prop/for-all [cell $.clj.gen/any]
+    (TC.prop/for-all [cell   $.clj.gen/any
+                      flush? TC.gen/boolean]
       (let [cell-2 ($.read/string (pr-str cell))]
         (mprop/check
 
           "Etch"
           (suite-rw etch
-                    cell-2))))))
+                    cell-2
+                    flush?))))))
