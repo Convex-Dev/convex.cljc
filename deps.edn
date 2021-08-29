@@ -256,7 +256,8 @@
 
   :dev/net
 
-  {:extra-paths ["project/net/src/clj/dev"]}
+  {:extra-paths     ["project/net/src/clj/dev"]
+   :maestro/require [:project/db]}
 
 
   :test/net
