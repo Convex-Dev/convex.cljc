@@ -6,6 +6,7 @@
 
   (:require [clojure.test.check.properties :as TC.prop]
             [convex.break]
+            [convex.clj                    :as $.clj]
             [convex.clj.eval               :as $.clj.eval]
             [convex.clj.gen                :as $.clj.gen]
             [convex.break.gen              :as $.break.gen]
@@ -44,7 +45,7 @@
 
                    (mprop/mult
 
-                     "Cannot send coin to actor without an exported `receive-coin` function"
+                     "Cannot send coin to actor without a callable `receive-coin` function"
 
                      ($.clj.eval/code?* ctx-2
                                         :STATE
@@ -54,11 +55,11 @@
                                                                      *balance*)))
 
 
-                     "`receive-coin` is exported"
+                     "`receive-coin` is callable"
 
                      ($.clj.eval/result ctx-2
-                                        '(exports? addr
-                                                   'receive-coin))
+                                        '(callable? addr
+                                                    'receive-coin))
 
 
                      "`accept` returns the accepted amount"
@@ -97,16 +98,17 @@
   {:ratio-num 5}
 
   (TC.prop/for-all [faulty-amount $.break.gen/not-long
-                    percent       $.break.gen/percent
-                    x             $.clj.gen/any]
+                    holding       $.clj.gen/any
+                    percent       $.break.gen/percent]
     (let [ctx ($.clj.eval/ctx* (do
                                  (def addr
                                       (deploy '(do
 
-                                                 (def x
-                                                      ~x)
+                                                 (def holding
+                                                      ~holding)
 
                                                  (defn receive-coin
+                                                   ~($.clj/literal "^{:callable? true}")
                                                    [origin offer no-arg]
                                                    (def -caller
                                                         (= origin
@@ -118,14 +120,12 @@
                                                          (nil? no-arg))
                                                    (def -accept
                                                         (= offer
-                                                           (accept offer))))
-
-                                                 (export receive-coin))))
+                                                           (accept offer)))))))
                                  (def addr-empty
                                       (deploy nil))))]
       (mprop/and (-> ($.break.test.account/ctx-holding ctx
                                                        'addr
-                                                       x)
+                                                       holding)
                      $.break.test.account/suite-holding)
 
                  ($.break.test.account/suite-new ctx
@@ -134,7 +134,7 @@
                  (suite-transfer ctx
                                  faulty-amount
                                  percent
-                                 x)
+                                 holding)
 
                  ($.break.test.account/suite-transfer-memory ctx
                                                              faulty-amount
