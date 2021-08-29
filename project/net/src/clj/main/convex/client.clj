@@ -5,6 +5,7 @@
   {:author "Adam Helinski"}
 
   (:import (convex.api Convex)
+           (convex.peer Server)
            (java.net InetSocketAddress)))
 
 
@@ -32,9 +33,14 @@
             43579))
 
 
+  ([host]
+
+   (connect host
+            Server/DEFAULT_PORT))
+
+
   ([^String host ^long port]
 
    (Convex/connect (InetSocketAddress. host
                                        port))))
-
 
