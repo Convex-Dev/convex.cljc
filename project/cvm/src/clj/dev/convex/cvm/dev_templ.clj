@@ -10,6 +10,7 @@
   (:require [convex.cell  :as $.cell]
             [convex.read  :as $.read]
             [convex.cvm   :as $.cvm]
+            [convex.form  :as $.form]
             [convex.write :as $.write]))
 
 

@@ -8,11 +8,22 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `$.cell/blob<-hex`
+- `$.cell/encoding`
+- `$.cell/hash`
+- `$.cell/hash<-hex`
+- Namespace `$.form` for building common forms from cells (eg. `def`)
+
 ### Changed
+
+- Depends on Java `convex-core/0.7.0-rc2`
+- Move form building from `$.cell` to new namespace `$.form`
 
 ### Fixed
 
 ### Removed
+
+- `$.cell/call?`
 
 
 

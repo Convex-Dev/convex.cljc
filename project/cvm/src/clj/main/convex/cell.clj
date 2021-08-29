@@ -1,8 +1,6 @@
 (ns convex.cell
 
-  "Constructors for CVX cells and related type predicate functions.
-  
-   Also constructors for a few common idioms such as creating a [[def]] form."
+  "Constructors for CVX cells and related type predicate functions."
 
   {:author "Adam Helinski"}
 
@@ -34,7 +32,6 @@
                                   CVMChar
                                   CVMDouble
                                   CVMLong)
-           (convex.core.lang Symbols)
            (java.util Collection
                       List))
   (:refer-clojure :exclude [boolean
@@ -42,11 +39,8 @@
                             byte
                             char
                             char?
-                            def
-                            do
                             double
                             double?
-                            import
                             hash
                             key
                             keyword
@@ -61,7 +55,6 @@
                             string?
                             symbol
                             symbol?
-                            quote
                             vector
                             vector?])
   (:require [clojure.core]))
@@ -71,11 +64,8 @@
       true)
 
 
-(declare do
-         import
-         keyword
+(declare keyword
          map
-         quote
          vector)
 
 
@@ -443,101 +433,6 @@
    (Vectors/create x)))
 
 
-;;;;;;;;;; Common form
-
-
-(defn- -sym
-
-  ;; Casts `sym` to a CVX symbol if it is a CLJ one.
-
-  [sym]
-
-  (if (clojure.core/symbol? sym)
-    (symbol (name sym))
-    sym))
-
-
-
-(defn def
-
-  "Creates a `def` form which interns `x` under `sym`."
-
-  [sym x]
-
-  (list [Symbols/DEF
-         (-sym sym)
-         x]))
-
-
-
-(defn deploy
-
-  "Creates a `deploy` form which deploys `code`.
-  
-   If `sym` is provided, the deploy form is embedded in a [[def]]."
-
-
-  ([code]
-
-   (list [Symbols/DEPLOY
-          (convex.cell/quote code)]))
-
-
-  ([sym code]
-
-   (let [sym-2 (-sym sym)]
-     (convex.cell/do [(convex.cell/def sym-2
-                                       (deploy code))
-                      (convex.cell/import (list [(symbol "address")
-                                                    sym-2])
-                                             sym-2)]))))
-
-
-
-(defn do
-
-  "Creates a `do` form embedded the given cells."
-  
-  [cell+]
-
-  (list (cons Symbols/DO
-              cell+)))
-
-
-
-(defn import
-
-  "Creates an `import` form which imports `x` as `as`."
-
-  [x as]
-
-  (list [(symbol "import")
-         x
-         (keyword "as")
-         as]))
-
-
-
-(defn quote
-
-  "Creates form which quotes `x`."
-
-  [x]
-
-  (list [Symbols/QUOTE
-         x]))
-
-
-
-(defn undef
-
-  "Opposite of [[def]]."
-
-  [sym]
-
-  (list [Symbols/UNDEF
-         sym]))
-
 
 ;;;;;;;;; Type predicates
 
@@ -693,17 +588,3 @@
 
   (instance? AVector
              x))
-
-
-;;;;;;;;;; Miscellaneous predicates
-
-
-(defn call?
-
-  "Is `x` a call for `form` such as `(form ...)`?"
-
-  [x form]
-
-  (and (list? x)
-       (= (first x)
-          form)))
