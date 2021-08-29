@@ -8,10 +8,17 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- `$.cell/blob<-hex`
-- `$.cell/encoding`
-- `$.cell/hash`
-- `$.cell/hash<-hex`
+- Creating transactions
+    - `$.cell/call`
+    - `$.cell/invoke`
+    - `$.cell/transfer`
+- Getting encodings and hashes:
+    - `$.cell/blob<-hex`
+    - `$.cell/encoding`
+    - `$.cell/hash`
+    - `$.cell/hash<-hex`
+- Miscellaneous:
+    - `$.cell/cvm-value?` 
 - Namespace `$.form` for building common forms from cells (eg. `def`)
 
 ### Changed

@@ -32,6 +32,9 @@
                                   CVMChar
                                   CVMDouble
                                   CVMLong)
+           (convex.core.transactions Call
+                                     Invoke
+                                     Transfer)
            (java.util Collection
                       List))
   (:refer-clojure :exclude [boolean
@@ -129,6 +132,31 @@
   [b]
 
   (CVMByte/create b))
+
+
+
+(defn call
+
+  "Creates a transaction for invoking a callable function."
+
+
+  (^Call [address sequence address-callable function-name args]
+
+  (Call/create address
+               sequence
+               address-callable
+               function-name
+               args))
+
+
+  (^Call [address sequence address-callable offer function-name args]
+
+  (Call/create address
+               sequence
+               address-callable
+               offer
+               function-name
+               args)))
 
 
 
@@ -264,6 +292,20 @@
   [^String hex-string]
 
   (Hash/fromHex hex-string))
+
+
+
+(defn invoke
+
+  "Creates a transaction for invoking code (a cell)."
+
+  ^Invoke
+
+  [^Address address ^long sequence ^ACell cell]
+
+  (Invoke/create address
+                 sequence
+                 cell))
 
 
 
@@ -418,6 +460,21 @@
 
 
 
+(defn transfer
+
+  "Creates a transaction for transferring Convex Coins."
+
+  ^Transfer
+
+  [address sequence address-receiver amount]
+
+  (Transfer/create address
+                   sequence
+                   address-receiver
+                   amount))
+
+
+
 (defn vector
 
   "Creates a CVX vector from a collection of CVX items."
@@ -489,6 +546,18 @@
 
   (instance? CVMChar
              x))
+
+
+
+(defn cvm-value?
+
+  "Is `cell` a CVM value?
+
+   Returns false if `x` is not accessible in the CVM and meant to be used outside (eg. networking)."
+
+  [^ACell cell]
+
+  (.isCVMValue cell))
 
 
 
