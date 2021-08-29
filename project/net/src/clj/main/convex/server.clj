@@ -4,9 +4,9 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core Belief
-                        Peer)
-           (convex.core.data Keywords)
+  (:import (convex.core Peer)
+           (convex.core.data Address
+                             Keywords)
            (convex.core.store AStore)
            (convex.peer IServerEvent
                         Server)
@@ -108,6 +108,18 @@
 
 
 ;;;;;;;;;; Informations
+
+
+(defn controller
+
+  ""
+
+  ^Address
+
+  [^Server server]
+
+  (.getPeerController server))
+
 
 
 (defn host

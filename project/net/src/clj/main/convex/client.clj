@@ -6,10 +6,18 @@
 
   (:import (convex.api Convex)
            (convex.core.crypto AKeyPair)
-           (convex.core.data Address)
+           (convex.core.data ACell
+                             Address
+                             SignedData)
+           (convex.core.transactions ATransaction)
            (convex.peer Server)
            (java.net InetSocketAddress))
-  (:refer-clojure :exclude [sequence]))
+  (:refer-clojure :exclude [resolve
+                            sequence]))
+
+
+(set! *warn-on-reflection*
+      true)
 
 
 ;;;;;;;;;; Lifecycle
@@ -48,89 +56,76 @@
                                        port))))
 
 
-;;;;;;;;;; Getters / Setters
+;;;;;;;;;; Networking
 
 
-(defn address
+(defn peer-status
 
   ""
-
-  ;; Resets sequence.
-
-  ^Address
 
   [^Convex client]
 
-  (.getAddress client))
+  (.requestStatus client))
 
 
 
-(defn address-set
-
-  ""
-
-  ^Convex
-
-  [^Convex client ^Address address]
-
-  (.setAddress client
-               address)
-  client)
-  
-
-
-(defn key-pair-set
+(defn resolve
 
   ""
 
-  ^Convex
 
-  [^Convex client ^AKeyPair key-pair]
+  ([^Convex client hash]
 
-  (.setKeyPair client
-               key-pair)
-  client)
+   (.acquire client
+             hash))
 
 
+  ([^Convex client hash store]
 
-(defn key-pub
+   (.acquire client
+             hash
+             store)))
+
+
+
+(defn query
 
   ""
 
-  ^AKeyPair
+  [^Convex client cell]
+
+  (.query client
+          cell))
+
+
+
+(defn query-as
+
+  ""
+
+  [^Convex client address cell]
+
+  (.query client
+          cell
+          address))
+
+
+
+(defn state
+
+  ""
 
   [^Convex client]
 
-  (.getAccountKey client))
+  (.acquireState client))
 
 
 
-(defn sequence
-
-  ""
-
-  ;; Does a query if sequence is null.
-
-  [^Convex client]
-
-  (.getSequence client))
-
-
-
-(defn sequence-set
+(defn transact
 
   ""
 
-  ^Convex
+  [^Convex client ^SignedData signed-transaction]
 
-  [^Convex client sequence]
-
-  (.setNextSequence client
-                    (inc sequence))
-  client)
-
-
-;;;;;;;;;; Network
-
-
-
+  (.transact client
+             signed-transaction))

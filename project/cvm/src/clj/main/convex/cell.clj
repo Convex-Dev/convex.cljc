@@ -285,7 +285,9 @@
 
 (defn hash<-hex
 
-  "Creates a [[hash]] from a hex string."
+  "Creates a [[hash]] from a hex string.
+  
+   Returns nil if hex string is of wrong format."
 
   ^Hash
 
