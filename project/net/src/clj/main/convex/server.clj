@@ -4,7 +4,10 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.data Keywords)
+  (:import (convex.core Belief
+                        Peer)
+           (convex.core.data Keywords)
+           (convex.core.store AStore)
            (convex.peer IServerEvent
                         Server)
            (java.net InetSocketAddress)
@@ -102,3 +105,49 @@
 
   (.close server)
   server)
+
+
+;;;;;;;;;; Informations
+
+
+(defn host
+
+  ""
+
+  [^Server server]
+
+  (.getHostString (.getHostAddress server)))
+
+
+
+(defn peer
+
+  ""
+
+  ^Peer
+
+  [^Server server]
+
+  (.getPeer server))
+
+
+
+(defn port
+
+  ""
+
+  [^Server server]
+
+  (.getPort server))
+
+
+
+(defn store
+
+  ""
+
+  ^AStore
+
+  [^Server server]
+
+  (.getStore server))
