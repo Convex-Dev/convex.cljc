@@ -4,7 +4,8 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.lang Symbols))
+  (:import (convex.core.data AList)
+           (convex.core.lang Symbols))
   (:refer-clojure :exclude [def
                             do
                             import
@@ -18,31 +19,32 @@
          quote)
 
 
-;;;;;;;;;; Private
-
-
-(defn- -sym
-
-  ;; Casts `sym` to a CVX symbol if it is a CLJ one.
-
-  [sym]
-
-  (if (symbol? sym)
-    ($.cell/symbol (name sym))
-    sym))
-
-
 ;;;;;;;;;; Common form
+
+
+(defn create-account
+
+  "Creates a form `(create-account key)`. See [[convex.cell/key]]."
+
+  ^AList
+
+  [key]
+
+  ($.cell/list [Symbols/CREATE_ACCOUNT
+                key]))
+
 
 
 (defn def
 
   "Creates a `def` form which interns `x` under `sym`."
 
+  ^AList
+
   [sym x]
 
   ($.cell/list [Symbols/DEF
-                (-sym sym)
+                sym
                 x]))
 
 
@@ -54,20 +56,16 @@
    If `sym` is provided, the deploy form is embedded in a [[def]]."
 
 
-  ([code]
+  (^AList [code]
 
    ($.cell/list [Symbols/DEPLOY
                  (convex.form/quote code)]))
 
 
-  ([sym code]
+  (^AList [sym code]
 
-   (let [sym-2 (-sym sym)]
-     (convex.form/do [(convex.form/def sym-2
-                                       (deploy code))
-                      (convex.form/import ($.cell/list [(symbol "address")
-                                                        sym-2])
-                                          sym-2)]))))
+   (convex.form/def sym
+                    (deploy code))))
 
 
 
@@ -75,6 +73,8 @@
 
   "Creates a `do` form embedded the given cells."
   
+  ^AList
+
   [cell+]
 
   ($.cell/list (cons Symbols/DO
@@ -82,22 +82,11 @@
 
 
 
-(defn import
-
-  "Creates an `import` form which imports `x` as `as`."
-
-  [x as]
-
-  ($.cell/list [(symbol "import")
-                x
-                (keyword "as")
-                as]))
-
-
-
 (defn quote
 
   "Creates form which quotes `x`."
+
+  ^AList
 
   [x]
 
@@ -109,6 +98,8 @@
 (defn undef
 
   "Opposite of [[def]]."
+
+  ^AList
 
   [sym]
 
