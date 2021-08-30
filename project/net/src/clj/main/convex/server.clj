@@ -35,6 +35,10 @@
   (^Server [keypair option+]
 
    (Server/create (let [h (HashMap. 10)]
+                    (when-some [controller (:convex.server/controller option+)]
+                      (.put h
+                            Keywords/CONTROLLER
+                            controller))
                     (when-some [hook (:convex.server/hook option+)]
                       (.put h
                             Keywords/EVENT_HOOK

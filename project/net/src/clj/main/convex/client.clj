@@ -9,6 +9,7 @@
            (convex.core.data ACell
                              Address
                              SignedData)
+           (convex.core.lang Symbols)
            (convex.core.transactions ATransaction)
            (convex.peer Server)
            (java.net InetSocketAddress))
@@ -56,7 +57,17 @@
                                        port))))
 
 
-;;;;;;;;;; Networking
+
+(defn connected?
+
+  ""
+
+  [^Convex client]
+
+  (.isConnected client))
+
+
+;;;;;;;;;; Networking - Performed directly by the client
 
 
 (defn peer-status
@@ -92,17 +103,6 @@
 
   ""
 
-  [^Convex client cell]
-
-  (.query client
-          cell))
-
-
-
-(defn query-as
-
-  ""
-
   [^Convex client address cell]
 
   (.query client
@@ -129,3 +129,29 @@
 
   (.transact client
              signed-transaction))
+
+
+;;;;;;;;;; Networking - Higher-level
+
+
+(defn balance
+
+  ""
+
+  [^Convex client address]
+
+  (query client
+         address
+         Symbols/STAR_BALANCE))
+            
+
+
+(defn sequence
+
+  ""
+
+  [^Convex client address]
+
+  (query client
+         address
+         Symbols/STAR_SEQUENCE))
