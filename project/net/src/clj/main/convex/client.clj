@@ -5,16 +5,13 @@
   {:author "Adam Helinski"}
 
   (:import (convex.api Convex)
-           (convex.core.crypto AKeyPair)
-           (convex.core.data ACell
-                             Address
-                             SignedData)
+           (convex.core.data SignedData)
            (convex.core.lang Symbols)
-           (convex.core.transactions ATransaction)
            (convex.peer Server)
            (java.net InetSocketAddress))
   (:refer-clojure :exclude [resolve
-                            sequence]))
+                            sequence])
+  (:require [convex.cvm.db :as $.cvm.db]))
 
 
 (set! *warn-on-reflection*
@@ -38,23 +35,16 @@
 
   ""
 
+  [option+]
 
-  ([]
-
-   (connect "convex.world"
-            43579))
-
-
-  ([host]
-
-   (connect host
-            Server/DEFAULT_PORT))
-
-
-  ([^String host ^long port]
-
-   (Convex/connect (InetSocketAddress. host
-                                       port))))
+  (Convex/connect (InetSocketAddress. (or ^String (:convex.server/host option+)
+                                                  "localhost")
+                                      (long (or (:convex.server/port option+)
+                                                Server/DEFAULT_PORT)))
+                  nil
+                  nil
+                  (or (:convex.client/db option+)
+                      ($.cvm.db/local))))
 
 
 
