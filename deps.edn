@@ -37,7 +37,7 @@
 
   :ext/convex-core
 
-  {:extra-deps      {world.convex/convex-core {:mvn/version "0.7.0-rc2"}}
+  {:extra-deps      {world.convex/convex-core {:local/root "cvm/d6f4f35a86e58dddcff37cc4bbd164684622613b.jar"}}
    :maestro/doc     "Java implementation of the CVM and related utilities"
    :maestro/require [:ext/slf4j-timbre]}
 

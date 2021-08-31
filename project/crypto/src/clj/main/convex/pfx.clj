@@ -93,10 +93,17 @@
 
   ""
 
-  ^KeyStore
 
-  [^KeyStore key-store ^AKeyPair key-pair passphrase]
+  (^KeyStore [^KeyStore key-store ^AKeyPair key-pair passphrase]
 
-  (PFXTools/saveKey key-store
-                    key-pair
-                    passphrase))
+   (PFXTools/setKeyPair key-store
+                        key-pair
+                        passphrase))
+
+
+  (^KeyStore [^KeyStore key-store ^String alias ^AKeyPair key-pair passphrase]
+
+   (PFXTools/setKeyPair key-store
+                        alias
+                        key-pair
+                        passphrase)))
