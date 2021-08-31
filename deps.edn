@@ -222,6 +222,75 @@
 
   ;---
 
+  :project/clojurify
+
+  {:extra-paths     ["project/clojurify/src/clj/main"]
+   :maestro/doc     "Writing Convex Lisp forms as Clojure data and related utilities"
+   :maestro/require [:ext/test.check
+                     {default :project/cvm
+                      release :release/cvm}]
+   :maestro/root    "project/clojurify"}
+
+
+  :dev/clojurify
+
+  {:extra-paths ["project/clojurify/src/clj/dev"]}
+
+
+  :release/clojurify
+
+  {:extra-deps {world.convex/clojurify.clj {:mvn/version "0.0.0-alpha0"}}}
+
+
+  :test/clojurify
+
+  {:extra-paths ["project/clojurify/src/clj/test"]}
+
+  ;---
+
+  :project/crypto
+
+  {:extra-paths     ["project/crypto/src/clj/main"]
+   :maestro/doc     "Crypto utilities"
+   :maestro/require [:ext/convex-core]
+   :maestro/root    "project/crypto"}
+
+
+  :dev/crypto
+
+  {:extra-paths ["project/crypto/src/clj/dev"]}
+
+
+  :test/crypto
+
+  {:extra-paths ["project/crypto/src/clj/test"]}
+
+  ;---
+
+  :project/cvm
+
+  {:extra-paths     ["project/cvm/src/clj/main"]
+   :maestro/doc     "Handling CVM contextes and Convex data"
+   :maestro/require [:ext/convex-core]
+   :maestro/root    "project/cvm"}
+
+
+  :dev/cvm
+
+  {:extra-paths ["project/cvm/src/clj/dev"]}
+
+
+  :release/cvm
+
+  {:extra-deps {world.convex/cvm.clj {:mvn/version "0.0.0-alpha0"}}}
+
+
+  :test/cvm
+
+  {:extra-paths ["project/cvm/src/clj/test"]}
+
+  ;---
+
   :project/db
 
   {:extra-paths     ["project/db/src/clj/main"]
@@ -263,56 +332,6 @@
   :test/net
 
   {:extra-paths ["project/net/src/clj/test"]}
-
-  ;---
-
-  :project/cvm
-
-  {:extra-paths     ["project/cvm/src/clj/main"]
-   :maestro/doc     "Handling CVM contextes and Convex data"
-   :maestro/require [:ext/convex-core]
-   :maestro/root    "project/cvm"}
-
-
-  :dev/cvm
-
-  {:extra-paths ["project/cvm/src/clj/dev"]}
-
-
-  :release/cvm
-
-  {:extra-deps {world.convex/cvm.clj {:mvn/version "0.0.0-alpha0"}}}
-
-
-  :test/cvm
-
-  {:extra-paths ["project/cvm/src/clj/test"]}
-
-  ;---
-
-  :project/clojurify
-
-  {:extra-paths     ["project/clojurify/src/clj/main"]
-   :maestro/doc     "Writing Convex Lisp forms as Clojure data and related utilities"
-   :maestro/require [:ext/test.check
-                     {default :project/cvm
-                      release :release/cvm}]
-   :maestro/root    "project/clojurify"}
-
-
-  :dev/clojurify
-
-  {:extra-paths ["project/clojurify/src/clj/dev"]}
-
-
-  :release/clojurify
-
-  {:extra-deps {world.convex/clojurify.clj {:mvn/version "0.0.0-alpha0"}}}
-
-
-  :test/clojurify
-
-  {:extra-paths ["project/clojurify/src/clj/test"]}
 
   ;---
 
