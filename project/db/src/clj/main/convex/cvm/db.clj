@@ -18,18 +18,6 @@
 ;;;;;;;;;;
 
 
-(defn default
-
-  "Returns the default database, an Etch instance."
-
-  ^AStore
-
-  []
-
-  (Stores/getDefaultStore))
-
-
-
 (defn global
 
   "Returns the global database."
@@ -44,9 +32,7 @@
 
 (defn global-set
 
-  "Sets the global database returned by [[global]].
-  
-   A nil value means [[global]] will rely on [[default]]."
+  "Sets the global database returned by [[global]]."
 
   ^AStore
 

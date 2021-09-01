@@ -37,14 +37,14 @@
 
   :ext/convex-core
 
-  {:extra-deps      {world.convex/convex-core {:local/root "cvm/d6f4f35a86e58dddcff37cc4bbd164684622613b.jar"}}
+  {:extra-deps      {world.convex/convex-core {:local/root "cvm/32ee0e34909eaca189a17cac8aab63ff38570b3c.jar"}}
    :maestro/doc     "Java implementation of the CVM and related utilities"
    :maestro/require [:ext/slf4j-timbre]}
 
 
   :ext/convex-peer
 
-  {:extra-deps  {world.convex/convex-peer {:mvn/version "0.7.0-rc2"}}
+  {:extra-deps  {world.convex/convex-peer {:mvn/version "0.7.0-rc3"}}
    :maestro/doc "Mostly used for its Convex binary client."}
 
 
@@ -319,7 +319,9 @@
    :maestro/doc     "Convex network utilities"
    :maestro/require [:ext/convex-peer
                      {default :project/cvm
-                      release :release/cvm}]
+                      release :release/cvm}
+                     {default :project/crypto
+                      release :release/crypto}]
    :maestro/root    "project/net"}
 
 
