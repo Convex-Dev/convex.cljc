@@ -57,4 +57,13 @@
 
   (T/is (= custom
            ($.cvm.db/local))
-        "Custom"))
+        "Custom")
+
+  (T/is (let [temp ($.db/open-temp)]
+          (= temp
+             ($.cvm.db/local-with temp
+               (+ 2
+                  2)
+               ($.cvm.db/local))))
+        "Macro"))
+

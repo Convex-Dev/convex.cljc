@@ -57,7 +57,7 @@
 
 (defn local-set
 
-  "Sets the thread-local databased returned by [[local]]."
+  "Sets the thread-local database returned by [[local]]."
 
   ^AStore
 
@@ -65,3 +65,21 @@
 
   (Stores/setCurrent db)
   db)
+
+
+
+(defmacro local-with
+
+  "Macro using `local-set` momentarily to execute given forms before restoring the previous thread-local database."
+
+  ^AStore
+
+  [db & form+]
+
+  `(let [db#     ~db
+         cached# (local)]
+     (local-set db#)
+     (try
+       ~@form+
+       (finally
+         (local-set cached#)))))
