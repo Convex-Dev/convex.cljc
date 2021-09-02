@@ -5,13 +5,17 @@
   {:author "Adam Helinski"}
 
   (:import (convex.api Convex)
+           (convex.core.crypto AKeyPair)
            (convex.core.data SignedData)
            (convex.core.lang Symbols)
+           (convex.core.store Stores)
+           (convex.core.transactions ATransaction)
            (convex.peer Server)
            (java.net InetSocketAddress))
   (:refer-clojure :exclude [resolve
                             sequence])
-  (:require [convex.cvm.db :as $.cvm.db]))
+  (:require [convex.sign   :as $.sign]))
+
 
 
 (set! *warn-on-reflection*
@@ -27,7 +31,8 @@
 
   [^Convex connection]
 
-  (.close connection))
+  (.close connection)
+  nil)
 
 
 
@@ -35,16 +40,22 @@
 
   ""
 
-  [option+]
 
-  (Convex/connect (InetSocketAddress. (or ^String (:convex.server/host option+)
-                                                  "localhost")
-                                      (long (or (:convex.server/port option+)
-                                                Server/DEFAULT_PORT)))
-                  nil
-                  nil
-                  (or (:convex.client/db option+)
-                      ($.cvm.db/local))))
+  (^Convex []
+
+   (connect nil))
+
+
+  (^Convex [option+]
+
+   (Convex/connect (InetSocketAddress. (or ^String (:convex.server/host option+)
+                                                   "localhost")
+                                       (long (or (:convex.server/port option+)
+                                                 Server/DEFAULT_PORT)))
+                   nil
+                   nil
+                   (or (:convex.client/db option+)
+                       (Stores/current)))))
 
 
 
@@ -115,10 +126,18 @@
 
   ""
 
-  [^Convex client ^SignedData signed-transaction]
 
-  (.transact client
-             signed-transaction))
+  ([^Convex client ^SignedData signed-transaction]
+
+   (.transact client
+              signed-transaction))
+
+
+  ([client ^AKeyPair key-pair ^ATransaction transaction]
+
+   (transact client
+             ($.sign/signed key-pair
+                            transaction))))
 
 
 ;;;;;;;;;; Networking - Higher-level

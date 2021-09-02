@@ -85,7 +85,7 @@
 ;;;;;;;;;; Using key pairs
 
 
-(defn sign
+(defn signed
 
   ""
 
@@ -94,4 +94,4 @@
   [^AKeyPair key-pair ^ACell cell]
 
   (.signData key-pair
-              cell))
+             cell))

@@ -27,7 +27,7 @@
   (^KeyStore [path]
 
    (create path
-           nil))
+           ""))
 
 
   (^KeyStore [^String path passphrase]
@@ -49,7 +49,7 @@
   (^KeyStore [path]
 
    (load path
-         nil))
+         ""))
 
 
   (^KeyStore [^String path passphrase]
@@ -63,11 +63,19 @@
 
   ""
 
-  ^KeyStore
 
-  [^KeyStore key-store]
+  (^KeyStore [key-store path]
 
-  key-store)
+   (save key-store
+         path
+         ""))
+
+
+  (^KeyStore [key-store ^String path ^String passphrase]
+
+   (PFXTools/saveStore key-store
+                       (File. path)
+                       passphrase)))
 
 
 ;;;;;;;;;; Adding and retrieving keys
@@ -106,4 +114,5 @@
    (PFXTools/setKeyPair key-store
                         alias
                         key-pair
-                        passphrase)))
+                        passphrase)
+   key-store))

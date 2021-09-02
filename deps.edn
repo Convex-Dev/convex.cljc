@@ -7,6 +7,8 @@
  []
 
 
+ ;; Convex local jars are used instead of actual 0.7.0-rc3
+ ;; Built from commit: 21b1cd4209c4737b22c7cff12877db6ae93881bbc
 
 
  :maestro/doc
@@ -37,7 +39,7 @@
 
   :ext/convex-core
 
-  {:extra-deps      {world.convex/convex-core {:local/root "cvm/32ee0e34909eaca189a17cac8aab63ff38570b3c.jar"}}
+  {:extra-deps      {world.convex/convex-core {:mvn/version "0.7.0-rc3"}}
    :maestro/doc     "Java implementation of the CVM and related utilities"
    :maestro/require [:ext/slf4j-timbre]}
 
