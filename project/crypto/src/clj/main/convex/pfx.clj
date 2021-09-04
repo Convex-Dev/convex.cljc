@@ -1,6 +1,8 @@
 (ns convex.pfx
 
-  ""
+  "Creating and managing a key store for storing key pairs in a file.
+  
+   See [[convex.sign]] about key pairs."
 
   {:author "Adam Helinski"}
 
@@ -21,7 +23,9 @@
 
 (defn create
 
-  ""
+  "Creates a new key store in the file under `path`.
+  
+   An optional passphrase protecting the store may be provided."
 
 
   (^KeyStore [path]
@@ -43,7 +47,9 @@
 
 (defn load
 
-  ""
+  "Loads a key store from the file under `path`.
+  
+   Passphrase must be provided if the store is protected by one."
 
 
   (^KeyStore [path]
@@ -61,7 +67,9 @@
 
 (defn save
 
-  ""
+  "Saves the given `key-store` to the file under `path`.
+  
+   An optional passphrase protecting the store may be provided."
 
 
   (^KeyStore [key-store path]
@@ -83,7 +91,9 @@
 
 (defn key-pair-get
 
-  ""
+  "Retrieves a key pair from the given `key-store`.
+
+   See [[key-pair-set]]."
 
   ^AKeyPair
 
@@ -99,7 +109,9 @@
 
 (defn key-pair-set
 
-  ""
+  "Adds the given `key-pair` to the `key-store`, protected by a mandatory `passphrase`.
+  
+   See [[key-pair-set]]."
 
 
   (^KeyStore [^KeyStore key-store ^AKeyPair key-pair passphrase]
