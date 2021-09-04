@@ -265,7 +265,8 @@
 
   :test/crypto
 
-  {:extra-paths ["project/crypto/src/clj/test"]}
+  {:extra-paths     ["project/crypto/src/clj/test"]
+   :maestro/require [:project/cvm]}
 
   ;---
 
