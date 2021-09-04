@@ -75,7 +75,8 @@
   (^Context [option+]
 
    (Context/createFake (or (:convex.cvm/state option+)
-                           (Init/createState [($.cell/key ($.cell/blob (byte-array 32)))]))
+                           (Init/createState [(or (:convex.peer/key option+)
+                                                  ($.cell/key ($.cell/blob (byte-array 32))))]))
                        (or (:convex.cvm/address option+)
                            Init/RESERVED_ADDRESS))))
 
