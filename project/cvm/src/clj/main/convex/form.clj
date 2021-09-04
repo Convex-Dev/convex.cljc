@@ -24,7 +24,7 @@
 
 (defn create-account
 
-  "Creates a form `(create-account key)`. See [[convex.cell/key]]."
+  "Creates a form `(create-account key)`."
 
   ^AList
 
@@ -32,6 +32,20 @@
 
   ($.cell/list [Symbols/CREATE_ACCOUNT
                 key]))
+
+
+
+(defn create-peer
+
+  "Creates a form `(create-peer key stake)`."
+
+  ^AList
+
+  [key stake]
+
+  ($.cell/list [Symbols/CREATE_PEER
+                key
+                stake]))
 
 
 
@@ -92,6 +106,19 @@
 
   ($.cell/list [Symbols/QUOTE
                 x]))
+
+
+
+(defn set-key
+
+  "Creates a form `(set-key key)`."
+
+  ^AList
+
+  [key]
+
+  ($.cell/list [Symbols/SET_KEY
+                key]))
 
 
 
