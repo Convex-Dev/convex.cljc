@@ -1,6 +1,10 @@
 (ns convex.sign
 
-  ""
+  "Signing cells using public key cryptography, most notably transactions as required prior to submission.
+
+   More precisely, is signed the hash of the encoding of the cell, producing a signed data cell.
+  
+   Uses Ed25519."
 
   {:author "Adam Helinski"}
 
@@ -22,7 +26,7 @@
 
 (defn ed25519-from
 
-  ""
+  "Creates an Ed25519 key-pair from a given `java.security.PublicKey` and a `java.security.PrivateKey`."
 
   ^AKeyPair
 
@@ -35,7 +39,7 @@
 
 (defn ed25519-gen
 
-  ""
+  "Generates an Ed25519 key pair randomly."
 
   ^AKeyPair
 
@@ -49,7 +53,9 @@
 
 (defn account-key
 
-  ""
+  "Returns the account key of the given `key-pair`.
+  
+   This is effectively the public key presented as a cell."
 
   ^AccountKey
 
@@ -61,7 +67,7 @@
 
 (defn key-private
 
-  ""
+  "Returns the `java.security.PrivateKey` of the given `key-pair`."
 
   ^PrivateKey
 
@@ -73,7 +79,7 @@
 
 (defn key-public
 
-  ""
+  "Returns the `java.security.PublicKey` of the given `key-pair`."
 
   ^PublicKey
 
@@ -87,7 +93,7 @@
 
 (defn signed
 
-  ""
+  "Returns the given `cell` signed by `key-pair`."
 
   ^SignedData
 
