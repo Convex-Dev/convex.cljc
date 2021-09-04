@@ -27,7 +27,7 @@
   (^KeyStore [path]
 
    (create path
-           ""))
+           nil))
 
 
   (^KeyStore [^String path passphrase]
@@ -49,7 +49,7 @@
   (^KeyStore [path]
 
    (load path
-         ""))
+         nil))
 
 
   (^KeyStore [^String path passphrase]
@@ -68,7 +68,7 @@
 
    (save key-store
          path
-         ""))
+         nil))
 
 
   (^KeyStore [key-store ^String path ^String passphrase]

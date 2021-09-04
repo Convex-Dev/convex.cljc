@@ -7,8 +7,8 @@
  []
 
 
- ;; Convex local jars are used instead of actual 0.7.0-rc3
- ;; Built from commit: 21b1cd4209c4737b22c7cff12877db6ae93881bbc
+ ;; Convex local jars are used instead of actual 0.7.0-rc4
+ ;; Built from commit: d65cc05086fccdb19c4d4521f6f23c8b2b6cc1d3
 
 
  :maestro/doc
@@ -39,14 +39,14 @@
 
   :ext/convex-core
 
-  {:extra-deps      {world.convex/convex-core {:mvn/version "0.7.0-rc3"}}
+  {:extra-deps      {world.convex/convex-core {:mvn/version "0.7.0-rc4"}}
    :maestro/doc     "Java implementation of the CVM and related utilities"
    :maestro/require [:ext/slf4j-timbre]}
 
 
   :ext/convex-peer
 
-  {:extra-deps  {world.convex/convex-peer {:mvn/version "0.7.0-rc3"}}
+  {:extra-deps  {world.convex/convex-peer {:mvn/version "0.7.0-rc4"}}
    :maestro/doc "Mostly used for its Convex binary client."}
 
 
