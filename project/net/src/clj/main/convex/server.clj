@@ -34,23 +34,57 @@
 
   (^Server [keypair option+]
 
-   (Server/create (let [h (HashMap. 10)]
-                    (when-some [controller (:convex.server/controller option+)]
-                      (.put h
-                            Keywords/CONTROLLER
-                            controller))
+   (Server/create (let [h     (HashMap. 10)
+                        state (:convex.server/state option+)]
+                    (case (or (first state)
+                              :genesis)
+                      :genesis nil
+                      :store   (.put h
+                                     Keywords/RESTORE
+                                     true)
+                      :sync    (let [{:convex.server/keys      [host
+                                                                port]
+                                      :convex.server.sync/keys [timeout]} (second state)]
+                                 (.put h
+                                       Keywords/SOURCE
+                                       (InetSocketAddress. (or ^String host
+                                                               "localhost")
+                                                           (long (or port
+                                                                     Server/DEFAULT_PORT))))
+                                 (when timeout
+                                   (.put h
+                                         Keywords/TIMEOUT
+                                         timeout)))
+                      :use     (.put h
+                                     Keywords/STATE
+                                     (second state)))
+                    (some->> (:convex.server/controller option+)
+                             (.put h
+                                   Keywords/CONTROLLER))
+                    (some->> (:convex.server/db option+)
+                             (.put h
+                                   Keywords/STORE))
                     (when-some [hook (:convex.server/hook option+)]
                       (.put h
                             Keywords/EVENT_HOOK
                             (reify IServerEvent
                               (onServerChange [_this event]
                                 (hook event)))))
+                    (some->> (:convex.server/host option+)
+                             (.put h
+                                   Keywords/HOST))
                     (.put h
                           Keywords/KEYPAIR
                           keypair)
-                    (.put h
-                          Keywords/PERSIST
-                          true)
+                    (some->> (:convex.server/n-peer option+)
+                             (.put h
+                                   Keywords/OUTGOING_CONNECTIONS))
+                    (some->> (:convex.server/persist-at-stop? option+)
+                             (.put h
+                                   Keywords/PERSIST))
+                    (some->> (:convex.server/poll-delay option+)
+                             (.put h
+                                   Keywords/POLL_DELAY))
                     (.put h
                           Keywords/PORT
                           (if-some [port (:convex.server/port option+)]
@@ -59,28 +93,10 @@
                               nil
                               port)
                             Server/DEFAULT_PORT))
-                    (.put h
-                          Keywords/RESTORE
-                          (boolean (:convex.server/restore? option+)))
-                    (when-some [host (:convex.server.sync/host option+)]
-                      (.put h
-                            Keywords/SOURCE
-                            (InetSocketAddress. ^String host
-                                                (long (or (:convex.server.sync/port option+)
-                                                          Server/DEFAULT_PORT)))))
-                    (when-some [state (:convex.server/state option+)]
-                      (.put h
-                            Keywords/STATE
-                            state))
-                    (when-some [store (:convex.server/db option+)]
-                      (.put h
-                            Keywords/STORE
-                            store))
-                    (when-some [sync-timeout (:convex.server.sync/timeout option+)]
-                      (.put h
-                            Keywords/TIMEOUT
-                            sync-timeout))
-                    (println :h h)
+
+                    (some->> (:convex.server/url option+)
+                             (.put h
+                                   Keywords/URL))
                     h))))
 
 
