@@ -32,6 +32,7 @@
                                   CVMChar
                                   CVMDouble
                                   CVMLong)
+           (convex.core.lang RT)
            (convex.core.transactions Call
                                      Invoke
                                      Transfer)
@@ -280,6 +281,18 @@
   [^ACell cell]
 
   (Hash/compute cell))
+
+
+
+(defn hash<-blob
+
+  "Converts a 32-byte [[blob]] to a hash."
+
+  ^Hash
+
+  [^ABlob blob]
+
+  (RT/ensureHash blob))
 
 
 
