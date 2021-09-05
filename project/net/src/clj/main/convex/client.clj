@@ -5,13 +5,19 @@
   {:author "Adam Helinski"}
 
   (:import (convex.api Convex)
+           (convex.core Result)
            (convex.core.crypto AKeyPair)
-           (convex.core.data SignedData)
+           (convex.core.data ACell
+                             AVector
+                             SignedData)
+           (convex.core.data.prim CVMLong)
            (convex.core.lang Symbols)
            (convex.core.store Stores)
            (convex.core.transactions ATransaction)
            (convex.peer Server)
-           (java.net InetSocketAddress))
+           (java.net InetSocketAddress)
+           (java.util.concurrent CompletableFuture)
+           (java.util.function Function))
   (:refer-clojure :exclude [resolve
                             sequence])
   (:require [convex.sign   :as $.sign]))
@@ -75,6 +81,8 @@
 
   ""
 
+  ^CompletableFuture
+
   [^Convex client]
 
   (.requestStatus client))
@@ -86,13 +94,13 @@
   ""
 
 
-  ([^Convex client hash]
+  (^CompletableFuture [^Convex client hash]
 
    (.acquire client
              hash))
 
 
-  ([^Convex client hash store]
+  (^CompletableFuture [^Convex client hash store]
 
    (.acquire client
              hash
@@ -103,6 +111,8 @@
 (defn query
 
   ""
+
+  ^CompletableFuture
 
   [^Convex client address cell]
 
@@ -116,6 +126,8 @@
 
   ""
 
+  ^CompletableFuture
+
   [^Convex client]
 
   (.acquireState client))
@@ -127,32 +139,58 @@
   ""
 
 
-  ([^Convex client ^SignedData signed-transaction]
+  (^CompletableFuture [^Convex client ^SignedData signed-transaction]
 
    (.transact client
               signed-transaction))
 
 
-  ([client ^AKeyPair key-pair ^ATransaction transaction]
+  (^CompletableFuture [client ^AKeyPair key-pair ^ATransaction transaction]
 
    (transact client
              ($.sign/signed key-pair
                             transaction))))
 
 
-;;;;;;;;;; Networking - Higher-level
+;;;;;;;;;; Results
 
 
-(defn balance
+(defn error-code
 
   ""
 
-  [^Convex client address]
+  ^ACell
 
-  (query client
-         address
-         Symbols/STAR_BALANCE))
-            
+  [^Result result]
+
+  (.getErrorCode result))
+
+
+
+(defn result
+
+  ""
+
+  ^ACell
+
+  [^Result result]
+
+  (.getValue result))
+
+
+
+(defn trace
+
+  ""
+
+  ^AVector
+
+  [^Result result]
+
+  (.getTrace result))
+
+
+;;;;;;;;;; Networking - Higher-level
 
 
 (defn sequence
@@ -161,6 +199,15 @@
 
   [^Convex client address]
 
-  (query client
-         address
-         Symbols/STAR_SEQUENCE))
+  (.thenApply (query client
+                      address
+                      Symbols/STAR_SEQUENCE)
+               (reify Function
+
+                 (apply [_this res]
+                   (if-some [ec (error-code res)]
+                     (throw (ex-info "Unable to fetch next sequence"
+                                     {:convex.cell/address address
+                                      :convex.error/code   ec
+                                      :convex.error/trace  (trace res)}))
+                     (inc (.longValue ^CVMLong (result res))))))))

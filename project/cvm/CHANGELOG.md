@@ -19,7 +19,8 @@ All notable changes to this project will be documented in this file.
     - `$.cell/hash<-hex`
 - Miscellaneous:
     - `$.cell/cvm-value?` 
-- Namespace `$.form` for building common forms from cells (eg. `def`)
+- `$.cvm/fork-to`
+- Namespace `$.form` for building common forms from cells (eg. `def`, `create-account`)
 
 ### Changed
 

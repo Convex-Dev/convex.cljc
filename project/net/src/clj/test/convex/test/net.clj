@@ -5,6 +5,7 @@
   {:author "Adam Helinski"}
 
   (:import (convex.core Peer))
+  (:refer-clojure :exclude [sequence])
   (:require [clojure.test  :as T]
             [convex.cell   :as $.cell]
             [convex.client :as $.client]
@@ -157,7 +158,7 @@
                                  (-> ($.client/peer-status client)
                                      (deref 1000
                                             :timeout)
-                                     .getValue
+                                     $.client/result
                                      last
                                      $.cell/hash<-blob))
                (deref 10000
@@ -173,7 +174,7 @@
                                ($.read/string "(def foo-query (+ 2 2))"))
                (deref 1000
                       :timeout)
-               .getValue))
+               $.client/result))
         "Simple query")
 
   (T/is (= ($.cell/boolean false)
@@ -182,8 +183,15 @@
                                ($.read/string "(defined? foo-query)"))
                (deref 1000
                       :timeout)
-               .getValue))
+               $.client/result))
         "State change in previous query has been reversed"))
+
+
+
+(T/deftest sequence
+
+  (T/is (pos? (deref ($.client/sequence client
+                                        addr)))))
 
 
 
@@ -197,7 +205,7 @@
                                                  ($.read/string "(def foo-transact (+ 2 2))")))
                (deref 1000
                       :timeout)
-               .getValue))
+               $.client/result))
         "Def within a transaction")
 
   (T/is (= ($.cell/long 4)
@@ -208,5 +216,5 @@
                                                  ($.cell/symbol "foo-transact")))
                (deref 1000
                       :timeout)
-               .getValue))
+               $.client/result))
         "Def persisted across transactions"))
