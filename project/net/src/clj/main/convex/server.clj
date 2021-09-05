@@ -120,12 +120,10 @@
 
   ""
 
-  ^Server
-
   [^Server server]
 
   (.close server)
-  server)
+  nil)
 
 
 ;;;;;;;;;; Informations
@@ -140,6 +138,18 @@
   [^Server server]
 
   (.getPeerController server))
+
+
+
+(defn db
+
+  ""
+
+  ^AStore
+
+  [^Server server]
+
+  (.getStore server))
 
 
 
@@ -172,15 +182,3 @@
   [^Server server]
 
   (.getPort server))
-
-
-
-(defn store
-
-  ""
-
-  ^AStore
-
-  [^Server server]
-
-  (.getStore server))

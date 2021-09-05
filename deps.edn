@@ -330,13 +330,13 @@
 
   :dev/net
 
-  {:extra-paths     ["project/net/src/clj/dev"]
-   :maestro/require [:project/db]}
+  {:extra-paths ["project/net/src/clj/dev"]}
 
 
   :test/net
 
-  {:extra-paths ["project/net/src/clj/test"]}
+  {:extra-paths     ["project/net/src/clj/test"]
+   :maestro/require [:project/db]}
 
   ;---
 
