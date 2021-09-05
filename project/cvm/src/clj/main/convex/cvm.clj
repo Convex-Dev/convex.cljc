@@ -64,7 +64,15 @@
 
 (defn ctx
 
-  "Creates a \"fake\" context. Ideal for testing and repl'ing around."
+  "Creates a \"fake\" context. Ideal for testing and repl'ing around.
+  
+   An optional map of options may be provided:
+
+   | Key | Value | Default |
+   |---|---|---|
+   | `:convex.cvm/address` | Address of the executing account | Reserved address (an actor) |
+   | `:convex.cvm/state` | Genesis state | Initial state with Convex actors and libraries |
+   | `:convex.peer/key  | Account key for the initial peer (see [[convex.cell/account-key]]) | Fake key, all 0's |"
 
 
   (^Context []
@@ -95,6 +103,21 @@
   [^Context ctx]
 
   (.fork ctx))
+
+
+
+(defn fork-to
+
+  "Like [[fork]] but switches the executing account.
+  
+   Note: CVM log is lost."
+
+  ^Context
+
+  [^Context ctx address]
+
+  (.forkWithAddress ctx
+                    address))
 
 
 ;;;;;;;;;; Querying context properties
