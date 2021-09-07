@@ -49,7 +49,7 @@ on a thread-per-thread basis. Hence, to work smoothly, it has to be set using th
 ($.cvm.db/global-set db)
 ```
 
-Writing and reading a cell (creating using namespace `convex.cell` from [`:project/cvm`](../cvm). Thread-local database is
+Writing and reading a cell (created using namespace `convex.cell` from [`:project/cvm`](../cvm)). Thread-local database is
 used by default:
 
 ```clojure
@@ -79,7 +79,7 @@ Once in a while it is a good idea to flush the database to ensure that changes a
 ($.db/flush)
 ```
 
-The following macros helps when working with a database only temporarily by setting it as thread-local and then restoring
+The following macro helps when working with a database only temporarily by setting it as thread-local and then restoring
 the original:
 
 ```clojure
@@ -98,5 +98,5 @@ Namespace `convex.ref` exposes refs in greater details.
 Understanding and working with those is more advanced but it helps in understanding how the CVM and Etch work together, explaining
 the very good performance of the Convex network. If [pointers](https://en.wikipedia.org/wiki/Pointer_(computer_programming)) are
 addresses pointing to an area of memory containing data, a **soft ref** is a hash pointing to a cell in an Etch database. it caches
-the cell it points to, but it memory becomes scarce, cell is released. When derefenced, a soft ref retrieve its cell from the
+the cell it points to, but it memory becomes scarce, cell is released. When dereferenced, a soft ref retrieves its cell from the
 current thread-local database if necessary.
