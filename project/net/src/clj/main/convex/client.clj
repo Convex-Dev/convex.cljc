@@ -8,8 +8,8 @@
    Information from result can be extracted using:
 
    - [[error-code]]
-   - [[result]]
-   - [[trace]]"
+   - [[trace]]
+   - [[value]]"
 
   {:author "Adam Helinski"}
 
@@ -214,20 +214,6 @@
 
 
 
-(defn result
-
-  "Given a result dereferenced from a future, returns the actual value (a cell).
-
-   In case of error, this will be the error message (typically a CVM string)."
-
-  ^ACell
-
-  [^Result result]
-
-  (.getValue result))
-
-
-
 (defn trace
 
   "Given a result dereferenced rfom a future, returns the stacktrace (a CVM vector of CVM strings).
@@ -239,6 +225,20 @@
   [^Result result]
 
   (.getTrace result))
+
+
+
+(defn value 
+
+  "Given a result dereferenced from a future, returns its value (a cell).
+
+   In case of error, this will be the error message (typically a CVM string, although not necessarily)."
+
+  ^ACell
+
+  [^Result result]
+
+  (.getValue result))
 
 
 ;;;;;;;;;; Networking - Higher-level
@@ -259,10 +259,10 @@
                       Symbols/STAR_SEQUENCE)
                (reify Function
 
-                 (apply [_this res]
-                   (if-some [ec (error-code res)]
+                 (apply [_this result]
+                   (if-some [ec (error-code result)]
                      (throw (ex-info "Unable to fetch next sequence"
                                      {:convex.cell/address address
                                       :convex.error/code   ec
-                                      :convex.error/trace  (trace res)}))
-                     (inc (.longValue ^CVMLong (result res))))))))
+                                      :convex.error/trace  (trace result)}))
+                     (inc (.longValue ^CVMLong (value result))))))))

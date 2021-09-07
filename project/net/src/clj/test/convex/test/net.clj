@@ -158,7 +158,7 @@
                                  (-> ($.client/peer-status client)
                                      (deref 1000
                                             :timeout)
-                                     $.client/result
+                                     $.client/value
                                      last
                                      $.cell/hash<-blob))
                (deref 10000
@@ -174,7 +174,7 @@
                                ($.read/string "(def foo-query (+ 2 2))"))
                (deref 1000
                       :timeout)
-               $.client/result))
+               $.client/value))
         "Simple query")
 
   (T/is (= ($.cell/boolean false)
@@ -183,7 +183,7 @@
                                ($.read/string "(defined? foo-query)"))
                (deref 1000
                       :timeout)
-               $.client/result))
+               $.client/value))
         "State change in previous query has been reversed"))
 
 
@@ -205,7 +205,7 @@
                                                  ($.read/string "(def foo-transact (+ 2 2))")))
                (deref 1000
                       :timeout)
-               $.client/result))
+               $.client/value))
         "Def within a transaction")
 
   (T/is (= ($.cell/long 4)
@@ -216,5 +216,5 @@
                                                  ($.cell/symbol "foo-transact")))
                (deref 1000
                       :timeout)
-               $.client/result))
+               $.client/value))
         "Def persisted across transactions"))
