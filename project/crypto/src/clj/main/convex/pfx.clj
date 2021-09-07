@@ -110,6 +110,8 @@
 (defn key-pair-set
 
   "Adds the given `key-pair` to the `key-store`, protected by a mandatory `passphrase`.
+
+   Public key is used as `alias` if none is provided.
   
    See [[key-pair-set]]."
 
