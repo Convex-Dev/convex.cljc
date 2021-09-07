@@ -7,8 +7,6 @@
  []
 
 
- ;; Convex local jars are used instead of actual 0.7.0-rc4
- ;; Built from commit: d65cc05086fccdb19c4d4521f6f23c8b2b6cc1d3
 
 
  :maestro/doc

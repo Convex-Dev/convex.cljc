@@ -58,6 +58,9 @@
                       :use     (.put h
                                      Keywords/STATE
                                      (second state)))
+                    (some->> (:convex.server/bind option+)
+                             (.put h
+                                   Keywords/BIND_ADDRESS))
                     (some->> (:convex.server/controller option+)
                              (.put h
                                    Keywords/CONTROLLER))
@@ -70,9 +73,6 @@
                             (reify IServerEvent
                               (onServerChange [_this event]
                                 (hook event)))))
-                    (some->> (:convex.server/host option+)
-                             (.put h
-                                   Keywords/HOST))
                     (.put h
                           Keywords/KEYPAIR
                           keypair)
