@@ -1,6 +1,6 @@
 # Advanced tooling for Convex Lisp and the CVM
 
-This monorepo offers a variety of applications and libraries written in Clojure for working with the [Convex Virual Machine
+This monorepo offers a variety of applications and libraries written in Clojure for working with the [Convex Virtual Machine
 and Convex Lisp](https://github.com/Convex-Dev/convex).
 
 Overview of main folders in the [./project](./project) directory:

@@ -1,6 +1,15 @@
 (ns convex.client
 
-  ""
+  "Interacting with a peer via the binary protocol.
+
+   After creating a client with [[connect]], main interactions are [[query]] and [[transact]].
+
+   All IO functions return a future which ultimately resolves to a result received from the peer.
+   Information from result can be extracted using:
+
+   - [[error-code]]
+   - [[result]]
+   - [[trace]]"
 
   {:author "Adam Helinski"}
 
@@ -33,7 +42,9 @@
 
 (defn close
 
-  ""
+  "Closes the given `client`.
+  
+   See [[connect]]."
 
   [^Convex connection]
 
@@ -44,7 +55,15 @@
 
 (defn connect
 
-  ""
+  "Opens a new client connection to a peer using the binary protocol.
+  
+   An optional map may be provided:
+
+   | Key | Value | Default |
+   |---|---|---|
+   | `:convex.server/host` | Peer IP address | \"localhost\" |
+   | `:convex.server/port` | Peer port | 18888 |
+   "
 
 
   (^Convex []
@@ -67,7 +86,11 @@
 
 (defn connected?
 
-  ""
+  "Returns true if the given `client` is still connected.
+   
+   Attention. Currently, does not detect severed connections (eg. server shutting down).
+  
+   See [[close]]."
 
   [^Convex client]
 
@@ -79,7 +102,9 @@
 
 (defn peer-status
 
-  ""
+  "Advanced feature. The peer status is a vector of blobs which are hashes to data about the peer.
+   For instance, blob 4 is the hash of the state. That is how [[state]] works, retrieving the hash
+   from the peer status and then using [[resolve]]."
 
   ^CompletableFuture
 
@@ -91,7 +116,10 @@
 
 (defn resolve
 
-  ""
+  "Given a `hash` (see `convex.cell/hash` in `:project/cvm`), peer looks into its database and returns
+   the value it finds for that hash.
+  
+   Returns a future resolving to a result."
 
 
   (^CompletableFuture [^Convex client hash]
@@ -110,7 +138,12 @@
 
 (defn query
 
-  ""
+  "Performs a query, `cell` representing code to execute.
+  
+   Queries are a dry run: executed only by the peer, without consensus, and any state change is discarded.
+   They do not incur fees.
+  
+   Returns a future resolving to a result."
 
   ^CompletableFuture
 
@@ -124,7 +157,9 @@
 
 (defn state
 
-  ""
+  "Requests the currrent network state from the peer.
+
+   Returns a future resolving to a result."
 
   ^CompletableFuture
 
@@ -136,7 +171,16 @@
 
 (defn transact
 
-  ""
+  "Performs a transaction which is one of the following (from `:project/cvm`):
+
+   - `convex.cell/call` for an actor call
+   - `convex.cell/invoke` for executing code
+   - `convex.cell/transfer` for executing a transfer of Convex Coins
+
+   Transaction must be either pre-signed or a key pair must be provided (see `:project/crypto`).
+
+   It is important that transactions are created for the account matching the key pair and that the right
+   sequence number is used. See [[sequence]]."
 
 
   (^CompletableFuture [^Convex client ^SignedData signed-transaction]
@@ -157,7 +201,9 @@
 
 (defn error-code
 
-  ""
+  "Given a result dereferenced from a future, returns the error code (a cell, typically a CVM keyword).
+  
+   Returns nil if no error occured."
 
   ^ACell
 
@@ -169,7 +215,9 @@
 
 (defn result
 
-  ""
+  "Given a result dereferenced from a future, returns the actual value (a cell).
+
+   In case of error, this will be the error message (typically a CVM string)."
 
   ^ACell
 
@@ -181,7 +229,9 @@
 
 (defn trace
 
-  ""
+  "Given a result dereferenced rfom a future, returns the stacktrace (a CVM vector of CVM strings).
+  
+   Returns nil if no error occured."
 
   ^AVector
 
@@ -195,7 +245,11 @@
 
 (defn sequence
 
-  ""
+  "Uses [[query]] to retrieve the next sequence number required for a transaction.
+  
+   Eacht account has a sequence number which is incremented on each successful transaction to prevent replay
+   attacks. Providing a transaction (eg. `convex.cell/invoke` from `:project/cvm`) with a wrong sequence
+   number will fail."
 
   [^Convex client address]
 
