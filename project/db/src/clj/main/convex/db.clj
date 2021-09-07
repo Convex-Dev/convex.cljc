@@ -107,10 +107,11 @@
 
   "Closes the given `db`."
 
-  [^AStore db]
 
-  (.close db)
-  nil)
+  ([^AStore db]
+
+   (.close db)
+   nil))
 
 
 
@@ -120,12 +121,16 @@
   
    Does not work with in-memory instances."
 
-  ^EtchStore
 
-  [^EtchStore db]
+  (^EtchStore []
 
-  (.flush db)
-  db)
+   (flush ($.cvm.db/local)))
+
+
+  (^EtchStore [^EtchStore db]
+
+   (.flush db)
+   db))
 
 
 
@@ -135,9 +140,15 @@
   
    Does not work with in-memory instances."
 
-  [^EtchStore db]
 
-  (.getFileName db))
+  ([]
+
+   (path ($.cvm.db/local)))
+
+
+  ([^EtchStore db]
+
+   (.getFileName db)))
 
 
 ;;;;;;;;;; Reading
