@@ -177,7 +177,8 @@
    - `convex.cell/invoke` for executing code
    - `convex.cell/transfer` for executing a transfer of Convex Coins
 
-   Transaction must be either pre-signed or a key pair must be provided (see `:project/crypto`).
+   Transaction must be either pre-signed or a key pair must be provided (see `convex.sign` namespace from
+   `:project/crypto`).
 
    It is important that transactions are created for the account matching the key pair and that the right
    sequence number is used. See [[sequence]]."
