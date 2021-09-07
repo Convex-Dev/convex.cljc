@@ -139,19 +139,6 @@
 
 
 
-  ;; BUNDLES OF ALIASES
-
-
-  :bundle/cvx
-
-  {:maestro/doc     "Bundles aliases needed when developping Convex Lisp libraries"
-   :maestro/require [:project/break
-                     :project/clojurify
-                     :project/cvm]}
-
-
-
-
   ;; TOGGLES
 
 
@@ -174,8 +161,11 @@
    :maestro/require [:ext/test.check
                      :project/app.fuzz
                      :project/break
-                     :project/cvm
                      :project/clojurify
+                     :project/crypto
+                     :project/cvm
+                     :project/db
+                     :project/net
                      :project/run]
    :maestro/root    "project/all"}
 
@@ -214,6 +204,11 @@
    :maestro/require [:project/clojurify
                      :project/cvm]
    :maestro/root    "project/break"}
+
+
+  :dev/break
+
+  {:extra-paths ["project/break/src/clj/dev"]}
 
 
   :test/break

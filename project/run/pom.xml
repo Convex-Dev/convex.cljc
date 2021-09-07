@@ -39,8 +39,13 @@
     </dependency>
     <dependency>
       <groupId>world.convex</groupId>
-      <artifactId>cvm.clj</artifactId>
-      <version>0.0.0-alpha0</version>
+      <artifactId>convex-core</artifactId>
+      <version>0.7.0-rc4</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fzakaria</groupId>
+      <artifactId>slf4j-timbre</artifactId>
+      <version>0.3.21</version>
     </dependency>
   </dependencies>
   <repositories>

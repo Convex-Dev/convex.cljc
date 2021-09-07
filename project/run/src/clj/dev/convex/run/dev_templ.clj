@@ -1,5 +1,3 @@
-;; Meant to be copied as `dev.clj` and used privately for development.
-;;
 (ns convex.run.dev
 
   "Daydreaming at the REPL."
@@ -10,6 +8,7 @@
   (:require [clojure.pprint]
             [convex.cell      :as $.cell]
             [convex.cvm       :as $.cvm]
+            [convex.read      :as $.read]
             [convex.run       :as $.run]
             [convex.run.ctx   :as $.run.ctx]
             [convex.run.err   :as $.run.err]
