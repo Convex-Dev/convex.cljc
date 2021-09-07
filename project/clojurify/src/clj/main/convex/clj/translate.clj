@@ -176,17 +176,3 @@
           .toString
           $.read/string
           clojure.core.protocols/datafy)))
-
-
-;;;;;;;;;; Converting Convex -> EDN
-
-
-(defn cvx->edn
-
-  "Translates Convex data into an EDN string
-  
-   Attention, the EDN representations of Convex objects are currently lacking and unstable."
-  
-  [^convex.core.data.ACell form]
-
-  (.ednString form))

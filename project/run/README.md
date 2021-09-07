@@ -46,6 +46,13 @@ In the grand tradition of Lisp languages, the runner is self-documented. REPL in
 by running `($/help)` which takes the lead from there, informs about available features and how to query
 more help for those features and everything else.
 
+This application is also provided as a library in case it needs to be embedded. Then, only the main function
+is really useful:
+
+```clojure
+($.run/-main "($.stream/out (+ 2 2))")
+```
+
 
 ## Improved REPL experience
 

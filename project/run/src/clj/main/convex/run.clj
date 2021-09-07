@@ -2,6 +2,9 @@
 
   "Convex Lisp Runner.
 
+   This is a whole application. It is available as a library in case it needs to be embedded. Then, only [[-main]] is really
+   useful.
+
    Executes each form as a transaction, moving from transaction to transaction.
 
    A transaction can return a request to perform operations beyond the scope of the CVM, such as file IO or
@@ -115,7 +118,11 @@
 
   "Reads and executes transactions.
   
-   If no transaction is provided, starts the REPL."
+   If no transaction is provided, starts the REPL.
+  
+   ```clojure
+   (-main \"($.stream/out (+ 2 2))\")
+   ```"
 
   [& trx+]
 

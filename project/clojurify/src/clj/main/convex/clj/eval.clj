@@ -8,7 +8,7 @@
 
    Primarily useful for dev and testing.
 
-   Given context is always forked, meaning the argument is left intact. See [[convex.cvm/fork]]."
+   Given context is always forked, meaning the argument is left intact. See `convex.cvm/fork` from `:project/cvm`."
 
   {:author "Adam Helinski"}
 
@@ -94,7 +94,7 @@
 
   "Like [[exception]] but returns an exception only if it matches the given `code`.
   
-   See [[convex.cell/code-std*]]."
+   See `convex.cell/code-std*` from `:project/cvm`."
 
   
   ([code form]
@@ -127,7 +127,7 @@
 
 (defmacro code*
 
-  "Note: if `code` is a keyword, it is passed to [[convex.cell/code-std*]]."
+  "Note: if `code` is a keyword, it is passed to `convex.cell/code-std*` from `:project/cvm`."
 
   ([code form]
 
@@ -165,7 +165,7 @@
 
 (defmacro code?*
 
-  "Note: if `code` is a keyword, it is passed to [[convex.cell/code-std*]]."
+  "Note: if `code` is a keyword, it is passed to `convex.cell/code-std*` from `:project/cvm`."
 
   ([code form]
 

@@ -1,6 +1,6 @@
 (ns convex.cell
 
-  "Constructors for CVX cells and related type predicate functions."
+  "Constructors for CVM cells and related type predicate functions."
 
   {:author "Adam Helinski"}
 
@@ -78,7 +78,7 @@
 
 (defn address
 
-  "Creates a CVX address from a long."
+  "Creates a CVM address from a long."
 
   ^Address
 
@@ -90,7 +90,7 @@
 
 (defn blob
 
-  "Creates a CVX blob from a byte array."
+  "Creates a CVM blob from a byte array."
 
   ^Blob
 
@@ -102,7 +102,7 @@
 
 (defn blob<-hex
 
-  "Creates a CVX blob from a hex string."
+  "Creates a CVM blob from a hex string."
 
   ^Blob
 
@@ -114,7 +114,7 @@
 
 (defn boolean
 
-  "Creates a CVX boolean given a falsy or truthy value."
+  "Creates a CVM boolean given a falsy or truthy value."
 
   ^CVMBool
   
@@ -126,7 +126,7 @@
 
 (defn byte
 
-  "Creates a CVX byte from a value between 0 and 255 inclusive."
+  "Creates a CVM byte from a value between 0 and 255 inclusive."
 
   ^CVMByte
 
@@ -236,7 +236,7 @@
 
 (defn char
 
-  "Creates a CVX character from a regular character."
+  "Creates a CVM character from a regular character."
 
   ^CVMChar
 
@@ -248,7 +248,7 @@
 
 (defn double
 
-  "Creates a CVX double."
+  "Creates a CVM double."
 
   ^CVMDouble
 
@@ -348,7 +348,7 @@
 
 (defn keyword
 
-  "Creates a CVX keyword from a string."
+  "Creates a CVM keyword from a string."
 
   ^Keyword
 
@@ -364,8 +364,8 @@
   
     "An error value as Convex data.
 
-     `code` is often a CVX keyword (`:ASSERT` by default), `message` could be any CVX value (albeit often a human-readable
-     string), and `trace` is an optional stacktrace (CVX vector of CVX strings)."
+     `code` is often a CVM keyword (`:ASSERT` by default), `message` could be any CVM value (albeit often a human-readable
+     string), and `trace` is an optional stacktrace (CVM vector of CVM strings)."
   
   
     ([message]
@@ -390,7 +390,7 @@
 
 (defn list
 
-  "Creates a CVX list from a collection of CVX items."
+  "Creates a CVM list from a collection of CVM items."
 
 
   (^AList []
@@ -406,7 +406,7 @@
 
 (defn long
 
-  "Creates a CVX long."
+  "Creates a CVM long."
 
   ^CVMLong
 
@@ -418,7 +418,7 @@
 
 (defn map
 
-  "Creates a CVX map from a collection of `[key value]`."
+  "Creates a CVM map from a collection of `[key value]`."
 
 
   (^AMap []
@@ -437,7 +437,7 @@
 
 (defn set
 
-  "Creates a CVX set from a collection of CVX items."
+  "Creates a CVM set from a collection of CVM items."
 
 
   (^ASet []
@@ -453,7 +453,7 @@
 
 (defn string
 
-  "Creates a CVX string from a regular string."
+  "Creates a CVM string from a regular string."
 
   ^AString
 
@@ -465,7 +465,7 @@
 
 (defn symbol
 
-  "Creates a CVX symbol from a string."
+  "Creates a CVM symbol from a string."
 
   ^Symbol
 
@@ -492,7 +492,7 @@
 
 (defn vector
 
-  "Creates a CVX vector from a collection of CVX items."
+  "Creates a CVM vector from a collection of CVM items."
 
 
   (^AVector []
@@ -533,7 +533,7 @@
 
 (defn boolean?
 
-  "Is `x` a CVX boolean?"
+  "Is `x` a CVM boolean?"
 
   [x]
 
@@ -544,7 +544,7 @@
 
 (defn byte?
 
-  "Is `x` a CVX byte?"
+  "Is `x` a CVM byte?"
 
   [x]
 
@@ -555,7 +555,7 @@
 
 (defn char?
 
-  "Is `x` a CVX char?"
+  "Is `x` a CVM char?"
 
   [x]
 
@@ -578,7 +578,7 @@
 
 (defn double?
 
-  "Is `x` a CVX double?"
+  "Is `x` a CVM double?"
 
   [x]
 
@@ -589,7 +589,7 @@
 
 (defn keyword?
 
-  "Is `x` a CVX keyword?"
+  "Is `x` a CVM keyword?"
 
   [x]
 
@@ -600,7 +600,7 @@
 
 (defn list?
 
-  "Is `x` a CVX list?"
+  "Is `x` a CVM list?"
 
   [x]
 
@@ -611,7 +611,7 @@
 
 (defn long?
 
-  "Is `x` a CVX long?"
+  "Is `x` a CVM long?"
 
   [x]
 
@@ -622,7 +622,7 @@
 
 (defn map?
 
-  "Is `x` a CVX map?"
+  "Is `x` a CVM map?"
 
   [x]
 
@@ -633,7 +633,7 @@
 
 (defn set?
 
-  "Is `x` a CVX set?"
+  "Is `x` a CVM set?"
 
   [x]
 
@@ -644,7 +644,7 @@
 
 (defn string?
 
-  "Is `x` a CVX string?"
+  "Is `x` a CVM string?"
 
   [x]
 
@@ -655,7 +655,7 @@
 
 (defn symbol?
 
-  "Is `x` a CVX symbol?"
+  "Is `x` a CVM symbol?"
 
   [x]
 
@@ -666,7 +666,7 @@
 
 (defn vector?
 
-  "Is `x` a CVX vector?"
+  "Is `x` a CVM vector?"
 
   [x]
 
