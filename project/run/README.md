@@ -2,7 +2,7 @@
 
 [![Clojars](https://img.shields.io/clojars/v/world.convex/run.clj.svg)](https://clojars.org/world.convex/run.clj)
 [![cljdoc](https://cljdoc.org/badge/world.convex/run.clj)](https://cljdoc.org/d/world.convex/cvm.clj/CURRENT)
-[Lastest downloads](https://github.com/Convex-Dev/convex.cljc/releases/tag/run%2F0.0.0-alpha1)
+[Latest downloads](https://github.com/Convex-Dev/convex.cljc/releases/tag/run%2F0.0.0-alpha2)
 
 Convex Lisp Runner.
 
