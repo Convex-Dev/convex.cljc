@@ -15,8 +15,15 @@ All notable changes to this project will be documented in this file.
 ### Removed
 
 
+## [0.0.0-alpha1] - 2021-09-10
 
-## 0.0.0-alpha0 - 2021-08-21
+### Changed
+
+- Upgraded to `:project/cvm` 0.0.0-alpha1
+
+
+
+## [0.0.0-alpha0] - 2021-08-21
 
 ### Added
 
@@ -30,5 +37,6 @@ All notable changes to this project will be documented in this file.
 
 
 
-[Unreleased]:  https://github.com/helins/convex.lisp.cljc/compare/clojurify/0.0.0-alpha0...HEAD
+[Unreleased]:  https://github.com/helins/convex.lisp.cljc/compare/clojurify/0.0.0-alpha1...HEAD
+[0.0.0-alpha1]:  https://github.com/helins/convex.lisp.cljc/compare/clojurify/0.0.0-alpha0...clojurify/0.0.0-alpha1
 [0.0.0-alpha0]: https://github.com/helins/convex.lisp.cljc/releases/tag/clojurify/0.0.0-alpha0

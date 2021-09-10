@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>world.convex</groupId>
   <artifactId>clojurify.clj</artifactId>
-  <version>0.0.0-alpha0</version>
+  <version>0.0.0-alpha1</version>
   <name>Clojurify</name>
   <description>Translation between Convex Lisp and Clojure</description>
   <url>https://github.com/Convex-Dev/convex.cljc/tree/main/project/clojurify</url>
@@ -40,7 +40,7 @@
     <dependency>
       <groupId>world.convex</groupId>
       <artifactId>cvm.clj</artifactId>
-      <version>0.0.0-alpha0</version>
+      <version>0.0.0-alpha1</version>
     </dependency>
   </dependencies>
   <repositories>
