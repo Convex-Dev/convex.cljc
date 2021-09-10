@@ -1,5 +1,8 @@
 # `:project/net`
 
+[![Clojars](https://img.shields.io/clojars/v/world.convex/net.clj.svg)](https://clojars.org/world.convex/net.clj)
+[![cljdoc](https://cljdoc.org/badge/world.convex/net.clj)](https://cljdoc.org/d/world.convex/net.clj/CURRENT)
+
 This project hosts network utilities for:
 
 - Communicating with peers via the binary protocol they speak (eg. submit transactions)
