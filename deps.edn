@@ -351,11 +351,11 @@
 
   {:extra-paths     ["project/run/src/clj/dev"
                      "project/run/src/cvx/dev"]
-   :maestro/require [:toggle/tap]}}
+   :maestro/require [:toggle/tap]}
 
 
   :release/run
 
-  {:extra-deps         {world.convex/run.clj "0.0.0-alpha0"}
+  {:extra-deps         {world.convex/run.clj {:mvn/version "0.0.0-alpha2"}}
    :maestro/main-class convex.run
-   :maestro/root       "project/run"}}
+   :maestro/root       "project/run"}}}
