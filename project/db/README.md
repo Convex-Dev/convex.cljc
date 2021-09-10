@@ -1,5 +1,8 @@
 # `:project/db`
 
+[![Clojars](https://img.shields.io/clojars/v/world.convex/db.clj.svg)](https://clojars.org/world.convex/db.clj)
+[![cljdoc](https://cljdoc.org/badge/world.convex/db.clj)](https://cljdoc.org/d/world.convex/db.clj/CURRENT)
+
 Peers use the Etch database, an immutable database specially crafted for efficiently storing cells. While a database can sometimes
 be provided in options (eg. when creating a peer server in [`:project/net`](../net)), such as database is also useful for other
 endeavours. It is fast by leveraging memory-mapped IO.

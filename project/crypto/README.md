@@ -6,7 +6,7 @@
 Crypto utilities. Especially needed when interacting with a network, either as a client or as a peer.
 
 
-## Digital signature
+## Digital signatures
 
 Namespace `convex.sign` provides Ed25519 key pair generation and signing. For instance, transactions must be signed
 by an account using its key pair.
