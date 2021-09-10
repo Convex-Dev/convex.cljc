@@ -8,6 +8,18 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+
+
+## [0.0.0-alpha1] - 2021-09-10
+
+### Added
+
 - Creating transactions
     - `$.cell/call`
     - `$.cell/invoke`
@@ -24,10 +36,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Depends on Java `convex-core/0.7.0-rc2`
+- Depends on Java `convex-core/0.7.0`
 - Move form building from `$.cell` to new namespace `$.form`
-
-### Fixed
 
 ### Removed
 
@@ -36,7 +46,7 @@ All notable changes to this project will be documented in this file.
 
 
 
-## 0.0.0-alpha0 - 2021-08-21
+## [0.0.0-alpha0] - 2021-08-21
 
 ### Added
 
@@ -49,5 +59,6 @@ All notable changes to this project will be documented in this file.
 
 
 
-[Unreleased]:  https://github.com/helins/convex.lisp.cljc/compare/cvm/0.0.0-alpha0...HEAD
+[Unreleased]:  https://github.com/helins/convex.lisp.cljc/compare/cvm/0.0.0-alpha1...HEAD
+[0.0.0-alpha1]:  https://github.com/helins/convex.lisp.cljc/compare/cvm/0.0.0-alpha0...cvm/0.0.0-alpha1
 [0.0.0-alpha0]: https://github.com/helins/convex.lisp.cljc/releases/tag/cvm/0.0.0-alpha0

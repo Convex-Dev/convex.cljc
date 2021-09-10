@@ -259,7 +259,8 @@
   :test/crypto
 
   {:extra-paths     ["project/crypto/src/clj/test"]
-   :maestro/require [:project/cvm]}
+   :maestro/require [{default :project/cvm
+                      release :release/cvm}]}
 
   ;---
 
@@ -278,7 +279,7 @@
 
   :release/cvm
 
-  {:extra-deps {world.convex/cvm.clj {:mvn/version "0.0.0-alpha0"}}}
+  {:extra-deps {world.convex/cvm.clj {:mvn/version "0.0.0-alpha1"}}}
 
 
   :test/cvm
