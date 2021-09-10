@@ -1,7 +1,10 @@
 # Advanced tooling for Convex Lisp and the CVM
 
-This monorepo offers a variety of applications and libraries written in Clojure for working with the [Convex Virtual Machine
-and Convex Lisp](https://github.com/Convex-Dev/convex).
+This monorepo hosts a variety of applications and libraries written in Clojure providing access to all aspects of the [Convex stack](https://github.com/Convex-Dev/convex)
+with additional capabilities à la carte.
+
+Since some key aspects of [Convex](https://convex.world/) have been modeled on Clojure constructs. Hence, there is no surprise in realizing that both form a unique and perfect
+match. Even without having any interest in blockchain, it is still worth exploring features offered by this repository such as the immutable [Etch database](./project/db).
 
 Overview of main folders in the [./project](./project) directory:
 
