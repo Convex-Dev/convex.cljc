@@ -174,3 +174,75 @@ the public key of the key pair generated for the new account as a 32-byte blob.
 
 - Create a new account through the [sandbox](https://convex.world/sandbox) and transact `(set-key KEY)`
 - Same but through the [REST API](https://convex.world/rest-api/create-an-account)
+
+
+## Running a peer
+
+Namespace `convex.server` hosts utilities for running peers. The API describes many options depending on the exact requirements.
+Following examples are minimalistic, more aspects can be configured.
+
+When a peer issues a block of transactions for consensus, this block must be digitally signed. This is why providing a key pair
+at server creation is mandatory.
+
+By default, the database used by peers is a temporary one. If state must be persisted across restarts, a stable database can
+be provided in options when creating the server. See [`:project/db`](../db).
+
+```clojure
+(def db
+     ($.db/open "my_db.etch"))
+```
+
+
+### Locally in isolation
+
+In this example, a genesis state representing the network state is created automatically as well as a peer and
+account `#12` controlling that peer. A genesis state does not contain much besides official libraries and actors.
+
+```clojure
+(def server
+     (-> ($.server/create key-pair
+                          {:convex.server/db db})
+         $.server/start))
+```
+
+Transactions can be run under account `#12` with this `key-pair` via the binary client. From there, other accounts can be
+created, and so on.
+
+
+### Syncing with a remote peer
+
+The easiest way to get started with remote syncing is to connect to the current Convex test network on [convex.world](https://convex.world).
+More experienced users can try running several local peers and syncing them together, the process is ultimately the same.
+
+First, peer must be declared on that remote network, otherwise it will be unresponsive. Steps are described [in this guide](https://convex.world/cvm/peer-operations).
+
+In the previous example, a genesis state was created by default. Several options exists for providing an initial state and
+this example uses peer syncing. When creating the server, state is retrieved from the specified remote peer. Then, when starting the server,
+it connects to that remote so that it can participate in the network.
+
+```clojure
+(def server
+     (-> ($.server/create key-pair
+                          {:convex.server/db    db
+                           :convex.server/bind  "0.0.0.0"
+                           :convex.server/state [:sync
+                                                 {:convex.server/host "convex.world"}]
+                           :convex.server/url   "$PUBLIC-IP:18888"
+                           })
+         $.server/start))
+```
+
+A bind address `"0.0.0.0"` is explicitly provided because it is usually the easiest way for making the server available to the outside.
+Default port is always `18888`. A URL is also specified where `$PUBLIC-ÏP` should be the IP address other peers can use to join your server.
+This URL is stored on-chain using `(set-peer-data ...)` as described [in this guide](https://convex.world/cvm/peer-operations). Ultimately,
+this usually involves some port mapping in your router to ensure that any client/peer connecting to this URL actually connects to your peer.
+
+If the URL is not provided or is not accessible, your peer will not receive broadcasts from other peers and will not be able to take active part
+in the consensus. However, it will keep its state pretty much up-to-date by polling peers whose URL is accessible.
+
+In order to see debug log messages (very useful when learning about peers), set the [Timbre](https://github.com/ptaoussanis/timbre) log level
+via this env variable:
+
+```clojure
+TIMBRE_LEVEL=':debug'
+```

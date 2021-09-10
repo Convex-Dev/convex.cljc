@@ -44,7 +44,7 @@
    | `:convex.server/n-peer` | Maximum number of other peers this one should broadcast to | `20` |
    | `:convex.server/persist-at-stop? | True if peer data should be persisted in DB when stopped | `false` |
    | `:convex.server/port` | Port | `18888` |
-   | `:convex.server/url | URL of this peer (string) that will be registered on chain | / |
+   | `:convex.server/url | URL of this peer (string) that will be registered on chain | Not set |
 
    The URL, if given, is stored on-chain so that other peers can use it to broadcast beliefs and state updates.
    It is typically different from `:convex.server/bind` and `:convex.server/port`. For instance, `convex.world`
