@@ -151,6 +151,24 @@
 ;;;;;;;;;; Lifecycle
 
 
+(defn persist
+
+  "Persists peer data at the root of the server's database.
+
+   Persisted data can be recovered when creating a server with the same database (see `:convex.server/state`
+   option in [[create]]).
+  
+   Returns server."
+
+  ^Server
+
+  [^Server server]
+
+  (.persistPeerData server)
+  server)
+
+
+
 (defn start
 
   "Starts `server` created in [[create]].

@@ -121,6 +121,14 @@
 
 
 
+(T/deftest persist
+
+  (T/is (do
+          ($.server/persist server)
+          (some? ($.db/read-root db)))))
+
+
+
 (T/deftest port-
 
   (T/is (= port
