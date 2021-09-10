@@ -1,5 +1,8 @@
 # `:project/crypto`
 
+[![Clojars](https://img.shields.io/clojars/v/world.convex/crypto.clj.svg)](https://clojars.org/world.convex/crypto.clj)
+[![cljdoc](https://cljdoc.org/badge/world.convex/crypto.clj)](https://cljdoc.org/d/world.convex/crypto.clj/CURRENT)
+
 Crypto utilities. Especially needed when interacting with a network, either as a client or as a peer.
 
 

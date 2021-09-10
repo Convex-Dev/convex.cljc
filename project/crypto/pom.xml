@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>world.convex</groupId>
+  <artifactId>crypto.clj</artifactId>
+  <version>0.0.0-alpha0</version>
+  <name>Crypto utilities for Convex</name>
+  <description>Key pair creation and management</description>
+  <url>https://github.com/Convex-Dev/convex.cljc/tree/main/project/crypto</url>
+  <licenses>
+    <license>
+      <name>Apache License 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <name>Adam Helinski</name>
+      <email>adam@helins.io</email>
+      <url>http://www.helins.io</url>
+    </developer>
+  </developers>
+  <scm>
+    <url>https://github.com/convex-dev/convex.cljc</url>
+    <connection>scm:git:git://github.com/convex-dev/convex.cljc.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/convex-dev/convex.cljc.git</developerConnection>
+    <tag>HEAD</tag>
+  </scm>
+  <dependencies>
+    <dependency>
+      <groupId>org.clojure</groupId>
+      <artifactId>clojure</artifactId>
+      <version>1.10.3</version>
+    </dependency>
+    <dependency>
+      <groupId>world.convex</groupId>
+      <artifactId>convex-core</artifactId>
+      <version>0.7.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fzakaria</groupId>
+      <artifactId>slf4j-timbre</artifactId>
+      <version>0.3.21</version>
+    </dependency>
+  </dependencies>
+  <repositories>
+    <repository>
+      <id>clojars</id>
+      <url>https://repo.clojars.org/</url>
+    </repository>
+  </repositories>
+  <distributionManagement>
+    <repository>
+      <id>clojars</id>
+      <name>Clojars repository</name>
+      <url>https://clojars.org/repo</url>
+    </repository>
+  </distributionManagement>
+</project>

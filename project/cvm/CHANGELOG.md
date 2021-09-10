@@ -50,7 +50,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- FIrst API iteration
+- First API iteration
     - Cell constructors and type predicate functions
     - Executing CVX code, handling CVM contextes
     - Converting CVX source into cells in various ways

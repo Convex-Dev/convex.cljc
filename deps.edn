@@ -256,6 +256,11 @@
   {:extra-paths ["project/crypto/src/clj/dev"]}
 
 
+  :release/crypto
+
+  {:extra-deps {world.convex/crypto.clj {:mvn/version "0.0.0-alpha0"}}}
+
+
   :test/crypto
 
   {:extra-paths     ["project/crypto/src/clj/test"]
