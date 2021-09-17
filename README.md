@@ -1,4 +1,4 @@
-# Advanced tooling for Convex Lisp and the CVM
+# Any aspect of the Convex stack
 
 This monorepo hosts a variety of applications and libraries written in Clojure providing access to all aspects of the [Convex stack](https://github.com/Convex-Dev/convex)
 with additional capabilities à la carte.
