@@ -155,7 +155,8 @@
 
   :project/all
 
-  {:extra-paths     ["project/all/src/clj/dev"]
+  {:extra-paths     ["project/all/src/clj/dev"
+                     "project/all/src/clj/main"]
    :maestro/dev+    [:project/all]
    :maestro/doc     "Dev environment requiring all useful namespaces from this repository"
    :maestro/require [:ext/test.check
