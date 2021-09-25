@@ -19,7 +19,7 @@
 
 
 (def kp
-     ($.sign/ed25519-gen))
+     ($.sign/ed25519))
 
 
 

@@ -8,7 +8,12 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Create Ed25519 key pairs from seed
+- Retrieve seed of key pair
+
 ### Changed
+
+- All Ed25519 creation functions combined into `$.sign/ed25519`
 
 ### Fixed
 

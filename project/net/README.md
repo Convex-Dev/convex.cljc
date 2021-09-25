@@ -29,7 +29,7 @@ Creating a key pair for below examples:
 
 ```clojure
 (def key-pair
-     ($.sign/ed25519-gen))
+     ($.sign/ed25519))
 ```
 
 Account key (cell representing the public key of the key pair) can be retrieved using:

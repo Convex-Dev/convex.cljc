@@ -13,7 +13,7 @@ by an account using its key pair.
 
 ```clojure
 (def key-pair
-     ($.sign/ed25519-gen))
+     ($.sign/ed25519))
 
 
 ;; Sometimes, only the account key is needed (public key as a CVM cell).

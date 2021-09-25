@@ -25,12 +25,19 @@
 ;;;;;;;;;; Creating key pairs
 
 
-(defn ed25519-from
+(defn ed25519
 
-  "Creates an Ed25519 key-pair from either:
-  
-   - 32-byte blob representing a seed (same seed -> same key pair)
-   - `java.security.PublicKey` and a `java.security.PrivateKey`"
+  "Creates an Ed25519 key pair.
+
+   It is generated from a [[seed]], a 32-byte blob. If not given, one is generated randomly.
+
+   Alternatively, a [[public-key]] and a [[private-key]] retrieved from an existing key pair can
+   be provided."
+
+
+  (^AKeyPair []
+
+   (Ed25519KeyPair/generate))
 
 
   (^AKeyPair [^Blob seed]
@@ -42,18 +49,6 @@
 
    (Ed25519KeyPair/create key-public
                           key-private)))
-
-
-
-(defn ed25519-gen
-
-  "Generates an Ed25519 key pair randomly."
-
-  ^AKeyPair
-
-  []
-
-  (Ed25519KeyPair/generate))
 
 
 ;;;;;;;;;; Retrieving keys from key pairs
