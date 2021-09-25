@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 
 - Create Ed25519 key pairs from seed
 - Retrieve seed of key pair
+- Get public key as hex-string
 
 ### Changed
 

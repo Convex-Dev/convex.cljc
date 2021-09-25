@@ -29,6 +29,14 @@
 
 
 
+(T/deftest hex-string
+
+  (T/is (= (.substring (str ($.sign/account-key kp))
+                       2)
+           ($.sign/hex-string kp))))
+
+
+
 (T/deftest keys
 
   (T/is (= kp

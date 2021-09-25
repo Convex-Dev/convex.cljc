@@ -68,6 +68,19 @@
 
 
 
+(defn hex-string
+
+  "Returns the public key of the given `key-pair` as a hex-string (64-char string where each pair of 
+   chars represents a byte in hexadecimal)."
+
+  [^AKeyPair key-pair]
+
+  (-> key-pair
+      account-key
+      .toHexString))
+
+
+
 (defn key-private
 
   "Returns the `java.security.PrivateKey` of the given `key-pair`."
