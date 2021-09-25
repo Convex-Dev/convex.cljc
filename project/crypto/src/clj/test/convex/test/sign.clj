@@ -31,9 +31,18 @@
 
 (T/deftest keys
 
+
   (T/is (= kp
            ($.sign/ed25519-from ($.sign/key-public kp)
-                                ($.sign/key-private kp)))))
+                                ($.sign/key-private kp)))
+        "Extract pub and priv keys and recreate key pair"))
+
+
+
+(T/deftest seed
+
+  (T/is (= kp
+           ($.sign/ed25519-from ($.sign/seed kp)))))
 
 
 

@@ -12,6 +12,7 @@
                                Ed25519KeyPair)
            (convex.core.data AccountKey
                              ACell
+                             Blob
                              SignedData)
            (java.security PrivateKey
                           PublicKey)))
@@ -26,14 +27,21 @@
 
 (defn ed25519-from
 
-  "Creates an Ed25519 key-pair from a given `java.security.PublicKey` and a `java.security.PrivateKey`."
+  "Creates an Ed25519 key-pair from either:
+  
+   - 32-byte blob representing a seed (same seed -> same key pair)
+   - `java.security.PublicKey` and a `java.security.PrivateKey`"
 
-  ^AKeyPair
 
-  [^PublicKey key-public ^PrivateKey key-private]
+  (^AKeyPair [^Blob seed]
 
-  (Ed25519KeyPair/create key-public
-                         key-private))
+   (Ed25519KeyPair/create seed))
+
+
+  (^AKeyPair [^PublicKey key-public ^PrivateKey key-private]
+
+   (Ed25519KeyPair/create key-public
+                          key-private)))
 
 
 
@@ -86,6 +94,18 @@
   [^AKeyPair key-pair]
 
   (.getPublic key-pair))
+
+
+
+(defn seed
+
+  "Returns the seed of"
+
+  ^Blob
+
+  [^AKeyPair key-pair]
+
+  (.getSeed key-pair))
 
 
 ;;;;;;;;;; Using key pairs
