@@ -38,7 +38,7 @@
   "If peer has already been declared, then an EDN file should exit in `dir`.
   
    When not found, a new account with a 100 million coins is created using the `convex.world` REST API
-   (see `convex.recipe.rest`)
+   (see `convex.recipe.rest`). We could use any account but since we do not own one, it must be created.
   
    Then, a new peer is registered on the network by using that account to issue a transaction on the network.
    Transaction call the Convex Lisp function `create-peer`, specifies the public key, and stake 50 millions coins
