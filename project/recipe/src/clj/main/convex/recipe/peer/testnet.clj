@@ -1,4 +1,4 @@
-(ns convex.recipe.peer
+(ns convex.recipe.peer.testnet
 
   "This example creates a peer connected to the current test network.
 
@@ -17,50 +17,17 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clj-http.client   :as http]
-            [clojure.data.json :as json]
-            [clojure.edn       :as edn]
-            [convex.cell       :as $.cell]
-            [convex.client     :as $.client]
-            [convex.db         :as $.db]
-            [convex.form       :as $.form]
-            [convex.pfx        :as $.pfx]
-            [convex.read       :as $.read]
-            [convex.server     :as $.server]
-            [convex.sign       :as $.sign]))
-
-
-;;;;;;;;;; Handling the key pair used by the peer and its controller account
-
-
-(defn key-pair
-
-  "Tries to load the key pair from a file in `dir`.
-
-   When not found, generates a key pair and saves it in a new file. A real application might involve more sophisticated error handling.
-
-   Returns the key pair.
-  
-   API for handling key pairs and saving them in PFX files: https://cljdoc.org/d/world.convex/crypto.clj/0.0.0-alpha0/api/convex"
-
-  [dir]
-
-  (let [file-key-store (str dir
-                            "/keystore.pfx")]
-    (try
-
-      ($.pfx/key-pair-get ($.pfx/load file-key-store)
-                          "my-peer"
-                          "my-password")
-
-      (catch Throwable _ex
-        (let [key-pair ($.sign/ed25519)]
-          (-> ($.pfx/create file-key-store)
-              ($.pfx/key-pair-set "my-peer"
-                                  key-pair
-                                  "my-password")
-              ($.pfx/save file-key-store))
-          key-pair)))))
+  (:require [clj-http.client        :as http]
+            [clojure.data.json      :as json]
+            [clojure.edn            :as edn]
+            [convex.cell            :as $.cell]
+            [convex.client          :as $.client]
+            [convex.db              :as $.db]
+            [convex.form            :as $.form]
+            [convex.read            :as $.read]
+            [convex.recipe.key-pair :as $.recipe.key-pair]
+            [convex.server          :as $.server]
+            [convex.sign            :as $.sign]))
 
 
 ;;;;;;;;;; Creating a new controller account for the peer and declaring the peer on the network
@@ -189,7 +156,10 @@
 
   "Creates a new server.
 
-   A map of additional server options may be provided (see API).
+   Takes care of generating a key pair, creating a controller account, and declaring the peer on the network
+   if needed. See above utilities.
+
+   A map of additional server options may be provided (see API and below).
 
    API for peer servers: https://cljdoc.org/d/world.convex/net.clj/0.0.0-alpha0/api/convex.server"
 
@@ -202,9 +172,13 @@
 
   ([dir option+]
 
-   (let [kp (key-pair dir)]
+   ;; To retrieve the key pair from a file (or generate it in the first place), we reuse the
+   ;; recipe from `convex.recipe.key-pair`.
+   ;;
+   (let [kp ($.recipe.key-pair/retrieve dir)]
      ;;
-     ;; Ensures a peer associated with the owned key pair has been declared on the network.
+     ;; Ensures a peer associated with the owned key pair has been declared on the network by its
+     ;; controller account.
      ;;
      (controller dir
                  kp)
@@ -250,7 +224,7 @@
          (server dir
                  {:convex.server/host "0.0.0.0"
                   :convex.server/port 18888
-                  :convex.server/url "MY_PUBLIC_IP:18888"})))
+                  :convex.server/url  "MY_PUBLIC_IP:18888"})))
 
 
   ;; Starts the server.
