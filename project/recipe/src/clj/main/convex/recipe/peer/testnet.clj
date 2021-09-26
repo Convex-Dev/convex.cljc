@@ -8,146 +8,71 @@
    - Creating a \"controller\" account for the peer and use it to declare a new peer on the network
 
    Embedding a peer server in an application has some interesting advantages. For instance, having direct access
-   to its database.
+   to its database. For instance, `convex.world` is a Clojure application embedding a peer: https://convex.world/
 
-   For instance, `convex.world` is a Clojure application embedding a peer: https://convex.world/
+   API: https://cljdoc.org/d/world.convex/net.clj/0.0.0-alpha0/api/convex.server
+   More information about peer operations: https://convex.world/cvm/peer-operations
   
    <!> When launching the REPL, set the environment variable 'TIMBRE_LEVEL=:debug'.
        This will log everything that happens on the peer, such as seeing new data arrive, which is interesting."
 
   {:author "Adam Helinski"}
 
-  (:require [clj-http.client        :as http]
-            [clojure.data.json      :as json]
-            [clojure.edn            :as edn]
-            [convex.cell            :as $.cell]
+  (:import (java.io File))
+  (:require [convex.cell            :as $.cell]
             [convex.client          :as $.client]
             [convex.db              :as $.db]
             [convex.form            :as $.form]
             [convex.read            :as $.read]
             [convex.recipe.key-pair :as $.recipe.key-pair]
+            [convex.recipe.rest     :as $.recipe.rest]
             [convex.server          :as $.server]
             [convex.sign            :as $.sign]))
 
 
-;;;;;;;;;; Creating a new controller account for the peer and declaring the peer on the network
+;;;;;;;;;; Peer must be declared and staked on the network
 
 
-(defn declare-peer
+(defn ensure-declared
 
-  "Any new peer must be declared on the network using the `create-peer` Convex Lisp function in a
-   transaction.
-
-   Account that signs this transaction become the \"controller\" of the peer. Currently, both must
-   share the same key pair.
-
-   More information about peer operations: https://convex.world/cvm/peer-operations
-
-   API for clients: https://cljdoc.org/d/world.convex/net.clj/0.0.0-alpha0/api/convex.client
-
-   API for creating cells and transactions: https://cljdoc.org/d/world.convex/cvm.clj/0.0.0-alpha1/api/convex"
-
-  [key-pair address]
-
-  ;; Client to `convex.world` is created to transact the creating of the peer.
-  ;;
-  ;; We know the account is brand new (see [[create-account]]).
-  ;; It has 100000000 coins, we stake half of it on the peer to give it weight during consensus (must be > 0).
-  ;; We know it is the first transaction of this account, hence a sequence number of 1 is provided for that transaction.
-
-  (let [client ($.client/connect {:convex.server/host "convex.world"
-                                  :convex.server/port 18888})]
-    (try
-
-      (deref ($.client/transact client
-                                key-pair
-                                ($.cell/invoke address
-                                               1
-                                               ($.form/create-peer ($.sign/account-key key-pair)
-                                                                   ($.cell/long 50000000))))
-             4000
-             nil)
-
-      (finally
-        ($.client/close client)))))
-
-
-
-(defn request-coin+
-
-  "Calls the `convex.world` REST API to add 100 million coins to the account with the given address
-   (provided as a long).
+  "If peer has already been declared, then an EDN file should exit in `dir`.
   
-   More information on the REST API: https://convex.world/tools/rest-api/request-coins"
-
-  [address-long]
-
-  (http/post "https://convex.world/api/v1/faucet"
-             {:body               (json/write-str {"address" address-long
-                                                   "amount"  100000000})
-              :connection-timeout 4000}))
-
-
-
-(defn create-account
-
-  "Creates a new account using the `convex.world` REST API.
-
-   New accounts can be created in a transaction using the Convex Lisp `create-account` function. However,
-   we need an account to do a transaction. This is why we use the REST API, it creates an account for us.
-
-   After creation, [[request-coin+]] funds that account with 100 million coins.
-
-   Then, a new peer is registered on the network using [[declare-peer]] and coins at staked on it so that
-   it can participate in consensus.
-
-   Lastly, the address of the account is saved in a file in `dir`. When restarting, [[address]] is used and tries
-   to read that file first. A new account, with this whole ceremony, is created only when required.
+   When not found, a new account with a 100 million coins is created using the `convex.world` REST API
+   (see `convex.recipe.rest`)
   
-   More information on the REST API: https://convex.world/tools/rest-api/create-an-account"
+   Then, a new peer is registered on the network by using that account to issue a transaction on the network.
+   Transaction call the Convex Lisp function `create-peer`, specifies the public key, and stake 50 millions coins
+   so that the peer can participate in consensus (must be > 0).
+
+   The account that calls `create-peer` becomes the controller of the declared peer.
+  
+   Lastly, the address of that account is saved in an EDN file so that it can be reused."
 
   [dir key-pair]
 
-  (let [address-long (-> (http/post "https://convex.world/api/v1/createAccount"
-                                    {:body               (json/write-str {"accountKey" ($.sign/hex-string key-pair)})
-                                     :connection-timeout 4000})
-                         :body
-                         json/read-str
-                         (get "address"))
-        address      ($.cell/address address-long)]
-    (request-coin+ address-long)
-    (when (nil? (declare-peer key-pair
-                              address))
-      (throw (ex-info "Timeout when declaring peer!"
-                      {})))
-    (spit (str dir
-               "/peer.edn")
-          (pr-str {:address address-long}))
-    address))
-
-
-;;;;;;;;;; Retrieves the controller account of the peer or creates a new one
-
-
-(defn controller
-
-  "Tries to read from a file in `dir` the account that was used for declaring a peer.
-  
-   When not found, uses [[create-account]] to create an new account and declare a new peer on the network."
-
-  [dir key-pair]
-
-  (try
-
-    (-> (slurp (str dir
-                    "/peer.edn"))
-        edn/read-string
-        (get :address)
-        $.cell/address)
-    
-    (catch Throwable _ex
-      (create-account dir
-                      key-pair))))
+  (let [path (str dir
+                  "/peer.edn")]
+    (when-not (.exists (File. path))
+      (let [addr   ($.recipe.rest/create-account key-pair)
+            _      ($.recipe.rest/request-coin+ addr
+                                                100000000)
+            client ($.client/connect {:convex.server/host "convex.world"
+                                      :convex.server/port 18888})
+            resp   (-> ($.client/transact client
+                                          key-pair
+                                          ($.cell/invoke ($.cell/address addr)
+                                                         1  ;; sequence ID for that account, it's new so we know its the first trx.
+                                                         ($.form/create-peer ($.sign/account-key key-pair)
+                                                                             ($.cell/long 50000000))))
+                       (deref 4000
+                              nil))]
+        ($.client/close client)
+        (when (nil? resp)
+          (throw (ex-info "Timeout when declaring peer!"
+                          {})))
+        (spit path
+              (pr-str {:address addr})))))
+  nil)
 
 
 ;;;;;;;;;; Peer server
@@ -174,8 +99,8 @@
     ;; Ensures a peer associated with the owned key pair has been declared on the network by its
     ;; controller account.
     ;;
-    (controller dir
-                key-pair)
+    (ensure-declared dir
+                     key-pair)
     ;;
     ;; We mention that initial state must be retrieved from `convex.world` on port 18888.
     ;;
