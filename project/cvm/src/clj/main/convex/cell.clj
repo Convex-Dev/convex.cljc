@@ -672,3 +672,97 @@
 
   (instance? AVector
              x))
+
+
+;;;;;;;;;; Generic conversion Clojure -> Convex
+
+
+(defprotocol ^:no-doc IEquivalent
+
+  ;; Translates Clojure -> Convex
+  ;;
+  ;; Hidden because it should only be used at compile time.
+
+  (-* [data]))
+
+
+
+(extend-protocol IEquivalent
+
+
+  Object
+
+    (-* [x]
+      x)
+
+
+  clojure.lang.Keyword
+
+    (-* [k]
+      (keyword (name k)))
+
+
+  clojure.lang.IPersistentList
+
+    (-* [l]
+      (list (clojure.core/map -*
+                              l)))
+
+
+  clojure.lang.IPersistentMap
+
+    (-* [m]
+      (map (clojure.core/map (fn [[k v]]
+                               [(-* k)
+                                (-* v)])
+                             m)))
+
+
+  clojure.lang.IPersistentSet
+
+    (-* [s]
+      (set (clojure.core/map -*
+                             s)))
+
+
+  clojure.lang.IPersistentVector
+
+    (-* [v]
+      (vector (clojure.core/map -*
+                                v)))
+
+
+  clojure.lang.Symbol
+
+    (-* [s]
+      (symbol (name s)))
+
+
+  java.lang.Boolean
+
+    (-* [b]
+      (boolean b))
+
+
+  java.lang.Character
+
+    (-* [c]
+      (char c))
+
+
+  java.lang.Double
+
+    (-* [d]
+      (double d))
+
+
+  java.lang.Long
+
+    (-* [i]
+      (long i))
+
+
+  java.lang.String
+
+    (-* [s]
+      (string s)))
