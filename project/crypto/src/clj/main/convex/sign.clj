@@ -111,7 +111,7 @@
 
   ^Blob
 
-  [^AKeyPair key-pair]
+  [^Ed25519KeyPair key-pair]
 
   (.getSeed key-pair))
 

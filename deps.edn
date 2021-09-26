@@ -35,6 +35,12 @@
    :maestro/doc "Benchmarking"}
 
 
+  :ext/clj-http
+
+  {:extra-deps {clj-http/clj-http {:mvn/version "3.12.3"}}
+   :maestro/doc "HTTP client needed for recipes"}
+
+
   :ext/convex-core
 
   {:extra-deps      {world.convex/convex-core {:mvn/version "0.7.0"}}
@@ -52,6 +58,12 @@
 
   {:replace-deps {com.github.seancorfield/depstar {:mvn/version "2.1.278"}}
    :maestro/doc  "Packaging jars and uberjars"}
+
+
+  :ext/json
+
+  {:extra-deps  {org.clojure/data.json {:mvn/version "2.4.0"}}
+   :maestro/doc "JSON utils needed for recipes"}
 
 
   :ext/kaocha
@@ -347,6 +359,17 @@
 
   {:extra-paths     ["project/net/src/clj/test"]
    :maestro/require [:project/db]}
+
+  ;---
+
+  :project/recipe
+
+  {:extra-paths     ["project/recipe/src/clj/main"]
+   :maestro/doc     "Examples for common use cases"
+   :maestro/require [:ext/clj-http
+                     :ext/json
+                     :project/net]
+   :maestro/root    "project/recipe"}
 
   ;---
 
