@@ -48,7 +48,7 @@ Each project follows a predictable structure:
 
 The following conventions are enforced in READMEs and source files:
 
-- Namespaces shorten `convex` into `$`: `convex.cvx` -> `$.cvm`
+- Namespaces shorten `convex` into `$`: `convex.cvm` -> `$.cvm`
 - Symbols referring to collections are pluralized with `+` at the end: `items` -> `item+`
 
 
