@@ -88,6 +88,7 @@
               :connection-timeout 4000}))
 
 
+
 (defn create-account
 
   "Creates a new account using the `convex.world` REST API.
@@ -163,31 +164,28 @@
 
    API for peer servers: https://cljdoc.org/d/world.convex/net.clj/0.0.0-alpha0/api/convex.server"
 
+  [dir option+]
 
-  ([dir]
-
-   (server dir
-           nil))
-
-
-  ([dir option+]
-
-   ;; To retrieve the key pair from a file (or generate it in the first place), we reuse the
-   ;; recipe from `convex.recipe.key-pair`.
-   ;;
-   (let [kp ($.recipe.key-pair/retrieve dir)]
-     ;;
-     ;; Ensures a peer associated with the owned key pair has been declared on the network by its
-     ;; controller account.
-     ;;
-     (controller dir
-                 kp)
-     ($.server/create kp
-                      (merge {:convex.server/db    ($.db/open (str dir
-                                                                   "/db.etch"))
-                              :convex.server/state [:sync
-                                                    {:convex.server/host "convex.world"}]}
-                             option+)))))
+  ;; To retrieve the key pair from a file (or generate it in the first place), we reuse the
+  ;; recipe from `convex.recipe.key-pair`.
+  ;;
+  (let [key-pair ($.recipe.key-pair/retrieve dir)]
+    ;;
+    ;; Ensures a peer associated with the owned key pair has been declared on the network by its
+    ;; controller account.
+    ;;
+    (controller dir
+                key-pair)
+    ;;
+    ;; We mention that initial state must be retrieved from `convex.world` on port 18888.
+    ;;
+    ($.server/create key-pair
+                     (merge {:convex.server/db    ($.db/open (str dir
+                                                                  "/db.etch"))
+                             :convex.server/state [:sync
+                                                   {:convex.server/host "convex.world"
+                                                    :convex.server/port 18888}]}
+                            option+))))
 
 
 ;;;;;;;;;; Now we can run the peer!
@@ -201,7 +199,7 @@
   ;; Everything is prepared the first time. We can always delete those files if we want to start again from scratch.
   ;;
   (def dir
-       "private/recipe/peer/")
+       "private/recipe/peer/testnet")
 
 
   ;; Prepares server for running our peer.
