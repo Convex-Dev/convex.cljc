@@ -155,7 +155,7 @@
 
 (defn server
 
-  "Creates a new server.
+  "Creates a new peer server that will participate in the test network.
 
    Takes care of generating a key pair, creating a controller account, and declaring the peer on the network
    if needed. See above utilities.
@@ -239,7 +239,7 @@
   ;; getting up-to-date.
 
 
-  ;; Creates a new client to our peer.
+  ;; Creates a new client connected to our peer.
   ;;
   ;; By default, unless specified otherwise, a client connects to `localhost:18888`, so we are good.
   ;;
@@ -259,9 +259,11 @@
       str)
 
 
-  ;; When done, we can stop the server.
+  ;; When done, we can stop our resources.
   ;;
-  ($.server/stop s)
+  (do
+    ($.client/close c)
+    ($.server/stop s))
 
 
   )
