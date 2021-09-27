@@ -38,7 +38,8 @@
                                      Transfer)
            (java.util Collection
                       List))
-  (:refer-clojure :exclude [boolean
+  (:refer-clojure :exclude [*
+                            boolean
                             boolean?
                             byte
                             char
@@ -696,6 +697,13 @@
       x)
 
 
+  clojure.lang.ASeq
+
+    (-* [s]
+      (list (clojure.core/map -*
+                              s)))
+
+
   clojure.lang.Keyword
 
     (-* [k]
@@ -766,3 +774,82 @@
 
     (-* [s]
       (string s)))
+
+
+
+(declare ^:no-doc -templ*)
+
+
+
+(defn ^:no-doc -splice
+
+  ;; Helper for [[-templ]].
+
+  [x+]
+  
+  (apply concat
+         (clojure.core/map (fn [x]
+                             (if (and (seq? x)
+                                      (clojure.core/= (first x)
+                                                      'clojure.core/unquote-splicing))
+                               (clojure.core/map -templ*
+                                                 (second x))
+                               [(-templ* x)]))
+                           x+)))
+
+
+
+(defn- ^:no-doc -templ*
+
+  ;; Helper for [[templ*]].
+
+  [form]
+
+  (cond
+    (clojure.core/seq? form)    (condp clojure.core/=
+                                       (first form)
+                                  'clojure.core/unquote          (eval (second form))
+                                  'clojure.core/unquote-splicing (throw (ex-info "Can only splice inside of a collection"
+                                                                                 {::form form}))
+                                  (list (-splice form)))
+    (clojure.core/map? form)    (map (clojure.core/map (fn [[k v]]
+                                                         [(-templ* k)
+                                                          (-templ* v)])
+                                                       form))
+    (clojure.core/set? form)    (set (-splice form))
+    (clojure.core/vector? form) (vector (-splice form))
+    :else                       (-* form)))
+
+
+
+(defmacro *
+
+  "Macro for templating Convex Lisp Code.
+  
+   Ressembles Clojure's syntax quote but does not namespace anything.
+
+   Unquoting and unquote-splicing for inserting Clojure values are done through the literal notation (respectively
+   **~** and **~@**) whereas those same features as Convex are written via forms (respecively `(unquote x)` and
+   `(unquote-splicing x)`.
+  
+   For example:
+
+   ```clojure
+   (let [kw :foo
+         xs [2 3]
+         y  42]
+     (templ* [~kw 1 ~@xs 4 ~y y (unquote y) (unquote-splicing vs)]))
+   ```
+
+   Produces the following vector:
+
+   ```clojure
+   [:foo 1 2 3 4 42 y (unquote y) (unquote-splicing y)]
+   ```"
+
+  ;; Inspired by https://github.com/brandonbloom/backtick/
+
+  [form]
+
+  (clojure.core/list 'do
+        (-templ* form)))
