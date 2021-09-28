@@ -12,7 +12,6 @@
             [clojure.string]
             [convex.cell      :as $.cell]
             [convex.cvm       :as $.cvm]
-            [convex.form      :as $.form]
             [convex.read      :as $.read]
             [convex.run.sym   :as $.run.sym]))
 
@@ -24,15 +23,17 @@
               sym->addr]} (reduce (fn [acc [sym path]]
                                     (if-some [resource (clojure.java.io/resource path)]
                                       (try
+
                                         (let [ctx-2 ($.cvm/eval (acc :ctx)
-                                                                (-> resource
-                                                                    .openStream
-                                                                    (InputStreamReader. StandardCharsets/UTF_8)
-                                                                    $.read/stream+
-                                                                    $.form/do
-                                                                    (cond->
-                                                                      sym
-                                                                      $.form/deploy)))
+                                                                (let [cell ($.cell/list (cons ($.cell/* do)
+                                                                                              (-> resource
+                                                                                                  .openStream
+                                                                                                  (InputStreamReader. StandardCharsets/UTF_8)
+                                                                                                  $.read/stream+)))]
+                                                                  (if sym
+                                                                    ($.cell/* (def ~sym
+                                                                                   (deploy (quote ~cell))))
+                                                                    cell)))
                                               ex    ($.cvm/exception ctx-2)]
                                           (when ex
                                             (throw (ex-info "While deploying prelude CVX file"
@@ -47,6 +48,7 @@
                                                 (assoc-in [:sym->addr
                                                            sym]
                                                           ($.cvm/result ctx-2)))))
+
                                         (catch Throwable ex
                                           (throw (ex-info "While reading prelude CVX file"
                                                           {::base :read

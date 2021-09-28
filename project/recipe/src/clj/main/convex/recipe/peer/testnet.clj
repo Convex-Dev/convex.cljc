@@ -22,8 +22,6 @@
   (:require [convex.cell            :as $.cell]
             [convex.client          :as $.client]
             [convex.db              :as $.db]
-            [convex.form            :as $.form]
-            [convex.read            :as $.read]
             [convex.recipe.key-pair :as $.recipe.key-pair]
             [convex.recipe.rest     :as $.recipe.rest]
             [convex.server          :as $.server]
@@ -62,8 +60,8 @@
                                           key-pair
                                           ($.cell/invoke ($.cell/address addr)
                                                          1  ;; sequence ID for that account, it's new so we know its the first trx.
-                                                         ($.form/create-peer ($.sign/account-key key-pair)
-                                                                             ($.cell/long 50000000))))
+                                                         ($.cell/* (create-peer ~($.sign/account-key key-pair)
+                                                                                500000000))))
                        (deref 4000
                               nil))]
         ($.client/close client)
@@ -179,7 +177,7 @@
   ;;
   (-> ($.client/query c
                       ($.cell/address 1)  ;; "Execute query as", any address can be used, this is only a read operation.
-                      ($.read/string "(+ 2 2)"))
+                      ($.cell/* (+ 2 2)))
       deref
       str)
 

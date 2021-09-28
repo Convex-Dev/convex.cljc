@@ -8,11 +8,15 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Converting Clojure directly to Convex (`$.cell/*` macro)
+
 ### Changed
 
 ### Fixed
 
 ### Removed
+
+- Namespace `$.form`, rendered obsolete by `$.cell/*` macro
 
 
 

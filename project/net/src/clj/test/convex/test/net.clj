@@ -11,7 +11,6 @@
             [convex.client :as $.client]
             [convex.cvm    :as $.cvm]
             [convex.db     :as $.db]
-            [convex.form   :as $.form]
             [convex.read   :as $.read]
             [convex.server :as $.server]
             [convex.sign   :as $.sign]))
@@ -43,7 +42,7 @@
 (def ctx
      (-> ($.cvm/ctx {:convex.peer/key account-key})
          ($.cvm/fork-to addr)
-         ($.cvm/eval ($.form/set-key account-key))))
+         ($.cvm/eval ($.cell/* (set-key ~account-key)))))
 
 
 
