@@ -1,0 +1,68 @@
+;;
+;;
+;; Example of a very minimalistic smart contract in Convex Lisp where only the creator can modify a value hold by an actor.
+;;
+;; More information about Convex Lisp: https://convex.world/cvm
+;;
+;; An actor is an automated account. It does not have any associated key pair, meaning no one has the ability to
+;; issue any transaction for it.
+;;
+;; Code for an actor is provided when deploying it, executed at that moment, and that's it.
+;; All actor abilities depend on that moment.
+;;
+;;
+
+
+;; `deploy` creates an actor by evaluating the given quoted code in a new account.
+;;
+;; Address  of that account is then returned.
+;;
+;;
+(def my-actor
+     (deploy
+       '(do
+
+
+          ;; Value defined in this actor.
+          ;;
+          ;; In a real application, could be any kind of state.
+          ;;
+          (def value
+               nil)
+
+
+          ;; We must remember the caller, the account which deployed this actor.
+          ;;
+          ;; Later, we'll make sure that only that account can change `value`.
+          ;;
+          (def creator
+               *caller*)
+
+
+          ;; Function for changing `value`.
+          ;;
+          ;; Before changing `value` to `x` argument, ensures that `*caller*` at that moment
+          ;; is the authorized account.
+          ;;
+          ;; In its metadata, this function is set as `:callable?` so that we can call it:
+          ;;
+          ;;   (call ACTOR_ADDRESS
+          ;;         (function arg-1 arg-2 ...))
+          ;;
+          ;; "Calling" means the function is executed in the context of the actor, instead of the
+          ;; context of our account. That's why `set-value` can change `value` which is defined in the actor,
+          ;; not out account.
+          ;;
+          ;;
+          (defn set-value
+
+            ^{:callable? true}
+
+            [x]
+
+            (when-not (= *caller*
+                         creator)
+              (fail :TRUST
+                    "Only creator can change value"))
+            (def value
+                 x)))))

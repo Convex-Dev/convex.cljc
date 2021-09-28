@@ -5,7 +5,9 @@
    2 types of requests:
 
    - Queries, how to read data from the network
-   - Transactions, how to change data on the network"
+   - Transactions, how to change data on the network
+  
+   Lastly, deployment of a simple smart contact is demonstrated."
 
   {:author "Adam Helinski"}
 
@@ -187,9 +189,70 @@
       str)
 
 
+  ;;
+  ;; EXAMPLE - Deploying and calling a smart contract
+  ;;
+
+
+  ;; Let us transaction code that deploys an actor (automated account).
+  ;;
+  ;; Actors are automated accounts used for creating smart contracts.
+  ;;
+  ;; See comments in CVX file 'project/recipe/src/cvx/main/simple_contract.cvx'
+  ;;
+  (def my-actor
+       (-> ($.client/transact c
+                              kp
+                              ($.cell/invoke addr
+                                             (seq-id)
+                                             ($.read/file "project/recipe/src/cvx/main/simple_contract.cvx")))
+           deref
+           $.client/value))
+
+
+  ;; Now, let us call our actor.
+  ;;
+  ;; Transaction code uses `call` so that `(set-value 42)` is executed in the context of the actor.
+  ;;
+  (-> ($.client/transact c
+                         kp
+                         ($.cell/invoke addr
+                                        (seq-id)
+                                        ($.cell/* (call ~my-actor
+                                                        (set-value 42)))))
+      deref
+      str)
+
+
+  ;; We can query `value` is actor and confirms it is now set to 42.
+  ;;
+  (-> ($.client/query c
+                      addr
+                      ($.cell/* (lookup ~my-actor
+                                        value)))
+      deref
+      str)
+
+
+  ;; Let's try to break it!
+  ;;
+  ;; Contract enforces access control: only creator (our account) can change `value`.
+  ;;
+  ;; Using a query, let's see what happens if account #1 tried calling the contract. It fails!
+  ;;
+  (-> ($.client/query c
+                      ($.cell/address 1)
+                      ($.cell/* (call ~my-actor
+                                      (set-value :damn!))))
+      deref
+      str)
+
+
+  ;;
   ;; When done, we can close our client.
   ;;
   ($.client/close c)
+
 
 
   )

@@ -364,7 +364,8 @@
 
   :project/recipe
 
-  {:extra-paths     ["project/recipe/src/clj/main"]
+  {:extra-paths     ["project/recipe/src/clj/main"
+                     "project/recipe/src/cvx/main"]
    :maestro/doc     "Examples for common use cases"
    :maestro/require [:ext/clj-http
                      :ext/json

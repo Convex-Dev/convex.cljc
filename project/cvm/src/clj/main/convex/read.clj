@@ -39,7 +39,7 @@
 
   [^String filename]
 
-  (AntlrReader/readAll (CharStreams/fromFileName filename)))
+  (AntlrReader/read (CharStreams/fromFileName filename)))
 
 
 
