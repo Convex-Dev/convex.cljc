@@ -1,6 +1,11 @@
 (ns convex.recipe.client
 
-  ""
+  "This example show how to create and use the fast binary client by connecting to the current test net.
+
+   2 types of requests:
+
+   - Queries, how to read data from the network
+   - Transactions, how to change data on the network"
 
   {:author "Adam Helinski"}
 
@@ -17,11 +22,15 @@
 
 (defn result
 
-  ""
+  "Example of error handling when receiving a result for a query or a transaction.
 
-  [future]
+   In practice, error handling depends on application requirements.
 
-  (let [resp (deref future
+   It it always best to provided a timeout when dereferencing the future."
+
+  [future-result]
+
+  (let [resp (deref future-result
                     4000
                     nil)]
     (when resp
@@ -42,42 +51,85 @@
 
 (comment
 
-  
 
-
+  ;; Let us create a client and connect to `convex.world` (current testnet).
+  ;;
   (def c
        ($.client/connect {:convex.server/host "convex.world"
                           :convex.server/port 18888}))
 
 
+  ;;
+  ;; QUERIES
+  ;;
+  ;; Queries are akin to read operations.
+  ;;
+  ;; Code is provided and executed by the peer but it does not require any consensus.
+  ;; Any change in the state is simply discarded.
+  ;;
 
+  ;; Query requesting a result for `(+ 2 2)`
+  ;;
+  ;; Any address can be provided, nothing needs to be signed. This is just a read operation.
+  ;;
+  ;; A future is returned which resolves to a result.
+  ;;
   (-> ($.client/query c
                       ($.cell/address 1)
-                      ($.read/string "(+ 2 2)"))
+                      ($.cell/* (+ 2 2)))
       deref
       str)
 
 
+  ;; A result is an object. The API provides functions for checking if an error occured,
+  ;; getting the value, etc.
+  ;;
   (-> ($.client/query c
                       ($.cell/address 1)
-                      ($.read/string "(+ 2 2)"))
+                      ($.cell/* (+ 2 2)))
       deref
       $.client/value)
 
 
+  ;; See the [[result]] function in this namespace for an example of error handling.
+  ;;
   (-> ($.client/query c
                       ($.cell/address 1)
-                      ($.read/string "(inc [])"))
+                      ($.cell/* (inc [])))
       result
       clojure.pprint/pprint)
 
 
+  ;;
+  ;; TRANSACTIONS
+  ;;
+  ;; Transactions are akin to write operations.
+  ;;
+  ;; Code is provided in a transaction. Peers emit blocks of transactions and enter a consensus
+  ;; phases where they:
+  ;;
+  ;; - Vote on the order of those blocks of transactions
+  ;; - Execute transactions in that order
+  ;;
+  ;; Because every peers execute transactions in the same order, they produce the same result.
+  ;;
 
+
+  ;; Transactions must be signed by an account and are executed in the context of that account.
+  ;;
+  ;; It is mandatory: no one else can impersonate you, only you have the private key of your account.
+  ;;
+  ;; Hence, we borrom to 'key pair' recipe to get a key pair.
+  ;;
   (def kp
        ($.recipe.key-pair/retrieve "private/recipe/client"))
 
 
 
+  ;; We also need an account.
+  ;;
+  ;; Let us reuse the 'create-account' recipe, providing our key pair, and then request a bit of coins.
+  ;;
   (def addr
        (let [addr ($.recipe.rest/create-account kp)]
          ($.recipe.rest/request-coin+ addr
@@ -85,6 +137,8 @@
          ($.cell/address addr)))
 
 
+  ;; Let us confirme out balance using a query first. Should be 100 millions coins;
+  ;;
   (-> ($.client/query c
                       addr
                       ($.cell/symbol "*balance*"))
@@ -92,28 +146,49 @@
       str)
 
 
+  ;; When writing a transaction, a 'sequence id' must be provided to avoid replay attacks.
+  ;;
+  ;; Each account has a number stored on chain which represent the id of the next transaction. It must be
+  ;; incremented on each transaction so that is someone tries to duplicate it, it will fail.
+  ;;
+  ;; We can query it from the network and increment it each time. To make the following examples simpler,
+  ;; let us write a function.
+  ;;
   (defn seq-id
     []
     (deref ($.client/sequence c
                               addr)))
 
 
+  ;; Okay, first transaction!
+  ;;
+  ;; Let us provide:
+
+  ;; - Code to execute: `(def foo 42)` as a cell
+  ;; - Address of our account
+  ;; - Maching key pair for signing the transaction
+  ;; - Right sequence id
+  ;;
   (-> ($.client/transact c
                          kp
                          ($.cell/invoke addr
                                         (seq-id)
-                                        ($.read/string "(def foo 42)")))
+                                        ($.cell/* (def foo 42))))
       deref
       str)
 
 
+  ;; And a query to confirm that it worked, let us read `foo` in our account.
+  ;;
   (-> ($.client/query c
                       addr
-                      ($.cell/symbol "foo"))
+                      ($.cell/* foo))
       deref
       str)
 
 
+  ;; When done, we can close our client.
+  ;;
   ($.client/close c)
 
 
