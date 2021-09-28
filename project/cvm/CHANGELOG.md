@@ -8,11 +8,23 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+
+
+## [0.0.0-alpha2] - 2021-09-28
+
+### Added
+
 - Converting Clojure directly to Convex (`$.cell/*` macro)
 
 ### Changed
 
-### Fixed
+- Upgrade `convex-core` to `0.7.1`
 
 ### Removed
 
@@ -63,6 +75,7 @@ All notable changes to this project will be documented in this file.
 
 
 
-[Unreleased]:  https://github.com/helins/convex.lisp.cljc/compare/cvm/0.0.0-alpha1...HEAD
+[Unreleased]:  https://github.com/helins/convex.lisp.cljc/compare/cvm/0.0.0-alpha2...HEAD
+[0.0.0-alpha1]:  https://github.com/helins/convex.lisp.cljc/compare/cvm/0.0.0-alpha1...cvm/0.0.0-alpha2
 [0.0.0-alpha1]:  https://github.com/helins/convex.lisp.cljc/compare/cvm/0.0.0-alpha0...cvm/0.0.0-alpha1
 [0.0.0-alpha0]: https://github.com/helins/convex.lisp.cljc/releases/tag/cvm/0.0.0-alpha0

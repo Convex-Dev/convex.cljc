@@ -14,9 +14,9 @@ Overview of main folders in the [./project](./project) directory:
 | [`:project/break`](./project/break) | Advanced generative test suite for the CVM ; novel smart contract testing |
 | [`:project/clojurify`](./project/clojurify) | Convex <-> Clojure data conversions, quick evaluation, useful `test.check` generators |
 | [`:project/crypto`](./project/crypto) | Key pair creation and management for digital signing |
-| [`:project/cvm`](./project/cvm) | Convex data and low-level access to the Convex Virutal Machine |
-| [`:project/db`](./project/db) | Create and handle immutable Etch databases crafted for Convex data |
-| [`:project/net`](./project/net) | Convex network stack (running peers and using binary clients) |
+| [`:project/cvm`](./project/cvm) | Convex types, reading Convex Lisp code, execution |
+| [`:project/db`](./project/db) | Create and handle immutable Etch databases crafted for Convex types |
+| [`:project/net`](./project/net) | Convex network stack (running peers and using the binary client) |
 | [`:project/recipe`](./project/recipe) | Recipes for understanding Convex and writing dApps |
 | [`:project/run`](./project/run) | Convex Lisp Runner and REPL, advanced terminal environment |
 
