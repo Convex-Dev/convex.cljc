@@ -161,7 +161,7 @@
   ;;
   (-> ($.client/query c
                       addr
-                      ($.cell/symbol "*balance*"))
+                      ($.cell/* *balance*))
       deref
       str)
 
@@ -245,9 +245,8 @@
   ;; We can query `value` is actor and confirms it is now set to 42.
   ;;
   (-> ($.client/query c
-                      addr
-                      ($.cell/* (lookup ~my-actor
-                                        value)))
+                      my-actor
+                      ($.cell/* value))
       deref
       str)
 

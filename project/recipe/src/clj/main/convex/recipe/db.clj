@@ -24,19 +24,16 @@
 ;;;;;;;;;;
 
 
-(def db
-
-  "A database instance is simply a file.
-
-   Memory-mapped IO makes this database super fast."
-
-  ($.db/open "private/recipe/db/my-instance.etch"))
-
-
-;;;;;;;;;;
-
-
 (comment
+
+
+  (def db
+  
+    "A database instance is simply a file.
+  
+     Memory-mapped IO makes this database super fast."
+  
+    ($.db/open "private/recipe/db/my-instance.etch"))
 
 
   ;; Many utilities, such as the client shown in `client.recipe.client`, need Etch.
@@ -50,6 +47,8 @@
   ;; Not doing so will often result in `MissingDataException`s.
   ;;
   ($.cvm.db/local-set db)
+
+  ($.cvm.db/local)
 
 
   ;; However, instances are perfectly fine for multithreading!

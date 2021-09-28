@@ -61,7 +61,7 @@
                                           ($.cell/invoke ($.cell/address addr)
                                                          1  ;; sequence ID for that account, it's new so we know its the first trx.
                                                          ($.cell/* (create-peer ~($.sign/account-key key-pair)
-                                                                                500000000))))
+                                                                                50000000))))
                        (deref 4000
                               nil))]
         ($.client/close client)

@@ -104,6 +104,8 @@
   ;; The fact cells are close to Clojure is useful for off-chain computation: handling data outside the network,
   ;; preparing it, modifying it, ...
   ;;
+  ;; Java API for cells: https://www.javadoc.io/doc/world.convex/convex-core/latest/convex/core/data/package-summary.html
+  ;;
 
   ;; For instance, `conj`...
   ;;
