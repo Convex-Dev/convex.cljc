@@ -64,7 +64,11 @@
 
   [^String path]
 
-  (EtchStore/create (File. path)))
+  (let [^File file (File. path)]
+    (-> file
+        .getParentFile
+        .mkdirs)
+    (EtchStore/create file)))
 
 
 
