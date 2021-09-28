@@ -684,7 +684,7 @@
   ;;
   ;; Hidden because it should only be used at compile time.
 
-  (-* [data]))
+  (any [data]))
 
 
 
@@ -693,113 +693,91 @@
 
   Object
 
-    (-* [x]
+    (any [x]
       x)
 
 
   clojure.lang.ASeq
 
-    (-* [s]
-      (list (clojure.core/map -*
+    (any [s]
+      (list (clojure.core/map any
                               s)))
 
 
   clojure.lang.Keyword
 
-    (-* [k]
+    (any [k]
       (keyword (name k)))
 
 
   clojure.lang.IPersistentList
 
-    (-* [l]
-      (list (clojure.core/map -*
+    (any [l]
+      (list (clojure.core/map any
                               l)))
 
 
   clojure.lang.IPersistentMap
 
-    (-* [m]
+    (any [m]
       (map (clojure.core/map (fn [[k v]]
-                               [(-* k)
-                                (-* v)])
+                               [(any k)
+                                (any v)])
                              m)))
 
 
   clojure.lang.IPersistentSet
 
-    (-* [s]
-      (set (clojure.core/map -*
+    (any [s]
+      (set (clojure.core/map any
                              s)))
 
 
   clojure.lang.IPersistentVector
 
-    (-* [v]
-      (vector (clojure.core/map -*
+    (any [v]
+      (vector (clojure.core/map any
                                 v)))
 
 
   clojure.lang.Symbol
 
-    (-* [s]
+    (any [s]
       (symbol (name s)))
 
 
   java.lang.Boolean
 
-    (-* [b]
+    (any [b]
       (boolean b))
 
 
   java.lang.Character
 
-    (-* [c]
+    (any [c]
       (char c))
 
 
   java.lang.Double
 
-    (-* [d]
+    (any [d]
       (double d))
 
 
   java.lang.Long
 
-    (-* [i]
+    (any [i]
       (long i))
 
 
   java.lang.String
 
-    (-* [s]
+    (any [s]
       (string s)))
 
 
 
-(declare ^:no-doc -templ*)
-
-
-
-(defn ^:no-doc -splice
-
-  ;; Helper for [[-templ]].
-
-  [x+]
-  
-  (apply concat
-         (clojure.core/map (fn [x]
-                             (if (and (seq? x)
-                                      (clojure.core/= (first x)
-                                                      'clojure.core/unquote-splicing))
-                               (clojure.core/map -templ*
-                                                 (second x))
-                               [(-templ* x)]))
-                           x+)))
-
-
-
-(defn- ^:no-doc -templ*
+(defn- ^:no-doc -*
 
   ;; Helper for [[templ*]].
 
@@ -808,48 +786,26 @@
   (cond
     (clojure.core/seq? form)    (condp clojure.core/=
                                        (first form)
-                                  'clojure.core/unquote          (eval (second form))
-                                  'clojure.core/unquote-splicing (throw (ex-info "Can only splice inside of a collection"
-                                                                                 {::form form}))
-                                  (list (-splice form)))
-    (clojure.core/map? form)    (map (clojure.core/map (fn [[k v]]
-                                                         [(-templ* k)
-                                                          (-templ* v)])
-                                                       form))
-    (clojure.core/set? form)    (set (-splice form))
-    (clojure.core/vector? form) (vector (-splice form))
-    :else                       (-* form)))
+                                  'clojure.core/unquote      (second form)
+                                  `(list ~(clojure.core/mapv -*
+                                                             form)))
+    (clojure.core/map? form)    `(map ~(clojure.core/mapv (fn [[k v]]
+                                                            [(-* k)
+                                                             (-* v)])
+                                                          form))
+    (clojure.core/set? form)    `(set ~(clojure.core/mapv -*
+                                                          form))
+    (clojure.core/vector? form) `(vector ~(clojure.core/mapv -*
+                                                             form))
+    (clojure.core/symbol? form) `(symbol ~(name form))
+    :else                       `(any ~form)))
 
 
 
 (defmacro *
 
-  "Macro for templating Convex Lisp Code.
-  
-   Ressembles Clojure's syntax quote but does not namespace anything.
-
-   Unquoting and unquote-splicing for inserting Clojure values are done through the literal notation (respectively
-   **~** and **~@**) whereas those same features as Convex are written via forms (respecively `(unquote x)` and
-   `(unquote-splicing x)`.
-  
-   For example:
-
-   ```clojure
-   (let [kw :foo
-         xs [2 3]
-         y  42]
-     (templ* [~kw 1 ~@xs 4 ~y y (unquote y) (unquote-splicing vs)]))
-   ```
-
-   Produces the following vector:
-
-   ```clojure
-   [:foo 1 2 3 4 42 y (unquote y) (unquote-splicing y)]
-   ```"
-
-  ;; Inspired by https://github.com/brandonbloom/backtick/
+  ""
 
   [form]
 
-  (clojure.core/list 'do
-        (-templ* form)))
+  (-* form))
