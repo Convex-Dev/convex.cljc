@@ -16,11 +16,19 @@ All notable changes to this project will be documented in this file.
 
 
 
+## [0.0.0-alpha3] - 2021-09-28
+
+### Chnaged
+
+- Upgrade `:project/cvm` to `0.0.0-alpha2`
+
+
+
 ## [0.0.0-alpha2] - 2021-09-10
 
 ### Changed
 
-- Upgrade to `:project/cvm` 0.0.0-alpha1
+- Upgrade `:project/cvm` to `0.0.0-alpha1`
 
 
 
@@ -52,6 +60,7 @@ All notable changes to this project will be documented in this file.
 
 
 [Unreleased]:  https://github.com/helins/convex.lisp.cljc/compare/run/0.0.0-alpha2...HEAD
+[0.0.0-alpha3]:  https://github.com/helins/convex.lisp.cljc/compare/run/0.0.0-alpha2...run/0.0.0-alpha3
 [0.0.0-alpha2]:  https://github.com/helins/convex.lisp.cljc/compare/run/0.0.0-alpha1...run/0.0.0-alpha2
 [0.0.0-alpha1]:  https://github.com/helins/convex.lisp.cljc/compare/run/0.0.0-alpha0...run/0.0.0-alpha1
 [0.0.0-alpha0]: https://github.com/helins/convex.lisp.cljc/releases/tag/run/0.0.0-alpha0
