@@ -124,6 +124,15 @@
      ($.ref/resolve *1))
 
 
+  ;;
+  ;; it is not crucial to understand references but this is how structural sharing is implemented: often, collections do not 
+  ;; hold actual values but rather references.
+  ;;
+  ;; This is also why sharing over the network is fast: send a big structure and if references are missing, recipient can always
+  ;; request those later.
+  ;;
+
+
   ;; When done, we can close the instance file.
   ;;
   ($.db/close db)
