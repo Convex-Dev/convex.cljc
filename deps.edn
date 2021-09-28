@@ -247,7 +247,7 @@
 
   :release/clojurify
 
-  {:extra-deps {world.convex/clojurify.clj {:mvn/version "0.0.0-alpha1"}}}
+  {:extra-deps {world.convex/clojurify.clj {:mvn/version "0.0.0-alpha2"}}}
 
 
   :test/clojurify
@@ -297,7 +297,7 @@
 
   :release/cvm
 
-  {:extra-deps {world.convex/cvm.clj {:mvn/version "0.0.0-alpha1"}}}
+  {:extra-deps {world.convex/cvm.clj {:mvn/version "0.0.0-alpha2"}}}
 
 
   :test/cvm
