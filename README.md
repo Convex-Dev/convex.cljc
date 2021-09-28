@@ -17,7 +17,11 @@ Overview of main folders in the [./project](./project) directory:
 | [`:project/cvm`](./project/cvm) | Convex data and low-level access to the Convex Virutal Machine |
 | [`:project/db`](./project/db) | Create and handle immutable Etch databases crafted for Convex data |
 | [`:project/net`](./project/net) | Convex network stack (running peers and using binary clients) |
+| [`:project/recipe`](./project/recipe) | Recipes for understanding Convex and writing dApps |
 | [`:project/run`](./project/run) | Convex Lisp Runner and REPL, advanced terminal environment |
+
+[Recipes](./project/recipe) are key to reach a high-level understanding of Convex and understanding how to use all those utilities to write decentralized applications.
+They provide an easy way for experimenting key concepts by cloning/forking this repository.
 
 
 ## Releases
@@ -52,7 +56,7 @@ The following conventions are enforced in READMEs and source files:
 - Symbols referring to collections are pluralized with `+` at the end: `items` -> `item+`
 
 
-## Setup
+## Maintenance
 
 Following sections are only useful for managing this repository or experimenting with a clone/fork.
 
