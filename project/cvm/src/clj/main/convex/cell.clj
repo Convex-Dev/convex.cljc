@@ -680,9 +680,13 @@
 
 (defprotocol ^:no-doc IEquivalent
 
-  ;; Translates Clojure -> Convex
-  ;;
-  ;; Hidden because it should only be used at compile time.
+  "Translates Clojure types to equivalent Convex types. Other objects remain as they are.
+
+   However, the [[*]] macro is usually preferred for performance.
+
+   ```clojure
+   (any {:a ['b]})
+   ```"
 
   (any [data]))
 
@@ -779,7 +783,7 @@
 
 (defn- ^:no-doc -*
 
-  ;; Helper for [[templ*]].
+  ;; Helper for [[*]].
 
   [form]
 
@@ -804,8 +808,19 @@
 
 (defmacro *
 
-  ""
+  "Macro for translating Clojure types to Convex types.
+  
+   Convex types can be inserted using `~`, especially useful for inserting values dynamically or inserting types
+   that have no equivalent in Clojure (eg. `address`).
+   
 
-  [form]
+   ```clojure
+   ;; Cell for `(transfer #42 500000)`
+   ;;
+   (* (transfer ~(address 42)
+                500000))
+   ```"
 
-  (-* form))
+  [x]
+
+  (-* x))
