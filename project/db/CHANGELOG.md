@@ -16,6 +16,15 @@ All notable changes to this project will be documented in this file.
 
 
 
+## [0.0.0-alpha2] - 2021-09-28
+
+### Changed
+
+- Upgrade `convex-peer` to `0.7.1`
+- Upgrade `:project/cvm` to `0.0.0-alpha2`
+
+
+
 ## [0.0.0-alpha0] - 2021-09-10
 
 ### Added

@@ -271,7 +271,7 @@
 
   :release/crypto
 
-  {:extra-deps {world.convex/crypto.clj {:mvn/version "0.0.0-alpha0"}}}
+  {:extra-deps {world.convex/crypto.clj {:mvn/version "0.0.0-alpha1"}}}
 
 
   :test/crypto
@@ -323,7 +323,7 @@
 
   :release/db
 
-  {:extra-deps {world.convex/db.clj {:mvn/version "0.0.0-alpha0"}}}
+  {:extra-deps {world.convex/db.clj {:mvn/version "0.0.0-alpha1"}}}
 
 
   :test/db

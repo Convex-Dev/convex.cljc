@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>world.convex</groupId>
   <artifactId>crypto.clj</artifactId>
-  <version>0.0.0-alpha0</version>
+  <version>0.0.0-alpha1</version>
   <name>Crypto utilities for Convex</name>
   <description>Key pair creation and management</description>
   <url>https://github.com/Convex-Dev/convex.cljc/tree/main/project/crypto</url>
@@ -35,7 +35,7 @@
     <dependency>
       <groupId>world.convex</groupId>
       <artifactId>convex-core</artifactId>
-      <version>0.7.0</version>
+      <version>0.7.1</version>
     </dependency>
     <dependency>
       <groupId>com.fzakaria</groupId>

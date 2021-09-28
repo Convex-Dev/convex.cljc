@@ -8,6 +8,18 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+
+
+## [0.0.0-alpha1] - 2021-09-28
+
+### Added
+
 - Create Ed25519 key pairs from seed
 - Retrieve seed of key pair
 - Get public key as hex-string
@@ -15,11 +27,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - All Ed25519 creation functions combined into `$.sign/ed25519`
-
-### Fixed
-
-### Removed
-
+- Upgrade `convex-core` to `0.7.1`
 
 
 
@@ -34,5 +42,6 @@ All notable changes to this project will be documented in this file.
 
 
 
-[Unreleased]:  https://github.com/helins/convex.lisp.cljc/compare/cvm/0.0.0-alpha0...HEAD
+[Unreleased]:  https://github.com/helins/convex.lisp.cljc/compare/cvm/0.0.0-alpha1...HEAD
+[0.0.0-alpha1]:  https://github.com/helins/convex.lisp.cljc/compare/cvm/0.0.0-alpha1...cvm/0.0.0-alpha1
 [0.0.0-alpha0]: https://github.com/helins/convex.lisp.cljc/releases/tag/cvm/0.0.0-alpha0
