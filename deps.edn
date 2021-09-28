@@ -352,7 +352,7 @@
 
   :release/net
 
-  {:extra-deps {world.convex/net.clj {:mvn/version "0.0.0-alpha0"}}}
+  {:extra-deps {world.convex/net.clj {:mvn/version "0.0.0-alpha1"}}}
 
 
   :test/net

@@ -3,8 +3,8 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>world.convex</groupId>
   <artifactId>net.clj</artifactId>
-  <version>0.0.0-alpha0</version>
-  <name>Clojure wrapper for the convex network stack</name>
+  <version>0.0.0-alpha1</version>
+  <name>Clojure wrapper for the Convex network stack</name>
   <description>Peer and client management</description>
   <url>https://github.com/Convex-Dev/convex.cljc/tree/main/project/net</url>
   <licenses>
@@ -35,17 +35,17 @@
     <dependency>
       <groupId>world.convex</groupId>
       <artifactId>convex-peer</artifactId>
-      <version>0.7.0</version>
+      <version>0.7.1</version>
     </dependency>
     <dependency>
       <groupId>world.convex</groupId>
       <artifactId>crypto.clj</artifactId>
-      <version>0.0.0-alpha0</version>
+      <version>0.0.0-alpha1</version>
     </dependency>
     <dependency>
       <groupId>world.convex</groupId>
       <artifactId>cvm.clj</artifactId>
-      <version>0.0.0-alpha1</version>
+      <version>0.0.0-alpha2</version>
     </dependency>
   </dependencies>
   <repositories>
