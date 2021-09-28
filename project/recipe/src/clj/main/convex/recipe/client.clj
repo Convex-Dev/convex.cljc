@@ -14,6 +14,8 @@
   (:require [clojure.pprint]
             [convex.cell            :as $.cell]
             [convex.client          :as $.client]
+            [convex.cvm.db          :as $.cvm.db]
+            [convex.db              :as $.db]
             [convex.read            :as $.read]
             [convex.recipe.key-pair :as $.recipe.key-pair]
             [convex.recipe.rest     :as $.recipe.rest]))
@@ -52,6 +54,22 @@
 
 
 (comment
+
+
+  ;;
+  ;; SPECIFYING A DATABASE
+  ;;
+  ;; Clients uses an instance of the Etch database because only incremental changes are transmitted
+  ;; over the network. The database is used to remember data and only request missing pieces.
+  ;;
+  ;; That way, even large data structures can be shared efficiently.
+  ;;
+  ;; Especially when quering the same kind of data, it is a good idea using the same Etch file. Not mandatory
+  ;; but will often improve performance.
+  ;;
+  ;; Also see the `convex.recipe.db`.
+  ;;
+  ($.cvm.db/local-set ($.db/open "private/recipe/client/db.etch"))
 
 
   ;; Let us create a client and connect to `convex.world` (current testnet).
