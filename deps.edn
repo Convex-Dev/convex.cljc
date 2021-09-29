@@ -256,6 +256,21 @@
 
   ;---
 
+  :project/dapp
+
+  {:maestro/doc     "Bundles libraries useful for writing dApps"
+   :maestro/require [:project/crypto
+                     :project/cvm
+                     :project/db
+                     :project/net]
+   :maestro/root    "project/dapp"}
+
+  :dev/dapp
+
+  {:extra-paths ["project/dapp/src/clj/dev"]}
+
+  ;---
+
   :project/crypto
 
   {:extra-paths     ["project/crypto/src/clj/main"]

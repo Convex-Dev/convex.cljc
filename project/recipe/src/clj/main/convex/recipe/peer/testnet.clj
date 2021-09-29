@@ -56,18 +56,20 @@
                                                 100000000)
             client ($.client/connect {:convex.server/host "convex.world"
                                       :convex.server/port 18888})
-            resp   (-> ($.client/transact client
-                                          key-pair
-                                          ($.cell/invoke ($.cell/address addr)
-                                                         1  ;; sequence ID for that account, it's new so we know its the first trx.
-                                                         ($.cell/* (create-peer ~($.sign/account-key key-pair)
-                                                                                50000000))))
-                       (deref 4000
-                              nil))]
+            res    (-> ($.client/transact client
+                                           key-pair
+                                           ($.cell/invoke ($.cell/address addr)
+                                                          1  ;; sequence ID for that account, it's new so we know its the first trx.
+                                                          ($.cell/* (create-peer ~($.sign/account-key key-pair)
+                                                                                 50000000))))
+                        (deref 4000
+                               nil))]
         ($.client/close client)
-        (when (nil? resp)
-          (throw (ex-info "Timeout when declaring peer!"
-                          {})))
+        (cond
+          (nil? res)                (throw (ex-info "Timeout when declaring peer!"
+                                                    {}))
+          ($.client/error-code res) (throw (ex-info "Error while declaring peer!"
+                                                    {:result res})))
         (spit path
               (pr-str {:address addr})))))
   nil)

@@ -15,6 +15,7 @@ Overview of main folders in the [./project](./project) directory:
 | [`:project/clojurify`](./project/clojurify) | Convex <-> Clojure data conversions, quick evaluation, useful `test.check` generators |
 | [`:project/crypto`](./project/crypto) | Key pair creation and management for digital signing |
 | [`:project/cvm`](./project/cvm) | Convex types, reading Convex Lisp code, execution |
+| [`:project/dapp`](./project/db) | Bundle of useful libraries for building decentralized applications |
 | [`:project/db`](./project/db) | Create and handle immutable Etch databases crafted for Convex types |
 | [`:project/net`](./project/net) | Convex network stack (running peers and using the binary client) |
 | [`:project/recipe`](./project/recipe) | Recipes for understanding Convex and writing dApps |
@@ -33,6 +34,7 @@ Released applications and libraries:
 | [`:project/clojurify`](./project/clojurify) | [![Clojars](https://img.shields.io/clojars/v/world.convex/clojurify.clj.svg)](https://clojars.org/world.convex/clojurify.clj) | [![cljdoc](https://cljdoc.org/badge/world.convex/clojurify.clj)](https://cljdoc.org/d/world.convex/clojurify.clj/CURRENT) | / |
 | [`:project/crypto`](./project/crypto) | [![Clojars](https://img.shields.io/clojars/v/world.convex/crypto.clj.svg)](https://clojars.org/world.convex/crypto.clj) | [![cljdoc](https://cljdoc.org/badge/world.convex/crypto.clj)](https://cljdoc.org/d/world.convex/crypto.clj/CURRENT) | / |
 | [`:project/cvm`](./project/cvm) | [![Clojars](https://img.shields.io/clojars/v/world.convex/cvm.clj.svg)](https://clojars.org/world.convex/cvm.clj) | [![cljdoc](https://cljdoc.org/badge/world.convex/cvm.clj)](https://cljdoc.org/d/world.convex/cvm.clj/CURRENT) | / |
+| [`:project/dapp`](./project/dapp) | [![Clojars](https://img.shields.io/clojars/v/world.convex/dapp.clj.svg)](https://clojars.org/world.convex/dapp.clj) | [![cljdoc](https://cljdoc.org/badge/world.convex/dapp.clj)](https://cljdoc.org/d/world.convex/dapp.clj/CURRENT) | / |
 | [`:project/db`](./project/db) | [![Clojars](https://img.shields.io/clojars/v/world.convex/db.clj.svg)](https://clojars.org/world.convex/db.clj) | [![cljdoc](https://cljdoc.org/badge/world.convex/db.clj)](https://cljdoc.org/d/world.convex/db.clj/CURRENT) | / |
 | [`:project/net`](./project/net) | [![Clojars](https://img.shields.io/clojars/v/world.convex/net.clj.svg)](https://clojars.org/world.convex/net.clj) | [![cljdoc](https://cljdoc.org/badge/world.convex/net.clj)](https://cljdoc.org/d/world.convex/net.clj/CURRENT) | / |
 | [`:project/run`](./project/run) | [![Clojars](https://img.shields.io/clojars/v/world.convex/run.clj.svg)](https://clojars.org/world.convex/run.clj) | [![cljdoc](https://cljdoc.org/badge/world.convex/run.clj)](https://cljdoc.org/d/world.convex/run.clj/CURRENT) | [CVX runner](https://github.com/Convex-Dev/convex.cljc/releases/tag/run%2F0.0.0-alpha2) |
