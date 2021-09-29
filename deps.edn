@@ -317,7 +317,8 @@
 
   :test/cvm
 
-  {:extra-paths ["project/cvm/src/clj/test"]}
+  {:extra-paths     ["project/cvm/src/clj/test"]
+   :maestro/require [:project/db]}
 
   ;---
 
