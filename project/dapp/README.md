@@ -9,3 +9,5 @@ Simply bundles useful libraries for building decentralized applications so that 
 - [`:project/cvm`](../cvm)
 - [`:project/db`](../db)
 - [`:project/net`](../net)
+
+Step-by-step examples on how to use those libraries can be found in [`:project/recipe`](../recipe).

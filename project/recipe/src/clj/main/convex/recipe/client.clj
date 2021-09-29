@@ -111,13 +111,15 @@
       $.client/value)
 
 
+  ;; Error! Cannot increment a vector.
+  ;;
   ;; See the [[result]] function in this namespace for an example of error handling.
   ;;
   (-> ($.client/query c
                       ($.cell/address 1)
                       ($.cell/* (inc [])))
-      result
-      clojure.pprint/pprint)
+      deref
+      str)
 
 
   ;;

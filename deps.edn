@@ -384,7 +384,7 @@
    :maestro/doc     "Examples for common use cases"
    :maestro/require [:ext/clj-http
                      :ext/json
-                     :project/net]
+                     :project/dapp]
    :maestro/root    "project/recipe"}
 
   ;---

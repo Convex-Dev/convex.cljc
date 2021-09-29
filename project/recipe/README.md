@@ -3,6 +3,8 @@
 This project hosts a series of recipes, concrete examples regarding how Convex works and how to build high-performance
 decentralized applications.
 
+It showcases what can be done using [`:project/dapp`](../dapp).
+
 
 Recommanded order is:
 
