@@ -8,6 +8,8 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Namespace `$.std`, Clojure-like functions for cells
+
 ### Changed
 
 ### Fixed

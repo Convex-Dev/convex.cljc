@@ -5,13 +5,17 @@
   {:author "Adam Helinski"}
 
   (:refer-clojure :exclude [assoc
+                            concat
                             conj
+                            cons
                             contains?
                             count
                             empty
                             empty?
                             get
-                            nth])
+                            next
+                            nth
+                            reverse])
   (:require [clojure.test :as T]
             [convex.cell  :as $.cell]
             [convex.ref   :as $.ref]
@@ -271,3 +275,119 @@
              ($.std/get ($.cell/* #{:a})
                         b
                         ($.cell/* :not-found))))))
+
+
+;;;;;;;;;; ASequence
+
+
+(T/deftest concat
+
+  (T/is (nil? ($.std/concat nil
+                            nil)))
+
+  (T/is (= ($.cell/* (:a :b))
+           ($.std/concat ($.cell/* (:a))
+                         ($.cell/* (:b)))))
+
+  (T/is (= ($.cell/* (:a))
+           ($.std/concat ($.cell/* (:a))
+                         nil)))
+
+  (T/is (= ($.cell/* (:a))
+           ($.std/concat nil
+                         ($.cell/* (:a)))))
+
+  (T/is (= ($.cell/* [:a :b])
+           ($.std/concat ($.cell/* [:a])
+                         ($.cell/* [:b]))))
+
+  (T/is (= ($.cell/* [:a])
+           ($.std/concat ($.cell/* [:a])
+                         nil)))
+
+  (T/is (= ($.cell/* [:a])
+           ($.std/concat nil
+                         ($.cell/* [:a]))))
+
+  (T/is (= ($.cell/* (:a :b))
+           ($.std/concat ($.cell/* (:a))
+                         ($.cell/* [:b]))))
+
+  (T/is (= ($.cell/* [:a :b])
+           ($.std/concat ($.cell/* [:a])
+                         ($.cell/* (:b)))))
+
+  (T/is (= ($.cell/* [:a [:b :c]])
+           ($.std/concat ($.cell/* [:a])
+                         ($.cell/* {:b :c}))))
+
+  (T/is (= ($.cell/* [:a :b])
+           ($.std/concat ($.cell/* [:a])
+                         ($.cell/* #{:b})))))
+
+
+
+(T/deftest cons
+
+  (T/is (= ($.cell/* (:a))
+           ($.std/cons ($.cell/* :a)
+                       nil)))
+
+  (T/is (= ($.cell/* (:b :a))
+           ($.std/cons ($.cell/* :b)
+                       ($.cell/* (:a)))))
+
+  (T/is (= ($.cell/* (:b :a))
+           ($.std/cons ($.cell/* :b)
+                       ($.cell/* [:a]))))
+
+  (T/is (= ($.cell/* (:c [:a :b]))
+           ($.std/cons ($.cell/* :c)
+                       ($.cell/* {:a :b}))))
+
+  (T/is (= ($.cell/* (:b :a))
+           ($.std/cons ($.cell/* :b)
+                       ($.cell/* #{:a})))))
+
+
+
+(T/deftest next
+
+  (T/is (nil? ($.std/next ($.cell/* ()))))
+
+  (T/is (nil? ($.std/next ($.cell/* (:a)))))
+
+  (T/is (= ($.cell/* (:b))
+           ($.std/next ($.cell/* (:a :b)))))
+
+  (T/is (nil? ($.std/next ($.cell/* []))))
+
+  (T/is (nil? ($.std/next ($.cell/* [:a]))))
+
+  (T/is (= ($.cell/* [:b])
+           ($.std/next ($.cell/* [:a :b]))))
+
+  (T/is (nil? ($.std/next ($.cell/* {}))))
+
+  (T/is (nil? ($.std/next ($.cell/* {:a :b}))))
+
+  (T/is (not ($.std/empty? ($.std/next ($.cell/* {:a :b
+                                                  :c :d})))))
+
+  (T/is (nil? ($.std/next ($.cell/* #{}))))
+
+  (T/is (nil? ($.std/next ($.cell/* #{:a}))))
+
+  (T/is (not ($.std/empty? ($.std/next ($.cell/* #{:a :b}))))))
+
+
+
+(T/deftest reverse
+
+  (T/is (nil? ($.std/reverse nil)))
+
+  (T/is (= ($.cell/* [:c :b :a])
+           ($.std/reverse ($.cell/* (:a :b :c)))))
+
+  (T/is (= ($.cell/* (:c :b :a))
+           ($.std/reverse ($.cell/* [:a :b :c])))))

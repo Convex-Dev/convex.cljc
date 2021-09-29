@@ -6,15 +6,21 @@
 
   (:import (convex.core.data ACell
                              ACountable
-                             ADataStructure))
+                             ADataStructure
+                             ASequence)
+           (convex.core.lang RT))
   (:refer-clojure :exclude [assoc
+                            concat
                             conj
+                            cons
                             contains?
                             count
                             empty
                             empty?
                             get
-                            nth]))
+                            next
+                            nth
+                            reverse]))
 
 
 (set! *warn-on-reflection*
@@ -129,3 +135,56 @@
    (.get coll
          k
          not-found)))
+
+
+;;;;;;;;;; Sequence
+
+
+(defn cons
+
+  ""
+
+  [x ^ACell coll]
+
+  (RT/cons x
+           (when (some? coll)
+             (or (RT/sequence coll)
+                 coll))))
+
+
+
+(defn concat
+
+  ""
+
+  [^ACell x ^ACell y]
+
+  (RT/concat (when (some? x)
+               (or (RT/sequence x)
+                   x))
+             (when (some? y)
+               (or (RT/sequence y)
+                   y))))
+
+
+
+(defn next
+
+  ""
+
+  [^ACell coll]
+
+  (when coll
+    (.next (or ^ASequence (RT/sequence coll)
+               ^ASequence coll))))
+
+
+
+(defn reverse
+
+  ""
+
+  [^ASequence sq]
+
+  (when sq
+    (.reverse sq)))
