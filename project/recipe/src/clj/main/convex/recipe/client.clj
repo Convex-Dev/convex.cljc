@@ -96,7 +96,7 @@
   ;;
   (-> ($.client/query c
                       ($.cell/address 1)
-                      ($.cell/* (+ 2 2)))
+                      ($.read/string "#49/foo"))
       deref
       str)
 
@@ -195,7 +195,7 @@
                          kp
                          ($.cell/invoke addr
                                         (seq-id)
-                                        ($.cell/* (def foo 42))))
+                                        ($.read/string "(defn set-x [x] (def x x))")))
       deref
       str)
 

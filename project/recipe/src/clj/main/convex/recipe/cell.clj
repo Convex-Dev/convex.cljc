@@ -1,6 +1,11 @@
 (ns convex.recipe.cell
 
-  ""
+  "Cells represents anything that can be handled on the Convex network: data and other types such as functions.
+  
+   They have been modeled very closely on Clojure and many of those types will be familiar to any Clojurist.
+
+   These examples show how to create cells and handle them. It is the very first step towards understanding Convex
+   and how to build dApps."
 
   {:author "Adam Helinski"}
 
