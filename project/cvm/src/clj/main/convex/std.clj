@@ -55,6 +55,7 @@
                             hash-map
                             hash-set
                             inc
+                            into
                             keys
                             keyword
                             keyword?
@@ -87,7 +88,8 @@
       true)
 
 
-(declare name)
+(declare conj
+         name)
 
 
 ;;;;;;;;;; Private
@@ -286,6 +288,29 @@
   (if xs
     ($.cell/vector xs)
     ($.cell/vector)))
+
+
+;;;;;;;;;; Collection generics
+
+
+(defn into
+
+  ""
+
+
+  ([to from]
+
+   (reduce conj
+           to
+           from))
+
+
+  ([to xform from]
+
+   (transduce xform
+              conj
+              to
+              from)))
 
 
 ;;;;;;;;;; Comparators

@@ -27,6 +27,7 @@
                             hash-map
                             hash-set
                             inc
+                            into
                             keys
                             list
                             merge
@@ -115,6 +116,26 @@
   (T/is (= ($.cell/* [:a :b])
            ($.std/vector ($.cell/* :a)
                          ($.cell/* :b)))))
+
+
+;;;;;;;;;; Collection generics
+
+
+(T/deftest into
+
+  (T/is (let [k ($.cell/blob (byte-array [0]))]
+          (= ($.std/blob-map k
+                             ($.cell/* :a))
+             ($.std/into ($.cell/blob-map)
+                         ($.cell/* [[~k
+                                     :a]])))))
+
+  (T/is (= ($.cell/* [:foo 2 3 4])
+           ($.std/into ($.cell/* [:foo])
+                       (map $.std/inc)
+                       ($.cell/* (1 2 3))))))
+
+
 
 ;;;;;;;;;; Comparators
 
