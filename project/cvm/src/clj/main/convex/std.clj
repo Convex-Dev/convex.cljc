@@ -4,12 +4,15 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.data Address
+  (:import (convex.core.data AccountKey
+                             Address
                              ABlob
+                             ABlobMap
                              ACell
                              ACountable
                              ADataStructure
                              AHashMap
+                             AHashSet
                              AList
                              AMap
                              ASequence
@@ -18,6 +21,7 @@
                              AVector
                              INumeric
                              Keyword
+                             Ref
                              Symbol)
            (convex.core.data.prim CVMBool
                                   CVMByte
@@ -99,6 +103,8 @@
 
   ;;
 
+  ^INumeric
+
   [x]
 
   (if (some? x)
@@ -113,6 +119,8 @@
 
   ""
 
+  ^AccountKey
+
   [^ACell x]
 
   (RT/castAccountKey x))
@@ -122,6 +130,8 @@
 (defn address
 
   ""
+
+  ^Address
 
   [^ACell x]
 
@@ -133,6 +143,8 @@
 
   ""
 
+  ^ABlob
+
   [^ACell x]
 
   (RT/castBlob x))
@@ -142,6 +154,8 @@
 (defn byte
 
   ""
+
+  ^CVMByte
 
   [^ACell x]
 
@@ -153,6 +167,8 @@
 
   ""
 
+  ^CVMDouble
+
   [^ACell x]
 
   (RT/castDouble x))
@@ -162,6 +178,8 @@
 (defn keyword
 
   ""
+
+  ^Keyword
 
   [^ACell x]
 
@@ -173,6 +191,8 @@
 
   ""
 
+  ^Long
+
   [^ACell x]
 
   (RT/castLong x))
@@ -183,6 +203,8 @@
 
   ""
 
+  ^ASet
+
   [^ACell x]
 
   (RT/castSet x))
@@ -192,6 +214,8 @@
 (defn str
 
   ""
+
+  ^AString
 
   [& xs]
 
@@ -204,6 +228,8 @@
 
   ""
 
+  ^Symbol
+
   [^ACell x]
 
   (when-some [nm (name x)]
@@ -214,6 +240,8 @@
 (defn vec
 
   ""
+
+  ^AVector
 
   [^ACell x]
 
@@ -226,6 +254,8 @@
 (defn blob-map
 
   ""
+
+  ^ABlobMap
 
   [& kvs]
 
@@ -243,6 +273,8 @@
 
   ""
 
+  ^AHashMap
+
   [& kvs]
 
   (if kvs
@@ -259,6 +291,8 @@
 
   ""
 
+  ^AHashSet
+
   [& kvs]
 
   (if kvs
@@ -271,6 +305,8 @@
 
   ""
 
+  ^AList
+
   [& xs]
 
   (if xs
@@ -282,6 +318,8 @@
 (defn vector
 
   ""
+
+  ^AVector
 
   [& xs]
 
@@ -298,14 +336,14 @@
   ""
 
 
-  ([to from]
+  (^ADataStructure [to from]
 
    (reduce conj
            to
            from))
 
 
-  ([to xform from]
+  (^ADataStructure [to xform from]
 
    (transduce xform
               conj
@@ -409,6 +447,8 @@
 
   ""
 
+  ^ACell
+
   [^ACountable countable index]
 
   (.get countable
@@ -419,6 +459,8 @@
 (defn nth-ref
 
   ""
+
+  ^Ref
 
   [^ACountable countable index]
 
@@ -433,6 +475,8 @@
 
   ""
 
+  ^ADataStructure
+
   [^ADataStructure coll k v]
 
   (.assoc coll
@@ -446,17 +490,17 @@
   ""
 
 
-  ([]
+  (^AVector []
 
    ($.cell/vector))
 
 
-  ([coll]
+  (^ADataStructure [coll]
 
    coll)
 
 
-  ([^ADataStructure coll v]
+  (^ADataStructure [^ADataStructure coll v]
 
    (.conj coll
           v)))
@@ -478,6 +522,8 @@
 
   ""
 
+  ^ADataStructure
+
   [^ADataStructure coll]
 
   (.empty coll))
@@ -488,13 +534,13 @@
 
   ""
 
-  ([^ADataStructure coll ^ACell k]
+  (^ACell [^ADataStructure coll ^ACell k]
 
    (.get coll
          k))
 
 
-  ([^ADataStructure coll ^ACell k not-found]
+  (^ACell [^ADataStructure coll ^ACell k not-found]
 
    (.get coll
          k
@@ -508,6 +554,8 @@
 
   ""
 
+  ^CVMLong
+
   [^CVMLong long]
 
   ($.cell/long (clojure.core/dec (.longValue long))))
@@ -517,6 +565,8 @@
 (defn mod
 
   ""
+
+  ^CVMLong
 
   [a b]
 
@@ -529,6 +579,8 @@
 
   ""
 
+  ^CVMLong
+
   [^CVMLong long]
 
   ($.cell/long (clojure.core/inc (.longValue long))))
@@ -540,6 +592,8 @@
 (defn dissoc
 
   ""
+
+  ^AMap
 
   [^AMap map k]
 
@@ -554,6 +608,8 @@
 
   ""
 
+  ^AMap
+
   [^AMap map k]
 
   (when map
@@ -566,6 +622,8 @@
 
   ""
 
+  ^AVector
+
   [^ACell map]
 
   (or (RT/keys map)
@@ -576,6 +634,8 @@
 (defn merge
 
   ""
+
+  ^AHashMap
 
   [^AHashMap map-1 ^AHashMap map-2]
 
@@ -592,6 +652,8 @@
 
   ""
 
+  ^AVector
+
   [^AMap map]
 
   (.values map))
@@ -603,6 +665,8 @@
 (defn +
 
   ""
+
+  ^INumeric
 
   [& xs]
 
@@ -617,6 +681,8 @@
 
   ""
 
+  ^INumeric
+
   [& xs]
 
   (-> (into-array ACell
@@ -629,6 +695,8 @@
 (defn *
 
   ""
+
+  ^INumeric
 
   [& xs]
 
@@ -643,6 +711,8 @@
 
   ""
 
+  ^INumeric
+
   [x]
 
   (-ensure-numeric (RT/abs x)))
@@ -653,6 +723,8 @@
 
   ""
 
+  ^CVMDouble
+
   [x]
 
   (-ensure-numeric (RT/ceil x)))
@@ -662,6 +734,8 @@
 (defn div
 
   ""
+
+  ^INumeric
 
   [& xs]
 
@@ -676,6 +750,8 @@
 
   ""
 
+  ^CVMDouble
+
   [x]
 
   (-ensure-numeric (RT/exp x)))
@@ -685,6 +761,8 @@
 (defn floor
 
   ""
+
+  ^CVMDouble
 
   [x]
 
@@ -706,6 +784,8 @@
 
   ""
 
+  ^CVMDouble
+
   [^ACell x ^ACell y]
 
   (-> (RT/pow (doto ^"[Lconvex.core.data.ACell;" (make-array ACell
@@ -722,6 +802,8 @@
 
   ""
 
+  ^INumeric
+
   [^ACell x]
 
   (-ensure-numeric (RT/signum x)))
@@ -732,6 +814,8 @@
 (defn sqrt
 
   ""
+
+  ^CVMDouble
 
   [^ACell x]
 
@@ -758,6 +842,8 @@
 
   ""
 
+  ^AList
+
   [x ^ACell coll]
 
   (RT/cons x
@@ -770,6 +856,8 @@
 (defn concat
 
   ""
+
+  ^ASequence
 
   [^ACell x ^ACell y]
 
@@ -786,6 +874,8 @@
 
   ""
 
+  ^ASequence
+
   [^ACell coll]
 
   (when coll
@@ -797,6 +887,8 @@
 (defn reverse
 
   ""
+
+  ^ASequence
 
   [^ASequence sq]
 
@@ -811,6 +903,8 @@
 
   ""
 
+  ^ASet
+
   [^ASet set-1 ^ASet set-2]
 
   (cond
@@ -824,6 +918,8 @@
 (defn intersection
 
   ""
+
+  ^ASet
 
   [^ASet set-1 ^ASet set-2]
 
@@ -853,6 +949,8 @@
 
   ""
 
+  ^ASet
+
   [^ASet set-1 ^ASet set-2]
 
   (cond
@@ -869,6 +967,8 @@
 (defn name
 
   ""
+
+  ^AString
 
   [^ACell symbolic]
 
