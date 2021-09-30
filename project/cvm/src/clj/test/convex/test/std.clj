@@ -392,6 +392,14 @@
   (T/is (nil? ($.std/concat nil
                             nil)))
 
+  (T/is (= ($.cell/* [:a])
+           ($.std/concat ($.cell/* [:a])
+                         nil)))
+
+  (T/is (= ($.cell/* [:a])
+           ($.std/concat nil
+                         ($.cell/* [:a]))))
+
   (T/is (= ($.cell/* (:a :b))
            ($.std/concat ($.cell/* (:a))
                          ($.cell/* (:b)))))
@@ -498,3 +506,95 @@
 
   (T/is (= ($.cell/* (:c :b :a))
            ($.std/reverse ($.cell/* [:a :b :c])))))
+
+
+;;;;;;;;;; Set
+
+
+(T/deftest difference
+
+  (T/is (= ($.cell/* #{})
+           ($.std/difference nil
+                             nil)))
+
+  (T/is (= ($.cell/* #{1})
+           ($.std/difference ($.cell/* #{1})
+                             nil)))
+  (T/is (= ($.cell/* #{})
+           ($.std/difference nil
+                             ($.cell/* #{1}))))
+
+  (T/is (= ($.cell/* #{})
+           ($.std/difference ($.cell/* #{1})
+                             ($.cell/* #{1}))))
+
+  (T/is (= ($.cell/* #{1 2})
+           ($.std/difference ($.cell/* #{1 2})
+                             ($.cell/* #{3 4}))))
+
+  (T/is (= ($.cell/* #{1})
+           ($.std/difference ($.cell/* #{1 2})
+                             ($.cell/* #{2 3})))))
+
+
+
+(T/deftest intersection
+
+  (T/is (= ($.cell/* #{})
+           ($.std/intersection nil
+                               nil)))
+
+  (T/is (= ($.cell/* #{})
+           ($.std/intersection ($.cell/* #{1})
+                               nil)))
+
+  (T/is (= ($.cell/* #{})
+           ($.std/intersection nil
+                               ($.cell/* #{1}))))
+
+  (T/is (= ($.cell/* #{2})
+           ($.std/intersection ($.cell/* #{1 2})
+                               ($.cell/* #{2 3}))))
+
+  (T/is (= ($.cell/* #{})
+           ($.std/intersection ($.cell/* #{1 2})
+                               ($.cell/* #{3 4})))))
+
+
+
+(T/deftest subset?
+
+  (T/is (true? ($.std/subset? nil
+                              nil)))
+
+  (T/is (true? ($.std/subset? nil
+                              ($.cell/* #{1}))))
+
+  (T/is (false? ($.std/subset? ($.cell/* #{1})
+                               nil)))
+
+  (T/is (true? ($.std/subset? ($.cell/* #{1})
+                              ($.cell/* #{1 2}))))
+
+  (T/is (false? ($.std/subset? ($.cell/* #{1})
+                               ($.cell/* #{2})))))
+
+
+
+(T/deftest union
+
+  (T/is (= ($.cell/* #{})
+           ($.std/union nil
+                        nil)))
+
+  (T/is (= ($.cell/* #{1})
+           ($.std/union ($.cell/* #{1})
+                        nil)))
+
+  (T/is (= ($.cell/* #{1})
+           ($.std/union nil
+                        ($.cell/* #{1}))))
+
+  (T/is (= ($.cell/* #{1 2 3})
+           ($.std/union ($.cell/* #{1 2})
+                        ($.cell/* #{2 3})))))

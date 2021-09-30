@@ -9,7 +9,8 @@
                              ADataStructure
                              AHashMap
                              AMap
-                             ASequence)
+                             ASequence
+                             ASet)
            (convex.core.lang RT))
   (:refer-clojure :exclude [assoc
                             concat
@@ -259,3 +260,62 @@
 
   (when sq
     (.reverse sq)))
+
+
+;;;;;;;;;; Set
+
+
+(defn difference
+
+  ""
+
+  [^ASet set-1 ^ASet set-2]
+
+  (cond
+    (nil? set-1) ($.cell/set)
+    (nil? set-2) set-1
+    :else        (.excludeAll set-1
+                              set-2)))
+
+
+
+(defn intersection
+
+  ""
+
+  [^ASet set-1 ^ASet set-2]
+
+  (cond
+    (nil? set-1) ($.cell/set)
+    (nil? set-2) ($.cell/set)
+    :else        (.intersectAll set-1
+                                set-2)))
+
+
+
+(defn subset?
+
+  ""
+
+  [^ASet set-1 ^ASet set-2]
+
+  (cond
+    (nil? set-1) true
+    (nil? set-2) false
+    :else        (.isSubset set-1
+                            set-2)))
+
+
+
+(defn union
+
+  ""
+
+  [^ASet set-1 ^ASet set-2]
+
+  (cond
+    (nil? set-1) (or set-2
+                     ($.cell/set))
+    (nil? set-2) set-1
+    :else        (.includeAll set-1
+                              set-2)))
