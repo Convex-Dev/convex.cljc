@@ -16,6 +16,7 @@
                              ASet
                              AString
                              AVector
+                             INumeric
                              Keyword
                              Symbol)
            (convex.core.data.prim CVMBool
@@ -37,6 +38,7 @@
                             byte
                             boolean?
                             char?
+                            coll?
                             concat
                             conj
                             cons
@@ -65,6 +67,7 @@
                             name
                             next
                             nth
+                            number?
                             reverse
                             set
                             set?
@@ -75,7 +78,8 @@
                             vals
                             vec
                             vector
-                            vector?])
+                            vector?
+                            zero?])
   (:require [convex.cell :as $.cell]))
 
 
@@ -663,6 +667,16 @@
 
 
 
+(defn nan?
+
+  ""
+
+  [^ACell x]
+
+  (RT/isNaN x))
+
+
+
 (defn pow
 
   ""
@@ -697,6 +711,19 @@
   [^ACell x]
 
   (-ensure-numeric (RT/sqrt x)))
+
+
+
+(defn zero?
+
+  ""
+
+  [^ACell x]
+
+  (if-some [^INumeric n (RT/ensureNumber x)]
+    (= (.doubleValue n)
+       0.0)
+    false))
 
 
 ;;;;;;;;;; Sequence
@@ -882,15 +909,25 @@
 
 
 
+(defn coll?
+
+  "Is `x` a collection?"
+
+  [x]
+
+  (instance? ADataStructure
+             x))
+
+
 (defn cvm-value?
 
-  "Is `cell` a CVM value?
+  "Is `x` a CVM value?
 
-   Returns false if `x` is not accessible in the CVM and meant to be used outside (eg. networking)."
+   Returns false if `x` is not accessible to the CVM and meant to be used outside (eg. networking)."
 
-  [^ACell cell]
+  [^ACell x]
 
-  (.isCVMValue cell))
+  (.isCVMValue x))
 
 
 
@@ -946,6 +983,16 @@
 
   (instance? AMap
              x))
+
+
+
+(defn number?
+
+  "Is `x` a CVM number?"
+
+  [x]
+
+  (RT/isNumber x))
 
 
 

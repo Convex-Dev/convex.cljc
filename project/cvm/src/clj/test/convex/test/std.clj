@@ -37,7 +37,8 @@
                             reverse
                             str
                             vals
-                            vector])
+                            vector
+                            zero?])
   (:require [clojure.test :as T]
             [convex.cell  :as $.cell]
             [convex.ref   :as $.ref]
@@ -702,6 +703,14 @@
 
 
 
+(T/deftest nan?
+
+  (T/is (true? ($.std/nan? ($.cell/* ##NaN))))
+
+  (T/is (false? ($.std/nan? ($.cell/* 42.24)))))
+
+
+
 (T/deftest pow
 
   (T/is (= ($.cell/* 9.0)
@@ -736,6 +745,21 @@
 
   (T/is (= ($.cell/* 4.0)
            ($.std/sqrt ($.cell/* 16.0)))))
+
+
+
+(T/deftest zero?
+
+  (T/is (true? ($.std/zero? ($.cell/* 0))))
+
+  (T/is (true? ($.std/zero? ($.cell/* 0.0))))
+
+  (T/is (true? ($.std/zero? ($.cell/* -0.0))))
+
+  (T/is (false? ($.std/zero? ($.cell/* 1))))
+
+  (T/is (false? ($.std/zero? ($.cell/* [])))))
+
 
 
 ;;;;;;;;;; Sequence
