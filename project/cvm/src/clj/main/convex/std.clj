@@ -7,6 +7,8 @@
   (:import (convex.core.data ACell
                              ACountable
                              ADataStructure
+                             AHashMap
+                             AMap
                              ASequence)
            (convex.core.lang RT))
   (:refer-clojure :exclude [assoc
@@ -15,12 +17,18 @@
                             cons
                             contains?
                             count
+                            dissoc
                             empty
                             empty?
+                            find
                             get
+                            keys
+                            merge
                             next
                             nth
-                            reverse]))
+                            reverse
+                            vals])
+  (:require [convex.cell :as $.cell]))
 
 
 (set! *warn-on-reflection*
@@ -73,7 +81,7 @@
                   index))
 
 
-;;;;;;;;;; Data structures
+;;;;;;;;;; Data structure
 
 
 (defn assoc
@@ -135,6 +143,69 @@
    (.get coll
          k
          not-found)))
+
+
+;;;;;;;;;; Map
+
+
+(defn dissoc
+
+  ""
+
+  [^AMap map k]
+
+  (if map
+    (.dissoc map
+             k)
+    ($.cell/map)))
+
+
+
+(defn find
+
+  ""
+
+  [^AMap map k]
+
+  (when map
+    (.getEntry map
+               k)))
+
+
+
+(defn keys
+
+  ""
+
+  [^ACell map]
+
+  (or (RT/keys map)
+      (throw (IllegalArgumentException. "Must be a map"))))
+
+
+
+(defn merge
+
+  ""
+
+  [^AHashMap map-1 ^AHashMap map-2]
+
+  (cond
+    (nil? map-1) (or map-2
+                     ($.cell/map))
+    (nil? map-2) map-1
+    :else        (.merge map-1
+                         map-2)))
+
+
+
+(defn vals
+
+  ""
+
+  [^AMap map]
+
+  (.values map))
 
 
 ;;;;;;;;;; Sequence

@@ -10,12 +10,17 @@
                             cons
                             contains?
                             count
+                            dissoc
                             empty
                             empty?
+                            find
                             get
+                            keys
+                            merge
                             next
                             nth
-                            reverse])
+                            reverse
+                            vals])
   (:require [clojure.test :as T]
             [convex.cell  :as $.cell]
             [convex.ref   :as $.ref]
@@ -277,7 +282,109 @@
                         ($.cell/* :not-found))))))
 
 
-;;;;;;;;;; ASequence
+;;;;;;;;;; Map
+
+
+(T/deftest dissoc
+
+  (T/is (= ($.cell/* {})
+           ($.std/dissoc nil
+                         ($.cell/* :a))))
+
+  (T/is (= ($.cell/* {:a :b})
+           ($.std/dissoc ($.cell/* {:a :b
+                                    :c :d})
+                         ($.cell/* :c))))
+
+  (T/is (= ($.cell/blob-map)
+           (let [b ($.cell/blob (byte-array [0]))]
+             ($.std/dissoc ($.cell/blob-map [[b
+                                              ($.cell/* :a)]])
+                           b)))))
+
+
+
+(T/deftest find
+
+  (T/is (nil? ($.std/find nil
+                          ($.cell/* :a))))
+
+  (T/is (nil? ($.std/find ($.cell/* {:a :b})
+                          ($.cell/* :c))))
+
+  (T/is (= ($.cell/* [:a :b])
+           ($.std/find ($.cell/* {:a :b})
+                       ($.cell/* :a))))
+
+  (T/is (nil? ($.std/find ($.cell/blob-map [[($.cell/blob (byte-array [0]))
+                                             ($.cell/* :a)]])
+                          ($.cell/blob (byte-array [1])))))
+
+  (let [k ($.cell/blob (byte-array [0]))]
+    (T/is (= ($.cell/* [~k
+                        ~($.cell/* :a)])
+             ($.std/find ($.cell/blob-map [[k
+                                            ($.cell/* :a)]])
+                         k)))))
+
+
+
+(T/deftest keys
+
+  (T/is (= ($.cell/* [])
+           ($.std/keys ($.cell/* {}))))
+
+  (T/is (= ($.cell/* [:a])
+           ($.std/keys ($.cell/* {:a :b}))))
+
+  (T/is (= ($.cell/* [])
+           ($.std/keys ($.cell/blob-map))))
+
+  (let [k ($.cell/blob (byte-array [0]))]
+    (T/is (= ($.cell/* [~k])
+             ($.std/keys ($.cell/blob-map [[k
+                                            ($.cell/* :a)]]))))))
+
+
+
+(T/deftest merge
+
+  (T/is (= ($.cell/* {})
+           ($.std/merge nil
+                        nil)))
+
+  (T/is (= ($.cell/* {:a :b})
+           ($.std/merge ($.cell/* {:a :b})
+                        nil)))
+
+  (T/is (= ($.cell/* {:a :b})
+           ($.std/merge nil
+                        ($.cell/* {:a :b}))))
+
+  (T/is (= ($.cell/* {:a :b
+                      :c :d})
+           ($.std/merge ($.cell/* {:a :b})
+                        ($.cell/* {:c :d})))))
+
+
+
+(T/deftest values
+
+  (T/is (= ($.cell/* [])
+           ($.std/vals ($.cell/* {}))))
+
+  (T/is (= ($.cell/* [:b])
+           ($.std/vals ($.cell/* {:a :b}))))
+
+  (T/is (= ($.cell/* [])
+           ($.std/vals ($.cell/blob-map))))
+
+  (T/is (= ($.cell/* [:a])
+           ($.std/vals ($.cell/blob-map [[($.cell/blob (byte-array [0]))
+                                          ($.cell/* :a)]])))))
+
+
+;;;;;;;;;; Sequence
 
 
 (T/deftest concat
