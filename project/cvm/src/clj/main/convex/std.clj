@@ -28,6 +28,11 @@
                             -
                             *
                             /
+                            <
+                            <=
+                            ==
+                            >=
+                            >
                             assoc
                             boolean?
                             char?
@@ -74,8 +79,76 @@
 
   [x]
 
-  (or x
-      (throw (IllegalArgumentException. "Argument must be numeric"))))
+  (if (some? x)
+    x
+    (throw (IllegalArgumentException. "Argument must be numeric"))))
+
+
+;;;;;;;;;; Comparators
+
+
+(defn <
+
+  ""
+
+  [& xs]
+
+  (-> (into-array ACell
+                  xs)
+      RT/lt
+      -ensure-numeric))
+
+
+
+(defn <=
+
+  ""
+
+  [& xs]
+
+  (-> (into-array ACell
+                  xs)
+      RT/le
+      -ensure-numeric))
+
+
+
+(defn ==
+
+  ""
+
+  [& xs]
+
+  (-> (into-array ACell
+                  xs)
+      RT/eq
+      -ensure-numeric))
+
+
+
+(defn >=
+
+  ""
+
+  [& xs]
+
+  (-> (into-array ACell
+                  xs)
+      RT/ge
+      -ensure-numeric))
+
+
+
+(defn >
+
+  ""
+
+  [& xs]
+
+  (-> (into-array ACell
+                  xs)
+      RT/gt
+      -ensure-numeric))
 
 
 ;;;;;;;;;; Countable

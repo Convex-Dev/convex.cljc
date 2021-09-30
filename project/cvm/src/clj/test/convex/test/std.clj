@@ -7,6 +7,11 @@
   (:refer-clojure :exclude [+
                             -
                             *
+                            <
+                            <=
+                            ==
+                            >=
+                            >
                             assoc
                             concat
                             conj
@@ -22,6 +27,7 @@
                             inc
                             keys
                             merge
+                            mod
                             next
                             nth
                             reverse
@@ -30,6 +36,112 @@
             [convex.cell  :as $.cell]
             [convex.ref   :as $.ref]
             [convex.std   :as $.std]))
+
+
+;;;;;;;;;; Comparators
+
+
+(T/deftest <
+
+  (T/is (true? ($.std/< ($.cell/* 42)
+                        ($.cell/* 100))))
+
+  (T/is (false? ($.std/< ($.cell/* 42)
+                         ($.cell/* 42))))
+
+  (T/is (false? ($.std/< ($.cell/* 42)
+                         ($.cell/* 1))))
+
+  (T/is (true? ($.std/< ($.cell/* 42.0)
+                        ($.cell/* 100))))
+
+  (T/is (false? ($.std/< ($.cell/* 42.0)
+                         ($.cell/* 42))))
+
+  (T/is (false? ($.std/< ($.cell/* 42.0)
+                         ($.cell/* 1)))))
+
+
+
+(T/deftest <=
+
+  (T/is (true? ($.std/<= ($.cell/* 42)
+                         ($.cell/* 100))))
+
+  (T/is (true? ($.std/<= ($.cell/* 42)
+                         ($.cell/* 42))))
+
+  (T/is (false? ($.std/<= ($.cell/* 42)
+                          ($.cell/* 1))))
+
+  (T/is (true? ($.std/<= ($.cell/* 42.0)
+                         ($.cell/* 100))))
+
+  (T/is (true? ($.std/<= ($.cell/* 42.0)
+                         ($.cell/* 42))))
+
+  (T/is (false? ($.std/<= ($.cell/* 42.0)
+                          ($.cell/* 1)))))
+
+
+
+(T/deftest ==
+
+  (T/is (true? ($.std/== ($.cell/* 42)
+                         ($.cell/* 42))))
+
+  (T/is (false? ($.std/== ($.cell/* 1)
+                          ($.cell/* 42))))
+
+  (T/is (true? ($.std/== ($.cell/* 42.0)
+                         ($.cell/* 42))))
+
+  (T/is (false? ($.std/== ($.cell/* 1.0)
+                          ($.cell/* 42)))))
+
+
+
+(T/deftest >=
+
+  (T/is (false? ($.std/>= ($.cell/* 42)
+                          ($.cell/* 100))))
+
+  (T/is (true? ($.std/>= ($.cell/* 42)
+                         ($.cell/* 42))))
+
+  (T/is (true? ($.std/>= ($.cell/* 42)
+                         ($.cell/* 1))))
+
+  (T/is (false? ($.std/>= ($.cell/* 42.0)
+                          ($.cell/* 100))))
+
+  (T/is (true? ($.std/>= ($.cell/* 42.0)
+                         ($.cell/* 42))))
+
+  (T/is (true? ($.std/>= ($.cell/* 42.0)
+                         ($.cell/* 1)))))
+
+
+
+(T/deftest >
+
+  (T/is (false? ($.std/> ($.cell/* 42)
+                         ($.cell/* 100))))
+
+  (T/is (false? ($.std/> ($.cell/* 42)
+                         ($.cell/* 42))))
+
+  (T/is (true? ($.std/> ($.cell/* 42)
+                        ($.cell/* 1))))
+
+  (T/is (false? ($.std/> ($.cell/* 42.0)
+                         ($.cell/* 100))))
+
+  (T/is (false? ($.std/> ($.cell/* 42.0)
+                         ($.cell/* 42))))
+
+  (T/is (true? ($.std/> ($.cell/* 42.0)
+                        ($.cell/* 1)))))
 
 
 ;;;;;;;;;; Countable
