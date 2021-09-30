@@ -50,10 +50,13 @@
                             empty?
                             find
                             get
+                            hash-map
+                            hash-set
                             inc
                             keys
                             keyword
                             keyword?
+                            list
                             list?
                             long
                             map?
@@ -65,11 +68,13 @@
                             reverse
                             set
                             set?
+                            str
                             string?
                             symbol
                             symbol?
                             vals
                             vec
+                            vector
                             vector?])
   (:require [convex.cell :as $.cell]))
 
@@ -178,6 +183,17 @@
 
 
 
+(defn str
+
+  ""
+
+  [& xs]
+
+  (RT/str ^"[Lconvex.core.data.ACell;" (into-array ACell
+                                                   xs)))
+
+
+
 (defn symbol
 
   ""
@@ -185,7 +201,7 @@
   [^ACell x]
 
   (when-some [nm (name x)]
-    ($.cell/symbol (str nm))))
+    ($.cell/symbol (clojure.core/str nm))))
 
 
 
@@ -196,6 +212,76 @@
   [^ACell x]
 
   (RT/castVector x))
+
+
+;;;;;;;;;; Collection constructors
+
+
+(defn blob-map
+
+  ""
+
+  [& kvs]
+
+  (if kvs
+    (do
+      (when-not (even? (clojure.core/count kvs))
+        (throw (IllegalArgumentException. "Must provide an even number of arguments")))
+      ($.cell/blob-map (partition 2
+                                  kvs)))
+    ($.cell/blob-map)))
+
+
+
+(defn hash-map
+
+  ""
+
+  [& kvs]
+
+  (if kvs
+    (do
+      (when-not (even? (clojure.core/count kvs))
+        (throw (IllegalArgumentException. "Must provide an even number of arguments")))
+      ($.cell/map (partition 2
+                             kvs)))
+    ($.cell/map)))
+
+
+
+(defn hash-set
+
+  ""
+
+  [& kvs]
+
+  (if kvs
+    ($.cell/set kvs)
+    ($.cell/set)))
+
+
+
+(defn list
+
+  ""
+
+  [& xs]
+
+  (if xs
+    ($.cell/list xs)
+    ($.cell/list)))
+
+
+
+(defn vector
+
+  ""
+
+  [& xs]
+
+  (if xs
+    ($.cell/vector xs)
+    ($.cell/vector)))
 
 
 ;;;;;;;;;; Comparators

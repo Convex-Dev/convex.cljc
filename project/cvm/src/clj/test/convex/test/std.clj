@@ -24,20 +24,96 @@
                             empty?
                             find
                             get
+                            hash-map
+                            hash-set
                             inc
                             keys
+                            list
                             merge
                             mod
                             name
                             next
                             nth
                             reverse
-                            vals])
+                            str
+                            vals
+                            vector])
   (:require [clojure.test :as T]
             [convex.cell  :as $.cell]
             [convex.ref   :as $.ref]
             [convex.std   :as $.std]))
 
+
+;;;;;;;;;; Casts
+
+
+(T/deftest str
+
+  (T/is (= ($.cell/* "[:a :b]")
+           ($.std/str ($.cell/* [:a :b])))))
+
+
+;;;;;;;;;; Collection constructors
+
+
+(let [k ($.cell/blob (byte-array [0]))]
+  (T/deftest blob-map
+
+    (T/is (= ($.cell/blob-map)
+             ($.std/blob-map)))
+
+    (T/is (= ($.cell/blob-map [[k
+                                ($.cell/* :a)]])
+             ($.std/blob-map k
+                             ($.cell/* :a))))
+
+    (T/is (thrown? IllegalArgumentException
+                   ($.std/blob-map k)))))
+
+
+
+(T/deftest hash-map
+
+  (T/is (= ($.cell/* {})
+           ($.std/hash-map)))
+
+  (T/is (= ($.cell/* {:a :b})
+           ($.std/hash-map ($.cell/* :a)
+                           ($.cell/* :b))))
+
+  (T/is (thrown? IllegalArgumentException
+                 ($.std/hash-map ($.cell/* :a)))))
+
+
+
+(T/deftest hash-set
+
+  (T/is (= ($.cell/* #{})
+           ($.std/hash-set)))
+
+  (T/is (= ($.cell/* #{:a :b})
+           ($.std/hash-set ($.cell/* :a)
+                           ($.cell/* :b)))))
+
+
+
+(T/deftest list
+
+  (T/is (= ($.cell/* ())
+           ($.std/list)))
+
+  (T/is (= ($.cell/* (:a :b))
+           ($.std/list ($.cell/* :a)
+                       ($.cell/* :b)))))
+
+(T/deftest vector
+
+  (T/is (= ($.cell/* [])
+           ($.std/vector)))
+
+  (T/is (= ($.cell/* [:a :b])
+           ($.std/vector ($.cell/* :a)
+                         ($.cell/* :b)))))
 
 ;;;;;;;;;; Comparators
 
