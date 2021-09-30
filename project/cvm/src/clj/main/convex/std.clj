@@ -1,6 +1,15 @@
 (ns convex.std
 
-  ""
+  "Provides an API for cells similar to the Clojure standard library.
+
+   A fair chunk of the Clojure standard library works with Convex collections since they are seqable. All
+   Clojure functions involving sequences usually understand Convex collections (`first`, `map`, `reduce`,
+   `transduce`, etc)
+
+   Some of those (eg. `cons`, `next`) have counterparts in this namespace in case the return value must be
+   a cell instead of a Clojure sequence.
+
+   Functions take and return cells unless specified otherwise. Predicates return JVM booleans."
 
   {:author "Adam Helinski"}
 
@@ -41,6 +50,7 @@
                             assoc
                             byte
                             boolean?
+                            char
                             char?
                             coll?
                             concat
@@ -101,7 +111,8 @@
 
 (defn- -ensure-numeric
 
-  ;;
+  ;; Used by functions that are supposed to return a number.
+  ;; Nil means failure.
 
   ^INumeric
 
@@ -117,135 +128,178 @@
 
 (defn account-key
 
-  ""
+  "Coerces the given `cell` to an account key or return nil.
+  
+   Works with:
+
+   - 64-char hex-string cell
+   - 32-byte blob"
 
   ^AccountKey
 
-  [^ACell x]
+  [^ACell cell]
 
-  (RT/castAccountKey x))
+  (RT/castAccountKey cell))
 
 
 
 (defn address
 
-  ""
+  "Coerces the given `cell` to an address or return nil.
+  
+   Works with:
+
+   - Long cell
+   - 16-char hex-string cell
+   - 8-byte blob"
 
   ^Address
 
-  [^ACell x]
+  [^ACell cell]
 
-  (RT/castAddress x))
+  (RT/castAddress cell))
 
 
 
 (defn blob
 
-  ""
+  "Coerces the given `cell` to a blob or return nil.
+  
+   Works with:
+
+   - Any kind of blob (eg. hash)
+   - Long cell
+   - Hex-string cell"
 
   ^ABlob
 
-  [^ACell x]
+  [^ACell cell]
 
-  (RT/castBlob x))
+  (RT/castBlob cell))
 
 
 
 (defn byte
 
-  ""
+  "Coerces the given `cell` to a byte or return nil."
 
   ^CVMByte
 
-  [^ACell x]
+  [^ACell cell]
 
-  (RT/castByte x))
+  (RT/castByte cell))
+
+
+
+(defn char
+
+  "Coerces the given `cell` to a char or return nil."
+
+  ^CVMChar
+
+  [^ACell cell]
+
+  (RT/toCharacter cell))
 
 
 
 (defn double
 
-  ""
+  "Coerces the given `cell` to a double or return nil."
 
   ^CVMDouble
 
-  [^ACell x]
+  [^ACell cell]
 
-  (RT/castDouble x))
+  (RT/castDouble cell))
 
 
 
 (defn keyword
 
-  ""
+  "Coerces the given `cell` to a keyword or return nil.
+  
+   Works with:
+
+   - Max 64-char string cell
+   - Symbol"
 
   ^Keyword
 
-  [^ACell x]
+  [^ACell cell]
 
-  (RT/castKeyword x))
+  (RT/castKeyword cell))
 
 
 
 (defn long
 
-  ""
+  "Coerces the given `cell` to a long or return nil."
 
   ^Long
 
-  [^ACell x]
+  [^ACell cell]
 
-  (RT/castLong x))
+  (RT/castLong cell))
 
 
 
 (defn set
 
-  ""
+  "Coerces the given `cell` to a set or return nil.
+  
+   Works with any collection."
 
   ^ASet
 
-  [^ACell x]
+  [^ACell cell]
 
-  (RT/castSet x))
+  (RT/castSet cell))
 
 
 
 (defn str
 
-  ""
+  "Stringifies the given cell(s)."
 
   ^AString
 
-  [& xs]
+  [& cell+]
 
   (RT/str ^"[Lconvex.core.data.ACell;" (into-array ACell
-                                                   xs)))
+                                                   cell+)))
 
 
 
 (defn symbol
 
-  ""
+  "Coerces the given `cell` to a symbol or return nil.
+
+   Works with:
+
+   - Max 64-char string cell
+   - Symbol"
 
   ^Symbol
 
-  [^ACell x]
+  [^ACell cell]
 
-  (when-some [nm (name x)]
+  (when-some [nm (name cell)]
     ($.cell/symbol (clojure.core/str nm))))
 
 
 
 (defn vec
 
-  ""
+  "Coerces the given `cell` to a vector or return nil.
+  
+   Works with any countable (see [[count]])."
 
   ^AVector
 
-  [^ACell x]
+  [^ACell cell]
 
-  (RT/castVector x))
+  (RT/castVector cell))
 
 
 ;;;;;;;;;; Collection constructors
@@ -253,7 +307,7 @@
 
 (defn blob-map
 
-  ""
+  "Builds a blob map from key-values (keys must be blobs)."
 
   ^ABlobMap
 
@@ -271,7 +325,7 @@
 
 (defn hash-map
 
-  ""
+  "Builds a map from key-values."
 
   ^AHashMap
 
@@ -289,42 +343,42 @@
 
 (defn hash-set
 
-  ""
+  "Builds a set from the given cells."
 
   ^AHashSet
 
-  [& kvs]
+  [& cell+]
 
-  (if kvs
-    ($.cell/set kvs)
+  (if cell+
+    ($.cell/set cell+)
     ($.cell/set)))
 
 
 
 (defn list
 
-  ""
+  "Buildsa list from the given cells."
 
   ^AList
 
-  [& xs]
+  [& cell+]
 
-  (if xs
-    ($.cell/list xs)
+  (if cell+
+    ($.cell/list cell+)
     ($.cell/list)))
 
 
 
 (defn vector
 
-  ""
+  "Builds a vector from the given cells."
 
   ^AVector
 
-  [& xs]
+  [& cell+]
 
-  (if xs
-    ($.cell/vector xs)
+  (if cell+
+    ($.cell/vector cell+)
     ($.cell/vector)))
 
 
@@ -333,7 +387,7 @@
 
 (defn into
 
-  ""
+  "Like classic `into` but `to` is a collection cell."
 
 
   (^ADataStructure [to from]
@@ -356,7 +410,7 @@
 
 (defn <
 
-  ""
+  "Like classic `<` but with number cells."
 
   [& xs]
 
@@ -369,7 +423,7 @@
 
 (defn <=
 
-  ""
+  "Like classic `<=` but with number cells."
 
   [& xs]
 
@@ -382,7 +436,7 @@
 
 (defn ==
 
-  ""
+  "Like classic `==` but with number cells."
 
   [& xs]
 
@@ -395,7 +449,7 @@
 
 (defn >=
 
-  ""
+  "Like classic `>=` but with number cells."
 
   [& xs]
 
@@ -408,7 +462,7 @@
 
 (defn >
 
-  ""
+  "Like classic `>` but with number cells."
 
   [& xs]
 
@@ -423,7 +477,17 @@
 
 (defn count
 
-  ""
+  "Returns a JVM long representing the number of itms in the given cell.
+  
+   A countable is either:
+
+   - Blob
+   - Blob map
+   - Map
+   - List
+   - Set
+   - String
+   - Vector"
 
   [^ACountable countable]
 
@@ -433,7 +497,9 @@
 
 (defn empty?
 
-  ""
+  "Is the given `countable` empty?
+  
+   See [[count]]."
 
   [^ACountable countable]
 
@@ -445,7 +511,11 @@
 
 (defn nth
 
-  ""
+  "Like classic `nth` but for countables.
+
+   Index must be a JVM long.
+
+   See [[count]]."
 
   ^ACell
 
@@ -458,7 +528,11 @@
 
 (defn nth-ref
 
-  ""
+  "Like [[nth]] but returns a ref.
+
+   See namespace `convex.ref` from `:project/db`.
+
+   See [[count]]."
 
   ^Ref
 
@@ -473,7 +547,7 @@
 
 (defn assoc
 
-  ""
+  "Like classic `assoc` but for collection cells."
 
   ^ADataStructure
 
@@ -487,7 +561,7 @@
 
 (defn conj
 
-  ""
+  "Like classic `conj` but for collection cells."
 
 
   (^AVector []
@@ -509,7 +583,7 @@
 
 (defn contains?
 
-  ""
+  "Like classic `contains?` but for collection cells."
 
   [^ADataStructure coll k]
 
@@ -520,7 +594,7 @@
 
 (defn empty
 
-  ""
+  "Like classic `empty` but for collection cells."
 
   ^ADataStructure
 
@@ -532,7 +606,7 @@
 
 (defn get
 
-  ""
+  "Like classic `get` but for collection cells."
 
   (^ACell [^ADataStructure coll ^ACell k]
 
@@ -552,7 +626,7 @@
 
 (defn dec
 
-  ""
+  "Like classic `dec` but for long cells."
 
   ^CVMLong
 
@@ -564,7 +638,9 @@
 
 (defn mod
 
-  ""
+  "Returns the integer modulus of a numerator divided by a divisor.
+  
+   Result will always be positive and consistent with Euclidean Divsion."
 
   ^CVMLong
 
@@ -577,7 +653,7 @@
 
 (defn inc
 
-  ""
+  "Like classic `inc` but for long cells."
 
   ^CVMLong
 
@@ -591,7 +667,7 @@
 
 (defn dissoc
 
-  ""
+  "Like classic `dissoc` but for map cells."
 
   ^AMap
 
@@ -606,7 +682,7 @@
 
 (defn find
 
-  ""
+  "Like classic `find`` but for map cells."
 
   ^AMap
 
@@ -620,7 +696,9 @@
 
 (defn keys
 
-  ""
+  "Like classic `keys` but for map cells.
+
+   Returns an eager vector cell."
 
   ^AVector
 
@@ -633,7 +711,7 @@
 
 (defn merge
 
-  ""
+  "Like classic `merge` but for hash map cells (not blob maps)."
 
   ^AHashMap
 
@@ -650,7 +728,9 @@
 
 (defn vals
 
-  ""
+  "Like classic `vals` but for map cells.
+
+   Returns an eager vector cell."
 
   ^AVector
 
@@ -664,7 +744,7 @@
 
 (defn +
 
-  ""
+  "Like classic `+` but for number cells."
 
   ^INumeric
 
@@ -679,7 +759,7 @@
 
 (defn -
 
-  ""
+  "Like classic `-` but for number cells."
 
   ^INumeric
 
@@ -694,7 +774,7 @@
 
 (defn *
 
-  ""
+  "Like classic `*` but for number cells."
 
   ^INumeric
 
@@ -709,31 +789,33 @@
 
 (defn abs
 
-  ""
+  "Returns the absolute value of `x`.
+  
+   Same type as `x`."
 
   ^INumeric
 
-  [x]
+  [number]
 
-  (-ensure-numeric (RT/abs x)))
+  (-ensure-numeric (RT/abs number)))
 
 
 
 (defn ceil
 
-  ""
+  "Returns a double cell ceiling the value of `number`."
 
   ^CVMDouble
 
-  [x]
+  [number]
 
-  (-ensure-numeric (RT/ceil x)))
+  (-ensure-numeric (RT/ceil number)))
 
 
 
 (defn div
 
-  ""
+  "Like classic `/` but for number cells."
 
   ^INumeric
 
@@ -748,19 +830,19 @@
 
 (defn exp
 
-  ""
+  "Returns `e` raised to the power of the given number cell."
 
   ^CVMDouble
 
-  [x]
+  [number]
 
-  (-ensure-numeric (RT/exp x)))
+  (-ensure-numeric (RT/exp number)))
 
 
 
 (defn floor
 
-  ""
+  "Returns a double cell flooring the value of `x`."
 
   ^CVMDouble
 
@@ -772,17 +854,17 @@
 
 (defn nan?
 
-  ""
+  "Is the given `cell` NaN?"
 
-  [^ACell x]
+  [^ACell cell]
 
-  (RT/isNaN x))
+  (RT/isNaN cell))
 
 
 
 (defn pow
 
-  ""
+  "Returns a CVM double, `x` raised to the power of `y`."
 
   ^CVMDouble
 
@@ -800,32 +882,38 @@
 
 (defn signum
 
-  ""
+  "Returns the sign of the number:
+  
+   - `-1` if negative
+   - `0` if 0
+   - `1` if positive
+  
+   As a long cell if input is a long, double cell if it is a double."
 
   ^INumeric
 
-  [^ACell x]
+  [^ACell number]
 
-  (-ensure-numeric (RT/signum x)))
+  (-ensure-numeric (RT/signum number)))
 
 
 
 
 (defn sqrt
 
-  ""
+  "Returns a double cell, the square root of the given `number` cell."
 
   ^CVMDouble
 
-  [^ACell x]
+  [^INumeric number]
 
-  (-ensure-numeric (RT/sqrt x)))
+  (-ensure-numeric (RT/sqrt number)))
 
 
 
 (defn zero?
 
-  ""
+  "Like classic `+` but for cells."
 
   [^ACell x]
 
@@ -840,7 +928,9 @@
 
 (defn cons
 
-  ""
+  "Like classic `cons` but for collection cells.
+  
+   Returns a list cell."
 
   ^AList
 
@@ -855,7 +945,9 @@
 
 (defn concat
 
-  ""
+  "Like classic `concat` but for collection cells.
+
+   Return type is the same as `x`."
 
   ^ASequence
 
@@ -872,7 +964,9 @@
 
 (defn next
 
-  ""
+  "Like classic `next` but for collection cells.
+  
+   Return type is a list cell if `coll` is a list, a vector cell otherwise."
 
   ^ASequence
 
@@ -886,7 +980,7 @@
 
 (defn reverse
 
-  ""
+  "Like classic `reverse` but for sequential cells (list or vector cells)."
 
   ^ASequence
 
@@ -901,7 +995,7 @@
 
 (defn difference
 
-  ""
+  "Like `clojure.set/difference` but for set cells."
 
   ^ASet
 
@@ -917,7 +1011,7 @@
 
 (defn intersection
 
-  ""
+  "Like `clojure.set/intersection` but for set cells."
 
   ^ASet
 
@@ -933,7 +1027,7 @@
 
 (defn subset?
 
-  ""
+  "Like `clojure.set/subset?` but for set cells."
 
   [^ASet set-1 ^ASet set-2]
 
@@ -947,7 +1041,7 @@
 
 (defn union
 
-  ""
+  "Like `clojure.set/union` but for set cells."
 
   ^ASet
 
@@ -966,7 +1060,9 @@
 
 (defn name
 
-  ""
+  "Like classic `name` but for keyword and symbol cells.
+  
+   Returns a string cell."
 
   ^AString
 
@@ -1001,6 +1097,17 @@
 
 
 
+(defn blob-map?
+
+  "Is `x` a blob map?"
+
+  [x]
+
+  (instance? ABlobMap
+             x))
+
+
+
 (defn boolean?
 
   "Is `x` a CVM boolean?"
@@ -1014,7 +1121,7 @@
 
 (defn byte?
 
-  "Is `x` a CVM byte?"
+  "Is `x` a byte cell?"
 
   [x]
 
@@ -1025,7 +1132,7 @@
 
 (defn char?
 
-  "Is `x` a CVM char?"
+  "Is `x` a char cell?"
 
   [x]
 
@@ -1036,7 +1143,7 @@
 
 (defn coll?
 
-  "Is `x` a collection?"
+  "Is `x` a collection cell?"
 
   [x]
 
@@ -1058,7 +1165,7 @@
 
 (defn double?
 
-  "Is `x` a CVM double?"
+  "Is `x` a double cell?"
 
   [x]
 
@@ -1069,7 +1176,7 @@
 
 (defn keyword?
 
-  "Is `x` a CVM keyword?"
+  "Is `x` a keyword cell?"
 
   [x]
 
@@ -1080,7 +1187,7 @@
 
 (defn list?
 
-  "Is `x` a CVM list?"
+  "Is `x` a list cell?"
 
   [x]
 
@@ -1091,7 +1198,7 @@
 
 (defn long?
 
-  "Is `x` a CVM long?"
+  "Is `x` a long cell?"
 
   [x]
 
@@ -1102,7 +1209,7 @@
 
 (defn map?
 
-  "Is `x` a CVM map?"
+  "Is `x` a map cell?"
 
   [x]
 
@@ -1113,7 +1220,9 @@
 
 (defn number?
 
-  "Is `x` a CVM number?"
+  "Is `x` a number cell?
+  
+   Either a long or a double."
 
   [x]
 
@@ -1123,7 +1232,7 @@
 
 (defn set?
 
-  "Is `x` a CVM set?"
+  "Is `x` a set cell?"
 
   [x]
 
@@ -1134,7 +1243,7 @@
 
 (defn string?
 
-  "Is `x` a CVM string?"
+  "Is `x` a string cell?"
 
   [x]
 
@@ -1145,7 +1254,7 @@
 
 (defn symbol?
 
-  "Is `x` a CVM symbol?"
+  "Is `x` a symbol cell?"
 
   [x]
 
@@ -1156,7 +1265,7 @@
 
 (defn vector?
 
-  "Is `x` a CVM vector?"
+  "Is `x` a vector cell?"
 
   [x]
 
