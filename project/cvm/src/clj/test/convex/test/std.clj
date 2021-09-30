@@ -28,6 +28,7 @@
                             keys
                             merge
                             mod
+                            name
                             next
                             nth
                             reverse
@@ -875,3 +876,20 @@
   (T/is (= ($.cell/* #{1 2 3})
            ($.std/union ($.cell/* #{1 2})
                         ($.cell/* #{2 3})))))
+
+
+;;;;;;;;; Symbolic
+
+
+(let [s ($.cell/* "test")]
+
+  (T/deftest name
+  
+    (T/is (= s
+             ($.std/name s)))
+
+    (T/is (= s
+             ($.std/name ($.cell/* test))))
+
+    (T/is (= s
+             ($.std/name ($.cell/* :test))))))

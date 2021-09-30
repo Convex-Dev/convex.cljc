@@ -34,6 +34,7 @@
                             >=
                             >
                             assoc
+                            byte
                             boolean?
                             char?
                             concat
@@ -43,6 +44,7 @@
                             count
                             dec
                             dissoc
+                            double
                             double?
                             empty
                             empty?
@@ -50,24 +52,33 @@
                             get
                             inc
                             keys
+                            keyword
                             keyword?
                             list?
+                            long
                             map?
                             merge
                             mod
+                            name
                             next
                             nth
                             reverse
+                            set
                             set?
                             string?
+                            symbol
                             symbol?
                             vals
+                            vec
                             vector?])
   (:require [convex.cell :as $.cell]))
 
 
 (set! *warn-on-reflection*
       true)
+
+
+(declare name)
 
 
 ;;;;;;;;;; Private
@@ -82,6 +93,109 @@
   (if (some? x)
     x
     (throw (IllegalArgumentException. "Argument must be numeric"))))
+
+
+;;;;;;;;;; Casts
+
+
+(defn account-key
+
+  ""
+
+  [^ACell x]
+
+  (RT/castAccountKey x))
+
+
+
+(defn address
+
+  ""
+
+  [^ACell x]
+
+  (RT/castAddress x))
+
+
+
+(defn blob
+
+  ""
+
+  [^ACell x]
+
+  (RT/castBlob x))
+
+
+
+(defn byte
+
+  ""
+
+  [^ACell x]
+
+  (RT/castByte x))
+
+
+
+(defn double
+
+  ""
+
+  [^ACell x]
+
+  (RT/castDouble x))
+
+
+
+(defn keyword
+
+  ""
+
+  [^ACell x]
+
+  (RT/castKeyword x))
+
+
+
+(defn long
+
+  ""
+
+  [^ACell x]
+
+  (RT/castLong x))
+
+
+
+(defn set
+
+  ""
+
+  [^ACell x]
+
+  (RT/castSet x))
+
+
+
+(defn symbol
+
+  ""
+
+  [^ACell x]
+
+  (when-some [nm (name x)]
+    ($.cell/symbol (str nm))))
+
+
+
+(defn vec
+
+  ""
+
+  [^ACell x]
+
+  (RT/castVector x))
 
 
 ;;;;;;;;;; Comparators
@@ -609,6 +723,19 @@
     (nil? set-2) set-1
     :else        (.includeAll set-1
                               set-2)))
+
+
+;;;;;;;;;; Symbolic
+
+
+(defn name
+
+  ""
+
+  [^ACell symbolic]
+
+  (or (RT/name symbolic)
+      (throw (IllegalArgumentException. "Must be symbolic"))))
 
 
 ;;;;;;;;; Type predicates
