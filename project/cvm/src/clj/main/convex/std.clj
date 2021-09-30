@@ -24,7 +24,11 @@
                                   CVMDouble
                                   CVMLong)
            (convex.core.lang RT))
-  (:refer-clojure :exclude [assoc
+  (:refer-clojure :exclude [+
+                            -
+                            *
+                            /
+                            assoc
                             boolean?
                             char?
                             concat
@@ -32,17 +36,20 @@
                             cons
                             contains?
                             count
+                            dec
                             dissoc
                             double?
                             empty
                             empty?
                             find
                             get
+                            inc
                             keys
                             keyword?
                             list?
                             map?
                             merge
+                            mod
                             next
                             nth
                             reverse
@@ -56,6 +63,19 @@
 
 (set! *warn-on-reflection*
       true)
+
+
+;;;;;;;;;; Private
+
+
+(defn- -ensure-numeric
+
+  ;;
+
+  [x]
+
+  (or x
+      (throw (IllegalArgumentException. "Argument must be numeric"))))
 
 
 ;;;;;;;;;; Countable
@@ -123,10 +143,21 @@
 
   ""
 
-  [^ADataStructure coll v]
 
-  (.conj coll
-         v))
+  ([]
+
+   ($.cell/vector))
+
+
+  ([coll]
+
+   coll)
+
+
+  ([^ADataStructure coll v]
+
+   (.conj coll
+          v)))
 
 
 
@@ -166,6 +197,39 @@
    (.get coll
          k
          not-found)))
+
+
+;;;;;;;;;; Long
+
+
+(defn dec
+
+  ""
+
+  [^CVMLong long]
+
+  ($.cell/long (clojure.core/dec (.longValue long))))
+
+
+
+(defn mod
+
+  ""
+
+  [a b]
+
+  (-ensure-numeric (RT/mod a
+                           b)))
+
+
+
+(defn inc
+
+  ""
+
+  [^CVMLong long]
+
+  ($.cell/long (clojure.core/inc (.longValue long))))
 
 
 ;;;;;;;;;; Map
@@ -229,6 +293,137 @@
   [^AMap map]
 
   (.values map))
+
+
+;;;;;;;;;; Math
+
+
+(defn +
+
+  ""
+
+  [& xs]
+
+  (-> (into-array ACell
+                  xs)
+      RT/plus
+      -ensure-numeric))
+
+
+
+(defn -
+
+  ""
+
+  [& xs]
+
+  (-> (into-array ACell
+                  xs)
+      RT/minus
+      -ensure-numeric))
+
+
+
+(defn *
+
+  ""
+
+  [& xs]
+
+  (-> (into-array ACell
+                  xs)
+      RT/times
+      -ensure-numeric))
+
+
+
+(defn abs
+
+  ""
+
+  [x]
+
+  (-ensure-numeric (RT/abs x)))
+
+
+
+(defn ceil
+
+  ""
+
+  [x]
+
+  (-ensure-numeric (RT/ceil x)))
+
+
+
+(defn div
+
+  ""
+
+  [& xs]
+
+  (-> (into-array ACell
+                  xs)
+      RT/divide
+      -ensure-numeric))
+
+
+
+(defn exp
+
+  ""
+
+  [x]
+
+  (-ensure-numeric (RT/exp x)))
+
+
+
+(defn floor
+
+  ""
+
+  [x]
+
+  (-ensure-numeric (RT/floor x)))
+
+
+
+(defn pow
+
+  ""
+
+  [^ACell x ^ACell y]
+
+  (-> (RT/pow (doto ^"[Lconvex.core.data.ACell;" (make-array ACell
+                                                             2)
+                (aset 0
+                      x)
+                (aset 1
+                      y)))
+      -ensure-numeric))
+
+
+
+(defn signum
+
+  ""
+
+  [^ACell x]
+
+  (-ensure-numeric (RT/signum x)))
+
+
+
+
+(defn sqrt
+
+  ""
+
+  [^ACell x]
+
+  (-ensure-numeric (RT/sqrt x)))
 
 
 ;;;;;;;;;; Sequence

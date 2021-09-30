@@ -1,20 +1,25 @@
 (ns convex.test.std
 
-  "Testing `conveX.std`."
+  "Testing `convex.std`."
 
   {:author "Adam Helinski"}
 
-  (:refer-clojure :exclude [assoc
+  (:refer-clojure :exclude [+
+                            -
+                            *
+                            assoc
                             concat
                             conj
                             cons
                             contains?
                             count
+                            dec
                             dissoc
                             empty
                             empty?
                             find
                             get
+                            inc
                             keys
                             merge
                             next
@@ -282,6 +287,30 @@
                         ($.cell/* :not-found))))))
 
 
+;;;;;;;;;; Long
+
+
+(T/deftest dec
+
+  (T/is (= ($.cell/* 41)
+           ($.std/dec ($.cell/* 42)))))
+
+
+
+(T/deftest mod
+
+  (T/is (= ($.cell/* 2)
+           ($.std/mod ($.cell/* 2)
+                      ($.cell/* 5)))))
+
+
+
+(T/deftest inc
+
+  (T/is (= ($.cell/* 43)
+           ($.std/inc ($.cell/* 42)))))
+
+
 ;;;;;;;;;; Map
 
 
@@ -382,6 +411,142 @@
   (T/is (= ($.cell/* [:a])
            ($.std/vals ($.cell/blob-map [[($.cell/blob (byte-array [0]))
                                           ($.cell/* :a)]])))))
+
+
+;;;;;;;;;; Math
+
+
+(T/deftest +
+
+  (T/is (= ($.cell/* 10)
+           ($.std/+ ($.cell/* 5)
+                    ($.cell/* 5))))
+
+  (T/is (= ($.cell/* 10.0)
+           ($.std/+ ($.cell/* 5.0)
+                    ($.cell/* 5)))))
+
+
+
+(T/deftest -
+
+  (T/is (= ($.cell/* 5)
+           ($.std/- ($.cell/* 10)
+                    ($.cell/* 5))))
+
+  (T/is (= ($.cell/* 5.0)
+           ($.std/- ($.cell/* 10.0)
+                    ($.cell/* 5)))))
+
+
+
+(T/deftest *
+
+  (T/is (= ($.cell/* 50)
+           ($.std/* ($.cell/* 10)
+                    ($.cell/* 5))))
+
+  (T/is (= ($.cell/* 50.0)
+           ($.std/* ($.cell/* 10.0)
+                    ($.cell/* 5)))))
+
+
+
+(T/deftest abs
+
+  (T/is (= ($.cell/* 42)
+           ($.std/abs ($.cell/* 42))))
+
+  (T/is (= ($.cell/* 42)
+           ($.std/abs ($.cell/* -42))))
+
+  (T/is (= ($.cell/* 42.24)
+           ($.std/abs ($.cell/* 42.24))))
+
+  (T/is (= ($.cell/* 42.24)
+           ($.std/abs ($.cell/* -42.24)))))
+
+
+
+(T/deftest ceil
+
+  (T/is (= ($.cell/* 42.0)
+           ($.std/ceil ($.cell/* 42))))
+
+  (T/is (= ($.cell/* 42.0)
+           ($.std/ceil ($.cell/* 41.01))))
+
+  (T/is (= ($.cell/* 42.0)
+           ($.std/ceil ($.cell/* 41.99)))))
+
+
+
+(T/deftest div
+
+  (T/is (= ($.cell/* 5.0)
+           ($.std/div ($.cell/* 10)
+                      ($.cell/* 2))))
+
+  (T/is (= ($.cell/* 4.0)
+           ($.std/div ($.cell/* 24)
+                      ($.cell/* 2)
+                      ($.cell/* 3)))))
+
+
+
+(T/deftest exp
+
+  (T/is ($.std/double? ($.std/exp ($.cell/* 1)))))
+
+
+
+(T/deftest floor
+
+  (T/is (= ($.cell/* 42.0)
+           ($.std/floor ($.cell/* 42))))
+
+  (T/is (= ($.cell/* 42.0)
+           ($.std/floor ($.cell/* 42.01))))
+
+  (T/is (= ($.cell/* 42.0)
+           ($.std/floor ($.cell/* 42.99)))))
+
+
+
+(T/deftest pow
+
+  (T/is (= ($.cell/* 9.0)
+           ($.std/pow ($.cell/* 3)
+                      ($.cell/* 2)))))
+
+
+
+(T/deftest signum
+
+  (T/is (= ($.cell/* 1)
+           ($.std/signum ($.cell/* 42))))
+
+  (T/is (= ($.cell/* -1)
+           ($.std/signum ($.cell/* -42))))
+
+  (T/is (= ($.cell/* 0)
+           ($.std/signum ($.cell/* 0))))
+
+  (T/is (= ($.cell/* 1.0)
+           ($.std/signum ($.cell/* 42.0))))
+
+  (T/is (= ($.cell/* -1.0)
+           ($.std/signum ($.cell/* -42.0))))
+
+  (T/is (= ($.cell/* 0.0)
+           ($.std/signum ($.cell/* 0.0)))))
+
+
+
+(T/deftest sqrt
+
+  (T/is (= ($.cell/* 4.0)
+           ($.std/sqrt ($.cell/* 16.0)))))
 
 
 ;;;;;;;;;; Sequence
