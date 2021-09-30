@@ -12,6 +12,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Moved type predication functions from `$.cell` to `$.std`
+
 ### Fixed
 
 ### Removed
