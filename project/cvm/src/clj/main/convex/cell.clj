@@ -8,6 +8,7 @@
            (convex.core.data AccountKey
                              Address
                              ABlob
+                             ABlobMap
                              ACell
                              AList
                              AMap
@@ -15,6 +16,7 @@
                              AString
                              AVector
                              Blob
+                             BlobMaps
                              Blobs
                              Format
                              Hash
@@ -110,6 +112,29 @@
   [hex-string]
 
   (Blobs/fromHex hex-string))
+
+
+
+(defn blob-map
+
+  "Creates a blob-map from a collection of `[blob value]`."
+
+
+  (^ABlobMap []
+
+   (BlobMaps/empty))
+
+
+  (^ABlobMap [kvs]
+
+   (reduce (fn [^ABlobMap bm [^ACell k ^ACell v]]
+             (let [bm-2 (.assoc bm
+                                k
+                                v)]
+               (or bm-2
+                   (throw (IllegalArgumentException. "Key must be a blob")))))
+           (blob-map)
+           kvs)))
 
 
 
@@ -427,12 +452,12 @@
    (map []))
 
 
-  (^AMap [x]
+  (^AMap [kvs]
 
    (Maps/create ^List (clojure.core/map (fn [[k v]]
                                           (MapEntry/create k
                                                            v))
-                                        x))))
+                                        kvs))))
 
 
 
