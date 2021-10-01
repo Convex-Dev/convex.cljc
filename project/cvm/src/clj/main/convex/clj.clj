@@ -214,12 +214,14 @@
   
   IClojuresque
 
+  nil       (any [cell] nil)
   Address   (any [cell] (address cell))
   ABlob     (any [cell] (blob cell))
   AList     (any [cell] (list cell))
   AMap      (any [cell] (map cell))
   ASet      (any [cell] (set cell))
   AString   (any [cell] (string cell))
+  AVector   (any [cell] (vector cell))
   CVMBool   (any [cell] (boolean cell))
   CVMByte   (any [cell] (byte cell))
   CVMChar   (any [cell] (char cell))

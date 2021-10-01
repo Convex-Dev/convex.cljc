@@ -93,5 +93,23 @@
              ($.clj/any cell))
           "Symbol"))
 
+  (let [cell ($.cell/syntax ($.cell/* 42))]
+    (T/is (= {:meta  {}
+              :value 42}
+             ($.clj/syntax cell)
+             ($.clj/any cell))
+          "Syntax without meta"))
 
-  )
+  (let [cell ($.cell/syntax ($.cell/* 42)
+                            ($.cell/* {:a :b}))]
+    (T/is (= {:meta  {:a :b}
+              :value 42}
+             ($.clj/syntax cell)
+             ($.clj/any cell))
+          "Syntax with meta"))
+
+  (let [cell ($.cell/* [:a :b])]
+    (T/is (= [:a :b]
+             ($.clj/vector cell)
+             ($.clj/any cell))
+          "Vector")))
