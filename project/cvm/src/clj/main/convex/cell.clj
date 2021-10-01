@@ -28,6 +28,7 @@
                              Sets
                              Strings
                              Symbol
+                             Syntax
                              Vectors)
            (convex.core.data.prim CVMBool
                                   CVMByte
@@ -489,6 +490,26 @@
 
   (Symbol/create string))
 
+
+
+(defn syntax
+
+  "Creates a syntax cell.
+
+   It wraps the given `cell` and allow attaching a metadata [[map]]."
+
+
+  (^Syntax [^ACell cell]
+
+   (Syntax/create cell))
+
+
+  (^Syntax [^ACell cell ^AMap metadata]
+
+   (Syntax/create cell
+                  metadata)))
+
+  
 
 
 (defn transfer
