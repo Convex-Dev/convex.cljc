@@ -256,21 +256,6 @@
 
   ;---
 
-  :project/dapp
-
-  {:maestro/doc     "Bundles libraries useful for writing dApps"
-   :maestro/require [:project/crypto
-                     :project/cvm
-                     :project/db
-                     :project/net]
-   :maestro/root    "project/dapp"}
-
-  :dev/dapp
-
-  {:extra-paths ["project/dapp/src/clj/dev"]}
-
-  ;---
-
   :project/crypto
 
   {:extra-paths     ["project/crypto/src/clj/main"]
@@ -322,6 +307,21 @@
 
   ;---
 
+  :project/dapp
+
+  {:maestro/doc     "Bundles libraries useful for writing dApps"
+   :maestro/require [:project/crypto
+                     :project/cvm
+                     :project/db
+                     :project/net]
+   :maestro/root    "project/dapp"}
+
+  :dev/dapp
+
+  {:extra-paths ["project/dapp/src/clj/dev"]}
+
+  ;---
+
   :project/db
 
   {:extra-paths     ["project/db/src/clj/main"]
@@ -346,6 +346,27 @@
 
   {:extra-paths     ["project/db/src/clj/test"]
    :maestro/require [:project/clojurify]}
+
+  ;---
+
+  :project/gen
+
+  {:extra-paths     ["project/gen/src/clj/main"]
+   :maestro/doc     "`test.check` generators for cells"
+   :maestro/require [:ext/test.check
+                     {default :project/cvm
+                      release :release/cvm}]
+   :maestro/root    "project/gen"}
+
+
+  :dev/gen
+
+  {:extra-paths ["project/gen/src/clj/dev"]}
+
+
+  :test/gen
+
+  {:extra-paths ["project/gen/src/clj/test"]}
 
   ;---
 
