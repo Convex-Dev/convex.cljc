@@ -136,7 +136,17 @@
 
 (defn map
 
-  "Returns the given `map` cell (hash map or blob map) as a Clojure map."
+  "Returns the given `map` cell (hash map or blob map) as a Clojure map.
+  
+   Attention, in Clojure maps, sequential types containg the same items are equivalent but
+   not in Convex. Hence, a clash could happen in the rare case where different sequential types
+   are used as keys. For instance, the following is possible in Convex but not in Clojure (would
+   complain about duplicate keys:
+
+   ```clojure
+   {[:a]  :foo
+    '(:a) :foo}
+   ```"
 
   [^AMap map]
 
@@ -152,7 +162,9 @@
 
 (defn set
 
-  "Returns the given `set` cell as a Clojure set."
+  "Returns the given `set` cell as a Clojure set.
+  
+   Same comment about sequential types as in [[map]] applies here."
 
   [^ASet set]
 
