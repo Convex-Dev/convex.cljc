@@ -55,7 +55,8 @@
                             set
                             symbol
                             vector])
-  (:require [clojure.core]))
+  (:require [clojure.core]
+            [convex.write  :as $.write]))
 
 
 (set! *warn-on-reflection*
@@ -65,6 +66,46 @@
 (declare keyword
          map
          vector)
+
+
+;;;;;;;;;; Printing cells
+
+
+(defmethod print-method ACell
+
+  [cell ^java.io.Writer w]
+
+  (.write w
+          (str "#cvx "
+               ($.write/string cell))))
+
+
+
+(defmethod print-method Syntax
+
+  [syntax ^java.io.Writer w]
+
+  (.write w
+          (str "#cvx ^"
+               ($.write/string (.getMeta syntax))
+               " "
+               ($.write/string (.getValue syntax)))))
+
+
+;;;
+
+
+(prefer-method print-method
+               ACell
+               java.util.List)
+
+(prefer-method print-method
+               ACell
+               java.util.Map)
+
+(prefer-method print-method
+               ACell
+               java.util.Set)
 
 
 ;;;;;;;;;; Creating values

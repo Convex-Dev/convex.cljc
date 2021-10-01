@@ -8,7 +8,9 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Namespace `$.clj`, CVX -> CLJ type conversions
 - Namespace `$.std`, Clojure-like functions for cells
+- Printer for cells (previously, were printed as ugly Java objects)
 
 ### Changed
 
