@@ -1,6 +1,11 @@
 (ns convex.clj
   
-  ""
+  "Convert cells to Clojure types.
+  
+   Sometimes lossy since some cells do not have equivalents in Clojure. For instance, addresses are converted to long.
+   Recursive when it comes to collection.
+  
+   Mainly useful for a deeper Clojure integration."
 
   {:author "Adam Helinski"}
 
@@ -40,37 +45,37 @@
 
 (defn address
 
-  ""
+  "Returns the given `address` as a JVM long."
 
-  [^Address cell]
+  [^Address address]
 
-  (.longValue cell))
+  (.longValue address))
 
 
 
 (defn blob
 
-  ""
+  "Returns the given `blob` as a byte array."
 
-  [^ABlob cell]
+  [^ABlob blob]
 
-  (.getBytes cell))
+  (.getBytes blob))
 
 
 
 (defn boolean
 
-  ""
+  "Returns the given `boolean` cell as a JVM boolean."
 
-  [^CVMBool cell]
+  [^CVMBool boolean]
 
-  (.booleanValue cell))
+  (.booleanValue boolean))
 
 
 
 (defn byte
 
-  ""
+  "Returns the given `byte` cell as a JVM long."
 
   [^CVMByte cell]
 
@@ -80,121 +85,126 @@
 
 (defn char
 
-  ""
+  "Returns the given `char` cell as a JVM char."
 
-  [^CVMChar cell]
+  [^CVMChar char]
 
-  (clojure.core/char (.longValue cell)))
+  (clojure.core/char (.longValue char)))
 
 
 
 (defn double
 
-  ""
+  "Returns the given `double` cell as a JVM double."
 
-  [^CVMDouble cell]
+  [^CVMDouble double]
 
-  (.doubleValue cell))
+  (.doubleValue double))
 
 
 
 (defn keyword
 
-  ""
+  "Returns the given `keyword` cell as a Clojure keyword."
 
-  [^Keyword cell]
+  [^Keyword keyword]
 
-  (clojure.core/keyword (.getName cell)))
+  (clojure.core/keyword (.getName keyword)))
 
 
 
 (defn list
 
-  ""
+  "Returns the given `list` cell as a Clojure list."
 
-  [^AList cell]
+  [^AList list]
 
   (clojure.core/map any
-                    cell))
+                    list))
 
 
 
 (defn long
 
-  ""
+  "Returns the given `long` cell as a JVM long."
 
-  [^CVMLong cell]
+  [^CVMLong long]
 
-  (.longValue cell))
+  (.longValue long))
 
 
 
 (defn map
 
-  ""
+  "Returns the given `map` cell (hash map or blob map) as a Clojure map."
 
-  [^AMap cell]
+  [^AMap map]
 
   (-> (reduce (fn [acc [k v]]
                 (assoc! acc
                         (any k)
                         (any v)))
               (transient {})
-              cell)
+              map)
       persistent!))
 
 
 
 (defn set
 
-  ""
+  "Returns the given `set` cell as a Clojure set."
 
-  [^ASet cell]
+  [^ASet set]
 
   (into #{}
         (clojure.core/map any)
-        cell))
+        set))
 
 
 
 (defn string
 
-  ""
+  "Returns the given `string` cell as a JVM string."
 
-  [^AString cell]
+  [^AString string]
 
-  (str cell))
+  (str string))
 
 
 
 (defn symbol
 
-  ""
+  "Returns the given `symbol` cell as a Clojure symbol."
 
-  [^Symbol cell]
+  [^Symbol symbol]
 
-  (clojure.core/symbol (.getName cell)))
+  (clojure.core/symbol (.getName symbol)))
 
 
 
 (defn syntax
 
-  ""
+  "Returns the given `syntax` cell as a Clojure map such as:
 
-  [^Syntax cell]
+   | Key | Value |
+   |---|---|
+   | `:meta` | Clojure map of metadata |
+   | `:value` | Value wrapped, converted as well |"
 
-  {:meta  (any (.getMeta cell))
-   :value (any (.getValue cell))})
+  [^Syntax syntax]
+
+  {:meta  (any (.getMeta syntax))
+   :value (any (.getValue syntax))})
 
 
 (defn vector
 
-  ""
+  "Returns the given `vector` cell as a Clojure vector."
 
-  [^AVector cell]
+  [^AVector vector]
 
   (mapv any
-        cell))
+        vector))
 
 
 ;;;;;;;;;; Protocol
@@ -202,11 +212,15 @@
 
 (defprotocol IClojuresque
 
-  ""
+  "Generic function for converting a cell to a Clojure representation.
+  
+   Relies all other functions from this namespace.
 
-  (any [cell]
+   ```clojure
+   (any (convex.cell/* {:a [:b]}))
+   ```"
 
-   ""))
+  (any [cell]))
 
 
 
