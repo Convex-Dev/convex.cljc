@@ -72,7 +72,7 @@
 
 (defn address
 
-  "Creates a CVM address from a long."
+  "Creates an address from a long."
 
   ^Address
 
@@ -84,7 +84,7 @@
 
 (defn blob
 
-  "Creates a CVM blob from a byte array."
+  "Creates a blob from a byte array."
 
   ^Blob
 
@@ -96,7 +96,7 @@
 
 (defn blob<-hex
 
-  "Creates a CVM blob from a hex string."
+  "Creates a blob from a hex string."
 
   ^Blob
 
@@ -108,7 +108,7 @@
 
 (defn blob-map
 
-  "Creates a blob-map from a collection of `[blob value]`."
+  "Creates a blob map from a collection of `[blob value]`."
 
 
   (^ABlobMap []
@@ -131,7 +131,7 @@
 
 (defn boolean
 
-  "Creates a CVM boolean given a falsy or truthy value."
+  "Creates a boolean cell given a falsy or truthy value."
 
   ^CVMBool
   
@@ -143,7 +143,7 @@
 
 (defn byte
 
-  "Creates a CVM byte from a value between 0 and 255 inclusive."
+  "Creates a byte cell from a value between 0 and 255 inclusive."
 
   ^CVMByte
 
@@ -253,7 +253,7 @@
 
 (defn char
 
-  "Creates a CVM character from a regular character."
+  "Creates a character cell from a regular character."
 
   ^CVMChar
 
@@ -265,7 +265,7 @@
 
 (defn double
 
-  "Creates a CVM double."
+  "Creates a double cell."
 
   ^CVMDouble
 
@@ -277,7 +277,9 @@
 
 (defn encoding
 
-  "Returns a [[blob]] representing the encoding of the given `cell`."
+  "Returns a [[blob]] representing the encoding of the given `cell`.
+
+   This encoding is meant for incremental updates."
 
   ^Blob
 
@@ -303,7 +305,7 @@
 
 (defn hash<-blob
 
-  "Converts a 32-byte [[blob]] to a hash."
+  "Converts a 32-byte [[blob]] to a [[hash]]."
 
   ^Hash
 
@@ -333,10 +335,10 @@
 
   ^Invoke
 
-  [^Address address ^long sequence ^ACell cell]
+  [^Address address ^long sequence-id ^ACell cell]
 
   (Invoke/create address
-                 sequence
+                 sequence-id
                  cell))
 
 
@@ -365,7 +367,7 @@
 
 (defn keyword
 
-  "Creates a CVM keyword from a string."
+  "Creates a keyword cell from a string."
 
   ^Keyword
 
@@ -381,8 +383,8 @@
   
     "An error value as Convex data.
 
-     `code` is often a CVM keyword (`:ASSERT` by default), `message` could be any CVM value (albeit often a human-readable
-     string), and `trace` is an optional stacktrace (CVM vector of CVM strings)."
+     `code` is often a keyword cell (`:ASSERT` by default), `message` could be any cell (albeit often a human-readable
+     string), and `trace` is an optional stacktrace (vector cell of string cells)."
   
   
     ([message]
@@ -407,7 +409,7 @@
 
 (defn list
 
-  "Creates a CVM list from a collection of CVM items."
+  "Creates a list cell from a collection of cells."
 
 
   (^AList []
@@ -423,7 +425,7 @@
 
 (defn long
 
-  "Creates a CVM long."
+  "Creates a long cell."
 
   ^CVMLong
 
@@ -435,7 +437,7 @@
 
 (defn map
 
-  "Creates a CVM map from a collection of `[key value]`."
+  "Creates a map cell from a collection of `[key value]`."
 
 
   (^AMap []
@@ -454,7 +456,7 @@
 
 (defn set
 
-  "Creates a CVM set from a collection of CVM items."
+  "Creates a set cell from a collection of items cell."
 
 
   (^ASet []
@@ -470,7 +472,7 @@
 
 (defn string
 
-  "Creates a CVM string from a regular string."
+  "Creates a string cell from a regular string."
 
   ^AString
 
@@ -482,7 +484,7 @@
 
 (defn symbol
 
-  "Creates a CVM symbol from a string."
+  "Creates a symbol cell from a string."
 
   ^Symbol
 
@@ -508,7 +510,6 @@
 
    (Syntax/create cell
                   metadata)))
-
   
 
 
@@ -529,7 +530,7 @@
 
 (defn vector
 
-  "Creates a CVM vector from a collection of CVM items."
+  "Creates a vector cell from a collection of items cell."
 
 
   (^AVector []
