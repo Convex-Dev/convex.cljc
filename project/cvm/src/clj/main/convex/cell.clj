@@ -83,7 +83,7 @@
 
 (defmethod print-method Syntax
 
-  [syntax ^java.io.Writer w]
+  [^Syntax syntax ^java.io.Writer w]
 
   (.write w
           (str "#cvx ^"

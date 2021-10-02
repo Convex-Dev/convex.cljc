@@ -1141,6 +1141,17 @@
 
 
 
+(defn cell?
+
+  "Is `x` a cell?"
+
+  [x]
+
+  (instance? ACell
+             x))
+
+
+
 (defn coll?
 
   "Is `x` a collection cell?"
