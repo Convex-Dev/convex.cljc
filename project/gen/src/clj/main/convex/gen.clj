@@ -18,6 +18,7 @@
                             symbol
                             vector])
   (:require [clojure.string]
+            [clojure.set]
             [convex.cell                   :as $.cell]
             [clojure.test.check.generators :as TC.gen]))
 
@@ -277,17 +278,23 @@
 
 
 
-(def symbol-quoted
-
-  "Quoted symbol cell."
-
-  (quoted symbol))
-
-
-
 (def scalar
 
-  "Anything that is not a collection."
+  "Any CVM cell that is not a collection:
+
+   - [[address]]
+   - [[blob]]
+   - [[boolean]]
+   - [[byte]]
+   - [[char-alphanum]]
+   - [[double]]
+   - [[keyword]]
+   - [[long]]
+   - [[nothing]]
+   - [[string-alphanum]]
+   - [[symbol]]
+  
+  This excludes non-CVM cells such as the different transaction types."
 
   (TC.gen/one-of [address
                   (blob)
@@ -299,7 +306,7 @@
                   long
                   nothing
                   (string-alphanum)
-                  symbol-quoted]))
+                  symbol]))
 
 
 
@@ -394,7 +401,7 @@
 
 (defn blob-map
 
-  "Blob map  here item are generated using `gen`.
+  "Blob map here item are generated using `gen`.
    
    Generator for keys must output [[blob]] or specialized blob like [[address]].
   
@@ -513,3 +520,45 @@
                 gen
                 n-min
                 n-max)))
+
+
+
+(def recursive
+
+  "Base generators for recursive collection cells where an item of a collection can be a collection as well.
+  
+   Leaves are [[scalar]] while containers can be:
+  
+   - [[blob-map]]
+   - [[list]]
+   - [[map]]
+   - [[set]]
+   - [[vector]]
+  
+   Produces a [[scalar]] in roughly 10% of outputs."
+
+  (TC.gen/recursive-gen (fn [gen-inner]
+                          (let [scale-map (fn [size]
+                                            (quot size
+                                                  2))]
+                            (TC.gen/one-of [(list gen-inner)
+                                            (TC.gen/scale scale-map
+                                                          (map gen-inner
+                                                               gen-inner))
+                                            (TC.gen/scale scale-map
+                                                          (blob-map (TC.gen/one-of [address
+                                                                                    (blob)])
+                                                                    gen-inner))
+                                            (set gen-inner)
+                                            (vector gen-inner)])))
+                        scalar))
+                  
+
+
+
+(def any
+
+  "Combines [[scalar]] and [[recursive]] to produce any CVM cell."
+
+  (TC.gen/frequency [[55 recursive]
+                     [45 scalar]]))
