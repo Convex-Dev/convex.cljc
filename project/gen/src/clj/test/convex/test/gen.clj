@@ -131,4 +131,7 @@
        $.gen/any-set)
 
   (gen $.std/vector?
-       $.gen/any-vector))
+       $.gen/any-vector)
+
+  (gen $.std/syntax?
+       ($.gen/syntax)))

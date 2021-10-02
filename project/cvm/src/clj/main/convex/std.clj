@@ -31,7 +31,8 @@
                              INumeric
                              Keyword
                              Ref
-                             Symbol)
+                             Symbol
+                             Syntax)
            (convex.core.data.prim CVMBool
                                   CVMByte
                                   CVMChar
@@ -1295,6 +1296,17 @@
   [x]
 
   (instance? Symbol
+             x))
+
+
+
+(defn syntax?
+
+  "Is `x` a syntax cell?"
+
+  [x]
+
+  (instance? Syntax
              x))
 
 

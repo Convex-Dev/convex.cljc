@@ -562,15 +562,6 @@
 
 
 
-(def any
-
-  "Combines [[scalar]] and [[recursive]] to produce any CVM cell."
-
-  (TC.gen/frequency [[55 recursive]
-                     [45 scalar]]))
-
-
-
 (def any-list
 
   "Recursive list cell where an item can be any cell."
@@ -661,3 +652,52 @@
                    ($.std/vector? x) x
                    :else             ($.std/vector x)))
                recursive))
+
+
+
+(def any
+
+  "Combines [[scalar]] and [[recursive]] to produce any CVM cell.
+  
+   Once in a while, generates a [[syntax]] as well."
+
+  (TC.gen/frequency [[55 recursive]
+                     [45 scalar]
+                     [ 5 (TC.gen/fmap (fn [[v m]]
+                                        ($.cell/syntax v
+                                                       m))
+                                      (TC.gen/tuple (TC.gen/frequency [[55 recursive]
+                                                                       [45 scalar]])
+                                                    (TC.gen/one-of [any-map
+                                                                    nothing])))]]))
+
+
+;;;;;;;;;; Syntax
+
+
+(defn syntax
+
+  "Syntax cell.
+  
+   By default, `gen-value` is [[any]] and `gen-meta` is either [[any-map]] or [[nothing]]."
+
+
+  ([]
+
+   (syntax any))
+
+
+  ([gen-value]
+
+   (syntax gen-value
+           (TC.gen/one-of [any-map
+                           nothing])))
+
+
+  ([gen-value gen-meta]
+
+   (TC.gen/fmap (fn [[v m]]
+                  ($.cell/syntax v
+                                 m))
+                (TC.gen/tuple gen-value
+                              gen-meta))))
