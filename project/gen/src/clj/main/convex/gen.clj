@@ -35,6 +35,77 @@
 
 
 
+(defn- -map
+
+  ;; Helper for [[blob-map]] and [[map]].
+
+
+  ([f gen-k gen-v]
+
+   (TC.gen/fmap f
+                (TC.gen/vector-distinct-by first
+                                           (TC.gen/tuple gen-k
+                                                         gen-v))))
+
+
+  ([f gen-k gen-v n]
+
+   (TC.gen/fmap f
+                (TC.gen/vector-distinct-by first
+                                           (TC.gen/tuple gen-k
+                                                         gen-v)
+                                           {:num-elements n})))
+
+
+  ([f gen-k gen-v n-min n-max]
+
+   (TC.gen/fmap f
+                (TC.gen/vector-distinct-by first
+                                           (TC.gen/tuple gen-k
+                                                         gen-v)
+                                           {:min-elements n-min
+                                            :max-elements n-max}))))
+
+
+
+(def ^:private -string-symbolic
+
+  ;; JVM string for building keyword and symbol cells.
+
+  (TC.gen/fmap clojure.string/join
+               (TC.gen/vector TC.gen/char-alphanumeric
+                              1
+                              64)))
+
+
+
+(defn- -sequential
+
+  ;; Helper for [[list]] and [[vector]].
+
+
+  ([f gen]
+
+   (TC.gen/fmap f
+                (TC.gen/vector gen)))
+
+
+  ([f gen n]
+
+   (TC.gen/fmap f
+                (TC.gen/vector gen
+                               n)))
+
+
+  ([f gen n-min n-max]
+
+   (TC.gen/fmap f
+                (TC.gen/vector gen
+                               n-min
+                               n-max))))
+
+
+
 (defn- -vec->blob
 
   ;; Converts a Clojure vector of bytes to a blob.
@@ -73,7 +144,7 @@
                gen))
 
 
-;;;;;;;;;; Cells
+;;;;;;;;;; Scalar cells
 
 
 (def address
@@ -169,6 +240,15 @@
 
 
 
+(def keyword
+
+  "Keyword cell."
+
+  (TC.gen/fmap $.cell/keyword
+               -string-symbolic))
+
+
+
 (def long
 
   "Long cell."
@@ -249,26 +329,6 @@
 
 
 
-(def ^:private -string-symbolic
-
-  ;; JVM string for building keyword and symbol cells.
-
-  (TC.gen/fmap clojure.string/join
-               (TC.gen/vector TC.gen/char-alphanumeric
-                              1
-                              64)))
-
-
-
-(def keyword
-
-  "Keyword cell."
-
-  (TC.gen/fmap $.cell/keyword
-               -string-symbolic))
-
-
-
 (def symbol
 
   "Symbol cell."
@@ -276,6 +336,8 @@
   (TC.gen/fmap $.cell/symbol
                -string-symbolic))
 
+
+;;;
 
 
 (def scalar
@@ -309,32 +371,7 @@
                   symbol]))
 
 
-
-(defn- -sequential
-
-  ;; Helper for [[list]] and [[vector]].
-
-
-  ([f gen]
-
-   (TC.gen/fmap f
-                (TC.gen/vector gen)))
-
-
-  ([f gen n]
-
-   (TC.gen/fmap f
-                (TC.gen/vector gen
-                               n)))
-
-
-  ([f gen n-min n-max]
-
-   (TC.gen/fmap f
-                (TC.gen/vector gen
-                               n-min
-                               n-max))))
-
+;;;;;;;;;; Collection cells
 
 
 (defn list
@@ -363,39 +400,6 @@
                 gen
                 n-min
                 n-max)))
-
-
-
-(defn- -map
-
-  ;; Helper for [[blob-map]] and [[map]].
-
-
-  ([f gen-k gen-v]
-
-   (TC.gen/fmap f
-                (TC.gen/vector-distinct-by first
-                                           (TC.gen/tuple gen-k
-                                                         gen-v))))
-
-
-  ([f gen-k gen-v n]
-
-   (TC.gen/fmap f
-                (TC.gen/vector-distinct-by first
-                                           (TC.gen/tuple gen-k
-                                                         gen-v)
-                                           {:num-elements n})))
-
-
-  ([f gen-k gen-v n-min n-max]
-
-   (TC.gen/fmap f
-                (TC.gen/vector-distinct-by first
-                                           (TC.gen/tuple gen-k
-                                                         gen-v)
-                                           {:min-elements n-min
-                                            :max-elements n-max}))))
 
 
 
@@ -522,6 +526,8 @@
                 n-max)))
 
 
+;;;;;;;;;; Recursive cells
+
 
 (def recursive
 
@@ -552,11 +558,10 @@
                                             (set gen-inner)
                                             (vector gen-inner)])))
                         scalar))
-                  
 
 
 
-(def any
+(def cell
 
   "Combines [[scalar]] and [[recursive]] to produce any CVM cell."
 
