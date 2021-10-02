@@ -88,7 +88,7 @@
 
   "Blob cell.
   
-   When length is not given, depends on current size."
+   When length is not given, depends on current `test.check` size."
 
 
   ([]
@@ -300,3 +300,216 @@
                   nothing
                   (string-alphanum)
                   symbol-quoted]))
+
+
+
+(defn- -sequential
+
+  ;; Helper for [[list]] and [[vector]].
+
+
+  ([f gen]
+
+   (TC.gen/fmap f
+                (TC.gen/vector gen)))
+
+
+  ([f gen n]
+
+   (TC.gen/fmap f
+                (TC.gen/vector gen
+                               n)))
+
+
+  ([f gen n-min n-max]
+
+   (TC.gen/fmap f
+                (TC.gen/vector gen
+                               n-min
+                               n-max))))
+
+
+
+(defn list
+
+  "List cell where item are generated using `gen`.
+  
+   When length target is not provided, depends on current `test.check` size."
+
+
+  ([gen]
+
+   (-sequential $.cell/list
+                gen))
+
+
+  ([gen n]
+   
+   (-sequential $.cell/list
+                gen
+                n))
+
+
+  ([gen n-min n-max]
+
+   (-sequential $.cell/list
+                gen
+                n-min
+                n-max)))
+
+
+
+(defn- -map
+
+  ;; Helper for [[blob-map]] and [[map]].
+
+
+  ([f gen-k gen-v]
+
+   (TC.gen/fmap f
+                (TC.gen/vector-distinct-by first
+                                           (TC.gen/tuple gen-k
+                                                         gen-v))))
+
+
+  ([f gen-k gen-v n]
+
+   (TC.gen/fmap f
+                (TC.gen/vector-distinct-by first
+                                           (TC.gen/tuple gen-k
+                                                         gen-v)
+                                           {:num-elements n})))
+
+
+  ([f gen-k gen-v n-min n-max]
+
+   (TC.gen/fmap f
+                (TC.gen/vector-distinct-by first
+                                           (TC.gen/tuple gen-k
+                                                         gen-v)
+                                           {:min-elements n-min
+                                            :max-elements n-max}))))
+
+
+
+(defn blob-map
+
+  "Blob map  here item are generated using `gen`.
+   
+   Generator for keys must output [[blob]] or specialized blob like [[address]].
+  
+   When length target is not provided, depends on current `test.check` size."
+
+
+  ([gen-k gen-v]
+
+   (-map $.cell/blob-map
+         gen-k
+         gen-v))
+
+
+  ([gen-k gen-v n]
+
+   (-map $.cell/blob-map
+         gen-k
+         gen-v
+         n))
+
+
+  ([gen-k gen-v n-min n-max]
+
+   (-map $.cell/blob-map
+         gen-k
+         gen-v
+         n-min
+         n-max)))
+
+
+
+(defn map
+
+  "Map cell where item are generated using `gen`.
+  
+   When length target is not provided, depends on current `test.check` size."
+
+
+  ([gen-k gen-v]
+
+   (-map $.cell/map
+         gen-k
+         gen-v))
+
+
+  ([gen-k gen-v n]
+
+   (-map $.cell/map
+         gen-k
+         gen-v
+         n))
+
+
+  ([gen-k gen-v n-min n-max]
+
+   (-map $.cell/map
+         gen-k
+         gen-v
+         n-min
+         n-max)))
+
+
+
+(defn set
+
+  "Set cell where item are generated using `gen`.
+  
+   When length target is not provided, depends on current `test.check` size."
+
+
+  ([gen]
+
+   (TC.gen/fmap $.cell/set
+                (TC.gen/vector-distinct gen)))
+
+
+  ([gen n]
+
+   (TC.gen/fmap $.cell/set
+                (TC.gen/vector-distinct gen
+                                        {:num-elements n})))
+
+
+  ([gen n-min n-max]
+
+   (TC.gen/fmap $.cell/set
+                (TC.gen/vector-distinct gen
+                                        {:min-elements n-min
+                                         :max-elements n-max}))))
+
+
+
+(defn vector
+
+  "Vector cell where item are generated using `gen`.
+  
+   When length target is not provided, depends on current `test.check` size."
+
+
+  ([gen]
+
+   (-sequential $.cell/vector
+                gen))
+
+
+  ([gen n]
+
+   (-sequential $.cell/vector
+                gen
+                n))
+
+
+  ([gen n-min n-max]
+
+   (-sequential $.cell/vector
+                gen
+                n-min
+                n-max)))
