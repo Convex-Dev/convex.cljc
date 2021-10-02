@@ -20,6 +20,7 @@
   (:require [clojure.string]
             [clojure.set]
             [convex.cell                   :as $.cell]
+            [convex.std                    :as $.std]
             [clojure.test.check.generators :as TC.gen]))
 
 
@@ -561,9 +562,93 @@
 
 
 
-(def cell
+(def any
 
   "Combines [[scalar]] and [[recursive]] to produce any CVM cell."
 
   (TC.gen/frequency [[55 recursive]
                      [45 scalar]]))
+
+
+
+(def any-list
+
+  "Recursive list cell where an item can be any cell."
+
+  (TC.gen/fmap (fn [x]
+                 (cond
+                   ($.std/list? x)   x
+                   ($.std/map? x)    (reduce (fn [acc [k v]]
+                                               (-> acc
+                                                   ($.std/conj k)
+                                                   ($.std/conj v)))
+                                             ($.cell/list)
+                                             x)
+                   ($.std/set? x)    ($.std/into ($.cell/list)
+                                                 x)
+                   ($.std/vector? x) ($.cell/list x)
+                   :else             ($.std/list x)))
+               recursive))
+
+
+
+(let [-to-map (fn [coll]
+                ($.std/into ($.cell/map)
+                            (clojure.core/map vec)
+                            (partition 2
+                                       2
+                                       coll
+                                       coll)))]
+  (def any-map
+
+    "Recursive hash map cell where an item can be any cell."
+    
+    (TC.gen/fmap (fn [x]
+                   (cond
+                     (map? x)    x
+                     (list? x)   (-to-map x)
+                     (set? x)    (-to-map x)
+                     (vector? x) (-to-map x)
+                     :else       ($.std/hash-map x
+                                                 x)))
+                 recursive)))
+
+
+
+(def any-set
+
+  "Recursive set cell where an item can be any cell."
+
+  (TC.gen/fmap (fn [x]
+                 (cond
+                   ($.std/list? x)   ($.std/set x)
+                   ($.std/map? x)    (reduce (fn [acc [k v]]
+                                               (-> acc
+                                                   ($.std/conj k)
+                                                   ($.std/conj v)))
+                                             ($.cell/set)
+                                             x)
+                   ($.std/set? x)    x
+                   ($.std/vector? x) ($.std/set x)
+                   :else             ($.std/hash-set x)))
+               recursive))
+
+
+
+(def any-vector
+
+  "Recursive vector cell where an item can be any cell."
+
+  (TC.gen/fmap (fn [x]
+                 (cond
+                   ($.std/list? x)   ($.std/vec x)
+                   ($.std/map? x)    (reduce (fn [acc [k v]]
+                                               (-> acc
+                                                   ($.std/conj k)
+                                                   ($.std/conj v)))
+                                             ($.cell/vector)
+                                             x)
+                   ($.std/set? x)    ($.std/vec x)
+                   ($.std/vector? x) x
+                   :else             ($.std/vector x)))
+               recursive))

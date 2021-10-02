@@ -15,7 +15,7 @@
 
 (defn gen
 
-  "Returns true if the value pass the given `predicate`."
+  "Returns true if the generated value passes the given `predicate`."
 
   [predicate gen]
 
@@ -119,4 +119,16 @@
        $.gen/recursive)
 
   (gen $.std/cell?
-       $.gen/cell))
+       $.gen/any)
+
+  (gen $.std/list?
+       $.gen/any-list)
+
+  (gen $.std/map?
+       $.gen/any-map)
+
+  (gen $.std/set?
+       $.gen/any-set)
+
+  (gen $.std/vector?
+       $.gen/any-vector))
