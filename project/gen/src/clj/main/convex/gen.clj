@@ -593,24 +593,33 @@
 
 
 (let [-to-map (fn [coll]
-                ($.std/into ($.cell/map)
-                            (clojure.core/map vec)
-                            (partition 2
-                                       2
-                                       coll
-                                       coll)))]
+                (reduce (fn [acc [k v]]
+                          ($.std/assoc acc
+                                       k
+                                       v))
+                        ($.cell/map)
+                        (partition 2
+                                   2
+                                   coll
+                                   coll)))]
   (def any-map
 
     "Recursive hash map cell where an item can be any cell."
     
     (TC.gen/fmap (fn [x]
                    (cond
-                     (map? x)    x
-                     (list? x)   (-to-map x)
-                     (set? x)    (-to-map x)
-                     (vector? x) (-to-map x)
-                     :else       ($.std/hash-map x
-                                                 x)))
+                     ($.std/blob-map? x) (reduce (fn [acc [k v]]
+                                                   ($.std/assoc acc
+                                                                k
+                                                                v))
+                                                 ($.cell/map)
+                                                 x)
+                     ($.std/hash-map? x) x
+                     ($.std/list? x)     (-to-map x)
+                     ($.std/set? x)      (-to-map x)
+                     ($.std/vector? x)   (-to-map x)
+                     :else               ($.std/hash-map x
+                                                         x)))
                  recursive)))
 
 

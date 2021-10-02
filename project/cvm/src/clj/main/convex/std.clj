@@ -1185,6 +1185,29 @@
 
 
 
+(defn hash-map?
+
+  "Is `x` a hash map cell?"
+
+  [x]
+
+  (instance? AHashMap
+             x))
+
+
+
+(defn hash-set?
+
+  "Is `x` a hash set cell?
+  
+   Currently at least, hast sets are the only kind of available sets."
+
+  [x]
+
+  (instance? AHashSet
+             x))
+
+
 (defn keyword?
 
   "Is `x` a keyword cell?"
@@ -1243,7 +1266,9 @@
 
 (defn set?
 
-  "Is `x` a set cell?"
+  "Is `x` a set cell?
+
+   Currently at least, hast sets are the only kind of available sets."
 
   [x]
 
