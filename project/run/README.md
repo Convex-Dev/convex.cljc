@@ -1,13 +1,10 @@
 # `:project/run`
 
-[![Clojars](https://img.shields.io/clojars/v/world.convex/run.clj.svg)](https://clojars.org/world.convex/run.clj)
-[![cljdoc](https://cljdoc.org/badge/world.convex/run.clj)](https://cljdoc.org/d/world.convex/cvm.clj/CURRENT)
-[Latest downloads](https://github.com/Convex-Dev/convex.cljc/releases/tag/run%2F0.0.0-alpha2)
-
-Convex Lisp Runner.
+**Convex Lisp Runner**
 
 One-size fits all tool for sophisticated development, testing, and analysis of Convex Lisp in a fun
-and highly productive environment.
+and highly productive environment. Meant for more advanced users already familiar with [Convex Lisp and
+the Convex Virtual Machine](https://convex.world/cvm), wanting to prototype and build actual smart contracts.
 
 Executes transactions provided as command-line arguments. If none is given, starts the Convex Lisp REPL where
 user can work interactively.
@@ -26,9 +23,9 @@ with networks of peers.
 
 ## Usage
 
-Install latest release on your system.
+Install [latest release](https://github.com/Convex-Dev/convex.cljc/releases/tag/run%2F0.0.0-alpha3) on your system.
 
-Native version is highly recommended, a jar file is provided in case your operating system is not supported.
+Native version is highly recommended, but a jar file is provided in case your operating system is not supported.
 
 Assuming binary is executable and available on your path as `cvx`:
 
