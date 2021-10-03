@@ -322,33 +322,6 @@
 
   ;---
 
-  :project/db
-
-  {:extra-paths     ["project/db/src/clj/main"]
-   :maestro/doc     "Wrapper for Etch and refs"
-   :maestro/require [:ext/convex-peer
-                     {default :project/cvm
-                      release :release/cvm}]
-   :maestro/root    "project/db"}
-
-
-  :dev/db
-
-  {:extra-paths ["project/db/src/clj/dev"]}
-
-
-  :release/db
-
-  {:extra-deps {world.convex/db.clj {:mvn/version "0.0.0-alpha1"}}}
-
-
-  :test/db
-
-  {:extra-paths     ["project/db/src/clj/test"]
-   :maestro/require [:project/gen]}
-
-  ;---
-
   :project/gen
 
   {:extra-paths     ["project/gen/src/clj/main"]
@@ -376,9 +349,7 @@
    :maestro/doc     "Convex network utilities"
    :maestro/require [:ext/convex-peer
                      {default :project/cvm
-                      release :release/cvm}
-                     {default :project/crypto
-                      release :release/crypto}]
+                      release :release/cvm}]
    :maestro/root    "project/net"}
 
 
@@ -394,8 +365,7 @@
 
   :test/net
 
-  {:extra-paths     ["project/net/src/clj/test"]
-   :maestro/require [:project/db]}
+  {:extra-paths ["project/net/src/clj/test"]}
 
   ;---
 

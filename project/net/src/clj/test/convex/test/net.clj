@@ -13,7 +13,8 @@
             [convex.db     :as $.db]
             [convex.read   :as $.read]
             [convex.server :as $.server]
-            [convex.sign   :as $.sign]))
+            [convex.sign   :as $.sign]
+            [convex.std    :as $.std]))
 
 
 ;;;;;;;;;; Setup
@@ -152,7 +153,7 @@
   (T/is (-> ($.client/peer-status client)
             (deref 1000
                    :timeout)
-            $.cell/map?)))
+            $.std/map?)))
 
 
 
