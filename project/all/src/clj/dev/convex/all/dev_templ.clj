@@ -5,12 +5,11 @@
   {:clj-kondo/config '{:linters {:unused-import    {:level :off}
                                  :unused-namespace {:level :off}}}}
 
-  (:require [convex.app.fuzz.dev]
-            [convex.break.dev]
-            [convex.clj.dev]
-            [convex.crypto.dev]
+  (:require ;[convex.app.fuzz.dev]
+            ;[convex.break.dev]
+            ;[convex.clj.dev]
             [convex.cvm.dev]
-            [convex.db.dev]
+            [¢onvex.gen.dev]
             [convex.net.dev]
             [convex.run.dev]))
 

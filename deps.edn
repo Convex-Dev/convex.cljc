@@ -172,12 +172,10 @@
    :maestro/dev+    [:project/all]
    :maestro/doc     "Dev environment requiring all useful namespaces from this repository"
    :maestro/require [:ext/test.check
-                     :project/app.fuzz
-                     :project/break
-                     :project/clojurify
-                     :project/crypto
+                     ;:project/app.fuzz
+                     ;:project/break
                      :project/cvm
-                     :project/db
+                     :project/gen
                      :project/net
                      :project/run]
    :maestro/root    "project/all"}

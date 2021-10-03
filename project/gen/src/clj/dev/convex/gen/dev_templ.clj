@@ -7,6 +7,7 @@
 
   (:require [convex.cell                   :as $.cell]
             [convex.gen                    :as $.gen]
+            [convex.test.gen]
             [clojure.test.check.generators :as TC.gen]))
 
 
