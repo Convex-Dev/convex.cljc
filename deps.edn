@@ -294,6 +294,11 @@
   {:extra-paths ["project/gen/src/clj/dev"]}
 
 
+  :release/gen
+
+  {:extra-deps {world.convex/gen.clj {:mvn/version "0.0.0-alpha0"}}}
+
+
   :test/gen
 
   {:extra-paths ["project/gen/src/clj/test"]}

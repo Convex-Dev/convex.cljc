@@ -36,7 +36,7 @@ All notable changes to this project will be documented in this file.
 
 - Upgrade `:project/crypto` to `0.0.0-alpha1`
 - Upgrade `:project/cvm` to `0.0.0-alpha2`
--
+
 
 
 ## [0.0.0-alpha0] - 2021-08-21
@@ -44,7 +44,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - First API iteration
-    -
+    - `$.client`
+    - `$.server`
 - Depends on
     - `convex-peer/0.7.0`
     - `crypto.clj/0.0.0-alpha0`
