@@ -4,7 +4,7 @@
   <groupId>world.convex</groupId>
   <artifactId>cvm.clj</artifactId>
   <version>0.0.0-alpha2</version>
-  <name>Clojure wrapper for the Convex Virtual Machine</name>
+  <name>cvm.clj</name>
   <description>Core Convex utilities for Clojure</description>
   <url>https://github.com/Convex-Dev/convex.cljc/tree/main/project/cvm</url>
   <licenses>

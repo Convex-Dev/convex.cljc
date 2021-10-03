@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Merge former `:project/crypto` project, bringin new namespaces:
+    - `$.pfx`
+    - `$.sign`
+
 ### Changed
 
 ### Fixed

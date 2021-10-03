@@ -4,8 +4,8 @@
   <groupId>world.convex</groupId>
   <artifactId>net.clj</artifactId>
   <version>0.0.0-alpha1</version>
-  <name>Clojure wrapper for the Convex network stack</name>
-  <description>Peer and client management</description>
+  <name>net.clj</name>
+  <description>Peer and client management from Clojure</description>
   <url>https://github.com/Convex-Dev/convex.cljc/tree/main/project/net</url>
   <licenses>
     <license>

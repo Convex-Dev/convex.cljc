@@ -256,32 +256,6 @@
 
   ;---
 
-  :project/crypto
-
-  {:extra-paths     ["project/crypto/src/clj/main"]
-   :maestro/doc     "Crypto utilities"
-   :maestro/require [:ext/convex-core]
-   :maestro/root    "project/crypto"}
-
-
-  :dev/crypto
-
-  {:extra-paths ["project/crypto/src/clj/dev"]}
-
-
-  :release/crypto
-
-  {:extra-deps {world.convex/crypto.clj {:mvn/version "0.0.0-alpha1"}}}
-
-
-  :test/crypto
-
-  {:extra-paths     ["project/crypto/src/clj/test"]
-   :maestro/require [{default :project/cvm
-                      release :release/cvm}]}
-
-  ;---
-
   :project/cvm
 
   {:extra-paths     ["project/cvm/src/clj/main"]
