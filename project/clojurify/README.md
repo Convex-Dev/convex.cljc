@@ -1,7 +1,10 @@
 # `:project/clojurify`
 
-[![Clojars](https://img.shields.io/clojars/v/world.convex/clojurify.clj.svg)](https://clojars.org/world.convex/clojurify.clj)
+[![Clojars](https://img.shields.io/clojars/v/world.convex/clojurify.clj.svg)](https://clojars.org/world.convex/clojurify.clj)  
 [![cljdoc](https://cljdoc.org/badge/world.convex/clojurify.clj)](https://cljdoc.org/d/world.convex/clojurify.clj/CURRENT)
+
+**DEPRECRATED.** Superseded by new cell utilities added to [`:project/cvm`](../cvm) and efficient cell generators in
+[`:project/gen`](../gen). Will not longer be updated.
 
 Convex Lisp is particularly close to Clojure on many aspects.
 
@@ -9,11 +12,6 @@ Convex Lisp is particularly close to Clojure on many aspects.
 
 This project offers high-productivity utilities for producing Convex Lisp source code from Clojure data structures. Those
 utilities are especially useful during development and testing (eg. see [`:project/break`](../break)).
-
-
-**EXPERIMENTAL**. Running and hacking on Convex Lisp has become a lot more convenient due to the development of `:project/run`.
-As such, the need for using Clojure for that kind of utilities has lessened. In the future, especially when `:project/run`
-implements generative testing, this project might disappear.
 
 
 ## Writing Convex Lisp as Clojure data structures

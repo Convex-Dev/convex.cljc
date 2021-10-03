@@ -4,7 +4,9 @@ Advanced suite of generative tests targetting the CVM.
 
 Builds upon [`:project/clojurify`](../clojurify) which provides utilities for quickly writing Convex Lisp as Clojure data and
 evaluating such code for different scenarios. It also defines a series of useful [test.check](https://github.com/clojure/test.check)
-generators used extensively in this project.
+generators used extensively in this project. However, it is effectively deprecated in favor of
+[`:project/gen`](../project/gen) which is a more efficient take on generating Convex cells. In the future, these tests
+will be adapted to [`:project/gen`](../project/gen).
 
 This great combination is showcased in all the [test files](./src/clj/test/convex/test/break) from this project. Those tests helped
 uncovering dozens of issues and bugs in the CVM, contributing to making it particularly strong and robust, and serve as a prime example.
