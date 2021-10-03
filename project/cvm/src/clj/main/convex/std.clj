@@ -1,15 +1,19 @@
 (ns convex.std
 
-  "Provides an API for cells similar to the Clojure standard library.
+  "Provides an API for cells with classic `convex.core` functions such as [[conj]].
 
-   A fair chunk of the Clojure standard library works with Convex collections since they are seqable. All
-   Clojure functions involving sequences usually understand Convex collections (`first`, `map`, `reduce`,
-   `transduce`, etc)
+   All `clojure.core` functions related to sequences usually understand Convex collections, making them
+   easy to handle. Some of those (eg. `cons`, `next`) have counterparts in this namespace in case the return
+   value must be a cell instead of a Clojure sequence.
 
-   Some of those (eg. `cons`, `next`) have counterparts in this namespace in case the return value must be
-   a cell instead of a Clojure sequence.
+   Functions take and return cells unless specified otherwise. Predicates return JVM booleans.
 
-   Functions take and return cells unless specified otherwise. Predicates return JVM booleans."
+   Sometimes, it can be useful converting cells to Clojure data, such as unwrapping blob to byte arrays,
+   which is the purpose of the [[convex.clj]] namespace.
+
+   Lastly, in the rare cases where all of this would not be enough, Java interop can be used:
+
+     https://www.javadoc.io/doc/world.convex/convex-core/latest/convex/core/data/package-summary.html"
 
   {:author "Adam Helinski"}
 
