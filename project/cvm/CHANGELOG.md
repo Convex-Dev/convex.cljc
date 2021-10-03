@@ -8,6 +8,19 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+
+
+
+## [0.0.0-alpha3] - 2021-10-03
+
+### Added
+
 - Namespace `$.clj`, CVX -> CLJ type conversions
 - Namespace `$.std`, Clojure-like functions for cells
 - Printer for cells (previously, were printed as ugly Java objects)
@@ -17,11 +30,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Moved type predication functions from `$.cell` to `$.std`
-
-### Fixed
-
-### Removed
+- Moved type predicates functions from `$.cell` to `$.std`
 
 
 
@@ -84,7 +93,8 @@ All notable changes to this project will be documented in this file.
 
 
 
-[Unreleased]:  https://github.com/helins/convex.lisp.cljc/compare/cvm/0.0.0-alpha2...HEAD
-[0.0.0-alpha1]:  https://github.com/helins/convex.lisp.cljc/compare/cvm/0.0.0-alpha1...cvm/0.0.0-alpha2
+[Unreleased]:  https://github.com/helins/convex.lisp.cljc/compare/cvm/0.0.0-alpha3...HEAD
+[0.0.0-alpha3]:  https://github.com/helins/convex.lisp.cljc/compare/cvm/0.0.0-alpha2...cvm/0.0.0-alpha3
+[0.0.0-alpha2]:  https://github.com/helins/convex.lisp.cljc/compare/cvm/0.0.0-alpha1...cvm/0.0.0-alpha2
 [0.0.0-alpha1]:  https://github.com/helins/convex.lisp.cljc/compare/cvm/0.0.0-alpha0...cvm/0.0.0-alpha1
 [0.0.0-alpha0]: https://github.com/helins/convex.lisp.cljc/releases/tag/cvm/0.0.0-alpha0

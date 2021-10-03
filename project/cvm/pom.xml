@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>world.convex</groupId>
   <artifactId>cvm.clj</artifactId>
-  <version>0.0.0-alpha2</version>
+  <version>0.0.0-alpha3</version>
   <name>cvm.clj</name>
   <description>Core Convex utilities for Clojure</description>
   <url>https://github.com/Convex-Dev/convex.cljc/tree/main/project/cvm</url>
