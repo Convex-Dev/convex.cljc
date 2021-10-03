@@ -8,4 +8,5 @@
                                convex.clj.eval/log*           hooks.convex/templ*
                                convex.clj.eval/result*        hooks.convex/templ*
                                convex.clj.eval/value*         hooks.convex/templ*
-                               convex.lisp/templ*             hooks.convex/templ*}}}
+                               convex.lisp/templ*             hooks.convex/templ*}}
+ :lint-as      {convex.cell/* clojure.core/quote}}
