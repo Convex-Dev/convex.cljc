@@ -9,12 +9,12 @@
   (:require [clojure.test                  :as T]
             [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
-            [convex.clj.gen                :as $.clj.gen]
             [convex.cell                   :as $.cell]
             [convex.cvm.db                 :as $.cvm.db]
             [convex.db                     :as $.db]
-            [convex.read                   :as $.read]
+            [convex.gen                    :as $.gen]
             [convex.ref                    :as $.ref]
+            [convex.std                    :as $.std]
             [helins.mprop                  :as mprop]))
 
 
@@ -39,7 +39,7 @@
                  (let [db ($.db/open-temp)]
                    (.close db)
                    ($.db/write db
-                               ($.read/string "[:a :b]"))))))
+                               ($.cell/* [:a :b]))))))
 
 ;;;;;;;;;; Gen tests
 
@@ -77,7 +77,7 @@
     (let [root ($.db/read-root db)]
       (def root
            root)
-      ($.cell/vector? root))
+      ($.std/vector? root))
 
     "Root write"
     ($.db/write-root db
@@ -103,12 +103,11 @@
     ($.cvm.db/local-set etch)
     ($.db/write-root etch
                      ($.cell/vector))
-    (TC.prop/for-all [cell   $.clj.gen/any
+    (TC.prop/for-all [cell   $.gen/any
                       flush? TC.gen/boolean]
-      (let [cell-2 ($.read/string (pr-str cell))]
-        (mprop/check
+      (mprop/check
 
-          "Etch"
-          (suite-rw etch
-                    cell-2
-                    flush?))))))
+        "Etch"
+        (suite-rw etch
+                  cell
+                  flush?)))))

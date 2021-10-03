@@ -345,7 +345,7 @@
   :test/db
 
   {:extra-paths     ["project/db/src/clj/test"]
-   :maestro/require [:project/clojurify]}
+   :maestro/require [:project/gen]}
 
   ;---
 
