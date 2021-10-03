@@ -26,6 +26,7 @@ Most useful modules from this repositories are:
 | Project | Library | Cljdoc | Download |
 |---|---|---|---|
 | [`:project/cvm`](./project/cvm) | [![Clojars](https://img.shields.io/clojars/v/world.convex/cvm.clj.svg)](https://clojars.org/world.convex/cvm.clj) | [![cljdoc](https://cljdoc.org/badge/world.convex/cvm.clj)](https://cljdoc.org/d/world.convex/cvm.clj/CURRENT) | / |
+| [`:project/gen`](./project/gen) | [![Clojars](https://img.shields.io/clojars/v/world.convex/gen.clj.svg)](https://clojars.org/world.convex/gen.clj) | [![cljdoc](https://cljdoc.org/badge/world.convex/gen.clj)](https://cljdoc.org/d/world.convex/gen.clj/CURRENT) | / |
 | [`:project/net`](./project/net) | [![Clojars](https://img.shields.io/clojars/v/world.convex/net.clj.svg)](https://clojars.org/world.convex/net.clj) | [![cljdoc](https://cljdoc.org/badge/world.convex/net.clj)](https://cljdoc.org/d/world.convex/net.clj/CURRENT) | / |
 | [`:project/run`](./project/run) | / | / | [CVX runner](https://github.com/Convex-Dev/convex.cljc/releases/tag/run%2F0.0.0-alpha3) |
 
