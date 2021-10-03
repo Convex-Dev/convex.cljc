@@ -14,7 +14,7 @@ on the Clojure philosophy. Most of those types will be familiar to any Clojurist
 commonly not considered as data, even in Clojure.
 
 Code to execute is represented as cells. Convex Lisp is a language evidently based on Clojure, almost a subset of it. It
-is used to query information from the Convex network and submitting transactions, such as creating or calling smart
+is used to query information from the Convex network and submit transactions, such as creating or calling smart
 contracts. More information about Convex Lisp can be found in [this guide](https://convex.world/cvm).
 
 Etch is an immutable database specially designed for cells. It is a Merkle DAG, a key-value store where values can be

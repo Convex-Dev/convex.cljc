@@ -1,45 +1,43 @@
 # Any aspect of the Convex stack
 
-This monorepo hosts a variety of applications and libraries written in Clojure providing access to all aspects of the [Convex network](https://github.com/Convex-Dev/convex)
-with additional capabilities à la carte.
+This monorepo hosts a variety of applications and libraries written in Clojure providing access to all aspects of the
+[Convex network](https://github.com/Convex-Dev/convex).
 
-Since some key aspects of [Convex](https://convex.world/) have been modeled on Clojure constructs. Hence, there is no surprise in realizing that both form a unique and perfect
-match. Even without having any interest in blockchain, it is still worth exploring features offered by this repository such as the immutable [Etch database](./project/db).
+Convex can be understood as public database replicated worldwide among peer nodes. The network is effectively
+permissionless and anyone is free to participate. Data is defined in accounts akin to namespaces. Anyone can read data
+from those accounts but only owners and programmatically authorized users can transact new data using
+cryptographic keys. A consensus algorithm between peers guarantees that the network is tamperproof.
 
-Released applications and libraries:
+Using such a network, it is possible to write decentralized applications (dApps) that do not need a centralized database or server,
+are censorship-resistant, and highly-available. Such characterics provide a robust framework for managing any kind of
+state, even digital assets.
+
+Instead of relying on a query language like SQL or datalog, querying or transacting data on the network is done via
+Convex Lisp. Almost a subset of Clojure, it is a fully Turing-complete language centered on immutable values. It is
+effectively the very first decentralized Lisp in the history of computing. A guide is accessible [at this
+link](https://convex.world/cvm).
+
+Newcomers should follow progressive examples in [`:project/recipe`](./project/recipe) in order to better understand how
+such a network works and how to build dApps in Clojure. Since Convex is written in Java, one can use the exact same
+tools for writing applications that are being used for running the network. 
+
+Most useful modules from this repositories are:
 
 | Project | Library | Cljdoc | Download |
 |---|---|---|---|
-| [`:project/crypto`](./project/crypto) | [![Clojars](https://img.shields.io/clojars/v/world.convex/crypto.clj.svg)](https://clojars.org/world.convex/crypto.clj) | [![cljdoc](https://cljdoc.org/badge/world.convex/crypto.clj)](https://cljdoc.org/d/world.convex/crypto.clj/CURRENT) | / |
 | [`:project/cvm`](./project/cvm) | [![Clojars](https://img.shields.io/clojars/v/world.convex/cvm.clj.svg)](https://clojars.org/world.convex/cvm.clj) | [![cljdoc](https://cljdoc.org/badge/world.convex/cvm.clj)](https://cljdoc.org/d/world.convex/cvm.clj/CURRENT) | / |
-| [`:project/dapp`](./project/dapp) | [![Clojars](https://img.shields.io/clojars/v/world.convex/dapp.clj.svg)](https://clojars.org/world.convex/dapp.clj) | [![cljdoc](https://cljdoc.org/badge/world.convex/dapp.clj)](https://cljdoc.org/d/world.convex/dapp.clj/CURRENT) | / |
-| [`:project/db`](./project/db) | [![Clojars](https://img.shields.io/clojars/v/world.convex/db.clj.svg)](https://clojars.org/world.convex/db.clj) | [![cljdoc](https://cljdoc.org/badge/world.convex/db.clj)](https://cljdoc.org/d/world.convex/db.clj/CURRENT) | / |
 | [`:project/net`](./project/net) | [![Clojars](https://img.shields.io/clojars/v/world.convex/net.clj.svg)](https://clojars.org/world.convex/net.clj) | [![cljdoc](https://cljdoc.org/badge/world.convex/net.clj)](https://cljdoc.org/d/world.convex/net.clj/CURRENT) | / |
-| [`:project/run`](./project/run) | [![Clojars](https://img.shields.io/clojars/v/world.convex/run.clj.svg)](https://clojars.org/world.convex/run.clj) | [![cljdoc](https://cljdoc.org/badge/world.convex/run.clj)](https://cljdoc.org/d/world.convex/run.clj/CURRENT) | [CVX runner](https://github.com/Convex-Dev/convex.cljc/releases/tag/run%2F0.0.0-alpha2) |
+| [`:project/run`](./project/run) | / | / | [CVX runner](https://github.com/Convex-Dev/convex.cljc/releases/tag/run%2F0.0.0-alpha3) |
 
-Overview of main folders in the [./project](./project) directory:
-
-| Project | Purpose |
-|---|---|
-| [`:project/app.fuzz`](./project/app/fuzz) | CLI multicore fuzzy tester, generates and tests random Convex Lisp forms | 
-| [`:project/break`](./project/break) | Advanced generative test suite for the CVM ; novel smart contract testing |
-| [`:project/crypto`](./project/crypto) | Key pair creation and management for digital signing |
-| [`:project/cvm`](./project/cvm) | Convex types, reading Convex Lisp code, execution |
-| [`:project/dapp`](./project/db) | Bundle of useful libraries for building decentralized applications |
-| [`:project/db`](./project/db) | Create and handle immutable Etch databases crafted for Convex types |
-| [`:project/net`](./project/net) | Convex network stack (running peers and using the binary client) |
-| [`:project/recipe`](./project/recipe) | Recipes for understanding Convex and writing dApps |
-| [`:project/run`](./project/run) | Convex Lisp Runner and REPL, advanced terminal environment |
-
-Most of the time, using [`:project/dapp`](./project/dapp) is what you look for. It bundles useful libraries from this repository for the purpose of writing high-performance dApps (decentralized applications).
-
-For learning, it is best starting with [`:project/recipe`](./project/recipe). This collection of examples showcases how to write efficient dApps, step-by-step, while learning more about
-the Convex network.
+While these tools are used for talking to the network and handling data, the rest is usual application development and
+there is nothing specific about it.
 
 
 ## Community
 
-We use Discord as the primary means for discussing Convex - you can join the public server at https://discord.gg/5j2mPsk
+This repository is discussed on the Clojurians Slack community at `#convex`: https://join.slack.com/t/clojurians/shared_invite/zt-lsr4rn2f-jealnYXLHVZ61V2vdi15QQ
+
+Discord is the primary channel for discussing the overall Convex project: https://discord.gg/5j2mPsk
 
 Alternatively, email the core maintainer of this repository: adam(at)convex.world
 
