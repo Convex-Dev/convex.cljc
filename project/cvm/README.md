@@ -3,6 +3,8 @@
 [![Clojars](https://img.shields.io/clojars/v/world.convex/cvm.clj.svg)](https://clojars.org/world.convex/cvm.clj)  
 [![cljdoc](https://cljdoc.org/badge/world.convex/cvm.clj)](https://cljdoc.org/d/world.convex/cvm.clj/CURRENT)
 
+This library hosts core Convex utilities.
+
 The CVM (Convex Virtual Machine) executes operations over state, as described in [CAD
 005](https://github.com/Convex-Dev/design/blob/main/cad/005_cvmex/README.md).
 
@@ -36,4 +38,4 @@ Overview of namespaces:
 Those namespaces are built on top of [`convex-core` in the core Java repository](https://github.com/Convex-Dev/convex)
 and provide commonly needed features for building tools and decentralized applications.
 
-Examples can be found in [`:project/recipe`](../recipe).
+Examples and walk-through can be found in [`:project/recipe`](../recipe).
