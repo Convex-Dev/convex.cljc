@@ -45,7 +45,7 @@
    See `convex.recipe.cell` for more information about cells."
 
   ($.cell/* (if (< 1 50)
-              :smaller
+              :lesser
               :greater)))
 
 
@@ -62,8 +62,7 @@
   ;;
   (-> ($.cvm/eval ctx
                   code)
-      $.cvm/result
-      str)
+      $.cvm/result)
 
 
   ;; EXPANSION
@@ -75,7 +74,7 @@
                          code)
            $.cvm/result))
 
-  (str expanded)
+  expanded
 
 
   ;; COMPILATION
@@ -87,7 +86,7 @@
                           expanded)
            $.cvm/result))
 
-  compiled
+  (class compiled)
 
 
   ;; EXECUTION
@@ -96,15 +95,14 @@
   ;;
   (-> ($.cvm/exec ctx
                   compiled)
-      $.cvm/result
-      str)
+      $.cvm/result)
 
 
   ;;
-  ;; Hence, Convex is (probably) the first decentralized Lisp ever.
+  ;; Hence, Convex is (very probably) the first decentralized Lisp ever.
   ;;
   ;; Lisp has been mentioned in a couple of projects, even Ethereum, but it most often about s-expression.
-  ;; Not a full language with lambdas and eval!
+  ;; Not a full language with lambdas, macros, and eval!
   ;;
 
 

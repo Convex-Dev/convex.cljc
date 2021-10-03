@@ -49,7 +49,6 @@
           :return value})))))
 
 
-
 ;;;;;;;;;;
 
 
@@ -84,7 +83,7 @@
   ;;
   ;; Queries are akin to read operations.
   ;;
-  ;; Code is provided and executed by the peer but it does not require any consensus.
+  ;; Code is provided as a cell and executed by the peer but it does not require any consensus.
   ;; Any change in the state is simply discarded.
   ;;
 
@@ -96,17 +95,18 @@
   ;;
   (-> ($.client/query c
                       ($.cell/address 1)
-                      ($.read/string "#49/foo"))
-      deref
-      str)
+                      ($.read/string "(+ 2 2)"))
+      deref)
 
 
   ;; A result is an object. The API provides functions for checking if an error occured,
   ;; getting the value, etc.
   ;;
+  ;; This example query information about account #2.
+  ;;
   (-> ($.client/query c
-                      ($.cell/address 1)
-                      ($.cell/* (+ 2 2)))
+                      ($.cell/address 2)
+                      ($.cell/* (account *address*)))
       deref
       $.client/value)
 
@@ -118,8 +118,7 @@
   (-> ($.client/query c
                       ($.cell/address 1)
                       ($.cell/* (inc [])))
-      deref
-      str)
+      deref)
 
 
   ;;
@@ -164,8 +163,7 @@
   (-> ($.client/query c
                       addr
                       ($.cell/* *balance*))
-      deref
-      str)
+      deref)
 
 
   ;; When writing a transaction, a 'sequence id' must be provided to avoid replay attacks.
@@ -195,9 +193,8 @@
                          kp
                          ($.cell/invoke addr
                                         (seq-id)
-                                        ($.read/string "(defn set-x [x] (def x x))")))
-      deref
-      str)
+                                        ($.read/string "(def foo 42)")))
+      deref)
 
 
   ;; And a query to confirm that it worked, let us read `foo` in our account.
@@ -220,6 +217,9 @@
   ;;
   ;; See comments in CVX file 'project/recipe/src/cvx/main/simple_contract.cvx'
   ;;
+  ;; This actor allows its creator (us) to define `value` in its own environment
+  ;; using its `set-value` function.
+  ;;
   (def my-actor
        (-> ($.client/transact c
                               kp
@@ -240,8 +240,7 @@
                                         (seq-id)
                                         ($.cell/* (call ~my-actor
                                                         (set-value 42)))))
-      deref
-      str)
+      deref)
 
 
   ;; We can query `value` is actor and confirms it is now set to 42.
@@ -249,8 +248,7 @@
   (-> ($.client/query c
                       my-actor
                       ($.cell/* value))
-      deref
-      str)
+      deref)
 
 
   ;; Let's try to break it!
@@ -263,8 +261,7 @@
                       ($.cell/address 1)
                       ($.cell/* (call ~my-actor
                                       (set-value :damn!))))
-      deref
-      str)
+      deref)
 
 
   ;;

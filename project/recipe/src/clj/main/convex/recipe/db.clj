@@ -36,16 +36,18 @@
     ($.db/open "private/recipe/db/my-instance.etch"))
 
 
-  ;; Many utilities, such as the client shown in `client.recipe.client`, need Etch.
+  ;; Data from Etch is loaded semi-lazily, meaning that for larger structures, not all data is
+  ;; retrieved at once.
   ;;
-  ;; Those utilities look for an instance in a thread-local value, a value that can be
-  ;; different for every thread.
+  ;; This is a desirable property because it allows us to work with data that is even larger than
+  ;; available memory. Missing values are transparently queried from the database when they are
+  ;; actually used, via a system of soft references.
   ;;
-  ;; Hence, when using an instance directly, it must be set on the current thread to avoid
-  ;; any problem.
+  ;; When a missing value must be read from the database, the instance used is the one currently
+  ;; attached to a thread-local value.
   ;;
-  ;; Not doing so will often result in `MissingDataException`s.
-  ;;
+  ;; Hence it is important to set our instance as "thread-local". Not doing so will often result
+  ;; in `MissingDataException`.
   ($.cvm.db/local-set db)
 
   ($.cvm.db/local)
@@ -102,9 +104,9 @@
      ($.db/read-root))
 
 
-  ;; In reality, Etch deals with 'references'.
+  ;; In reality, Etch deals primarily with 'references'.
   ;;
-  ;; Many types are implemented with soft references.
+  ;; Many types are implemented with soft references as exposed earlier.
   ;;
   ;; A soft reference keeps a hash and caches the cell corresponding to this hash. Cell can be released during garbage collection.
   ;; When needed, it can always be retrieved from the database using its hash.

@@ -53,6 +53,9 @@
           ;; context of our account. That's why `set-value` can change `value` which is defined in the actor,
           ;; not out account.
           ;;
+          ;; Effectively, this actor allows you to define `value` in its environment as long as you are its
+          ;; creator.
+          ;;
           ;;
           (defn set-value
 
