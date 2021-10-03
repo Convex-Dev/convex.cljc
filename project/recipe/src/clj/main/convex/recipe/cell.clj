@@ -9,8 +9,11 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.cell :as $.cell]
-            [convex.read :as $.read]))
+  (:require [convex.cell  :as $.cell]
+            [convex.clj   :as $.clj]
+            [convex.read  :as $.read]
+            [convex.std   :as $.std]
+            [convex.write :as $.write]))
 
 
 ;;;;;;;;;;
@@ -44,10 +47,6 @@
   ($.cell/vector [($.cell/long 42)
                   ($.cell/keyword "foo")])
 
-
-  ;; Stringifying them to Convex Lisp makes them more recognizable.
-  ;;
-  (str *1)
 
   ;;
   ;; A few types are specific to Convex.
@@ -102,26 +101,37 @@
   ;;
   ;; HANDLING CELLS
   ;;
-  ;; Some cells offer a Java API similar to common Clojure fonctions.
-  ;; In the future, we might offer a namespace for those functions (eg. conj, get, reduce, ...)
-  ;; Meanwhile, a little Java interop is fine!
-  ;;
-  ;; The fact cells are close to Clojure is useful for off-chain computation: handling data outside the network,
-  ;; preparing it, modifying it, ...
-  ;;
-  ;; Java API for cells: https://www.javadoc.io/doc/world.convex/convex-core/latest/convex/core/data/package-summary.html
-  ;;
 
-  ;; For instance, `conj`...
-  ;;
-  (.conj my-vector
-         ($.cell/* :c))
-  
-  (str *1)
 
-  ;; Sometimes, some cells work with some Clojure functions.
+  ;; Almost all core Clojure functions related to sequences work on Convex collections.
   ;;
-  (first my-vector)
+  (first ($.cell/* [:a :b]))
+
+  (map identity
+       ($.cell/* [:a :b :c]))
+
+  (concat ($.cell/* [:a :b])
+          ($.cell/* [:c :d]))
+
+
+  ;; Other classic Clojure functions can be found in the `convex.std` namespace.
+  ;;
+  ($.std/conj ($.cell/* [:a :b])
+              ($.cell/* :c))
+
+  ($.std/get ($.cell/* {:a :b})
+             ($.cell/* :a))
+
+
+  ;; Sometimes it is useful converting a cell to a Clojure type via the `convex.clj` namespace.
+  ;;
+  (-> ($.cell/address 42)
+      $.clj/address)
+
+
+  ;; And in the rare where all of this is not enough, there is always Java interop.
+  ;;
+  ;; https://www.javadoc.io/doc/world.convex/convex-core/latest/convex/core/data/package-summary.html
 
 
   ;;
@@ -129,11 +139,15 @@
   ;;
   ;; The Convex Lisp reader takes a string of code as input and outputs a cell.
   ;;
+  ;; Convex Lisp is the language used for querying data from the network or submitting transactions, such as
+  ;; creating smart contracts. It is almost a subset of Clojure with added capabilities.
+  ;;
+  ;; See [[convex.recipe.cvm]] for examples on how to compile and evaluate cells in order to execute code.
+  ;;
 
   ;; Reading a small snippet of code.
   ;;
   ($.read/string "(+ 2 2)")
-  (str *1)
 
 
   ;; Most commonly used when fetching smart contracts written in file.
@@ -141,7 +155,11 @@
   ;; For instance, this simple smart contract is used in `convex.recipe.client`.
   ;;
   ($.read/file "project/recipe/src/cvx/main/simple_contract.cvx")
-  (str *1)
+
+
+  ;; Cells can be printed to Convex Lisp.
+  ;;
+  ($.write/string ($.cell/* (+ 2 2)))
 
 
   )
