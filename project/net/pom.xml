@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>world.convex</groupId>
   <artifactId>net.clj</artifactId>
-  <version>0.0.0-alpha1</version>
+  <version>0.0.0-alpha2</version>
   <name>net.clj</name>
   <description>Peer and client management from Clojure</description>
   <url>https://github.com/Convex-Dev/convex.cljc/tree/main/project/net</url>
@@ -39,13 +39,8 @@
     </dependency>
     <dependency>
       <groupId>world.convex</groupId>
-      <artifactId>crypto.clj</artifactId>
-      <version>0.0.0-alpha1</version>
-    </dependency>
-    <dependency>
-      <groupId>world.convex</groupId>
       <artifactId>cvm.clj</artifactId>
-      <version>0.0.0-alpha2</version>
+      <version>0.0.0-alpha3</version>
     </dependency>
   </dependencies>
   <repositories>

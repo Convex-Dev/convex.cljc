@@ -8,15 +8,25 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+
+
+## [0.0.0-alph2] - 2021-10-03
+
+### Added
+
 - Merge former `:project/crypto` project, bringin new namespaces:
     - `$.pfx`
     - `$.sign`
 
 ### Changed
 
-### Fixed
-
-### Removed
+- Upgrade `:project/cvm` to `0.0.0-alpha3`
 
 
 
@@ -42,6 +52,7 @@ All notable changes to this project will be documented in this file.
 
 
 
-[Unreleased]:  https://github.com/helins/convex.lisp.cljc/compare/net/0.0.0-alpha1...HEAD
+[Unreleased]:  https://github.com/helins/convex.lisp.cljc/compare/net/0.0.0-alpha2...HEAD
+[0.0.0-alpha2]:  https://github.com/helins/convex.lisp.cljc/compare/net/0.0.0-alpha1...net/0.0.0-alpha2
 [0.0.0-alpha1]:  https://github.com/helins/convex.lisp.cljc/compare/net/0.0.0-alpha0...net/0.0.0-alpha1
 [0.0.0-alpha0]: https://github.com/helins/convex.lisp.cljc/releases/tag/net/0.0.0-alpha0
