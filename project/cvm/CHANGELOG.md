@@ -11,6 +11,9 @@ All notable changes to this project will be documented in this file.
 - Namespace `$.clj`, CVX -> CLJ type conversions
 - Namespace `$.std`, Clojure-like functions for cells
 - Printer for cells (previously, were printed as ugly Java objects)
+- Merge former `:project/db`, bringing new namespaces:
+    - `$.cvm.db`
+    - `$.db` 
 
 ### Changed
 

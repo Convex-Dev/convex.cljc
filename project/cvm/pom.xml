@@ -5,7 +5,7 @@
   <artifactId>cvm.clj</artifactId>
   <version>0.0.0-alpha2</version>
   <name>Clojure wrapper for the Convex Virtual Machine</name>
-  <description>Interact with Convex data, Convex Lisp, and the Convex Virtual Machine</description>
+  <description>Core Convex utilities for Clojure</description>
   <url>https://github.com/Convex-Dev/convex.cljc/tree/main/project/cvm</url>
   <licenses>
     <license>
