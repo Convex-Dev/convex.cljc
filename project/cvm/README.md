@@ -1,105 +1,39 @@
 # `:project/cvm`
 
-[![Clojars](https://img.shields.io/clojars/v/world.convex/cvm.clj.svg)](https://clojars.org/world.convex/cvm.clj)
+[![Clojars](https://img.shields.io/clojars/v/world.convex/cvm.clj.svg)](https://clojars.org/world.convex/cvm.clj)  
 [![cljdoc](https://cljdoc.org/badge/world.convex/cvm.clj)](https://cljdoc.org/d/world.convex/cvm.clj/CURRENT)
 
-The Convex Virtual Machine executes operations over state, as described in [CAD 005](https://github.com/Convex-Dev/design/blob/main/cad/005_cvmex/README.md).
+The CVM (Convex Virtual Machine) executes operations over state, as described in [CAD
+005](https://github.com/Convex-Dev/design/blob/main/cad/005_cvmex/README.md).
 
-It inputs cells and outputs cells, the word "cell" designating immutable Convex objects such as values, data structures, or functions.
-[CAD 002](https://github.com/Convex-Dev/design/tree/main/cad/002_values) offers an overview of main data types.
+It inputs cells and outputs cells, the word *"cell"* designating immutable Convex objects that have been modeled closely
+on the Clojure philosophy. Most of those types will be familiar to any Clojurist: keywords, symbols, maps, vectors, etc.
+"Cell" is used instead of "data" because this word also encompasses additional types such as functions, which are
+commonly not considered as data, even in Clojure.
 
-This project provides utilities crafted around cells and the CVM:
+Code to execute is represented as cells. Convex Lisp is a language evidently based on Clojure, almost a subset of it. It
+is used to query information from the Convex network and submitting transactions, such as creating or calling smart
+contracts. More information about Convex Lisp can be found in [this guide](https://convex.world/cvm).
+
+Etch is an immutable database specially designed for cells. It is a Merkle DAG, a key-value store where values can be
+any cells and keys are hashes of the cells they point to. It is particularly efficient by implementing structural
+sharing and semi-lazy loading, meaning that data bigger than memory can be queried because not all of it will be loaded
+at once.
+
+Overview of namespaces:
 
 | Namespace | Purpose |
 |-----------|---------|
-| `$.cell`  | Constructors and predicate functions for cells          |
-| `$.cvm`   | CVM execution, manipulation, gathering various insights |
-| `$.read`  | Parse text source into cells                            |
-| `$.write` | Convert cells into text source                          |
+| `convex.cell`   | Constructors for cells                                  |
+| `convex.clj`    | Translating cells into Clojure data                     |
+| `convex.cvm`    | CVM execution, manipulation, gathering various insights |
+| `convex.cvm.db` | Set which Etch instances are used by default            |
+| `convex.db`     | Open and handle Etch instances                          |
+| `convex.read`   | Parse text source into cells                            |
+| `convex.std`    | Standard library for cells, similar to `clojure.core`   |
+| `convex.write`  | Convert cells into text source                          |
 
-Those namespaces are built on top of [`convex-core` in the core Java repository](https://github.com/Convex-Dev/convex) and provide
-commonly needed features for building tools. Prime example is the Convex Lisp Runner from [:project/run](../run).
+Those namespaces are built on top of [`convex-core` in the core Java repository](https://github.com/Convex-Dev/convex)
+and provide commonly needed features for building tools and decentralized applications.
 
-
-## Usage
-
-Namespaces are well-documented. The following sections are but very brief overviews providing a sense of where this is going.
-
-
-### Handling source and cells
-
-Reading is the act of parsing source (strings, files, streams) into cells:
-
-```clojure
-(def source
-     "[#42 24 :foo]")
-
-
-(def v
-     ($.read/string source))
-
-
-($.cell/vector? v)  ;; True
-```
-
-While writing takes cells and produces source:
-
-```clojure
-(= source
-   ($.write/string v))  ;; True
-```
-
-Especially when working on tooling, cells can be built from scratch:
-
-```clojure
-(= v
-   ($.cell/vector [($.cell/address 42)
-                   ($.cell/long 24)
-                   ($.cell/keyword "foo")]))
-```
-
-
-### Execution
-
-Cells can be executed using a CVM context, consuming juice in the process, as described in [CAD 007](https://github.com/Convex-Dev/design/tree/main/cad/007_juice).
-
-```clojure
-(def code
-     ($.read/string "(+ 2 2)"))
-```
-
-Usually, evaluation is sufficient and it is the shorted path:
-
-```clojure
-(= ($.cell/long 4)
-
-   (-> ($.cvm/eval ($.cvm/ctx)
-                   code)
-       $.cvm/result))
-```
-
-In reality, 3 steps are performed as described in [CAD 008](https://github.com/Convex-Dev/design/tree/main/cad/008_compiler).
-Sometimes, it is useful performing them manually.
-
-First, expansion which takes a cell and produces a canonical cell by applying macros, meaning it cannot be expanded any further.
-[CAD 009](https://github.com/Convex-Dev/design/tree/main/cad/009_expanders) goes into greater details if needed.
-
-Second, canonical cell is compiled into an operation.
-
-And third, operation is actually executed.
-
-```clojure
-(= ($.cell/long 4)
-
-   (-> ($.cvm/ctx)
-       ($.cvm/expand code)
-       $.cvm/compile
-       $.cvm/exec
-       $.cvm/result))
-```
-
-Any result of any steps can be retrieved by using `$.cvm/result` (done automatically in previous example). However, in practice,
-a CVM exception is thrown in case of failure, meaning users should defensively check for errors using `$.cvm/exception` first.
-
-Other utilities from the `$.cvm` namespace serve to gain insights from contextes (eg. track juice consumption) or alter them
-(eg. set juice).
+Examples can be found in [`:project/recipe`](../recipe).
