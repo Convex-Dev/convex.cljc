@@ -209,16 +209,24 @@
   ;;
   ;; EXAMPLE - Deploying and calling a smart contract
   ;;
+  ;; An "actor" is an account that does not have a key pair. It means no one
+  ;; is able to issue transactions for that account.
+  ;;
+  ;; Code is provided when the actor is created and this code determines everything
+  ;; this actor can do.
+  ;;
+  ;; Like any account, actors can define some values. It can also provide functions,
+  ;; an interface for changing those values. Hence, actors are the very basis of
+  ;; smart contracts: they can host some arbitrary state and define in code how this
+  ;; state is managed.
+  ;;
 
 
-  ;; Let us transaction code that deploys an actor (automated account).
+  ;; First, let us deploy our actor in a transaction.
   ;;
-  ;; Actors are automated accounts used for creating smart contracts.
+  ;; This actor hosts `value` and 2 functions. Difference is explored below.
   ;;
-  ;; See comments in CVX file 'project/recipe/src/cvx/main/simple_contract.cvx'
-  ;;
-  ;; This actor allows its creator (us) to define `value` in its own environment
-  ;; using its `set-value` function.
+  ;; See code and comments in CVX file 'project/recipe/src/cvx/main/simple_contract.cvx'
   ;;
   (def my-actor
        (-> ($.client/transact c
@@ -230,30 +238,59 @@
            $.client/value))
 
 
-  ;; Now, let us call our actor.
+  ;; First, let us apply its `set-value` function like any other function, with the only
+  ;; difference it comes from another account.
   ;;
-  ;; Transaction code uses `call` so that `(set-value 42)` is executed in the context of the actor.
+  ;; `lookup` is a way for retrieving a value by providing an address and a symbol.
+  ;;
+  (-> ($.client/transact c
+                         kp
+                         ($.cell/invoke addr
+                                        (seq-id)
+                                        ($.cell/* ((lookup ~my-actor
+                                                           set-value) 42))))
+      deref)
+
+
+  ;; By querying `value` in our own account, we can notice that our previous transaction was
+  ;; executed in the context of our account.
+  ;;
+  (-> ($.client/query c
+                      addr
+                      ($.cell/symbol "value"))
+      deref)
+
+
+  ;; Now, let us "call" the `set-value-in-actor` function. It has a special metadata `:callable?`
+  ;; set to true and we will use `call` to apply it.
   ;;
   (-> ($.client/transact c
                          kp
                          ($.cell/invoke addr
                                         (seq-id)
                                         ($.cell/* (call ~my-actor
-                                                        (set-value 42)))))
+                                                        (set-value-in-actor 100)))))
       deref)
 
 
-  ;; We can query `value` is actor and confirms it is now set to 42.
+  ;; By quering `value` in the actor account, not our own, we can confirm that that our previous
+  ;; transaction was executed in the context of the actor, not our account.
+  ;;
+  ;; Effectively, `set-value-in-actor` is a special function that allows us to pass execution on the
+  ;; actor for the duration of the function.
+  ;;
+  ;; This is a very powerful construct: an actor can hold some state which can only be managed via
+  ;; well-defined functions.
   ;;
   (-> ($.client/query c
                       my-actor
-                      ($.cell/* value))
+                      ($.cell/symbol "value"))
       deref)
 
 
   ;; Let's try to break it!
   ;;
-  ;; Contract enforces access control: only creator (our account) can change `value`.
+  ;; `set-value-in-actor` enforces access control: only creator (our account) can change `value`.
   ;;
   ;; Using a query, let's see what happens if account #1 tried calling the contract. It fails!
   ;;
@@ -262,6 +299,14 @@
                       ($.cell/* (call ~my-actor
                                       (set-value :damn!))))
       deref)
+
+
+  ;;
+  ;; This is crucial to understand smart contracts: they are one or several actors, hosting some
+  ;; arbitrary state and enforcing rules written as "callable" functions.
+  ;;
+  ;; Any smart contract, simple or complex, is built on this idea.
+  ;;
 
 
   ;;

@@ -180,8 +180,7 @@
   (-> ($.client/query c
                       ($.cell/address 1)  ;; "Execute query as", any address can be used, this is only a read operation.
                       ($.cell/* (+ 2 2)))
-      deref
-      str)
+      deref)
 
 
   ;; When done, we can stop our resources.

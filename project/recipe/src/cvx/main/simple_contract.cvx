@@ -15,7 +15,7 @@
 
 ;; `deploy` creates an actor by evaluating the given quoted code in a new account.
 ;;
-;; Address  of that account is then returned.
+;; Address of that account is then returned.
 ;;
 ;;
 (def my-actor
@@ -39,25 +39,44 @@
                *caller*)
 
 
-          ;; Function for changing `value`.
+          ;; When calling function from another account (such as this actor), code is executed
+          ;; in the context of our own account.
           ;;
-          ;; Before changing `value` to `x` argument, ensures that `*caller*` at that moment
-          ;; is the authorized account.
+          ;; We will apply this function just like any common function to show that `value` will
+          ;; be define in our own account, which is NOT the intended purpose of this example.
+          ;; 
+          (defn set-value
+
+            [x]
+
+            (def value
+                 x))
+
+
+          ;; This function is similar to the previous one but does 2 things.
           ;;
-          ;; In its metadata, this function is set as `:callable?` so that we can call it:
+          ;; First, it showcases access control. It fails if the `*caller*` (account calling
+          ;; that function) is Not equal to `creator`, remembered at initialization.
+          ;;
+          ;; Second, it showcases state management. Metadata is provided:
+          ;;
+          ;;   ^{:callable? true}
+          ;;
+          ;; This means that we can use `call` and by doing so, the function will be executed
+          ;; in the context of the actor, not our account:
           ;;
           ;;   (call ACTOR_ADDRESS
-          ;;         (function arg-1 arg-2 ...))
+          ;;         (set-value 42))
           ;;
-          ;; "Calling" means the function is executed in the context of the actor, instead of the
-          ;; context of our account. That's why `set-value` can change `value` which is defined in the actor,
-          ;; not out account.
+          ;; Meaning that `value` will be defined in the environment of the actor, not our own.
           ;;
-          ;; Effectively, this actor allows you to define `value` in its environment as long as you are its
-          ;; creator.
+          ;; This is what we want. Show that an actor can host some arbitrary state and allow
+          ;; users or other actors to modify it using "callable" functions.
           ;;
+          ;; All smart contracts are implement using one or several actors which host some state
+          ;; and enforce rules on how it can be modified.
           ;;
-          (defn set-value
+          (defn set-value-in-actor
 
             ^{:callable? true}
 
