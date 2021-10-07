@@ -202,8 +202,7 @@
   (-> ($.client/query c
                       addr
                       ($.cell/* foo))
-      deref
-      str)
+      deref)
 
 
   ;;
@@ -297,7 +296,7 @@
   (-> ($.client/query c
                       ($.cell/address 1)
                       ($.cell/* (call ~my-actor
-                                      (set-value :damn!))))
+                                      (set-value-in-actor :damn!))))
       deref)
 
 

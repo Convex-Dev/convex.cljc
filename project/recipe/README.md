@@ -6,8 +6,10 @@ focus on networking and interacting with the current testnet.
 
 More information about Convex: https://convex.world
 
-Overall, they showcase what can be done using [`:project/dapp`](../dapp). Go there for the API and a brief explanation
-of what decentralized applications are.
+Those examples relies on 2 libraries:
+
+- [`:project/cvm`](../cvm), core utilities
+- [`:project/net`](../net), network utilities
 
 Recommended order is:
 
