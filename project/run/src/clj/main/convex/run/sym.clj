@@ -44,11 +44,6 @@
 
 
 
-(def ^Symbol $-doc
-             ($.cell/symbol "$.doc"))
-
-
-
 (def ^Symbol $-file
              ($.cell/symbol "$.file"))
 

@@ -92,9 +92,6 @@
                                    ;; Requires `$.trx`.
                                    [$.run.sym/$-code
                                     "convex/run/code.cvx"]
-                                   ;; Requires `$` + `$.term`.
-                                   [$.run.sym/$-doc
-                                    "convex/run/doc.cvx"]
                                    ;; Requires `$.trx`.
                                    [$.run.sym/$-file
                                     "convex/run/file.cvx"]
