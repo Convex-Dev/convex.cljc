@@ -94,6 +94,16 @@
 
 
 
+(def ^Keyword kp-from-seed
+              ($.cell/keyword "kp.from-seed"))
+
+
+
+(def ^Keyword kp-gen
+              ($.cell/keyword "kp.gen"))
+
+
+
 (def ^Keyword log-clear
               ($.cell/keyword "log.clear"))
 

@@ -19,6 +19,8 @@
             [convex.run.kw     :as $.run.kw]
             [convex.run.stream :as $.run.stream]
             [convex.run.sym    :as $.run.sym]
+            [convex.sign       :as $.sign]
+            [convex.std        :as $.std]
             [criterium.core    :as criterium]))
 
 
@@ -123,6 +125,22 @@
                          (str (.get tuple
                                     2))))
 
+
+;;;;;;;;;; Key pair management
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/kp-gen
+
+  ;; Generates key pair randomly.
+
+  [env _tuple]
+
+  (let [kp ($.sign/ed25519)]
+    ($.run.ctx/def-result env
+                          ($.cell/vector [($.sign/account-key kp)
+                                          (.getEncodedPrivateKey kp)]))))
 
 ;;;;;;;;;; Logging
 

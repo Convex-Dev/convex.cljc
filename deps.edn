@@ -353,7 +353,9 @@
    :maestro/main-class convex.run
    :maestro/require    [:ext/criterium
                         {default :project/cvm
-                         release :release/cvm}]
+                         release :release/cvm}
+                        {default :project/net
+                         release :release/net}]
    :maestro/root       "project/run"}
 
 
