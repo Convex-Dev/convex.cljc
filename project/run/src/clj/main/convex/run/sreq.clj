@@ -7,7 +7,10 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.data AVector)
+  (:import (convex.core.crypto AKeyPair
+                               Ed25519KeyPair)
+           (convex.core.data AVector
+                             Blob)
            (convex.core.data.prim CVMLong)
            (convex.core.lang Context))
   (:require [convex.cell       :as $.cell]
@@ -129,6 +132,18 @@
 ;;;;;;;;;; Key pair management
 
 
+(defn- -def-key-pair
+
+  ;; Given a key pair, defines as result a CVX vector `[PublicKey PrivateKey]`
+
+  [env ^AKeyPair kp]
+
+  ($.run.ctx/def-result env
+                        ($.cell/vector [($.sign/account-key kp)
+                                        (.getEncodedPrivateKey kp)])))
+
+
+
 (defmethod $.run.exec/sreq
 
   $.run.kw/kp-gen
@@ -137,10 +152,41 @@
 
   [env _tuple]
 
-  (let [kp ($.sign/ed25519)]
-    ($.run.ctx/def-result env
-                          ($.cell/vector [($.sign/account-key kp)
-                                          (.getEncodedPrivateKey kp)]))))
+  (-def-key-pair env
+                 ($.sign/ed25519)))
+
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/kp-from-seed
+
+  ;; Reconstitutes a key pair from a seed.
+
+  [env tuple]
+
+  (-def-key-pair env
+                 ($.sign/ed25519 ($.std/get tuple
+                                            2))))
+
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/kp-seed
+
+  ;; Retrieves the seed of the given key pair.
+
+  [env tuple]
+
+  ($.run.ctx/def-result env
+                        (let [cvx-kp ($.std/nth tuple
+                                                2)]
+                          ($.sign/seed (Ed25519KeyPair/create ($.cell/key ($.std/nth cvx-kp
+                                                                                     0))
+                                                              ^Blob ($.std/nth cvx-kp
+                                                                               1))))))
+
 
 ;;;;;;;;;; Logging
 

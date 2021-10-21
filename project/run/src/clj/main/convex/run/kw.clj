@@ -104,6 +104,11 @@
 
 
 
+(def ^Keyword kp-seed
+              ($.cell/keyword "kp.seed"))
+
+
+
 (def ^Keyword log-clear
               ($.cell/keyword "log.clear"))
 
