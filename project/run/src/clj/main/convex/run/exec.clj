@@ -15,7 +15,8 @@
             [convex.read    :as $.read]
             [convex.run.ctx :as $.run.ctx]
             [convex.run.err :as $.run.err]
-            [convex.run.kw  :as $.run.kw]))
+            [convex.run.kw  :as $.run.kw]
+            [convex.std     :as $.std]))
 
 
 (declare fail)
@@ -93,7 +94,7 @@
 
   ([result]
 
-   (when (and ($.cell/vector? result)
+   (when (and ($.std/vector? result)
               (>= (count result)
                   2)
               (= (.get ^AVector result
