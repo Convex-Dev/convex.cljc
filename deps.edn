@@ -237,7 +237,7 @@
 
   {:extra-paths               ["module/cvm/src/main/clj"]
    :maestro/dir                "module/cvm"
-   :maestro/doc                "Handling CVM contextes and Convex data"
+   :maestro/doc                "Handling CVM contexts and Convex cells"
    :maestro/require           [:ext/convex-core
                                {test :test/cvm}]
    :maestro.build/type        :jar
