@@ -163,7 +163,7 @@
 
 
   ;; GOD MODE - Requiring much everything
-  
+
 
   :project/all
 
@@ -257,7 +257,7 @@
   :project/cvm
 
   {:extra-paths     ["project/cvm/src/clj/main"]
-   :maestro/doc     "Handling CVM contextes and Convex data"
+   :maestro/doc     "Handling CVM contexts and Convex data"
    :maestro/require [:ext/convex-core]
    :maestro/root    "project/cvm"}
 
