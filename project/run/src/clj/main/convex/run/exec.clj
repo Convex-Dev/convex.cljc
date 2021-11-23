@@ -1,7 +1,7 @@
 (ns convex.run.exec
 
   "All aspects of actually executing transactions.
-  
+
    When an error is detected, [[fail]] is called."
 
   {:author "Adam Helinski"}
@@ -13,6 +13,7 @@
   (:require [convex.cell    :as $.cell]
             [convex.cvm     :as $.cvm]
             [convex.read    :as $.read]
+            [convex.std     :as $.std]
             [convex.run.ctx :as $.run.ctx]
             [convex.run.err :as $.run.err]
             [convex.run.kw  :as $.run.kw]))
@@ -62,7 +63,7 @@
 (defn update-ctx
 
   "Refills the current context with maximum juice and calls `f` with that context and `trx`.
-  
+
    The context is then reattached to `env`."
 
   [env kw-phase f trx]
@@ -86,14 +87,14 @@
 
 
 (defn sreq-dispatch
-  
+
   "Dispatch function used by the [[sreq]] multimethod.
-  
+
    Returns nil if the given result is not a special request."
 
   ([result]
 
-   (when (and ($.cell/vector? result)
+   (when (and ($.std/vector? result)
               (>= (count result)
                   2)
               (= (.get ^AVector result
@@ -112,7 +113,7 @@
 (defmulti sreq
 
   "After evaluating a transaction, the runner must check if the result is a special request.
-  
+
    It uses [[sreq-dispatch]] to forward the result to the appropriate special request implementation, an \"unknown\"
    implementation if it looks like a special request but is not implemented, or the \"nil\" implementation if it is not
    a special request.
@@ -172,7 +173,7 @@
 (defn exec
 
   "Runs the given, previously compiled `trx` using the current context.
-  
+
    See [[compile]]."
 
 
@@ -217,7 +218,7 @@
   "Evaluates `trx` and forwards result to [[sreq]] unless an error occured."
 
   [env trx]
-  
+
   (let [env-2 (eval env
                     trx)]
     (if (env-2 :convex.run/error)
@@ -288,7 +289,7 @@
   (defn fail
 
     "Must be called in case of failure, `err` being an error map (see the [[convex.run.err]] namespace).
-    
+
      Under `$.catch/*stack*` in the context is a stack of error handling transactions. This functions pops
      the next error handling transaction and prepends it to `$.trx/*list*`, the list of transactions pending
      for execution.
