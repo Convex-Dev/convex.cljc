@@ -1,5 +1,7 @@
 // Common
 
+.DS_Store
+/**/.DS_Store
 *.class
 *.jar
 !/cvm/*.jar

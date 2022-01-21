@@ -167,7 +167,7 @@
 
   (-def-key-pair env
                  ($.sign/ed25519 ($.std/get tuple
-                                            2))))
+                                            ($.cell/* 2)))))
 
 
 
@@ -179,13 +179,19 @@
 
   [env tuple]
 
-  ($.run.ctx/def-result env
-                        (let [cvx-kp ($.std/nth tuple
-                                                2)]
-                          ($.sign/seed (Ed25519KeyPair/create ($.cell/key ($.std/nth cvx-kp
-                                                                                     0))
-                                                              ^Blob ($.std/nth cvx-kp
-                                                                               1))))))
+  (try
+    ($.run.ctx/def-result env
+                          (let [cvx-kp ($.std/nth tuple
+                                                  2)]
+                            ($.sign/seed (Ed25519KeyPair/create ($.cell/key ($.std/nth cvx-kp
+                                                                                       0))
+                                                                ^Blob ($.std/nth cvx-kp
+                                                                                 1)))))
+    (catch Throwable _err
+      ($.run.exec/fail env
+                       ($.run.err/sreq ($.cell/code-std* :ARGUMENT)
+                                       ($.cell/string "Unknown error while extracting seed from key pair ; is it really an ED25519 key pair?")
+                                       tuple)))))
 
 
 ;;;;;;;;;; Logging

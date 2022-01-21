@@ -1,0 +1,81 @@
+(call *registry*
+      (cns-update 'convex.run.key-pair
+                  *address*))
+
+
+(call *registry*
+      (register {:description "Creating and managing key pairs required for signing transactions."
+                 :name        "Key pair management"}))
+
+
+;;;;;;;;;; Private
+
+
+(defn -blob-32?
+
+  ^{:private true}
+
+  [x]
+
+  (and (blob? x)
+       (= (count x)
+          32)))
+
+
+
+(defn -key-pair?
+
+  ^{:private? true}
+
+  [key-pair]
+
+  (and (vector? key-pair)
+       (= (count key-pair)
+          2)
+       (let [[blob-1
+              blob-2] key-pair]
+         (and (blob? blob-1)
+              (-blob-32? blob-1)
+              (blob? blob-2)
+              (= (count blob-2)
+                 48)))))
+
+
+;;;;;;;;;; API
+
+
+(defn from-seed
+
+  ^{:doc       ["Computes a key pair from a seed (i.e. a 32-byte blob)."
+                "See `gen` for a definition of a key-pair."]
+    :signature [{:params [seed]}]}
+
+  [seed]
+
+  (assert (-blob-32? seed))
+  [:cvm.sreq :kp.from-seed seed])
+
+
+
+(defn gen
+
+  ^{:doc {:description ["Returns a vector representing an ED25519 key pair."
+                        "First item is the public key, second item is the private key."]
+          :signature   [{:params []}]}}
+
+  []
+
+  [:cvm.sreq :kp.gen])
+
+
+
+(defn seed
+
+  ^{:doc {:description ["Returns the seed of the given key pair."
+                        "See `gen` for key pair format, `from-seed` for seed definition."]
+          :signature   [{:params [key-pair]}]}}
+
+  [key-pair]
+
+  (assert (-key-pair? key-pair))
+  [:cvm.sreq :kp.seed key-pair])

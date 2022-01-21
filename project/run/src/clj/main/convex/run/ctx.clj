@@ -72,6 +72,9 @@
                                    [$.run.sym/$-log
                                     "convex/run/log.cvx"]
                                    ;; No deps.
+                                   [$.run.sym/$-kp
+                                    "convex/run/key_pair.cvx"]
+                                   ;; No deps.
                                    [$.run.sym/$-perf
                                     "convex/run/perf.cvx"]
                                    ;; No deps.
