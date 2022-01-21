@@ -1,0 +1,49 @@
+;;
+;;
+;; Testing `convex.run.key-pair`.
+;;
+;;
+
+
+;;;;;;;;;;
+
+
+(def T
+     $.test)
+
+
+;;;;;;;;;; Test suites
+
+
+(defn suite.main
+
+  ^{:doc {:description "Main test suite."}}
+
+  []
+
+  (T/group '((T/path.conj 'convex.run.key-pair)
+
+             ($.kp/gen)
+
+             (T/trx '(vector? (def kp
+                                   $/*result*))
+                    {:description "Generate key pair"})
+
+             ($.kp/seed kp)
+
+             (T/trx '(blob? (def seed
+                                 $/*result*))
+                    {:description "Retrieve seed from generated key pair"})
+
+             ($.kp/from-seed seed)
+
+             (T/trx '(= kp
+                        $/*result*)
+                    {:description "Rebuild key pair from seed"}))))
+
+
+;;;
+
+
+(suite.main)
+(T/print "convex.run.key-pair")

@@ -47,6 +47,7 @@
 (exec "run/catch")
 (exec "run/code")
 (exec "run/file")
+(exec "run/key_pair")
 (exec "run/log")
 (exec "run/perf")
 (exec "run/process")
