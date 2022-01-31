@@ -43,27 +43,27 @@
                                $.catch/*stack*)))
                     {:description "Drop."})
 
-              (T/trx '(query (let [stack $.catch/*stack*
-                                   trx+  $.trx/*list*]
-                               ($.catch/push handler-1)
-                               ($.catch/pop)
-                               (= (cons handler-1
-                                        trx+)
-                                  $.trx/*list*)))
-                     {:description "Pop."})
+             (T/trx '(query (let [stack $.catch/*stack*
+                                  trx+  $.trx/*list*]
+                              ($.catch/push handler-1)
+                              ($.catch/pop)
+                              (= (cons handler-1
+                                       trx+)
+                                 $.trx/*list*)))
+                    {:description "Pop."})
 
 
-              (T/group '((T/path.conj 'catching)
+             (T/group '((T/path.conj 'catching)
 
-                         ($.catch/push handler-1)
+                        ($.catch/push handler-1)
 
-                         ($.catch/push '(assert false))
+                        ($.catch/push '(assert false))
 
-                         (assert false)
+                        (assert false)
 
-                         (T/trx '(= :handler-1
-                                    foo)
-                                {:description "Error bubbled to non-failing handler."}))))))
+                        (T/trx '(= :handler-1
+                                   foo)
+                               {:description "Error bubbled to non-failing handler."}))))))
 
 
 

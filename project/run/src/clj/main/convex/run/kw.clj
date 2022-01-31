@@ -6,9 +6,7 @@
 
   (:import (convex.core.data Keyword))
   (:refer-clojure :exclude [compile
-                            do
-                            eval
-                            read])
+                            eval])
   (:require [convex.cell :as $.cell]))
 
 
@@ -65,8 +63,14 @@
 (def ^Keyword kp-from-seed
               ($.cell/keyword "kp.from-seed"))
 
+(def ^Keyword kp-from-store
+              ($.cell/keyword "kp.from-store"))
+
 (def ^Keyword kp-gen
               ($.cell/keyword "kp.gen"))
+
+(def ^Keyword kp-save
+              ($.cell/keyword "kp.save"))
 
 (def ^Keyword kp-seed
               ($.cell/keyword "kp.seed"))

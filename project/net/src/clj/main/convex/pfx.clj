@@ -171,3 +171,13 @@
                         key-pair
                         passphrase)
    key-store))
+
+
+
+(comment
+
+  (def ks (open "/tmp/test_cvx.pfx" "password-key-store"))
+
+  (key-pair-get ks "my-key-pair" "password-key-paidsr")
+
+         )

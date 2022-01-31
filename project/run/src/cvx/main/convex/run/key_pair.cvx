@@ -44,6 +44,19 @@
 
 
 
+(defn non-empty-string?
+
+  ^{:doc {:description ["Returns true if the given argument is a non-empty string."
+                        "Returns false othewise"]
+          :signature   [{:params [x]}]}}
+
+  [x]
+
+  (and (str? x)
+       (not (empty? x))))
+
+
+
 (defn private-key?
 
   ^{:doc {:description ["Returns true if the given argument looks like a private key."
@@ -130,3 +143,39 @@
 
   (assert (key-pair? key-pair))
   [:cvm.sreq :kp.seed key-pair])
+
+
+;;;;;;;;;; Key store operations
+
+
+(defn from-store
+
+  ^{:doc {:description ["Retrieves a passphrase-protected key pair by alias from a passphrase-protected store located at the given path."
+                        "Passphrases and alias must be strings with at least 1 character."]
+          :signature   [{:params [path passphrase-store alias-key-pair passphrase-key-pair]}]}}
+
+  [path passphrase-store alias-key-pair passphrase-key-pair]
+
+  (assert (non-empty-string? path))
+  (assert (non-empty-string? passphrase-store))
+  (assert (non-empty-string? alias-key-pair))
+  (assert (non-empty-string? passphrase-key-pair))
+  [:cvm.sreq :kp.from-store path passphrase-store alias-key-pair passphrase-key-pair])
+
+
+
+(defn save
+
+  ^{:doc {:description ["Saves a key pair by alias, protected by a passphrase, to a store located at the given path, passphrase-protected as well."
+                        "It can be retrieved using `from-store`."
+                        "Passphrases and alias must be strings with at least 1 character."]
+          :signature   [{:params [path passphrase-store alias-key-pair key-pair passphrase-key-pair]}]}}
+
+  [path passphrase-store alias-key-pair key-pair passphrase-key-pair]
+
+  (assert (non-empty-string? path))
+  (assert (non-empty-string? passphrase-store))
+  (assert (non-empty-string? alias-key-pair))
+  (assert (key-pair? key-pair))
+  (assert (non-empty-string? passphrase-key-pair))
+  [:cvm.sreq :kp.save path passphrase-store alias-key-pair key-pair passphrase-key-pair])

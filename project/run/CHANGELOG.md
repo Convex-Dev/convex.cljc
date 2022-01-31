@@ -8,6 +8,8 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- New `convex.run.key-pair` library for key pair management
+
 ### Changed
 
 ### Fixed
@@ -18,7 +20,7 @@ All notable changes to this project will be documented in this file.
 
 ## [0.0.0-alpha3] - 2021-09-28
 
-### Chnaged
+### Chanded
 
 - Upgrade `:project/cvm` to `0.0.0-alpha2`
 

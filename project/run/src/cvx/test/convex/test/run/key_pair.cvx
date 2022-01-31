@@ -15,13 +15,67 @@
 ;;;;;;;;;; Test suites
 
 
+(defn suite.key-store
+
+  ^{:doc {:description "Handling key stores."}}
+
+  []
+
+  (T/group '((T/path.conj 'key-store)
+
+             (T/trx '($.trx/precat '(($.kp/gen)
+                                     (def kp
+                                          $/*result*)
+                                     true))
+                                             
+                    {:descrption "Prepare key pair"})
+
+             (T/trx '($.trx/precat '(($.kp/save "/tmp/test_cvx.pfx"
+                                                "password-key-store"
+                                                "my-key-pair"
+                                                kp
+                                                "password-key-pair")
+                                     (nil? $/*result*)))
+                    {:description "Save key pair to key store"})
+
+            (T/trx '($.trx/precat '(($.kp/from-store "/tmp/test_cvx.pfx"
+                                                     "password-key-store"
+                                                     "my-key-pair"
+                                                     "password-key-pair")
+                                    (= kp
+                                       $/*result*)))
+                    {:description "Retrieve key pair from key store"})
+
+            (T/trx '($.trx/precat '(($.kp/from-store "/tmp/test_cvx.pfx"
+                                                     "password-key-store"
+                                                     "missing-key-pair"
+                                                     "password-key-pair")
+                                    (nil? $/*result*)))
+                    {:description "Retrieving a non-existent key pair returns nil."})
+
+            (T/fail.code #{:UNEXPECTED}
+                         '($.kp/from-store "/tmp/test_cvx.pfx"
+                                           "wrong"
+                                           "my-key-pair"
+                                           "password-key-pair")
+                         {:description "Wrong key store password."})
+                          
+            (T/fail.code #{:ARGUMENT}
+                         '($.kp/from-store "/tmp/test_cvx.pfx"
+                                           "password-key-store"
+                                           "my-key-pair"
+                                           "wrong")
+                         {:description "Wrong key pair password."}))))
+
+
+
 (defn suite.main
 
   ^{:doc {:description "Main test suite."}}
 
   []
 
-  (T/group '((T/path.conj 'convex.run.key-pair)
+  (T/group '((T/path.conj 'main)
 
              (T/trx '($.trx/precat '(($.kp/gen)
                                      ($.kp/key-pair? (def kp
@@ -49,4 +103,5 @@
 
 
 (suite.main)
+(suite.key-store)
 (T/print "convex.run.key-pair")

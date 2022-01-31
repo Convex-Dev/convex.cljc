@@ -12,9 +12,11 @@
            (convex.core.data AVector
                              Blob)
            (convex.core.data.prim CVMLong)
-           (convex.core.lang Context))
+           (convex.core.lang Context)
+           (java.security UnrecoverableKeyException))
   (:require [convex.cell       :as $.cell]
             [convex.cvm        :as $.cvm]
+            [convex.pfx        :as $.pfx]
             [convex.read       :as $.read]
             [convex.run.ctx    :as $.run.ctx]
             [convex.run.err    :as $.run.err]
@@ -32,6 +34,65 @@
 
 
 ;;;;;;;;;; Helpers
+
+
+(defn- -def-key-pair
+
+  ;; Given a key pair, defines as result a CVX vector `[PublicKey PrivateKey]`
+
+  [env ^AKeyPair kp]
+
+  ($.run.ctx/def-result env
+                        ($.cell/vector [($.sign/account-key kp)
+                                        (.getEncodedPrivateKey kp)])))
+
+
+
+(defn- -key-store
+
+  ;; Get a key store, handling all possible paths.
+
+  ;; TODO. Refactor. Works but ugly.
+
+  [env tuple cvx-path cvx-passphrase]
+
+  (let [fail       (fn [message]
+                     [($.run.exec/fail env
+                                       ($.run.err/sreq ($.cell/code-std* :UNEXPECTED)
+                                                       ($.cell/string message)
+                                                       tuple))
+                      nil])
+        path       (str cvx-path)
+        passphrase (str cvx-passphrase)
+        [env-2
+         store]    (try
+                     [nil
+                      ($.pfx/load path
+                                  passphrase)]
+                     (catch Throwable _ex
+                       (fail "Unable to open key store from existing file ; maybe verify passphrase?")))]
+    (cond
+      env-2 [env-2
+             nil]
+      store [nil
+             store]
+      :else (let [[env-3
+                   store]  (try
+                             [nil
+                              ($.pfx/create path
+                                            passphrase)]
+                             (catch Throwable _ex
+                               (fail "Unable to create key store at the given path ; maybe verify passphrase?")))]
+              (cond
+                env-3 [env-3
+                       nil]
+                store [nil
+                       store]
+                :else (recur env
+                             tuple
+                             path
+                             passphrase))))))
+
 
 
 (defn- -stream
@@ -132,18 +193,6 @@
 ;;;;;;;;;; Key pair management
 
 
-(defn- -def-key-pair
-
-  ;; Given a key pair, defines as result a CVX vector `[PublicKey PrivateKey]`
-
-  [env ^AKeyPair kp]
-
-  ($.run.ctx/def-result env
-                        ($.cell/vector [($.sign/account-key kp)
-                                        (.getEncodedPrivateKey kp)])))
-
-
-
 (defmethod $.run.exec/sreq
 
   $.run.kw/kp-gen
@@ -168,6 +217,88 @@
   (-def-key-pair env
                  ($.sign/ed25519 ($.std/get tuple
                                             ($.cell/* 2)))))
+
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/kp-from-store
+
+  ;; Retrieves a key pair from a key store.
+
+  [env tuple]
+  
+  (let [[path
+         passphrase-store
+         alias-key-pair
+         passphrase-key-pair] (drop 2
+                                    tuple)
+        [env-2
+         key-store]           (-key-store env
+                                          tuple
+                                          path
+                                          passphrase-store)]
+    (or env-2
+        (try
+          (if-some [key-pair ($.pfx/key-pair-get key-store
+                                                 (str alias-key-pair)
+                                                 (str passphrase-key-pair))]
+            (-def-key-pair env
+                           key-pair)
+            ($.run.ctx/def-result env
+                                  nil))
+          (catch UnrecoverableKeyException _ex
+            ($.run.exec/fail env
+                             ($.run.err/sreq ($.cell/code-std* :ARGUMENT)
+                                             ($.cell/string "Unable to retrieve key pair from opened key store ; is the passphrase correct?")
+                                             tuple)))
+          (catch Throwable _ex
+            ($.run.exec/fail env
+                             ($.run.err/sreq ($.cell/code-std* :UNEXPECTED)
+                                             ($.cell/string "Unable to retrieve key pair from opened key store")
+                                             tuple)))))))
+
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/kp-save
+
+  ;; Save a key pair to a key store.
+
+  [env tuple]
+
+  (let [[path
+         passphrase-store
+         alias-key-pair
+         key-pair
+         passphrase-key-pair] (drop 2
+                                    tuple)
+        [env-2
+         key-store]           (-key-store env
+                                          tuple
+                                          path
+                                          passphrase-store)]
+    (or env-2
+        (try
+
+          (-> key-store
+              ($.pfx/key-pair-set (str alias-key-pair)
+                                  (Ed25519KeyPair/create ($.cell/key ($.std/get key-pair
+                                                                                ($.cell/* 0)))
+                                                         ^Blob ($.std/get key-pair
+                                                                          ($.cell/* 1)))
+                                  (str passphrase-key-pair))
+              ($.pfx/save (str path)
+                          (str passphrase-store)))
+          ($.run.ctx/def-result env
+                                nil)
+
+          (catch Throwable _ex
+            ($.run.exec/fail env
+                             ($.run.err/sreq ($.cell/code-std* :UNEXPECTED)
+                                             ($.cell/string "Unable to add key pair to key store ; is the file accessible?")
+                                             tuple)))))))
 
 
 
