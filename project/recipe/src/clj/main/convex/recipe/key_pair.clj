@@ -26,30 +26,27 @@
 
 (defn retrieve
 
-  "Tries to load the key pair from file 'keystore.pfx' in given `dir`.
+  "Tries to load the key pair from the key store under `path`.
 
-   When not found, generates a new key pair and saves it in a new file. A real application might require more sophisticated error handling.
+   Store is created with a new key pair if necessary.
 
-   Returns the key pair."
+   Returns the key pair, either found or created."
 
-  [dir]
+  [path password-store alias-key-pair password-key-pair]
 
-  (let [file-key-store (str dir
-                            "/keystore.pfx")]
-    (try
-
-      (-> ($.pfx/load file-key-store)
-          ($.pfx/key-pair-get "my-key-pair"
-                              "my-password"))
-
-      (catch Throwable _ex
+  (let [store ($.pfx/open path
+                          password-store)]
+    (or ($.pfx/key-pair-get store
+                            alias-key-pair
+                            password-key-pair)
         (let [key-pair ($.sign/ed25519)]
-          (-> ($.pfx/create file-key-store)
-              ($.pfx/key-pair-set "my-key-pair"
+          (-> store
+              ($.pfx/key-pair-set alias-key-pair
                                   key-pair
-                                  "my-password")
-              ($.pfx/save file-key-store))
-          key-pair)))))
+                                  password-key-pair)
+              ($.pfx/save path
+                          password-store))
+          key-pair))))
 
 
 ;;;;;;;;;;
@@ -60,8 +57,8 @@
   
   ;; Example directory where key pair will be stored.
   ;;
-  (def dir
-       "private/recipe/key-pair/")
+  (def path
+       "private/recipe/key-pair/keystore.pfx")
 
   
   ;; The first time, the key pair is generated and stored in a PFX file.
@@ -70,51 +67,9 @@
   ;;
   ;; Deleting that 'keystore.pfx' file in this directory will lose it forever.
   ;;
-  (retrieve dir)
-
-
-  ;;
-  ;; Let us inspect the core ideas in `retrieve`.
-  ;;
-
-
-  ;; Generating a key pair.
-  ;;
-  (def key-pair
-       ($.sign/ed25519))
-
-
-  ;; File for storing our "key store" capable of securely hosting one or several key pairs.
-  ;;
-  (def file
-       (str dir
-            "/keystore.pfx"))
-
-
-  ;; We create a file for our "key store" capable of securely hosting one or several key pairs,
-  ;; our key pair under an alias and protected by a password. Lastly, the updated key store is
-  ;; saved to the file.
-  ;;
-  (-> ($.pfx/create file)
-      ($.pfx/key-pair-set "my-key-pair"
-                          key-pair
-                          "my-password")
-      ($.pfx/save file))
-
-
-  ;; At any later time, we can load that file and retrieve our key pair by providing its alias and
-  ;; its password.
-  ;;
-  (= key-pair
-     (-> ($.pfx/load file)
-         ($.pfx/key-pair-get "my-key-pair"
-                             "my-password")))
-
-
-  ;;
-  ;; Although not mandatory, it is a good idea also specifying a password for the key store itself
-  ;; when using `$.pfx/create`, `$.pfx/save`, and `$.pfx/load`.
-  ;;  
-
+  (retrieve path
+            "passwd-store"
+            "my-key-pair"
+            "passwd-key-pair")
 
   )

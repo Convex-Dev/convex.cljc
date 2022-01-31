@@ -79,3 +79,15 @@
 
   (assert (-key-pair? key-pair))
   [:cvm.sreq :kp.seed key-pair])
+
+
+
+
+;; save
+;; from-store
+
+
+;; store.new
+;; store.existing
+;; save
+;; from-store

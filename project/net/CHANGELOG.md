@@ -8,7 +8,13 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `convex.pfx/open`
+
 ### Changed
+
+- Easier key store management
+    - `convex.pfx/create` returns nil if a file at the given path already exists
+    - `convex.pfx/load` returns nil if no file is found at the given path
 
 ### Fixed
 

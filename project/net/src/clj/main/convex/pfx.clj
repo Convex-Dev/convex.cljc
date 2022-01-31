@@ -9,7 +9,9 @@
   (:import (convex.core.crypto AKeyPair
                                PFXTools)
            (convex.core.data AccountKey)
-           (java.io File)
+           (java.io File
+                    FileNotFoundException
+                    IOException)
            (java.security KeyStore))
   (:refer-clojure :exclude [load]))
 
@@ -25,7 +27,10 @@
 
   "Creates a new key store in the file under `path`.
   
-   An optional passphrase protecting the store may be provided."
+   An optional passphrase protecting the store may be provided.
+
+   Returns nil if a file already exists at this path to prevent accidental overwriting
+   since it could lead to a dramatic loss of key pairs."
 
 
   (^KeyStore [path]
@@ -36,12 +41,13 @@
 
   (^KeyStore [^String path passphrase]
 
-   (PFXTools/createStore (let [file (File. path)]
-                           (-> file
-                               .getParentFile
-                               .mkdirs)
-                           file)
-                         passphrase)))
+   (when-not (.exists (File. path))
+     (PFXTools/createStore (let [file (File. path)]
+                             (-> file
+                                 .getParentFile
+                                 .mkdirs)
+                             file)
+                           passphrase))))
 
 
 
@@ -49,7 +55,12 @@
 
   "Loads a key store from the file under `path`.
   
-   Passphrase must be provided if the store is protected by one."
+   Passphrase must be provided if the store is protected by one.
+
+   Returns nil when the file is not found.
+   Throws an exception (interpreting it as a store fails, wrong passphrase, etc).
+
+   See [[create]]."
 
 
   (^KeyStore [path]
@@ -60,8 +71,37 @@
 
   (^KeyStore [^String path passphrase]
 
-   (PFXTools/loadStore (File. path)
-                       passphrase)))
+   (try
+     (PFXTools/loadStore (File. path)
+                         passphrase)
+     (catch FileNotFoundException _ex
+       nil))))
+
+
+
+(defn open
+
+  "Opens a key store at the file under `path`, creating it if needed.
+
+   Convenient helper which successively tries `load` and `create` `if required.
+
+   When a process should merely not create a store but merely use one, `load` is preferred."
+
+  (^KeyStore [path]
+
+   (open path
+         nil))
+
+
+  (^KeyStore [path passphrase]
+
+   (let [store (or (load path
+                         passphrase)
+                   (create path
+                           passphrase))]
+     (when-not store
+       (throw (IOException. "Unable to retrieve or create key store ; ensure path is accessible")))
+     store)))
 
 
 
