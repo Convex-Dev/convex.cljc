@@ -23,22 +23,25 @@
 
   (T/group '((T/path.conj 'convex.run.key-pair)
 
-             ($.kp/gen)
-
-             (T/trx '(vector? (def kp
-                                   $/*result*))
+             (T/trx '($.trx/precat '(($.kp/gen)
+                                     ($.kp/key-pair? (def kp
+                                                          $/*result*))))
                     {:description "Generate key pair"})
 
-             ($.kp/seed kp)
+             (T/trx '($.kp/public-key? ($.kp/public-key kp))
+                    {:description "Public key predicate is consistent"})
+                    
+             (T/trx '($.kp/private-key? ($.kp/private-key kp))
+                    {:description "Private key predicate is consistent"})
 
-             (T/trx '(blob? (def seed
-                                 $/*result*))
+             (T/trx '($.trx/precat '(($.kp/seed kp)
+                                     (blob? (def seed
+                                                 $/*result*))))
                     {:description "Retrieve seed from generated key pair"})
 
-             ($.kp/from-seed seed)
-
-             (T/trx '(= kp
-                        $/*result*)
+             (T/trx '($.trx/precat '(($.kp/from-seed seed)
+                                     (= kp
+                                        $/*result*)))
                     {:description "Rebuild key pair from seed"}))))
 
 

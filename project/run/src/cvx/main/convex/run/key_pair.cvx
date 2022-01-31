@@ -4,7 +4,8 @@
 
 
 (call *registry*
-      (register {:description "Creating and managing key pairs required for signing transactions."
+      (register {:description ["Creating and managing key pairs required for signing transactions."
+                               "See"]
                  :name        "Key pair management"}))
 
 
@@ -22,10 +23,14 @@
           32)))
 
 
+;;;;;;;;;; Predicate functions
 
-(defn -key-pair?
 
-  ^{:private? true}
+(defn key-pair?
+
+  ^{:doc {:description ["Returns true if the given argument looks like a key pair."
+                        "Returns false otherwise."]
+          :signature [{:params [x]}]}}
 
   [key-pair]
 
@@ -34,14 +39,37 @@
           2)
        (let [[blob-1
               blob-2] key-pair]
-         (and (blob? blob-1)
-              (-blob-32? blob-1)
-              (blob? blob-2)
-              (= (count blob-2)
-                 48)))))
+         (and (public-key? blob-1)
+              (private-key? blob-2)))))
 
 
-;;;;;;;;;; API
+
+(defn private-key?
+
+  ^{:doc {:description ["Returns true if the given argument looks like a private key."
+                        "Returns false otherwise."]
+          :signature [{:params [x]}]}}
+
+  [x]
+
+  (and (blob? x)
+       (= (count x)
+          48)))
+
+
+
+(defn public-key?
+
+  ^{:doc {:description ["Returns true if the given argument looks like a public key."
+                        "Returns false otherwise."]
+          :signature [{:params [x]}]}}
+
+  [x]
+
+  (-blob-32? x))
+
+
+;;;;;;;;;; Creating key pairs
 
 
 (defn from-seed
@@ -68,6 +96,29 @@
   [:cvm.sreq :kp.gen])
 
 
+;;;;;;;;;; Retrieving information from key pairs
+
+(defn private-key
+
+ ^{:doc {:description ["Returns the private key of the given `key-pair`."]
+         :signature   [{:params [key-pair]}]}}
+
+  [key-pair]
+
+  (second key-pair))
+
+
+
+(defn public-key
+
+ ^{:doc {:description ["Returns the public key of the given `key-pair`."]
+         :signature   [{:params [key-pair]}]}}
+
+  [key-pair]
+
+  (first key-pair))
+
+
 
 (defn seed
 
@@ -77,17 +128,5 @@
 
   [key-pair]
 
-  (assert (-key-pair? key-pair))
+  (assert (key-pair? key-pair))
   [:cvm.sreq :kp.seed key-pair])
-
-
-
-
-;; save
-;; from-store
-
-
-;; store.new
-;; store.existing
-;; save
-;; from-store

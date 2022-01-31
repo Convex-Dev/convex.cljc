@@ -123,7 +123,8 @@
 
    (PFXTools/saveStore key-store
                        (File. path)
-                       passphrase)))
+                       passphrase)
+   key-store))
 
 
 ;;;;;;;;;; Adding and retrieving keys
