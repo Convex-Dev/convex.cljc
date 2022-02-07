@@ -1,0 +1,120 @@
+(call *registry*
+      (cns-update 'convex.run.client
+                  *address*))
+
+(call *registry*
+      (register {:description ["Performing client operations, notably queries and transactions."]
+                 :name        "Client operations"}))
+
+
+;;;;;;;;;; Values
+
+
+(def *running?*
+
+  ^{:doc {:description ["True if the client is connected to a peer."
+                        "False otherwise."]}}
+
+  false)
+
+
+;;;;;;;;;; Predicate functions
+
+
+(defn host?
+
+  ^{:doc {:description ["Returns true if the given argument looks like a host argument (i.e. non-empty string or nil)."
+                        "Returns false otherwise."]
+          :signature   [{:params [x]}]}}
+
+  [x]
+
+  (or (nil? x)
+      (and (str? x)
+           (not (empty? x)))))
+
+
+
+(defn port?
+
+  ^{:doc {:description ["Returns true if the given argument looks like a port (number between 0 and 65535 inclusive or nil)."
+                        "Returns false otherwise."]
+          :signature   [{:params [x]}]}}
+
+  [x]
+
+  (or (nil? x)
+      (and (number? x)
+           (<= 0
+               x
+               65535))))
+
+
+;;;;;;;;;; Core API
+
+(defn close
+
+  ^{:doc {:description ["Closes the currently connected client (if any)."
+                        "Client can be reconnected again if required."]
+          :examples    [{:code "($.client/close)"}]
+          :signature   [{:params []}]}}
+
+  []
+
+  (when *running?*
+   [:cvm.sreq :client.close]))
+
+
+
+(defn connect
+
+  ^{:callable? true
+    :doc       {:description ["Connects the client to a peer."
+                              "Fails if already connected. ; see `close`."
+                              "Options can be provided in a map:"
+                              "  :host -> string designating the host (default is \"localhost\", testnet is \"convex.world\")"
+                              "  :port -> port to use (default is 18888)"]
+                :examples    [{:code "($.client/connect {:host \"convex.world\" :port 18888})"}]
+                :signature   [{:params []}
+                              {:params [options]}]}}
+
+  ([]
+
+   (connect nil))
+
+
+  ([options]
+
+   (if (= *address*
+          ~*address*)
+     (do
+       (when *running?*
+         (fail :STATE
+               "Client is already connected to a peer"))
+       (assert (host? (:host options)))
+       (assert (port? (:port options)))
+       (def *running?*
+            true)
+       [:cvm.sreq :client.connect options])
+     (call ~*address*
+           (connect options)))))
+
+
+
+(defn query
+
+  ^{:doc {:description ["Performs a query."
+                        "Client must be connected to a peer ; see `connect`."
+                        "Code is executed by the peer as a read-only operation ; any result or alteration is discarded."
+                        "Hence, code can be executed under any account since no harm can be done."
+                        "Remember to quote code so that is is not executed right away but on the peer."
+                        "Argument 1 is the address under which the code should be executed."
+                        "Argument 2 is the code to execute."]
+          :examples    [{:code "($.client/query #2 '(+ 2 2))"}]
+          :signature   [{:params [address code]}]}}
+
+  [address code]
+
+  (assert *running?*)
+  (assert (address? address))
+  [:cvm.sreq :client.query address code])

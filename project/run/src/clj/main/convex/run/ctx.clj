@@ -69,6 +69,9 @@
                                    [$.run.sym/$
                                     "convex/run.cvx"]
                                    ;; No deps.
+                                   [$.run.sym/$-client
+                                    "convex/run/client.cvx"]
+                                   ;; No deps.
                                    [$.run.sym/$-log
                                     "convex/run/log.cvx"]
                                    ;; No deps.

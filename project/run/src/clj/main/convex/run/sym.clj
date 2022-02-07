@@ -31,6 +31,9 @@
 (def ^Symbol $-catch
              ($.cell/symbol "$.catch"))
 
+(def ^Symbol $-client
+             ($.cell/symbol "$.client"))
+
 (def ^Symbol $-code
              ($.cell/symbol "$.code"))
 
