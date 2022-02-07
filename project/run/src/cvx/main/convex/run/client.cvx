@@ -8,7 +8,7 @@
                  :name        "Client operations"}))
 
 
-;;;;;;;;;; Values
+;;;;;;;;;; Dependencies
 
 
 (def $.kp
@@ -17,6 +17,25 @@
 
   (call *registry*
         (cns-resolve 'convex.run.key-pair)))
+
+
+
+(def $.trx
+
+  ^{:private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.run.trx)))
+
+
+;;;;;;;;;; Values
+
+
+(def -*cache-seq-id*
+
+  ^{:private? true}
+
+  {})
 
 
 
@@ -202,24 +221,65 @@
 
 (defn transact
 
-  ^{:doc {:description ""
-          :examples    []
-          :params      []}}
+  ^{:callable? true
+    :doc       {:description ["Performs a transaction."
+                              "Unlike queries, transactions have the power to alter state on the network."
+                              "Hence, they are executed in the context of an account and the transaction needs to be signed by the key pair matching that account."
+                              "Additionally, the proper sequence id is required ; see `sequence-id`."
+                              "When the sequence id is not provided, it is automatically retrieved via a `query` using `sequence-id`, as a convenience."
+                              "Furthermore, sequence ids are cached so that they need to be retrieved from the chain at most once for each account using a `query`."
+                              "Argument 1 is the address under which the code should be executed."
+                              "Argument 2 is the key pair matching the address ; see the `$.kp` library."
+                              "Argument 3 is the code to execute ; quoted so that is not executed right away."
+                              "Argument 4 is an optional map of options:"
+                              "  :sequence-id -> sequence id used for this transaction"
+                              "  :timeout     -> timeout in milliseconds, query is canceled afterwards (unlimited by default)"]
+                :examples    [{:code "($.client/transact #42 my-key-pair '(def foo 42))"}
+                              {:code "($.client/transact #42 my-key-pair '(def foo 42) {:timeout 5000})"}]
+                :params      [{:params [address key-pair code]}
+                              {:params [address key-pair code options]}]}}
 
 
-  ([address key-pair sequence-id code]
+  ([address key-pair code]
 
    (transact address
              key-pair
-             sequence-id
              code
              nil))
   
-  ([address key-pair sequence-id code options]
+  ([address key-pair code options]
 
-   (assert *running?*)
-   (assert (address? address))
-   (assert ($.kp/key-pair? key-pair))
-   (assert (sequence-id? sequence-id))
-   (assert (timeout? (:timeout options)))
-   [:cvm.sreq :client.transact address key-pair sequence-id code options]))
+   (if (= *address*
+          ~*address*)
+     (do
+       (assert *running?*)
+       (assert (address? address))
+       (assert ($.kp/key-pair? key-pair))
+       (assert (timeout? (:timeout options)))
+       (let [sequence-id   (:sequence-id options)
+             sequence-id-2 (if sequence-id
+                             (do
+                               (assert (sequence-id? sequence-id))
+                               sequence-id)
+                             (get -*cache-seq-id*
+                                  address))]
+         (if sequence-id-2
+           (do
+             (def -*cache-seq-id*
+                  (assoc -*cache-seq-id*
+                         address
+                         (inc sequence-id-2)))
+             [:cvm.sreq :client.transact address key-pair sequence-id-2 code options])
+           ($.trx/precat `(($.client/query ~address
+                                           ($.client/sequence-id))
+                           ($.client/transact ~address
+                                              ~key-pair
+                                              (quote ~code)
+                                              (assoc ~options
+                                                     :sequence-id
+                                                     (inc (:result $/*result*)))))))))
+     (call ~*address*
+           (transact address
+                     key-pair
+                     code
+                     options)))))
