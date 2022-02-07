@@ -40,6 +40,19 @@
 ;;;;;;;;;; Helpers
 
 
+(defn- -cvx->key-pair
+
+  ;; Rebuilds a key pair from CVX data.
+
+  [key-pair]
+
+  (Ed25519KeyPair/create ($.cell/key ($.std/get key-pair
+                                                ($.cell/* 0)))
+                         ^Blob ($.std/get key-pair
+                                          ($.cell/* 1))))
+
+
+
 (defn- -def-key-pair
 
   ;; Given a key pair, defines as result a CVX vector `[PublicKey PrivateKey]`
@@ -78,35 +91,6 @@
    (-deref f*
            ($.std/get tuple
                       ($.cell/long i-config)))))
-
-
-
-(defn- -rest-request
-
-  ;; Carries out an HTTP POST request and defines result in CVM context, accounting for optional timeout.
-
-  [env tuple i-options endpoint body f-result]
-
-  (try
-    ($.run.ctx/def-result
-      env
-      (let [result (-deref (http/post endpoint
-                                      {:async?          true
-                                       :body            (json/write-str body)
-                                       :connect-timeout 30000})
-                           tuple
-                           i-options)]
-        (if ($.std/keyword? result)
-          result
-          (-> result
-              :body
-              json/read-str
-              f-result))))
-    (catch Throwable _err
-      ($.run.exec/fail env
-                       ($.run.err/sreq ($.cell/code-std* :UNEXPECTED)
-                                       ($.cell/string "Cannot reach the REST API of the testnet ; are you connected to the internet?")
-                                       tuple)))))
 
 
 
@@ -154,6 +138,35 @@
                              tuple
                              path
                              passphrase))))))
+
+
+
+(defn- -rest-request
+
+  ;; Carries out an HTTP POST request and defines result in CVM context, accounting for optional timeout.
+
+  [env tuple i-options endpoint body f-result]
+
+  (try
+    ($.run.ctx/def-result
+      env
+      (let [result (-deref (http/post endpoint
+                                      {:async?          true
+                                       :body            (json/write-str body)
+                                       :connect-timeout 30000})
+                           tuple
+                           i-options)]
+        (if ($.std/keyword? result)
+          result
+          (-> result
+              :body
+              json/read-str
+              f-result))))
+    (catch Throwable _err
+      ($.run.exec/fail env
+                       ($.run.err/sreq ($.cell/code-std* :UNEXPECTED)
+                                       ($.cell/string "Cannot reach the REST API of the testnet ; are you connected to the internet?")
+                                       tuple)))))
 
 
 
@@ -251,6 +264,31 @@
                                        ($.cell/* 3)))
             tuple
             4)))
+
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/client-transact
+
+  ;; Performs a transaction.
+
+  [env tuple]
+
+  ($.run.ctx/def-result
+    env
+    (let [[address
+           key-pair
+           sequence-id
+           code
+           options]    (drop 2
+                             tuple)]
+      (-deref ($.client/transact (env :convex.run/client)
+                                 (-cvx->key-pair key-pair)
+                                 ($.cell/invoke address
+                                                ($.clj/long sequence-id)
+                                                code))
+              options))))
 
 
 ;;;;;;;;;; Code
@@ -403,10 +441,7 @@
 
           (-> key-store
               ($.pfx/key-pair-set (str alias-key-pair)
-                                  (Ed25519KeyPair/create ($.cell/key ($.std/get key-pair
-                                                                                ($.cell/* 0)))
-                                                         ^Blob ($.std/get key-pair
-                                                                          ($.cell/* 1)))
+                                  (-cvx->key-pair key-pair)
                                   (str passphrase-key-pair))
               ($.pfx/save (str path)
                           (str passphrase-store)))

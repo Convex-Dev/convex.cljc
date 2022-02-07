@@ -11,6 +11,15 @@
 ;;;;;;;;;; Values
 
 
+(def $.kp
+
+  ^{:private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.run.key-pair)))
+
+
+
 (def *running?*
 
   ^{:doc {:description ["True if the client is connected to a peer."
@@ -49,6 +58,19 @@
            (<= 0
                x
                65535))))
+
+
+(defn sequence-id?
+
+  ^{:doc {:description ["Returns true if the given argument is a valid sequence id (see `sequence-id`)."
+                        "Returns false otherwise."]
+          :signature   [{:params [x]}]}}
+
+  [x]
+
+  (and (number? x)
+       (> x
+          0)))
 
 
 
@@ -175,3 +197,29 @@
  ([address]
 
   `(:sequence (account ~address))))
+
+
+
+(defn transact
+
+  ^{:doc {:description ""
+          :examples    []
+          :params      []}}
+
+
+  ([address key-pair sequence-id code]
+
+   (transact address
+             key-pair
+             sequence-id
+             code
+             nil))
+  
+  ([address key-pair sequence-id code options]
+
+   (assert *running?*)
+   (assert (address? address))
+   (assert ($.kp/key-pair? key-pair))
+   (assert (sequence-id? sequence-id))
+   (assert (timeout? (:timeout options)))
+   [:cvm.sreq :client.transact address key-pair sequence-id code options]))
