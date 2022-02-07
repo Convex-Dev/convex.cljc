@@ -116,8 +116,8 @@
 
 (defn resolve
 
-  "Given a `hash` (see `convex.cell/hash` in `:project/cvm`), peer looks into its database and returns
-   the value it finds for that hash.
+  "Advanced feature. Given a `hash` (see `convex.cell/hash` in `:project/cvm`), peer looks into its database
+   and returns the value it finds for that hash.
   
    Returns a future resolving to a result."
 
@@ -216,7 +216,7 @@
 
 (defn trace
 
-  "Given a result dereferenced rfom a future, returns the stacktrace (a CVM vector of CVM strings).
+  "Given a result dereferenced from a future, returns the stacktrace (a CVM vector of CVM strings).
   
    Returns nil if no error occured."
 

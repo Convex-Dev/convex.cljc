@@ -12,6 +12,22 @@
 
 ;;;;;;;;;;
 
+
+(def ^Keyword client-close
+              ($.cell/keyword "client.close"))
+
+(def ^Keyword client-connect
+              ($.cell/keyword "client.connect"))
+
+(def ^Keyword client-query
+              ($.cell/keyword "client.query"))
+
+(def ^Keyword client-sequence
+              ($.cell/keyword "client.sequence"))
+
+(def ^Keyword client-transact
+              ($.cell/keyword "client.transact"))
+
 (def ^Keyword code-read+
               ($.cell/keyword "code.read+"))
 

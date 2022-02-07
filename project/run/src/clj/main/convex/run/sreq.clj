@@ -15,6 +15,8 @@
            (convex.core.lang Context)
            (java.security UnrecoverableKeyException))
   (:require [convex.cell       :as $.cell]
+            [convex.client     :as $.client]
+            [convex.clj        :as $.clj]
             [convex.cvm        :as $.cvm]
             [convex.pfx        :as $.pfx]
             [convex.read       :as $.read]
@@ -133,6 +135,60 @@
                    ($.run.err/sreq ($.cell/code-std* :ARGUMENT)
                                    ($.cell/string "Unsupported special transaction")
                                    tuple)))
+
+;;;;;;;;;; Client operations
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/client-close
+
+  [env _tuple]
+
+  (some-> (env :convex.run/client)
+          $.client/close)
+  (-> env
+      (dissoc :convex.run/client)
+      ($.run.ctx/def-result nil)))
+
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/client-connect
+
+  ;; Connects new client and store in the env.
+
+  [env tuple]
+    
+  (-> env
+      (assoc :convex.run/client
+             (let [options ($.std/get tuple
+                                      ($.cell/* 2))]
+               ($.client/connect {:convex.server/host (some-> ($.std/get options
+                                                                         ($.cell/* :host))
+                                                              $.clj/any)
+                                  :convex.server/port (some-> ($.std/get options
+                                                                         ($.cell/* :port))
+                                                              $.clj/any)})))
+      ($.run.ctx/def-result nil)))
+
+
+
+(defmethod $.run.exec/sreq
+
+  $.run.kw/client-query
+
+  ;; Performs a query.
+
+  [env tuple]
+
+  ($.run.ctx/def-result env
+                        @($.client/query (env :convex.run/client)
+                                         ($.std/get tuple
+                                                    ($.cell/* 2))
+                                         ($.std/get tuple
+                                                    ($.cell/* 3)))))
+
 
 ;;;;;;;;;; Code
 
