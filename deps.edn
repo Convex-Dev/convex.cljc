@@ -352,6 +352,8 @@
    :maestro/doc        "Convex Lisp Runner"
    :maestro/main-class convex.run
    :maestro/require    [:ext/criterium
+                        :ext/clj-http
+                        :ext/json
                         {default :project/cvm
                          release :release/cvm}
                         {default :project/net

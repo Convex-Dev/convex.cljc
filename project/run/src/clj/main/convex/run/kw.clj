@@ -150,6 +150,12 @@
 (def ^Keyword stream-out!
               ($.cell/keyword "stream.out!"))
 
+(def ^Keyword testnet-create-account
+              ($.cell/keyword "testnet.create-account"))
+
+(def ^Keyword testnet-request-coins
+              ($.cell/keyword "testnet.request-coins"))
+
 (def ^Keyword time-advance
               ($.cell/keyword "time.advance"))
 

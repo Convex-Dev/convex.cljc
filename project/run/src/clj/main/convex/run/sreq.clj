@@ -14,7 +14,9 @@
            (convex.core.data.prim CVMLong)
            (convex.core.lang Context)
            (java.security UnrecoverableKeyException))
-  (:require [convex.cell       :as $.cell]
+  (:require [clj-http.client   :as http]
+            [clojure.data.json :as json]
+            [convex.cell       :as $.cell]
             [convex.client     :as $.client]
             [convex.clj        :as $.clj]
             [convex.cvm        :as $.cvm]
@@ -166,10 +168,10 @@
                                       ($.cell/* 2))]
                ($.client/connect {:convex.server/host (some-> ($.std/get options
                                                                          ($.cell/* :host))
-                                                              $.clj/any)
+                                                              $.clj/string)
                                   :convex.server/port (some-> ($.std/get options
                                                                          ($.cell/* :port))
-                                                              $.clj/any)})))
+                                                              $.clj/long)})))
       ($.run.ctx/def-result nil)))
 
 
@@ -584,6 +586,50 @@
                      (-stream tuple)
                      (.get tuple
                            3)))
+
+
+;;;;;;;;;; Testnet
+
+
+(defmethod $.run.exec/sreq
+
+  ;; Creates an account on the testnet using the REST API.
+
+  $.run.kw/testnet-create-account
+
+  [env tuple]
+
+  ($.run.ctx/def-result env
+                        (-> (http/post "https://convex.world/api/v1/createAccount"
+                                         {:body               (json/write-str {"accountKey" (.toHexString ^Blob ($.std/get tuple
+                                                                                                                           ($.cell/* 2)))})
+                                          :connection-timeout 4000})
+                            :body
+                            json/read-str
+                            (get "address")
+                            $.cell/address)))
+
+
+
+(defmethod $.run.exec/sreq
+
+  ;; Requests coins on the testnet using the REST API.
+
+  $.run.kw/testnet-request-coins
+
+  [env tuple]
+
+  ($.run.ctx/def-result env
+                        (-> (http/post "https://convex.world/api/v1/faucet"
+                                       {:body               (json/write-str {"address" ($.clj/address ($.std/get tuple
+                                                                                                                 ($.cell/* 2)))
+                                                                             "amount"  ($.clj/long ($.std/get tuple
+                                                                                                              ($.cell/* 3)))})
+                                        :connection-timeout 4000})
+                            :body
+                            json/read-str
+                            (get "value")
+                            $.cell/long)))
 
 
 ;;;;;;;;;; Time
