@@ -13,7 +13,6 @@
                              Blob)
            (convex.core.data.prim CVMLong)
            (convex.core.lang Context)
-           (java.net UnknownHostException)
            (java.security UnrecoverableKeyException))
   (:require [clojure.data.json :as json]
             [convex.cell       :as $.cell]
@@ -104,7 +103,6 @@
               json/read-str
               f-result))))
     (catch Throwable _err
-      (println :err _err)
       ($.run.exec/fail env
                        ($.run.err/sreq ($.cell/code-std* :UNEXPECTED)
                                        ($.cell/string "Cannot reach the REST API of the testnet ; are you connected to the internet?")

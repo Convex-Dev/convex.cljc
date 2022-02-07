@@ -22,9 +22,6 @@
 (def ^Keyword client-query
               ($.cell/keyword "client.query"))
 
-(def ^Keyword client-sequence
-              ($.cell/keyword "client.sequence"))
-
 (def ^Keyword client-transact
               ($.cell/keyword "client.transact"))
 
