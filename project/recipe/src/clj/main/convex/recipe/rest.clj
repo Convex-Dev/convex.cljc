@@ -13,9 +13,9 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clj-http.client   :as http]
-            [clojure.data.json :as json]
-            [convex.sign       :as $.sign]))
+  (:require [clojure.data.json :as json]
+            [convex.sign       :as $.sign]
+            [hato.client       :as http]))
 
 
 ;;;;;;;;;; Useful methods

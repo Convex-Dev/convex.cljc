@@ -35,12 +35,6 @@
    :maestro/doc "Benchmarking"}
 
 
-  :ext/clj-http
-
-  {:extra-deps {clj-http/clj-http {:mvn/version "3.12.3"}}
-   :maestro/doc "HTTP client needed for recipes"}
-
-
   :ext/convex-core
 
   {:extra-deps      {world.convex/convex-core {:mvn/version "0.7.1"}}
@@ -357,8 +351,8 @@
    :maestro/doc        "Convex Lisp Runner"
    :maestro/main-class convex.run
    :maestro/require    [:ext/criterium
-                        :ext/clj-http
                         :ext/json
+                        :ext/hato
                         {default :project/cvm
                          release :release/cvm}
                         {default :project/net
