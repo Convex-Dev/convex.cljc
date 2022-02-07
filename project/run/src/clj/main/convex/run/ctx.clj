@@ -95,6 +95,9 @@
                                    ;; Requires `$` + `$.stream` + `$.trx`.
                                    [$.run.sym/$-catch
                                     "convex/run/catch.cvx"]
+                                   ;; Requires `$.kp`
+                                   [$.run.sym/$-testnet
+                                    "convex/run/testnet.cvx"]
                                    ;; Requires `$.trx`.
                                    [$.run.sym/$-code
                                     "convex/run/code.cvx"]

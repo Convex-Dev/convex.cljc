@@ -70,6 +70,9 @@
 (def ^Symbol $-test
              ($.cell/symbol "$.test"))
 
+(def ^Symbol $-testnet
+             ($.cell/symbol "$.testnet"))
+
 (def ^Symbol $-trx
              ($.cell/symbol "$.trx"))
 

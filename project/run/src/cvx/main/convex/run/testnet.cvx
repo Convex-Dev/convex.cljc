@@ -1,0 +1,70 @@
+(call *registry*
+      (cns-update 'convex.run.testnet
+                  *address*))
+
+(call *registry*
+      (register {:description ["The current testnet offers some helps for operations like creating a new account."]
+                 :name        "Testnet operations"}))
+
+;;;;;;;;;; Private
+
+
+(def $.kp
+
+  ^{:private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.run.key-pair)))
+
+
+;;;;;;;;;; Predicate functions
+
+
+(defn amount-free-coins?
+
+  ^{:doc {:description ["Returns true if the given argument is a valid amount of coins to request."
+                        "Returns false otherwise."
+                        "See `request-coins`."]
+          :signature   [{:params [x]}]}}
+
+  [x]
+
+  (and (number? x)
+       (<= 0
+           x
+           100000000)))
+
+
+;;;;;;;;;; Core API
+
+
+(defn create-account
+
+  ^{:doc {:description ["Creates an account on the current testnet."
+                        "Only argument is the public key of the key pair that will be associated with the new account."
+                        "See `$.kp/gen` about generating one."
+                        "Attention, if the key pair is lost, no transaction can be carried out for that account."
+                        "Returns the address of the newly created account."]
+          :examples    [{:code "($.testnet/create-account ($.kp/public-key my-key-pair))"}]
+          :signature   [{:params [public-key]}]}}
+
+  [public-key]
+
+  (assert ($.kp/public-key? public-key))
+  [:cvm.sreq :testnet.create-account public-key])
+
+
+
+(defn request-coins
+
+  ^{:doc {:description ["Requests up to 100,000,000 coins for an account on the current testnet."
+                        "Coins are free on the testnet since it is meant for experimentation."
+                        "Returns the amount received."]
+          :examples    [{:code "($.testnet/request-coins #10 5000000)"}]
+          :signature   [{:params [address amount]}]}}
+
+  [address amount]
+
+  (assert (address? address))
+  (assert (amount-free-coins? amount))
+  [:cvm.sreq :testnet.request-coins address amount])
