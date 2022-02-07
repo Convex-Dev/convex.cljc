@@ -50,6 +50,20 @@
                65535))))
 
 
+
+(defn timeout?
+
+  ^{:doc {:description ["Returns true if the given argument is a valid timeout value (i.e. number >= 0 or nil)."
+                        "Returns false otherwise."]
+          :signature   [{:params [x]}]}}
+
+  [x]
+
+  (or (nil? x)
+      (and (number? x)
+           (>= x 0))))
+
+
 ;;;;;;;;;; Core API
 
 (defn close
@@ -113,8 +127,17 @@
           :examples    [{:code "($.client/query #2 '(+ 2 2))"}]
           :signature   [{:params [address code]}]}}
 
-  [address code]
 
-  (assert *running?*)
-  (assert (address? address))
-  [:cvm.sreq :client.query address code])
+  ([address code]
+
+   (query address
+          code
+          nil))
+
+
+  ([address code options]
+
+   (assert *running?*)
+   (assert (address? address))
+   (assert (timeout? (:timeout options)))
+   [:cvm.sreq :client.query address code options]))

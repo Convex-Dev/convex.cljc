@@ -184,12 +184,25 @@
 
   [env tuple]
 
-  ($.run.ctx/def-result env
-                        @($.client/query (env :convex.run/client)
-                                         ($.std/get tuple
-                                                    ($.cell/* 2))
-                                         ($.std/get tuple
-                                                    ($.cell/* 3)))))
+  ($.run.ctx/def-result
+    env
+    (let [f*result ($.client/query (env :convex.run/client)
+                                   ($.std/get tuple
+                                              ($.cell/* 2))
+                                   ($.std/get tuple
+                                              ($.cell/* 3)))]
+      (if-some [timeout (some-> ($.std/get tuple
+                                           ($.cell/* 4))
+                                ($.std/get ($.cell/* :timeout))
+                                $.clj/long)]
+        (let [result (deref f*result
+                            timeout
+                            ::timeout)]
+          (if (identical? result
+                          ::timeout)
+            ($.cell/* :timeout)
+            result))
+        (deref f*result)))))
 
 
 ;;;;;;;;;; Code
