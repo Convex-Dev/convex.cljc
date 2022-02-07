@@ -59,6 +59,11 @@
   {:replace-deps {com.github.seancorfield/depstar {:mvn/version "2.1.278"}}
    :maestro/doc  "Packaging jars and uberjars"}
 
+  :ext/hato
+
+  {:extra-deps {hato/hato {:mvn/version "0.8.2"}}
+   :maestro/doc "HTTP client library without external dependencies"}
+
 
   :ext/json
 
@@ -336,8 +341,8 @@
   {:extra-paths     ["project/recipe/src/clj/main"
                      "project/recipe/src/cvx/main"]
    :maestro/doc     "Examples for common use cases"
-   :maestro/require [:ext/clj-http
-                     :ext/json
+   :maestro/require [:ext/json
+                     :ext/hato
                      :project/cvm
                      :project/net]
    :maestro/root    "project/recipe"}

@@ -3,7 +3,8 @@
                   *address*))
 
 (call *registry*
-      (register {:description ["Performing client operations, notably queries and transactions."]
+      (register {:description ["Performing client operations, notably queries and transactions."
+                               "Uses the fast and secure binary client from the Convex toolset."]
                  :name        "Client operations"}))
 
 
@@ -61,7 +62,8 @@
 
   (or (nil? x)
       (and (number? x)
-           (>= x 0))))
+           (> x
+              0))))
 
 
 ;;;;;;;;;; Core API
@@ -123,7 +125,9 @@
                         "Hence, code can be executed under any account since no harm can be done."
                         "Remember to quote code so that is is not executed right away but on the peer."
                         "Argument 1 is the address under which the code should be executed."
-                        "Argument 2 is the code to execute."]
+                        "Argument 2 is the code to execute."
+                        "Argument 3 is an optional map of options:"
+                        "  :timeout -> timeout in milliseconds, query is canceled afterwards (unlimited by default)"]
           :examples    [{:code "($.client/query #2 '(+ 2 2))"}]
           :signature   [{:params [address code]}]}}
 

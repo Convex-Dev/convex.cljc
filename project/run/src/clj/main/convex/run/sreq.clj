@@ -13,9 +13,9 @@
                              Blob)
            (convex.core.data.prim CVMLong)
            (convex.core.lang Context)
+           (java.net UnknownHostException)
            (java.security UnrecoverableKeyException))
-  (:require [clj-http.client   :as http]
-            [clojure.data.json :as json]
+  (:require [clojure.data.json :as json]
             [convex.cell       :as $.cell]
             [convex.client     :as $.client]
             [convex.clj        :as $.clj]
@@ -30,7 +30,8 @@
             [convex.run.sym    :as $.run.sym]
             [convex.sign       :as $.sign]
             [convex.std        :as $.std]
-            [criterium.core    :as criterium]))
+            [criterium.core    :as criterium]
+            [hato.client       :as http]))
 
 
 (set! *warn-on-reflection*
@@ -49,6 +50,65 @@
   ($.run.ctx/def-result env
                         ($.cell/vector [($.sign/account-key kp)
                                         (.getEncodedPrivateKey kp)])))
+
+
+
+(defn- -deref
+
+  ;; Deref a future, possibly with a timeout.
+
+  ([f* options]
+
+   (if-some [timeout (some-> options
+                             ($.std/get ($.cell/* :timeout))
+                             $.clj/long)]
+     (let [result (deref f*
+                         timeout
+                         ::timeout)]
+       (if (identical? result
+                       ::timeout)
+         (do
+           (future-cancel f*)
+           ($.cell/* :timeout))
+         result))
+     (deref f*)))
+
+
+  ([f* tuple i-config]
+
+   (-deref f*
+           ($.std/get tuple
+                      ($.cell/long i-config)))))
+
+
+
+(defn- -rest-request
+
+  ;; Carries out an HTTP POST request and defines result in CVM context, accounting for optional timeout.
+
+  [env tuple i-options endpoint body f-result]
+
+  (try
+    ($.run.ctx/def-result
+      env
+      (let [result (-deref (http/post endpoint
+                                      {:async?          true
+                                       :body            (json/write-str body)
+                                       :connect-timeout 30000})
+                           tuple
+                           i-options)]
+        (if ($.std/keyword? result)
+          result
+          (-> result
+              :body
+              json/read-str
+              f-result))))
+    (catch Throwable _err
+      (println :err _err)
+      ($.run.exec/fail env
+                       ($.run.err/sreq ($.cell/code-std* :UNEXPECTED)
+                                       ($.cell/string "Cannot reach the REST API of the testnet ; are you connected to the internet?")
+                                       tuple)))))
 
 
 
@@ -186,23 +246,13 @@
 
   ($.run.ctx/def-result
     env
-    (let [f*result ($.client/query (env :convex.run/client)
-                                   ($.std/get tuple
-                                              ($.cell/* 2))
-                                   ($.std/get tuple
-                                              ($.cell/* 3)))]
-      (if-some [timeout (some-> ($.std/get tuple
-                                           ($.cell/* 4))
-                                ($.std/get ($.cell/* :timeout))
-                                $.clj/long)]
-        (let [result (deref f*result
-                            timeout
-                            ::timeout)]
-          (if (identical? result
-                          ::timeout)
-            ($.cell/* :timeout)
-            result))
-        (deref f*result)))))
+    (-deref ($.client/query (env :convex.run/client)
+                            ($.std/get tuple
+                                       ($.cell/* 2))
+                            ($.std/get tuple
+                                       ($.cell/* 3)))
+            tuple
+            4)))
 
 
 ;;;;;;;;;; Code
@@ -612,15 +662,15 @@
 
   [env tuple]
 
-  ($.run.ctx/def-result env
-                        (-> (http/post "https://convex.world/api/v1/createAccount"
-                                         {:body               (json/write-str {"accountKey" (.toHexString ^Blob ($.std/get tuple
-                                                                                                                           ($.cell/* 2)))})
-                                          :connection-timeout 4000})
-                            :body
-                            json/read-str
-                            (get "address")
-                            $.cell/address)))
+  (-rest-request env
+                 tuple
+                 3
+                 "https://convex.world/api/v1/createAccount"
+                 {"accountKey" (.toHexString ^Blob ($.std/get tuple
+                                                              ($.cell/* 2)))}
+                 #(-> %
+                      (get "address")
+                      $.cell/address)))
 
 
 
@@ -632,17 +682,17 @@
 
   [env tuple]
 
-  ($.run.ctx/def-result env
-                        (-> (http/post "https://convex.world/api/v1/faucet"
-                                       {:body               (json/write-str {"address" ($.clj/address ($.std/get tuple
-                                                                                                                 ($.cell/* 2)))
-                                                                             "amount"  ($.clj/long ($.std/get tuple
-                                                                                                              ($.cell/* 3)))})
-                                        :connection-timeout 4000})
-                            :body
-                            json/read-str
-                            (get "value")
-                            $.cell/long)))
+  (-rest-request env
+                 tuple
+                 4
+                 "https://convex.world/api/v1/faucet"
+                 {"address" ($.clj/address ($.std/get tuple
+                                                      ($.cell/* 2)))
+                  "amount"  ($.clj/long ($.std/get tuple
+                                                   ($.cell/* 3)))}
+                 #(-> %
+                      (get "value")
+                      $.cell/long)))
 
 
 ;;;;;;;;;; Time

@@ -3,7 +3,10 @@
                   *address*))
 
 (call *registry*
-      (register {:description ["The current testnet offers some helps for operations like creating a new account."]
+      (register {:description ["Miscellaneous operations from the `https://convex.world` REST API."
+                               "Only a subset of useful operations can be carried out here."
+                               "For usual client operations, see the fast and secure binary client promoted in the `$.client` library."
+                               "More information about the REST API: https://convex.world/tools/rest-api"]
                  :name        "Testnet operations"}))
 
 ;;;;;;;;;; Private
@@ -35,23 +38,47 @@
            100000000)))
 
 
+
+(defn timeout?
+
+  ^{:doc {:description ["Returns true if the given argument is a valid timeout (number > 0 or nil)."
+                        "Returns false otherwise."]
+          :signature   [{:params [x]}]}}
+
+  [x]
+
+  (or (nil? x)
+      (and (number? x)
+           (> x
+              0))))
+
+
 ;;;;;;;;;; Core API
 
 
 (defn create-account
 
   ^{:doc {:description ["Creates an account on the current testnet."
-                        "Only argument is the public key of the key pair that will be associated with the new account."
-                        "See `$.kp/gen` about generating one."
+                        "Argument 1 is the public key of the key pair that will be associated with the new account ; see `$.kp` library."
+                        "Argument 2 is an optional map of options:"
+                        "  :timeout -> timeout in milliseconds, request is canceled afterwards (unlimited by default)"
                         "Attention, if the key pair is lost, no transaction can be carried out for that account."
                         "Returns the address of the newly created account."]
           :examples    [{:code "($.testnet/create-account ($.kp/public-key my-key-pair))"}]
-          :signature   [{:params [public-key]}]}}
+          :signature   [{:params [public-key]}
+                        {:params [public-key options]}]}}
 
-  [public-key]
 
-  (assert ($.kp/public-key? public-key))
-  [:cvm.sreq :testnet.create-account public-key])
+  ([public-key]
+
+   (create-account public-key
+                   nil))
+
+  ([public-key options]
+
+   (assert ($.kp/public-key? public-key))
+   (assert (timeout? (:timeout options)))
+   [:cvm.sreq :testnet.create-account public-key options]))
 
 
 
@@ -59,12 +86,25 @@
 
   ^{:doc {:description ["Requests up to 100,000,000 coins for an account on the current testnet."
                         "Coins are free on the testnet since it is meant for experimentation."
+                        "Argument 1 is the address of the account to refill."
+                        "Argument 2 is the amount of coins."
+                        "Argument 3 is an optional map of options:"
                         "Returns the amount received."]
           :examples    [{:code "($.testnet/request-coins #10 5000000)"}]
-          :signature   [{:params [address amount]}]}}
+          :signature   [{:params [address amount]}
+                        {:params [address amount options]}]}}
 
-  [address amount]
 
-  (assert (address? address))
-  (assert (amount-free-coins? amount))
-  [:cvm.sreq :testnet.request-coins address amount])
+  ([address amount]
+
+   (request-coins address
+                  amount
+                  nil))
+
+
+  ([address amount options]
+
+   (assert (address? address))
+   (assert (amount-free-coins? amount))
+   (assert (timeout? (:timeout options)))
+   [:cvm.sreq :testnet.request-coins address amount options]))
