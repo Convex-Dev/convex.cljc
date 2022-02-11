@@ -1,0 +1,41 @@
+;; Generate and save key pair
+
+($.kp/gen)
+
+(def kp
+     $/*result*)
+
+($.kp/save "/tmp/store.pfx"
+           "store-password"
+           "my-key-pair"
+           kp
+           "key-pair-password")
+
+($.stream/out! "Key pair created and saved in `store.pfx`")
+
+
+
+;; Creating an account
+
+($.testnet/create-account ($.kp/public-key kp))
+
+(def address
+     $/*result*)
+
+($.stream/out! (str "New address is " address))
+
+($.testnet/request-coins address 100000000)
+
+($.stream/out! (str "Received coins on new account: " $/*result*))
+
+
+
+;; Connecting to testnet and transacting
+
+($.client/connect {:host "convex.world"})
+
+($.client/transact address
+                   kp
+                   '(def foo 42))
+
+($.stream/out! (str "Transaction result: " $/*result*))
