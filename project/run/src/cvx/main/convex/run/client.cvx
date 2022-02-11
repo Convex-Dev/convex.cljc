@@ -152,7 +152,7 @@
        (assert (port? (:port options)))
        (def *running?*
             true)
-       [:cvm.sreq :client.connect options])
+       [:cvm.sreq :client.connect (or options {})])
      (call ~*address*
            (connect options)))))
 
