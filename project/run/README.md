@@ -93,7 +93,7 @@ We recommend [SDKMan](https://sdkman.io/) for easy installation of GraalVM tools
 Assuming everything is ready and the uberjar has been built:
 
 ```bash
-$ bb native:image :project/jar
+$ bb native:image :project/run
 ```
 
 After a few minutes of work and lots of memory usage, native binary for your system will be available under
