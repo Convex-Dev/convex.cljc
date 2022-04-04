@@ -77,6 +77,11 @@
   {:extra-deps  {io.helins/mprop {:mvn/version "0.0.1"}}
    :maestro/doc "Improves writing complex generative tests with `ext/test.check`."}
 
+  :ext/nrepl
+
+  {:extra-deps  {nrepl/nrepl {:mvn/version "0.9.0"}}
+   :maestro/doc "Used for creating a Convex Lisp NREPL server"}
+
 
   :ext/slf4j-timbre
 
@@ -352,6 +357,9 @@
    :maestro/doc        "Convex Lisp Runner"
    :maestro/main-class convex.run
    :maestro/require    [:ext/criterium
+                        :ext/json
+                        :ext/hato
+                        :ext/nrepl
                         {default :project/cvm
                          release :release/cvm}]
    :maestro/root       "project/run"}
