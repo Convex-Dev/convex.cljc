@@ -512,7 +512,6 @@
                  state
                  (.applyBlock (Block/create (long (+ (.longValue (time ctx))
                                                      millis))
-                                            ($.cell/key ($.cell/blob (byte-array 32)))
                                             ($.cell/vector [])))
                  .getState)))
 

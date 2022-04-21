@@ -517,7 +517,7 @@
 
   ^AString
 
-  [string]
+  [^String string]
 
   (Strings/create string))
 
