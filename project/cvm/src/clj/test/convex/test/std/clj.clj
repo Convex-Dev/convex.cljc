@@ -69,8 +69,6 @@
              (keys ($.cell/blob-map [[k
                                       ($.cell/* :a)]]))))))
 
-
-
 (T/deftest seq'
 
   (T/is (seq? (seq ($.cell/* (:a)))))
@@ -92,8 +90,6 @@
 
   (T/is (= (seq [($.cell/* :a)])
            (seq ($.cell/* #{:a}))))
-
-  (T/is (seq? (seq ($.cell/* "a"))))
 
   ; (T/is (seq? (seq ($.cell/blob (byte-array 1)))))
 
@@ -132,7 +128,7 @@
                      ($.cell/* [42]))))
 
   (T/is (= [($.cell/* 43)]
-           (sequence (map (fn [[k v]]
+           (sequence (map (fn [[_k v]]
                             ($.std/inc v)))
                      ($.cell/* {:a 42}))))
 
@@ -143,12 +139,6 @@
   (T/is (= [($.cell/* 43)]
            (sequence (map $.std/inc)
                      ($.cell/* #{42}))))
-
-  ;; <!> Produces a seq of JVM chars, not CVM ones.
-  ;;
-  (T/is (= [\a]
-           (sequence (map identity)
-                     ($.cell/* "a"))))
 
   ; (T/is (= [($.cell/* 42)]
   ;          (sequence (map identity)

@@ -109,7 +109,7 @@
 
   [^Keyword keyword]
 
-  (clojure.core/keyword (.getName keyword)))
+  (clojure.core/keyword (str (.getName keyword))))
 
 
 
@@ -190,7 +190,7 @@
 
   [^Symbol symbol]
 
-  (clojure.core/symbol (.getName symbol)))
+  (clojure.core/symbol (str (.getName symbol))))
 
 
 
