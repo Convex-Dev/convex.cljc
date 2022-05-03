@@ -1,6 +1,6 @@
 (ns convex.client
 
-  "Interacting with a peer via the binary protocol.
+  "Interacting with a peer server via the binary protocol.
 
    After creating a client with [[connect]], main interactions are [[query]] and [[transact]].
 
@@ -55,7 +55,7 @@
 
 (defn connect
 
-  "Opens a new client connection to a peer using the binary protocol.
+  "Opens a new client connection to a peer server using the binary protocol.
   
    An optional map may be provided:
 
@@ -81,6 +81,23 @@
                    nil
                    (or (:convex.client/db option+)
                        (Stores/current)))))
+
+
+
+(defn connect-local
+
+  "Like [[connect]] but the returned client is optimized to talk to a server peer running
+   in the same process.
+  
+   Takes that peer server as sole argument."
+
+  ^Convex
+
+  [^Server server]
+
+  (Convex/connect server
+                  nil
+                  nil))
 
 
 
