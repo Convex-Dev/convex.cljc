@@ -22,9 +22,10 @@
 !/bb/script/dev.clj
 /**/dev.clj
 /.clj-kondo/*
-/build
 /cvm
 /private
 /report
+/**/target/
+/**/pom.xml
 
 cvx_report_*.edn

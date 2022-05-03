@@ -1,144 +1,100 @@
-{:deps  {io.helins/maestro         {:mvn/version "0.0.0-alpha0"}
-         io.helins/maestro.depstar {:mvn/version "0.0.0-alpha0"}
-         io.helins/maestro.kaocha  {:mvn/version "0.0.0-alpha0"}}
- :paths ["script"]
+{:deps
+ {com.protosens/maestro {:git/sha "b98268e8e6df2d99b9a3a1b376a8254a013c996b"
+                         :git/url "https://github.com/protosens/maestro.clj.git"}}
 
 
-
- :tasks {cp
-
-         {:doc      "Pretty prints the class path received as STDIN"
-          :requires ([helins.maestro.cp :as maestro.cp])
-          :task     (maestro.cp/print-stdin)}
+ :paths
+ ["bb"]
 
 
-         cp:rm
+ :tasks
+ {aliases:dev
 
-         {:doc      "Deletes the computed classpath"
-          :requires ([helins.maestro.cp :as maestro.cp])
-          :task     (maestro.cp/rm)}
+  {:doc      "Given one or several aliases in a vector, prints all aliases required for dev"
+   :requires ([task])
+   :task     (task/aliases-dev)}
+  
+  
+  aliases:test
 
+  {:doc      "Like `aliases:dev` but prints all aliases required for testing"
+   :requires ([task])
+   :task     (task/aliases-test true)}
+  
 
-         deploy
+  aliases:test:downstream
 
-         {:doc  "Deploy to Clojars ; needs username, filename leading to Clojars token, and project alias"
-          :task (clojure {:extra-env {"CLOJARS_USERNAME" (first *command-line-args*)
-                                      "CLOJARS_PASSWORD" (slurp (second *command-line-args*))}}
-                         (let [dir (.substring (nth *command-line-args*
-                                                    2)
-                                               1)]
-                           (format "-X:task/deploy :artifact '%s' :pom-file '%s'"
-                                     (pr-str (format "build/jar/%s.jar"
-                                                     dir))
-                                     (pr-str (format "%s/pom.xml"
-                                                     dir)))))}
-
-
-         dev
-
-         {:doc      "Starts dev mode (using '-M' by default) ; same arguments as Clojure CLI"
-          :requires ([helins.maestro.run :as maestro.run])
-          :task     (maestro.run/dev)}
+  {:doc      "Like `aliases:test` but tests downstream consumer aliases of the input aliases"
+   :requires ([task])
+   :task     (task/aliases-test false)}
 
 
-         install
+  build
 
-         {:doc  "Install alias to local Maven repo"
-          :task (clojure (let [dir (.substring (first *command-line-args*)
-                                               1)]
-                           (format "-X:task/install :artifact '%s' :pom-file '%s'"
-                                   (pr-str (format "build/jar/%s.jar"
-                                                   dir))
-                                   (pr-str (format "%s/pom.xml"
-                                                   dir)))))}
+  {:doc      "Packages the given aliases in an jar or uberjar depending on its alias data"
+   :requires ([task])
+   :task     (task/build nil)}
 
 
-         jar
+  build:direct
 
-         {:doc      "Packages the given aliases in a jar ; same arguments as Depstar"
-          :requires ([helins.maestro.depstar.run :as maestro.depstar.run])
-          :task     (maestro.depstar.run/jar)}
-
-
-         lint
-
-         {:doc  "Starts Clj-kondo on the path given as argument ; understands globs"
-          :task (shell (str "clj-kondo --lint "
-                            (first *command-line-args*)))}
+  {:doc      "Like 'build` but direct linking is applied in the context of uberjars"
+   :requires ([task])
+   :task     (task/build {:maestro.uberjar/direct-linking? true})}
 
 
-         lint:import
+  deploy
 
-         {:doc  "Initializes Clj-kondo and copies configuration files from dependencies ; uses classpath received as STDIN"
-          :task (shell (format "clj-kondo --lint '%s' --dependencies --parallel --copy-configs"
-                               (slurp *in*)))}
-
-
-         native:agent
-
-         {:doc      "Starts Java command setting the native-image-agent to output tracing to './private/agent' (eg. reflection configuration for task 'native:image'"
-          :requires ([script.native :as $.native])
-          :task     ($.native/agent)}
+  {:doc      "Deploy to Clojars ; needs username, filename leading to Clojars token, and alias ; see `build`"
+   :requires ([task])
+   :task     (task/install)}
 
 
-         native:reflect-config
+  install
 
-         {:doc      "Copies './private/agent/reflect-config.json' to the folder given as argument after preparing it"
-          :requires ([script.native :as $.native])
-          :task     ($.native/reflect-config)}
-
-
-         native:image
-
-         {:doc      "Builds a native image in `./build/native` ; requires path to uberjar"
-          :requires ([script.native :as $.native])
-          :task     ($.native/image)}
+  {:doc      "Install alias to local Maven repo ; see `build`"
+   :requires ([task])
+   :task     (task/install)}
 
 
-         run-M
+   lint
 
-         {:doc      "Executes Clojure using '-M', calling the main class specified in the alias"
-          :requires ([helins.maestro.run :as maestro.run])
-          :task     (maestro.run/main-class)}
-
-
-         run-X
-
-         {:doc      "Executes Clojure using '-X', using the function specified in the alias"
-          :requires ([helins.maestro.run :as maestro.run])
-          :task     (maestro.run/function)}
+   {:doc      "Starts Clj-kondo on the path given as argument ; understands globs"
+    :requires ([task])
+    :task     (task/lint)}
 
 
-         test
+   lint:import
 
-         {:doc      "Runs tests on the JVM for the given aliases ; accepts Kaocha CLI arguments"
-          :requires ([helins.maestro.kaocha.run :as maestro.kaocha.run])
-          :task     (maestro.kaocha.run/broad)}
-
-
-
-         test:narrow
-
-         {:doc      "Like `test` but tests only the given aliases, not transitive ones"
-          :requires ([helins.maestro.kaocha.run :as maestro.kaocha.run])
-          :task     (maestro.kaocha.run/narrow)}
+   {:doc      "Initializes Clj-kondo and copies configuration files from dependencies ; uses classpath received as STDIN"
+    :requires ([task])
+    :task     (task/lint-import)}
 
 
-         uberjar
+   native:agent
 
-         {:doc      "Packages the given aliases in an uberjar ; same arguments as Depstart"
-          :requires ([helins.maestro.depstar.run :as maestro.depstar.run])
-          :task     (maestro.depstar.run/uberjar)}
+   {:doc      "Starts Java command setting the native-image-agent to output tracing to './private/agent' (eg. reflection configuration for task 'native:image')"
+    :requires ([task.native])
+    :task     (task.native/agent)}
 
 
-		 uberjar:direct
+   native:reflect-config
 
-		 {:doc      "Like 'uberjar' but does AOT and direct-linking"
-          :requires ([helins.maestro.depstar.run :as maestro.depstar.run])
-          :task     (binding [*command-line-args* (concat *command-line-args*
-                                                          [":aot"      "true"
-                                                           ":jvm-opts" "'[\"-Dclojure.compiler.direct-linking=true\"]'"])]
-                      (maestro.depstar.run/uberjar))}
-		  
+   {:doc      "Copies './private/agent/reflect-config.json' to the folder given as argument after preparing it"
+    :requires ([task.native])
+    :task     (task.native/reflect-config)}
 
-         }}
+
+   native:image
+
+   {:doc      "Builds a native image in `./private/target` from an uberjar ; requires alias that has been used to `build` the uberjar"
+    :requires ([task.native])
+    :task     (task.native/image)}
+
+
+   pprint-cp
+
+   {:doc      "Pretty prints the classpath read from STDIN - Great match for Clojure's `-Spath` argument"
+    :requires ([protosens.maestro.task :as maestro.task])
+    :task     (maestro.task/pprint-cp)}
+   }}

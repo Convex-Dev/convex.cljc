@@ -10,7 +10,7 @@
    | `:convex/raw` | Value that has been used for creating the symbol |
    | `:convex/type` | Convex type |
 
-   For instance, `(address 42)` produces a symbol `#42` with metadata `{:convex/raw 42, :convex/type :address}`"
+   For instance, `(address 42)` produces a symbol `#42` with metadata `{:convex/raw 42, :convex/type :address}`."
 
   {:author "Adam Helinski"}
 

@@ -1,33 +1,14 @@
-{
-
-
- ;; Needed by `:ext/depstart`.
- ;;
- :paths
- []
-
-
-
-
- :maestro/doc
-
- {:namespace {"bundle"  "Alias bundling a group of aliases"
-              "dev"     "Alias bringing what is needed for developping a related project"
-              "ext"     "External dependencies"
-              "project" "Project or subproject located in './project' directory"
-              "task"    "Meant to be used in Babashka tasks"
-              "test"    "Alias bringing what is needed for testing a related project"
-              "toggle"  "Alias toggling some actions in `user` namespace (see file './dev/user'"}}
-
-
-
-
- :aliases
+{:aliases
  {
 
 
   ;; EXTERNAL DEPENDENCIES
 
+
+  :ext/clojure.tools.build
+
+  {:extra-deps {io.github.clojure/tools.build {:git/tag "v0.8.2" :git/sha "ba1a2bf"}}
+   :maestro/doc "Used for building jars and uberjars"}
 
   :ext/criterium
 
@@ -54,10 +35,9 @@
    :maestro/doc "Mostly used for its Convex binary client."}
 
 
-  :ext/depstar
-
-  {:replace-deps {com.github.seancorfield/depstar {:mvn/version "2.1.278"}}
-   :maestro/doc  "Packaging jars and uberjars"}
+  :ext/deps-deploy
+  {:replace-deps {slipset/deps-deploy {:mvn/version "0.1.5"}}
+   :maestro/doc  "Local install and deploying to Clojars"}
 
 
   :ext/json
@@ -68,9 +48,13 @@
 
   :ext/kaocha
 
-  {:extra-deps  {lambdaisland/kaocha {:mvn/version "1.65.1029"}}
+  {:extra-deps  {lambdaisland/kaocha {:mvn/version "1.66.1034"}}
    :maestro/doc "Testing framework"}
 
+
+  :ext/maestro {:extra-deps  {com.protosens/maestro {:git/sha "b98268e8e6df2d99b9a3a1b376a8254a013c996b"
+                                                     :git/url "https://github.com/protosens/maestro.clj.git"}}
+                :maestro/doc "Library used for managing this repo as a monorepo"}
 
   :ext/mprop
 
@@ -95,90 +79,26 @@
   ;; FOR TASKS
 
   :task/deploy
-  {:exec-args    {:installer :remote}
-   :exec-fn      deps-deploy.deps-deploy/deploy
-   :replace-deps {slipset/deps-deploy {:mvn/version "0.1.5"}}
-   :maestro/doc  "Deploy to Clojars"}
+  {:maestro/doc     "Deploy to Clojars"
+   :maestro/require [:ext/deps-deploy]}
 
 
   :task/dev
 
   {:extra-paths     ["dev"]
-   :maestro/doc     "Mandatory alias for development"
-   :maestro/env     {"CONVEX_DEV" "true"}
-   :maestro/require [:ext/criterium
-                     :task/no-main]}
-
-
-  :task/install
-  {:exec-args    {:installer :local}
-   :exec-fn      deps-deploy.deps-deploy/deploy
-   :replace-deps {slipset/deps-deploy {:mvn/version "0.1.5"}}
-   :maestro/doc  "Local install"}
-
-
-  :task/jar
-
-  {:exec-args       {:sync-pom true}
-   :exec-fn         hf.depstar/jar
-   :maestro/doc     "Setup for creating jar files"
-   :maestro/require [:ext/depstar]}
-
-
-  :task/no-main
-
-  {:main-opts   []
-   :maestro/doc "Remove any CLI argument provides by a previous alias"}
+   :jvm-opts        ["-Dconvex.dev=true"]
+   :maestro/doc     "Automatically invoked during dev, brings commonly needed utilities"
+   :maestro/require [:ext/criterium]}
 
 
   :task/test
 
   {:main-opts       ["-m"            "kaocha.runner"
                      "--config-file" "kaocha.edn"]
-   :maestro/doc     "Mandatory alias for testing"
+   :maestro/doc     "Automatically invoked during testing, brings Kaocha and commonly needed utilities"
    :maestro/require [:ext/kaocha
                      :ext/mprop
                      :ext/test.check]}
-
-  :task/uberjar
-
-  {:exec-args       {:aot      true
-                     :sync-pom true}
-   :exec-fn         hf.depstar/uberjar
-   :maestro/doc     "Setup for creating uberjar files"
-   :maestro/require [:ext/depstar]}
-
-
-
-
-  ;; TOGGLES
-
-
-  :toggle/tap
-
-  {:maestro/doc "Toggles printing to terminal on `tap>` in `user` namespace"
-   :maestro/env {"CONVEX_TAP" "true"}}
-
-
-
-
-  ;; GOD MODE - Requiring much everything
-  
-
-  :project/all
-
-  {:extra-paths     ["project/all/src/clj/dev"
-                     "project/all/src/clj/main"]
-   :maestro/dev+    [:project/all]
-   :maestro/doc     "Dev environment requiring all useful namespaces from this repository"
-   :maestro/require [:ext/test.check
-                     ;:project/app.fuzz
-                     ;:project/break
-                     :project/cvm
-                     :project/gen
-                     :project/net
-                     :project/run]
-   :maestro/root    "project/all"}
 
 
 
@@ -192,13 +112,15 @@
                      :root     "report/fuzz"}
    :exec-fn         convex.app.fuzz/random
    :extra-paths     ["project/app/fuzz/src/clj/main"]
+   :maestro/dir     "project/app/fuzz"
    :maestro/doc     "Run fuzzy tests against the CVM"
+   :maestro/main    convex.app.fuzz
    :maestro/require [:ext/test.check
                      :project/break
                      :project/cvm
                      :project/clojurify
-                     :toggle/tap]
-   :maestro/root    "project/app/fuzz"}
+                     {dev :dev/app.fuzz}]
+   :maestro/uberjar "private/build/app-fuzz.uber.jar"}
 
 
   :dev/app.fuzz
@@ -211,10 +133,12 @@
 
   {:extra-paths     ["project/break/src/clj/main"
                      "project/break/src/cvx/main"]
+   :maestro/dir     "project/break"
    :maestro/doc     "Advanced generative testing against the CVM"
    :maestro/require [:project/clojurify
-                     :project/cvm]
-   :maestro/root    "project/break"}
+                     :project/cvm
+                     {dev :dev/break}
+                     {test :test/break}]}
 
 
   :dev/break
@@ -228,14 +152,24 @@
 
   ;---
 
+  :project/build
+
+  {:extra-paths     ["project/build/src/clj/main"]
+   :maestro/require [:ext/clojure.tools.build
+                     :ext/maestro]}
+
+  ;---
+
   :project/clojurify
 
   {:extra-paths     ["project/clojurify/src/clj/main"]
+   :maestro/dir     "project/clojurify"
    :maestro/doc     "Writing Convex Lisp forms as Clojure data and related utilities"
    :maestro/require [:ext/test.check
+                     {dev :dev/clojurify}
                      {default :project/cvm
-                      release :release/cvm}]
-   :maestro/root    "project/clojurify"}
+                      release :release/cvm}
+                     {test :test/clojurify}]}
 
 
   :dev/clojurify
@@ -256,10 +190,16 @@
 
   :project/cvm
 
-  {:extra-paths     ["project/cvm/src/clj/main"]
-   :maestro/doc     "Handling CVM contextes and Convex data"
-   :maestro/require [:ext/convex-core]
-   :maestro/root    "project/cvm"}
+  {:extra-paths               ["project/cvm/src/clj/main"]
+   :maestro/dir                "project/cvm"
+   :maestro/doc                "Handling CVM contextes and Convex data"
+   :maestro/require           [:ext/convex-core
+                               {dev :dev/cvm}
+                               {test :test/cvm}]
+   :maestro.build/artifact    world.convex/cvm.clj
+   :maestro.build/type        :jar
+   :maestro.build/version     "0.0.0-alpha3"
+   :maestro.build.path/output "private/target/cvm.jar"}
 
 
   :dev/cvm
@@ -281,12 +221,18 @@
 
   :project/gen
 
-  {:extra-paths     ["project/gen/src/clj/main"]
-   :maestro/doc     "`test.check` generators for cells"
-   :maestro/require [:ext/test.check
-                     {default :project/cvm
-                      release :release/cvm}]
-   :maestro/root    "project/gen"}
+  {:extra-paths               ["project/gen/src/clj/main"]
+   :maestro/dir               "project/gen"
+   :maestro/doc               "`test.check` generators for cells"
+   :maestro/require           [:ext/test.check
+                               {dev :project/gen}
+                               {default :project/cvm
+                                release :release/cvm}
+                               {test :test/gen}]
+   :maestro.build/artifact    world.convex/gen.clj
+   :maestro.build/type        :jar
+   :maestro.build/version     "0.0.0-alpha0"
+   :maestro.build.path/output "private/target/gen.jar"}
 
 
   :dev/gen
@@ -307,12 +253,18 @@
 
   :project/net
 
-  {:extra-paths     ["project/net/src/clj/main"]
-   :maestro/doc     "Convex network utilities"
-   :maestro/require [:ext/convex-peer
-                     {default :project/cvm
-                      release :release/cvm}]
-   :maestro/root    "project/net"}
+  {:extra-paths               ["project/net/src/clj/main"]
+   :maestro/doc               "Convex network utilities"
+   :maestro/dir               "project/net"
+   :maestro/require           [:ext/convex-peer
+                               {dev :dev/net}
+                               {default :project/cvm
+                                release :release/cvm}
+                               {test :test/net}]
+   :maestro.build/artifact    world.convex/net.clj
+   :maestro.build/type        :jar
+   :maestro.build/version     "0.0.0-alpha2"
+   :maestro.build.path/output "private/target/net.jar"}
 
 
   :dev/net
@@ -335,37 +287,35 @@
 
   {:extra-paths     ["project/recipe/src/clj/main"
                      "project/recipe/src/cvx/main"]
+   :maestro/dir     "project/recipe"
    :maestro/doc     "Examples for common use cases"
    :maestro/require [:ext/clj-http
                      :ext/json
                      :project/cvm
-                     :project/net]
-   :maestro/root    "project/recipe"}
+                     :project/net]}
 
   ;---
 
   :project/run
 
-  {:extra-paths        ["project/run/src/clj/main"
-                        "project/run/src/cvx/main"
-                        "project/run/src/misc"]
-   :maestro/doc        "Convex Lisp Runner"
-   :maestro/main-class convex.run
-   :maestro/require    [:ext/criterium
-                        {default :project/cvm
-                         release :release/cvm}]
-   :maestro/root       "project/run"}
+  {:extra-paths                     ["project/run/src/clj/main"
+                                     "project/run/src/cvx/main"
+                                     "project/run/src/misc"]
+   :maestro/dir                     "project/run"
+   :maestro/doc                     "Convex Lisp Runner"
+   :maestro/require                 [:ext/criterium
+                                     {dev :dev/run}
+                                     {default :project/cvm
+                                      release :release/cvm}]
+   :maestro.build/type              :uberjar
+   :maestro.build.path/output       "private/target/run.uber.jar"
+   :maestro.uberjar/main            convex.run
+   :maestro.uberjar/direct-linking? true}
 
 
   :dev/run
 
   {:extra-paths     ["project/run/src/clj/dev"
-                     "project/run/src/cvx/dev"]
-   :maestro/require [:toggle/tap]}
+                     "project/run/src/cvx/dev"]}
 
-
-  :release/run
-
-  {:extra-deps         {world.convex/run.clj {:mvn/version "0.0.0-alpha2"}}
-   :maestro/main-class convex.run
-   :maestro/root       "project/run"}}}
+ }}

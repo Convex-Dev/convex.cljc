@@ -1,4 +1,8 @@
 #kaocha/v1
-{:tests [#meta-merge [{:id                 :unit
-                       :kaocha/ns-patterns [".+"]}
-                      #include "private/maestro_kaocha.edn"]]}
+{:kaocha/reporter
+ [kaocha.report/documentation]
+ 
+ :tests
+ [#meta-merge [{:id                 :unit
+                :kaocha/ns-patterns [".+"]}
+               #include "private/maestro_kaocha.edn"]]}
