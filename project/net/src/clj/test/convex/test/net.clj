@@ -69,7 +69,12 @@
 
 
 
-(defn connect
+(def client-local
+     nil)
+
+
+
+(defn -connect
 
   "Creates and connects a new client to test server."
 
@@ -80,13 +85,49 @@
 
 
 
+(defn -deref
+
+  "In case a future never resolves."
+
+  [future]
+
+  (deref future
+         10000
+         ::timeout))
+
+
+
+(defn -sequence
+
+  [client]
+
+  (-deref ($.client/sequence client
+                             addr)))
+
+
+
+(defn test-client+
+
+  [f]
+
+  (T/testing
+    "Remote client"
+    (f client))
+  (T/testing
+    "Local client"
+    (f client-local)))
+
+
 (T/use-fixtures :once
                 (fn [f]
                   ($.server/start server)
-                  (def client
-                       (connect))
+                  (alter-var-root #'client
+                                  (constantly (-connect)))
+                  (alter-var-root #'client-local
+                                  (constantly ($.client/connect-local server)))
                   (f)
                   ($.client/close client)
+                  ($.client/close client-local)
                   ($.server/stop server)))
 
 
@@ -142,7 +183,7 @@
 
   (T/is ($.client/connected? client))
 
-  (T/is (let [client-2 (connect)]
+  (T/is (let [client-2 (-connect)]
           ($.client/close client-2)
           (not ($.client/connected? client-2)))))
 
@@ -150,79 +191,82 @@
 
 (T/deftest peer-status
 
-  (T/is (-> ($.client/peer-status client)
-            (deref 1000
-                   :timeout)
-            $.std/map?)))
+  (test-client+
+    (fn [client]
+      (T/is (-> ($.client/peer-status client)
+                -deref
+                $.std/map?)))))
 
 
 
 (T/deftest resolve-and-state
 
-  (T/is (= (-> ($.client/state client)
-               (deref 10000
-                      :timeout))
-           (-> ($.client/resolve client
-                                 (-> ($.client/peer-status client)
-                                     (deref 1000
-                                            :timeout)
-                                     $.client/value
-                                     last
-                                     $.cell/hash<-blob))
-               (deref 10000
-                      :timeout)))))
+  (test-client+
+    (fn [client]
+      (T/is (= (-> ($.client/state client)
+                   -deref)
+               (-> ($.client/resolve client
+                                     (-> ($.client/peer-status client)
+                                         -deref
+                                         $.client/value
+                                         last
+                                         $.cell/hash<-blob))
+                   -deref))))))
 
 
 
 (T/deftest query
 
-  (T/is (= ($.cell/long 4)
-           (-> ($.client/query client
-                               addr
-                               ($.read/string "(def foo-query (+ 2 2))"))
-               (deref 1000
-                      :timeout)
-               $.client/value))
-        "Simple query")
+  (test-client+
+    (fn [client]
 
-  (T/is (= ($.cell/boolean false)
-           (-> ($.client/query client
-                               addr
-                               ($.read/string "(defined? foo-query)"))
-               (deref 1000
-                      :timeout)
-               $.client/value))
-        "State change in previous query has been reversed"))
+      (T/is (= ($.cell/long 4)
+               (-> ($.client/query client
+                                   addr
+                                   ($.read/string "(def foo-query (+ 2 2))"))
+                   -deref
+                   $.client/value))
+            "Simple query")
+
+      (T/is (= ($.cell/boolean false)
+               (-> ($.client/query client
+                                   addr
+                                   ($.read/string "(defined? foo-query)"))
+                   -deref
+                   $.client/value))
+            "State change in previous query has been reversed"))))
 
 
 
 (T/deftest sequence
 
-  (T/is (pos? (deref ($.client/sequence client
-                                        addr)))))
+  (test-client+
+    (fn [client]
+      (T/is (pos? (-sequence client))))))
 
 
 
 (T/deftest transact
 
-  (T/is (= ($.cell/long 4)
-           (-> ($.client/transact client
-                                  kp
-                                  ($.cell/invoke addr
-                                                 1
-                                                 ($.read/string "(def foo-transact (+ 2 2))")))
-               (deref 1000
-                      :timeout)
-               $.client/value))
-        "Def within a transaction")
+  (test-client+
+    (fn [client]
 
-  (T/is (= ($.cell/long 4)
-           (-> ($.client/transact client
-                                  kp
-                                  ($.cell/invoke addr
-                                                 2
-                                                 ($.cell/symbol "foo-transact")))
-               (deref 1000
-                      :timeout)
-               $.client/value))
-        "Def persisted across transactions"))
+      (T/is (= ($.cell/long 4)
+               (-> ($.client/transact client
+                                      kp
+                                      ($.cell/invoke addr
+                                                     (-sequence client)
+                                                     ($.read/string "(def foo-transact (+ 2 2))")))
+                   -deref
+                   $.client/value))
+            "Def within a transaction")
+
+      (T/is (= ($.cell/long 4)
+               (-> ($.client/transact client
+                                      kp
+                                      ($.cell/invoke addr
+                                                     (-sequence client)
+                                                     ($.cell/symbol "foo-transact")))
+                   -deref
+                   $.client/value))
+            "Def persisted across transactions"))))
