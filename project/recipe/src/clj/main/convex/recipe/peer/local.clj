@@ -49,7 +49,7 @@
        "private/recipe/peer/local")
 
 
-  ;; Creates a server running locally, without any connection to any other peer.
+  ;; Creates a peer server running locally, without any connection to any other peer.
   ;;
   ;; A genesis state is create: minimal state loading Convex libraries and actors (automated accounts).
   ;;
@@ -66,10 +66,13 @@
 
   ;; Creates a new client connected to our peer.
   ;;
-  ;; By default, unless specified otherwise, a client connects to `localhost:18888`, so we are good.
+  ;; We could use the same client as presented in the [[convex.recipe.peer.local]] recipe which connects to `localhost18888`
+  ;; by default.
+  ;; However, let us use a variant optimized for talking to a peer server running in the same process.
+  ;; Some applications will operate like this and it is useful having such an optimized client.
   ;;
   (def c
-       ($.client/connect))
+       ($.client/connect-local s))
 
 
   ;; We can use account 12. It is created as a controller account for the peer, as mandated, and it has the same key pair
