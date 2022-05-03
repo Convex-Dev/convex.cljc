@@ -1,14 +1,16 @@
-(ns script.native
+(ns task.native
 
   "Building native iamges."
 
   {:author "Adam Helinski"}
 
   (:refer-clojure :exclude [agent])
-  (:require [babashka.tasks    :as bb.task]
-            [cheshire.core     :as cheshire]
+  (:require [babashka.tasks              :as bb.task]
+            [cheshire.core               :as cheshire]
+            [clojure.edn                 :as edn]
             [clojure.java.io]
-            [clojure.string]))
+            [clojure.string]
+            [protosens.maestro.required  :as maestro.required]))
 
 
 ;;;;;;;;;;
@@ -26,7 +28,6 @@
          *command-line-args*))
 
 
-
 (defn reflect-config
 
   "Copies './private/agent/reflect-config.json' to the folder given as CLI arg after doing some preparation."
@@ -42,7 +43,7 @@
                                                 "name")
                                            "java.lang.reflect.Method")
                                       {"name"    "java.lang.reflect.AccessibleObject"
-                                       "methods" [{"name" "canAccess"
+                                       "methods" [{"name"           "canAccess"
                                                    "parameterTypes" ["java.lang.Object"]}]}
                                       hmap))
                                   (cheshire/parse-stream (clojure.java.io/reader "./private/agent/reflect-config.json")))
@@ -53,25 +54,21 @@
                             {:pretty true}))
 
 
-
 (defn image
 
   "Builds a native image."
 
   []
 
-  (let [^String path (or (first *command-line-args*)
-                         (throw (ex-info "Path to directly-linked uberjar required"
-                                         {})))]
-    (apply bb.task/shell
-           "native-image"
-           "-jar"
-           (str "build/uberjar/"
-                (.substring path
-                            1)
-                ".jar")
-           "--initialize-at-build-time"
-           "--no-fallback"
-           "--no-server"
-           "-H:+ReportExceptionStackTraces"
-           (rest *command-line-args*))))
+  (apply bb.task/shell
+         "native-image"
+         "-jar"
+         (-> (maestro.required/create-basis)
+             (get-in [:aliases
+                      (edn/read-string (first *command-line-args*))
+                      :maestro.build.path/output]))
+         "--initialize-at-build-time"
+         "--no-fallback"
+         "--no-server"
+         "-H:+ReportExceptionStackTraces"
+         (rest *command-line-args*)))

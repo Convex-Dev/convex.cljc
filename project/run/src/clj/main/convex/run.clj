@@ -134,6 +134,6 @@
     (catch Throwable _ex
       (println "An unknown exception happened.")
       (flush)
-      (when (not= (System/getenv "CONVEX_DEV")
+      (when (not= (System/getProperty "convex.dev")
                   "true")
         (System/exit 42)))))

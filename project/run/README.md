@@ -79,7 +79,7 @@ First, an uberjar with direct-linking must be created:
 $ bb uberjar:direct :project/run
 ```
 
-Uberjar should now be located under `./build/uberjar/project/run.jar`. It is usable with any JVM:
+Uberjar should now be located under `./private/target/run.uber.jar`. It is usable with any JVM:
 
 ```bash
 $ java -jar ./build/uberjar/project/run.jar
@@ -97,4 +97,4 @@ $ bb native:image :project/jar
 ```
 
 After a few minutes of work and lots of memory usage, native binary for your system will be available under
-`./build/native/project/run`.
+`./private/target/run`.
