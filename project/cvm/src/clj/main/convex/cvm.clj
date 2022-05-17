@@ -42,7 +42,8 @@
            (convex.core.lang AFn
                              AOp
                              Context)
-           (convex.core.lang.impl ErrorValue))
+           (convex.core.lang.impl AExceptional
+                                  ErrorValue))
   (:refer-clojure :exclude [compile
                             def
                             eval
@@ -195,17 +196,17 @@
    An exception code can be provided as a filter, meaning that even if an exception occured, this
    functions will return nil unless that exception has the given `code`.
   
-   Also see [[code-std*]] for easily retrieving an official error code. Note that in practice, unlike the CVM
+   Also see [[convex.cell/code-std*]] for easily retrieving an official error code. Note that in practice, unlike the CVM
    itself or any of the core function, a user Convex function can return anything as a code."
 
 
-  ([^Context ctx]
+  (^AExceptional [^Context ctx]
 
    (when (.isExceptional ctx)
      (.getExceptional ctx)))
 
 
-  ([^ACell code ^Context ctx]
+  (^AExceptional [^ACell code ^Context ctx]
 
    (when (.isExceptional ctx)
      (let [e (.getExceptional ctx)]
@@ -233,6 +234,34 @@
      (= code
         (.getCode (.getExceptional ctx)))
      false)))
+
+
+
+(defn exception-code
+
+  "Returns the code associated with the given [[exception]].
+  
+   Often a CVX keyword but could be any CVX value."
+
+  ^ACell
+
+  [^AExceptional exception]
+
+  (.getCode exception))
+
+
+
+(defn exception-message
+
+  "Returns the message associated with the given [[exception]].
+
+   Often a CVX string but could be any CVX value."
+
+  ^ACell
+
+  [^AExceptional exception]
+
+  (.getMessage exception))
 
 
 
