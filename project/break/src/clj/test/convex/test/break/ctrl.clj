@@ -4,16 +4,15 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.string]
-            [clojure.test.check.generators :as TC.gen]
+  (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
-            [convex.break]
-            [convex.cvm                    :as $.cvm]
-            [convex.clj.eval               :as $.clj.eval]
-            [convex.clj                    :as $.clj]
-            [convex.clj.gen                :as $.clj.gen]
-            [convex.clj.translate          :as $.clj.translate]
+            [convex.break                  :as $.break]
+            [convex.break.gen              :as $.break.gen]
             [convex.cell                   :as $.cell]
+            [convex.cvm                    :as $.cvm]
+            [convex.eval                   :as $.eval]
+            [convex.gen                    :as $.gen]
+            [convex.std                    :as $.std]
             [helins.mprop                  :as mprop]))
 
 
@@ -30,22 +29,23 @@
    (if (<= n
            0)
      form
-     ($.clj/templ* ((fn []
-                      ~(-nested-fn (dec n)
-                                   form))))))
+     ($.cell/* ((fn []
+                  ~(-nested-fn (dec n)
+                               form))))))
 
   ([n form x-ploy]
 
    (-nested-fn n
-               ($.clj/templ* (do
-                               ~form
-                               ~x-ploy))))
+               ($.cell/* (do
+                           ~form
+                           ~x-ploy))))
 
 
   ([n sym x-ploy x-return]
 
    (-nested-fn n
-               ($.clj/templ* (~sym ~x-return))
+               ($.cell/list [sym
+                             x-return])
                x-ploy)))
 
 
@@ -66,12 +66,13 @@
   {:ratio-num 10}
 
   (TC.prop/for-all [n        gen-nest
-                    x-ploy   $.clj.gen/any
-                    x-return $.clj.gen/truthy]
-    ($.clj.eval/code? ($.cell/code-std* :ASSERT)
-                      (-nested-fn n
-                                  ($.clj/templ* (assert (not ~x-return)))
-                                  x-ploy))))
+                    x-ploy   $.gen/any
+                    x-return ($.gen/quoted $.gen/truthy)]
+    (= ($.cell/code-std* :ASSERT)
+       ($.eval/exception-code $.break/ctx
+                              (-nested-fn n
+                                          ($.cell/* (assert (not ~x-return)))
+                                          x-ploy)))))
 
 
 
@@ -83,57 +84,62 @@
 
   (TC.prop/for-all [[falsy+
                      mix+
-                     truthy+] (TC.gen/bind (TC.gen/tuple (TC.gen/vector $.clj.gen/falsy
-                                                                        1
-                                                                        16)
-                                                         (TC.gen/vector $.clj.gen/truthy
-                                                                        1
-                                                                        16))
-                                           (fn [[falsy+ truthy+]]
-                                             (TC.gen/tuple (TC.gen/return falsy+)
-                                                           (TC.gen/shuffle (concat falsy+
-                                                                                   truthy+))
-                                                           (TC.gen/return truthy+))))]
+                     truthy+] (TC.gen/fmap (fn [[falsy+ truthy+]]
+                                             [falsy+
+                                              ($.cell/vector (shuffle (concat falsy+
+                                                                              truthy+)))
+                                              truthy+])
+                                           (TC.gen/tuple ($.gen/vector $.gen/falsy
+                                                                       1
+                                                                       16)
+                                                         ($.gen/vector ($.gen/quoted $.gen/truthy)
+                                                                       1
+                                                                       16)))]
     (mprop/mult
 
       "`and` on falsy"
 
-      ($.clj.eval/result* (= ~(first falsy+)
-                             (and ~@falsy+)))
+      ($.eval/true? $.break/ctx
+                    ($.cell/* (= ~(first falsy+)
+                                (and ~@falsy+))))
 
 
       "`and` on mixed"
 
-      ($.clj.eval/result* (= ~(first (filter (comp not
-                                                   boolean)
-                                             mix+))
-                             (and ~@mix+)))
+      ($.eval/true? $.break/ctx
+                    ($.cell/* (= (first (filter (comp not
+                                                      boolean)
+                                                ~mix+))
+                                 (and ~@mix+))))
 
 
       "`and` on truthy"
 
-      ($.clj.eval/result* (= ~(last truthy+)
-                             (and ~@truthy+)))
+      ($.eval/true? $.break/ctx
+                    ($.cell/* (= ~(last truthy+)
+                                 (and ~@truthy+))))
 
 
       "`or` on falsy"
 
-      ($.clj.eval/result* (= ~(last falsy+)
-                             (or ~@falsy+)))
+      ($.eval/true? $.break/ctx
+                    ($.cell/* (= ~(last falsy+)
+                                 (or ~@falsy+))))
 
       
       "`or` on mixed"
 
-      ($.clj.eval/result* (= ~(first (filter boolean
-                                             mix+))
-                             (or ~@mix+)))
+      ($.eval/true? $.break/ctx
+                    ($.cell/* (= (first (filter boolean
+                                                ~mix+))
+                                 (or ~@mix+))))
 
 
       "`or` on truthy"
 
-      ($.clj.eval/result* (= ~(first truthy+)
-                             (or ~@truthy+))))))
-
+      ($.eval/true? $.break/ctx
+                    ($.cell/* (= ~(first truthy+)
+                                 (or ~@truthy+)))))))
 
 
 
@@ -141,30 +147,30 @@
 
   {:ratio-num 5}
 
-  (TC.prop/for-all [else? $.clj.gen/boolean
-                    x+    (TC.gen/vector (TC.gen/tuple $.clj.gen/boolean
-                                                       (TC.gen/one-of [$.clj.gen/falsy
-                                                                       $.clj.gen/truthy]))
-                                         1
-                                         16)]
-    ($.clj.eval/result* (= ~(or (first (into []
-                                             (comp (map second)
-                                                   (filter boolean)
-                                                   (take 1))
-                                             x+))
-                                (when else?
-                                  (second (peek x+))))
-                           (cond
-                             ~@(cond->
-                                 (mapcat (fn [[identity? x]]
-                                           [(if identity?
-                                              (list 'identity
+  (TC.prop/for-all [else? TC.gen/boolean
+                    x+    (TC.gen/vector (TC.gen/tuple TC.gen/boolean
+                                                       (TC.gen/one-of [$.gen/falsy
+                                                                       ($.gen/quoted $.gen/truthy)]))
+                                          1
+                                          16)]
+    ($.eval/true? $.break/ctx
+                  ($.cell/* (= (or (let [truthy-out+ (filter boolean
+                                                             ~($.cell/vector (map second
+                                                                                  x+)))]
+                                     (when (not (empty? truthy-out+))
+                                       (first truthy-out+)))
+                                   ~(when else?
+                                      (second (peek x+))))
+                               (cond
+                                 ~@(cond->
+                                     (mapcat (fn [[identity? x]]
+                                                 [(if identity?
+                                                    ($.cell/* (identity ~x))
                                                     x)
-                                              x)
-                                            x])
-                                         x+)
-                                 else?
-                                 butlast))))))
+                                                  x])
+                                             x+)
+                                     else?
+                                     butlast)))))))
 
 
 
@@ -174,49 +180,49 @@
 
   (TC.prop/for-all [n       gen-nest
                     code    (TC.gen/such-that some?
-                                              $.clj.gen/any)
-                    message $.clj.gen/any
-                    x-ploy  $.clj.gen/any]
-    (let [exec      (fn [form]
-                      ($.clj.eval/exception (-nested-fn n
-                                                        form
-                                                        x-ploy)))
-          message-2 ($.clj.eval/result message)]
+                                              $.gen/any)
+                    message $.gen/any
+                    x-ploy  $.gen/any]
+    (let [exec (fn [form]
+                 ($.eval/exception $.break/ctx
+                                   (-nested-fn n
+                                               form
+                                               x-ploy)))]
       (mprop/mult
 
         "Without code"
 
-        (let [ret (exec ($.clj/templ* (fail ~message)))]
+        (let [ex (exec ($.cell/* (fail (quote ~message))))]
           (mprop/mult
 
-            "No code"
+            "Default code"
 
-            (= :ASSERT
-               (ret :convex.exception/code))
+            (= ($.cell/code-std* :ASSERT)
+               ($.cvm/exception-code ex))
 
 
             "Message"
 
-            ($.clj/= message-2
-                     (ret :convex.exception/message))))
+            (= message
+               ($.cvm/exception-message ex))))
 
 
         "With code"
 
-        (let [ret (exec ($.clj/templ* (fail ~code
-                                             ~message)))]
+        (let [ex (exec ($.cell/* (fail (quote ~code)
+                                       (quote ~message))))]
           (mprop/mult
 
             "Code"
 
-            ($.clj/= ($.clj.eval/result code)
-                     (ret :convex.exception/code))
+            (= code
+               ($.cvm/exception-code ex))
 
 
             "Message"
 
-            ($.clj/= message-2
-                     (ret :convex.exception/message))))))))
+            (= message
+               ($.cvm/exception-message ex))))))))
 
 
 
@@ -225,28 +231,30 @@
   {:ratio-num 7}
 
   (TC.prop/for-all [n        gen-nest
-                    x-ploy   $.clj.gen/any
-                    x-return $.clj.gen/any]
+                    x-ploy   $.gen/any
+                    x-return $.gen/any]
     (mprop/mult
 
       "`halt`"
 
-      ($.clj/= ($.clj.eval/result x-return)
-               ($.clj.eval/result (-nested-fn n
-                                              'halt
-                                              x-ploy
-                                              x-return)))
+      (= x-return
+         ($.eval/result $.break/ctx
+                        (-nested-fn n
+                                    ($.cell/* halt)
+                                    x-ploy
+                                    ($.cell/quoted x-return))))
 
 
       "`return`"
 
-      ($.clj/= ($.clj.eval/result* [~x-return
-                                    ~x-ploy])
-               ($.clj.eval/result* [~(-nested-fn n
-                                                 'return
-                                                 x-ploy
-                                                 x-return)
-                                    ~x-ploy])))))
+      (= ($.cell/* [~x-return
+                    ~x-ploy])
+         ($.eval/result $.break/ctx
+                        ($.cell/vector [(-nested-fn n
+                                                    ($.cell/* return)
+                                                    ($.cell/quoted x-ploy)
+                                                    ($.cell/quoted x-return))
+                                        ($.cell/quoted x-ploy)]))))))
 
 
 
@@ -254,94 +262,95 @@
 
   {:ratio-num 7}
 
-  (TC.prop/for-all [sym    $.clj.gen/symbol
-                    falsy  $.clj.gen/falsy
-                    truthy $.clj.gen/truthy]
-    (let [ctx ($.clj.eval/ctx* (do
-                                 (def tag-false
-                                      [:tag ~falsy])
-                                 (def tag-true
-                                      [:tag ~truthy])))]
+  (TC.prop/for-all [sym    $.gen/symbol
+                    falsy  $.gen/falsy
+                    truthy ($.gen/quoted $.gen/truthy)]
+    (let [ctx ($.eval/ctx $.break/ctx
+                          ($.cell/* (do
+                                      (def tag-false
+                                           [:tag ~falsy])
+                                      (def tag-true
+                                           [:tag ~truthy]))))]
      (mprop/mult
 
        "`if` false"
 
-       ($.clj.eval/result* ctx
-                           (= tag-false
-                              (if ~falsy
-                                tag-true
-                                tag-false)))
+       ($.eval/true? ctx
+                     ($.cell/* (= tag-false
+                                  (if ~falsy
+                                    tag-true
+                                    tag-false))))
 
 
        "`if` true"
 
-       ($.clj.eval/result* ctx
-                           (= tag-true
-                              (if ~truthy
-                                tag-true
-                                tag-false)))
+       ($.eval/result ctx
+                      ($.cell/* (= tag-true
+                                   (if ~truthy
+                                     tag-true
+                                     tag-false))))
 
 
        "`if-let` false"
 
-       ($.clj.eval/result* ctx
-                           (= tag-false
-                              (if-let [~sym ~falsy]
-                                tag-true
-                                tag-false)))
+       ($.eval/result ctx
+                      ($.cell/* (= tag-false
+                                   (if-let [~sym ~falsy]
+                                     tag-true
+                                     tag-false))))
 
 
        "`if-let` true"
 
-       ($.clj.eval/result* ctx
-                           (= tag-true
-                              (if-let [~sym ~truthy]
-                                tag-true
-                                tag-false)))
+       ($.eval/result ctx
+                      ($.cell/* (= tag-true
+                                   (if-let [~sym ~truthy]
+                                     tag-true
+                                     tag-false))))
 
 
        "`when` false"
 
-       ($.clj.eval/result* ctx
-                           (nil? (when ~falsy
-                                   tag-true)))
+       ($.eval/result ctx
+                      ($.cell/* (nil? (when ~falsy
+                                        tag-true))))
 
 
        "`when` true"
 
-       ($.clj.eval/result* ctx
-                           (= tag-true
-                              (when ~truthy
-                                tag-true)))
+       ($.eval/result ctx
+                      ($.cell/* (= tag-true
+                                   (when ~truthy
+                                     tag-true))))
 
 
        "`when-let` false"
 
-       ($.clj.eval/result* ctx
-                           (nil? (when-let [~sym ~falsy]
-                                   tag-true)))
+       ($.eval/result ctx
+                      ($.cell/* (nil? (when-let [~sym ~falsy]
+                                        tag-true))))
 
 
        "`when-let` true"
 
-       ($.clj.eval/result* ctx
-                           (= tag-true
-                              (when-let [~sym ~truthy]
-                                tag-true)))
+       ($.eval/result ctx
+                      ($.cell/* (= tag-true
+                                   (when-let [~sym ~truthy]
+                                     tag-true))))
 
 
        "`when-not` false"
 
-       ($.clj.eval/result* ctx
-                           (= tag-false
-                              (when-not ~falsy
-                                tag-false)))
+       ($.eval/result ctx
+                      ($.cell/* (= tag-false
+                                   (when-not ~falsy
+                                     tag-false))))
 
        "`when-not` true"
 
-       ($.clj.eval/result* ctx
-                           (nil? (when-not ~truthy
-                                   tag-true)))))))
+       ($.eval/result ctx
+                      ($.cell/* (nil? (when-not ~truthy
+                                        tag-true))))))))
 
 
 
@@ -350,51 +359,56 @@
   {:ratio-num 7}
 
   (TC.prop/for-all [n        gen-nest
-                    sym      $.clj.gen/symbol
-                    x-env    $.clj.gen/any
-                    x-return $.clj.gen/any
-                    x-ploy   $.clj.gen/any]
-    (let [ctx ($.clj.eval/ctx* (do
-                                 (def ~sym
-                                      ~x-env)
-                                 ~(-nested-fn n
-                                              'rollback
-                                              x-ploy
-                                              x-return)
-                                 ~x-ploy))]
+                    sym      $.gen/symbol
+                    x-env    $.gen/any
+                    x-return $.gen/any
+                    x-ploy   $.gen/any]
+    (let [ctx ($.eval/ctx $.break/ctx
+                          ($.cell/* (do
+                                      (def ~sym
+                                           (quote ~x-env))
+                                      ~(-nested-fn n
+                                                   ($.cell/* rollback)
+                                                   x-ploy
+                                                   ($.cell/quoted x-return))
+                                      (quote ~x-ploy))))]
       (mprop/mult
 
         "Returned value is the rollback value"
 
-        ($.clj/= ($.clj.eval/result x-return)
-                 (-> ctx
-                     $.cvm/result
-                     $.clj.translate/cvx->clj))
+        (= x-return
+           ($.cvm/result ctx))
 
 
         "State has been rolled back"
 
-        (let [form '(hash (encoding *state*))]
-          ($.clj/= ($.clj.eval/result form)
-                   ($.clj.eval/result ctx
-                                        form)))))))
+        (let [form ($.cell/* (hash (encoding *state*)))]
+          (= ($.eval/result $.break/ctx
+                            form)
+             ($.eval/result ctx
+                            form)))))))
 
 
 ;;;;;;;;;; Negative tests
 
 
 ;; TODO. Fails because of: https://github.com/Convex-Dev/convex/issues/163
-;;
+;; 
 ;; (mprop/deftest x-let--error-cast
 ;; 
 ;;   ;; Any binding form that is not a vector should be rejected.
 ;; 
-;;   (TC.prop/for-all [bindvec ($.clj.gen/any-but #{$.clj.gen/vector})
-;;                     sym     (TC.gen/elements ['if-let
-;;                                               'when-let])]
-;;     ($.clj.eval/code?* :CAST
-;;                        (~sym ~bindvec
-;;                              42))))
+;;   (TC.prop/for-all [bindvec (TC.gen/such-that #(not ($.std/vector? %))
+;;                                               $.gen/any)
+;;                     sym     (TC.gen/elements [($.cell/* if-let)
+;;                                               ($.cell/* when-let)])]
+;;                    (println :got ($.eval/exception-code $.break/ctx
+;;                               ($.cell/* (~sym ~bindvec
+;;                                               42))))
+;;     (= ($.cell/code-std* :CAST)
+;;        ($.eval/exception-code $.break/ctx
+;;                               ($.cell/* (~sym ~bindvec
+;;                                               42))))))
 
 
 
@@ -402,14 +416,15 @@
 
   ;; `if-let` and `when-let` should only accept one binding.
 
+  ;; TODO. Test non-symbolic bindings.
+
   {:ratio-num 5}
 
-  (TC.prop/for-all [binding+ ($.clj.gen/binding+ 2
-	                                             8)
-                    sym      (TC.gen/elements ['if-let
-                                               'when-let])]
-    ($.clj.eval/code?* :ARITY
-                       (~sym ~(into []
-                                    (mapcat identity)
-                                    binding+)
-                             42))))
+  (TC.prop/for-all [binding+ ($.break.gen/binding+ 2
+	                                               8)
+                    sym      (TC.gen/elements [($.cell/* if-let)
+                                               ($.cell/* when-let)])]
+    (= ($.cell/code-std* :ARITY)
+       ($.eval/exception-code $.break/ctx
+                              ($.cell/* (~sym ~binding+
+                                              42))))))
