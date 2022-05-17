@@ -584,6 +584,19 @@
    (Vectors/create x)))
 
 
+;;;;;;;;;; Miscellaneous
+
+
+(defn quoted
+
+  "Wraps `x` in `quote`."
+
+  [x]
+
+  (list [(symbol "quote")
+         x]))
+
+
 ;;;;;;;;;; Generic conversion Clojure -> Convex
 
 

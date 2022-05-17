@@ -52,6 +52,7 @@
                             ==
                             >=
                             >
+                            abs
                             assoc
                             byte
                             boolean?
@@ -69,6 +70,7 @@
                             double?
                             empty
                             empty?
+                            false?
                             find
                             get
                             hash-map
@@ -95,6 +97,7 @@
                             string?
                             symbol
                             symbol?
+                            true?
                             vals
                             vec
                             vector
@@ -918,7 +921,7 @@
 
 (defn zero?
 
-  "Like classic `+` but for cells."
+  "Like classic `zero?` but for cells."
 
   [^ACell x]
 
@@ -1077,7 +1080,7 @@
       (throw (IllegalArgumentException. "Must be symbolic"))))
 
 
-;;;;;;;;; Type predicates
+;;;;;;;;; Predicates
 
 
 (defn address?
@@ -1188,6 +1191,16 @@
   (instance? CVMDouble
              x))
 
+
+
+(defn false?
+
+  "Is `x` a `false` cell?"
+
+  [x]
+
+  (= x
+     CVMBool/FALSE))
 
 
 (defn hash-map?
@@ -1312,6 +1325,17 @@
 
   (instance? Syntax
              x))
+
+
+
+(defn true?
+
+  "Is `x` a `true` cell?"
+
+  [x]
+
+  (= x
+     CVMBool/TRUE))
 
 
 
