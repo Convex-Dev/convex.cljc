@@ -703,7 +703,7 @@
                               gen-meta))))
 
 
-;;;;;;;;;; Miscellaneous
+;;;;;;;;;; Bool-like
 
 
 (def falsy
@@ -724,6 +724,20 @@
                            (not= x
                                  ($.cell/* false))))
                     any))
+
+
+;;;;;;;;;; Miscellaneous
+
+
+(defn tuple
+
+  "CVX vector where each of the given generator respectively produces an item."
+
+  [& generator+]
+
+  (TC.gen/fmap $.cell/vector
+               (apply TC.gen/tuple
+                      generator+)))
 
 
 ;;;;;;;;;;
