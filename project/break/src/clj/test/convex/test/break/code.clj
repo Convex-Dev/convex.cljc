@@ -5,9 +5,10 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.test.check.properties :as TC.prop]
-            [convex.break]
-            [convex.clj.eval               :as $.clj.eval]
-            [convex.clj.gen                :as $.clj.gen]
+            [convex.break                  :as $.break]
+            [convex.cell                   :as $.cell]
+            [convex.eval                   :as $.eval]
+            [convex.gen                    :as $.gen]
             [helins.mprop                  :as mprop]))
 
 
@@ -18,51 +19,51 @@
 
   {:ratio-num 10}
 
-  (TC.prop/for-all [x $.clj.gen/any]
-    (let [ctx ($.clj.eval/ctx* (do
-                                 (def x
-                                      ~x)
-                                 (def form
-                                      (quasiquote (fn []
-                                                    (quote (unquote x)))))
-                                 (def eval-
-                                      (eval form))))]
+  (TC.prop/for-all [x ($.gen/quoted $.gen/any)]
+    (let [ctx ($.eval/ctx $.break/ctx
+                          ($.cell/* (do
+                                      (def x
+                                           ~x)
+                                      (def form
+                                           (quasiquote (fn []
+                                                         (quote (unquote x)))))
+                                      (def eval-
+                                           (eval form)))))]
       (mprop/mult
 
         "Data evaluates to itself"
 
-        ($.clj.eval/result ctx
-                           '(= x
-                               (eval 'x)))
+        ($.eval/true? ctx
+                      ($.cell/* (= x
+                                   (eval 'x))))
 
 
         "Call evaluated function"
 
-        ($.clj.eval/result ctx
-                           '(= x
-                               (eval-)))
+        ($.eval/true? ctx
+                      ($.cell/* (= x
+                                   (eval-))))
 
 
         "Expanding form prior to `eval` has no impact"
 
-        ($.clj.eval/result ctx
-                           '(= eval-
-                               (eval (expand form))))
+        ($.eval/true? ctx
+                      ($.cell/* (= eval-
+                                   (eval (expand form)))))
 
 
         "Compiling form prior to `eval` has no impact"
 
-        ($.clj.eval/result ctx
-                           '(= eval-
-                               (eval (compile form))))
+        ($.eval/true? ctx
+                      ($.cell/* (= eval-
+                                   (eval (compile form)))))
 
 
         "Expanding and compiling form prior to `eval` has no impact"
 
-        ($.clj.eval/result ctx
-                           '(= eval-
-                               (eval (compile (expand form)))))))))
-
+        ($.eval/true? ctx
+                      ($.cell/* (= eval-
+                                   (eval (compile (expand form))))))))))
 
 
 
@@ -70,20 +71,22 @@
 
   {:ratio-num 10}
 
-  (TC.prop/for-all [sym $.clj.gen/symbol
-                    x   $.clj.gen/any]
-    ($.clj.eval/result* (let [addr (deploy '(set-controller *caller*))]
-                          (eval-as addr
-                                   '(def ~sym
-                                         ~x))
-                          (= ~x
-                             (lookup addr
-                                     ~sym))))))
+  (TC.prop/for-all [sym $.gen/symbol
+                    x   ($.gen/quoted $.gen/any)]
+    ($.eval/true? $.break/ctx
+                  ($.cell/* (let [addr (deploy '(set-controller *caller*))]
+                              (eval-as addr
+                                       '(def ~sym
+                                             ~x))
+                              (= ~x
+                                 (lookup addr
+                                         ~sym)))))))
+
 
 
 ;; TODO. When expanders are stabilized.
 ;;
-;; ($.test.prop/deftest expand--)
+;; (mprop/deftest expand--)
 
 
 ;;;;;;;;;;

@@ -7,11 +7,52 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.test.check.generators :as TC.gen]
+            [convex.cell                   :as $.cell]
+            [convex.gen                    :as $.gen])
+
+  #_(:require [clojure.test.check.generators :as TC.gen]
             [convex.cvm                    :as $.cvm]
             [convex.clj.eval               :as $.clj.eval]
             [convex.clj                    :as $.clj]
             [convex.clj.gen                :as $.clj.gen]
             [convex.clj.translate          :as $.clj.translate]))
+
+
+
+
+(defn binding+
+
+  "Vector of `[symbol (quote any)] ]` where symbols are garanteed to be unique.
+
+   An alternative generator for values can be provided.
+  
+   Useful for generating `let`-like bindings."
+
+
+  ([n-min n-max]
+
+   (binding+ n-min
+             n-max
+             $.gen/any))
+
+
+  ([n-min n-max gen-value]
+
+   (TC.gen/let [sym+ (TC.gen/vector-distinct $.gen/symbol
+                                             {:max-elements n-max
+                                              :min-elements n-min})
+                x+   (TC.gen/vector (TC.gen/fmap $.cell/quoted
+                                                 gen-value)
+                                    (count sym+))]
+     ($.cell/vector (interleave sym+
+                                x+)))))
+
+
+
+(comment
+
+
+
 
 
 (declare kv+)
@@ -146,3 +187,6 @@
   (TC.gen/generate core-symbol
                    30)
   )
+
+
+)

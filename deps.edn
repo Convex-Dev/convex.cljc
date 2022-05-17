@@ -74,12 +74,20 @@
    :maestro/doc "Writing generative tests and generators for internal libraries"}
 
 
+  ;; USEFUL BUNDLES OF ALIASES
+
+  :bundle/test
+  {:maestro/doc     "Test utilities"
+   :maestro/require [:ext/kaocha
+                     :ext/mprop
+                     :ext/test.check]}
+
 
 
   ;; FOR TASKS
 
   :task/deploy
-  {:maestro/doc     "Deploy to Clojars"
+  {:maestro/doc     "Installing or deploying artifacts"
    :maestro/require [:ext/deps-deploy]}
 
 
@@ -88,17 +96,16 @@
   {:extra-paths     ["dev"]
    :jvm-opts        ["-Dconvex.dev=true"]
    :maestro/doc     "Automatically invoked during dev, brings commonly needed utilities"
-   :maestro/require [:ext/criterium]}
+   :maestro/require [:bundle/test
+                     :ext/criterium]}
 
 
   :task/test
 
   {:main-opts       ["-m"            "kaocha.runner"
                      "--config-file" "kaocha.edn"]
-   :maestro/doc     "Automatically invoked during testing, brings Kaocha and commonly needed utilities"
-   :maestro/require [:ext/kaocha
-                     :ext/mprop
-                     :ext/test.check]}
+   :maestro/doc     "Automatically invoked during testing"
+   :maestro/require [:bundle/test]}
 
 
 
@@ -137,6 +144,7 @@
    :maestro/doc     "Advanced generative testing against the CVM"
    :maestro/require [:project/clojurify
                      :project/cvm
+                     :project/gen
                      {dev :dev/break}
                      {test :test/break}]}
 
