@@ -690,6 +690,27 @@
 
 
 
+(declare ^:no-doc -*)
+
+
+
+(defn ^:no-doc -splice
+
+  ;; Offers unquote splicing support for [[-*]].
+
+  [x+]
+  
+  (list* 'concat
+         (clojure.core/map (fn [x]
+                             (if (and (seq? x)
+                                      (clojure.core/= (first x)
+                                                      'clojure.core/unquote-splicing))
+                               (second x)
+                               [(-* x)]))
+                           x+)))
+
+
+
 (defn- ^:no-doc -*
 
   ;; Helper for [[*]].
@@ -699,17 +720,16 @@
   (cond
     (clojure.core/seq? form)    (condp clojure.core/=
                                        (first form)
-                                  'clojure.core/unquote      (second form)
-                                  `(list ~(clojure.core/mapv -*
-                                                             form)))
+                                  'clojure.core/unquote          (second form)
+                                  'clojure.core/unquote-splicing (throw (ex-info "Can only splice inside of a collection"
+                                                                                 {::form form}))
+                                  `(list ~(-splice form)))
     (clojure.core/map? form)    `(map ~(clojure.core/mapv (fn [[k v]]
                                                             [(-* k)
                                                              (-* v)])
                                                           form))
-    (clojure.core/set? form)    `(set ~(clojure.core/mapv -*
-                                                          form))
-    (clojure.core/vector? form) `(vector ~(clojure.core/mapv -*
-                                                             form))
+    (clojure.core/set? form)    `(set ~(-splice form))
+    (clojure.core/vector? form) `(vector ~(-splice form))
     (clojure.core/symbol? form) (let [nmspace (namespace form)
                                       nm      (name form)]
                                   (if nmspace
@@ -727,6 +747,8 @@
   
    Convex types can be inserted using `~`, especially useful for inserting values dynamically or inserting types
    that have no equivalent in Clojure (eg. `address`).
+
+   Also understands `~@` (aka unquote splicing).
    
 
    ```clojure

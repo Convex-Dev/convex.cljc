@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Function from extracting information from CVX exceptions
+- Support for unquote splicing in `$.cell/*`
 
 ### Changed
 
