@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Generators
+    - `falsy`
+    - `truthy`
+
 ### Changed
 
 ### Fixed

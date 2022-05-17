@@ -701,3 +701,38 @@
                                  m))
                 (TC.gen/tuple gen-value
                               gen-meta))))
+
+
+;;;;;;;;;; Miscellaneous
+
+
+(def falsy
+
+  "False or nil."
+
+  (TC.gen/one-of [nothing
+                  (TC.gen/return ($.cell/* false))]))
+
+
+
+(def truthy
+
+  "Like `any` but neither false nor nil."
+
+  (TC.gen/such-that (fn [x]
+                      (and (some? x)
+                           (not= x
+                                 ($.cell/* false))))
+                    any))
+
+
+;;;;;;;;;;
+
+
+(comment
+
+
+  (TC.gen/generate truthy)
+
+
+  )
