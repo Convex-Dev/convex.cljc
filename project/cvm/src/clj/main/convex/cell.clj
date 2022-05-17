@@ -710,7 +710,13 @@
                                                           form))
     (clojure.core/vector? form) `(vector ~(clojure.core/mapv -*
                                                              form))
-    (clojure.core/symbol? form) `(symbol ~(name form))
+    (clojure.core/symbol? form) (let [nmspace (namespace form)
+                                      nm      (name form)]
+                                  (if nmspace
+                                    `(list [(symbol "lookup")
+                                            (symbol ~nmspace)
+                                            (symbol ~nm)])
+                                    `(symbol ~nm)))
     :else                       `(any ~form)))
 
 

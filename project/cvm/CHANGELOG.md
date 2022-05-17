@@ -12,6 +12,8 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- `$.cell/*` properly converts namespaced symbols to CVX lookups
+
 ### Removed
 
 
