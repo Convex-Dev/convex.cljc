@@ -6,9 +6,11 @@
 
   (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
-            [convex.break]
-            [convex.clj.eval               :as $.clj.eval]
-            [convex.clj.gen                :as $.clj.gen]
+            [convex.break                  :as $.break]
+            [convex.cell                   :as $.cell]
+            [convex.eval                   :as $.eval]
+            [convex.gen                    :as $.gen]
+            [convex.std                    :as $.std]
             [helins.mprop                  :as mprop]))
 
 
@@ -19,23 +21,26 @@
 
   {:ratio-num 10}
 
-  (let [gen-meta (TC.gen/one-of [$.clj.gen/map
-                                 $.clj.gen/nothing])]
-    (TC.prop/for-all [sym    $.clj.gen/symbol
-                      x      $.clj.gen/any
+  (let [gen-meta (TC.gen/one-of [$.gen/any-map
+                                 $.gen/nothing])]
+    (TC.prop/for-all [sym    $.gen/symbol
+                      x      (TC.gen/such-that (comp not
+                                                     $.std/syntax?)
+                                               $.gen/any)
                       meta-1 gen-meta
                       meta-2 gen-meta]
-      (let [ctx ($.clj.eval/ctx* (do
-                                   (def meta-1
-                                        ~meta-1)
-                                   (def meta-2
-                                        ~meta-2)
-                                   (def sym
-                                        (quote ~sym))
-                                   (def x
-                                        ~x)
-                                   (def ~sym
-                                        x)))]
+      (let [ctx ($.eval/ctx $.break/ctx
+                            ($.cell/* (do
+                                        (def meta-1
+                                             (quote ~meta-1))
+                                        (def meta-2
+                                             (quote ~meta-2))
+                                        (def sym
+                                             (quote ~sym))
+                                        (def x
+                                             (quote ~x))
+                                        (def ~sym
+                                             x))))]
         (mprop/and (mprop/check
 
                      "Without meta"
@@ -44,40 +49,40 @@
 
                        "`meta` returns empty map"
 
-                       ($.clj.eval/result ctx
-                                          '(= {}
-                                              (meta (syntax x))))
+                       ($.eval/true? ctx
+                                     ($.cell/* (= {}
+                                                  (meta (syntax x)))))
 
 
                        "No double wrapping"
 
-                       ($.clj.eval/result* ctx
-                                           (let [~sym (syntax x)]
-                                             (= ~sym
-                                                (syntax ~sym))))
+                       ($.eval/true? ctx
+                                     ($.cell/* (let [~sym (syntax x)]
+                                                 (= ~sym
+                                                    (syntax ~sym)))))
 
 
                        "Rewrapping with meta"
 
-                       ($.clj.eval/result* ctx
-                                           (let [~sym (syntax x)]
-                                             (= (syntax x
-                                                        meta-1)
-                                                (syntax ~sym
-                                                        meta-1))))
+                       ($.eval/true? ctx
+                                     ($.cell/* (let [~sym (syntax x)]
+                                                 (= (syntax x
+                                                            meta-1)
+                                                    (syntax ~sym
+                                                            meta-1)))))
 
 
                        "`syntax?`"
 
-                       ($.clj.eval/result ctx
-                                          '(syntax? (syntax x)))
+                       ($.eval/true? ctx
+                                     ($.cell/* (syntax? (syntax x))))
 
 
                        "`unsyntax`"
 
-                       ($.clj.eval/result ctx
-                                          '(= x
-                                              (unsyntax (syntax x))))))
+                       ($.eval/true? ctx
+                                     ($.cell/* (= x
+                                                  (unsyntax (syntax x)))))))
 
                    (mprop/check
 
@@ -86,43 +91,43 @@
 
                        "`meta` returns the given metadata"
 
-                       ($.clj.eval/result ctx
-                                          '(= (if (nil? meta-1)
-                                                {}
-                                                meta-1)
-                                              (meta (syntax x
-                                                            meta-1))))
+                       ($.eval/true? ctx
+                                     ($.cell/* (= (if (nil? meta-1)
+                                                    {}
+                                                    meta-1)
+                                                  (meta (syntax x
+                                                                meta-1)))))
 
 
                        "No double wrapping"
 
-                       ($.clj.eval/result* ctx
-                                           (let [~sym (syntax x
-                                                              meta-1)]
-                                             (= ~sym
-                                                (syntax ~sym
-                                                        meta-1))))
+                       ($.eval/true? ctx
+                                     ($.cell/* (let [~sym (syntax x
+                                                                  meta-1)]
+                                                 (= ~sym
+                                                    (syntax ~sym
+                                                            meta-1)))))
 
 
                        "Rewrapping with new metadata merges all metadata"
 
-                       ($.clj.eval/result ctx
-                                          '(= (merge meta-1
-                                                     meta-2)
-                                              (meta (syntax (syntax x
-                                                                    meta-1)
-                                                            meta-2))))
+                       ($.eval/true? ctx
+                                     ($.cell/* (= (merge meta-1
+                                                         meta-2)
+                                                  (meta (syntax (syntax x
+                                                                        meta-1)
+                                                                meta-2)))))
 
                        "`syntax?"
 
-                       ($.clj.eval/result ctx
-                                          '(syntax? (syntax x
-                                                            meta-1)))
+                       ($.eval/true? ctx
+                                     ($.cell/* (syntax? (syntax x
+                                                                meta-1))))
 
 
                        "`unsyntax`"
 
-                       ($.clj.eval/result ctx
-                                          '(= x
-                                              (unsyntax (syntax x
-                                                                meta-2)))))))))))
+                       ($.eval/true? ctx
+                                     ($.cell/* (= x
+                                                  (unsyntax (syntax x
+                                                                    meta-2))))))))))))
