@@ -69,7 +69,7 @@
 
 
 
-(def ^:private -string-symbolic
+(def ^:no-doc -string-symbolic
 
   ;; JVM string for building keyword and symbol cells.
 
