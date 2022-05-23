@@ -18,11 +18,38 @@
             [convex.clj.translate          :as $.clj.translate]))
 
 
+(defn binding-raw+
+
+  "Returns a 2-tuple containing a CVX vector of unique symbols and a CVX vector of quoted values.
+
+   Returned a Clojure vector for easy destructuring.
+
+   See [[binding+]]."
+
+
+  ([n-min n-max]
+
+   (binding-raw+ n-min
+                 n-max
+                 $.gen/any))
+
+
+  ([n-min n-max gen-value]
+
+   (TC.gen/let [sym+ (TC.gen/vector-distinct $.gen/symbol
+                                             {:max-elements n-max
+                                              :min-elements n-min})
+                x+   (TC.gen/vector (TC.gen/fmap $.cell/quoted
+                                                 gen-value)
+                                    (count sym+))]
+     [($.cell/vector sym+)
+      ($.cell/vector x+)])))
+
 
 
 (defn binding+
 
-  "Vector of `[symbol (quote any)] ]` where symbols are garanteed to be unique.
+  "Vector of `symbol value...` where symbols are garanteed to be unique.
 
    An alternative generator for values can be provided.
   
@@ -38,14 +65,13 @@
 
   ([n-min n-max gen-value]
 
-   (TC.gen/let [sym+ (TC.gen/vector-distinct $.gen/symbol
-                                             {:max-elements n-max
-                                              :min-elements n-min})
-                x+   (TC.gen/vector (TC.gen/fmap $.cell/quoted
-                                                 gen-value)
-                                    (count sym+))]
+   (TC.gen/let [[sym+
+                 x+]  (binding-raw+ n-min
+                                    n-max
+                                    gen-value)]
      ($.cell/vector (interleave sym+
                                 x+)))))
+
 
 
 

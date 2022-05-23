@@ -5,10 +5,12 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.test.check.properties :as TC.prop]
-            [convex.break]
-            [convex.clj.eval               :as $.clj.eval]
-            [convex.clj                    :as $.clj]
-            [convex.clj.gen                :as $.clj.gen]
+            [convex.break                  :as $.break]
+            [convex.break.gen              :as $.break.gen]
+            [convex.cell                   :as $.cell]
+            [convex.eval                   :as $.eval]
+            [convex.gen                    :as $.gen]
+            [convex.std                    :as $.std]
             [helins.mprop                  :as mprop]))
 
 
@@ -17,15 +19,16 @@
 
 (defn suite-fn?
 
-  "Tests is `form` evaluates to a function."
+  "Tests is `cell` evaluates to a function."
 
-  [form]
+  [cell]
 
   (mprop/check
 
     "`fn?`"
 
-    ($.clj.eval/result* (fn? ~form))))
+    ($.eval/true? $.break/ctx
+                  ($.cell/* (fn? ~cell)))))
 
 
 
@@ -34,10 +37,11 @@
   "Tests different ways of calling `form` as a function with `arg+` and ensuring it always
    returns `ret`."
 
-  [form arg+ ret]
+  [fn-cell arg+ ret]
 
-  (let [ctx ($.clj.eval/ctx* (def ret
-                                  ~ret))]
+  (let [ctx ($.eval/ctx $.break/ctx
+                        ($.cell/* (def ret
+                                       ~ret)))]
     (mprop/check
 
       "Calling a function"
@@ -46,44 +50,43 @@
 
         "Direct call"
 
-        ($.clj.eval/result* ctx
-                            (= ret
-                               (~form ~@arg+)))
+        ($.eval/true? ctx
+                      ($.cell/* (= ret
+                                   (~fn-cell ~@arg+))))
 
 
-        "After def"
+        "After defining the function"
 
-        (let [ctx-2 ($.clj.eval/ctx* ctx
-                                     (def f
-                                          ~form))]
+        (let [ctx-2 ($.eval/ctx ctx
+                                ($.cell/* (def f
+                                               ~fn-cell)))]
           (mprop/mult
 
             "`fn?`"
 
-            ($.clj.eval/result ctx-2
-                               '(fn? f))
+            ($.eval/true? ctx-2
+                          ($.cell/* (fn? f)))
 
 
             "Calling"
 
-            ($.clj.eval/result* ctx-2
-                                (= ret
-                                   (f ~@arg+)))))
+            ($.eval/true? ctx-2
+                          ($.cell/* (= ret
+                                       (f ~@arg+))))))
 
 
         "From `let`, `fn?`"
 
-        ($.clj.eval/result* ctx
-                            (let [f ~form]
-                              (fn? f)))
-
+        ($.eval/true? ctx
+                      ($.cell/* (let [f ~fn-cell]
+                                  (fn? f))))
 
         "From `let`, calling"
 
-        ($.clj.eval/result* ctx
-                            (let [f ~form]
-                              (= ret
-                                 (f ~@arg+))))))))
+        ($.eval/true? ctx
+                      ($.cell/* (let [f ~fn-cell]
+                                  (= ret
+                                     (f ~@arg+)))))))))
 
 
 ;;;;;;;;;; Tests
@@ -95,12 +98,12 @@
 
   {:ratio-num 10}
 
-  (TC.prop/for-all [x $.clj.gen/any]
-    (let [fn-form ($.clj/templ* (fn [] ~x))]
-      (mprop/and (suite-fn? fn-form)
-                 (suite-fn-call fn-form
+  (TC.prop/for-all [ret ($.gen/quoted $.gen/any)]
+    (let [fn-cell ($.cell/* (fn [] ~ret))]
+      (mprop/and (suite-fn? fn-cell)
+                 (suite-fn-call fn-cell
                                 nil
-                                x)))))
+                                ret)))))
 
 
 
@@ -110,18 +113,15 @@
 
   {:ratio-num 3}
 
-  (TC.prop/for-all [binding+ ($.clj.gen/binding+ 1
-                                                 16)]
-    (let [arg+    (mapv second
-                        binding+)
-          sym+    (mapv first
-                        binding+)
-          fn-form ($.clj/templ* (fn ~sym+
-                                    ~sym+))]
-      (mprop/and (suite-fn? fn-form)
-                 (suite-fn-call fn-form
-                                arg+
-                                arg+)))))
+  (TC.prop/for-all [[sym+
+                     x+]  ($.break.gen/binding-raw+ 1
+                                                    16)]
+    (let [fn-cell ($.cell/* (fn ~sym+
+                                ~sym+))]
+      (mprop/and (suite-fn? fn-cell)
+                 (suite-fn-call fn-cell
+                                x+
+                                x+)))))
 
 
 
@@ -131,54 +131,52 @@
 
   {:ratio-num 3}
 
-  (TC.prop/for-all [binding+ ($.clj.gen/binding+ 1
-                                                 16)]
-
-    (let [arg+       (mapv second
-                           binding+)
-          binding+   (mapv first
-                           binding+)
-          pos-amper  (rand-int (count binding+))
-          binding-2+ (vec (concat (take pos-amper
-                                        binding+)
-                                  ['&]
-                                  (drop pos-amper
-                                        binding+)))
-          fn-form    ($.clj/templ* (fn ~binding-2+
-                                       ~binding+))]
+  (TC.prop/for-all [[sym+
+                     x+]  ($.break.gen/binding-raw+ 1
+                                                    16)]
+    (let [i-amper     (rand-int (count sym+))
+          i-amper-cvx ($.cell/long i-amper)
+          sym-2+      ($.cell/vector (concat (take i-amper
+                                                   sym+)
+                                             [($.cell/* &)]
+                                             (drop i-amper
+                                                   sym+)))
+          fn-cell     ($.cell/* (fn ~sym-2+
+                                    ~sym+))]
       (mprop/mult
         
         "Right number of arguments"
 
-        (mprop/and (suite-fn? fn-form)
-                           (suite-fn-call fn-form
-                                          arg+
-                                          (update arg+
-                                                  pos-amper
-                                                  vector)))
+        (mprop/and (suite-fn? fn-cell)
+                   (suite-fn-call fn-cell
+                                  x+
+                                  ($.std/update x+
+                                                i-amper-cvx
+                                                (fn [x]
+                                                  ($.cell/* [~x])))))
 
 
         "1 argument less"
 
-        (suite-fn-call fn-form
-                       (vec (concat (take pos-amper
-                                          arg+)
-                                    (drop (inc pos-amper)
-                                          arg+)))
-                       (assoc arg+
-                              pos-amper
-                              []))
+        (suite-fn-call fn-cell
+                       ($.cell/vector (concat (take i-amper
+                                                    x+)
+                                              (drop (inc i-amper)
+                                                    x+)))
+                       ($.std/assoc x+
+                                    i-amper-cvx
+                                    ($.cell/* [])))
 
          
         "Extra argument"
 
-        (suite-fn-call fn-form
-                       (vec (concat (take pos-amper
-                                          arg+)
-                                    [42]
-                                    (drop pos-amper
-                                          arg+)))
-                       (update arg+
-                               pos-amper 
-                               #(vector 42
-                                        %)))))))
+        (suite-fn-call fn-cell
+                       ($.cell/vector (concat (take i-amper
+                                                    x+)
+                                              [($.cell/* 42)]
+                                              (drop i-amper
+                                                    x+)))
+                       ($.std/update x+
+                                     i-amper-cvx
+                                     #($.cell/* [42
+                                                 ~%])))))))

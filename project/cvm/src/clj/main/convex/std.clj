@@ -98,6 +98,7 @@
                             symbol
                             symbol?
                             true?
+                            update
                             vals
                             vec
                             vector
@@ -627,6 +628,21 @@
    (.get coll
          k
          not-found)))
+
+
+
+(defn update
+
+  "Akin to classic `update` but for collection cell."
+
+  ^ACell
+
+  [^ADataStructure coll ^ACell k f]
+
+  (assoc coll
+         k
+         (f (get coll
+                 k))))
 
 
 ;;;;;;;;;; Long
