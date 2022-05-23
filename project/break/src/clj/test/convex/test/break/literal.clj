@@ -1,76 +1,74 @@
 (ns convex.test.break.literal
 
-  "Testing literal notation of Convex data (scalar values and collections).
+  "Simply round-trip data through the CVM using a few ways, such as quoting, and ensure nothing changed."
   
-   Consists of a cycle such as:
-   
-   - Generate value as Clojure data
-   - Convert Clojure data to Convex Lisp source
-   - Read Convex Lisp source
-   - Eval Convex Lisp Source
-   - Convert result to Clojure data
-   - Result must be equal to generate value
-  
-   Also test quoting when relevant. For instance, like in Clojure, quoting a number must result in this very same number."
-
   {:author "Adam Helinski"}
 
-  (:require [clojure.test                  :as t]
+  (:require [clojure.test                  :as T]
             [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
-            [convex.break]
-            [convex.break.gen              :as $.break.gen]
-            [convex.clj.eval               :as $.clj.eval]
-            [convex.clj                    :as $.clj]
-            [convex.clj.gen                :as $.clj.gen]
+            [convex.break                  :as $.break]
+            [convex.cell                   :as $.cell]
+            [convex.eval                   :as $.eval]
+            [convex.gen                    :as $.gen]
             [helins.mprop                  :as mprop]))
 
 
 ;;;;;;;;;; Suites
 
 
-(defn suite-equal
+(defn prop-roundtrip
 
-  ""
-
-  [x]
-
-  (mprop/check
-
-    "`=` returns true when an item is compared with itself"
-    ($.clj.eval/result* (= ~x
-                           ~x))))
+  "Property checking that going through the CVM returns the given generated value and that quoting it has no impact.
+  
+   Optionally, also tests building values through constructor functions."
 
 
-;;;;;;;;;; Properties
+  ([gen]
+
+   (prop-roundtrip gen
+                  nil))
 
 
-(defn prop-quotable
+  ([gen ctor]
 
-  "Property checking that going through the CVM returns the given generated value and that quoting it has no impact." 
+   (TC.prop/for-all [x gen]
+     (mprop/mult
 
-  [gen]
+       "`=` returns true when an item is compared with itself"
 
-  (TC.prop/for-all [x gen]
-    (mprop/and
-      
-      (suite-equal x)
+       ($.eval/true? $.break/ctx
+                     ($.cell/* (= (quote ~x)
+                                  (quote ~x))))
 
-      (mprop/check
+       "Round-trip through the CVM"
 
-        "Round-trip through the CVM"
+       (= x
+          ($.eval/result $.break/ctx
+                         ($.cell/* (quote ~x))))
 
-        ($.clj/= x
-                 ($.clj.eval/result* (identity ~x))
-                 ($.clj.eval/result* (quote ~x)))))))
+       "Identity"
+
+       (= x
+          ($.eval/result $.break/ctx
+                         ($.cell/* (identity (quote ~x)))))
+
+       "Ctor"
+
+       (if ctor
+         (= x
+            ($.eval/result $.break/ctx
+                           (ctor x)))
+         true)))))
 
 
 ;;;;;;;;;; Scalar values
 
 
-(t/deftest nil--
+(T/deftest nil--
 
-  (t/is (nil? ($.clj.eval/result nil))))
+  (T/is (nil? ($.eval/result $.break/ctx
+                             nil))))
  
 
 
@@ -78,7 +76,7 @@
 
   {:ratio-num 100}
 
-  (prop-quotable $.clj.gen/address))
+  (prop-roundtrip $.gen/address))
 
 
 
@@ -86,7 +84,7 @@
 
   {:ratio-num 100}
 
-  (prop-quotable $.clj.gen/blob))
+  (prop-roundtrip ($.gen/blob)))
 
 
 
@@ -94,7 +92,7 @@
 
   {:ratio-num 100}
 
-  (prop-quotable $.clj.gen/boolean))
+  (prop-roundtrip $.gen/boolean))
 
 
 
@@ -102,7 +100,7 @@
 
   {:ratio-num 100}
 
-  (prop-quotable $.clj.gen/char))
+  (prop-roundtrip $.gen/char))
 
 
 
@@ -110,28 +108,7 @@
 
   {:ratio-num 100}
 
-  (prop-quotable $.clj.gen/double))
-
-
-
-(mprop/deftest double-E-notation
-
-  {:ratio-num 100}
-
-  (TC.prop/for-all [x ($.break.gen/E-notation $.clj.gen/long)]
-    (= (Double/parseDouble (str x))
-       ($.clj.eval/result x))))
-
-
-
-#_(mprop/deftest double-E-notation--fail
-
-  ;; TODO. Must catch a Reader error, it is not at the CVM level.
-
-  {:ratio-num 100}
-
-  (TC.prop/for-all [x ($.break.gen/E-notation $.clj.gen/double)]
-    ($.clj.eval/exception? x)))
+  (prop-roundtrip $.gen/double))
 
 
 
@@ -139,7 +116,7 @@
 
   {:ratio-num 100}
 
-  (prop-quotable $.clj.gen/keyword))
+  (prop-roundtrip $.gen/keyword))
 
 
 
@@ -147,17 +124,15 @@
 
   {:ratio-num 100}
 
-  (prop-quotable $.clj.gen/long))
+  (prop-roundtrip $.gen/long))
 
 
 
 (mprop/deftest string-
 
-  ;; TODO. Suffers from https://github.com/Convex-Dev/convex/issues/66
-
   {:ratio-num 100}
 
-  (prop-quotable $.clj.gen/string))
+  (prop-roundtrip ($.gen/string)))
 
 
 
@@ -165,9 +140,7 @@
 
   {:ratio-num 100}
 
-  (TC.prop/for-all [x $.clj.gen/symbol]
-    ($.clj/= x
-              ($.clj.eval/result* (identity (quote ~x))))))
+  (prop-roundtrip $.gen/symbol))
 
 
 ;;;;;;;;;; Collections
@@ -175,21 +148,11 @@
 
 (mprop/deftest list-
 
-  ;; Quoting mess with some data values, that is why a subset of scalar generators is used.
-
   {:ratio-num 10}
 
-  (TC.prop/for-all [x+ (TC.gen/vector (TC.gen/one-of [$.clj.gen/address
-                                                      $.clj.gen/blob
-                                                      $.clj.gen/boolean
-                                                      $.clj.gen/char
-                                                      $.clj.gen/double
-                                                      $.clj.gen/keyword
-                                                      $.clj.gen/long
-                                                      $.clj.gen/nothing
-                                                      $.clj.gen/string]))]
-    ($.clj.eval/result* (= (list ~@x+)
-                           (quote (~@x+))))))
+  (prop-roundtrip $.gen/any-list
+                  #($.cell/* (list ~@(map $.cell/quoted
+                                          %)))))
 
 
 
@@ -197,10 +160,10 @@
 
   {:ratio-num 10}
 
-  (TC.prop/for-all [x $.clj.gen/map]
-    ($.clj.eval/result* (= (hash-map ~@(mapcat identity
-                                               x))
-                            ~x))))
+  (prop-roundtrip $.gen/any-map
+                  #($.cell/* (hash-map ~@(map $.cell/quoted
+                                              (mapcat identity
+                                                      %))))))
 
 
 
@@ -208,9 +171,9 @@
 
   {:ratio-num 10}
 
-  (TC.prop/for-all [x $.clj.gen/set]
-    ($.clj.eval/result* (= (hash-set ~@x)
-                           ~x))))
+  (prop-roundtrip $.gen/any-set
+                  #($.cell/* (hash-set ~@(map $.cell/quoted
+                                              %)))))
 
 
 
@@ -218,9 +181,9 @@
 
   {:ratio-num 10}
 
-  (TC.prop/for-all [x $.clj.gen/vector]
-    ($.clj.eval/result* (= (vector ~@x)
-                           ~x))))
+  (prop-roundtrip $.gen/any-vector
+                  #($.cell/* (vector ~@(map $.cell/quoted
+                                            %)))))
 
 
 ;;;;;;;;;; Negative tests
@@ -230,7 +193,8 @@
 
   {:ratio-num 10}
 
-  (TC.prop/for-all [x+ (TC.gen/vector-distinct $.clj.gen/any
+  (TC.prop/for-all [x+ (TC.gen/vector-distinct ($.gen/quoted $.gen/any)
                                                {:max-elements 6
                                                 :min-elements 2})]
-    ($.clj.eval/result* (not (= ~@x+)))))
+    ($.eval/true? $.break/ctx
+                  ($.cell/* (not (= ~@x+))))))
