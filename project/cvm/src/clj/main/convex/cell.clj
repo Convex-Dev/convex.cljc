@@ -616,6 +616,12 @@
 
 (extend-protocol IEquivalent
 
+  
+  nil
+
+    (any [_]
+      nil)
+
 
   Object
 
