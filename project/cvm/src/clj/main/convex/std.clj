@@ -570,7 +570,7 @@
 
 (defn conj
 
-  "Like classic `conj` but for collection cells."
+  "Akin to classic `conj` but for collection cells."
 
 
   (^AVector []

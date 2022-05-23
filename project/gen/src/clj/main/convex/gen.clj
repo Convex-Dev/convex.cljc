@@ -654,6 +654,8 @@
                recursive))
 
 
+;;;
+
 
 (def any
 
@@ -670,6 +672,15 @@
                                                                        [45 scalar]])
                                                     (TC.gen/one-of [any-map
                                                                     nothing])))]]))
+
+
+
+(def any-coll
+
+  "Any collection."
+
+  (TC.gen/such-that $.std/coll?
+                    recursive))
 
 
 ;;;;;;;;;; Syntax
