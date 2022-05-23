@@ -6,13 +6,14 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.test                  :as t]
+  (:require [clojure.test                  :as T]
             [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
-            [convex.break]
-            [convex.clj.eval               :as $.clj.eval]
-            [convex.clj                    :as $.clj]
-            [convex.clj.gen                :as $.clj.gen]
+            [convex.break                  :as $.break]
+            [convex.cell                   :as $.cell]
+            [convex.eval                   :as $.eval]
+            [convex.gen                    :as $.gen]
+            [convex.std                    :as $.std]
             [helins.mprop                  :as mprop]))
 
 
@@ -23,24 +24,11 @@
 
   ;; Used by [[pred-data-false]] and [[pred-data-true]].
 
-  [form result? f gen]
+  [f-cell result? gen]
 
   (TC.prop/for-all [x gen]
-    (let [result ($.clj.eval/result* (~form ~x))]
-
-      (mprop/mult
-
-        "Returns right boolean value"
-
-        (result? result)
-        
-
-        "Consistent with Clojure"
-
-        (if f
-          (= result
-             (f x))
-          true)))))
+    (result? ($.eval/result $.break/ctx
+                            ($.cell/* (~f-cell (quote ~x)))))))
 
 
 
@@ -48,20 +36,11 @@
 
   "Like [[pred-data-true]] but tests for negative results."
 
+  [f-cell gen]
 
-  ([form gen]
-
-   (prop-false form
-               nil
-               gen))
-
-
-  ([form f gen]
-
-   (-prop form
-          false?
-          f
-          gen)))
+  (-prop f-cell
+         $.std/false?
+         gen))
 
 
 
@@ -72,20 +51,11 @@
    If `f-clojure` is given, also ensures that the very same value produces the exact same result
    in Clojure."
 
+  [f-cell gen]
 
-  ([form gen]
-
-   (prop-true form
-              nil
-              gen))
-
-
-  ([form f gen]
-
-   (-prop form
-          true?
-          f
-          gen)))
+  (-prop f-cell
+         $.std/true?
+         gen))
 
 
 ;;;;;;;;;;
@@ -95,10 +65,10 @@
 
   {:ratio-num 10}
 
-  (prop-false 'account?
+  (prop-false ($.cell/* account?)
               (TC.gen/such-that (comp not
-                                      $.clj/address?)
-                                $.clj.gen/any)))
+                                      $.std/address?)
+                                $.gen/any)))
 
 
 
@@ -106,10 +76,10 @@
 
   {:ratio-num 10}
 
-  (prop-false 'address?
+  (prop-false ($.cell/* address?)
               (TC.gen/such-that (comp not
-                                      $.clj/address?)
-                                $.clj.gen/any)))
+                                      $.std/address?)
+                                $.gen/any)))
 
 
 
@@ -117,9 +87,8 @@
 
   {:ratio-num 50}
 
-  (TC.prop/for-all* [$.clj.gen/address]
-                    #($.clj.eval/result (list 'address?
-                                              %))))
+  (prop-true ($.cell/* address?)
+             $.gen/address))
 
 
 
@@ -127,10 +96,10 @@
 
   {:ratio-num 10}
 
-  (prop-false 'blob?
+  (prop-false ($.cell/* blob?)
               (TC.gen/such-that (comp not
-                                      $.clj/blob?)
-                                $.clj.gen/any)))
+                                      $.std/blob?)
+                                $.gen/any)))
 
 
 
@@ -138,8 +107,8 @@
 
   {:ratio-num 50}
 
-  (prop-true 'blob?
-             $.clj.gen/blob))
+  (prop-true ($.cell/* blob?)
+             ($.gen/blob)))
 
 
 
@@ -147,33 +116,28 @@
 
   {:ratio-num 10}
 
-  (prop-false 'boolean?
-              boolean?
+  (prop-false ($.cell/* boolean?)
               (TC.gen/such-that (comp not
-                                      boolean?)
-                                $.clj.gen/any)))
+                                      $.std/boolean?)
+                                $.gen/any)))
 
 
 
-(t/deftest boolean?--true
+(T/deftest boolean?--true
 
-  (t/is (true? ($.clj.eval/result true))
-        "True")
-
-  (t/is (false? ($.clj.eval/result false))
-        "False"))
-
+  (let [assertion #($.eval/true? $.break/ctx
+                                 ($.cell/* (boolean? ~($.cell/boolean %))))]
+    (T/is (assertion false))
+    (T/is (assertion true))))
 
 
-#_(mprop/deftest coll?--false
+
+(mprop/deftest coll?--false
 
   {:ratio-num 10}
 
-  ;; TODO. Returns true on blob-like items.
-
-  (prop-false 'coll?
-              coll?
-              $.clj.gen/scalar))
+  (prop-false ($.cell/* coll?)
+              $.gen/scalar))
 
 
 
@@ -181,9 +145,8 @@
 
   {:ratio-num 10}
 
-  (prop-true 'coll?
-             coll?
-             $.clj.gen/collection))
+  (prop-true ($.cell/* coll?)
+             $.gen/any-coll))
 
 
 
@@ -191,11 +154,10 @@
 
   {:ratio-num 10}
 
-  (prop-false 'keyword?
-              keyword?
+  (prop-false ($.cell/* keyword?)
               (TC.gen/such-that (comp not
-                                      keyword?)
-                                $.clj.gen/any)))
+                                      $.std/keyword?)
+                                $.gen/any)))
 
 
 
@@ -203,9 +165,8 @@
 
   {:ratio-num 50}
 
-  (prop-true 'keyword?
-             keyword?
-             $.clj.gen/keyword))
+  (prop-true ($.cell/* keyword?)
+             $.gen/keyword))
 
 
 
@@ -213,11 +174,10 @@
 
   {:ratio-num 15}
 
-  (prop-false 'list?
-              $.clj/list?
+  (prop-false ($.cell/* list?)
               (TC.gen/such-that (comp not
-                                      $.clj/list?)
-                                $.clj.gen/any)))
+                                      $.std/list?)
+                                $.gen/any)))
 
 
 
@@ -225,9 +185,8 @@
 
   {:ratio-num 10}
 
-  (prop-true 'list?
-             $.clj/list?
-             $.clj.gen/list))
+  (prop-true ($.cell/* list?)
+             $.gen/any-list))
 
 
 
@@ -235,11 +194,10 @@
 
   {:ratio-num 10}
 
-  (prop-false 'long?
-              int?
+  (prop-false ($.cell/* long?)
               (TC.gen/such-that (comp not
-                                      int?)
-                                $.clj.gen/any)))
+                                      $.std/long)
+                                $.gen/any)))
 
 
 
@@ -247,9 +205,8 @@
 
   {:ratio-num 50}
 
-  (prop-true 'long?
-             int?
-             $.clj.gen/long))
+  (prop-true ($.cell/* long?)
+             $.gen/long))
 
 
 
@@ -257,10 +214,10 @@
 
   {:ratio-num 15}
 
-  (prop-false 'map?
-              map?
-              (TC.gen/such-that #(not (map? %))
-                                $.clj.gen/any)))
+  (prop-false ($.cell/* map?)
+              (TC.gen/such-that (comp not
+                                      $.std/map?)
+                                $.gen/any)))
 
 
 
@@ -268,9 +225,8 @@
 
   {:ratio-num 10}
 
-  (prop-true 'map?
-             map?
-             $.clj.gen/map))
+  (prop-true ($.cell/* map?)
+             $.gen/any-map))
 
 
 
@@ -278,18 +234,19 @@
 
   {:ratio-num 10}
 
-  (prop-false 'nil?
-              nil?
+  (prop-false ($.cell/* nil?)
               (TC.gen/such-that some?
-                                $.clj.gen/any)))
+                                $.gen/any)))
 
 
 
-(t/deftest nil?--true
+(T/deftest nil?--true
 
-  (t/is (true? (nil? ($.clj.eval/result nil))))
+  (T/is ($.eval/true? $.break/ctx
+                      ($.cell/* (nil? nil))))
 
-  (t/is (true? (nil? ($.clj.eval/result '(do nil))))))
+  (T/is ($.eval/true? $.break/ctx
+                      ($.cell/* (nil? (do nil))))))
 
 
 
@@ -297,11 +254,10 @@
 
   {:ratio-num 10}
 
-  (prop-false 'number?
-              number?
+  (prop-false ($.cell/* number?)
               (TC.gen/such-that (comp not
-                                      number?)
-                                $.clj.gen/any)))
+                                      $.std/number?)
+                                $.gen/any)))
 
 
 
@@ -309,9 +265,8 @@
 
   {:ratio-num 50}
 
-  (prop-true 'number?
-             number?
-             $.clj.gen/number))
+  (prop-true ($.cell/* number?)
+             $.gen/number))
 
 
 
@@ -319,11 +274,10 @@
 
   {:ratio-num 10}
 
-  (prop-false 'set?
-              set?
+  (prop-false ($.cell/* set?)
               (TC.gen/such-that (comp not
-                                      set?)
-                                $.clj.gen/any)))
+                                      $.std/set?)
+                                $.gen/any)))
 
 
 
@@ -331,9 +285,8 @@
 
   {:ratio-num 10}
 
-  (prop-true 'set?
-             set?
-             $.clj.gen/set))
+  (prop-true ($.cell/* set?)
+             $.gen/any-set))
 
 
 
@@ -341,11 +294,10 @@
 
   {:ratio-num 10}
 
-  (prop-false 'str?
-              string?
+  (prop-false ($.cell/* str?)
               (TC.gen/such-that (comp not
-                                      string?)
-                                $.clj.gen/any)))
+                                      $.std/string?)
+                                $.gen/any)))
 
 
 
@@ -353,9 +305,8 @@
 
   {:ratio-num 10}
 
-  (prop-true 'str?
-             string?
-             $.clj.gen/string))
+  (prop-true ($.cell/* str?)
+             ($.gen/string)))
 
 
 
@@ -363,10 +314,10 @@
 
   {:ratio-num 10}
 
-  (prop-false 'symbol?
+  (prop-false ($.cell/* symbol?)
               (TC.gen/such-that (comp not
-                                      $.clj/quoted?)
-                                $.clj.gen/any)))
+                                      $.std/symbol?)
+                                $.gen/any)))
 
 
 
@@ -374,8 +325,8 @@
 
   {:ratio-num 50}
 
-  (prop-true 'symbol?
-             $.clj.gen/symbol-quoted))
+  (prop-true ($.cell/* symbol?)
+             $.gen/symbol))
 
 
 
@@ -383,11 +334,10 @@
 
   {:ratio-num 10}
 
-  (prop-false 'vector?
-              vector?
+  (prop-false ($.cell/* vector?)
               (TC.gen/such-that (comp not
-                                      vector?)
-                                $.clj.gen/any)))
+                                      $.std/vector?)
+                                $.gen/any)))
 
 
 
@@ -395,6 +345,5 @@
 
   {:ratio-num 10}
 
-  (prop-true 'vector?
-             vector?
-             $.clj.gen/vector))
+  (prop-true ($.cell/* vector?)
+             $.gen/any-vector))
