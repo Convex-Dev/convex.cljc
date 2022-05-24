@@ -17,7 +17,7 @@
                             string
                             symbol
                             vector])
-  (:require [clojure.string]
+  (:require [clojure.string                :as string]
             [clojure.set]
             [convex.cell                   :as $.cell]
             [convex.std                    :as $.std]
@@ -69,7 +69,7 @@
 
 
 
-(def ^:no-doc -string-symbolic
+(def ^:private -string-symbolic
 
   ;; JVM string for building keyword and symbol cells.
 
@@ -241,6 +241,55 @@
 
 
 
+(defn double-bounded
+
+  "Like [[double]] but accept a map with `:min` and `:max` for setting boundaries.
+  
+   Both are optional."
+
+  [option+]
+
+  (TC.gen/fmap $.cell/double
+               (TC.gen/double* option+)))
+
+
+
+(let [hex-digit   (TC.gen/elements [\0 \1 \2 \3 \4 \5 \6 \7 \8 \9 \a \b \c \d \e \f])
+      gen         #(TC.gen/fmap (comp $.cell/string
+                                      string/join)
+                                %)
+      ensure-even #(TC.gen/such-that (comp even?
+                                           count)
+                                     %
+                                     100)]
+  (defn hex-string
+  
+    "A hex-string where each byte is written as two hex digits."
+
+
+    ([]
+
+     (gen (ensure-even (TC.gen/vector hex-digit))))
+
+
+
+    ([n-byte]
+
+     (gen (TC.gen/vector hex-digit
+                         (* 2
+                            n-byte))))
+
+
+    ([n-byte-min n-byte-max]
+
+     (gen (ensure-even (TC.gen/vector hex-digit
+                                      (* 2
+                                         n-byte-min)
+                                      (* 2
+                                         n-byte-max)))))))
+
+
+
 (def keyword
 
   "Keyword cell."
@@ -259,12 +308,37 @@
 
 
 
+(defn long-bounded
+
+  "Like [[long]] but accept a map with `:min` and `:max` for setting boundaries.
+  
+   Both are optional."
+
+  [option+]
+
+  (TC.gen/fmap $.cell/long
+               (TC.gen/large-integer* option+)))
+
+
 (def number
 
   "Either [[double]] or [[long]]."
 
   (TC.gen/one-of [double
                   long]))
+
+
+
+(defn number-bounded
+
+  "Like [[number]] but accept a map with `:min` and `:max` for setting boundaries.
+  
+   Both are optional."
+
+  [option+]
+
+  (TC.gen/one-of [(double-bounded option+)
+                  (long-bounded option+)]))
 
 
 
@@ -327,6 +401,15 @@
                 (TC.gen/vector char-alphanum
                                n-min
                                n-max))))
+
+
+
+(def string-symbolic 
+
+  "String that can be used to construct a keyword or a symbol."
+
+  (TC.gen/fmap $.cell/string
+               -string-symbolic))
 
 
 

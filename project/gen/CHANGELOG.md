@@ -9,7 +9,11 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Generators
+    - `double-bounded`
     - `falsy`
+    - `long-bounded`
+    - `number-bounded`
+    - `string-symbolic`
     - `truthy`
     - `tuple`
 
