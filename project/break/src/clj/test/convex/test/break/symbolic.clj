@@ -21,21 +21,21 @@
   {:ratio-num 10}
 
   (TC.prop/for-all [keyword? TC.gen/boolean
-                    string   $.gen/-string-symbolic]
-    (let [string-cvx ($.cell/string string)
+                    string   $.gen/string-symbolic]
+    (let [string-jvm (str string)
           assertion  (fn [symbolic]
                        ($.eval/true? $.break/ctx
-                                    ($.cell/* (= ~string-cvx
+                                    ($.cell/* (= ~string
                                                  (name ~symbolic)))))]
       (mprop/mult
 
-        "a"
+        "Prebuilt"
         (assertion (if keyword?
-                     ($.cell/keyword string)
-                     ($.cell/quoted ($.cell/symbol string))))
+                     ($.cell/keyword string-jvm)
+                     ($.cell/quoted ($.cell/symbol string-jvm))))
 
-        "b"
+        "Constructing value in CVX Lisp"
         (assertion ($.cell/* (~($.cell/symbol (if keyword?
                                                 "keyword"
                                                 "symbol"))
-                              ~string-cvx)))))))
+                              ~string)))))))

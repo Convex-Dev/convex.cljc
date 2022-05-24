@@ -2,81 +2,34 @@
 
   "Tests Convex core coercions."
 
+  ;; TODO. Test failing cases as well and demonstrate consistency in coercions.
+
   {:author "Adam Helinski"}
 
   (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
-            [convex.break]
-            [convex.clj.eval               :as $.clj.eval]
-            [convex.clj                    :as $.clj]
-            [convex.clj.gen                :as $.clj.gen]
+            [convex.break                  :as $.break]
+            [convex.cell                   :as $.cell]
+            [convex.eval                   :as $.eval]
+            [convex.gen                    :as $.gen]
             [helins.mprop                  :as mprop]))
 
 
 ;;;;;;;;;;
 
 
-(defn prop-coerce
-
-  "Checks coercing a value generated from `schema` by applying it to `form-cast`.
-  
-   Tests at least 2 properties:
-  
-   - Is the result consistent with Clojure by applying that value to `clojure-pred`?
-   - Does the CVM confirm the result is of the right type by applying it to `form-pred`?
-  
-   If `clojure-cast is provided, 1 additional property is checked:
-  
-   - Does casting in Clojure provide the exact same result?"
-
-
-  ([form-cast form-pred clojure-pred gen]
-
-   (prop-coerce form-cast
-                form-pred
-                nil
-                clojure-pred
-                gen))
-
-
-  ([form-cast form-pred clojure-cast clojure-pred gen]
-
-   (TC.prop/for-all [x gen]
-     (let [ctx   ($.clj.eval/ctx* (def -cast
-                                         (~form-cast ~x)))
-           -cast ($.clj.eval/result ctx
-                                    '-cast)]
-       (mprop/mult
-
-         "Properly cast"
-
-         ($.clj.eval/result* ctx
-                             (~form-pred -cast))
-
-         "Predicate is consistent with Clojure"
-
-         (clojure-pred -cast)
-
-         "Comparing cast with Clojure's"
-
-         (if clojure-cast
-           (= -cast
-              (clojure-cast x))
-           true))))))
-
-
-
-;; TODO. Tests failing cases when the following is resolved: https://github.com/Convex-Dev/convex/issues/162
+;; Some tests might be failing cases when the following is resolved: https://github.com/Convex-Dev/convex/issues/162
 ;;
 (defn prop-error-cast
 
   "Checks that trying to cast an item that should not be cast fails indeed with a `:CAST` error."
 
-  [form-cast gen]
+  [f gen]
 
   (TC.prop/for-all [x gen]
-    ($.clj.eval/code?* :CAST
-                       (~form-cast ~x))))
+    (= ($.cell/code-std* :CAST)
+       ($.eval/exception-code $.break/ctx
+                              ($.cell/* (~f ~x))))))
 
 
 ;;;;;;;;;;
@@ -86,24 +39,23 @@
 
   {:ratio-num 100}
 
-  (prop-coerce 'address
-               'address?
-               $.clj/address?
-               (TC.gen/one-of [$.clj.gen/address
-                               $.clj.gen/blob-8
-                               $.clj.gen/hex-string-8
-                               (TC.gen/large-integer* {:min 0})])))
-
-
-
-;; (mprop/deftest address--fail
-;; 
-;;   (prop-error-cast 'address
-;;                    (TC.gen/such-that #(if (int? %)
-;;                                         (neg? %)
-;;                                         %)
-;;                                      ($.clj.gen/any-but #{$.clj.gen/blob-8
-;;                                                       $.clj.gen/hex-string-8}))))
+  (TC.prop/for-all [x (TC.gen/one-of [$.gen/address
+                                      (TC.gen/such-that #($.eval/true? $.break/ctx
+                                                                       ($.cell/* (<= 0
+                                                                                     (long ~%)
+                                                                                     9223372036854775807)))
+                                                        ($.gen/blob 8)
+                                                        100)
+                                      (TC.gen/such-that #($.eval/true? $.break/ctx
+                                                                       ($.cell/* (<= 0
+                                                                                     (long (blob ~%))
+                                                                                     9223372036854775807)))
+                                                        ($.gen/hex-string 8)
+                                                        100)
+                                      (TC.gen/fmap $.cell/long
+                                                   (TC.gen/large-integer* {:min 0}))])]
+    ($.eval/true? $.break/ctx
+                  ($.cell/* (address? (address ~x))))))
 
 
 
@@ -111,60 +63,48 @@
 
   {:ratio-num 100}
 
-  (prop-coerce 'blob
-               'blob?
-               $.clj/blob?
-               (TC.gen/one-of [$.clj.gen/address
-                               $.clj.gen/blob
-                               $.clj.gen/hex-string])))
+  (TC.prop/for-all [x (TC.gen/one-of [$.gen/address
+                                      ($.gen/blob)
+                                      ($.gen/hex-string)])]
+    ($.eval/true? $.break/ctx
+                  ($.cell/* (blob? (blob ~x))))))
 
 
-
-;(mprop/deftest blob--fail
-;
-;  (prop-error-cast 'blob
-;                   ($.clj.gen/any-but #{$.clj.gen/
-;
 
 (mprop/deftest boolean--
 
   {:ratio-num 100}
 
-  (prop-coerce 'boolean
-               'boolean?
-               true?
-               (TC.gen/such-that #(and (some? %)
-                                       (not (false? %)))
-                                 $.clj.gen/any)))
+  (TC.prop/for-all [x $.gen/any]
+    ($.eval/true? $.break/ctx
+                  ($.cell/* (boolean? (boolean (quote ~x)))))))
 
 
 
-(mprop/deftest byte--
-
-  {:ratio-num 100}
-
-  (prop-coerce 'byte
-               'number?
-               #(bit-and 0xFF
-                         (unchecked-byte %))
-               #(<= 0
-                    %
-                    255)
-               ($.clj.gen/number-bounded {:max 1e6
-                                          :min -1e6})))
+;; TODO. No `byte?` in CVX
+;
+; (mprop/deftest byte--
+; 
+;   {:ratio-num 100}
+; 
+;   (TC.prop/for-all [x ($.gen/number-bounded {:max 1e6
+;                                              :min 1e6})]
+;     ($.eval/true? $.break/ctx
+;                   ($.cell/* (byte? (byte ~x))))))
 
 
 
-(mprop/deftest char--
 
-  {:ratio-num 100}
-
-  (prop-coerce 'char
-               '(fn [_] true)  ;; TODO. Incorrect, see https://github.com/Convex-Dev/convex/issues/92
-               unchecked-char
-               char?
-               ($.clj.gen/number-bounded {:max 1e6
-                                          :min -1e6})))
+;; TODO. No `char?` in CVX
+;
+; (mprop/deftest char--
+; 
+;   {:ratio-num 100}
+; 
+;   (TC.prop/for-all [x ($.gen/number-bounded {:max 1e6
+;                                              :min 1e6})]
+;     ($.eval/true? $.break/ctx
+;                   ($.cell/* (char? (char ~x))))))
 
 
 
@@ -172,25 +112,26 @@
 
   {:ratio-num 100}
 
-  (TC.prop/for-all [x $.clj.gen/any]
-    (let [ctx ($.clj.eval/ctx* (do
-                                 (def x
-                                      (quote ~x))
-                                 (def -encoding
-                                      (encoding x))))]
+  (TC.prop/for-all [x $.gen/any]
+    (let [ctx ($.eval/ctx $.break/ctx
+                          ($.cell/* (do
+                                      (def x
+                                           (quote ~x))
+                                      (def -encoding
+                                           (encoding x)))))]
       (mprop/mult
 
         "Result is a blob"
 
-        ($.clj.eval/result ctx
-                           '(blob? -encoding))
+        ($.eval/true? ctx
+                      ($.cell/* (blob? -encoding)))
 
 
         "Encoding is deterministic"
 
-        ($.clj.eval/result ctx
-                           '(= -encoding
-                               (encoding x)))))))
+        ($.eval/true? ctx
+                      ($.cell/* (= -encoding
+                                   (encoding x))))))))
 
 
 
@@ -198,29 +139,30 @@
 
   {:ratio-num 100}
 
-  (TC.prop/for-all [x (TC.gen/one-of [$.clj.gen/address
-                                      $.clj.gen/blob])]
-    (let [ctx ($.clj.eval/ctx* (def -hash
-                                    (hash ~x)))]
+  (TC.prop/for-all [x (TC.gen/one-of [$.gen/address
+                                      ($.gen/blob)])]
+    (let [ctx ($.eval/ctx $.break/ctx
+                          ($.cell/* (def -hash
+                                         (hash ~x))))]
       (mprop/mult
 
         "Hashing is deterministic"
 
-        ($.clj.eval/result* ctx
-                            (= -hash
-                               (hash ~x)))
+        ($.eval/true? ctx
+                      ($.cell/* (= -hash
+                                   (hash ~x))))
 
 
         "Hashes are blobs"
 
-        ($.clj.eval/result ctx
-                           '(blob? -hash))
+        ($.eval/true? ctx
+                      ($.cell/* (blob? -hash)))
 
         "Hashes are 32-byte long"
 
-        ($.clj.eval/result ctx
-                           '(= 32
-                               (count -hash)))))))
+        ($.eval/true? ctx
+                      ($.cell/* (= 32
+                                   (count -hash))))))))
 
 
 
@@ -228,12 +170,11 @@
 
   {:ratio-num 100}
 
-  (prop-coerce 'keyword
-               'keyword?
-               keyword?
-               (TC.gen/one-of [$.clj.gen/keyword
-                               $.clj.gen/string-symbolic
-                               $.clj.gen/symbol-quoted])))
+  (TC.prop/for-all [x (TC.gen/one-of [$.gen/keyword
+                                      $.gen/string-symbolic
+                                      $.gen/symbol])]
+    ($.eval/true? $.break/ctx
+                  ($.cell/* (keyword? (keyword (quote ~x)))))))
 
 
 
@@ -241,29 +182,24 @@
 
   {:ratio-num 100}
 
-  (prop-coerce 'long
-               'long?
-               int?
-               (TC.gen/one-of [$.clj.gen/address
-                               $.clj.gen/boolean
-                               $.clj.gen/byte
-                               $.clj.gen/char
-                               $.clj.gen/double
-                               $.clj.gen/long])))
+  (TC.prop/for-all [x (TC.gen/one-of [$.gen/address
+                                      $.gen/boolean
+                                      $.gen/byte
+                                      $.gen/char
+                                      $.gen/double
+                                      $.gen/long])]
+    ($.eval/true? $.break/ctx
+                  ($.cell/* (long? (long ~x))))))
 
 
 
-;; TODO. Currently failing, see https://github.com/Convex-Dev/convex/issues/77
-;;
-#_(mprop/deftest set--
+(mprop/deftest set--
 
   {:ratio-num 100}
 
-  (prop-coerce 'set
-               'set?
-               set
-               set?
-               $.clj.gen/collection))
+  (TC.prop/for-all [x $.gen/any-coll]
+    ($.eval/true? $.break/ctx
+                  ($.cell/* (set? (set (quote ~x)))))))
 
 
 
@@ -273,11 +209,9 @@
 
   {:ratio-num 100}
 
-  (prop-coerce 'str
-               'str?
-               ;; str ;; No comparable Clojure coercion, Convex prints vectors with "," instead of spaces, unlike Clojure
-               string?
-               $.clj.gen/any))
+  (TC.prop/for-all [x $.gen/any]
+    ($.eval/true? $.break/ctx
+                  ($.cell/* (str? (str (quote ~x)))))))
 
 
 
@@ -285,12 +219,11 @@
 
   {:ratio-num 100}
 
-  (prop-coerce 'symbol
-               'symbol?
-               symbol?
-               (TC.gen/one-of [$.clj.gen/keyword
-                               $.clj.gen/string-symbolic
-                               $.clj.gen/symbol-quoted])))
+  (TC.prop/for-all [x (TC.gen/one-of [$.gen/keyword
+                                      $.gen/string-symbolic
+                                      $.gen/symbol])]
+    ($.eval/true? $.break/ctx
+                  ($.cell/* (symbol? (symbol (quote ~x)))))))
 
 
 
@@ -298,8 +231,6 @@
 
   {:ratio-num 100}
 
-  (prop-coerce 'vec
-               'vector?
-               ;; `vec` cannot be used because Convex implements order differently in maps and sets
-               vector?
-               $.clj.gen/collection))
+  (TC.prop/for-all [x $.gen/any-coll]
+    ($.eval/true? $.break/ctx
+                  ($.cell/* (vector? (vec (quote ~x)))))))
