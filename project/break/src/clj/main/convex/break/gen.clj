@@ -8,7 +8,8 @@
 
   (:require [clojure.test.check.generators :as TC.gen]
             [convex.cell                   :as $.cell]
-            [convex.gen                    :as $.gen])
+            [convex.gen                    :as $.gen]
+            [convex.std                    :as $.std])
 
   #_(:require [clojure.test.check.generators :as TC.gen]
             [convex.cvm                    :as $.cvm]
@@ -16,6 +17,22 @@
             [convex.clj                    :as $.clj]
             [convex.clj.gen                :as $.clj.gen]
             [convex.clj.translate          :as $.clj.translate]))
+
+
+;;;;;;;;;;
+
+
+(defn any-but
+
+  "Anything returning false on the given `pred`, quoted."
+
+  [pred]
+
+  (TC.gen/fmap $.cell/quoted
+               (TC.gen/such-that (comp not
+                                       pred)
+                                 $.gen/any)))
+
 
 
 (defn binding-raw+
@@ -73,6 +90,21 @@
                                 x+)))))
 
 
+
+(def not-long
+
+  "Anything but a long, quoted."
+
+  (any-but #(or ($.std/byte? %)
+                ($.std/long? %))))
+
+
+
+(def not-number
+
+  "Anything that is not a number, quoted."
+
+  (any-but $.std/number?))
 
 
 

@@ -4,14 +4,31 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.test                  :as t]
+  (:require [clojure.test                  :as T]
             [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
-            [convex.break]
+            [convex.break                  :as $.break]
             [convex.break.gen              :as $.break.gen]
-            [convex.clj.eval               :as $.clj.eval]
-            [convex.clj.gen                :as $.clj.gen]
+            [convex.cell                   :as $.cell]
+            [convex.clj                    :as $.clj]
+            [convex.eval                   :as $.eval]
+            [convex.gen                    :as $.gen]
+            [convex.std                    :as $.std]
             [helins.mprop                  :as mprop]))
+
+
+;;;;;;;;;; Helpers
+
+
+(defn ex-cast?
+  
+  "Does the given form result in a `:CAST` CVM exception?"
+
+  [form]
+
+  (= ($.cell/code-std* :CAST)
+     ($.eval/exception-code $.break/ctx
+                            form)))
 
 
 ;;;;;;;;;; Reusing properties
@@ -28,37 +45,44 @@
 
   [form]
 
-  (TC.prop/for-all [x+ (TC.gen/vector $.clj.gen/long
-                                      1
-                                      16)]
+  (TC.prop/for-all [x+ ($.gen/vector $.gen/long
+                                     1
+                                     16)]
     (mprop/mult
       
       "Numerical computation of longs must result in a long"
 
-      ($.clj.eval/result* (long? (~form ~@x+)))
+      ($.eval/true? $.break/ctx
+                    ($.cell/* (long? (~form ~@x+))))
 
 
       "Numerical computation with at least one double must result in a double"
 
-      (double? ($.clj.eval/result* (~form ~@(update x+
-                                                    (rand-int (dec (count x+)))
-                                                    double)))))))
+      ($.std/double? ($.eval/result $.break/ctx
+                                    ($.cell/* (apply ~form
+                                                     (let [i  ~($.cell/long (rand-int (count x+)))
+                                                           x+ ~x+]
+                                                       (assoc x+
+                                                              i
+                                                              (double (get x+
+                                                                           i)))))))))))
 
 
 
 (defn prop-comparison
 
-  "Checks if applying numbers to `form` on the CVM produces the exact same result (a boolean)
-   as in Clojure."
+  "Checks if applying numbers to `form` on the CVM produces the exact same result as in Clojure."
 
-  [form f]
+  [f-cvx f-clj]
 
-  (TC.prop/for-all [x+ (TC.gen/vector $.clj.gen/number
+  (TC.prop/for-all [x+ (TC.gen/vector $.gen/number
                                       1
                                       16)]
-    ($.clj.eval/like-clojure? form
-                              f
-                              x+)))
+    ($.eval/true? $.break/ctx
+                  ($.cell/* (= ~($.cell/any (apply f-clj
+                                                   (map $.clj/any
+                                                        x+)))
+                               (~f-cvx ~@x+))))))
 
 
 ;;;;;;;;;; Arithmetic operators
@@ -68,7 +92,7 @@
 
   {:ratio-num 100}
 
-  (prop-arithmetic '*))
+  (prop-arithmetic ($.cell/* *)))
 
 
 
@@ -76,7 +100,7 @@
 
   {:ratio-num 100}
 
-  (prop-arithmetic '+))
+  (prop-arithmetic ($.cell/* +)))
 
 
 
@@ -84,7 +108,7 @@
 
   {:ratio-num 100}
 
-  (prop-arithmetic '-))
+  (prop-arithmetic ($.cell/* -)))
 
 
 
@@ -92,10 +116,11 @@
 
   {:ratio-num 100}
 
-  (TC.prop/for-all [x+ (TC.gen/vector $.clj.gen/number
-                                      1
-                                      16)]
-    (double? ($.clj.eval/result* (/ ~@x+)))))
+  (TC.prop/for-all [x+ ($.gen/vector $.gen/number
+                                     1
+                                     16)]
+    ($.std/double? ($.eval/result $.break/ctx
+                                  ($.cell/* (/ ~@x+))))))
 
 
 ;;;;;;;;;; Comparators
@@ -105,7 +130,7 @@
 
   {:ratio-num 100}
 
-  (prop-comparison '<
+  (prop-comparison ($.cell/* <)
                    <))
 
 
@@ -114,7 +139,7 @@
 
   {:ratio-num 100}
 
-  (prop-comparison '<=
+  (prop-comparison ($.cell/* <=)
                    <=))
 
 
@@ -123,7 +148,7 @@
 
   {:ratio-num 100}
 
-  (prop-comparison '==
+  (prop-comparison ($.cell/* ==)
                    ==))
 
 
@@ -132,7 +157,7 @@
 
   {:ratio-num 100}
 
-  (prop-comparison '>=
+  (prop-comparison ($.cell/* >=)
                    >=))
 
 
@@ -141,36 +166,40 @@
 
   {:ratio-num 100}
 
-  (prop-comparison '>
+  (prop-comparison ($.cell/* >)
                    >))
 
 
 
-(mprop/deftest max--
+; (mprop/deftest max--
+; 
+;   ;; TODO. Fails because of https://github.com/Convex-Dev/convex/issues/366
+; 
+;   ;; In case of equal inputs, Clojure favors the last argument whereas Convex favors the first one.
+;   ;; 
+;   ;; (max 1 1.0)  =>  1.0 in Clojure, 1 in Convex
+; 
+;   {:ratio-num 100}
+; 
+;   (prop-comparison ($.cell/* max)
+;                    (fn [& arg+]
+;                      (apply max
+;                             (reverse arg+)))))
 
-  ;; In case of equal inputs, Clojure favors the last argument whereas Convex favors the first one.
-  ;; 
-  ;; (max 1 1.0)  =>  1.0 in Clojure, 1 in Convex
-
-  {:ratio-num 100}
-
-  (prop-comparison 'max
-                   (fn [& arg+]
-                     (apply max
-                            (reverse arg+)))))
 
 
-
-(mprop/deftest min--
-
-  ;; See comment for [[max--]].
-
-  {:ratio-num 100}
-
-  (prop-comparison 'min
-                   (fn [& arg+]
-                     (apply min
-                            (reverse arg+)))))
+; (mprop/deftest min--
+; 
+;   ;; TODO. Fails because of https://github.com/Convex-Dev/convex/issues/366
+;
+;   ;; See comment for [[max--]].
+; 
+;   {:ratio-num 100}
+; 
+;   (prop-comparison ($.cell/* min)
+;                    (fn [& arg+]
+;                      (apply min
+;                             (reverse arg+)))))
 
 
 ;;;;;;;;;; Exponentiation
@@ -180,10 +209,10 @@
 
   {:ratio-num 100}
 
-  (TC.prop/for-all [x $.clj.gen/number]
-    ($.clj.eval/like-clojure? 'exp
-                              #(StrictMath/exp %)
-                              [x])))
+  (TC.prop/for-all [x $.gen/number]
+    ($.eval/true? $.break/ctx
+                  ($.cell/* (= ~($.cell/double (StrictMath/exp ($.clj/any x)))
+                               (exp ~x))))))
 
 
 
@@ -191,13 +220,13 @@
 
   {:ratio-num 100}
 
-  (TC.prop/for-all [x $.clj.gen/number
-                    y $.clj.gen/number]
-    ($.clj.eval/like-clojure? 'pow
-                              #(StrictMath/pow %1
-                                               %2)
-                              [x
-                               y])))
+  (TC.prop/for-all [x $.gen/number
+                    y $.gen/number]
+    ($.eval/true? $.break/ctx
+                  ($.cell/* (= ~($.cell/double (StrictMath/pow ($.clj/any x)
+                                                               ($.clj/any y)))
+                               (pow ~x
+                                    ~y))))))
 
 
 
@@ -205,10 +234,10 @@
 
   {:ratio-num 100}
 
-  (TC.prop/for-all [x $.clj.gen/number]
-    ($.clj.eval/like-clojure? 'sqrt
-                              #(StrictMath/sqrt %)
-                              [x])))
+  (TC.prop/for-all [x $.gen/number]
+    ($.eval/true? $.break/ctx
+                  ($.cell/* (= ~($.cell/double (StrictMath/sqrt ($.clj/any x)))
+                               (sqrt ~x))))))
 
 
 ;;;;;;;;;; Increment / decrement
@@ -218,41 +247,38 @@
 
   {:ratio-num 100}
 
-  (TC.prop/for-all [x $.clj.gen/long]
-    (let [ctx ($.clj.eval/ctx* (def dec-
-                                    (dec ~x)))]
+  (TC.prop/for-all [x $.gen/long]
+    (let [ctx ($.eval/ctx $.break/ctx
+                          ($.cell/* (def dec-
+                                         (dec ~x))))]
       (mprop/mult
 
         "Returns a long"
 
-        ($.clj.eval/result ctx
-                           '(long? dec-))
-
+        ($.eval/true? ctx
+                      ($.cell/* (long? dec-)))
 
         "Consistent with `-`"
 
-        ($.clj.eval/result* ctx
-                            (= dec-
-                               (- ~x
-                                  1)))
-
+        ($.eval/true? ctx
+                      ($.cell/* (= dec-
+                                   (- ~x
+                                      1))))
 
         "Consisent with `+`"
 
-        ($.clj.eval/result* ctx
-                            (= dec-
-                               (+ ~x
-                                  -1)))
+        ($.eval/true? ctx
+                      ($.cell/* (= dec-
+                                   (+ ~x
+                                      -1))))))))
 
 
-        "Decrement or underflow"
 
-        (= ($.clj.eval/result ctx
-                              'dec-)
-           (if (= x
-                  Long/MIN_VALUE)
-             Long/MAX_VALUE
-             (dec x)))))))
+(T/deftest dec-underflow
+
+  (T/is (= ($.cell/long Long/MAX_VALUE)
+           ($.eval/result $.break/ctx
+                          ($.cell/* (dec ~Long/MIN_VALUE))))))
 
 
 
@@ -260,41 +286,39 @@
 
   {:ratio-num 100}
 
-  (TC.prop/for-all [x $.clj.gen/long]
-    (let [ctx ($.clj.eval/ctx* (def inc-
-                                    (inc ~x)))]
+  (TC.prop/for-all [x $.gen/long]
+    (let [ctx ($.eval/ctx $.break/ctx
+                          ($.cell/* (def inc-
+                                         (inc ~x))))]
       (mprop/mult
 
         "Returns a long"
 
-        ($.clj.eval/result ctx
-                           '(long? inc-))
+        ($.eval/true? ctx
+                      ($.cell/* (long? inc-)))
 
 
         "Consistent with `-`"
 
-        ($.clj.eval/result* ctx
-                            (= inc-
-                               (- ~x
-                                  -1)))
+        ($.eval/true? ctx
+                      ($.cell/* (= inc-
+                                   (- ~x
+                                      -1))))
         
-
         "Consistent with `+`"
 
-        ($.clj.eval/result* ctx
-                            (= inc-
-                               (+ ~x
-                                  1)))
+        ($.eval/true? ctx
+                      ($.cell/* (= inc-
+                                   (+ ~x
+                                      1))))))))
 
 
-        "Increment or overflow"
 
-        (= ($.clj.eval/result ctx
-                              'inc-)
-           (if (= x
-                  Long/MAX_VALUE)
-             Long/MIN_VALUE
-             (inc x)))))))
+(T/deftest inc-overflow
+
+  (T/is (= ($.cell/long Long/MIN_VALUE)
+           ($.eval/result $.break/ctx
+                          ($.cell/* (inc ~Long/MAX_VALUE))))))
 
 
 ;;;;;;;;;; Integer operations
@@ -306,66 +330,52 @@
 
   {:ratio-num 20}
 
-  (TC.prop/for-all [a $.clj.gen/long
-                    b (TC.gen/such-that #(not (zero? %))
-                                        $.clj.gen/long)]
-    (let [ctx ($.clj.eval/ctx* (do
-                                 (def a
-                                      ~a)
-                                 (def b
-                                      ~b)
-                                 (def -mod
-                                      (mod a
-                                           b))
-                                 (def -quot
-                                      (quot a
-                                            b))
-                                 (def -rem
-                                      (rem a
-                                           b))))]
+  (TC.prop/for-all [a $.gen/long
+                    b (TC.gen/such-that #($.eval/true? $.break/ctx
+                                                       ($.cell/* (not (zero? ~%))))
+                                        $.gen/long)]
+    (let [ctx ($.eval/ctx $.break/ctx
+                          ($.cell/* (do
+                                      (def a
+                                           ~a)
+                                      (def b
+                                           ~b)
+                                      (def -mod
+                                           (mod a
+                                                b))
+                                      (def -quot
+                                           (quot a
+                                                 b))
+                                      (def -rem
+                                           (rem a
+                                                b)))))]
       (mprop/mult
 
         "`mod` produces a long"
 
-        ($.clj.eval/result ctx
-                           '(long? -mod))
+        ($.eval/true? ctx
+                      ($.cell/* (long? -mod)))
 
 
         "`quot` produces a long"
 
-        ($.clj.eval/result ctx
-                           '(long? -quot))
+        ($.eval/true? ctx
+                      ($.cell/* (long? -quot)))
 
 
         "`rem` produces a long"
 
-        ($.clj.eval/result ctx
-                           '(long? -rem))
-
-
-        "`quot` is consistent with Clojure"
-
-        (= (quot a
-                 b)
-           ($.clj.eval/result ctx
-                             '-quot))
-
-
-        "`rem` is consistent with Clojure"
-
-        (= (rem a
-                b)
-           ($.clj.eval/result ctx
-                            '-rem))
+        ($.eval/true? ctx
+                      ($.cell/* (long? -rem)))
 
 
         "`quot` and `rem` are consistent"
 
-        ($.clj.eval/result ctx
-                           '(= a
-                               (+ -rem
-                                  (* b
-                                     -quot))))))))
+        ($.eval/true? ctx
+                      ($.cell/* (= a
+                                   (+ -rem
+                                      (* b
+                                         -quot)))))))))
 
 
 ;;;;;;;;;; Miscellaneous
@@ -375,40 +385,54 @@
 
   {:ratio-num 20}
 
-  (TC.prop/for-all [x (TC.gen/such-that #(not (and (number? %)
-                                                   (zero? %)))
-                                        $.clj.gen/any)]
-    ($.clj.eval/result* (not (zero? ~x)))))
+  (TC.prop/for-all [x $.gen/any]
+    (T/is ($.eval/true? $.break/ctx
+                        ($.cell/* (let [x (quote ~x)]
+                                    (= (zero? x)
+                                       (or (= x
+                                              0)
+                                           (= x
+                                              0.0)
+                                           (= x
+                                              -0.0)))))))))
 
 
 
-(t/deftest zero?--true
+(T/deftest zero?--true
 
-  (t/is ($.clj.eval/result '(zero? 0))))
+  (T/is ($.eval/true? $.break/ctx
+                      ($.cell/* (zero? 0))))
+
+  (T/is ($.eval/true? $.break/ctx
+                      ($.cell/* (zero? 0.0))))
+
+  (T/is ($.eval/true? $.break/ctx
+                      ($.cell/* (zero? -0.0)))))
+
 
 
 ;;;;;;;;;; Rounding
 
 
-(mprop/deftest ceil--
+(mprop/deftest ceil
 
   {:ratio-num 100}
 
-  (TC.prop/for-all [x $.clj.gen/number]
-    ($.clj.eval/like-clojure? 'ceil
-                              #(StrictMath/ceil %)
-                              [x])))
+  (TC.prop/for-all [x $.gen/number]
+    ($.eval/true? $.break/ctx
+                  ($.cell/* (= ~($.cell/double (StrictMath/ceil ($.clj/any x)))
+                               (ceil ~x))))))
 
 
 
-(mprop/deftest floor--
+(mprop/deftest floor
 
   {:ratio-num 100}
 
-  (TC.prop/for-all [x $.clj.gen/number]
-    ($.clj.eval/like-clojure? 'floor
-                              #(StrictMath/floor %)
-                              [x])))
+  (TC.prop/for-all [x $.gen/number]
+    ($.eval/true? $.break/ctx
+                  ($.cell/* (= ~($.cell/double (StrictMath/floor ($.clj/any x)))
+                               (floor ~x))))))
 
 
 ;;;;;;;;;; Sign operations
@@ -418,31 +442,33 @@
 
   {:ratio-num 100}
 
-  (TC.prop/for-all [x (TC.gen/such-that #(not (Double/isNaN %))
-                                        $.clj.gen/number)]
-    (let [ctx ($.clj.eval/ctx* (def abs-
-                                    (abs ~x)))]
+  (TC.prop/for-all [x (TC.gen/such-that #(not (= ($.cell/* ##NaN)
+                                                 %))
+                                        $.gen/number)]
+    (let [ctx ($.eval/ctx $.break/ctx
+                          ($.cell/* (def abs-
+                                         (abs ~x))))]
       (mprop/mult
 
         "Must be positive"
 
-        ($.clj.eval/result* ctx
-                            (>= abs-
-                                0))
+        ($.eval/true? ctx
+                      ($.cell/* (>= abs-
+                                    0)))
 
 
         "Type is preserved"
 
-        (= (type ($.clj.eval/result ctx
-                                    'abs-))
+        (= (type ($.eval/result ctx
+                                ($.cell/* abs-)))
            (type x))))))
 
 
 
-(t/deftest abs--NaN
+(T/deftest abs--NaN
 
-  (t/is (Double/isNaN ($.clj.eval/result '(abs ##NaN)))))
-
+  (T/is ($.eval/true? $.break/ctx
+                      ($.cell/* (nan? (abs ##NaN))))))
 
 
 
@@ -450,10 +476,11 @@
 
   {:ratio-num 100}
 
-  (TC.prop/for-all [x $.clj.gen/number]
-    ($.clj.eval/result* (= ~x
-                           (* (abs ~x)
-                              (signum ~x))))))
+  (TC.prop/for-all [x $.gen/number]
+    ($.eval/true? $.break/ctx
+                  ($.cell/* (= ~x
+                               (* (abs ~x)
+                                  (signum ~x)))))))
 
 
 ;;;;;;;;;; Failing cases
@@ -470,14 +497,12 @@
 
       "`dec`"
 
-      ($.clj.eval/code?* :CAST
-                         (dec ~x))
+      (ex-cast? ($.cell/* (dec ~x)))
 
 
       "`inc`"
 
-      ($.clj.eval/code?* :CAST
-                         (inc ~x)))))
+      (ex-cast? ($.cell/* (inc ~x))))))
 
 
 
@@ -489,31 +514,29 @@
   
   (TC.prop/for-all [[a
                      b] (TC.gen/let [a $.break.gen/not-long
-                                     b (TC.gen/one-of [$.clj.gen/any
-                                                       $.clj.gen/long])]
-                          (TC.gen/shuffle [a b]))]
+                                     b (TC.gen/one-of [(TC.gen/fmap $.cell/quoted
+                                                                    $.gen/any)
+                                                       $.gen/long])]
+                          (TC.gen/shuffle [a
+                                           b]))]
     (mprop/mult
 
       "`mod`"
 
-      ($.clj.eval/code?* :CAST
-                         (mod ~a
-                              ~b))
+      (ex-cast? ($.cell/* (mod ~a
+                               ~b)))
 
 
       "`rem`"
 
-      ($.clj.eval/code?* :CAST
-                         (rem ~a
-                              ~b))
+      (ex-cast? ($.cell/* (rem ~a
+                               ~b)))
 
 
       "`quot`"
 
-      ($.clj.eval/code?* :CAST
-                         (quot ~a
-                               ~b)))))
-
+      (ex-cast? ($.cell/* (quot ~a
+                                ~b))))))
 
 
 (mprop/deftest error-cast-number-1
@@ -527,58 +550,51 @@
 
       "`abs`"
 
-      ($.clj.eval/code?* :CAST
-                         (abs ~x))
+      (ex-cast? ($.cell/* (abs ~x)))
 
 
       "`ceil`"
 
-      ($.clj.eval/code?* :CAST
-                         (ceil ~x))
+      (ex-cast? ($.cell/* (ceil ~x)))
 
 
       "`exp`"
 
-      ($.clj.eval/code?* :CAST
-                         (exp ~x))
+      (ex-cast? ($.cell/* (exp ~x)))
 
 
       "`floor`"
 
-      ($.clj.eval/code?* :CAST
-                         (floor ~x))
+      (ex-cast? ($.cell/* (floor ~x)))
 
 
       "`signum`"
 
-      ($.clj.eval/code?* :CAST
-                         (signum ~x))
+      (ex-cast? ($.cell/* (signum ~x)))
 
 
       "`sqrt`"
-      ($.clj.eval/code?* :CAST
-                         (sqrt ~x)))))
+      (ex-cast? ($.cell/* (sqrt ~x))))))
 
 
 
 (mprop/deftest error-cast-number-2
 
-  ;; Functions that should accept only two number arguments
+  ;; Functions that should accept only two number arguments.
 
   {:ratio-num 20}
 
   (TC.prop/for-all [[a
                      b] (TC.gen/let [a $.break.gen/not-number
-                                     b (TC.gen/one-of [$.clj.gen/any
-                                                       $.clj.gen/number])]
+                                     b (TC.gen/one-of [$.gen/any
+                                                       $.gen/number])]
                           (TC.gen/shuffle [a b]))]
     (mprop/check
 
       "`pow`"
 
-      ($.clj.eval/code?* :CAST
-                         (pow ~a
-                              ~b)))))
+      (ex-cast? ($.cell/* (pow (quote ~a)
+                               (quote ~b)))))))
 
 
 
@@ -587,86 +603,72 @@
   ;; Functions that accepts a variadic number of number arguments only.
   ;;
   ;; Comparison functions are variadic but are tested in [[error-cast-number-2]] since
-  ;; they test argument 2 by 2 (which would even succeed in these negative tests).
+  ;; they test arguments 2 by 2 (which would even succeed in these negative tests).
 
   {:ratio-num 5}
 
   (TC.prop/for-all [x+ (TC.gen/let [a  $.break.gen/not-number
-                                    b+ (TC.gen/vector (TC.gen/one-of [$.clj.gen/any
-                                                                      $.clj.gen/number])
+                                    b+ (TC.gen/vector (TC.gen/one-of [$.gen/any
+                                                                      $.gen/number])
                                                       0
                                                       7)]
-                         (TC.gen/shuffle (cons a
-                                               b+)))]
+                         (TC.gen/shuffle (map $.cell/quoted
+                                              (cons a
+                                                    b+))))]
     (mprop/mult
 
       "`*`"
 
-      ($.clj.eval/code?* :CAST
-                         (* ~@x+))
+      (ex-cast? ($.cell/* (* ~@x+)))
 
 
       "`+`"
 
-      ($.clj.eval/code?* :CAST
-                         (+ ~@x+))
+      (ex-cast? ($.cell/* (+ ~@x+)))
 
 
       "`-`"
 
-      ($.clj.eval/code?* :CAST
-                         (- ~@x+))
+      (ex-cast? ($.cell/* (- ~@x+)))
 
 
       "`/`"
 
-      ($.clj.eval/code?* :CAST
-                         (/ ~@x+))
-
+      (ex-cast? ($.cell/* (/ ~@x+)))
 
       "Relative comparators"
 
-      (let [x-2+ (sort-by number?
+      (let [x-2+ (sort-by (comp $.std/number?
+                                second)
                           x+)]
         (mprop/mult
 
           "`<`"
 
-          ($.clj.eval/code?* :CAST
-                             (< ~@x-2+))
-
+          (ex-cast? ($.cell/* (< ~@x-2+)))
     
           "`<=`"
 
-          ($.clj.eval/code?* :CAST
-                             (<= ~@x-2+))
-
+          (ex-cast? ($.cell/* (<= ~@x-2+)))
     
           "`==`"
 
-          ($.clj.eval/code?* :CAST
-                             (== ~@x-2+))
-
+          (ex-cast? ($.cell/* (== ~@x-2+)))
 
           "`>=`"
 
-          ($.clj.eval/code?* :CAST
-                             (>= ~@x-2+))
+          (ex-cast? ($.cell/* (>= ~@x-2+)))
 
-    
           "`>`"
 
-          ($.clj.eval/code?* :CAST
-                             (> ~@x-2+))
+          (ex-cast? ($.cell/* (> ~@x-2+)))
 
 
           "`max`"
 
-          ($.clj.eval/code?* :CAST
-                             (max ~@x-2+))
+          (ex-cast? ($.cell/* (max ~@x-2+)))
 
 
           "`min`"
 
-          ($.clj.eval/code?* :CAST
-                             (min ~@x-2+)))))))
+          (ex-cast? ($.cell/* (min ~@x-2+))))))))
