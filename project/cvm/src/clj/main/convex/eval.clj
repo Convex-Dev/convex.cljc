@@ -53,7 +53,7 @@
 
 (defn result
 
-  "Like [[ctx]] but returns the result as Clojure data."
+  "Like [[ctx]] but returns the result."
 
   [ctx cell]
 
