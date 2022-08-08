@@ -5,10 +5,10 @@
   {:author "Adam Helinski"}
 
   (:require [clojure.test.check.properties :as TC.prop]
-            [convex.break]
-            [convex.clj                    :as $.clj]
-            [convex.clj.eval               :as $.clj.eval]
-            [convex.clj.gen                :as $.clj.gen]
+            [convex.break                  :as $.break]
+            [convex.cell                   :as $.cell]
+            [convex.eval                   :as $.eval]
+            [convex.gen                    :as $.gen]
             [convex.break.gen              :as $.break.gen]
             [convex.test.break.account     :as $.break.test.account]
             [helins.mprop                  :as mprop]))
@@ -32,8 +32,8 @@
                                                    faulty-amount
                                                    percent)]
       (mprop/and (-> ($.break.test.account/ctx-holding ctx-2
-                                                        'addr
-                                                        x)
+                                                       ($.cell/* addr)
+                                                       x)
                      $.break.test.account/suite-holding)
 
                  ($.break.test.account/suite-transfer ctx-2
@@ -47,47 +47,47 @@
 
                      "Cannot send coin to actor without a callable `receive-coin` function"
 
-                     ($.clj.eval/code?* ctx-2
-                                        :STATE
-                                        (transfer (deploy
-                                                    '(defn receive-coin [origin offer no-arg]))
-                                                  ($/long-percentage ~percent
-                                                                     *balance*)))
+                     (= ($.cell/code-std* :STATE)
+                        ($.eval/exception-code ctx-2
+                                               ($.cell/* (transfer (deploy
+                                                                     '(defn receive-coin [origin offer no-arg]))
+                                                                   ($/long-percentage ~percent
+                                                                                      *balance*)))))
 
 
                      "`receive-coin` is callable"
 
-                     ($.clj.eval/result ctx-2
-                                        '(callable? addr
-                                                    'receive-coin))
+                     ($.eval/true? ctx-2
+                                   ($.cell/* (callable? addr
+                                                        'receive-coin)))
 
 
                      "`accept` returns the accepted amount"
 
-                     ($.clj.eval/result ctx-2
-                                        '(lookup addr
-                                                 -accept))
+                     ($.eval/true? ctx-2
+                                   ($.cell/* (lookup addr
+                                                     -accept)))
 
 
                      "Caller argument"
 
-                     ($.clj.eval/result ctx-2
-                                        '(lookup addr
-                                                 -caller))
+                     ($.eval/true? ctx-2
+                                   ($.cell/* (lookup addr
+                                                     -caller)))
 
 
                      "Offer argument"
 
-                     ($.clj.eval/result ctx-2
-                                        '(lookup addr
-                                                 -offer))
+                     ($.eval/true? ctx-2
+                                   ($.cell/* (lookup addr
+                                                     -offer)))
 
 
                      "Third argument is nil"
 
-                     ($.clj.eval/result ctx-2
-                                        '(lookup addr
-                                                 -nil-arg-2))))))))
+                     ($.eval/true? ctx-2
+                                   ($.cell/* (lookup addr
+                                                     -nil-arg-2)))))))))
 
 
 ;;;;;;;;;; Tests
@@ -98,33 +98,34 @@
   {:ratio-num 5}
 
   (TC.prop/for-all [faulty-amount $.break.gen/not-long
-                    holding       $.clj.gen/any
+                    holding       $.gen/any
                     percent       $.break.gen/percent]
-    (let [ctx ($.clj.eval/ctx* (do
-                                 (def addr
-                                      (deploy '(do
+    (let [ctx ($.eval/ctx $.break/ctx
+                          ($.cell/* (do
+                                      (def addr
+                                           (deploy '(do
 
-                                                 (def holding
-                                                      ~holding)
+                                                      (def holding
+                                                           (quote ~holding))
 
-                                                 (defn receive-coin
-                                                   ~($.clj/literal "^{:callable? true}")
-                                                   [origin offer no-arg]
-                                                   (def -caller
-                                                        (= origin
-                                                           *caller*))
-                                                   (def -offer
-                                                        (= offer
-                                                           *offer*))
-                                                   (def -nil-arg-2
-                                                         (nil? no-arg))
-                                                   (def -accept
-                                                        (= offer
-                                                           (accept offer)))))))
-                                 (def addr-empty
-                                      (deploy nil))))]
+                                                      (defn receive-coin
+                                                        ~($.cell/syntax ($.cell/* [origin offer no-arg])
+                                                                        ($.cell/* {:callable? true}))
+                                                        (def -caller
+                                                             (= origin
+                                                                *caller*))
+                                                        (def -offer
+                                                             (= offer
+                                                                *offer*))
+                                                        (def -nil-arg-2
+                                                              (nil? no-arg))
+                                                        (def -accept
+                                                             (= offer
+                                                                (accept offer)))))))
+                                      (def addr-empty
+                                           (deploy nil)))))]
       (mprop/and (-> ($.break.test.account/ctx-holding ctx
-                                                       'addr
+                                                       ($.cell/* addr)
                                                        holding)
                      $.break.test.account/suite-holding)
 
