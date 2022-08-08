@@ -8,6 +8,7 @@
 
   (:require [clojure.test.check.generators :as TC.gen]
             [convex.cell                   :as $.cell]
+            [convex.eval                   :as $.eval]
             [convex.gen                    :as $.gen]
             [convex.std                    :as $.std])
 
@@ -91,6 +92,14 @@
 
 
 
+(def not-address
+
+  "Anything but an address, quoted."
+
+  (any-but $.std/address?))
+
+
+
 (def not-long
 
   "Anything but a long, quoted."
@@ -105,6 +114,28 @@
   "Anything that is not a number, quoted."
 
   (any-but $.std/number?))
+
+
+
+(def percent
+
+  "Double between 0 and 1."
+
+  ($.gen/double-bounded {:max 1
+                         :min 0}))
+
+
+
+(defn unused-address
+
+  "Address that is not being used yet."
+
+  [ctx]
+
+  (TC.gen/such-that #($.eval/true? ctx
+                                   ($.cell/* (nil? (account ~%))))
+                    $.gen/address
+                    100))
 
 
 

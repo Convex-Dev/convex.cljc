@@ -4,15 +4,15 @@
 
   {:author "Adam Helinski"}
 
-  (:import convex.core.Constants)
+  (:import (convex.core Constants))
   (:require [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
-            [convex.break]
+            [convex.break                  :as $.break]
             [convex.break.gen              :as $.break.gen]
-            [convex.clj.eval               :as $.clj.eval]
-            [convex.clj                    :as $.clj]
-            [convex.clj.gen                :as $.clj.gen]
+            [convex.eval                   :as $.eval]
             [convex.cell                   :as $.cell]
+            [convex.gen                    :as $.gen]
+            [convex.std                    :as $.std]
             [helins.mprop                  :as mprop]))
 
 
@@ -35,53 +35,53 @@
 
       "Address is interned" 
 
-      ($.clj/address? ($.clj.eval/result ctx
-                                         'addr))
+      ($.std/address? ($.eval/result ctx
+                                     ($.cell/* addr)))
 
 
       "`account?`"
 
-      ($.clj.eval/result ctx
-                         '(account? addr))
+      ($.eval/true? ctx
+                    ($.cell/* (account? addr)))
 
 
       "`actor?`"
 
-      (actor? ($.clj.eval/result ctx
-                                 '(actor? addr)))
+      (actor? ($.eval/true? ctx
+                            ($.cell/* (actor? addr))))
 
 
       "`address?`"
 
-      ($.clj.eval/result ctx
-                         '(address? addr))
+      ($.eval/true? ctx
+                    ($.cell/* (address? addr)))
 
 
       "Balance is 0"
 
-      ($.clj.eval/result ctx
-                         '(zero? (balance addr)))
+      ($.eval/true? ctx
+                    ($.cell/* (zero? (balance addr))))
 
 
       "Memory allowance is 0"
 
-      ($.clj.eval/result ctx
-                         '(zero? ($/allowance addr)))
+      ($.eval/true? ctx
+                    ($.cell/* (zero? ($/allowance addr))))
 
 
       "`get-holding` returns nothing on a virgin account"
 
-      ($.clj.eval/result ctx
-                         '(nil? (get-holding addr)))
+      ($.eval/true? ctx
+                    ($.cell/* (nil? (get-holding addr))))
 
 
       "Comparing `account` with *state*"
 
-      ($.clj.eval/result ctx
-                         '(= (account addr)
-                             (get-in *state*
-                                     [:accounts
-                                      (long addr)]))))))
+      ($.eval/true? ctx
+                    ($.cell/* (= (account addr)
+                                 (get-in *state*
+                                         [:accounts
+                                          (long addr)])))))))
 
 
 
@@ -89,34 +89,32 @@
 
   "Suite testing setting a new public key."
 
-  ;; TODO. Keep an eye on: https://github.com/Convex-Dev/convex/issues/129
-
   [ctx pubkey]
 
   (mprop/check
 
     "Setting a new public key"
 
-    (let [ctx-2 ($.clj.eval/ctx* ctx
-                                 (do
-                                   (def key-
-                                        ~pubkey)
-                                   (def ret-
-                                        (set-key key-))))]
+    (let [ctx-2 ($.eval/ctx ctx
+                            ($.cell/* (do
+                                        (def key-
+                                             ~pubkey)
+                                        (def ret-
+                                             (set-key key-)))))]
       (mprop/mult
 
         "New key is set in `*key*`"
 
-        ($.clj.eval/result ctx-2
-                           '(= (blob key-)
-                               (blob *key*)))
+        ($.eval/true? ctx-2
+                      ($.cell/* (= (blob key-)
+                                   (blob *key*))))
 
 
         "`*key*` is consistent with `account`"
 
-        ($.clj.eval/result ctx-2
-                           '(= *key*
-                               (:key (account *address*))))))))
+        ($.eval/true? ctx-2
+                      ($.cell/* (= *key*
+                                   (:key (account *address*)))))))))
 
 
 
@@ -130,96 +128,96 @@
 
     "Transfering memory"
 
-    (let [ctx-2 ($.clj.eval/ctx* ctx
-                                 (do
-                                   (def memory-before
-                                        *memory*)
-                                   (def amount
-                                        ($/long-percentage ~percent
-                                                           *memory*))
-                                   (def -transfer-memory
-                                        (transfer-memory addr
-                                                         amount))))]
+    (let [ctx-2 ($.eval/ctx ctx
+                            ($.cell/* (do
+                                        (def memory-before
+                                             *memory*)
+                                        (def amount
+                                             ($/long-percentage ~percent
+                                                                *memory*))
+                                        (def -transfer-memory
+                                             (transfer-memory addr
+                                                              amount)))))]
       (mprop/mult
 
         "Returns the given amount"
 
-        ($.clj.eval/result ctx-2
-                           '(= amount
-                               -transfer-memory))
+        ($.eval/true? ctx-2
+                      ($.cell/* (= amount
+                                   -transfer-memory)))
 
 
         "Consistenty between sender account information and `*memory*` (before transfer)"
 
-        ($.clj.eval/result ctx
-                           '(= *memory*
-                               ($/allowance)))
+        ($.eval/true? ctx
+                      ($.cell/* (= *memory*
+                                   ($/allowance))))
 
 
         "Consistency between sender account information and `*memory*` (after transfer)"
 
-        ($.clj.eval/result ctx-2
-                           '(= *memory*
-                               ($/allowance)))
+        ($.eval/true? ctx-2
+                      ($.cell/* (= *memory*
+                                   ($/allowance))))
 
 
         "Allowance of sender account has diminished as expected"
 
-        ($.clj.eval/result ctx-2
-                           '(and (= memory-before
-                                    (+ ($/allowance)
-                                       amount))
-                                 (= ($/allowance)
-                                    (- memory-before
-                                       amount))))
+        ($.eval/true? ctx-2
+                      ($.cell/* (and (= memory-before
+                                        (+ ($/allowance)
+                                           amount))
+                                     (= ($/allowance)
+                                        (- memory-before
+                                           amount)))))
 
 
         "Allowance of receiver account has increased as needed"
 
-        ($.clj.eval/result ctx-2
-                           '(= amount
-                               ($/allowance addr)))
+        ($.eval/true? ctx-2
+                      ($.cell/* (= amount
+                                   ($/allowance addr))))
 
 
         "Transfering negative allowance"
 
-        ($.clj.eval/code?* ctx-2
-                           :ARGUMENT
-                           (transfer-memory addr
-                                            ~(min -1
-                                                  (long (* percent
-                                                           Long/MIN_VALUE)))))
+        (= ($.cell/code-std* :ARGUMENT)
+           ($.eval/exception-code ctx-2
+                                  ($.cell/* (transfer-memory addr
+                                                             (min -1
+                                                                  (long (* ~percent
+                                                                           ~($.cell/long Long/MIN_VALUE))))))))
 
 
         "Transfering too much allowance, insufficient amount"
 
-        ($.clj.eval/code?* ctx-2
-                           :MEMORY
-                           (transfer-memory addr
-                                            (let [allowance ($/allowance)]
-                                              (+ allowance
-                                                 (max 1
-                                                      (long (floor (* ~percent
-                                                                     (- ~Constants/MAX_SUPPLY
-                                                                        allowance)))))))))
+        (= ($.cell/code-std* :MEMORY)
+           ($.eval/exception-code ctx-2
+                                  ($.cell/* (transfer-memory addr
+                                                             (let [allowance ($/allowance)]
+                                                               (+ allowance
+                                                                  (max 1
+                                                                       (long (floor (* ~percent
+                                                                                      (- ~($.cell/long Constants/MAX_SUPPLY)
+                                                                                         allowance)))))))))))
 
 
         "Transfering allowance beyond authorized limit"
 
-        ($.clj.eval/code?* ctx-2
-                           :ARGUMENT
-                           (transfer-memory addr
-                                            (+ (max 1
-                                                    amount)
-                                               ~Constants/MAX_SUPPLY)))
+        (= ($.cell/code-std* :ARGUMENT)
+           ($.eval/exception-code ctx-2
+                                  ($.cell/* (transfer-memory addr
+                                                             (+ (max 1
+                                                                     amount)
+                                                                ~($.cell/long Constants/MAX_SUPPLY))))))
 
 
         "Transfering garbage instead of memory"
 
-        ($.clj.eval/code?* ctx-2
-                           :CAST
-                           (transfer-memory addr
-                                            ~faulty-amount))))))
+        (= ($.cell/code-std* :CAST)
+           ($.eval/exception-code ctx-2
+                                  ($.cell/* (transfer-memory addr
+                                                             ~faulty-amount))))))))
 
 
 ;;;;;;;;;; Suites - Holdings
@@ -231,15 +229,15 @@
 
   [ctx sym-addr holding]
 
-  ($.clj.eval/ctx* ctx
-                   (do
-                     (def addr
-                          ~sym-addr)
-                     (def holding
-                          ~holding)
-                     (def -set-holding
-                          (set-holding addr
-                                       holding)))))
+  ($.eval/ctx ctx
+              ($.cell/* (do
+                          (def addr
+                               ~sym-addr)
+                          (def holding
+                               (quote ~holding))
+                          (def -set-holding
+                               (set-holding addr
+                                            holding))))))
 
 
 
@@ -257,32 +255,32 @@
 
       "`*holdings*` has one element"
 
-      ($.clj.eval/result ctx
-                         '(= *holdings*
-                             (if (nil? holding)
-                               (blob-map)
-                               (assoc (blob-map)
-                                      *address*
-                                      holding))))
+      ($.eval/true? ctx
+                    ($.cell/* (= *holdings*
+                                 (if (nil? holding)
+                                   (blob-map)
+                                   (assoc (blob-map)
+                                          *address*
+                                          holding)))))
 
 
       "`*holdings* is consistent with `account`"
 
-      ($.clj.eval/result ctx
-                         '(if (nil? holding)
-                            true
-                            (= *holdings*
-                               (:holdings (account *address*)))))
+      ($.eval/true? ctx
+                    ($.cell/* (if (nil? holding)
+                                true
+                                (= *holdings*
+                                   (:holdings (account *address*))))))
 
 
       "Removing only holding from `*holdings*`"
 
-      ($.clj.eval/result ctx
-                         '(do
-                            (set-holding *address*
-                                         nil)
-                            (= (blob-map)
-                               *holdings*))))))
+      ($.eval/true? ctx
+                    ($.cell/* (do
+                                (set-holding *address*
+                                             nil)
+                                (= (blob-map)
+                                   *holdings*)))))))
 
 
 
@@ -300,48 +298,48 @@
    
       "`set-holding` returns the given holding"
 
-      ($.clj.eval/result ctx
-                         '(= holding
-                             -set-holding))
+      ($.eval/true? ctx
+                    ($.cell/* (= holding
+                                 -set-holding)))
    
 
       "`get-holding` returns the given holding"
 
-      ($.clj.eval/result ctx
-                         '(= holding
-                             (get-holding addr)))
+      ($.eval/true? ctx
+                    ($.cell/* (= holding
+                                 (get-holding addr))))
    
 
       "`set-holding` is consistent with `account`"
 
-      ($.clj.eval/result ctx
-                         '(= (if (nil? holding)
-                               (blob-map)
-                               (assoc (blob-map)
-                                      *address*
-                                      holding))
-                             (:holdings (account addr))))
+      ($.eval/true? ctx
+                    ($.cell/* (= (if (nil? holding)
+                                   (blob-map)
+                                   (assoc (blob-map)
+                                          *address*
+                                          holding))
+                                 (:holdings (account addr)))))
    
 
       "Removing holding"
 
-      (let [ctx-2 ($.clj.eval/ctx* ctx
-                                   (do
-                                     (def -set-holding-2
-                                          (set-holding addr
-                                                       nil))))]
+      (let [ctx-2 ($.eval/ctx ctx
+                              ($.cell/* (do
+                                          (def -set-holding-2
+                                               (set-holding addr
+                                                            nil)))))]
         (mprop/mult
    
           "`set-holding` with nil returns nil"
-          ($.clj.eval/result ctx-2
-                             '(nil? -set-holding-2))
+          ($.eval/true? ctx-2
+                        ($.cell/* (nil? -set-holding-2)))
     
           "`account` shows nil in :holdings"
-          ($.clj.eval/result ctx-2
-                             '(= (blob-map)
-                                 (get (account addr)
-                                      :holdings
-                                      :convex-sentinel))))))))
+          ($.eval/true? ctx-2
+                        ($.cell/* (= (blob-map)
+                                     (get (account addr)
+                                          :holdings
+                                          :convex-sentinel)))))))))
 
 
 ;;;;;;;;;; Suites - Transfering coins
@@ -357,22 +355,23 @@
 
   [ctx faulty-amount percent]
 
-  ($.clj.eval/ctx* ctx
-                   (do
-                     (def balance-before
-                          *balance*)
-                     (defn compute-amount []
-                       ($/long-percentage ~percent
-                                          *balance*))
-                     (def amount
-                          (compute-amount))
-                     (def faulty-amount
-                          ~faulty-amount)
-                     (def percent
-                          ~percent)
-                     (def -transfer
-                          (transfer addr
-                                    amount)))))
+  ($.eval/ctx ctx
+              ($.cell/* (do
+                          (def balance-before
+                               *balance*)
+                          (defn compute-amount
+                            []
+                            ($/long-percentage ~percent
+                                               *balance*))
+                          (def amount
+                               (compute-amount))
+                          (def faulty-amount
+                               ~faulty-amount)
+                          (def percent
+                               ~percent)
+                          (def -transfer
+                               (transfer addr
+                                         amount))))))
 
 
 
@@ -394,90 +393,91 @@
 
        "`transfer` returns the sent amount"
 
-       ($.clj.eval/result ctx
-                          '(= amount
-                              -transfer))
+       ($.eval/true? ctx
+                     ($.cell/* (= amount
+                                  -transfer)))
 
 
        "Consistency between sender account information and `*balance*`, `balance` (before transfer)"
 
-       ($.clj.eval/result '(= *balance*
-                              (balance *address*)
-                              (:balance (account *address*))))
+       ($.eval/true? ctx 
+                     ($.cell/* (= *balance*
+                                  (balance *address*)
+                                  (:balance (account *address*)))))
 
 
        "Consistency between sender account information and `*balance*`, `balance` (after transfer)"
 
-       ($.clj.eval/result ctx
-                          '(= *balance*
-                               (balance *address*)
-                               (:balance (account *address*))))
+       ($.eval/true? ctx
+                     ($.cell/* (= *balance*
+                                  (balance *address*)
+                                  (:balance (account *address*)))))
 
 
        "Consistency between receiver account information and `balance`"
 
-       ($.clj.eval/result ctx
-                          '(= (balance addr)
-                              (:balance (account addr))))
+       ($.eval/true? ctx
+                     ($.cell/* (= (balance addr)
+                                  (:balance (account addr)))))
 
 
        "Own balance has been correctly updated"
 
-       ($.clj.eval/result ctx
-                          '(and (= balance-before
-                                   (+ *balance*
-                                      amount))
-                                (= *balance*
-                                   (- balance-before
-                                      amount))))
+       ($.eval/true? ctx
+                     ($.cell/* (and (= balance-before
+                                       (+ *balance*
+                                          amount))
+                                    (= *balance*
+                                       (- balance-before
+                                          amount)))))
 
 
        "Balance of receiver has been correctly updated"
 
-       ($.clj.eval/result ctx
-                          '(= amount
-                              (balance addr)))
+       ($.eval/true? ctx
+                     ($.cell/* (= amount
+                                  (balance addr))))
 
 
        "Transfering negative amount"
 
-       ($.clj.eval/code?* ctx
-                          :ARGUMENT
-                          (transfer addr
-                                    (min -1
-                                         (long (* percent
-                                                  ~Long/MIN_VALUE)))))
+       (= ($.cell/code-std* :ARGUMENT)
+          ($.eval/exception-code ctx
+                                 ($.cell/* (transfer addr
+                                                     (min -1
+                                                          (long (* percent
+                                                                   ~($.cell/long Long/MIN_VALUE))))))))
 
 
        "Transfering too much funds, insufficient amount"
 
-       ($.clj.eval/code?* ctx
-                          :FUNDS
-                          (transfer addr
-                                    (let [balance *balance*]
-                                      (+ balance
-                                         (max 1
-                                              (long (floor (* percent
-                                                              (- ~Constants/MAX_SUPPLY
-                                                                 balance)))))))))
+       (= ($.cell/code-std* :FUNDS)
+          ($.eval/exception-code ctx
+                                 ($.cell/* (transfer addr
+                                                     (let [balance *balance*]
+                                                       (+ balance
+                                                          (max 1
+                                                               (long (floor (* percent
+                                                                               (- ~($.cell/long Constants/MAX_SUPPLY)
+                                                                                  balance)))))))))))
  
 
        "Transfering funds beyond authorized limit"
 
-       ($.clj.eval/code?* ctx
-                          :ARGUMENT
-                          (transfer addr
-                                    (+ (max 1
-                                            amount)
-                                       ~Constants/MAX_SUPPLY)))
+       (= ($.cell/code-std* :ARGUMENT)
+          ($.eval/exception-code ctx
+                                 ($.cell/* (transfer addr
+                                                     (+ (max 1
+                                                             amount)
+                                                        ~($.cell/long Constants/MAX_SUPPLY))))))
 
 
        "Transfering garbage instead of funds"
 
-       ($.clj.eval/code? ctx
-                         ($.cell/code-std* :CAST)
-                         '(transfer addr
-                                    faulty-amount)))))
+       (= ($.cell/code-std* :CAST)
+          ($.eval/exception-code ctx
+                                 ($.cell/* (transfer addr
+                                                     faulty-amount)))))))
 
 
 ;;;;;;;;;; Tests
@@ -487,27 +487,31 @@
 
   {:ratio-num 5}
 
-  (TC.prop/for-all [unused-address $.break.gen/unused-address]
+  (TC.prop/for-all [unused-address ($.break.gen/unused-address $.break/ctx)]
     (mprop/mult
 
       "Account does not exist (long)"
 
-      ($.clj.eval/result* (not (account? ~unused-address)))
+      ($.eval/true? $.break/ctx
+                    ($.cell/* (not (account? ~unused-address))))
 
 
       "Account does not exist (address)"
 
-      ($.clj.eval/result* (not (account (address ~unused-address))))
+      ($.eval/true? $.break/ctx
+                    ($.cell/* (not (account (address ~unused-address)))))
 
 
       "Actor does not exist (long)"
 
-      ($.clj.eval/result* (not (actor? ~unused-address)))
+      ($.eval/true? $.break/ctx
+                    ($.cell/* (not (actor? ~unused-address))))
 
 
       "Actor does not exist (address)"
 
-      ($.clj.eval/result* (not (actor? (address ~unused-address)))))))
+      ($.eval/true? $.break/ctx
+                    ($.cell/* (not (actor? (address ~unused-address))))))))
 
 
 
@@ -516,18 +520,19 @@
   {:ratio-num 2}
 
   (TC.prop/for-all [faulty-amount $.break.gen/not-long
-                    holding       $.clj.gen/any
-                    pubkey        $.clj.gen/blob-32
+                    holding       $.gen/any
+                    pubkey        $.gen/blob-32
                     percent       $.break.gen/percent]
-    (let [ctx            ($.clj.eval/ctx* (def addr
-                                               (create-account ~pubkey)))
+    (let [ctx            ($.eval/ctx $.break/ctx
+                                     ($.cell/* (def addr
+                                                    (create-account ~pubkey))))
           ctx-*holdings* (ctx-holding ctx
-                                      '*address*
+                                      ($.cell/* *address*)
                                       holding)]
       (mprop/and (suite-*holdings* ctx-*holdings*)
                  (suite-holding ctx-*holdings*)
                  (suite-holding (ctx-holding ctx
-                                             'addr
+                                             ($.cell/* addr)
                                              holding))
                  (suite-new ctx
                             false?)
@@ -556,49 +561,56 @@
 
       "`account`"
 
-      ($.clj.eval/code?* :CAST
-                         (account ~x))
+      (= ($.cell/code-std* :CAST)
+         ($.eval/exception-code $.break/ctx
+                                ($.cell/* (account ~x))))
 
 
       "`balance`"
 
-      ($.clj.eval/code?* :CAST
-                         (balance ~x))
+      (= ($.cell/code-std* :CAST)
+         ($.eval/exception-code $.break/ctx
+                                ($.cell/* (balance ~x))))
 
 
       "`get-holding`"
 
-      ($.clj.eval/code?* :CAST
-                         (get-holding ~x))
+      (= ($.cell/code-std* :CAST)
+         ($.eval/exception-code $.break/ctx
+                                ($.cell/* (get-holding ~x))))
 
 
       "`set-controller`"
 
-      (if (nil? x)
+      (if (nil? (second x)) ;; `x` is quoted
         true
-        ($.clj.eval/code?* :CAST
-                           (set-controller ~x)))
+        (= ($.cell/code-std* :CAST)
+           ($.eval/exception-code $.break/ctx
+                                  ($.cell/* (set-controller ~x)))))
 
 
       "`set-holding`"
 
-      ($.clj.eval/code?* :CAST
-                         (set-holding ~x
-                                      ~x))
+      (= ($.cell/code-std* :CAST)
+         ($.eval/exception-code $.break/ctx
+                                ($.cell/* (set-holding ~x
+                                                       ~x))))
 
 
       "`transfer`"
 
-      ($.clj.eval/code?* :CAST
-                         (transfer ~x
-                                   1))
+      (= ($.cell/code-std* :CAST)
+         ($.eval/exception-code $.break/ctx
+                                ($.cell/* (transfer ~x
+                                                    1))))
 
 
       "`transfer-memory`"
 
-      ($.clj.eval/code?* :CAST
-                         (transfer-memory ~x
-                                          1)))))
+      (= ($.cell/code-std* :CAST)
+         ($.eval/exception-code $.break/ctx
+                                ($.cell/* (transfer-memory ~x
+                                                           1)))))))
 
 
 
@@ -609,15 +621,15 @@
   ;; Providing something that cannot be used as a key should fail.
 
   (TC.prop/for-all [x (TC.gen/such-that (fn [x]
-                                          (if-some [x-2 (cond
-                                                          (string? x)      x
-                                                          ($.clj/blob? x) ($.clj/meta-raw x))]
-                                            (not= (count x-2)
-                                                         64)
+                                          (if (or ($.std/blob? x)
+                                                  ($.std/string? x))
+                                            (not= ($.std/count x)
+                                                  64)
                                             (some? x)))
-                                        $.clj.gen/any)]
-    ($.clj.eval/code?* :CAST
-                       (set-key ~x))))
+                                        $.gen/any)]
+    (= ($.cell/code-std* :CAST)
+       ($.eval/exception-code $.break/ctx
+                              ($.cell/* (set-key (quote ~x)))))))
 
 
 
@@ -627,32 +639,35 @@
 
   {:ratio-num 10}
 
-  (TC.prop/for-all [addr $.break.gen/unused-address]
+  (TC.prop/for-all [addr ($.break.gen/unused-address $.break/ctx)]
     (mprop/mult
 
       "`set-controller`"
 
-      ($.clj.eval/code?* :NOBODY
-                         (set-controller ~addr))
+      (= ($.cell/code-std* :NOBODY)
+         ($.eval/exception-code $.break/ctx
+                                ($.cell/* (set-controller ~addr))))
 
 
       "`set-holding`"
 
-      ($.clj.eval/code?* :NOBODY
-                         (set-holding ~addr
-                                      42))
-
+      (= ($.cell/code-std* :NOBODY)
+         ($.eval/exception-code $.break/ctx
+                                ($.cell/* (set-holding ~addr
+                                                       42))))
 
 
        "`transfer`"
 
-       ($.clj.eval/code?* :NOBODY
-                          (transfer ~addr
-                                    0))
+       (= ($.cell/code-std* :NOBODY)
+          ($.eval/exception-code $.break/ctx
+                                 ($.cell/* (transfer ~addr
+                                                     0))))
 
 
       "Transfering allowance to unused address"
 
-      ($.clj.eval/code?* :NOBODY
-                         (transfer-memory ~addr
-                                          0)))))
+      (= ($.cell/code-std* :NOBODY)
+         ($.eval/exception-code $.break/ctx
+                                ($.cell/* (transfer-memory ~addr
+                                          0)))))))
