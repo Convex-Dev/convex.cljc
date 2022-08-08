@@ -8,6 +8,7 @@
 
   (:require [clojure.test.check.generators :as TC.gen]
             [convex.cell                   :as $.cell]
+            [convex.cvm                    :as $.cvm]
             [convex.eval                   :as $.eval]
             [convex.gen                    :as $.gen]
             [convex.std                    :as $.std])
@@ -89,6 +90,23 @@
                                     gen-value)]
      ($.cell/vector (interleave sym+
                                 x+)))))
+
+
+
+(defn core-symbol
+
+  "Any of the core symbols."
+
+  [ctx]
+
+  (TC.gen/elements (into []
+                         (filter #(not (contains? #{($.cell/* actor)  ;; TODO. https://github.com/Convex-Dev/convex/issues/152
+                                                    ($.cell/* expand) ;; TODO. https://github.com/Convex-Dev/convex/issues/149
+                                                    ($.cell/* fn)     ;; TODO. https://github.com/Convex-Dev/convex/issues/152
+                                                    }
+                                                  %)))
+                         ($.std/keys ($.cvm/env ctx
+                                                8)))))
 
 
 
