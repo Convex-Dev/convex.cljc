@@ -386,15 +386,17 @@
   {:ratio-num 20}
 
   (TC.prop/for-all [x $.gen/any]
-    (T/is ($.eval/true? $.break/ctx
-                        ($.cell/* (let [x (quote ~x)]
-                                    (= (zero? x)
-                                       (or (= x
-                                              0)
-                                           (= x
-                                              0.0)
-                                           (= x
-                                              -0.0)))))))))
+    ($.eval/true? $.break/ctx
+                  ($.cell/* (let [x (quote ~x)]
+                              (= (zero? x)
+                                 (or (= x
+                                        0)
+                                     (= x
+                                        (byte 0))
+                                     (= x
+                                        0.0)
+                                     (= x
+                                        -0.0))))))))
 
 
 
