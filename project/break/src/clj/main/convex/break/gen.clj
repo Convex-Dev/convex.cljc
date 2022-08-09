@@ -86,6 +86,16 @@
 
 
 
+(def collection
+  (TC.gen/one-of [$.gen/any-list
+                  $.gen/any-map
+                  $.gen/any-set
+                  $.gen/any-vector
+                  ($.gen/blob-map ($.gen/blob)
+                                  $.gen/any)]))
+
+
+
 (defn core-symbol
 
   "Any of the core symbols."
@@ -103,11 +113,60 @@
 
 
 
+(defn kv+
+
+  "Vector of `[Key Value]`.
+  
+   Ensures that all the keys are distinct which might matter in test situations."
+
+  [gen-k gen-v]
+
+  (TC.gen/fmap (fn [[k+ v+]]
+                 ($.cell/vector (map $.cell/vector
+                                     (partition 2
+                                                (interleave k+
+                                                            v+)))))
+               (TC.gen/bind (TC.gen/vector-distinct ($.gen/quoted gen-k))
+                            (fn [k+]
+                              (TC.gen/tuple (TC.gen/return k+)
+                                            (TC.gen/vector ($.gen/quoted gen-v)
+                                                           (count k+)))))))
+
+
+
+(defn mix-one-in
+
+  "Ensures that an item from `gen-one` is present and shuffled in the sequential collection produced by `gen-coll`."
+
+  [gen-one gen-coll]
+
+  (TC.gen/let [x  gen-one
+               x+ gen-coll]
+    (TC.gen/fmap (if ($.std/list? x+)
+                   $.cell/list
+                   $.cell/vector)
+                 (TC.gen/shuffle ($.std/conj x+
+                                             x)))))
+
+
+
 (def not-address
 
   "Anything but an address, quoted."
 
   (any-but $.std/address?))
+
+
+
+(def not-collection
+
+  "Anything but a collection or nil."
+
+  (TC.gen/such-that (fn [x]
+                      (and (some? x)
+                           (not ($.std/coll? x))))
+                    $.gen/any
+                    100))
 
 
 
