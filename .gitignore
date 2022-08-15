@@ -24,7 +24,6 @@
 /.clj-kondo/*
 /cvm
 /private
-/report
 /**/target/
 /**/pom.xml
 

@@ -115,9 +115,7 @@
 
   :project/app.fuzz
 
-  {:exec-args       {:max-size 200
-                     :root     "report/fuzz"}
-   :exec-fn         convex.app.fuzz/random
+  {:exec-fn         convex.app.fuzz/random
    :extra-paths     ["project/app/fuzz/src/clj/main"]
    :maestro/dir     "project/app/fuzz"
    :maestro/doc     "Run fuzzy tests against the CVM"
@@ -125,7 +123,6 @@
    :maestro/require [:ext/test.check
                      :project/break
                      :project/cvm
-                     :project/clojurify
                      {dev :dev/app.fuzz}]
    :maestro/uberjar "private/build/app-fuzz.uber.jar"}
 

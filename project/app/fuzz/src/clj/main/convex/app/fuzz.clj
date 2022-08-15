@@ -9,13 +9,13 @@
   (:require [clojure.java.io]
             [clojure.pprint]
             [clojure.test.check            :as TC]
-            [clojure.test.check.generators :as TC.gen]
             [clojure.test.check.properties :as TC.prop]
             [convex.break.gen              :as $.break.gen]
+            [convex.cell                   :as $.cell]
             [convex.cvm                    :as $.cvm]
-            [convex.clj.eval               :as $.clj.eval]
-            [convex.clj.gen                :as $.clj.gen])
-  (:import java.io.File))
+            [convex.eval                   :as $.eval]
+            [convex.gen                    :as $.gen])
+  (:import (java.io File)))
 
 
 ;;;;;;;;;;
@@ -27,57 +27,62 @@
   
    A map of options may be provided:
   
-   | Key | Usage | Default |
-   |---|---|---|
-   | `:max-size` | Maximum size used by `test.check` | 5 |
-   | `:root` | Path where error files will be stored as EDN | `\"report/fuzz\" |"
+   | Key         | Usage                                        | Default                    |
+   |-------------|----------------------------------------------|----------------------------|
+   | `:max-size` | Maximum size used by `test.check`            | 200                        |
+   | `:root`     | Path where error files will be stored as EDN | `\"./private/report/fuzz\" |"
 
   [option+]
 
   (let [max-size     (or (:max-size option+)
                          200)
         root         (or (:root option+)
-                         "report/fuzz")
+                         "./private/report/fuzz")
         d*ensure-dir (delay
                        (.mkdirs (File. ^String root)))
         ctx          ($.cvm/ctx)
-        prop         (TC.prop/for-all [form ($.clj.gen/call $.break.gen/core-symbol
-                                                            (TC.gen/vector $.clj.gen/any
-                                                                           0
-                                                                           8))]
-                       ($.clj.eval/value ctx
-                                         form)
-                       true)
+        prop         (TC.prop/for-all [core-symbol ($.break.gen/core-symbol ctx)
+                                       arg+        ($.gen/vector ($.gen/quoted $.gen/any)
+                                                                 0
+                                                                 16)]
+                       (some? ($.eval/ctx ctx
+                                          ($.cell/* (~core-symbol ~@arg+)))))
         a*print      (agent 0)
         n-core       (.availableProcessors (Runtime/getRuntime))
         out          (or (:out option+)
                          println)]
-    (out (format "\nStarting robustness fuzzy tester on %d core(s), saving errors to '%s'"
+    (out (format "\nStarting robustness fuzzy tester on %d core%s, saving errors to '%s'"
                  n-core
+                 (if (> n-core
+                        1)
+                   "s"
+                   "")
                  root))
-    (mapv (fn [_i-core]
-            (future
-              (while true
-                (let [result (TC/quick-check 1e4
-                                             prop
-                                             :max-size max-size)]
-                  (send a*print
-                        (fn [n-test]
-                          (let [n-test-2 (+ n-test
-                                            (long (result :num-tests)))]
-                            (out (format "Total number of tests: %d"
-                                         n-test-2))
-                            n-test-2)))
-                  (when-not (result :pass?)
-                    (let [path (format "%s/%s.edn"
-                                       root
-                                       (System/currentTimeMillis))]
-                      (send a*print
-                            (fn [n-test]
-                              (out (format "Saving error to '%s'"
-                                           path))
-                              n-test))
-                      @d*ensure-dir
-                      (clojure.pprint/pprint result
-                                             (clojure.java.io/writer path))))))))
-          (range n-core))))
+    (out "Manually kill process when done")
+    (run! deref
+          (mapv (fn [_i-core]
+                  (future
+                    (while true
+                      (let [result (TC/quick-check 1e4
+                                                   prop
+                                                   :max-size max-size)]
+                        (send a*print
+                              (fn [n-test]
+                                (let [n-test-2 (+ n-test
+                                                  (long (result :num-tests)))]
+                                  (out (format "Total number of tests: %d"
+                                               n-test-2))
+                                  n-test-2)))
+                        (when-not (result :pass?)
+                          (let [path (format "%s/%s.edn"
+                                             root
+                                             (System/currentTimeMillis))]
+                            (send a*print
+                                  (fn [n-test]
+                                    (out (format "Saving error to '%s'"
+                                                 path))
+                                    n-test))
+                            @d*ensure-dir
+                            (clojure.pprint/pprint result
+                                                   (clojure.java.io/writer path))))))))
+                (range n-core)))))

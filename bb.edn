@@ -8,7 +8,12 @@
 
 
  :tasks
- {aliases:dev
+ {aliases
+  {:doc      "Resolves and prints all required aliases - Takes either a root alias or a vector of root aliases and/or profiles"
+   :requires ([protosens.maestro.task :as maestro.task])
+   :task     (maestro.task/alias+)}
+
+  aliases:dev
 
   {:doc      "Given one or several aliases in a vector, prints all aliases required for dev"
    :requires ([task])
