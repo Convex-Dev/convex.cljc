@@ -12,7 +12,6 @@
             [convex.cvm                    :as $.cvm]
             [convex.eval                   :as $.eval]
             [convex.gen                    :as $.gen]
-            [convex.std                    :as $.std]
             [helins.mprop                  :as mprop]))
 
 

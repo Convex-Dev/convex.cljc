@@ -1169,7 +1169,7 @@
 
 
 
-(defn- -eval-assoc-in
+#_(defn- -eval-assoc-in
 
   ;; Helper for writing and evaling the CVM code for passing `assoc-in` tests.
 

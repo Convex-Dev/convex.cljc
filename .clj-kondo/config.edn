@@ -1,12 +1,2 @@
 {:config-paths ["io.helins/mprop"]
- :hooks        {:analyze-call {convex.clj.eval/code*          hooks.convex/templ*
-                               convex.clj.eval/code?*         hooks.convex/templ*
-                               convex.clj.eval/ctx*           hooks.convex/templ*
-                               convex.clj.eval/exception*     hooks.convex/templ*
-                               convex.clj.eval/exception?*    hooks.convex/templ*
-                               convex.clj.eval/like-clojure?* hooks.convex/templ*
-                               convex.clj.eval/log*           hooks.convex/templ*
-                               convex.clj.eval/result*        hooks.convex/templ*
-                               convex.clj.eval/value*         hooks.convex/templ*
-                               convex.lisp/templ*             hooks.convex/templ*}}
- :lint-as      {convex.cell/* clojure.core/quote}}
+ :hooks        {:analyze-call {convex.cell/* hooks.convex/cell*}}}
