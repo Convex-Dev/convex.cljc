@@ -142,8 +142,7 @@
                      "project/break/src/cvx/main"]
    :maestro/dir     "project/break"
    :maestro/doc     "Advanced generative testing against the CVM"
-   :maestro/require [:project/clojurify
-                     :project/cvm
+   :maestro/require [:project/cvm
                      :project/gen
                      {dev :dev/break}
                      {test :test/break}]}
@@ -165,34 +164,6 @@
   {:extra-paths     ["project/build/src/clj/main"]
    :maestro/require [:ext/clojure.tools.build
                      :ext/maestro]}
-
-  ;---
-
-  :project/clojurify
-
-  {:extra-paths     ["project/clojurify/src/clj/main"]
-   :maestro/dir     "project/clojurify"
-   :maestro/doc     "Writing Convex Lisp forms as Clojure data and related utilities"
-   :maestro/require [:ext/test.check
-                     {dev :dev/clojurify}
-                     {default :project/cvm
-                      release :release/cvm}
-                     {test :test/clojurify}]}
-
-
-  :dev/clojurify
-
-  {:extra-paths ["project/clojurify/src/clj/dev"]}
-
-
-  :release/clojurify
-
-  {:extra-deps {world.convex/clojurify.clj {:mvn/version "0.0.0-alpha2"}}}
-
-
-  :test/clojurify
-
-  {:extra-paths ["project/clojurify/src/clj/test"]}
 
   ;---
 
@@ -323,7 +294,7 @@
 
   :dev/run
 
-  {:extra-paths     ["project/run/src/clj/dev"
-                     "project/run/src/cvx/dev"]}
+  {:extra-paths  ["project/run/src/clj/dev"
+                  "project/run/src/cvx/dev"]}
 
  }}
