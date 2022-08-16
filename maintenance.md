@@ -35,12 +35,3 @@ $ bb dev :project/cvm:nrepl
 # Testings all namespaces for project 'break' and dependencies
 $ bb test :project/break
 ```
-
-
-## Dev
-
-Following directory structure, each project typically has a `dev_templ.clj` file in its Clojure dev files which requires useful namespaces.
-This file can be copied in the same directory to `dev.clj` for hacking and trying thing out. Those `dev.clj` files are effectively private and will
-not appear in this repository.
-
-For example, see [`:project/all` dev directory](./project/all/src/clj/dev/convex/all).

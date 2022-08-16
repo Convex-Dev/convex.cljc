@@ -10,15 +10,36 @@
 ;;;;;;;;;;
 
 
-(doseq [nmspace (sort (filter (fn [nmspace]
-                                (string/includes? (str nmspace)
-                                                  "convex"))
-                              (namespace.find/find-namespaces (classpath/classpath))))]
-  (println "Requiring "
-           nmspace)
-  (try
-    (require nmspace)
-    (println "    OK")
-    (catch Exception _ex
-      (println "    FAIL")
-      (println _ex))))
+(defn require-convex
+
+  "Require Convex namespaces found on the classpath aliasing them in
+   the usual way."
+
+  []
+
+  (doseq [nmspace (sort (filter (fn [nmspace]
+                                  (string/starts-with? (str nmspace)
+                                                       "convex"))
+                                (namespace.find/find-namespaces (classpath/classpath))))
+          :let    [as-alias (-> nmspace
+                                (str)
+                                (string/split #"\.")
+                                (assoc 0
+                                       "$")
+                                (->> (string/join "."))
+                                (symbol))]]
+    (println (format "Requiring `%s` as `%s`"
+                     nmspace
+                     as-alias))
+    (try
+      (require [nmspace :as as-alias])
+      (println "    OK")
+      (catch Exception _ex
+        (println "    FAIL")
+        (println _ex)))))
+
+
+;;;;;;;;;;
+
+
+(require-convex)
