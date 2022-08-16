@@ -139,18 +139,17 @@
 
   {:ratio-num 100}
 
-  (TC.prop/for-all [x (TC.gen/one-of [$.gen/address
-                                      ($.gen/blob)])]
+  (TC.prop/for-all [blob ($.gen/blob)]
     (let [ctx ($.eval/ctx $.break/ctx
                           ($.cell/* (def -hash
-                                         (hash ~x))))]
+                                         (hash ~blob))))]
       (mprop/mult
 
         "Hashing is deterministic"
 
         ($.eval/true? ctx
                       ($.cell/* (= -hash
-                                   (hash ~x))))
+                                   (hash ~blob))))
 
 
         "Hashes are blobs"
