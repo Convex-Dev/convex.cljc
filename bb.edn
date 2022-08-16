@@ -29,7 +29,7 @@
 
   aliases:test:downstream
 
-  {:doc      "Like `aliases:test` but tests downstream consumer aliases of the input aliases"
+  {:doc      "Like `aliases:test` but tests all transitive modules as well"
    :requires ([task])
    :task     (task/aliases-test false)}
 
