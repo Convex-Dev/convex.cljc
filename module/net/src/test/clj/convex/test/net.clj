@@ -52,13 +52,14 @@
 
 
 
-(def server
-     ($.server/create kp
-                      {:convex.server/controller addr
-                       :convex.server/db         db
-                       :convex.server/host       "localhost"
-                       :convex.server/port       port
-                       :convex.server/state      [:use ($.cvm/state ctx)]}))
+(def d*server
+     (delay
+       ($.server/create kp
+                        {:convex.server/controller addr
+                         :convex.server/db         db
+                         :convex.server/host       "localhost"
+                         :convex.server/port       port
+                         :convex.server/state      [:use ($.cvm/state ctx)]})))
 
 
 ;;;
@@ -120,15 +121,15 @@
 
 (T/use-fixtures :once
                 (fn [f]
-                  ($.server/start server)
+                  ($.server/start @d*server)
                   (alter-var-root #'client
                                   (constantly (-connect)))
                   (alter-var-root #'client-local
-                                  (constantly ($.client/connect-local server)))
+                                  (constantly ($.client/connect-local @d*server)))
                   (f)
                   ($.client/close client)
                   ($.client/close client-local)
-                  ($.server/stop server)))
+                  ($.server/stop @d*server)))
 
 
 ;;;;;;;;;; Tests - Server
@@ -137,35 +138,35 @@
 (T/deftest controller
 
   (T/is (= addr
-           ($.server/controller server))))
+           ($.server/controller @d*server))))
 
 
 
 (T/deftest db-
 
   (T/is (= db
-           ($.server/db server))))
+           ($.server/db @d*server))))
 
 
 
 (T/deftest host
 
   (T/is (= "127.0.0.1"
-           ($.server/host server))))
+           ($.server/host @d*server))))
 
 
 
 (T/deftest peer
 
   (T/is (instance? Peer
-                   ($.server/peer server))))
+                   ($.server/peer @d*server))))
 
 
 
 (T/deftest persist
 
   (T/is (do
-          ($.server/persist server)
+          ($.server/persist @d*server)
           (some? ($.db/read-root db)))))
 
 
@@ -173,7 +174,7 @@
 (T/deftest port-
 
   (T/is (= port
-           ($.server/port server))))
+           ($.server/port @d*server))))
 
 
 ;;;;;;;;;; Client
