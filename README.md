@@ -84,6 +84,6 @@ Testing a module, for instance the suite of generative tests for the CVM:
 
 ## License
 
-Copyright © 2021 Adam Helinski, the Convex Foundation, and contributors
+Copyright © 2021 Protosens SRL and the Convex Foundation
 
 Licensed under the Apache License, Version 2.0
