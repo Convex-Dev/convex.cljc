@@ -17,9 +17,16 @@
    :maestro/doc "Examining the Java classpath"}
 
 
+  :ext/clojure.test.check
+
+  {:extra-deps  {org.clojure/test.check {:mvn/version "1.1.1"}}
+   :maestro/doc "Writing generative tests and generators"}
+
+
   :ext/clojure.tools.build
 
-  {:extra-deps  {io.github.clojure/tools.build {:git/tag "v0.8.2" :git/sha "ba1a2bf"}}
+  {:extra-deps  {io.github.clojure/tools.build {:git/sha "0d20256"
+                                                :git/tag "v0.8.3"}}
    :maestro/doc "Used for building jars and uberjars"}
 
   
@@ -49,7 +56,7 @@
 
 
   :ext/deps-deploy
-  {:replace-deps {slipset/deps-deploy {:mvn/version "0.1.5"}}
+  {:replace-deps {slipset/deps-deploy {:mvn/version "0.2.0"}}
    :maestro/doc  "Local install and deploying to Clojars"}
 
 
@@ -61,7 +68,7 @@
 
   :ext/kaocha
 
-  {:extra-deps  {lambdaisland/kaocha {:mvn/version "1.66.1034"}}
+  {:extra-deps  {lambdaisland/kaocha {:mvn/version "1.69.1069"}}
    :maestro/doc "Testing framework"}
 
 
@@ -69,31 +76,32 @@
                                                      :git/url "https://github.com/protosens/maestro.clj.git"}}
                 :maestro/doc "Library used for managing this repo as a monorepo"}
 
+
   :ext/mprop
 
   {:extra-deps  {io.helins/mprop {:mvn/version "0.0.1"}}
-   :maestro/doc "Improves writing complex generative tests with `ext/test.check`."}
+   :maestro/doc "Improves writing complex generative tests with `ext/clojure.test.check`."}
 
 
   :ext/slf4j-timbre
 
-  {:extra-deps  {com.fzakaria/slf4j-timbre {:mvn/version "0.3.21"}}
-   :maestro/doc "Needed for supressing warnings related to SLF4J used by some dependencies"}
+  {:extra-deps      {com.fzakaria/slf4j-timbre {:mvn/version "0.3.21"}}
+   :maestro/doc     "Needed for supressing warnings related to SLF4J used by some dependencies"
+   :maestro/require [:ext/timbre]}
 
 
-  :ext/test.check
+  :ext/timbre
 
-  {:extra-deps  {org.clojure/test.check {:mvn/version "1.1.0"}}
-   :maestro/doc "Writing generative tests and generators for internal libraries"}
-
+  {:extra-deps  {com.taoensso/timbre {:mvn/version "5.2.1"}}
+   :maestro/doc "Overwrites Timbre version required by `:ext/slf4j`"}
 
   ;; USEFUL BUNDLES OF ALIASES
 
   :bundle/test
   {:maestro/doc     "Test utilities"
-   :maestro/require [:ext/kaocha
-                     :ext/mprop
-                     :ext/test.check]}
+   :maestro/require [:ext/clojure.test.check
+                     :ext/kaocha
+                     :ext/mprop]}
 
 
 
@@ -135,7 +143,7 @@
    :maestro/dir     "project/app/fuzz"
    :maestro/doc     "Run fuzzy tests against the CVM"
    :maestro/main    convex.app.fuzz
-   :maestro/require [:ext/test.check
+   :maestro/require [:ext/clojure.test.check
                      :project/break
                      :project/cvm
                      {dev :dev/app.fuzz}]
@@ -185,17 +193,11 @@
    :maestro/dir                "project/cvm"
    :maestro/doc                "Handling CVM contextes and Convex data"
    :maestro/require           [:ext/convex-core
-                               {dev :dev/cvm}
                                {test :test/cvm}]
    :maestro.build/artifact    world.convex/cvm.clj
    :maestro.build/type        :jar
    :maestro.build/version     "0.0.0-alpha3"
    :maestro.build.path/output "private/target/cvm.jar"}
-
-
-  :dev/cvm
-
-  {:extra-paths ["project/cvm/src/clj/dev"]}
 
 
   :release/cvm
@@ -215,8 +217,7 @@
   {:extra-paths               ["project/gen/src/clj/main"]
    :maestro/dir               "project/gen"
    :maestro/doc               "`test.check` generators for cells"
-   :maestro/require           [:ext/test.check
-                               {dev :project/gen}
+   :maestro/require           [:ext/clojure.test.check
                                {default :project/cvm
                                 release :release/cvm}
                                {test :test/gen}]
@@ -224,11 +225,6 @@
    :maestro.build/type        :jar
    :maestro.build/version     "0.0.0-alpha0"
    :maestro.build.path/output "private/target/gen.jar"}
-
-
-  :dev/gen
-
-  {:extra-paths ["project/gen/src/clj/dev"]}
 
 
   :release/gen
@@ -248,7 +244,6 @@
    :maestro/doc               "Convex network utilities"
    :maestro/dir               "project/net"
    :maestro/require           [:ext/convex-peer
-                               {dev :dev/net}
                                {default :project/cvm
                                 release :release/cvm}
                                {test :test/net}]
@@ -256,11 +251,6 @@
    :maestro.build/type        :jar
    :maestro.build/version     "0.0.0-alpha2"
    :maestro.build.path/output "private/target/net.jar"}
-
-
-  :dev/net
-
-  {:extra-paths ["project/net/src/clj/dev"]}
 
 
   :release/net
@@ -306,7 +296,5 @@
 
   :dev/run
 
-  {:extra-paths  ["project/run/src/clj/dev"
-                  "project/run/src/cvx/dev"]}
-
+  {:extra-paths  ["project/run/src/cvx/dev"]}
  }}
