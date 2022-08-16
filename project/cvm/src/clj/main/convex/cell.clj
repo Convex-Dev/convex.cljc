@@ -719,7 +719,7 @@
 
   [x+]
   
-  (list* 'concat
+  (list* 'clojure.core/concat
          (clojure.core/map (fn [x]
                              (if (and (seq? x)
                                       (clojure.core/= (first x)

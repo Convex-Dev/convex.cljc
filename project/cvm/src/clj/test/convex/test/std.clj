@@ -12,6 +12,7 @@
                             ==
                             >=
                             >
+                            abs
                             assoc
                             concat
                             conj
