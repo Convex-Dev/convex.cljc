@@ -107,7 +107,7 @@
   [arg+]
 
   (-tool (-> (maestro.required/create-basis)
-             (maestro.alias/append+ [:project/build])
+             (maestro.alias/append+ [:module/build])
              maestro.required/search
              :maestro/require)
          'build/main
