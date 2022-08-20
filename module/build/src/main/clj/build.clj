@@ -99,16 +99,24 @@
                             (maestro.profile/append+ '[release])
                             (maestro.required/search))
         required-alias+ (basis-maestro :maestro/require)
-        alias-data      (get-in basis-maestro
-                                [:aliases root-alias])
+        alias+          (basis-maestro :aliases)
+        alias-data      (alias+ root-alias)
+        [artifact
+         version-map]   (-> alias+
+                            (get-in [(keyword "release"
+                                              (name root-alias))
+                                    :extra-deps])
+                            (first))
         dir             (alias-data :maestro/dir)
         path-target     (str dir "/target")
         path-class      (str path-target "/classes")
         path-src+       (maestro.alias/extra-path+ basis-maestro
                                                    required-alias+)]
     (-> (merge alias-data
-               {:maestro.build/basis       (tools.build/create-basis {:aliases required-alias+
+               {:maestro.build/artifact    artifact
+                :maestro.build/basis       (tools.build/create-basis {:aliases required-alias+
                                                                       :project "deps.edn"})
+                :maestro.build/version     (version-map :mvn/version)
                 :maestro.build.path/class  path-class
                 :maestro.build.path/src+   path-src+
                 :maestro.build.path/target path-target}

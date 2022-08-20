@@ -200,9 +200,7 @@
    :maestro/doc                "Handling CVM contextes and Convex data"
    :maestro/require           [:ext/convex-core
                                {test :test/cvm}]
-   :maestro.build/artifact    world.convex/cvm.clj
    :maestro.build/type        :jar
-   :maestro.build/version     "0.0.0-alpha3"
    :maestro.build.path/output "private/target/cvm.jar"}
 
 
@@ -227,9 +225,7 @@
                                {default :module/cvm
                                 release :release/cvm}
                                {test :test/gen}]
-   :maestro.build/artifact    world.convex/gen.clj
    :maestro.build/type        :jar
-   :maestro.build/version     "0.0.0-alpha0"
    :maestro.build.path/output "private/target/gen.jar"}
 
 
@@ -253,9 +249,7 @@
                                {default :module/cvm
                                 release :release/cvm}
                                {test :test/net}]
-   :maestro.build/artifact    world.convex/net.clj
    :maestro.build/type        :jar
-   :maestro.build/version     "0.0.0-alpha2"
    :maestro.build.path/output "private/target/net.jar"}
 
 
