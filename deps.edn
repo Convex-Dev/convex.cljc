@@ -11,6 +11,12 @@
    :maestro/doc "HTTP client needed for recipes"}
 
 
+  :ext/clojure
+
+  {:extra-deps {org.clojure/clojure {:mvn/version "1.11.1"}}
+   :maestro/doc "Stable Clojure versioln"}
+
+
   :ext/clojure.java.classpath
 
   {:extra-deps  {org.clojure/java.classpath {:mvn/version "1.0.0"}}
@@ -157,7 +163,8 @@
    :extra-paths     ["module/app/fuzz/src/main/clj"]
    :maestro/dir     "module/app/fuzz"
    :maestro/doc     "Generates and executes random CVX forms while keeping track of unforeseen failures"
-   :maestro/require [:ext/clojure.test.check
+   :maestro/require [:ext/clojure
+                     :ext/clojure.test.check
                      :module/break
                      :module/cvm]}
 
@@ -285,10 +292,10 @@
                                      "module/run/src/main/misc"]
    :maestro/dir                     "module/run"
    :maestro/doc                     "Convex Lisp Runner"
-   :maestro/require                 [:ext/criterium
+   :maestro/require                 [:ext/clojure
+                                     :ext/criterium
                                      {dev :dev/run}
-                                     {default :module/cvm
-                                      release :release/cvm}]
+                                     :module/cvm]
    :maestro.build/type              :uberjar
    :maestro.build.path/output       "private/target/run.uber.jar"
    :maestro.uberjar/main            convex.run

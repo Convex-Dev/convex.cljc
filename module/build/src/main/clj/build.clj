@@ -116,7 +116,8 @@
                {:maestro.build/artifact    artifact
                 :maestro.build/basis       (tools.build/create-basis {:aliases required-alias+
                                                                       :project "deps.edn"})
-                :maestro.build/version     (version-map :mvn/version)
+                :maestro.build/version     (get version-map
+                                                :mvn/version)
                 :maestro.build.path/class  path-class
                 :maestro.build.path/src+   path-src+
                 :maestro.build.path/target path-target}

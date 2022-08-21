@@ -75,13 +75,13 @@ $ bb build :module/run
 Uberjar should now be located under `./private/target/run.uber.jar`. It is usable with any JVM:
 
 ```bash
-$ java -jar ./build/uberjar/project/run.jar
+$ java -jar ./private/target/run.uber.jar
 ```
 
 For native compilation, [GraalVM](https://www.graalvm.org/docs/getting-started/) must be installed as well
 as its companion tool [Native Image](https://www.graalvm.org/reference-manual/native-image/#install-native-image).
 
-We recommend [SDKMan](https://sdkman.io/) for easy installation of GraalVM tools.
+We recommend [SDKMan](https://sdkman.io) for easy installation of GraalVM tools.
 
 Assuming everything is ready and the uberjar has been built:
 
