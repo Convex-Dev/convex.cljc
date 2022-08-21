@@ -62,8 +62,15 @@
 
 
   :ext/deps-deploy
+
   {:replace-deps {slipset/deps-deploy {:mvn/version "0.2.0"}}
    :maestro/doc  "Local install and deploying to Clojars"}
+
+
+  :ext/graal-build-time
+
+  {:extra-deps {com.github.clj-easy/graal-build-time {:mvn/version "0.1.4"}}
+   :maestro/doc "During native compilation, initializes Clojure classes at build time"}
 
 
   :ext/json
@@ -294,6 +301,7 @@
    :maestro/doc                     "Convex Lisp Runner"
    :maestro/require                 [:ext/clojure
                                      :ext/criterium
+                                     :ext/graal-build-time
                                      {dev :dev/run}
                                      :module/cvm]
    :maestro.build/type              :uberjar
