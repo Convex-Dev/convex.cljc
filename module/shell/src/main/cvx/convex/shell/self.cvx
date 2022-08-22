@@ -51,14 +51,6 @@
 
 
 
-(def $.doc
-
-  ^{:private? true}
-
-  nil)
-
-
-
 (def $.help
 
   ^{:private? true}

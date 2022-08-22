@@ -16,6 +16,8 @@ All notable changes to this project will be documented in this file.
 
 ### Removed
 
+- Unproven `$.doc` CVX library
+
 
 
 ## [0.0.0-alpha3] - 2021-09-28

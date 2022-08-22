@@ -403,11 +403,6 @@
                               "error handling, catching exceptions")
                      (account "$.code"
                               "code related utilities, such as parsing source as cells")
-                     (account "$.doc"
-                              (str "very experimental prototype of a simple document rendering library based on "
-                                   $.term/bold
-                                   "$.term"
-                                   $.term/reset))
                      (account "$.file"
                               (str "reading/writing files, open file streams for "
                                    $.term/bold
