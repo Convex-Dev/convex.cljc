@@ -15,6 +15,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Uppgrade to Convex 0.7.6
+
 ### Fixed
 
 - `$.cell/*` properly converts namespaced symbols to CVX lookups

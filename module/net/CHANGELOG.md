@@ -12,6 +12,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Upgrade to Convex 0.7.6
+
 ### Fixed
 
 ### Removed
