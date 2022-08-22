@@ -303,7 +303,8 @@
 
   :module/shell
 
-  {:extra-paths                     ["module/shell/resource"
+  {:convex.shell/version            "0.0.0-alpha3"
+   :extra-paths                     ["module/shell/resource"
                                      "module/shell/src/main/clj"
                                      "module/shell/src/main/cvx"
                                      "module/shell/src/main/misc"]

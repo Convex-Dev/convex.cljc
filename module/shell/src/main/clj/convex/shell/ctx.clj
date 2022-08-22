@@ -11,7 +11,6 @@
            (java.nio.charset StandardCharsets))
   (:require [clojure.edn      :as edn]
             [clojure.java.io  :as java.io]
-            [clojure.string   :as string]
             [convex.cell      :as $.cell]
             [convex.cvm       :as $.cvm]
             [convex.read      :as $.read]
@@ -21,18 +20,22 @@
 ;;;;;;;;;; Preparing a base context, loading libraries
 
 
-(defmacro ^:private -convex-version*
+(defmacro ^:private -version+*
   ;; For embedding the Convex version in the shell during compile time.
   []
-  (-> "deps.edn"
-      (java.io/reader)
-      (PushbackReader.)
-      (edn/read)
-      (:aliases)
-      (get-in [:ext/convex-core
-               :extra-deps
-               'world.convex/convex-core
-               :mvn/version])))
+  (let [alias+ (-> "deps.edn"
+                   (java.io/reader)
+                   (PushbackReader.)
+                   (edn/read)
+                   (:aliases))]
+    [(get-in alias+
+             [:module/shell
+              :convex.shell/version])
+     (get-in alias+
+             [:ext/convex-core
+              :extra-deps
+              'world.convex/convex-core
+              :mvn/version])]))
 
 
 
@@ -149,13 +152,11 @@
     (-> ctx
         ($.cvm/def sym->addr)
         ($.cvm/def addr-$
+                   (let [[version
+                          version-convex] (-version+*)]
                    {$.shell.sym/line           ($.cell/string (System/lineSeparator))
-                    $.shell.sym/version        (-> "convex/shell/version.txt"
-                                                   (java.io/resource)
-                                                   (slurp)
-                                                   (string/trim-newline)
-                                                   ($.cell/string))
-                    $.shell.sym/version-convex ($.cell/string (-convex-version*))}))))
+                    $.shell.sym/version        ($.cell/string version)
+                    $.shell.sym/version-convex ($.cell/string version-convex)})))))
 
 
 ;;;;;;;;;; Defining symbols in the environment's context
