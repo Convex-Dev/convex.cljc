@@ -1,0 +1,109 @@
+;;
+;;
+;; Testing `convex.shell.time`.
+;;
+;;
+
+
+;;;;;;;;;; Importing libraries
+
+
+(def T
+     $.test)
+
+
+;;;;;;;;;; Test suites
+
+
+(defn suite.advance
+
+  ^{:doc {:description "Advancing time."}}
+
+  []
+
+  (T/group '((T/path.conj 'advance)
+
+             (def interval
+                  100)
+
+             (def start
+                  *timestamp*)
+
+             (def end
+                  (+ start
+                     interval))
+
+             (schedule (+ start
+                          interval)
+                       (def foo
+                            42))
+
+             (T/trx '($.trx/precat '(($.time/advance (dec interval))
+                                     (= (dec interval)
+                                         $/*result*)))
+                    {:description "Advancing time returns given interval."})
+
+             (T/trx '(not (defined? foo))
+                    {:description "Scheduled transaction not yet executed."})
+
+             (T/trx '(= (- end
+                           1)
+                        *timestamp*)
+                    {:description "Clock advanced precisely as expected."})
+
+             (T/trx '($.trx/precat '(($.time/advance 1)
+                                     (= foo
+                                        42)))
+                    {:description "Scheduled transaction executed."})
+
+             (T/trx '(= end
+                        *timestamp*)
+                    {:description "Timestamp precisely where expected."}))))
+
+
+
+(defn suite.state
+
+  ^{:doc {:description "Pushing and popping state."}}
+
+  []
+
+  (T/group '((T/path.conj 'push-pop)
+             
+             (T/trx '($.trx/precat '(42
+                                     ($.time/push)
+                                     (def foo
+                                          $/*result*)
+                                     ($.time/pop)
+                                     (not (defined? foo))))
+                    {:description "State popped forgetting everything."})
+
+             (T/trx '($.trx/precat '(($.time/push)
+                                     (def foo
+                                          24)
+                                     ($.time/pop `(def bar
+                                                       ~foo))
+                                     (= 24
+                                        bar)))
+                    {:description "State popped while remembering something."}))))
+             
+
+;;;
+
+
+(defn suite.main
+
+  ^{:doc {:description "Main test suite."}}
+
+  []
+
+  (T/group '((T/path.conj 'convex.shell.time)
+             (suite.advance)
+             (suite.state))))
+
+
+;;;
+
+
+(suite.main)
+(T/print "convex.shell.time")

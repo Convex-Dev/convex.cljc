@@ -1,0 +1,53 @@
+;;
+;;
+;; Testing `convex.shell.process`.
+;;
+;;
+
+
+;;;;;;;;;;
+
+
+(def T
+     $.test)
+
+
+;;;;;;;;;; Test suites
+
+
+(defn suite.main
+
+  ^{:doc {:description "Main test suite."}}
+
+  []
+
+  (T/group '((T/path.conj 'convex.shell.process)
+
+             ($.process/env)
+
+             (def var+
+                  $/*result*)
+
+             (T/trx '(and (map? var+)
+                          (not (empty? var+)))
+                    {:description "Retrieve whole env map."})
+
+             (let [[var
+                    value] (first var+)]
+               (def var
+                    var)
+               (def value
+                    value))
+
+             ($.process/env var)
+
+             (T/trx '(= value
+                        $/*result*)
+                    {:description "Retrieve only one variable."}))))
+
+
+;;;
+
+
+(suite.main)
+(T/print "convex.shell.process")

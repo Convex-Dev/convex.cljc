@@ -28,7 +28,7 @@ Most useful modules from this repositories are:
 | [`:module/cvm`](./module/cvm) | [![Clojars](https://img.shields.io/clojars/v/world.convex/cvm.clj.svg)](https://clojars.org/world.convex/cvm.clj) | [![cljdoc](https://cljdoc.org/badge/world.convex/cvm.clj)](https://cljdoc.org/d/world.convex/cvm.clj/CURRENT) | / |
 | [`:module/gen`](./module/gen) | [![Clojars](https://img.shields.io/clojars/v/world.convex/gen.clj.svg)](https://clojars.org/world.convex/gen.clj) | [![cljdoc](https://cljdoc.org/badge/world.convex/gen.clj)](https://cljdoc.org/d/world.convex/gen.clj/CURRENT) | / |
 | [`:module/net`](./module/net) | [![Clojars](https://img.shields.io/clojars/v/world.convex/net.clj.svg)](https://clojars.org/world.convex/net.clj) | [![cljdoc](https://cljdoc.org/badge/world.convex/net.clj)](https://cljdoc.org/d/world.convex/net.clj/CURRENT) | / |
-| [`:module/run`](./module/run) | / | / | [CVX runner](https://github.com/Convex-Dev/convex.cljc/releases/tag/run%2F0.0.0-alpha3) |
+| [`:module/shell`](./module/shell) | / | / | [CVX Shell](https://github.com/Convex-Dev/convex.cljc/releases/tag/run%2F0.0.0-alpha3) |
 
 
 ## Community

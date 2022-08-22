@@ -301,26 +301,26 @@
 
   ;---
 
-  :module/run
+  :module/shell
 
-  {:extra-paths                     ["module/run/resource"
-                                     "module/run/src/main/clj"
-                                     "module/run/src/main/cvx"
-                                     "module/run/src/main/misc"]
-   :maestro/dir                     "module/run"
-   :maestro/doc                     "Convex Lisp Runner"
+  {:extra-paths                     ["module/shell/resource"
+                                     "module/shell/src/main/clj"
+                                     "module/shell/src/main/cvx"
+                                     "module/shell/src/main/misc"]
+   :maestro/dir                     "module/shell"
+   :maestro/doc                     "Convex Lisp Shell"
    :maestro/require                 [:ext/clojure
                                      :ext/criterium
                                      :ext/graal-build-time
-                                     {dev :dev/run}
-                                     :module/cvm]
+                                     :module/cvm
+                                     {dev :dev/shell}]
    :maestro.build/type              :uberjar
-   :maestro.build.path/output       "private/target/run.uber.jar"
-   :maestro.uberjar/main            convex.run
+   :maestro.build.path/output       "private/target/shell.uber.jar"
+   :maestro.uberjar/main            convex.shell
    :maestro.uberjar/direct-linking? true}
 
 
-  :dev/run
+  :dev/shell
 
-  {:extra-paths  ["module/run/src/dev/cvx"]}
+  {:extra-paths  ["module/shell/src/dev/cvx"]}
  }}

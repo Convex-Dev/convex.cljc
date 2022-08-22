@@ -1,0 +1,72 @@
+(call *registry*
+      (cns-update 'convex.shell
+                  *address*))
+
+
+(call *registry*
+      (register {:description "Notably provides the `*result*` dynamic value and the `help` function."
+                 :name        "Miscellaneous utilities for the Convex Lisp Shell"}))
+
+
+;;;;;;;;;; Static values set by the shell
+
+
+(def line
+
+  ^{:doc {:description "String representing platform dependent newline."}}
+
+  nil)
+
+
+
+(def version
+
+  ^{:doc {:description "String representing the current version."}}
+
+  nil)
+
+
+;;;;;;;;;; DYNAMIC VALUES
+
+
+(def *result*
+
+  ^{:doc {:description "Dynamic value, result of the previous transaction."}}
+
+  nil)
+
+
+;;;;;;;;;; Getting help
+
+
+(defmacro help
+
+  ^{:doc {:description ["Arity 0 prints a generic help message."
+                        "Arity 1 prints information for an account or a symbol."]
+          :examples    [{:code "($/help)"}
+                        {:code "($/help *address*)"}
+                        {:code "($/help $/help)"}]
+          :signature   [{:params []}
+                        {:params [addr-or-sym]}]}}
+
+
+  ([]
+
+   '($.help/main))
+
+
+  ([addr-or-sym]
+
+   (if (and (list? addr-or-sym)
+            (= (count addr-or-sym)
+               3)
+            (= (first addr-or-sym)
+               'lookup))
+     `($.help/symbol ~(nth addr-or-sym
+                           1)
+                     (quote ~(nth addr-or-sym
+                                  2)))
+     `(let [x ~addr-or-sym]
+        (if (address? x)
+          ($.help/address x)
+          ($.help/symbol (quote ~addr-or-sym)))))))

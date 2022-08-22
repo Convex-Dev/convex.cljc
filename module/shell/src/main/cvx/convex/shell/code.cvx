@@ -1,0 +1,51 @@
+(call *registry*
+      (cns-update 'convex.shell.code
+                  *address*))
+
+
+(call *registry*
+      (register {:description "Utilities for handling code."
+                 :name        "Code handling library for the Convex Shell"}))
+
+
+;;;;;;;;;; Importing libraries
+
+
+(def $.trx
+
+  ^{:private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.shell.trx)))
+
+
+;;;;;;;;;; API
+
+
+(defn decompile
+
+  ^{:doc {:description ["Compiles the given cell, such as a function, into data."
+                        "Uses `read+`. Result is availabe during next transaction under `$/*result*`."
+                        "Experimental! Currently, cells containing local bindings are not eval-ready (eg. functions)."]
+          :examples    [{:code "($.code/decompile (fn [x] (inc x)))"}]
+          :signature   [{:params [cell]}]}}
+
+  [cell]
+
+  ($.trx/precat `((~read+ ~(str cell))
+                  (first $/*result*))))
+
+
+
+(defn read+
+
+  ^{:doc {:description ["Passes the given string through the Convex Lisp reader and produces a list of cells."
+                        "Those cells can be compiled, evaluated, ..."
+                        "Result is available during next transaction under `$/*result*`."]
+          :examples    [{:code "($.code/read+ \"(+ 2 2)\")"}]
+          :signature   [{:params [src]}]}}
+
+  [src]
+
+  (assert (str? src))
+  [:cvm.sreq :code.read+ src])

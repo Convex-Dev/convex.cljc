@@ -1,0 +1,103 @@
+;;
+;;
+;; Testing `convex.shell.test`.
+;;
+;;
+
+
+;;;;;;;;;;
+
+
+(def T
+     $.test)
+
+
+;;;;;;;;;; Test suites
+
+
+(defn suite.main
+
+  ^{:doc {:description "Main test suite."}}
+
+  []
+
+  (T/group '((T/path.conj 'convex.shell.test)
+
+             (T/trx '(zero? T/*n-fail*)
+                    {:description "No failures initially."})
+
+             (T/trx '(= 1
+                        (count T/*report+*))
+                    {:description "1 test executed."})
+
+             (T/trx '(= 2
+                        (count T/*report+*))
+                    {:description "2 tests executed."})
+
+             (T/trx '(zero? T/*n-fail*)
+                    {:description "Still no failure."})
+
+             (T/fail (fn [ex]
+                       (= "Bar"
+                          (ex :message)))
+                     '(fail :foo
+                            "Bar")
+                     {:description "Expected exception message."})
+
+             (T/fail.code #{:foo}
+                          '(fail :foo
+                                 "Bar")
+                          {:description "Expected exception code."})
+
+             (def n-report
+                  (count T/*report+*))
+
+             (T/filter.set (fn [meta]
+                             (not (:slow? meta))))
+
+             (T/trx 'filtered
+                    {:slow? true})
+
+             (T/trx '(= n-report
+                        (count T/*report+*))
+                    {:description "Last test was filtered out"})
+
+             (def n-report-2
+                  (count T/*report+*))
+
+             (T/meta.set (fn [meta]
+                           (assoc meta
+                                  :slow?
+                                  true)))
+
+             (T/trx 'filtered-again)
+
+             (T/meta.set nil)
+
+             (T/trx '(= n-report-2
+                        (count T/*report+*))
+                    {:description "Last test was filtered out because metadata was modified automatically."})
+
+             (T/trx '(query
+                       (do
+                         (T/report.clear)
+                         (and (zero? T/*n-fail*)
+                              (empty? T/*report+*))))
+                    {:description "Clearing reports."})
+
+			 (T/group '((def foo
+			                 42))
+					  (fn []
+					    `(def bar
+						      (inc ~foo))))
+
+			 (T/trx '(= 43
+			            bar)
+					{:description "Given transaction called on pop."}))))
+
+
+;;;
+
+
+(suite.main)
+(T/print "convex.shell.test")

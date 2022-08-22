@@ -1,0 +1,436 @@
+(call *registry*
+      (cns-update 'convex.shell.help
+                  *address*))
+
+
+(call *registry*
+      (register {:description "Implementations for all capabilities behind `$/help`. Rarely used directly."
+                 :name        "Help library for the Convex Shell"}))
+
+
+;;;;;;;;;; Importing libraries
+
+
+(def core
+
+  ^{:private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.core)))
+
+
+
+(def $
+
+  ^{:private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.shell)))
+
+
+
+(def $.term
+
+  ^{:private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.shell.term)))
+
+
+
+(def $.trx
+
+  ^{:private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.shell.trx)))
+
+
+;;;;;;;;;; Values
+
+
+(def -accent
+
+  ^{:doc      {:description "Sets style for bold blue."}
+    :private? true}
+
+  (str $.term/bold
+       $.term/fg.blue))
+
+
+;;;;;;;;;; Private helpers
+
+
+(defn -out!
+
+  ^{:doc      {:description "Produces a string out of `acc` (a vector of cells) and prints it to default output."
+               :signature   [{:params [acc]}]}
+    :private? true}
+
+  [acc]
+
+  ($.trx/precat `(($.stream/out! ~(apply str
+                                         acc))
+                  nil)))
+
+
+
+(defn -vector?
+
+  ^{:doc      {:description "Returns true is `x` is a non-empty vector."
+               :signature   [{:params [x]}]}
+    :private? true}
+
+  [x]
+
+  (and (vector? x)
+       (not (empty? x))))
+
+
+;;;;;;;;;; Generic printing
+
+
+(defn description
+
+  ^{:doc {:description "Like `section` but for `:description` in `:doc` metadata."
+          :signature   [{:params [acc description]}]}}
+
+  [acc desc]
+
+  (section acc
+           "Description:"
+           (if (boolean desc)
+             (if (and (vector? desc)
+                      (not (zero? (count desc))))
+               desc
+               [(str desc)])
+             ["No documentation."])))
+
+
+
+(defn env-entry
+
+  ^{:doc {:description ["Appends to `acc` (a vector of cells) an overview for a environment symbol."
+                        "Description is fetched from that symbols' metadata."]
+          :signature   [{:params [acc sym description]}]}}
+
+  [acc sym desc]
+
+  (conj acc
+        (str $.term/bold
+             $.term/fg.green
+             sym
+             "  "
+             $.term/reset
+             $/line
+             "    "
+             (let [desc-2 (if desc
+                            (if (str? desc)
+                              desc
+                              (first desc))
+                            "No documentation.")
+                   n-char (count desc-2)
+                   limit  (min 75
+                               n-char)]
+              (loop [char+ []
+                     i     0]
+                (if (< i
+                       limit)
+                  (recur (conj char+
+                               (nth desc-2
+                                    i))
+                         (inc i))
+                  (apply str
+                         (if (or (< limit
+                                    n-char)
+                                 (and (vector? desc)
+                                      (> (count desc)
+                                         1)))
+                           (conj char+
+                                 (if (= (last char+)
+                                        \.)
+                                   ".."
+                                   "..."))
+                           char+))))))))
+
+
+
+(defn key-value
+
+  ^{:doc {:description "Like `section` but involves only one line."
+          :examples    [{:code "($.help/key-value [] \"Title:\" \"Some text\")"}]
+          :signature   [{:params [acc heading line]}]}}
+
+  [acc heading line]
+
+  (conj acc
+        $/line
+        -accent
+        heading
+        $.term/reset
+        $/line
+        "  "
+        line))
+
+
+
+(defn section
+
+  ^{:doc {:description "Appends to `acc` strings where `heading` is accented and each line in `line+` appears shifted on a new line."
+          :examples    [{:code "($.help/section [] \"Title:\" [\"A\" \"B\"])"}]
+          :signature   [{:params [acc heading line+]}]}}
+
+  [acc heading line+]
+
+  (reduce (fn [acc-2 line]
+            (conj acc-2
+                  $/line
+                  "  "
+                  line))
+          (conj acc
+                $/line
+                -accent
+                heading
+                $.term/reset)
+          line+))
+
+
+;;;;;;;;;; Printing entities
+
+
+(defn address
+
+  ^{:doc {:description "Prints help to default output for the given `address` (or the value of `*address*` alternatively."
+          :examples    [{:code "($.help/address #8)"}]
+          :signature   [{:params []}
+                        {:params [address]}]}}
+
+
+  ([]
+
+   (address *address*))
+
+
+  ([addr]
+
+   (-out! (if-let [account (core/account addr)]
+            (let [meta-reg (call *registry*
+                                 (lookup addr))
+                  acc      []
+                  acc      (key-value acc
+                                      "Name:"
+                                      (or (:name meta-reg)
+                                          "Not provided."))
+                  acc      (description acc
+                                        (:description meta-reg))
+                  acc      (key-value acc
+                                      "Allowance:"
+                                      (:allowance account))
+                  acc      (key-value acc
+                                      "Balance:"
+                                      (:balance account))
+                  acc      (key-value acc
+                                      "Controller:"
+                                      (or (:controller account)
+                                          "None"))
+                  acc      (key-value acc
+                                      "Key:"
+                                      (or (:key account)
+                                          "None"))
+                  meta     (:metadata account)
+                  env      (reduce (fn [acc sym]
+                                     (if-let [meta-sym (get meta
+                                                            sym)]
+                                       (if (:private? meta-sym)
+                                         acc
+                                         (env-entry acc
+                                                    sym
+                                                    (get-in meta-sym
+                                                            [:doc
+                                                             :description])))
+                                       (env-entry acc
+                                                  sym
+                                                  nil)))
+                                   []
+                                   (when-let [env (:environment account)]
+                                     (keys env)))
+                  acc      (if (empty? env)
+                             acc
+                             (section acc
+                                      "Overview:"
+                                      env))
+                  ]
+              acc)
+            [($.term/down-begin 1)
+             $.term/bold
+             $.term/fg.red
+             "Account not found."
+             $.term/reset]))))
+
+
+
+(defn meta
+
+  ^{:doc {:description "Prints help to default output for the given symbol `meta`data."
+          :examples    [{:code "($.help/meta (lookup-meta '+))"}]
+          :signature   [{:params [meta]}]}}
+
+
+  [meta]
+
+  (-out! (if meta
+           (let [doc   (:doc meta)
+                 desc  (:description doc)
+                 acc   (description []
+                                    (:description doc))
+                 sign+ (:signature doc)
+                 acc   (if sign+
+                        (section acc
+                                 "Signature(s):"
+                                 (if (-vector? sign+)
+                                   (map :params
+                                        sign+)
+                                   [(str sign+)]))
+                        acc)
+                 ex+   (:examples doc)
+                 acc   (if ex+
+                         (section acc
+                                  "Example(s):"
+                                  (if (-vector? ex+)
+                                    (map (fn [ex]
+                                           (let [code   (:code ex)
+                                                 return (:returns ex)]
+                                             (if (nil? return)
+                                               code
+                                               (str code
+                                                    ($.term/right 1)
+                                                    -accent
+                                                    "->"
+                                                    $.term/reset
+                                                    ($.term/right 1)
+                                                    return))))
+                                         ex+)
+                                    [(str ex+)]))
+                         acc)
+                 err+  (:errors doc)
+                 acc   (if err+
+                         (section acc
+                                  "Error(s):"
+                                  (if (and (map? err+)
+                                           (not (empty? err+)))
+                                    (map (fn [[code txt]]
+                                           (str code
+                                                -accent
+                                                " <- "
+                                                $.term/reset
+                                                txt))
+                                         err+)
+                                    [(str err+)]))
+                         acc)]
+             acc)
+          [$/line
+           $.term/bold
+           $.term/fg.red
+           "Symbol is not defined."
+           $.term/reset])))
+
+
+
+(defn symbol
+
+  ^{:doc {:description ["Prints to default output help for the given `symbol`."
+                        "Smaller helper over `meta`."]
+          :examples    [{:code "($.help/symbol '+)"}
+                        {:code "($.help/symbol #8 '+)"}]
+          :signature   [{:params [symbol]}
+                        {:params [address symbol]}]}}
+
+
+  ([sym]
+
+   (meta (lookup-meta sym)))
+
+
+  ([addr sym]
+
+   (meta (lookup-meta addr
+                      sym))))
+
+
+;;;
+
+
+(defn main
+
+  ^{:doc {:description "Prints to default output the general help message."}}
+
+  []
+
+  (let [account (fn [account text]
+                  (str $/line
+                       $.term/bold
+                       $.term/fg.blue
+                       "  "
+                       account
+                       $.term/reset
+                       ": "
+                       text))
+        text    (str $/line
+                     "The Convex Shell executes each form as a separate transaction. Each transaction is local, there is no connection to any peer."
+                     $/line
+                     $/line
+                     "This environment is well-suited for development, testing, and some off-chain computation."
+                     $/line
+                     $/line
+                     "Some functions or macros returns a \"request\": a vector specifying some special action to perform before the next transaction."
+                     $/line
+                     "Since the CVM itself is purely deterministic, such requests allow to perform extra effects like reading STDIN, writing to files, advancing time, etc."
+                     $/line
+                     $/line
+                     "To learn more about getting help for accounts and symbols, run: "
+                     $.term/bold
+                     "($/help $/help)"
+                     $.term/reset
+                     $/line
+                     $/line
+                     "Libraries of interest:"
+                     $/line
+                     (account "$"
+                              "miscellaneous utilities")
+                     (account "$.account"
+                              "account related utilities, such as creating zombie accounts")
+                     (account "$.catch"
+                              "error handling, catching exceptions")
+                     (account "$.code"
+                              "code related utilities, such as parsing source as cells")
+                     (account "$.doc"
+                              (str "very experimental prototype of a simple document rendering library based on "
+                                   $.term/bold
+                                   "$.term"
+                                   $.term/reset))
+                     (account "$.file"
+                              (str "reading/writing files, open file streams for "
+                                   $.term/bold
+                                   "$.stream"
+                                   $.term/reset))
+                     (account "$.log"
+                              "accessing the CVM log")
+                     (account "$.perf"
+                              "performance tracking, such as juice monitoring")
+                     (account "$.process"
+                              "process utilities, such as reading environment variables")
+                     (account "$.repl"
+                              "starting and stopping the REPL")
+                     (account "$.stream"
+                              "reading/writing streams (currently files and STDIO)")
+                     (account "$.term"
+                              "produce nice terminal output, such as colored text")
+                     (account "$.test"
+                              "unit testing library")
+                     (account "$.time"
+                              "time-travel utilities")
+                     (account "$.trx"
+                              "modifying the list of transactions pending for execution, powerful metaprogramming"))]
+    ($.trx/precat `(($.stream/out! ~text)
+                    nil))
+    nil))

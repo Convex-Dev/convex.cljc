@@ -1,0 +1,141 @@
+;;
+;;
+;; Testing `convex.shell.catch`.
+;;
+;;
+
+
+;;;;;;;;;;
+
+
+(def T
+     $.test)
+
+
+;;;;;;;;;; Test suites
+
+
+(defn suite.low-level
+
+  ^{:doc {:description "Testing low-level pushing and popping."}}
+
+  []
+
+  (T/group '((T/path.conj 'low-level)
+
+             (def handler-1
+                  '(def foo
+                        :handler-1))
+
+             (T/trx '(query (and (= handler-1
+                                    ($.catch/push handler-1))
+                                 (= handler-1
+                                    (first $.catch/*stack*))))
+                    {:description "Push."})
+
+             (T/trx '(let [stack $.catch/*stack*
+                           res   (do
+                                   ($.catch/push handler-1)
+                                   ($.catch/drop))]
+                       (and (= handler-1
+                               res)
+                            (= stack
+                               $.catch/*stack*)))
+                    {:description "Drop."})
+
+              (T/trx '(query (let [stack $.catch/*stack*
+                                   trx+  $.trx/*list*]
+                               ($.catch/push handler-1)
+                               ($.catch/pop)
+                               (= (cons handler-1
+                                        trx+)
+                                  $.trx/*list*)))
+                     {:description "Pop."})
+
+
+              (T/group '((T/path.conj 'catching)
+
+                         ($.catch/push handler-1)
+
+                         ($.catch/push '(assert false))
+
+                         (assert false)
+
+                         (T/trx '(= :handler-1
+                                    foo)
+                                {:description "Error bubbled to non-failing handler."}))))))
+
+
+
+(defn suite.safe
+
+  ^{:doc {:description "Testing `safe`."}}
+
+  []
+
+  (T/group '((T/path.conj 'safe)
+
+             (T/group '((T/path.conj 'success)
+
+                        true
+
+                        ($.catch/safe '(def x
+                                            $/*result*)
+                                      '(def x-err
+                                            true)
+                                      '(def x-finally
+                                            true))
+
+                        (T/trx 'x
+                               {:description "Normal transaction executed with access to previous result."})
+
+                        (T/trx '(not (defined? x-err))
+                               {:description "Error transaction not executed."})
+
+                        (T/trx 'x-finally
+                               {:description "Finally transaction executed."})))
+
+             (T/group '((T/path.conj 'fail)
+
+                        ($.catch/safe '($.trx/precat '((def x-1
+                                                            true)
+                                                       (assert false)
+                                                       (def x-2
+                                                            true)))
+                                      '(def x-err
+                                            true)
+                                      '(def x-finally
+                                            true))
+
+                        (T/trx 'x-1
+                               {:description "Before failure, executed."})
+
+                        (T/trx '(not (defined? x-2))
+                               {:description "After failure, not executed."})
+
+                        (T/trx 'x-err
+                               {:description "Error transaction executed."})
+
+                        (T/trx 'x-finally
+                               {:description "Finally transaction executed."}))))))
+
+
+;;;
+
+
+(defn suite.main
+
+  ^{:doc {:description "Main test suite."}}
+
+  []
+
+  (T/group '((T/path.conj 'convex.shell.account)
+             (suite.low-level)
+             (suite.safe))))
+
+
+;;;
+
+
+(suite.main)
+(T/print "convex.shell.catch")
