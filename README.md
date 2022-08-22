@@ -63,7 +63,7 @@ found in [./bb.edn](./bb.edn), listed as such:
 
     bb tasks
 
-The `aliases:X` tasks are especially important. They simply print all
+The `aliases:...` tasks are especially important. They simply print all
 required [./deps.edn](./deps.edn) aliases for given a module and a given
 purpose. For instance, when
 working on [`:module/cvm`](./module/cvm):

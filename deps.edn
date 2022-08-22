@@ -202,6 +202,8 @@
   :module/build
 
   {:extra-paths     ["module/build/src/main/clj"]
+   :maestro/dir     "module/build"
+   :maestro/doc     "Building modules from this repository for production"
    :maestro/require [:ext/clojure.tools.build
                      :ext/maestro]}
 
@@ -234,7 +236,7 @@
 
   {:extra-paths               ["module/gen/src/main/clj"]
    :maestro/dir               "module/gen"
-   :maestro/doc               "`test.check` generators for cells"
+   :maestro/doc               "`test.check` generators for Convex cells"
    :maestro/require           [:ext/clojure.test.check
                                {default :module/cvm
                                 release :release/cvm}
@@ -283,7 +285,7 @@
   {:extra-paths     ["module/recipe/src/main/clj"
                      "module/recipe/src/main/cvx"]
    :maestro/dir     "module/recipe"
-   :maestro/doc     "Examples for common use cases"
+   :maestro/doc     "Examples for common use cases meant for the REPL"
    :maestro/require [:ext/clj-http
                      :ext/json
                      :module/cvm
