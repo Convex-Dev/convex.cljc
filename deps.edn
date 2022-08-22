@@ -137,7 +137,8 @@
    :maestro/require [:bundle/test
                      :ext/clojure.java.classpath
                      :ext/clojure.tools.namespace
-                     :ext/criterium]}
+                     :ext/criterium
+                     :module/dev]}
 
 
   :task/test
@@ -229,6 +230,13 @@
 
   {:extra-paths     ["module/cvm/src/test/clj"]
    :maestro/require [:module/gen]}
+
+  ;---
+
+  :module/dev
+
+  {:extra-paths ["module/dev/src/main/clj"]
+   :maestro/doc "Dev utilities for this repository"}
 
   ;---
 
