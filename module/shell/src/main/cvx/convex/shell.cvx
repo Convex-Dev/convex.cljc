@@ -21,7 +21,15 @@
 
 (def version
 
-  ^{:doc {:description "String representing the current version."}}
+  ^{:doc {:description "String representing the current version of the Convex Shell."}}
+
+  nil)
+
+
+
+(def version-convex
+
+  ^{:doc {:description "String representing the embedded version of Convex."}}
 
   nil)
 

@@ -6,10 +6,12 @@
 
   (:import (convex.core.data ACell
                              AList)
-           (java.io InputStreamReader)
+           (java.io InputStreamReader
+                    PushbackReader)
            (java.nio.charset StandardCharsets))
-  (:require [clojure.java.io]
-            [clojure.string]
+  (:require [clojure.edn      :as edn]
+            [clojure.java.io  :as java.io]
+            [clojure.string   :as string]
             [convex.cell      :as $.cell]
             [convex.cvm       :as $.cvm]
             [convex.read      :as $.read]
@@ -19,9 +21,24 @@
 ;;;;;;;;;; Preparing a base context, loading libraries
 
 
+(defmacro ^:private -convex-version*
+  ;; For embedding the Convex version in the shell during compile time.
+  []
+  (-> "deps.edn"
+      (java.io/reader)
+      (PushbackReader.)
+      (edn/read)
+      (:aliases)
+      (get-in [:ext/convex-core
+               :extra-deps
+               'world.convex/convex-core
+               :mvn/version])))
+
+
+
 (let [{:keys [ctx
               sym->addr]} (reduce (fn [acc [sym path]]
-                                    (if-some [resource (clojure.java.io/resource path)]
+                                    (if-some [resource (java.io/resource path)]
                                       (try
 
                                         (let [ctx-2 ($.cvm/eval (acc :ctx)
@@ -132,12 +149,13 @@
     (-> ctx
         ($.cvm/def sym->addr)
         ($.cvm/def addr-$
-                   {$.shell.sym/line    ($.cell/string (System/lineSeparator))
-                    $.shell.sym/version (-> "convex/shell/version.txt"
-                                            (clojure.java.io/resource)
-                                            (slurp)
-                                            (clojure.string/trim-newline)
-                                            ($.cell/string))}))))
+                   {$.shell.sym/line           ($.cell/string (System/lineSeparator))
+                    $.shell.sym/version        (-> "convex/shell/version.txt"
+                                                   (java.io/resource)
+                                                   (slurp)
+                                                   (string/trim-newline)
+                                                   ($.cell/string))
+                    $.shell.sym/version-convex ($.cell/string (-convex-version*))}))))
 
 
 ;;;;;;;;;; Defining symbols in the environment's context
