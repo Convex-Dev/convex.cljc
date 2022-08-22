@@ -41,13 +41,6 @@
    :task     (task/build nil)}
 
 
-  build:direct
-
-  {:doc      "Like 'build` but direct linking is applied in the context of uberjars"
-   :requires ([task])
-   :task     (task/build {:maestro.uberjar/direct-linking? true})}
-
-
   deploy
 
   {:doc      "Deploy to Clojars ; needs username, filename leading to Clojars token, and alias ; see `build`"
