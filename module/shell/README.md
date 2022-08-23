@@ -40,7 +40,7 @@ interactively:
 
 Transactions can be provided directly as command-line arguments:
 
-    cvx '(def foo :hello)'  '($.stream/out! foo)'
+    cvx '(def foo :hello)'  '($.stream/!.outln foo)'
 
 In the grand tradition of Lisp languages, the runner is self-documented. REPL invites the user to query help
 by running `($/help)` which takes the lead from there, informs about available features and how to query

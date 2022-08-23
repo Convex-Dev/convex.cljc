@@ -61,7 +61,7 @@
 ;;;;;;;;;; Private helpers
 
 
-(defn -out!
+(defn -!.out
 
   ^{:doc      {:description "Produces a string out of `acc` (a vector of cells) and prints it to default output."
                :signature   [{:params [acc]}]}
@@ -69,8 +69,8 @@
 
   [acc]
 
-  ($.trx/precat `(($.stream/out! ~(apply str
-                                         acc))
+  ($.trx/precat `(($.stream/!.outln ~(apply str
+                                            acc))
                   nil)))
 
 
@@ -213,59 +213,60 @@
 
   ([addr]
 
-   (-out! (if-let [account (core/account addr)]
-            (let [meta-reg (call *registry*
-                                 (lookup addr))
-                  acc      []
-                  acc      (key-value acc
-                                      "Name:"
-                                      (or (:name meta-reg)
-                                          "Not provided."))
-                  acc      (description acc
-                                        (:description meta-reg))
-                  acc      (key-value acc
-                                      "Allowance:"
-                                      (:allowance account))
-                  acc      (key-value acc
-                                      "Balance:"
-                                      (:balance account))
-                  acc      (key-value acc
-                                      "Controller:"
-                                      (or (:controller account)
-                                          "None"))
-                  acc      (key-value acc
-                                      "Key:"
-                                      (or (:key account)
-                                          "None"))
-                  meta     (:metadata account)
-                  env      (reduce (fn [acc sym]
-                                     (if-let [meta-sym (get meta
-                                                            sym)]
-                                       (if (:private? meta-sym)
-                                         acc
-                                         (env-entry acc
-                                                    sym
-                                                    (get-in meta-sym
-                                                            [:doc
-                                                             :description])))
-                                       (env-entry acc
-                                                  sym
-                                                  nil)))
-                                   []
-                                   (when-let [env (:environment account)]
-                                     (keys env)))
-                  acc      (if (empty? env)
-                             acc
-                             (section acc
-                                      "Overview:"
-                                      env))
-                  ]
-              acc)
-            [($.term/down-begin 1)
-             $.term/bold
-             $.term/fg.red
-             "Account not found."
-             $.term/reset]))))
+   (-!.out
+     (if-let [account (core/account addr)]
+       (let [meta-reg (call *registry*
+                            (lookup addr))
+             acc      []
+             acc      (key-value acc
+                                 "Name:"
+                                 (or (:name meta-reg)
+                                     "Not provided."))
+             acc      (description acc
+                                   (:description meta-reg))
+             acc      (key-value acc
+                                 "Allowance:"
+                                 (:allowance account))
+             acc      (key-value acc
+                                 "Balance:"
+                                 (:balance account))
+             acc      (key-value acc
+                                 "Controller:"
+                                 (or (:controller account)
+                                     "None"))
+             acc      (key-value acc
+                                 "Key:"
+                                 (or (:key account)
+                                     "None"))
+             meta     (:metadata account)
+             env      (reduce (fn [acc sym]
+                                (if-let [meta-sym (get meta
+                                                       sym)]
+                                  (if (:private? meta-sym)
+                                    acc
+                                    (env-entry acc
+                                               sym
+                                               (get-in meta-sym
+                                                       [:doc
+                                                        :description])))
+                                  (env-entry acc
+                                             sym
+                                             nil)))
+                              []
+                              (when-let [env (:environment account)]
+                                (keys env)))
+             acc      (if (empty? env)
+                        acc
+                        (section acc
+                                 "Overview:"
+                                 env))
+             ]
+         acc)
+       [($.term/down-begin 1)
+        $.term/bold
+        $.term/fg.red
+        "Account not found."
+        $.term/reset]))))
 
 
 
@@ -278,7 +279,8 @@
 
   [meta]
 
-  (-out! (if meta
+  (-!.out
+    (if meta
            (let [doc   (:doc meta)
                  desc  (:description doc)
                  acc   (description []
@@ -376,21 +378,18 @@
                        ": "
                        text))
         text    (str $/line
-                     "The Convex Shell executes each form as a separate transaction. Each transaction is local, there is no connection to any peer."
+                     "The Convex Shell uses the Convex Virtual Machine to execute each top-level form as a separate transaction."
+                     $/line
+                     "Each transaction is local, there is no connection to any peer."
                      $/line
                      $/line
-                     "This environment is well-suited for development, testing, and some off-chain computation."
-                     $/line
-                     $/line
-                     "Some functions or macros returns a \"request\": a vector specifying some special action to perform before the next transaction."
-                     $/line
-                     "Since the CVM itself is purely deterministic, such requests allow to perform extra effects like reading STDIN, writing to files, advancing time, etc."
-                     $/line
+                     "This environment is well-suited for development, testing, and off-chain computation."
                      $/line
                      "To learn more about getting help for accounts and symbols, run: "
                      $.term/bold
                      "($/help $/help)"
                      $.term/reset
+                     $/line
                      $/line
                      $/line
                      "Libraries of interest:"
@@ -425,7 +424,33 @@
                      (account "$.time"
                               "time-travel utilities")
                      (account "$.trx"
-                              "modifying the list of transactions pending for execution, powerful metaprogramming"))]
-    ($.trx/precat `(($.stream/out! ~text)
+                              "modifying the list of transactions pending for execution, powerful metaprogramming")
+                     $/line
+                     $/line
+                     "Those libraries often contain functions for producing effects beyond the scope of the Convex Virtual Machine: reading a file"
+                     $/line
+                     "of Convex data, advancing time, tracking juice consumption, etc. The name of those functions are always prepended with"
+                     $/line
+                     "`"
+                     $.term/bold
+                     "!."
+                     $.term/reset
+                     "` in order to stand out (e.g. "
+                     $.term/bold
+                     "$.stream/!.outln"
+                     $.term/reset
+                     ")."
+                     $/line
+                     $/line
+                     "When called, such a function returns a request (vector with special data) that the Convex shell interprets and executes before"
+                     $/line
+                     "letting the CVM handle the next transaction. The result, if any, is available during the next transaction under "
+                     $.term/bold
+                     "$/*result*"
+                     $.term/reset
+                     "."
+                     $/line
+                     )]
+    ($.trx/precat `(($.stream/!.outln ~text)
                     nil))
     nil))

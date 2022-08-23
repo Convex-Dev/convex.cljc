@@ -24,13 +24,13 @@
 
   [path]
 
-  ($.trx/precat `(($.time/push)
-                  ($.file/exec ~(str "module/shell/src/test/cvx/convex/test/"
-                                     path
-                                     ".cvx"))
-                  ($.time/pop (when-not (zero? $.test/*n-fail*)
-                                '(def fail?
-                                      true))))))
+  ($.trx/precat `(($.time/!.push)
+                  ($.file/!.exec ~(str "module/shell/src/test/cvx/convex/test/"
+                                       path
+                                       ".cvx"))
+                  ($.time/!.pop (when-not (zero? $.test/*n-fail*)
+                                  '(def fail?
+                                        true))))))
 
 
 ;;;;;;;;;;
@@ -59,23 +59,24 @@
 ;;;;;;;;;;
 
 
-($.stream/out! (str $/line
-                    "~~~"
-                    $/line
-                    $/line
-                    $.term/bold
-                    (if fail?
-                      (str $.term/fg.red
-                           "Some tests did not pass.")
-                      (str $.term/fg.green
-                           "All tests from all files passed."))
-                    $.term/reset
-                    $/line))
+($.stream/!.outln
+  (str $/line
+       "~~~"
+       $/line
+       $/line
+       $.term/bold
+       (if fail?
+         (str $.term/fg.red
+              "Some tests did not pass.")
+         (str $.term/fg.green
+              "All tests from all files passed."))
+       $.term/reset
+       $/line))
 
 
 (when (or (not (defined? dev?))
           (= dev?
              false))
-  ($.process/exit (if fail?
-                    42
-                    0)))
+  ($.process/!.exit (if fail?
+                      42
+                      0)))

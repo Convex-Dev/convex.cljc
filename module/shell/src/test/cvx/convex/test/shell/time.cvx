@@ -38,7 +38,7 @@
                        (def foo
                             42))
 
-             (T/trx '($.trx/precat '(($.time/advance (dec interval))
+             (T/trx '($.trx/precat '(($.time/!.advance (dec interval))
                                      (= (dec interval)
                                          $/*result*)))
                     {:description "Advancing time returns given interval."})
@@ -51,7 +51,7 @@
                         *timestamp*)
                     {:description "Clock advanced precisely as expected."})
 
-             (T/trx '($.trx/precat '(($.time/advance 1)
+             (T/trx '($.trx/precat '(($.time/!.advance 1)
                                      (= foo
                                         42)))
                     {:description "Scheduled transaction executed."})
@@ -71,18 +71,18 @@
   (T/group '((T/path.conj 'push-pop)
              
              (T/trx '($.trx/precat '(42
-                                     ($.time/push)
+                                     ($.time/!.push)
                                      (def foo
                                           $/*result*)
-                                     ($.time/pop)
+                                     ($.time/!.pop)
                                      (not (defined? foo))))
                     {:description "State popped forgetting everything."})
 
-             (T/trx '($.trx/precat '(($.time/push)
+             (T/trx '($.trx/precat '(($.time/!.push)
                                      (def foo
                                           24)
-                                     ($.time/pop `(def bar
-                                                       ~foo))
+                                     ($.time/!.pop `(def bar
+                                                         ~foo))
                                      (= 24
                                         bar)))
                     {:description "State popped while remembering something."}))))

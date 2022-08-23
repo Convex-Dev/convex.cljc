@@ -42,7 +42,7 @@
   ^{:callable? true
     :doc       {:description ["Replaces `*list*` with the given list of transactions."
                               "Low-level, most of the time other functions such as `precat` are used."]
-                :examples    [{:code "($.trx/set '((def foo 42) ($.stream/out! [:foo foo])))"}]
+                :examples    [{:code "($.trx/set '((def foo 42) ($.stream/!.outln [:foo foo])))"}]
                 :signature   [{:params [trx+]}]}}
 
   [trx+]
@@ -75,7 +75,7 @@
 (defn append
 
   ^{:doc {:description "Appends `trx` to `*list*, in last position."
-          :examples    [{:code "($.trx/append '($.steam/out! \"Finished!\"))"}]
+          :examples    [{:code "($.trx/append '($.steam/!.outln \"Finished!\"))"}]
           :signature   [{:params [trx]}]}}
     
 
@@ -89,7 +89,7 @@
 
   ^{:doc {:description ["Replaces `*list*` with the concatenation of `trx+` and the current value of `*list*`."
                         "Must be a list as well."]
-          :examples    [{:code "($.trx/precat '((def foo 42) ($.stream/out! [:foo foo])))"}]
+          :examples    [{:code "($.trx/precat '((def foo 42) ($.stream/!.outln [:foo foo])))"}]
           :signature   [{:params [trx+]}]}}
 
   [trx+]
@@ -115,7 +115,7 @@
 (defn postcat
 
   ^{:doc {:description "Opposite of `precat`, concatenates the current value of `*list*` and given `trx+`."
-          :examples    [{:code "($.trx/postcat '((def msg \"Finished!\") ($.stream/out! msg)))"}]
+          :examples    [{:code "($.trx/postcat '((def msg \"Finished!\") ($.stream/!.outln msg)))"}]
           :signature   [{:params [trx+]}]}}
 
   [trx+]

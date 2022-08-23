@@ -130,7 +130,7 @@
     (eval (if (seq trx+)
             (clojure.string/join " "
                                  trx+)
-            "($.repl/start {:intro? true})"))
+            "($.repl/!.start {:intro? true})"))
     (catch Throwable _ex
       (println "An unknown exception happened.")
       (flush)

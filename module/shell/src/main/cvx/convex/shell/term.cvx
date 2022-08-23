@@ -383,7 +383,7 @@
 (defn demo
 
   ^{:doc {:description "Returns a string that can be printed for a demo of producing colored output."
-          :examples    [{:code "($.stream/out! ($.term/demo))"}]
+          :examples    [{:code "($.stream/!.outln ($.term/demo))"}]
           :signature   [{:params []}]}}
   []
 
@@ -467,4 +467,3 @@
        fg.blue
        "Bold makes also colors brighter"
        reset))
-

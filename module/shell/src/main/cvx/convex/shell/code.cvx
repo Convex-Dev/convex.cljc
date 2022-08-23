@@ -22,27 +22,27 @@
 ;;;;;;;;;; API
 
 
-(defn decompile
+(defn !.decompile
 
   ^{:doc {:description ["Compiles the given cell, such as a function, into data."
                         "Uses `read+`. Result is availabe during next transaction under `$/*result*`."
                         "Experimental! Currently, cells containing local bindings are not eval-ready (eg. functions)."]
-          :examples    [{:code "($.code/decompile (fn [x] (inc x)))"}]
+          :examples    [{:code "($.code/!.decompile (fn [x] (inc x)))"}]
           :signature   [{:params [cell]}]}}
 
   [cell]
 
-  ($.trx/precat `((~read+ ~(str cell))
+  ($.trx/precat `((~!.read+ ~(str cell))
                   (first $/*result*))))
 
 
 
-(defn read+
+(defn !.read+
 
   ^{:doc {:description ["Passes the given string through the Convex Lisp reader and produces a list of cells."
                         "Those cells can be compiled, evaluated, ..."
                         "Result is available during next transaction under `$/*result*`."]
-          :examples    [{:code "($.code/read+ \"(+ 2 2)\")"}]
+          :examples    [{:code "($.code/!.read+ \"(+ 2 2)\")"}]
           :signature   [{:params [src]}]}}
 
   [src]

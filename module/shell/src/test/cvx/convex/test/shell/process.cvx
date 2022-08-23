@@ -23,7 +23,7 @@
 
   (T/group '((T/path.conj 'convex.shell.process)
 
-             ($.process/env)
+             ($.process/!.env)
 
              (def var+
                   $/*result*)
@@ -39,7 +39,7 @@
                (def value
                     value))
 
-             ($.process/env var)
+             ($.process/!.env var)
 
              (T/trx '(= value
                         $/*result*)

@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 
 - Rename module from Convex Runner to Convex Shell
 - Embed `:module/cvm` ; upgrade to Convex 0.7.6
+- CVX requests symbols are now prepended with `!.`
 
 ### Fixed
 

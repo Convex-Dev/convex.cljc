@@ -79,12 +79,12 @@
 
                         true
 
-                        ($.catch/safe '(def x
-                                            $/*result*)
-                                      '(def x-err
-                                            true)
-                                      '(def x-finally
-                                            true))
+                        ($.catch/!.safe '(def x
+                                              $/*result*)
+                                        '(def x-err
+                                              true)
+                                        '(def x-finally
+                                              true))
 
                         (T/trx 'x
                                {:description "Normal transaction executed with access to previous result."})
@@ -97,15 +97,15 @@
 
              (T/group '((T/path.conj 'fail)
 
-                        ($.catch/safe '($.trx/precat '((def x-1
-                                                            true)
-                                                       (assert false)
-                                                       (def x-2
-                                                            true)))
-                                      '(def x-err
-                                            true)
-                                      '(def x-finally
-                                            true))
+                        ($.catch/!.safe '($.trx/precat '((def x-1
+                                                              true)
+                                                         (assert false)
+                                                         (def x-2
+                                                              true)))
+                                        '(def x-err
+                                              true)
+                                        '(def x-finally
+                                              true))
 
                         (T/trx 'x-1
                                {:description "Before failure, executed."})

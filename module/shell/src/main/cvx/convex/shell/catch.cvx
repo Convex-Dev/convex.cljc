@@ -124,7 +124,7 @@
 
 
 
-(defn safe
+(defn !.safe
 
   ^{:doc {:description ["Try-catch idiom."
                         "If `trx-try` transaction fails, `trx-catch` is executed."
@@ -134,8 +134,8 @@
 
   ([trx-try]
 
-   (safe trx-try
-         nil))
+   (!.safe trx-try
+           nil))
 
 
   ([trx-try trx-catch]
@@ -150,5 +150,5 @@
   ([trx-try trx-catch trx-finally]
 
    ($.trx/prepend trx-finally)
-   (safe trx-try
-         trx-catch)))
+   (!.safe trx-try
+           trx-catch)))

@@ -11,14 +11,14 @@
 ;;;;;;;;;; API
 
 
-(defn bench
+(defn !.bench
 
   ^{:doc {:description ["Returns a request for measuring the mean execution time of the given transaction."
                         "Executed in a query a high number of times."
-                        "Highly experimental, probably useful for CVM developpers only."
+                        "Highly experimental, probably useful for CVM developers only."
                         "Depending on the given transaction, takes between one and several minutes to complete."
                         "Report map is available during next transaction under `$/*result*`."]
-          :examples    [{:code "($.perf/bench (compile '(+ 2 2)))"}]}}
+          :examples    [{:code "($.perf/!.bench (compile '(+ 2 2)))"}]}}
 
 
   [trx]
@@ -27,13 +27,13 @@
 
 
 
-(defn track
+(defn !.track
 
   ^{:doc {:description ["Returns a request for tracking juice consumption of each execution step (expansion, compilation, evaluation)."
                         "Also pinpoints which step fails in case of error."
                         "Report map is available during next transacation under `$/*result*`."]
-          :examples    [{:code "($.perf/track '(inc 42))"}
-                        {:code "($.perf/track (compile '(inc 42)))"}]}}
+          :examples    [{:code "($.perf/!.track '(inc 42))"}
+                        {:code "($.perf/!.track (compile '(inc 42)))"}]}}
 
   [trx]
 

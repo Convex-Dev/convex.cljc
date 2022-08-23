@@ -138,11 +138,11 @@
 ;;;;;;;;;; Requests for handling streams
 
 
-(defn close
+(defn !.close
 
   ^{:doc {:description ["Returns a request for closing the given `stream`."
                         "`stderr` cannot be closed."]
-          :examples    [{:code "($.stream/close $.stream/stdout)"}]
+          :examples    [{:code "($.stream/!.close $.stream/stdout)"}]
           :signature   [{:params [stream]}]}}
 
   [stream]
@@ -153,30 +153,40 @@
 
 
 
-(defn err!
+(defn !.err
 
-  ^{:doc {:description "Uses `out!` ont `*err*` for printing `x` to the default error stream."
-          :examples    [{:code "($.stream/err! {:some :error})"}]
+  ^{:doc {:description "Uses `!.out` ont `*err*` for printing `x` to the default error stream."
+          :examples    [{:code "($.stream/!.err {:some :error})"}]
           :signature   [{:params [x]}]}}
 
   [x]
 
-  (out! *err*
-        x))
+  (!.out *err*
+         x))
 
+(defn !.errln
 
-(defn flush
+  ^{:doc {:description "Uses `!.outln` ont `*err*` for printing `x` to the default error stream."
+          :examples    [{:code "($.stream/!.errln {:some :error})"}]
+          :signature   [{:params [x]}]}}
+
+  [x]
+
+  (!.outln *err*
+           x))
+
+(defn !.flush
 
   ^{:doc {:description ["Returns a request for flushing the given output `stream` and ensuring all outputs are processed."
                         "Flushes `*out*` by default."]
-          :examples    [{:code "($.stream/flush)"}]
+          :examples    [{:code "($.stream/!.flush)"}]
           :signature   [{:params []}
                         {:params [stream]}]}}
 
 
   ([]
 
-   (flush *out*))
+   (!.flush *out*))
 
 
   ([stream]
@@ -185,20 +195,20 @@
 
 
 
-(defn in+
+(defn !.in+
 
   ^{:doc {:description ["Returns a request for reading the given input `stream`."
                         "Reads from `*in*` by default."
                         "Whole input is read and `stream` is automatically closed."
                         "List of read cells becomes available during next transaction under `$/*result*`."]
-          :examples    [{:code "($.stream/in+ $.stream/stdin)"}]
+          :examples    [{:code "($.stream/!.in+ $.stream/stdin)"}]
           :signature   [{:params []}
                         {:params [stream]}]}}
 
 
   ([]
 
-   (in+ *in*))
+   (!.in+ *in*))
 
 
   ([stream]
@@ -207,20 +217,20 @@
 
 
 
-(defn line+
+(defn !.line+
 
   ^{:doc {:description ["Returns a request for reading a line from the given input `stream`."
                         "Reads from `*in*` by default."
                         "Stops when a new line is encountered."
                         "List of read cells becomes available during next transaction under `$/*result*`."]
-          :examples    [{:code "($.stream/in* $.stream/stdin)"}]
+          :examples    [{:code "($.stream/!.in* $.stream/stdin)"}]
           :signature   [{:params []}
                         {:params [stream]}]}}
 
 
   ([]
 
-   (line+ *in*))
+   (!.line+ *in*))
 
 
   ([stream]
@@ -229,19 +239,19 @@
 
 
 
-(defn out
+(defn !.out
 
   ^{:doc {:description ["Returns a request for writing `x` to the given output `stream`."
                         "Writes to `*out*` by default."]
-          :examples    [{:code "($.stream/out :foo)"}]
+          :examples    [{:code "($.stream/!.out :foo)"}]
           :signature   [{:params [x]}
                         {:params [stream x]}]}}
 
 
   ([x]
 
-   (out *out*
-        x))
+   (!.out *out*
+          x))
 
 
   ([stream x]
@@ -250,20 +260,20 @@
 
 
 
-(defn out!
+(defn !.outln
 
   ^{:doc {:description "Likes `out` but also outputs a new line and flushes the `stream`."
-          :examples    [{:code "($.stream/out! :foo)"}]
+          :examples    [{:code "($.stream/!.outln :foo)"}]
           :signature   [{:params [x]}
                         {:params [stream x]}]}}
 
 
   ([x]
 
-   (out! *out*
-         x))
+   (!.outln *out*
+            x))
 
 
   ([stream x]
 
-   [:cvm.sreq :stream.out! (-stream stream) x]))
+   [:cvm.sreq :stream.outln (-stream stream) x]))

@@ -23,14 +23,14 @@
 
   (T/group '((T/path.conj 'convex.shell.code)
 
-             ($.code/read+ "(+ 2 2) (fn [x] (inc x))")
+             ($.code/!.read+ "(+ 2 2) (fn [x] (inc x))")
 
              (T/trx '(= '((+ 2 2)
                           (fn [x] (inc x)))
                         $/*result*)
                     {:description "Reading source."})
 
-             ($.code/decompile (fn [x] x))
+             ($.code/!.decompile (fn [x] x))
 
              (T/trx '(= '(fn [x] %0)
                         $/*result*)

@@ -265,7 +265,7 @@
   ^{:callable? true
     :doc       {:description ["Sets `*meta*`."
                               "Function must takes metadata and returns new metadata."
-                              "Providing nil removes current function."]
+                              "Providing nil removes the current function."]
                 :examples    [{:code "($.test/meta.set (fn [meta] (assoc meta :important? true)))"}]
                 :signature   [{:params [f]}]}}
 
@@ -347,7 +347,7 @@
 
 (defn state.pop
 
-  ^{:doc      {:description ["Like `($.time/pop)` but ensures tests results are remembered."
+  ^{:doc      {:description ["Like `$.time/!.pop` but ensures tests results are remembered."
                              "See function `state.push`."
                              "An additional quoted `trx` can be passed to transfer other user data."]
                signature    [{:params []}
@@ -362,23 +362,23 @@
 
   ([trx]
 
-   ($.time/pop `($.trx/precat '((~-self/report.merge ~-self/*n-fail*
-                                                     (quote ~-self/*report+*))
-                                ~trx)))))
+   ($.time/!.pop `($.trx/precat '((~-self/report.merge ~-self/*n-fail*
+                                                       (quote ~-self/*report+*))
+                                  ~trx)))))
 
 
 
 (defn state.push
 
-  ^{:doc      {:description ["Like `($.time/push)` but clears the test state from this actor."
-                             "Later, CVM state can be restored with function `state.pop`."
+  ^{:doc      {:description ["Like `($.time/!.push)` but clears the test state from this actor."
+                             "Later, CVM state can be restored with `state.pop`."
                              "Provides isolation, side-effects can be discarded in a controlled fashion."]
                :signature   [{:params []}]}
     :private? true}
 
   []
 
-  ($.trx/precat `((~$.time/push)
+  ($.trx/precat `((~$.time/!.push)
                   (~-self/report.clear))))
 
 
@@ -413,15 +413,17 @@
                           :metadata metadata-2
                           :trx      (list 'quote
                                           trx)}]
-         ($.catch/safe `($.trx/precat '((quote ~$/*result*)
+         ($.catch/!.safe ;; Try
+                         `($.trx/precat '((quote ~$/*result*)
                                         ~trx
                                         (~-self/report.conj (assoc ~base-report
                                                                    :result $/*result*
                                                                    :passe? false))))
-                       `(~-self/report.conj (assoc ~base-report
-                                                   :exception (lookup ~$
-                                                                      *result*)
-                                                   :pass?     (~expected-fail? $/*result*)))))))))
+                         ;; Catch                                          
+                         `(~-self/report.conj (assoc ~base-report
+                                                     :exception (lookup ~$
+                                                                        *result*)
+                                                     :pass?     (~expected-fail? $/*result*)))))))))
 
 
 
@@ -477,15 +479,17 @@
                           :metadata metadata-2
                           :trx      (list 'quote
                                           trx)}]
-         ($.catch/safe `($.trx/precat '((quote~ $/*result*)
+         ($.catch/!.safe ;; Try
+                         `($.trx/precat '((quote~ $/*result*)
                                         ~trx
                                         (~-self/report.conj (assoc ~base-report
                                                                    :result $/*result*
                                                                    :pass?  (= $/*result*
                                                                               true)))))
-                       `(~-self/report.conj (assoc ~base-report
-                                                   :exception $/*result*
-                                                   :pass?     false))))))))
+                         ;; Catch
+                         `(~-self/report.conj (assoc ~base-report
+                                                     :exception $/*result*
+                                                     :pass?     false))))))))
 
 
 ;;;;;;;;;; Tracing
@@ -527,10 +531,10 @@
 
   []
 
-  ($.process/exit (if (> *n-fail*
-                         0)
-                    42
-                    0)))
+  ($.process/!.exit (if (> *n-fail*
+                           0)
+                      42
+                      0)))
 
 
 
@@ -652,7 +656,7 @@
 
 (defn print
 
-  ^{:doc {:description ["Uses `$.stream/out!` to print current test reports in human-redable format."
+  ^{:doc {:description ["Uses `$.stream/!.outln` to print current test reports in human-redable format."
                         "Afterwards, it is typically a good idea using `report.clear`, especially if more test will be run."
                         "Name is simply used at the end of the report for identifying that report."]
           :examples    [{:code "($.test/print 'my.lib)"}]
@@ -667,14 +671,15 @@
 
   ([name n-fail report+]
 
-   ($.stream/out! (apply str
-                         (conj (if (zero? n-fail)
-                                 (-print.success report+)
-                                 (-print.fail n-fail
-                                              report+))
-                               $.term/reset
-                               $/line
-                               $/line
-                               "Tested '"
-                               name
-                               "'.")))))
+   ($.stream/!.outln
+    (apply str
+           (conj (if (zero? n-fail)
+                   (-print.success report+)
+                   (-print.fail n-fail
+                                report+))
+                 $.term/reset
+                 $/line
+                 $/line
+                 "Tested '"
+                 name
+                 "'.")))))

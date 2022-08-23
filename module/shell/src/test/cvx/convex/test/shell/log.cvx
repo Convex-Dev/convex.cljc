@@ -23,7 +23,7 @@
 
   (T/group '((T/path.conj 'convex.shell.log)
 
-             ($.log/get)
+             ($.log/!.get)
 
              (T/trx '(= []
                         $/*result*)
@@ -31,19 +31,19 @@
 
              (log :foo)
 
-             ($.log/get)
+             ($.log/!.get)
 
              (T/trx '(= [[*address* [:foo]]]
                         $/*result*)
                     {:description "Entry shows up in log."})
 
-             ($.log/clear)
+             ($.log/!.clear)
 
              (T/trx '(= []
                         $/*result*)
                     {:description "Clearing returns empty log."})
 
-             ($.log/get)
+             ($.log/!.get)
 
              (T/trx '(= []
                         $/*result*)

@@ -23,14 +23,14 @@
 
   (T/group '((T/path.conj 'convex.shell.perf)
 
-             (T/trx '($.trx/precat '(($.perf/bench '(+ 2 2))
+             (T/trx '($.trx/precat '(($.perf/!.bench '(+ 2 2))
                                      (and (map? $/*result*)
                                      (< ($/*result* :stddev)
                                         ($/*result* :mean)))))
                     {:description "Benchmarking."
                      :slow?       true})
 
-             (T/trx '($.trx/precat '(($.perf/track '(+ 2 2))
+             (T/trx '($.trx/precat '(($.perf/!.track '(+ 2 2))
                                      (and (map? $/*result*)
                                          (= 4
                                             (:result $/*result*))

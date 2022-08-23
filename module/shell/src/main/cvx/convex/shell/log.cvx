@@ -11,7 +11,7 @@
 ;;;;;;;;;; API
 
 
-(defn clear
+(defn !.clear
 
   ^{:doc {:description "Returns a request for clearing the state of the CVM log."
           :signature   [{:params []}]}}
@@ -22,7 +22,7 @@
 
 
 
-(defn get
+(defn !.get
 
   ^{:doc {:description ["Returns a request for retrieving the current state of the CVM log."
                         "Result is available during next transaction under `$/*result*`."]

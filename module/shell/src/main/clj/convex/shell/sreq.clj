@@ -99,7 +99,7 @@
 
 (defmethod $.shell.exec/sreq
 
-  $.shell.kw/file-in
+  $.shell.kw/file-stream-in
 
   ;; Opens a file for reading.
 
@@ -113,7 +113,7 @@
 
 (defmethod $.shell.exec/sreq
 
-  $.shell.kw/file-out
+  $.shell.kw/file-stream-out
 
   ;; Opens a file for writing.
 
@@ -319,7 +319,7 @@
 
   ;; Writes a cell to the given stream, appends a new line, and flushes everything.
 
-  $.shell.kw/stream-out!
+  $.shell.kw/stream-outln
 
   [env ^AVector tuple]
 

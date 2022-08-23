@@ -30,16 +30,16 @@
              (def path
                   "/tmp/test_file_high-level.cvx")
 
-             (T/trx '($.trx/precat '(($.file/write path
-                                                   cell)
-                                     ($.file/read path)
+             (T/trx '($.trx/precat '(($.file/!.write path
+                                                     cell)
+                                     ($.file/!.read path)
                                      (= cell
                                         (first $/*result*))))
                     {:description "Reading after writing."})
 
-             ($.file/exec path)
+             ($.file/!.exec path)
 
-             (T/trx '($.trx/precat '(($.file/exec path)
+             (T/trx '($.trx/precat '(($.file/!.exec path)
                                      (= {:foo :bar}
                                         x)))
                     {:description "File executed."}))))
@@ -58,46 +58,46 @@
              (def path
                   "/tmp/test_file_stream.cvx")
 
-             ($.file/stream.out path)
+             ($.file/!.stream.out path)
 
              (def stream.out
                   $/*result*)
 
-             ($.stream/out! stream.out
-                            :foo)
+             ($.stream/!.outln stream.out
+                               :foo)
 
-             ($.stream/out! stream.out
-                            :bar)
+             ($.stream/!.outln stream.out
+                               :bar)
 
-             ($.stream/flush stream.out)
+             ($.stream/!.flush stream.out)
 
-             ($.stream/close stream.out)
+             ($.stream/!.close stream.out)
 
              (T/fail.code #{:STREAM}
-                          '($.stream/out! stream.out
-                                          :baz)
+                          '($.stream/!.outln stream.out
+                                             :baz)
                           {:description "Cannot write to closed stream."})
 
-             ($.file/stream.in path)
+             ($.file/!.stream.in path)
 
              (def stream.in
                   $/*result*)
 
-             (T/trx '($.trx/precat '(($.stream/in+ stream.in)
+             (T/trx '($.trx/precat '(($.stream/!.in+ stream.in)
                                      (= '(:foo :bar)
                                         $/*result*)))
                     {:description "Ensures write was successful by reading back."})
 
              (T/fail.code #{:STREAM}
-                          '($.stream/in+ stream.in)
+                          '($.stream/!.in+ stream.in)
                           {:description "Input stream autoclosed, cannot read again."})
 
-             ($.file/stream.in path)
+             ($.file/!.stream.in path)
 
              (def stream.line
                   $/*result*)
 
-             (T/trx '($.trx/precat '(($.stream/line+ stream.line)
+             (T/trx '($.trx/precat '(($.stream/!.line+ stream.line)
                                      (= '(:foo)
                                         $/*result*)))
                     {:description "Read only first line."}))))

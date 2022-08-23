@@ -11,22 +11,22 @@
 ;;;;;;;;;;
 
 
-(defn env
+(defn !.env
 
   ^{:doc {:description ["Returns a request for retrieving environment variables for the current process."
                         "Useful when some information must be passed to the shell from the outside."
                         "When a environment variable is given as well, retrieves only the value for that variable."
                         "Otherwise, whole map of variables and their values is retrieved."
                         "Result will be available during next transaction under `$/*result*`."]
-          :examples    [{:code "($.process/env}"}
-                        {:code "(s.process/env \"MY_X\")"}]
+          :examples    [{:code "($.process/!.env}"}
+                        {:code "(s.process/!.env \"MY_X\")"}]
           :signature   [{:params [sym]}
                         {:params [sym env-var]}]}}
 
 
   ([]
 
-   (env nil))
+   (!.env nil))
 
 
   ([env-var]
@@ -37,11 +37,11 @@
 
 
 
-(defn exit
+(defn !.exit
 
   ^{:doc {:description ["Returns a requestion for terminating the process with `status` code (a long)"
                         "By convention, a non-zero value means an error occured."]
-          :examples    [{:code "($.process/exit 42)"}]
+          :examples    [{:code "($.process/!.exit 42)"}]
           :signature   [{:params [status]}]}}
 
   [status]
