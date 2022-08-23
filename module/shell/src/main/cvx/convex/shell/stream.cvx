@@ -95,10 +95,10 @@
   [stream]
 
   (if (= *address*
-         self)
+         ~*address*)
     (def *err*
          (-stream stream))
-    (call self
+    (call ~*address*
           (set.err stream))))
 
 
@@ -111,10 +111,10 @@
   [stream]
 
   (if (= *address*
-         self)
+         ~*address*)
     (def *in*
          (-stream stream))
-    (call self
+    (call ~*address*
           (set.in stream))))
 
 
@@ -128,10 +128,10 @@
   [stream]
 
   (if (= *address*
-         self)
+         ~*address*)
     (def *out*
          (-stream stream))
-    (call self
+    (call ~*address*
           (set.out stream))))
 
 
