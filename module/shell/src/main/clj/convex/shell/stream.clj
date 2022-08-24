@@ -11,8 +11,7 @@
   {:author "Adam Helinski"}
 
   (:import (java.lang AutoCloseable)
-           (java.io BufferedReader
-                    FileNotFoundException))
+           (java.io BufferedReader))
   (:refer-clojure :exclude [flush])
   (:require [convex.cell       :as $.cell]
             [convex.read       :as $.read]

@@ -376,7 +376,7 @@
 
   ^Invoke
 
-  [^Address address ^long sequence-id ^ACell cell]
+  [^Address address ^Long sequence-id ^ACell cell]
 
   (Invoke/create address
                  sequence-id

@@ -145,7 +145,7 @@
   ;                    ($.cell/blob (byte-array [42])))))
 
   (T/is (= [($.cell/* 43)]
-           (sequence (map (fn [[k v]]
+           (sequence (map (fn [[_k v]]
                             ($.std/inc v)))
                      ($.cell/blob-map [[($.cell/blob (byte-array [0]))
                                         ($.cell/* 42)]])))))

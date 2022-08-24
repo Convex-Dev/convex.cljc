@@ -56,6 +56,7 @@
   (mprop/mult
 
     "Write"
+    #_:clj-kondo/ignore
     (def ref
          ($.db/write db
                      cell))
@@ -75,6 +76,7 @@
 
     "Root read"
     (let [root ($.db/read-root db)]
+      #_:clj-kondo/ignore
       (def root
            root)
       ($.std/vector? root))

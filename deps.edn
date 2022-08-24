@@ -131,8 +131,7 @@
 
   :task/dev
 
-  {:extra-paths     ["dev"]
-   :jvm-opts        ["-Dconvex.dev=true"]
+  {:jvm-opts        ["-Dconvex.dev=true"]
    :maestro/doc     "Automatically invoked during dev, brings commonly needed utilities"
    :maestro/require [:bundle/test
                      :ext/clojure.java.classpath
@@ -162,7 +161,7 @@
                      :module/gen
                      :module/net
                      :module/recipe
-                     :module/run]}
+                     :module/shell]}
 
 
   :module/app.fuzz
@@ -175,11 +174,6 @@
                      :ext/clojure.test.check
                      :module/break
                      :module/cvm]}
-
-
-  :dev/app.fuzz
-
-  {:extra-paths ["module/app/fuzz/src/clj/dev"]}
 
   ;---
 
@@ -306,8 +300,7 @@
   {:convex.shell/version            "0.0.0-alpha3"
    :extra-paths                     ["module/shell/resource"
                                      "module/shell/src/main/clj"
-                                     "module/shell/src/main/cvx"
-                                     "module/shell/src/main/misc"]
+                                     "module/shell/src/main/cvx"]
    :maestro/dir                     "module/shell"
    :maestro/doc                     "Convex Lisp Shell"
    :maestro/require                 [:ext/clojure
