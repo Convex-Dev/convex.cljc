@@ -621,10 +621,16 @@
   ;; Providing something that cannot be used as a key should fail.
 
   (TC.prop/for-all [x (TC.gen/such-that (fn [x]
-                                          (if (or ($.std/blob? x)
-                                                  ($.std/string? x))
+                                          (cond
+                                            ($.std/blob? x)
+                                            (not= ($.std/count x)
+                                                  32)
+                                            ;;
+                                            ($.std/string? x)
                                             (not= ($.std/count x)
                                                   64)
+                                            ;;
+                                            :else
                                             (some? x)))
                                         $.gen/any)]
     (= ($.cell/code-std* :CAST)
