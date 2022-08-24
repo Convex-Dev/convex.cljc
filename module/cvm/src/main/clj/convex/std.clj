@@ -103,7 +103,8 @@
                             vector
                             vector?
                             zero?])
-  (:require [convex.cell :as $.cell]))
+  (:require [convex.cell :as $.cell]
+            [convex.clj  :as $.clj]))
 
 
 (set! *warn-on-reflection*
@@ -117,12 +118,10 @@
 ;;;;;;;;;; Private
 
 
-(defn- -ensure-numeric
+(defn- -ensure-numeric-success
 
-  ;; Used by functions that are supposed to return a number.
-  ;; Nil means failure.
-
-  ^INumeric
+  ;; Used by functions that takes numeric cells as input.
+  ;; Nil means failure to cast arguments.
 
   [x]
 
@@ -418,66 +417,71 @@
 
 (defn <
 
-  "Like classic `<` but with number cells."
+  "Like classic `<` but with numeric cells."
 
   [& xs]
 
   (-> (into-array ACell
                   xs)
-      RT/lt
-      -ensure-numeric))
+      (RT/lt)
+      (-ensure-numeric-success)
+      ($.clj/boolean)))
 
 
 
 (defn <=
 
-  "Like classic `<=` but with number cells."
+  "Like classic `<=` but with numeric cells."
 
   [& xs]
 
   (-> (into-array ACell
                   xs)
-      RT/le
-      -ensure-numeric))
+      (RT/le)
+      (-ensure-numeric-success)
+      ($.clj/boolean)))
 
 
 
 (defn ==
 
-  "Like classic `==` but with number cells."
+  "Like classic `==` but with numeric cells."
 
   [& xs]
 
   (-> (into-array ACell
                   xs)
-      RT/eq
-      -ensure-numeric))
+      (RT/eq)
+      (-ensure-numeric-success)
+      ($.clj/boolean)))
 
 
 
 (defn >=
 
-  "Like classic `>=` but with number cells."
+  "Like classic `>=` but with numeric cells."
 
   [& xs]
 
   (-> (into-array ACell
                   xs)
-      RT/ge
-      -ensure-numeric))
+      (RT/ge)
+      (-ensure-numeric-success)
+      ($.clj/boolean)))
 
 
 
 (defn >
 
-  "Like classic `>` but with number cells."
+  "Like classic `>` but with numeric cells."
 
   [& xs]
 
   (-> (into-array ACell
                   xs)
-      RT/gt
-      -ensure-numeric))
+      (RT/gt)
+      (-ensure-numeric-success)
+      ($.clj/boolean)))
 
 
 ;;;;;;;;;; Countable
@@ -652,7 +656,7 @@
 
   [a b]
 
-  (-ensure-numeric (RT/mod a
+  (-ensure-numeric-success (RT/mod a
                            b)))
 
 
@@ -750,7 +754,7 @@
 
 (defn +
 
-  "Like classic `+` but for number cells."
+  "Like classic `+` but for numeric cells."
 
   ^INumeric
 
@@ -759,13 +763,13 @@
   (-> (into-array ACell
                   xs)
       RT/plus
-      -ensure-numeric))
+      -ensure-numeric-success))
 
 
 
 (defn -
 
-  "Like classic `-` but for number cells."
+  "Like classic `-` but for numeric cells."
 
   ^INumeric
 
@@ -774,13 +778,13 @@
   (-> (into-array ACell
                   xs)
       RT/minus
-      -ensure-numeric))
+      -ensure-numeric-success))
 
 
 
 (defn *
 
-  "Like classic `*` but for number cells."
+  "Like classic `*` but for numeric cells."
 
   ^INumeric
 
@@ -789,7 +793,7 @@
   (-> (into-array ACell
                   xs)
       RT/times
-      -ensure-numeric))
+      -ensure-numeric-success))
 
 
 
@@ -803,7 +807,7 @@
 
   [number]
 
-  (-ensure-numeric (RT/abs number)))
+  (-ensure-numeric-success (RT/abs number)))
 
 
 
@@ -815,13 +819,13 @@
 
   [number]
 
-  (-ensure-numeric (RT/ceil number)))
+  (-ensure-numeric-success (RT/ceil number)))
 
 
 
 (defn div
 
-  "Like classic `/` but for number cells."
+  "Like classic `/` but for numeric cells."
 
   ^INumeric
 
@@ -830,19 +834,19 @@
   (-> (into-array ACell
                   xs)
       RT/divide
-      -ensure-numeric))
+      -ensure-numeric-success))
 
 
 
 (defn exp
 
-  "Returns `e` raised to the power of the given number cell."
+  "Returns `e` raised to the power of the given numeric cell."
 
   ^CVMDouble
 
   [number]
 
-  (-ensure-numeric (RT/exp number)))
+  (-ensure-numeric-success (RT/exp number)))
 
 
 
@@ -854,7 +858,7 @@
 
   [x]
 
-  (-ensure-numeric (RT/floor x)))
+  (-ensure-numeric-success (RT/floor x)))
 
 
 
@@ -882,7 +886,7 @@
                       x)
                 (aset 1
                       y)))
-      -ensure-numeric))
+      -ensure-numeric-success))
 
 
 
@@ -900,7 +904,7 @@
 
   [^ACell number]
 
-  (-ensure-numeric (RT/signum number)))
+  (-ensure-numeric-success (RT/signum number)))
 
 
 
@@ -913,7 +917,7 @@
 
   [^INumeric number]
 
-  (-ensure-numeric (RT/sqrt number)))
+  (-ensure-numeric-success (RT/sqrt number)))
 
 
 
@@ -1078,7 +1082,7 @@
       (throw (IllegalArgumentException. "Must be symbolic"))))
 
 
-;;;;;;;;; Predicates
+;;;;;;;;; Other predicates
 
 
 (defn address?
@@ -1270,7 +1274,7 @@
 
 (defn number?
 
-  "Is `x` a number cell?
+  "Is `x` a numeric cell?
   
    Either a long or a double."
 
