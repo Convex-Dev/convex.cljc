@@ -247,6 +247,6 @@
   [^ACell cell]
 
   (when-some [hash (write cell)]
-    (.setRootHash (current)
+    (.setRootHash (.getEtch (current))
                   hash)
     hash))

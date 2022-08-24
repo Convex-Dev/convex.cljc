@@ -16,7 +16,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Uppgrade to Convex 0.7.6
+- Uppgrade to Convex 0.7.7
 - Greatly simplify `$.db`
     - Prevent bad behavior by enforcing thread-local instances
     - Remove any dealing with refs (too low-level for normal operations)
