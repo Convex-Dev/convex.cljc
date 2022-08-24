@@ -174,9 +174,10 @@
         ($.cvm/def addr-$
                    (let [[version
                           version-convex] (-version+*)]
-                   {$.shell.sym/line           ($.cell/string (System/lineSeparator))
-                    $.shell.sym/version        ($.cell/string version)
-                    $.shell.sym/version-convex ($.cell/string version-convex)})))))
+                     {$.shell.sym/line           ($.cell/string (System/lineSeparator))
+                      $.shell.sym/version        ($.cell/string version)
+                      $.shell.sym/version-convex ($.cell/string (or version-convex
+                                                                    "Local artifact"))})))))
 
 
 ;;;;;;;;;; Defining symbols in the environment's context
