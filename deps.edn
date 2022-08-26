@@ -297,21 +297,25 @@
 
   :module/shell
 
-  {:convex.shell/version            "0.0.0-alpha3"
-   :extra-paths                     ["module/shell/resource"
-                                     "module/shell/src/main/clj"
-                                     "module/shell/src/main/cvx"]
-   :maestro/dir                     "module/shell"
-   :maestro/doc                     "Convex Lisp Shell"
-   :maestro/require                 [:ext/clojure
-                                     :ext/criterium
-                                     :ext/graal-build-time
-                                     :module/cvm
-                                     {dev :dev/shell}]
-   :maestro.build/type              :uberjar
-   :maestro.build.path/output       "private/target/shell.uber.jar"
-   :maestro.uberjar/main            convex.shell
-   :maestro.uberjar/direct-linking? true}
+  {:convex.shell/version      "0.0.0-alpha3"
+   :extra-paths               ["module/shell/resource"
+                               "module/shell/src/main/clj"
+                               "module/shell/src/main/cvx"]
+   :maestro/dir               "module/shell"
+   :maestro/doc               "Convex Lisp Shell"
+   :maestro/require           [:ext/clojure
+                               :ext/criterium
+                               :ext/graal-build-time
+                               :module/cvm
+                               {dev :dev/shell}]
+   :maestro.build/type        :uberjar
+   :maestro.build.path/output "private/target/shell.uber.jar"
+   :maestro.uberjar/compiler  {:direct-linking true
+                               :elide-meta     [:column
+                                                :doc
+                                                :file
+                                                :line]}
+   :maestro.uberjar/main      convex.shell}
 
 
   :dev/shell

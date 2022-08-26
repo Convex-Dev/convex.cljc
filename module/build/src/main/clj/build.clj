@@ -75,7 +75,7 @@
   (println "Compiling" (ctx :maestro.build/alias))
   (tools.build/compile-clj {:basis        basis
                             :class-dir    path-class
-                            :compile-opts {:direct-linking (ctx :maestro.uberjar/direct-linking?)}
+                            :compile-opts (ctx :maestro.uberjar/compiler)
                             :src-dirs     (ctx :maestro.build.path/src+)})
   (println (format "Assembling uberjar to '%s'"
                    path-uberjar))
