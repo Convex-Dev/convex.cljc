@@ -5,8 +5,13 @@
 
 (call *registry*
       (register {:description ["Produce nice terminal output, such as coloring text, by using ANSI escape codes."
-                               "Defined values or values returned from functions can be used in a string to produce desired effects."
-                               "To learn more about ANSI escape codes, see https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797."]
+                               "All functions return escape codes as strings that can be easily combined with text."
+                               "To learn more about ANSI escape codes, see https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797."
+                               "Styling can be disabled using `$.term/style.disable` so that outputs are friendlier for files and terminals"
+                               "that do not understand those escape codes."
+                               "Disabling applies to all functions from this account but those related to moving the cursor."
+                               "Hence, it is usually best not using cursor moving functions unless explicitly needed ; spaces and new lines"
+                               "go a long way (see `$/line`)."]
                  :name        "Terminal formatting library for the Convex Shell"}))
 
 ;;;;;;;;;; Importing libraries
