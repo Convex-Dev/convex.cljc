@@ -49,10 +49,12 @@
 ;;;;;;;;;; Values
 
 
-(def -accent
+(defn -accent
 
   ^{:doc      {:description "Sets style for bold blue."}
     :private? true}
+
+  []
 
   (str ($.term/bold)
        ($.term/fg.blue)))
@@ -165,7 +167,7 @@
 
   (conj acc
         $/line
-        -accent
+        (-accent)
         heading
         ($.term/reset)
         $/line
@@ -189,7 +191,7 @@
                   line))
           (conj acc
                 $/line
-                -accent
+                (-accent)
                 heading
                 ($.term/reset))
           line+))
@@ -215,6 +217,7 @@
 
    (-!.out
      (if-let [account (core/account addr)]
+       ;; Account found.
        (let [meta-reg (call *registry*
                             (lookup addr))
              acc      []
@@ -262,7 +265,8 @@
                                  env))
              ]
          acc)
-       [($.term/down-begin 1)
+       ;; Account not found.
+       [$/line
         ($.term/bold)
         ($.term/fg.red)
         "Account not found."
@@ -305,11 +309,11 @@
                                              (if (nil? return)
                                                code
                                                (str code
-                                                    ($.term/right 1)
-                                                    -accent
+                                                    " "
+                                                    (-accent)
                                                     "->"
                                                     ($.term/reset)
-                                                    ($.term/right 1)
+                                                    " "
                                                     return))))
                                          ex+)
                                     [(str ex+)]))
@@ -322,7 +326,7 @@
                                            (not (empty? err+)))
                                     (map (fn [[code txt]]
                                            (str code
-                                                -accent
+                                                (-accent)
                                                 " <- "
                                                 ($.term/reset)
                                                 txt))

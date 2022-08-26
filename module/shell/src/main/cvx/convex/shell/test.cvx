@@ -318,7 +318,7 @@
 
 (defn group
 
-  ^{:doc {:description ["Encloses given list of transactions using `$.time` utililities."
+  ^{:doc {:description ["Encloses the given list of transactions using `$.time` utilities."
                         "Any state change induced by those transactions will ultimately be discarded."
                         "Before executing the first transaction, CVM state is saved."
                         "After the final transaction, saved state is restored while rememberring new tests results."
