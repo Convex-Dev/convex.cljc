@@ -20,69 +20,145 @@
         (cns-resolve 'convex.shell)))
 
 
+;;;;;;;;;; State
+
+
+(def *style?*
+
+  ^{:doc {:description ["True if text styling with functions from this account is enabled."
+                        "False means that functions returning a color will instead return an empty string."]}}
+
+  true)
+
+
+
+(defn -style
+
+ ^{:private? true}
+
+ [x]
+
+ (if *style?*
+   x
+   ""))
+
+
+
+(defn -set-styling
+
+  ^{:callable? true
+    :private?  true}
+
+  [allow?]
+
+  (if (= *address*
+         ~*address*)
+    (def *style?*
+         allow?)
+    (call ~*address*
+          (-set-styling allow?))))
+
+
+
+(defn style.disable
+
+  ^{:doc {:description ["Disable text styling with utilities from this account by making them"
+                        "return an empty string."]}}
+
+  []
+
+  (-set-styling false))
+
+
+
+(defn style.enable
+
+  ^{:doc {:description "Enable text styling with functions from this account."}}
+
+  []
+
+  (-set-styling true))
+
+
 ;;;;;;;;;; Background colors
 
 
-(def bg.black
+(defn bg.black
 
   ^{:doc {:description "Background color black."}}
 
-  "\033[40m")
+  []
+
+  (-style "\033[40m"))
 
 
 
-(def bg.blue
+(defn bg.blue
 
   ^{:doc {:description "Background color blue."}}
 
-  "\033[44m")
+  []
+
+  (-style "\033[44m"))
 
 
 
-(def bg.cyan
+(defn bg.cyan
 
   ^{:doc {:description "Background color cyan."}}
 
-  "\033[46m")
+  []
+
+  (-style "\033[46m"))
 
 
 
-(def bg.green
+(defn bg.green
 
   ^{:doc {:description "Background color green."}}
 
-  "\033[42m")
+  []
+
+  (-style "\033[42m"))
 
 
 
-(def bg.magenta
+(defn bg.magenta
 
   ^{:doc {:description "Background color magenta."}}
 
-  "\033[45m")
+  []
+
+  (-style "\033[45m"))
 
 
-(def bg.red
+(defn bg.red
 
   ^{:doc {:description "Background color red."}}
 
-  "\033[41m")
+  []
+
+  (-style "\033[41m"))
 
 
 
-(def bg.white
+(defn bg.white
 
   ^{:doc {:description "Background color white."}}
 
-  "\033[47m")
+  []
+
+  (-style "\033[47m"))
 
 
 
-(def bg.yellow
+(defn bg.yellow
 
   ^{:doc {:description "Background color yellow."}}
 
-  "\033[43m")
+  []
+
+  (-style "\033[43m"))
 
 
 ;;
@@ -96,74 +172,91 @@
 
   [r g b]
 
-  (str "\033[48;2;" r ";" g ";" b "m"))
+  (if *style?*
+    (str "\033[48;2;" r ";" g ";" b "m")
+    ""))
 
 
 ;;;;;;;;;; Foreground colors
 
 
-(def fg.black
+(defn fg.black
 
   ^{:doc {:description "Foreground color black."}}
 
-  "\033[30m")
+  []
+
+  (-style "\033[30m"))
 
 
 
-(def fg.blue
+(defn fg.blue
 
   ^{:doc {:description "Foreground color blue."}}
 
-  "\033[34m")
+  []
+
+  (-style "\033[34m"))
 
 
 
-
-(def fg.cyan
+(defn fg.cyan
 
   ^{:doc {:description "Foreground color cyan."}}
 
-  "\033[36m")
+  []
+
+  (-style "\033[36m"))
 
 
 
-(def fg.green
+(defn fg.green
 
   ^{:doc {:description "Foreground color green."}}
 
-  "\033[32m")
+  []
+
+  (-style "\033[32m"))
 
 
 
-(def fg.magenta
+(defn fg.magenta
 
   ^{:doc {:description "Foreground color magenta."}}
 
-  "\033[35m")
+  []
+
+  (-style "\033[35m"))
 
 
 
-(def fg.white
+(defn fg.white
 
   ^{:doc {:description "Foreground color white."}}
 
-  "\033[37m")
+  []
+
+  (-style "\033[37m"))
 
 
 
-(def fg.red
+(defn fg.red
 
   ^{:doc {:description "Foreground color red."}}
 
-  "\033[31m")
+  []
+
+  (-style "\033[31m"))
 
 
 
-(def fg.yellow
+(defn fg.yellow
 
   ^{:doc {:description "Foreground color yellow."}}
 
-  "\033[33m")
+  []
+
+  (-style "\033[33m"))
 
 
 ;;
@@ -178,41 +271,51 @@
 
   [r g b]
 
-  (str "\033[38;2;" r ";" g ";" b "m"))
+  (if *style?*
+    (str "\033[38;2;" r ";" g ";" b "m")
+    ""))
 
 
 ;;;;;;;;;; Effects
 
 
-(def bold
+(defn bold
 
   ^{:doc {:description "Bold effect."}}
 
-  "\033[1m")
+  []
+
+  (-style "\033[1m"))
 
 
 
-(def reset
+(defn reset
 
   ^{:doc {:description "Resets all colors and effects."}}
 
-  "\033[0m")
+  []
+
+  (-style "\033[0m"))
 
 
 
-(def reversed
+(defn reversed
 
   ^{:doc {:description "Reverses background and foreground colors."}}
 
-  "\033[7m")
+  []
+
+  (-style "\033[7m"))
 
 
 
-(def underline
+(defn underline
 
   ^{:doc {:description "Underlines text."}}
 
-  "\033[4m")
+  []
+
+  (-style "\033[4m"))
 
 
 ;;;;;;;;;; Moving
@@ -370,11 +473,13 @@
 ;;;;;;;;;; Clearing
 
 
-(def clear.screen
+(defn clear.screen
 
   ^{:doc {:description "Escape code for clearing the whole screen."}}
 
-  "\033[H\033[2J")
+  []
+
+  (-style "\033[H\033[2J"))
 
 
 ;;;;;;;;;;
@@ -387,83 +492,83 @@
           :signature   [{:params []}]}}
   []
 
-  (str bg.black
+  (str (bg.black)
        "BG black"
-       reset
+       (reset)
        $/line
-       bg.blue
+       (bg.blue)
        "BG blue"
-       reset
+       (reset)
        $/line
-       bg.cyan
+       (bg.cyan)
        "BG cyan"
-       reset
+       (reset)
        $/line
-       bg.green
+       (bg.green)
        "BG green"
-       reset
+       (reset)
        $/line
-       bg.magenta
+       (bg.magenta)
        "BG magenta"
-       reset
+       (reset)
        $/line
-       bg.red
+       (bg.red)
        "BG red"
-       reset
+       (reset)
        $/line
-       bg.white
-       fg.black
+       (bg.white)
+       (fg.black)
        "BG white"
-       reset
+       (reset)
        $/line
-       bg.yellow
+       (bg.yellow)
        "BG yellow"
-       reset
+       (reset)
        $/line
        (bg.rgb 100 200 150)
        "BG RGB 100 200 150"
-       reset
+       (reset)
        $/line
-       fg.black
+       (fg.black)
        "FG black"
-       reset
+       (reset)
        $/line
-       fg.blue
+       (fg.blue)
        "FG blue"
-       reset
+       (reset)
        $/line
-       fg.cyan
+       (fg.cyan)
        "FG cyan"
-       reset
+       (reset)
        $/line
-       fg.green
+       (fg.green)
        "FG green"
-       reset
+       (reset)
        $/line
-       fg.magenta
+       (fg.magenta)
        "FG magenta"
-       reset
+       (reset)
        $/line
-       fg.red
+       (fg.red)
        "FG red"
-       reset
+       (reset)
        $/line
-       fg.white
-       fg.black
+       (fg.white)
+       (fg.black)
        "FG white"
-       reset
+       (reset)
        $/line
-       fg.yellow
+       (fg.yellow)
        "FG yellow"
-       reset
+       (reset)
        $/line
        (fg.rgb 100 200 150)
        "FG RGB 100 200 150"
-       reset
+       (reset)
        $/line
-       bold
+       (bold)
        "Bold text"
        $/line
-       fg.blue
+       (fg.blue)
        "Bold makes also colors brighter"
-       reset))
+       (reset)))

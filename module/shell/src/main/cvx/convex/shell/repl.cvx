@@ -71,10 +71,10 @@
 
   ^{:doc {:description "Prompt string used by default."}}
 
-  (str $.term/bold
-       $.term/fg.blue
+  (str ($.term/bold)
+       ($.term/fg.blue)
        "> "
-       $.term/reset))
+       ($.term/reset)))
 
 
 ;;;;;;;;;; Private values
@@ -127,27 +127,27 @@
                                       ;; Catch
                                       '($.trx/precat `(~($.stream/!.outln
                                                           (str $/line
-                                                               $.term/bold
-                                                               $.term/fg.blue
+                                                               ($.term/bold)
+                                                               ($.term/fg.blue)
                                                                "Exception code:"
-                                                               $.term/reset
+                                                               ($.term/reset)
                                                                $/line
                                                                "  "
-                                                               $.term/bold
+                                                               ($.term/bold)
                                                                (:code $/*result*)
                                                                $/line
-                                                               $.term/bold
-                                                               $.term/fg.blue
+                                                               ($.term/bold)
+                                                               ($.term/fg.blue)
                                                                "Message:"
-                                                               $.term/reset
+                                                               ($.term/reset)
                                                                $/line
                                                                "  "
                                                                (:message $/*result*)
                                                                $/line
-                                                               $.term/bold
-                                                               $.term/fg.blue
+                                                               ($.term/bold)
+                                                               ($.term/fg.blue)
                                                                "Trace:"
-                                                               $.term/reset
+                                                               ($.term/reset)
                                                                (let [trace (:trace $/*result*)]
                                                                  (if (empty? trace)
                                                                    (str $/line
@@ -206,19 +206,19 @@
             (or (:prompt option+)
                 prompt))
        ($.trx/precat `(~(when (:intro? option+)
-                          ($.stream/!.outln (str $.term/fg.blue
-                                                 $.term/bold
+                          ($.stream/!.outln (str ($.term/fg.blue)
+                                                 ($.term/bold)
                                                  "Convex Shell (REPL mode)"
-                                                 $.term/reset
+                                                 ($.term/reset)
                                                  $/line
                                                  $/line
                                                  "Enter transactions and build a new world."
                                                  $/line
                                                  $/line
                                                  "To learn more: "
-                                                 $.term/bold
+                                                 ($.term/bold)
                                                  "($/help)"
-                                                 $.term/reset
+                                                 ($.term/reset)
                                                  $/line)))
                        (call $.repl
                              (-!.next (quote ~result))))))

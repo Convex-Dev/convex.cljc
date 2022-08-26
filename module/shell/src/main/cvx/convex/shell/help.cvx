@@ -54,8 +54,8 @@
   ^{:doc      {:description "Sets style for bold blue."}
     :private? true}
 
-  (str $.term/bold
-       $.term/fg.blue))
+  (str ($.term/bold)
+       ($.term/fg.blue)))
 
 
 ;;;;;;;;;; Private helpers
@@ -117,11 +117,11 @@
   [acc sym desc]
 
   (conj acc
-        (str $.term/bold
-             $.term/fg.green
+        (str ($.term/bold)
+             ($.term/fg.green)
              sym
              "  "
-             $.term/reset
+             ($.term/reset)
              $/line
              "    "
              (let [desc-2 (if desc
@@ -167,7 +167,7 @@
         $/line
         -accent
         heading
-        $.term/reset
+        ($.term/reset)
         $/line
         "  "
         line))
@@ -191,7 +191,7 @@
                 $/line
                 -accent
                 heading
-                $.term/reset)
+                ($.term/reset))
           line+))
 
 
@@ -263,10 +263,10 @@
              ]
          acc)
        [($.term/down-begin 1)
-        $.term/bold
-        $.term/fg.red
+        ($.term/bold)
+        ($.term/fg.red)
         "Account not found."
-        $.term/reset]))))
+        ($.term/reset)]))))
 
 
 
@@ -308,7 +308,7 @@
                                                     ($.term/right 1)
                                                     -accent
                                                     "->"
-                                                    $.term/reset
+                                                    ($.term/reset)
                                                     ($.term/right 1)
                                                     return))))
                                          ex+)
@@ -324,17 +324,17 @@
                                            (str code
                                                 -accent
                                                 " <- "
-                                                $.term/reset
+                                                ($.term/reset)
                                                 txt))
                                          err+)
                                     [(str err+)]))
                          acc)]
              acc)
           [$/line
-           $.term/bold
-           $.term/fg.red
+           ($.term/bold)
+           ($.term/fg.red)
            "Symbol is not defined."
-           $.term/reset])))
+           ($.term/reset)])))
 
 
 
@@ -370,11 +370,11 @@
 
   (let [account (fn [account text]
                   (str $/line
-                       $.term/bold
-                       $.term/fg.blue
+                       ($.term/bold)
+                       ($.term/fg.blue)
                        "  "
                        account
-                       $.term/reset
+                       ($.term/reset)
                        ": "
                        text))
         text    (str $/line
@@ -386,9 +386,9 @@
                      "This environment is well-suited for development, testing, and off-chain computation."
                      $/line
                      "To learn more about getting help for accounts and symbols, run: "
-                     $.term/bold
+                     ($.term/bold)
                      "($/help $/help)"
-                     $.term/reset
+                     ($.term/reset)
                      $/line
                      $/line
                      $/line
@@ -404,9 +404,9 @@
                               "code related utilities, such as parsing source as cells")
                      (account "$.file"
                               (str "reading/writing files, open file streams for "
-                                   $.term/bold
+                                   ($.term/bold)
                                    "$.stream"
-                                   $.term/reset))
+                                   ($.term/reset)))
                      (account "$.log"
                               "accessing the CVM log")
                      (account "$.perf"
@@ -432,22 +432,22 @@
                      "of Convex data, advancing time, tracking juice consumption, etc. The name of those functions are always prepended with"
                      $/line
                      "`"
-                     $.term/bold
+                     ($.term/bold)
                      "!."
-                     $.term/reset
+                     ($.term/reset)
                      "` in order to stand out (e.g. "
-                     $.term/bold
+                     ($.term/bold)
                      "$.stream/!.outln"
-                     $.term/reset
+                     ($.term/reset)
                      ")."
                      $/line
                      $/line
                      "When called, such a function returns a request (vector with special data) that the Convex shell interprets and executes before"
                      $/line
                      "letting the CVM handle the next transaction. The result, if any, is available during the next transaction under "
-                     $.term/bold
+                     ($.term/bold)
                      "$/*result*"
-                     $.term/reset
+                     ($.term/reset)
                      "."
                      $/line
                      )]

@@ -64,13 +64,13 @@
        "~~~"
        $/line
        $/line
-       $.term/bold
+       ($.term/bold)
        (if fail?
-         (str $.term/fg.red
+         (str ($.term/fg.red)
               "Some tests did not pass.")
-         (str $.term/fg.green
+         (str ($.term/fg.green)
               "All tests from all files passed."))
-       $.term/reset
+       ($.term/reset)
        $/line))
 
 

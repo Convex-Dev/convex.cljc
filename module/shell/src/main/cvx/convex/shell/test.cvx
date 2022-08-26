@@ -572,40 +572,40 @@
                                 "---"
                                 $/line
                                 $/line
-                                $.term/bold
+                                ($.term/bold)
                                 (report :trx)
-                                $.term/reset
+                                ($.term/reset)
                                 $/line
                                 $/line
-                                $.term/bold
-                                $.term/fg.blue
+                                ($.term/bold)
+                                ($.term/fg.blue)
                                 text
-                                $.term/reset
+                                ($.term/reset)
                                 $/line
                                 "  "
                                 data
                                 $/line
-                                $.term/bold
-                                $.term/fg.blue
+                                ($.term/bold)
+                                ($.term/fg.blue)
                                 "Path:"
-                                $.term/reset
+                                ($.term/reset)
                                 $/line
                                 "  "
                                 (:path metadata)
                                 $/line
-                                $.term/bold
-                                $.term/fg.blue
+                                ($.term/bold)
+                                ($.term/fg.blue)
                                 "Description:"
-                                $.term/reset
+                                ($.term/reset)
                                 $/line
                                 "  "
                                 (or (:description metadata)
                                     "Not provided.")
-                                $.term/bold
-                                $.term/fg.blue
+                                ($.term/bold)
+                                ($.term/fg.blue)
                                 $/line
                                 "Other metadata: "
-                                $.term/reset
+                                ($.term/reset)
                                 $/line
                                 "  "
                                 (dissoc metadata
@@ -621,10 +621,10 @@
           "==="
           $/line
           $/line
-          $.term/bold
-          $.term/fg.red
+          ($.term/bold)
+          ($.term/fg.red)
           "Number of failed tests: "
-          $.term/reset
+          ($.term/reset)
           n-fail
           " / "
           (count report+))))
@@ -643,13 +643,13 @@
              "==="
              $/line
              $/line
-             $.term/bold]]
+             ($.term/bold)]]
     (if (empty? report+)
       (conj acc
-            $.term/fg.red
+            ($.term/fg.red)
             "No test reports.")
       (conj acc
-            $.term/fg.green
+            ($.term/fg.green)
             "All tests passed."))))
 
 
@@ -677,7 +677,7 @@
                    (-print.success report+)
                    (-print.fail n-fail
                                 report+))
-                 $.term/reset
+                 ($.term/reset)
                  $/line
                  $/line
                  "Tested '"

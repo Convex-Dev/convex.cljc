@@ -8,6 +8,8 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Functions for disabling and enabling text styling with `$.term`
+
 ### Changed
 
 - Rename module from Convex Runner to Convex Shell
