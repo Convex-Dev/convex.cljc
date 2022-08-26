@@ -67,9 +67,11 @@
 
 
 
-(def prompt
+(defn prompt
 
-  ^{:doc {:description "Prompt string used by default."}}
+  ^{:doc {:description "Default function for producing prompt string."}}
+
+  []
 
   (str ($.term/bold)
        ($.term/fg.blue)
@@ -100,7 +102,9 @@
 
   [result]
 
-  ($.trx/precat `(($.stream/!.out ~-prompt)
+  ($.trx/precat `(($.stream/!.out ~(if (fn? -prompt)
+                                     (-prompt)
+                                     -prompt))
                   ($.stream/!.flush)
                   ($.stream/!.line+)
                   (let [form+       $/*result*
@@ -176,7 +180,8 @@
   ^{:callable? true
     :doc       {:description ["Starts a REPL on next transaction."
                               "User can then enter transactions and see results."
-                              "For stopping, see `stop`."]
+                              "For stopping, see `stop`."
+                              "A prompt or prompt producing function may be provided."]
                 :examples    [{:code "($.repl/!.start)"}
                               {:code "($.repl/!.start {:prompt \"my-repl>>> \"})"}]
                 :signature   [{:params []}
