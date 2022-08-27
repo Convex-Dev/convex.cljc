@@ -1,13 +1,9 @@
 (ns convex.cvm.db
 
-  "When a CVM instance is used, it relies on a thread-local database which can be manually retrieved using [[local]].
-   
-   The thread-local database can be set usint [[local-set]]. Originally, at thread initialization, it corresponds to
-   the [[global]] database which is common to all threads. Its value can also be altered using [[global-set]].
+  "When an Etch instance is needed by the CVM, it is retrieved from a thread-local value (see [[local]]). 
 
-   Ultimately, the [[global]] database itself returns [[default]] unless user has set its value to another database.
-
-   Default [[database]] is an Etch instance. See [[convex.db]]."
+   This value can be altered using [[local-set]]. Originally, at thread initialization, it corresponds to
+   the [[global]] instance common to all threads. This globale value can also be altered using [[global-set]]."
 
   {:author "Adam Helinski"}
 

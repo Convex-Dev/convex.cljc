@@ -12,8 +12,9 @@
 ;;;;;;;;;; Setup
 
 
-(def custom
-     ($.db/open-temp))
+(def d*custom
+     (delay
+       ($.db/open-temp)))
 
 
 
@@ -30,11 +31,11 @@
 
 (T/deftest global
 
-  (T/is (= custom
-           ($.cvm.db/global-set custom))
-        "Set to custom")
+  (T/is (= @d*custom
+           ($.cvm.db/global-set @d*custom))
+        "Set to @d*custom")
 
-  (T/is (= custom
+  (T/is (= @d*custom
            ($.cvm.db/global))
         "Custom"))
 
@@ -42,11 +43,11 @@
 
 (T/deftest local
 
-  (T/is (= custom
-           ($.cvm.db/local-set custom))
-        "Set to custom")
+  (T/is (= @d*custom
+           ($.cvm.db/local-set @d*custom))
+        "Set to @d*custom")
 
-  (T/is (= custom
+  (T/is (= @d*custom
            ($.cvm.db/local))
         "Custom")
 

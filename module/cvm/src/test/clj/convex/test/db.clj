@@ -18,18 +18,6 @@
             [helins.mprop                  :as mprop]))
 
 
-;;;;;;;;;; Setup
-
-
-(def etch
-     ($.db/open-temp))
-
-
-
-($.db/write-root etch
-                 ($.cell/vector))
-
-
 ;;;;;;;;;; Unit tests
 
 

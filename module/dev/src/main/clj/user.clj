@@ -10,7 +10,7 @@
 ;;;;;;;;;;
 
 
-(defn require-convex
+(defn req-cvx
 
   "Require Convex namespaces found on the classpath aliasing them in
    the usual way."
@@ -42,4 +42,4 @@
 ;;;;;;;;;;
 
 
-(require-convex)
+(req-cvx)
