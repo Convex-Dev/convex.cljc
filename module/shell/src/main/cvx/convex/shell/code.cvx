@@ -32,7 +32,7 @@
 
   [cell]
 
-  ($.trx/precat `((~!.read+ ~(str cell))
+  ($.trx/precat `(($.code/!.read+ ~(str cell))
                   (first $/*result*))))
 
 
