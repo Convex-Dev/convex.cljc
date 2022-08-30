@@ -20,8 +20,9 @@
 ;;;;;;;;;; Setup
 
 
-(def db
-     ($.db/open-temp))
+(def d*db
+     (delay
+       ($.db/current-set ($.db/open-tmp))))
 
 
 
@@ -56,7 +57,7 @@
      (delay
        ($.server/create kp
                         {:convex.server/controller addr
-                         :convex.server/db         db
+                         :convex.server/db         @d*db
                          :convex.server/host       "localhost"
                          :convex.server/port       port
                          :convex.server/state      [:use ($.cvm/state ctx)]})))
@@ -144,7 +145,7 @@
 
 (T/deftest db-
 
-  (T/is (= db
+  (T/is (= @d*db
            ($.server/db @d*server))))
 
 
@@ -167,7 +168,7 @@
 
   (T/is (do
           ($.server/persist @d*server)
-          (some? ($.db/read-root db)))))
+          (some? ($.db/root-read)))))
 
 
 

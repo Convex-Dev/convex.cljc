@@ -4,35 +4,87 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.data AVector))
-  (:refer-clojure :exclude [ref])
-  (:require [clojure.test                  :as T]
-            [clojure.test.check.generators :as TC.gen]
-            [clojure.test.check.properties :as TC.prop]
-            [convex.cell                   :as $.cell]
-            [convex.cvm.db                 :as $.cvm.db]
-            [convex.db                     :as $.db]
-            [convex.gen                    :as $.gen]
-            [convex.ref                    :as $.ref]
-            [convex.std                    :as $.std]
-            [helins.mprop                  :as mprop]))
+  (:refer-clojure :exclude [flush])
+  (:require [clojure.test :as T]
+            [convex.cell  :as $.cell]
+            [convex.db    :as $.db]))
 
 
-;;;;;;;;;; Unit tests
+;;;;;;;;;; Private
 
 
-(T/deftest close
+(defn -data
+
+  "Produces a fresh cell without a cached ref."
+
+  []
+  
+  ($.cell/* {:bar [:a :b #{c}]
+             :foo 42}))
+
+
+
+(defn- -open
+
+  "Used by tests for assertions against a clean DB."
+
+  []
+
+  ($.db/current-set ($.db/open-tmp "convex-db-test")))
+
+
+;;;;;;;;;; Tests
+
+
+(T/deftest open-close-cycle
+
+  (T/is (= (-data)
+           (do
+             (-open)
+             (let [path ($.db/path)]
+               ($.db/root-write (-data))
+               ($.db/flush)
+               ($.db/close)
+               ($.db/current-set ($.db/open path))
+               ($.db/root-read))))))
+
+
+
+(T/deftest rw
+
+  (T/is (= (-data)
+           (do
+             (-open)
+             ($.db/read ($.db/write (-data)))))
+        "Can read back written data"))
+
+
+
+(T/deftest rw-root
+
+  (T/is (= (-data)
+           (do
+             (-open)
+             ($.db/root-write (-data))
+             ($.db/root-read)))
+        "Can read back written root data"))
+
+
+
+(T/deftest write-after-close
 
   (T/is (thrown? Exception
-                 (let [db ($.db/open-temp)]
-                   (.close db)
-                   ($.db/write db
-                               ($.cell/* [:a :b]))))))
+                 (do
+                   (-open)
+                   ($.db/close)
+                   ($.db/write (-data))))
+        "Cannot write after closing an instance"))
+
 
 ;;;;;;;;;; Gen tests
 
 
-(defn suite-rw
+#_(defn suite-rw
 
   "Writes and read back `cell`, flushing in between if required by `flush?`.
 
@@ -84,7 +136,7 @@
 
 
 
-(mprop/deftest rw
+#_(mprop/deftest rw
 
   {:ratio-num  30
    :ratio-size 5}
