@@ -12,6 +12,7 @@
            (convex.core.lang Context))
   (:require [convex.cell         :as $.cell]
             [convex.cvm          :as $.cvm]
+            [convex.db           :as $.db]
             [convex.read         :as $.read]
             [convex.shell.ctx    :as $.shell.ctx]
             [convex.shell.err    :as $.shell.err]
@@ -92,6 +93,90 @@
                          ($.shell.err/sreq ($.cell/code-std* :ARGUMENT)
                                            ($.cell/string "Unable to read source")
                                            tuple)))))
+
+
+;;;;;;;;;; Etch
+
+
+(defmethod $.shell.exec/sreq
+
+  $.shell.kw/etch-flush
+
+  ;;
+
+  [env _tuple]
+
+  ($.db/flush)
+  ($.shell.ctx/def-result env
+                          nil))
+
+
+
+(defmethod $.shell.exec/sreq
+
+  $.shell.kw/etch-path
+
+  ;;
+
+  [env _tuple]
+
+  ($.shell.ctx/def-result env
+                          ($.cell/string ($.db/path))))
+
+
+
+(defmethod $.shell.exec/sreq
+
+  $.shell.kw/etch-read
+
+  ;;
+
+  [env ^AVector tuple]
+
+  ($.shell.ctx/def-result env
+                          ($.db/read (.get tuple
+                                           2))))
+
+
+
+(defmethod $.shell.exec/sreq
+
+  $.shell.kw/etch-root-read
+
+  ;;
+
+  [env _tuple]
+
+  ($.shell.ctx/def-result env
+                          ($.db/root-read)))
+
+
+
+(defmethod $.shell.exec/sreq
+
+  $.shell.kw/etch-root-write
+
+  ;;
+
+  [env ^AVector tuple]
+
+  ($.shell.ctx/def-result env
+                          ($.db/root-write (.get tuple
+                                                 2))))
+
+
+
+(defmethod $.shell.exec/sreq
+
+  $.shell.kw/etch-write
+
+  ;;
+
+  [env ^AVector tuple]
+
+  ($.shell.ctx/def-result env
+                          ($.db/write (.get tuple
+                                            2))))
 
 
 ;;;;;;;;;; File

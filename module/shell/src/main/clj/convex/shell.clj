@@ -137,3 +137,20 @@
       (when (not= (System/getProperty "convex.dev")
                   "true")
         (System/exit 42)))))
+
+
+
+
+(comment
+
+   
+  (-main "[:cvm.sreq :etch.root-write {:a :b}] ($.stream/!.outln $/*result*)")
+  (-main "[:cvm.sreq :etch.root-read] ($.stream/!.outln $/*result*)")
+  (-main "42 [:cvm.sreq :etch.flush] ($.stream/!.outln $/*result*)")
+  (-main "[:cvm.sreq :etch.path] ($.stream/!.outln $/*result*)")
+  (-main "[:cvm.sreq :etch.write [:foo :bar]] [:cvm.sreq :etch.read $/*result*] ($.stream/!.outln $/*result*)")
+
+  (-main "(def x *state*) [:cvm.sreq :foo x]")
+
+
+  )

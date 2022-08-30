@@ -33,6 +33,24 @@
 (def ^Keyword err-stream
               ($.cell/keyword "STREAM"))
 
+(def ^Keyword etch-flush
+              ($.cell/keyword "etch.flush"))
+
+(def ^Keyword etch-path
+              ($.cell/keyword "etch.path"))
+
+(def ^Keyword etch-read
+              ($.cell/keyword "etch.read"))
+
+(def ^Keyword etch-write
+              ($.cell/keyword "etch.write"))
+
+(def ^Keyword etch-root-read
+              ($.cell/keyword "etch.root-read"))
+
+(def ^Keyword etch-root-write
+              ($.cell/keyword "etch.root-write"))
+
 (def ^Keyword eval
               ($.cell/keyword "eval"))
 
