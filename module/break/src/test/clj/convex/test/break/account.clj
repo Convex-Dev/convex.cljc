@@ -614,6 +614,21 @@
 
 
 
+(mprop/deftest error-argument-key
+
+  ;; Blob that is not 32 bytes should fail.
+
+  (TC.prop/for-all [blob (TC.gen/such-that (fn [blob]
+                                             (not= ($.std/count blob)
+                                                   32))
+                                           ($.gen/blob)
+                                           100)]
+    (= ($.cell/code-std* :ARGUMENT)
+       ($.eval/exception-code $.break/ctx
+                              ($.cell/* (set-key ~blob))))))
+
+
+
 (mprop/deftest error-cast-key
 
   {:ratio-num 10}
@@ -621,18 +636,13 @@
   ;; Providing something that cannot be used as a key should fail.
 
   (TC.prop/for-all [x (TC.gen/such-that (fn [x]
-                                          (cond
-                                            ($.std/blob? x)
-                                            (not= ($.std/count x)
-                                                  32)
-                                            ;;
-                                            ($.std/string? x)
-                                            (not= ($.std/count x)
-                                                  64)
-                                            ;;
-                                            :else
-                                            (some? x)))
-                                        $.gen/any)]
+                                          (and (not ($.std/blob? x))
+                                               (if ($.std/string? x)
+                                                 (not= ($.std/count x)
+                                                       64)
+                                                 (some? x))))
+                                        $.gen/any
+                                        100)]
     (= ($.cell/code-std* :CAST)
        ($.eval/exception-code $.break/ctx
                               ($.cell/* (set-key (quote ~x)))))))
