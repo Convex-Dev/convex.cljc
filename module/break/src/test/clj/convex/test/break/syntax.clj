@@ -26,7 +26,8 @@
     (TC.prop/for-all [sym    $.gen/symbol
                       x      (TC.gen/such-that (comp not
                                                      $.std/syntax?)
-                                               $.gen/any)
+                                               $.gen/any
+                                               100)
                       meta-1 gen-meta
                       meta-2 gen-meta]
       (let [ctx ($.eval/ctx $.break/ctx

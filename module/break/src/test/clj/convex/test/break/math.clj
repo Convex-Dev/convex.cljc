@@ -333,7 +333,8 @@
   (TC.prop/for-all [a $.gen/long
                     b (TC.gen/such-that #($.eval/true? $.break/ctx
                                                        ($.cell/* (not (zero? ~%))))
-                                        $.gen/long)]
+                                        $.gen/long
+                                        100)]
     (let [ctx ($.eval/ctx $.break/ctx
                           ($.cell/* (do
                                       (def a
@@ -446,7 +447,8 @@
 
   (TC.prop/for-all [x (TC.gen/such-that #(not (= ($.cell/* ##NaN)
                                                  %))
-                                        $.gen/number)]
+                                        $.gen/number
+                                        100)]
     (let [ctx ($.eval/ctx $.break/ctx
                           ($.cell/* (def abs-
                                          (abs ~x))))]

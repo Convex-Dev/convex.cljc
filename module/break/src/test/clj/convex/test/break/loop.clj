@@ -121,7 +121,8 @@
                                                                                                                 inc
                                                                                                                 recur})
                                                                                                     %))
-                                                                                            $.gen/symbol))
+                                                                                            $.gen/symbol
+                                                                                            100))
                                             1
                                             5)]
     (= (-> looping+
@@ -137,7 +138,8 @@
   {:ratio-num 10}
 
   (TC.prop/for-all [x (TC.gen/such-that not-empty
-                                        $.gen/any-coll)]
+                                        $.gen/any-coll
+                                        100)]
     ($.eval/true? $.break/ctx
                   ($.cell/* (let [x (quote ~x)
                                   v (nth x

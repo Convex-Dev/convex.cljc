@@ -179,7 +179,8 @@
 
   (TC.prop/for-all [n       gen-nest
                     code    (TC.gen/such-that some?
-                                              $.gen/any)
+                                              $.gen/any
+                                              100)
                     message $.gen/any
                     x-ploy  $.gen/any]
     (let [exec (fn [form]
@@ -398,7 +399,8 @@
 ;;   ;; Any binding form that is not a vector should be rejected.
 ;; 
 ;;   (TC.prop/for-all [bindvec (TC.gen/such-that #(not ($.std/vector? %))
-;;                                               $.gen/any)
+;;                                               $.gen/any
+;;                                               100)
 ;;                     sym     (TC.gen/elements [($.cell/* if-let)
 ;;                                               ($.cell/* when-let)])]
 ;;                    (println :got ($.eval/exception-code $.break/ctx

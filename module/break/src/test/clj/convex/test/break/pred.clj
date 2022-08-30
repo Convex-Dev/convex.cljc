@@ -68,7 +68,8 @@
   (prop-false ($.cell/* account?)
               (TC.gen/such-that (comp not
                                       $.std/address?)
-                                $.gen/any)))
+                                $.gen/any
+                                100)))
 
 
 
@@ -79,7 +80,8 @@
   (prop-false ($.cell/* address?)
               (TC.gen/such-that (comp not
                                       $.std/address?)
-                                $.gen/any)))
+                                $.gen/any
+                                100)))
 
 
 
@@ -99,7 +101,8 @@
   (prop-false ($.cell/* blob?)
               (TC.gen/such-that (comp not
                                       $.std/blob?)
-                                $.gen/any)))
+                                $.gen/any
+                                100)))
 
 
 
@@ -119,7 +122,8 @@
   (prop-false ($.cell/* boolean?)
               (TC.gen/such-that (comp not
                                       $.std/boolean?)
-                                $.gen/any)))
+                                $.gen/any
+                                100)))
 
 
 
@@ -157,7 +161,8 @@
   (prop-false ($.cell/* keyword?)
               (TC.gen/such-that (comp not
                                       $.std/keyword?)
-                                $.gen/any)))
+                                $.gen/any
+                                100)))
 
 
 
@@ -177,7 +182,8 @@
   (prop-false ($.cell/* list?)
               (TC.gen/such-that (comp not
                                       $.std/list?)
-                                $.gen/any)))
+                                $.gen/any
+                                100)))
 
 
 
@@ -197,7 +203,8 @@
   (prop-false ($.cell/* long?)
               (TC.gen/such-that (comp not
                                       $.std/long)
-                                $.gen/any)))
+                                $.gen/any
+                                100)))
 
 
 
@@ -217,7 +224,8 @@
   (prop-false ($.cell/* map?)
               (TC.gen/such-that (comp not
                                       $.std/map?)
-                                $.gen/any)))
+                                $.gen/any
+                                100)))
 
 
 
@@ -236,7 +244,8 @@
 
   (prop-false ($.cell/* nil?)
               (TC.gen/such-that some?
-                                $.gen/any)))
+                                $.gen/any
+                                100)))
 
 
 
@@ -257,7 +266,8 @@
   (prop-false ($.cell/* number?)
               (TC.gen/such-that (comp not
                                       $.std/number?)
-                                $.gen/any)))
+                                $.gen/any
+                                100)))
 
 
 
@@ -277,7 +287,8 @@
   (prop-false ($.cell/* set?)
               (TC.gen/such-that (comp not
                                       $.std/set?)
-                                $.gen/any)))
+                                $.gen/any
+                                100)))
 
 
 
@@ -297,7 +308,8 @@
   (prop-false ($.cell/* str?)
               (TC.gen/such-that (comp not
                                       $.std/string?)
-                                $.gen/any)))
+                                $.gen/any
+                                100)))
 
 
 
@@ -317,7 +329,8 @@
   (prop-false ($.cell/* symbol?)
               (TC.gen/such-that (comp not
                                       $.std/symbol?)
-                                $.gen/any)))
+                                $.gen/any
+                                100)))
 
 
 
@@ -337,7 +350,8 @@
   (prop-false ($.cell/* vector?)
               (TC.gen/such-that (comp not
                                       $.std/vector?)
-                                $.gen/any)))
+                                $.gen/any
+                                100)))
 
 
 

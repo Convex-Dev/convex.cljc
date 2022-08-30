@@ -1020,7 +1020,8 @@
                      i]   (TC.gen/bind (TC.gen/such-that (comp not
                                                                $.std/empty?)
                                                          (TC.gen/one-of [$.gen/any-list
-                                                                         $.gen/any-vector]))
+                                                                         $.gen/any-vector])
+                                                         100)
                                        (fn [coll]
                                          (TC.gen/tuple (TC.gen/return coll)
                                                        (TC.gen/choose 0
@@ -1041,7 +1042,8 @@
 
   (TC.prop/for-all [s (TC.gen/such-that (comp not
                                               $.std/empty?)
-                                        $.gen/any-set)]
+                                        $.gen/any-set
+                                        100)]
     (suite-main (let [s-2 ($.cell/quoted s)
                       v   (first s)]
                   (ctx-main s-2
@@ -1093,7 +1095,8 @@
                      (TC.gen/such-that (fn [x]
                                          (not (or ($.std/address? x)
                                                   ($.std/blob? x))))
-                                       $.gen/any)
+                                       $.gen/any
+                                       100)
                      $.gen/any]
                     -assoc-fail))
 
@@ -1110,7 +1113,8 @@
                                                                     ($.std/<= ($.cell/long 0)
                                                                               %
                                                                               ($.cell/long (dec ($.std/count x))))))
-                                                         $.gen/any)]
+                                                         $.gen/any
+                                                         100)]
                           [x k])
                     v   $.gen/any]
     (-assoc-fail x
@@ -1135,7 +1139,8 @@
                                              (not (or (nil? x)
                                                       ($.std/list? x)
                                                       ($.std/vector? x))))
-                                           $.gen/any)
+                                           $.gen/any
+                                           100)
                     v    $.gen/any]
     (some? ($.eval/exception $.break/ctx
                              ($.cell/* (assoc-in (quote ~x)
@@ -1403,7 +1408,8 @@
   (TC.prop/for-all [percent $.break.gen/percent
                     x       (TC.gen/such-that (comp not
                                                     $.std/empty?)
-                                              $.break.gen/collection)]
+                                              $.break.gen/collection
+                                              100)]
     ($.eval/true? $.break/ctx
                   ($.cell/* (let [x (quote ~x)
                                   v (nth x
