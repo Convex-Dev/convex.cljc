@@ -43,7 +43,6 @@
                             zero?])
   (:require [clojure.test :as T]
             [convex.cell  :as $.cell]
-            [convex.ref   :as $.ref]
             [convex.std   :as $.std]))
 
 
@@ -325,42 +324,6 @@
     (T/is (= ($.cell/byte 1)
              ($.std/nth ($.cell/blob (byte-array [1 2]))
                         0)))))
-
-
-
-(let [a ($.cell/* :a)]
-
-  (T/deftest nth-ref
-  
-    (T/is (= a
-             (-> ($.std/nth-ref ($.cell/* (:a :b))
-                                0)
-                 $.ref/resolve)))
-
-    (T/is (= a
-             (-> ($.std/nth-ref ($.cell/* [:a :b])
-                                0)
-                 $.ref/resolve)))
-
-    (T/is (= ($.cell/* [:a :b])
-             (-> ($.std/nth-ref ($.cell/* {:a :b})
-                                0)
-                 $.ref/resolve)))
-
-    (T/is (= a
-             (-> ($.std/nth-ref ($.cell/* #{:a})
-                                0)
-                 $.ref/resolve)))
-
-    (T/is (= ($.cell/* \a)
-             (-> ($.std/nth-ref ($.cell/* "ab")
-                                0)
-                 $.ref/resolve))
-
-    (T/is (= ($.cell/byte 1)
-             (-> ($.std/nth-ref ($.cell/blob (byte-array [1 2]))
-                                0)
-                 $.ref/resolve))))))
 
 
 ;;;;;;;;;; Data structure

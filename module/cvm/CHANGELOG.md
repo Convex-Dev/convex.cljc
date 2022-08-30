@@ -26,6 +26,7 @@ All notable changes to this project will be documented in this file.
 
 ### Removed
 
+- `$.ref`, obsolete since new `$.db` namespace and too low-level
 
 
 

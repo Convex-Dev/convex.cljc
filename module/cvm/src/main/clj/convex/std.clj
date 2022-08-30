@@ -34,7 +34,6 @@
                              AVector
                              INumeric
                              Keyword
-                             Ref
                              Symbol
                              Syntax)
            (convex.core.data.prim CVMBool
@@ -532,23 +531,6 @@
 
   (.get countable
         index))
-
-
-
-(defn nth-ref
-
-  "Like [[nth]] but returns a ref.
-
-   See namespace [[convex.ref]].
-
-   See [[count]]."
-
-  ^Ref
-
-  [^ACountable countable index]
-
-  (.getElementRef countable
-                  index))
 
 
 ;;;;;;;;;; Data structure
