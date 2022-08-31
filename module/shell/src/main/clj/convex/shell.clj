@@ -152,6 +152,8 @@
   (-main "[:cvm.sreq :etch.open \"/tmp/foo2.etch\"] ($.stream/!.outln $/*result*)")
   (-main "[:cvm.sreq :etch.open \"/tmp/foo3.etch\"] [:cvm.sreq :etch.open \"/tmp/foo3.etch\"]")
 
+  (-main)
+
 
 
   )

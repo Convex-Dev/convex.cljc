@@ -19,6 +19,7 @@
             [convex.shell.exec :as $.shell.exec]
             [convex.shell.io   :as $.shell.io]
             [convex.shell.kw   :as $.shell.kw]
+            [convex.std        :as $.std]
             [convex.write      :as $.write]))
 
 
@@ -74,6 +75,20 @@
           :convex.shell/stream+
           dissoc
           id))
+
+
+
+(defn- -str
+
+  ;; Properly stringifying cells.
+
+  [cell]
+
+  (let [s (str cell)]
+    (if ($.std/char? cell)
+      (str \\
+           s)
+      s)))
 
 
 ;;;;;;;;;; Operations
@@ -213,6 +228,7 @@
              #{:write}
              (fn [stream]
                ($.write/stream stream
+                               -str
                                cell)
                cell)))
 
@@ -230,6 +246,7 @@
                :write}
              (fn [stream]
                ($.write/stream stream
+                               -str
                                cell)
                ($.shell.io/newline stream)
                ($.shell.io/flush stream)

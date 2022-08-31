@@ -42,17 +42,17 @@
 
 (defn string
 
-  "Prints the given `cell` as a string.
+  "Prints the given `cell` as a string cell.
   
    While standard `str` is sufficient for other type of cells, this function ensures that CVX strings are escaped
    so that reading produces a CVX string as well.
   
    For instance, CVX string \"foo\" produces the following Java string:
 
-   | Function | Cell after reading |
-   |---|---|
-   | Clojure `str` | `\"foo\"` |
-   | This namespace's `string` | `\"\"(+ 1 2)\"\"` |"
+   | Function                  | Cell after reading |
+   |---------------------------|-------------*------|
+   | Clojure `str`             | `\"foo\"`          |
+   | This namespace's `string` | `\"\"(+ 1 2)\"\"`  |"
 
   ^String
 
