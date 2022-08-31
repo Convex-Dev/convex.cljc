@@ -141,20 +141,26 @@
 
   [env ^AVector tuple]
 
-  (if (env :convex.shell.db/instance)
-    ($.shell.exec/fail env
-                       ($.shell.err/sreq ($.cell/code-std* :STATE)
-                                         ($.cell/string "Cannot open another database instance, one is already in use")
-                                         tuple))
-    (let [path (.get tuple
-                     2)]
-      (-> env
-          (assoc :convex.shell.db/instance
-                 (-> path
-                     ($.clj/string)
-                     ($.db/open)
-                     ($.db/current-set)))
-          ($.shell.ctx/def-result path)))))
+  (let [path     (.get tuple
+                       2)
+        path-old (env :convex.shell.db/instance)]
+    (if (and path-old
+             (not= path
+                   path-old))
+      ($.shell.exec/fail env
+                         ($.shell.err/sreq ($.cell/code-std* :STATE)
+                                           ($.cell/string "Cannot open another database instance, one is already in use")
+                                           tuple))
+      (do
+        (when-not path-old
+          (-> path
+             ($.clj/string)
+             ($.db/open)
+             ($.db/current-set)))
+        (-> env
+            (assoc :convex.shell.db/instance
+                   path)
+            ($.shell.ctx/def-result path))))))
 
 
 
