@@ -105,8 +105,6 @@
 
 
 
-
-
 (defn sreq
 
   "Error map describing an error that occured when performing an operation for a request."

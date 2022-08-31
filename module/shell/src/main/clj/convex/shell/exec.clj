@@ -12,6 +12,7 @@
                             eval])
   (:require [convex.cell      :as $.cell]
             [convex.cvm       :as $.cvm]
+            [convex.db        :as $.db]
             [convex.read      :as $.read]
             [convex.shell.ctx :as $.shell.ctx]
             [convex.shell.err :as $.shell.err]
@@ -278,13 +279,16 @@
                                0))]
           (recur (dissoc env-3
                          :convex.shell/error)))
-        env-2))))
+        (do
+          (when (env-2 :convex.shell.db/instance)
+            ($.db/close))
+          env-2)))))
 
 
 ;;;;;;;;;; Notifying a failure or full halt
 
 
-(let [trx-pop ($.read/string "($.catch/pop)")]
+(let [trx-pop ($.cell/* ($.catch/pop))]
 
   (defn fail
 

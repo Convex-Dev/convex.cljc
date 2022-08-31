@@ -11,6 +11,7 @@
            (convex.core.data.prim CVMLong)
            (convex.core.lang Context))
   (:require [convex.cell         :as $.cell]
+            [convex.clj          :as $.clj]
             [convex.cvm          :as $.cvm]
             [convex.db           :as $.db]
             [convex.read         :as $.read]
@@ -66,7 +67,7 @@
 
   ($.shell.exec/fail env
                      ($.shell.err/sreq ($.cell/code-std* :ARGUMENT)
-                                       ($.cell/string "Unsupported special transaction")
+                                       ($.cell/string "Unsupported request")
                                        tuple)))
 
 ;;;;;;;;;; Code
@@ -102,6 +103,8 @@
 
   ;;
 
+  ;; TODO. Exception handling.
+
   [env f]
 
   (-> env
@@ -130,6 +133,33 @@
 
 (defmethod $.shell.exec/sreq
 
+  $.shell.kw/etch-open
+
+  ;;
+
+  ;; Can be used only once so that users never mix cells from different stores.
+
+  [env ^AVector tuple]
+
+  (if (env :convex.shell.db/instance)
+    ($.shell.exec/fail env
+                       ($.shell.err/sreq ($.cell/code-std* :STATE)
+                                         ($.cell/string "Cannot open another database instance, one is already in use")
+                                         tuple))
+    (let [path (.get tuple
+                     2)]
+      (-> env
+          (assoc :convex.shell.db/instance
+                 (-> path
+                     ($.clj/string)
+                     ($.db/open)
+                     ($.db/current-set)))
+          ($.shell.ctx/def-result path)))))
+
+
+
+(defmethod $.shell.exec/sreq
+
   $.shell.kw/etch-path
 
   ;;
@@ -152,8 +182,8 @@
 
   (-db env
        (fn []
-         ($.db/read (.get tuple
-                          2)))))
+         ($.db/read ($.cell/hash<-blob (.get tuple
+                                             2))))))
 
 
 
@@ -195,8 +225,9 @@
   [env ^AVector tuple]
 
   (-db env
-       ($.db/write (.get tuple
-                         2))))
+       (fn []
+         ($.db/write (.get tuple
+                           2)))))
 
 
 ;;;;;;;;;; File

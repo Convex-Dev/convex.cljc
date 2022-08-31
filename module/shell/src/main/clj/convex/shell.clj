@@ -131,7 +131,7 @@
             (clojure.string/join " "
                                  trx+)
             "($.repl/!.start {:intro? true})"))
-    (catch Throwable _ex
+    (catch Exception _ex
       (println "An unknown exception happened.")
       (flush)
       (when (not= (System/getProperty "convex.dev")
@@ -144,13 +144,14 @@
 (comment
 
    
-  (-main "[:cvm.sreq :etch.root-write {:a :b}] ($.stream/!.outln $/*result*)")
-  (-main "[:cvm.sreq :etch.root-read] ($.stream/!.outln $/*result*)")
+  (-main "[:cvm.sreq :etch.open \"/tmp/foo.etch\"] [:cvm.sreq :etch.root-write {:a :b}] ($.stream/!.outln $/*result*)")
+  (-main "[:cvm.sreq :etch.open \"/tmp/foo.etch\"] [:cvm.sreq :etch.root-read] ($.stream/!.outln $/*result*)")
   (-main "42 [:cvm.sreq :etch.flush] ($.stream/!.outln $/*result*)")
   (-main "[:cvm.sreq :etch.path] ($.stream/!.outln $/*result*)")
   (-main "[:cvm.sreq :etch.write [:foo :bar]] [:cvm.sreq :etch.read $/*result*] ($.stream/!.outln $/*result*)")
+  (-main "[:cvm.sreq :etch.open \"/tmp/foo2.etch\"] ($.stream/!.outln $/*result*)")
+  (-main "[:cvm.sreq :etch.open \"/tmp/foo3.etch\"] [:cvm.sreq :etch.open \"/tmp/foo3.etch\"]")
 
-  (-main "(def x *state*) [:cvm.sreq :foo x]")
 
 
   )

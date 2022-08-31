@@ -36,6 +36,9 @@
 (def ^Keyword etch-flush
               ($.cell/keyword "etch.flush"))
 
+(def ^Keyword etch-open
+              ($.cell/keyword "etch.open"))
+
 (def ^Keyword etch-path
               ($.cell/keyword "etch.path"))
 
