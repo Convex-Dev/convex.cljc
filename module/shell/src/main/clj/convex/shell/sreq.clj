@@ -98,6 +98,21 @@
 ;;;;;;;;;; Etch
 
 
+(defn- -db
+
+  ;;
+
+  [env f]
+
+  (-> env
+      (update :convex.shell.db/instance
+              (fn [instance]
+                (or instance
+                    ($.db/current-set ($.db/open-tmp "convex-shell")))))
+      ($.shell.ctx/def-result (f))))
+
+
+
 (defmethod $.shell.exec/sreq
 
   $.shell.kw/etch-flush
@@ -106,9 +121,10 @@
 
   [env _tuple]
 
-  ($.db/flush)
-  ($.shell.ctx/def-result env
-                          nil))
+  (-db env
+       (fn []
+         ($.db/flush)
+         nil)))
 
 
 
@@ -120,8 +136,9 @@
 
   [env _tuple]
 
-  ($.shell.ctx/def-result env
-                          ($.cell/string ($.db/path))))
+  (-db env
+       (fn []
+         ($.cell/string ($.db/path)))))
 
 
 
@@ -133,9 +150,10 @@
 
   [env ^AVector tuple]
 
-  ($.shell.ctx/def-result env
-                          ($.db/read (.get tuple
-                                           2))))
+  (-db env
+       (fn []
+         ($.db/read (.get tuple
+                          2)))))
 
 
 
@@ -147,8 +165,9 @@
 
   [env _tuple]
 
-  ($.shell.ctx/def-result env
-                          ($.db/root-read)))
+  (-db env
+       (fn []
+         ($.db/root-read))))
 
 
 
@@ -160,9 +179,10 @@
 
   [env ^AVector tuple]
 
-  ($.shell.ctx/def-result env
-                          ($.db/root-write (.get tuple
-                                                 2))))
+  (-db env
+       (fn []
+         ($.db/root-write (.get tuple
+                                2)))))
 
 
 
@@ -174,9 +194,9 @@
 
   [env ^AVector tuple]
 
-  ($.shell.ctx/def-result env
-                          ($.db/write (.get tuple
-                                            2))))
+  (-db env
+       ($.db/write (.get tuple
+                         2))))
 
 
 ;;;;;;;;;; File
