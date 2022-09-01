@@ -1,6 +1,7 @@
 (ns convex.shell.exec.fail
 
-  ""
+  "This was previously part of [[convex.shell.exec]] but is now in a dedicated namespace
+   to avoid cyclic dependencies."
 
   (:require [convex.cell      :as $.cell]
             [convex.cvm       :as $.cvm]
@@ -41,23 +42,3 @@
                         $.cvm/exception-clear)
                 ($.shell.ctx/def-result err-2)))
           ($.shell.ctx/prepend-trx trx-pop)))))
-
-
-
-(defn fatal
-
-  ""
-
-  
-  ([err]
-   
-   (fatal nil
-          err))
-
-
-  ([_env err]
-
-   (print "FATAL: ")
-   (println (str err))
-   (flush)
-   (System/exit 42)))
