@@ -51,7 +51,7 @@
 
   '(($.trx/set `(($.stream/!.err (quote ~$/*result*))
                  ($.stream/!.flush $.stream/*err*)
-                 ($.process/!.exit 42)))))
+                 ($.process/!.exit 2)))))
 
 
 ;;;;;;;;;; API

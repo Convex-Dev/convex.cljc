@@ -280,8 +280,7 @@
         (if-let [result (and (not ($.shell.ctx/active-repl? env-2))
                                   ($.shell.ctx/result env-2))]
           (-> env-2
-              ($.shell.ctx/def-trx+ ($.cell/* (($.stream/!.out (quote ~result))
-                                               ($.stream/!.flush)
+              ($.shell.ctx/def-trx+ ($.cell/* (($.stream/!.outln (quote ~result))
                                                nil)))
               (convex.shell.exec/trx+))
           (do
