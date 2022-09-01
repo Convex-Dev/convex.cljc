@@ -277,18 +277,18 @@
                                0))]
           (recur (dissoc env-3
                          :convex.shell/error)))
-        (do
-          (when (env-2 :convex.shell.db/instance)
-            ($.db/close))
-          (or (when-let [result (and (not ($.shell.ctx/active-repl? env-2))
-                                     ($.shell.ctx/result env-2))]
-                (-> env-2
-                    ($.shell.ctx/def-trx+ ($.cell/* (($.stream/!.out (quote ~result))
-                                                     ($.stream/!.flush)
-                                                     nil)))
-                    (convex.shell.exec/trx+)))
-              (when-some [exit-code (env-2 :convex.shell/exit-code)]
-                (when-not (= (System/getProperty "convex.dev")
-                             "true")
-                  (System/exit exit-code)))
-              env-2))))))
+        (if-let [result (and (not ($.shell.ctx/active-repl? env-2))
+                                  ($.shell.ctx/result env-2))]
+          (-> env-2
+              ($.shell.ctx/def-trx+ ($.cell/* (($.stream/!.out (quote ~result))
+                                               ($.stream/!.flush)
+                                               nil)))
+              (convex.shell.exec/trx+))
+          (do
+            (when (env-2 :convex.shell.db/instance)
+              ($.db/close))
+            (when-some [exit-code (env-2 :convex.shell/exit-code)]
+              (when-not (= (System/getProperty "convex.dev")
+                           "true")
+                (System/exit exit-code)))
+            env-2))))))
