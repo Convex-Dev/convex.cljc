@@ -346,15 +346,14 @@
 
   ;; Exits process with the user given status code.
 
-  [_env ^AVector tuple]
+  [env ^AVector tuple]
 
-  (let [status (.longValue ^CVMLong (.get tuple
-                                          2))]
-    (if (= (System/getenv "CONVEX_DEV")
-           "true")
-      (throw (ex-info "Throw instead of exit since dev mode"
-                      {::status status}))
-      (System/exit status))))
+  (-> env
+      ($.shell.ctx/def-result nil)
+      ($.shell.ctx/def-trx+ ($.cell/* ()))
+      (assoc :convex.shell/exit-code
+             (.longValue ^CVMLong (.get tuple
+                                        2)))))
 
 
 

@@ -39,12 +39,15 @@
 
 (defn !.exit
 
-  ^{:doc {:description ["Returns a requestion for terminating the process with `status` code (a long)"
+  ^{:doc {:description ["Returns a requestion for terminating the process with `exit-code` (long between 0 and 255 inclusive)."
                         "By convention, a non-zero value means an error occured."]
           :examples    [{:code "($.process/!.exit 42)"}]
-          :signature   [{:params [status]}]}}
+          :signature   [{:params [exit-code]}]}}
 
-  [status]
+  [exit-code]
 
-  (assert (long? status))
-  [:cvm.sreq :process.exit status])
+  (assert (and (long? exit-code)
+               (<= 0
+                   exit-code
+                   255)))
+  [:cvm.sreq :process.exit exit-code])
