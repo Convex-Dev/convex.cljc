@@ -293,6 +293,9 @@
                                               ($.cvm/look-up $.shell.ctx/addr-$-stream
                                                              $.shell.sym/out*)
                                               ($.clj/long))
-                                          result)
-                    )))
+                                          (if ($.std/string? result)
+                                            (str \"
+                                                 (str result)
+                                                 \")
+                                            result)))))
             env-2))))))
