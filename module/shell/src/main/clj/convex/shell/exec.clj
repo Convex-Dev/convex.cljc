@@ -288,14 +288,16 @@
                   (when-some [result ($.cvm/look-up ctx
                                                     $.shell.ctx/addr-$
                                                     $.shell.sym/result*)]
-                    ($.shell.stream/outln env-2
-                                          (-> ctx
-                                              ($.cvm/look-up $.shell.ctx/addr-$-stream
-                                                             $.shell.sym/out*)
-                                              ($.clj/long))
-                                          (if ($.std/string? result)
-                                            (str \"
-                                                 (str result)
-                                                 \")
-                                            result)))))
-            env-2))))))
+                    (let [id-stream (-> ctx
+                                        ($.cvm/look-up $.shell.ctx/addr-$-stream
+                                                       $.shell.sym/out*)
+                                        ($.clj/long))]
+                      (-> env-2
+                          ($.shell.stream/out id-stream
+                                              (if ($.std/string? result)
+                                                (str \"
+                                                     (str result)
+                                                     \")
+                                                result))
+                          ($.shell.stream/flush id-stream))))))
+              env-2))))))
