@@ -282,19 +282,16 @@
           (when (env-2 :convex.shell.db/instance)
             ($.db/close))
           (or (let [ctx (env-2 :convex.shell/ctx)]
-                (when ($.std/false? (-> ctx
-                                        ($.cvm/account $.shell.ctx/addr-$-repl)
-                                        (.getEnvironment)
-                                        ($.std/get $.shell.sym/active?*)))
-                  (when-some [result (-> ctx
-                                         ($.cvm/account $.shell.ctx/addr-$)
-                                         (.getEnvironment)
-                                         ($.std/get $.shell.sym/result*))]
+                (when ($.std/false? ($.cvm/look-up ctx
+                                                   $.shell.ctx/addr-$-repl
+                                                   $.shell.sym/active?*))
+                  (when-some [result ($.cvm/look-up ctx
+                                                    $.shell.ctx/addr-$
+                                                    $.shell.sym/result*)]
                     ($.shell.stream/outln env-2
                                           (-> ctx
-                                              ($.cvm/account $.shell.ctx/addr-$-stream)
-                                              (.getEnvironment)
-                                              ($.std/get $.shell.sym/out*)
+                                              ($.cvm/look-up $.shell.ctx/addr-$-stream
+                                                             $.shell.sym/out*)
                                               ($.clj/long))
                                           result)
                     )))

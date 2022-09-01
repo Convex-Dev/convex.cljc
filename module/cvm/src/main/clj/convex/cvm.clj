@@ -15,11 +15,11 @@
 
    Given that a \"cell\" is the term reserved for CVM data and objects, execution consists of following steps:
 
-   | Step | Function | Does |
-   |---|---|---|
-   | 1 | [[expand]] | `cell` -> `canonical cell`, applies macros |
-   | 2 | [[compile]] | `canonical cell` -> `op`, preparing executable code |
-   | 3 | [[exec]] | Executes compiled code |
+   | Step | Function    | Does                                                |
+   |------|-------------|-----------------------------------------------------|
+   | 1    | [[expand]]  | `cell` -> `canonical cell`, applies macros          |
+   | 2    | [[compile]] | `canonical cell` -> `op`, preparing executable code |
+   | 3    | [[exec]]    | Executes compiled code                              |
 
    Any cell can be applied safely to those functions, worse that can happen is nothing (eg. providing an already compiled cell to
    [[compile]]).
@@ -49,7 +49,8 @@
                             eval
                             key
                             time])
-  (:require [convex.cell :as $.cell]))
+  (:require [convex.cell :as $.cell]
+            [convex.std  :as $.std]))
 
 
 (set! *warn-on-reflection*
@@ -299,13 +300,33 @@
   "Returns the log of `ctx` (a CVM vector of size 2 vectors containing a logging address
    and a logged value)."
 
-
   ^ABlobMap
   
   [^Context ctx]
 
   (.getLog ctx))
 
+
+
+(defn look-up
+
+  "Returns the cell associated with the given `sym` in the environment of the given `address`
+   (or the currently used one)."
+
+
+  (^ACell [ctx sym]
+
+   (-> ctx
+       (env)
+       ($.std/get sym)))
+
+
+  (^ACell [ctx address sym]
+
+   (-> ctx
+       (env address)
+       ($.std/get sym))))
+       
 
 
 (defn result

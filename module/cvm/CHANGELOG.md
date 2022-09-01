@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 
 - Function from extracting information from CVX exceptions
 - Support for unquote splicing in `$.cell/*`
+- `$.cvm/look-up`
 - `$.gen/any-coll`
 - `$.std/update`
 
