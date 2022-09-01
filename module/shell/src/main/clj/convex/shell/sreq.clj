@@ -348,12 +348,9 @@
 
   [env ^AVector tuple]
 
-  (-> env
-      ($.shell.ctx/def-result nil)
-      ($.shell.ctx/def-trx+ ($.cell/* ()))
-      (assoc :convex.shell/exit-code
-             (.longValue ^CVMLong (.get tuple
-                                        2)))))
+  ($.shell.ctx/exit env
+                    (.longValue ^CVMLong (.get tuple
+                                         2))))
 
 
 

@@ -304,3 +304,19 @@
       (:convex.shell/ctx)
       ($.cvm/look-up addr-$
                      $.shell.sym/result*)))
+
+
+;;;;;;;;;; Miscellaneous
+
+
+(defn exit
+
+  "Prepares for a clean process exit."
+
+  [env exit-code]
+
+  (-> env
+      (def-result nil)
+      (def-trx+ ($.cell/* ()))
+      (assoc :convex.shell/exit-code
+             exit-code)))

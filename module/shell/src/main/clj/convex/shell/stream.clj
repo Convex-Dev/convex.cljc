@@ -47,9 +47,8 @@
 
   ;; Used in case of failure.
   ;;
-  ;; Reports error using [[convex.shell.exec.fail/err]], as expected, unless operation was involving writing to STDERR.
-  ;; If writing to STDERR fails for some odd reason, then it is highly problematic as it is the ultimate place for
-  ;; reporting errors. Env and error are passed to the function under `:convex.shell/fatal` expecting things to halt.
+  ;; Reports error using [[convex.shell.exec.fail/err]], as expected, unless operation was involved STDERR.
+  ;; If using STDERR, there is no way to print errors, hence the process should terminate with a special exit code.
 
   [env id op+ err]
 
@@ -57,8 +56,8 @@
               id-stderr)
            (or (op+ :flush)
                (op+ :write)))
-    ($.shell.exec.fail/fatal env
-                             err)
+    ($.shell.ctx/exit env
+                      3)
     ($.shell.exec.fail/err env
                            err)))
 
