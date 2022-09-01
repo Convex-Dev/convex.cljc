@@ -12,9 +12,11 @@
   (:require [clojure.edn      :as edn]
             [clojure.java.io  :as java.io]
             [convex.cell      :as $.cell]
+            [convex.clj       :as $.clj]
             [convex.cvm       :as $.cvm]
             [convex.read      :as $.read]
-            [convex.shell.sym :as $.shell.sym]))
+            [convex.shell.sym :as $.shell.sym]
+            [convex.std       :as $.std]))
 
 
 ;;;;;;;;;; Preparing a base context, loading libraries
@@ -221,7 +223,7 @@
                        {$.shell.sym/list* trx+}))))
 
 
-;;;;;;;;;;
+;;;;;;;;;; Operations on transactions
 
 
 (defn current-trx+
@@ -273,3 +275,32 @@
   (def-trx+ env
             (.cons (current-trx+ env)
                    trx)))
+
+
+;;;;;;;;;; Retrieving information from the context
+
+
+(defn active-repl?
+
+  "Is the REPL currently running?"
+
+  [env]
+
+  (-> env
+      (:convex.shell/ctx)
+      ($.cvm/look-up addr-$-repl
+                     $.shell.sym/active?*)
+      ($.std/true?)))
+
+
+
+(defn result
+
+  "Retrieves the last result available to users."
+
+  [env]
+
+  (-> env
+      (:convex.shell/ctx)
+      ($.cvm/look-up addr-$
+                     $.shell.sym/result*)))

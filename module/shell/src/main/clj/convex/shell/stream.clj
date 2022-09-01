@@ -57,9 +57,8 @@
               id-stderr)
            (or (op+ :flush)
                (op+ :write)))
-    ((env :convex.shell/fatal)
-     env
-     err)
+    ($.shell.exec.fail/fatal env
+                             err)
     ($.shell.exec.fail/err env
                            err)))
 
@@ -122,7 +121,7 @@
                                                     id
                                                     op+)))))
 
-      (catch Throwable _ex
+      (catch Exception _ex
         (-fail env
                id
                op+

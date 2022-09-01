@@ -34,12 +34,13 @@
   (:gen-class)
   (:refer-clojure :exclude [eval])
   (:require [clojure.string]
-            [convex.cvm           :as $.cvm]
-            [convex.read          :as $.read]
-            [convex.shell.ctx     :as $.shell.ctx]
-            [convex.shell.err     :as $.shell.err]
-            [convex.shell.exec    :as $.shell.exec]
-            [convex.shell.io      :as $.shell.io]
+            [convex.cvm             :as $.cvm]
+            [convex.read            :as $.read]
+            [convex.shell.ctx       :as $.shell.ctx]
+            [convex.shell.err       :as $.shell.err]
+            [convex.shell.exec      :as $.shell.exec]
+            [convex.shell.exec.fail :as $.shell.exec.fail]
+            [convex.shell.io        :as $.shell.io]
             [convex.shell.sreq]))
 
 
@@ -53,9 +54,7 @@
    Notably, prepares:
 
    - STDIO streams
-   - Initial context
-   - Function under `:convex.shell/fatal`, akin to [[convex.shell.exec.fail/err]], called only in case of
-   a fatal error that cannot be reported to the CVX environment (seldom)"
+   - Initial context"
 
   [env]
 
@@ -64,13 +63,6 @@
                                      1 $.shell.io/stdout-txt
                                      2 $.shell.io/stderr-txt}
              :convex.shell.stream/id 2)
-      (update :convex.shell/fatal
-              #(or %
-                   (fn [_env err]
-                     (print "FATAL: ")
-                     (println (str err))
-                     (flush)
-                     (System/exit 42))))
       (update :convex.shell/ctx
               #(or %
                    ($.cvm/fork $.shell.ctx/base)))))
@@ -102,13 +94,12 @@
                   (catch Throwable ex
                     [ex
                      nil]))]
-     (if ex
-       ((env-2 :convex.shell/fatal)
-        env-2
-        ($.shell.err/reader))
-       (-> env-2
-           ($.shell.ctx/precat-trx+ trx+)
-           ($.shell.exec/trx+))))))
+     (-> (if ex
+           ($.shell.exec.fail/err env-2
+                                  ($.shell.err/reader))
+           ($.shell.ctx/precat-trx+ env-2
+                                    trx+))
+         ($.shell.exec/trx+)))))
 
 
 ;;;;;;;;;; Main functions
@@ -121,7 +112,7 @@
    If no transaction is provided, starts the REPL.
   
    ```clojure
-   (-main \"($.stream/out (+ 2 2))\")
+   (-main \"(+ 2 2)\")
    ```"
 
   [& trx+]
@@ -133,6 +124,7 @@
             "($.repl/!.start {:intro? true})"))
     (catch Exception _ex
       (println "An unknown exception happened.")
+      (println :ex _ex)
       (flush)
       (when (not= (System/getProperty "convex.dev")
                   "true")

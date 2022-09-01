@@ -10,7 +10,6 @@
   (:refer-clojure :exclude [compile
                             eval])
   (:require [convex.cell            :as $.cell]
-            [convex.clj             :as $.clj]
             [convex.cvm             :as $.cvm]
             [convex.db              :as $.db]
             [convex.shell.ctx       :as $.shell.ctx]
@@ -281,23 +280,11 @@
         (do
           (when (env-2 :convex.shell.db/instance)
             ($.db/close))
-          (or (let [ctx (env-2 :convex.shell/ctx)]
-                (when ($.std/false? ($.cvm/look-up ctx
-                                                   $.shell.ctx/addr-$-repl
-                                                   $.shell.sym/active?*))
-                  (when-some [result ($.cvm/look-up ctx
-                                                    $.shell.ctx/addr-$
-                                                    $.shell.sym/result*)]
-                    (let [id-stream (-> ctx
-                                        ($.cvm/look-up $.shell.ctx/addr-$-stream
-                                                       $.shell.sym/out*)
-                                        ($.clj/long))]
-                      (-> env-2
-                          ($.shell.stream/out id-stream
-                                              (if ($.std/string? result)
-                                                (str \"
-                                                     (str result)
-                                                     \")
-                                                result))
-                          ($.shell.stream/flush id-stream))))))
+          (or (when-not ($.shell.ctx/active-repl? env-2)
+                (when-some [result ($.shell.ctx/result env-2)]
+                  (-> env-2
+                      ($.shell.ctx/def-trx+ ($.cell/* (($.stream/!.out (quote ~result))
+                                                       ($.stream/!.flush)
+                                                       nil)))
+                      (convex.shell.exec/trx+))))
               env-2))))))
