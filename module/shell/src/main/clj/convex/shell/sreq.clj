@@ -10,18 +10,19 @@
   (:import (convex.core.data AVector)
            (convex.core.data.prim CVMLong)
            (convex.core.lang Context))
-  (:require [convex.cell         :as $.cell]
-            [convex.clj          :as $.clj]
-            [convex.cvm          :as $.cvm]
-            [convex.db           :as $.db]
-            [convex.read         :as $.read]
-            [convex.shell.ctx    :as $.shell.ctx]
-            [convex.shell.err    :as $.shell.err]
-            [convex.shell.exec   :as $.shell.exec]
-            [convex.shell.kw     :as $.shell.kw]
-            [convex.shell.stream :as $.shell.stream]
-            [convex.shell.sym    :as $.shell.sym]
-            [criterium.core      :as criterium]))
+  (:require [convex.cell            :as $.cell]
+            [convex.clj             :as $.clj]
+            [convex.cvm             :as $.cvm]
+            [convex.db              :as $.db]
+            [convex.read            :as $.read]
+            [convex.shell.ctx       :as $.shell.ctx]
+            [convex.shell.err       :as $.shell.err]
+            [convex.shell.exec      :as $.shell.exec]
+            [convex.shell.exec.fail :as $.shell.exec.fail]
+            [convex.shell.kw        :as $.shell.kw]
+            [convex.shell.stream    :as $.shell.stream]
+            [convex.shell.sym       :as $.shell.sym]
+            [criterium.core         :as criterium]))
 
 
 (set! *warn-on-reflection*
@@ -65,10 +66,10 @@
 
   [env tuple]
 
-  ($.shell.exec/fail env
-                     ($.shell.err/sreq ($.cell/code-std* :ARGUMENT)
-                                       ($.cell/string "Unsupported request")
-                                       tuple)))
+  ($.shell.exec.fail/err env
+                         ($.shell.err/sreq ($.cell/code-std* :ARGUMENT)
+                                           ($.cell/string "Unsupported request")
+                                           tuple)))
 
 ;;;;;;;;;; Code
 
@@ -90,10 +91,10 @@
                               (str)
                               ($.read/string+)))
     (catch Throwable _err
-      ($.shell.exec/fail env
-                         ($.shell.err/sreq ($.cell/code-std* :ARGUMENT)
-                                           ($.cell/string "Unable to read source")
-                                           tuple)))))
+      ($.shell.exec.fail/err env
+                             ($.shell.err/sreq ($.cell/code-std* :ARGUMENT)
+                                               ($.cell/string "Unable to read source")
+                                               tuple)))))
 
 
 ;;;;;;;;;; Etch
@@ -147,10 +148,10 @@
     (if (and path-old
              (not= path
                    path-old))
-      ($.shell.exec/fail env
-                         ($.shell.err/sreq ($.cell/code-std* :STATE)
-                                           ($.cell/string "Cannot open another database instance, one is already in use")
-                                           tuple))
+      ($.shell.exec.fail/err env
+                             ($.shell.err/sreq ($.cell/code-std* :STATE)
+                                               ($.cell/string "Cannot open another database instance, one is already in use")
+                                               tuple))
       (do
         (when-not path-old
           (-> path
@@ -465,10 +466,10 @@
 
   [env ^AVector tuple]
 
-  ($.shell.stream/out! env
-                       (-stream tuple)
-                       (.get tuple
-                             3)))
+  ($.shell.stream/outln env
+                        (-stream tuple)
+                        (.get tuple
+                              3)))
 
 
 ;;;;;;;;;; Time
@@ -508,10 +509,10 @@
                  :convex.shell/ctx         ctx-restore)
           ($.shell.ctx/def-trx+ ($.cell/list [(.get tuple
                                                   2)])))
-      ($.shell.exec/fail env
-                         ($.shell.err/sreq ($.cell/code-std* :STATE)
-                                           ($.cell/string "No state to pop")
-                                           tuple)))))
+      ($.shell.exec.fail/err env
+                             ($.shell.err/sreq ($.cell/code-std* :STATE)
+                                               ($.cell/string "No state to pop")
+                                               tuple)))))
 
 
 

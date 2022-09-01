@@ -21,7 +21,7 @@
    Functions throughout these namespaces often refer to `env`. It is an environment map passed around containing
    everything that is need by an instance: current CVM context, opened streams, current error if any, etc.
   
-   In case of error, [[convex.shell.exec/fail]] must be used so that the error is reported to the CVX executing environment.
+   In case of error, [[convex.shell.exec.fail/err]] must be used so that the error is reported to the CVX executing environment.
   
    List of transactions pending for execution is accessible in the CVX execution environment under `$.trx/*list*`. This list
    can be modified by the user, allowing for powerful metaprogramming. Besides above-mentioned requests, this feature is used
@@ -54,7 +54,7 @@
 
    - STDIO streams
    - Initial context
-   - Function under `:convex.shell/fatal`, akin to [[convex.shell.exec/fail]], called only in case of
+   - Function under `:convex.shell/fatal`, akin to [[convex.shell.exec.fail/err]], called only in case of
    a fatal error that cannot be reported to the CVX environment (seldom)"
 
   [env]
@@ -153,6 +153,8 @@
   (-main "[:cvm.sreq :etch.open \"/tmp/foo3.etch\"] [:cvm.sreq :etch.open \"/tmp/foo3.etch\"]")
 
   (-main)
+
+  (-main "(+ 2 2)")
 
 
 

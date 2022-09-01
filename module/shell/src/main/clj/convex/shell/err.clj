@@ -2,7 +2,7 @@
 
   "Errors are CVX maps, either mappified CVM exceptions or built from scratch.
 
-   Using [[convex.shell.exec/fail]], they are reported back to the CVX executing environment
+   Using [[convex.shell.exec.fail/err]], they are reported back to the CVX executing environment
    and can be handled from CVX.
 
    This namespace provides functions for building recurrent error maps."

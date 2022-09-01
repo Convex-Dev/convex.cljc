@@ -12,8 +12,14 @@
 ;;;;;;;;;; Dynamic symbols
 
 
+(def ^Symbol active?*
+             ($.cell/symbol "*active?*"))
+
 (def ^Symbol list*
              ($.cell/symbol "*list*"))
+
+(def ^Symbol out*
+             ($.cell/symbol "*out*"))
 
 (def ^Symbol result*
              ($.cell/symbol "*result*"))

@@ -13,21 +13,21 @@
   (:import (java.lang AutoCloseable)
            (java.io BufferedReader))
   (:refer-clojure :exclude [flush])
-  (:require [convex.cell       :as $.cell]
-            [convex.read       :as $.read]
-            [convex.shell.ctx  :as $.shell.ctx]
-            [convex.shell.exec :as $.shell.exec]
-            [convex.shell.io   :as $.shell.io]
-            [convex.shell.kw   :as $.shell.kw]
-            [convex.std        :as $.std]
-            [convex.write      :as $.write]))
+  (:require [convex.cell            :as $.cell]
+            [convex.read            :as $.read]
+            [convex.shell.ctx       :as $.shell.ctx]
+            [convex.shell.exec.fail :as $.shell.exec.fail]
+            [convex.shell.io        :as $.shell.io]
+            [convex.shell.kw        :as $.shell.kw]
+            [convex.std             :as $.std]
+            [convex.write           :as $.write]))
 
 
 (set! *warn-on-reflection*
       true)
 
 
-(declare out!)
+(declare outln)
 
 
 ;;;;;;;;;; Values
@@ -47,9 +47,9 @@
 
   ;; Used in case of failure.
   ;;
-  ;; Reports error using [[convex.shell.exec/fail]], as expected, unless operation was involving writing to STDERR.
+  ;; Reports error using [[convex.shell.exec.fail/err]], as expected, unless operation was involving writing to STDERR.
   ;; If writing to STDERR fails for some odd reason, then it is highly problematic as it is the ultimate place for
-  ;; reporting errors. Env and error are passed to the function under `:convex.fun/fatal` expecting things to halt.
+  ;; reporting errors. Env and error are passed to the function under `:convex.shell/fatal` expecting things to halt.
 
   [env id op+ err]
 
@@ -60,8 +60,8 @@
     ((env :convex.shell/fatal)
      env
      err)
-    ($.shell.exec/fail env
-                       err)))
+    ($.shell.exec.fail/err env
+                           err)))
 
 
 
@@ -234,7 +234,7 @@
 
 
 
-(defn out!
+(defn outln
 
   "Like [[out]] but appends a new line and flushes the stream."
 
@@ -276,11 +276,11 @@
     ;(catch FileNotFoundException _ex
 
     (catch Throwable _ex
-      ($.shell.exec/fail env
-                         ($.cell/error $.shell.kw/err-stream
-                                       ($.cell/string (format "Unable to open file for '%s': %s"
-                                                              path
-                                                              str-op)))))))
+      ($.shell.exec.fail/err env
+                             ($.cell/error $.shell.kw/err-stream
+                                           ($.cell/string (format "Unable to open file for '%s': %s"
+                                                                  path
+                                                                  str-op)))))))
 
 
 

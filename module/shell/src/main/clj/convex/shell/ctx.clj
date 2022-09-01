@@ -134,7 +134,21 @@
     "Address of the `convex.shell` account in [[base]]."
 
     (sym->addr $.shell.sym/$))
-  
+
+
+  (def addr-$-repl
+
+    "Address of the `convex.shell.repl` account in [[base]]."
+
+    (sym->addr $.shell.sym/$-repl))
+
+
+  (def addr-$-stream
+
+    "Address of the `convex.shell.stream` account in [[base]]."
+
+    (sym->addr $.shell.sym/$-stream))
+
 
   (def addr-$-trx
 

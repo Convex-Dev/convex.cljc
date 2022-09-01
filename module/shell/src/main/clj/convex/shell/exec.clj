@@ -2,25 +2,24 @@
 
   "All aspects of actually executing transactions.
   
-   When an error is detected, [[fail]] is called."
+   When an error is detected, [[convex.shell.exec.fail/err]] is called."
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.data AMap
-                             AVector))
+  (:import (convex.core.data AVector))
   (:refer-clojure :exclude [compile
                             eval])
-  (:require [convex.cell      :as $.cell]
-            [convex.cvm       :as $.cvm]
-            [convex.db        :as $.db]
-            [convex.read      :as $.read]
-            [convex.shell.ctx :as $.shell.ctx]
-            [convex.shell.err :as $.shell.err]
-            [convex.shell.kw  :as $.shell.kw]
-            [convex.std       :as $.std]))
-
-
-(declare fail)
+  (:require [convex.cell            :as $.cell]
+            [convex.clj             :as $.clj]
+            [convex.cvm             :as $.cvm]
+            [convex.db              :as $.db]
+            [convex.shell.ctx       :as $.shell.ctx]
+            [convex.shell.err       :as $.shell.err]
+            [convex.shell.exec.fail :as $.shell.exec.fail]
+            [convex.shell.kw        :as $.shell.kw]
+            [convex.shell.stream    :as $.shell.stream]
+            [convex.shell.sym       :as $.shell.sym]
+            [convex.std             :as $.std]))
 
 
 ;;;;;;;;;; Values
@@ -79,9 +78,9 @@
              :convex.shell/ctx
              ctx)
       ex
-      (fail (-> ($.shell.err/mappify ex)
-                ($.shell.err/assoc-phase kw-phase)
-                ($.shell.err/assoc-trx trx))))))
+      ($.shell.exec.fail/err (-> ($.shell.err/mappify ex)
+                                 ($.shell.err/assoc-phase kw-phase)
+                                 ($.shell.err/assoc-trx trx))))))
 
 
 ;;;;;;;;;; Special transactions
@@ -273,8 +272,8 @@
     (let [trx+ ($.shell.ctx/current-trx+ env-2)]
       (if (pos? (count trx+))
         (let [env-3 (trx ($.shell.ctx/def-trx+ env-2
-                                             (.drop trx+
-                                                    1))
+                                               (.drop trx+
+                                                      1))
                          (.get trx+
                                0))]
           (recur (dissoc env-3
@@ -282,38 +281,21 @@
         (do
           (when (env-2 :convex.shell.db/instance)
             ($.db/close))
-          env-2)))))
-
-
-;;;;;;;;;; Notifying a failure or full halt
-
-
-(let [trx-pop ($.cell/* ($.catch/pop))]
-
-  (defn fail
-
-    "Must be called in case of failure, `err` being an error map (see the [[convex.shell.err]] namespace).
-    
-     Under `$.catch/*stack*` in the context is a stack of error handling transactions. This functions pops
-     the next error handling transaction and prepends it to `$.trx/*list*`, the list of transactions pending
-     for execution.
-
-     Also, error becomes available under `$/*result*`.
-
-     This simple scheme allows sophisticated exception handling to be implemented from CVX, as seen in the
-     `$.catch` acccount."
-
-    [env ^AMap err]
-
-    (let [err-2 (.assoc err
-                        $.shell.kw/exception?
-                        ($.cell/boolean true))]
-      (-> env
-          (assoc :convex.shell/error
-                 err-2)
-          (cond->
-            (env :convex.shell/ctx)
-            (-> (update :convex.shell/ctx
-                        $.cvm/exception-clear)
-                ($.shell.ctx/def-result err-2)))
-          ($.shell.ctx/prepend-trx trx-pop)))))
+          (or (let [ctx (env-2 :convex.shell/ctx)]
+                (when ($.std/false? (-> ctx
+                                        ($.cvm/account $.shell.ctx/addr-$-repl)
+                                        (.getEnvironment)
+                                        ($.std/get $.shell.sym/active?*)))
+                  (when-some [result (-> ctx
+                                         ($.cvm/account $.shell.ctx/addr-$)
+                                         (.getEnvironment)
+                                         ($.std/get $.shell.sym/result*))]
+                    ($.shell.stream/outln env-2
+                                          (-> ctx
+                                              ($.cvm/account $.shell.ctx/addr-$-stream)
+                                              (.getEnvironment)
+                                              ($.std/get $.shell.sym/out*)
+                                              ($.clj/long))
+                                          result)
+                    )))
+            env-2))))))
