@@ -73,14 +73,14 @@
                    ($.cvm/juice-refill))
                trx)
         ex  ($.cvm/exception ctx)]
-    (cond->
-      (assoc env
-             :convex.shell/ctx
-             ctx)
-      ex
-      ($.shell.exec.fail/err (-> ($.shell.err/mappify ex)
-                                 ($.shell.err/assoc-phase kw-phase)
-                                 ($.shell.err/assoc-trx trx))))))
+    (-> env
+        (assoc :convex.shell/ctx
+               ctx)
+        (cond->
+          ex
+          ($.shell.exec.fail/err (-> ($.shell.err/mappify ex)
+                                     ($.shell.err/assoc-phase kw-phase)
+                                     ($.shell.err/assoc-trx trx)))))))
 
 
 ;;;;;;;;;; Special transactions

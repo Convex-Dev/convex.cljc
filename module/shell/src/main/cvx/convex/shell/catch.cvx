@@ -49,9 +49,9 @@
                         "If another exception occurs, the shell keeps popping."
                         "Always contains at least the default error handler which is unpoppable."]}}
 
-  '((do
-      ($.trx/halt)
-      ($.stream/err! $/*result*))))
+  '(($.trx/set `(($.stream/!.err (quote ~$/*result*))
+                 ($.stream/!.flush $.stream/*err*)
+                 ($.process/!.exit 42)))))
 
 
 ;;;;;;;;;; API
@@ -81,10 +81,10 @@
 
 (defn pop
 
-  ^{:callable?  true
-    :doc        {:description ["Pops the next transaction from `*stack*` and prepends it to `$.trx/*list*`."
-                               "Used by the shell when an exception is thrown."]
-                 :signatures [{:params []}]}}
+  ^{:callable? true
+    :doc       {:description ["Pops the next transaction from `*stack*` and prepends it to `$.trx/*list*`."
+                              "Used by the shell when an exception is thrown."]
+                :signatures [{:params []}]}}
 
   []
 
