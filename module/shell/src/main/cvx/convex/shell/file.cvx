@@ -75,6 +75,8 @@
           :examples    [{:code "($.file/!.read \"./my/file.cvx\")"}]
           :signature   [{:params [path]}]}}
 
+  ;; Stream is closed automatically in the Clojure code.
+
   [path]
 
   ($.trx/precat `(($.file/!.stream.in ~path)
@@ -84,17 +86,17 @@
 
 (defn !.write
 
-  ^{:doc {:description "Returns a request for writing `cell` to the Convex Lisp file located under `path`, in one go."
+  ^{:doc {:description ["Returns a request for writing `cell` to the Convex Lisp file located under `path`, in one go."
+                        "File is created if needed."]
           :examples    [{:code "($.file/!.write \"./my/file.cvx\") {:foo :bar})"}]
           :signature   [{:params [path cell]}]}}
 
   [path cell]
 
   ($.trx/precat `(($.file/!.stream.out ~path)
-                  (def convex.shell.file.stream
-                       $/*result*)
-                  ($.stream/!.outln convex.shell.file.stream
-                                    (quote ~cell))
-                  ($.stream/!.close convex.shell.file.stream)
-                  (undef convex.shell.file.stream)
-                  nil)))
+                  (let [cell      (quote ~cell)
+                        id-stream $/*result*]
+                    ($.trx/precat `(($.stream/!.outln ~id-stream
+                                                      (quote ~cell))
+                                    ($.stream/!.close ~id-stream)
+                                    nil))))))
