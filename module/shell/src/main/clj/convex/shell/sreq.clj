@@ -13,7 +13,8 @@
            (convex.core.lang Context)
            (java.io File)
            (java.nio.file DirectoryNotEmptyException
-                          Files))
+                          Files)
+           (java.nio.file.attribute FileAttribute))
   (:require [convex.cell            :as $.cell]
             [convex.clj             :as $.clj]
             [convex.cvm             :as $.cvm]
@@ -321,6 +322,31 @@
         ($.shell.exec.fail/err env
                                ($.shell.err/fs ($.cell/string (str "Cannot delete path: "
                                                                    path))))))))
+
+
+
+(defmethod $.shell.exec/sreq
+
+  $.shell.kw/fs-tmp-file
+
+  ;; Creates a temporary file.
+
+  [env ^AVector tuple]
+
+  (try
+    ($.shell.ctx/def-result
+      env
+      (-> (Files/createTempFile ($.clj/string (.get tuple
+                                                    2))
+                                ($.clj/string (.get tuple
+                                                    3))
+                                (make-array FileAttribute
+                                            0))
+          (str)
+          ($.cell/string)))
+    (catch Throwable _ex
+      ($.shell.exec.fail/err env
+                             ($.shell.err/fs ($.cell/string "Unable to create temporary file"))))))
 
 
 ;;;;;;;;;; Logging

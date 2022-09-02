@@ -81,6 +81,9 @@
 (def ^Keyword fs-delete
               ($.cell/keyword "fs.delete"))
 
+(def ^Keyword fs-tmp-file
+              ($.cell/keyword "fs.tmp-file"))
+
 (def ^Keyword juice
               ($.cell/keyword "juice"))
 
