@@ -117,9 +117,9 @@
         (-fail env
                id
                op+
-               ($.cell/error ($.cell/code-std* :ARGUMENT)
-                             ($.cell/string (str "Stream is missing capability: %s"
-                                                 op+)))))
+               ($.shell.err/stream ($.cell/long id)
+                                   ($.cell/string (str "Stream is missing capability: %s"
+                                                       op+)))))
       ;;
       (catch ParseException ex
         ($.shell.exec.fail/err env
@@ -130,15 +130,15 @@
         (-fail env
                id
                op+
-               ($.cell/error $.shell.kw/err-stream
-                             ($.cell/string (str "Stream failed while performing: " 
-                                                 op+))))))
+               ($.shell.err/stream ($.cell/long id)
+                                   ($.cell/string (str "Stream failed while performing: " 
+                                                       op+))))))
     ;; Stream does not exist
     (-fail env
            id
            op+
-           ($.cell/error $.shell.kw/err-stream
-                         ($.cell/string "Stream closed or does not exist")))))
+           ($.shell.err/stream ($.cell/long id)
+                               ($.cell/string "Stream closed or does not exist")))))
 
 
 ;;;

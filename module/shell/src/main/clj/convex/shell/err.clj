@@ -140,3 +140,16 @@
                     message)
       (assoc-phase $.shell.kw/sreq)
       (assoc-trx trx)))
+
+
+
+(defn stream
+
+  "Error map for a generic stream error."
+
+  [id-stream message]
+
+  (-> ($.cell/error $.shell.kw/err-stream
+                    message)
+      ($.std/assoc $.shell.kw/stream
+                   id-stream)))
