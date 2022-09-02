@@ -183,6 +183,21 @@
                                                                                             entry))
                                                                                     []
                                                                                     trace))))
+                                                                 (let [extra-data (dissoc $/*result*
+                                                                                          :code
+                                                                                          :exception?
+                                                                                          :message
+                                                                                          :trace)]
+                                                                   (if (empty? extra-data)
+                                                                     ""
+                                                                     (str $/line
+                                                                          ($.term/bold)
+                                                                          ($.term/fg.blue)
+                                                                          "Extra data:"
+                                                                          ($.term/reset)
+                                                                          $/line
+                                                                          "  "
+                                                                          extra-data)))
                                                                  $/line
                                                                  ))
                                                          (call $.repl                                       
