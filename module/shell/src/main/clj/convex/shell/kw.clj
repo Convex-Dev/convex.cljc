@@ -24,6 +24,9 @@
 (def ^Keyword cvm-sreq
               ($.cell/keyword "cvm.sreq"))
 
+(def ^Keyword dev-fatal
+              ($.cell/keyword "dev.fatal"))
+
 (def ^Keyword exception?
               ($.cell/keyword "exception?"))
 

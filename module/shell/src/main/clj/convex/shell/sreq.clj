@@ -97,6 +97,18 @@
                                                tuple)))))
 
 
+;;;;;;;;;; Dev
+
+
+(defmethod $.shell.exec/sreq
+
+  $.shell.kw/dev-fatal
+
+  [_env _tuple]
+
+  (throw (Exception. "This is a simulated exception")))
+
+
 ;;;;;;;;;; Etch
 
 

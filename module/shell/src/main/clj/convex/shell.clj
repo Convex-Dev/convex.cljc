@@ -122,10 +122,8 @@
             (clojure.string/join " "
                                  trx+)
             "($.repl/!.start {:intro? true})"))
-    (catch Exception _ex
-      (println "An unknown exception happened.")
-      (println :ex _ex)
-      (flush)
+    (catch Exception ex
+      ($.shell.exec.fail/top-exception ex)
       (when (not= (System/getProperty "convex.dev")
                   "true")
         (System/exit 42)))))

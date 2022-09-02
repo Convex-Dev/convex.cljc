@@ -11,13 +11,8 @@
 
   (:import (convex.core.data ACell
                              AMap)
-           (convex.core.lang.impl ErrorValue)
-           ; (java.nio.file Files)
-           ; (java.nio.file.attribute FileAttribute)
-           )
-  (:require [clojure.java.io]
-            [clojure.pprint]
-            [convex.cell      :as $.cell]
+           (convex.core.lang.impl ErrorValue))
+  (:require [convex.cell      :as $.cell]
             [convex.shell.kw  :as $.shell.kw]))
 
 
@@ -117,35 +112,3 @@
                     message)
       (assoc-phase $.shell.kw/sreq)
       (assoc-trx trx)))
-
-
-;;;;;;;;;; Fatal
-
-
-; (defn report
-; 
-;   "Uses [[fail]] with `err` but associates to it a `:report` key pointing to a temp file
-;    where an EDN file has been written.
-;   
-;    This EDN file pretty-prints the given `env` with `ex` under `:convex.shell/exception` (the Java exception
-;    that caused the failure).
-;   
-;    The error in Convex data under `:convex.shell/error` is stringified for better readibility."
-; 
-;   [env ^AMap err ex]
-; 
-;   (let [path  (str (Files/createTempFile "cvx_report_"
-;                                          ".edn"
-;                                          (make-array FileAttribute
-;                                                      0)))
-;         env-2 (fail env
-;                     (.assoc err
-;                             $.shell.kw/report
-;                             ($.cell/string path)))]
-;     (clojure.pprint/pprint (-> env-2
-;                                (update :convex.shell/error
-;                                        str)
-;                                (assoc :convex.shell/exception
-;                                       ex))
-;                            (clojure.java.io/writer path))
-;     env-2))
