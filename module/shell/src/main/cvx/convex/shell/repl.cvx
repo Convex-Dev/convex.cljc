@@ -109,6 +109,8 @@
                               "Ensures last result produced by the user is available under `$/*result*`."]}
     :private?  true}
 
+  ;; TODO. Refactor. This is very complex to follow.
+
   [result]
 
   ($.trx/precat `(($.stream/!.out ~(if (fn? -prompt)
@@ -118,14 +120,18 @@
                   ($.catch/!.safe '($.stream/!.line+)
                                   '$/*result*)
                   (if (:exception? $/*result*)
-                    ($.trx/precat '(($.stream/!.outln (str $/line
-                                                           ($.term/fg.red)
-                                                           ($.term/bold)
-                                                           "Input cannot be parsed as Convex Lisp"
-                                                           ($.term/reset)
-                                                           $/line))
-                                    (call $.repl
-                                          (-!.next (quote ~result)))))
+                    (let [result (quote ~result)]
+                      ($.trx/precat `(($.stream/!.outln (str $/line
+                                                             ($.term/fg.red)
+                                                             ($.term/bold)
+                                                             "Input cannot be parsed as Convex Lisp:"
+                                                             ($.term/reset)
+                                                             $/line
+                                                             "  "
+                                                             ~(:message $/*result*)
+                                                             $/line))
+                                      (call $.repl
+                                            (-!.next (quote ~result))))))
                     (let [form+       $/*result*
                           n-form      (count form+)
                           result-real (quote ~result)]
@@ -151,7 +157,7 @@
                                         '($.trx/precat `(~($.stream/!.outln
                                                             (str $/line
                                                                  ($.term/bold)
-                                                                 ($.term/fg.blue)
+                                                                 ($.term/fg.red)
                                                                  "Exception code:"
                                                                  ($.term/reset)
                                                                  $/line
@@ -160,7 +166,7 @@
                                                                  (:code $/*result*)
                                                                  $/line
                                                                  ($.term/bold)
-                                                                 ($.term/fg.blue)
+                                                                 ($.term/fg.red)
                                                                  "Message:"
                                                                  ($.term/reset)
                                                                  $/line
@@ -168,7 +174,7 @@
                                                                  (:message $/*result*)
                                                                  $/line
                                                                  ($.term/bold)
-                                                                 ($.term/fg.blue)
+                                                                 ($.term/fg.red)
                                                                  "Trace:"
                                                                  ($.term/reset)
                                                                  (let [trace (:trace $/*result*)]
@@ -192,7 +198,7 @@
                                                                      ""
                                                                      (str $/line
                                                                           ($.term/bold)
-                                                                          ($.term/fg.blue)
+                                                                          ($.term/fg.red)
                                                                           "Extra data:"
                                                                           ($.term/reset)
                                                                           $/line
