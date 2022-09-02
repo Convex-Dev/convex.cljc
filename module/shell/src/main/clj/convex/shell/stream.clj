@@ -309,28 +309,3 @@
          path
          $.shell.io/file-out
          #{:write}))
-
-
-;;;;;;;;;; Miscellaneous
-
-
-(defn close-all
-
-  "Closes all streams in env.
-  
-   Not needed if the shell is run standalone since the OS closes them when the process terminates."
-
-  [{:as              env
-    :convex.shell/keys [stream+]}]
-
-  (doseq [^AutoCloseable stream (vals (dissoc stream+
-                                              0
-                                              1
-                                              2))]
-    (.close stream))
-  (assoc env
-         :convex.shell/stream+
-         (select-keys stream+
-                      [0
-                       1
-                       2])))

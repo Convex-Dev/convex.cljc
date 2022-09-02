@@ -10,7 +10,10 @@
   (:import (convex.core.data AVector)
            (convex.core.data.prim CVMLong)
            (convex.core.exceptions ParseException)
-           (convex.core.lang Context))
+           (convex.core.lang Context)
+           (java.io File)
+           (java.nio.file DirectoryNotEmptyException
+                          Files))
   (:require [convex.cell            :as $.cell]
             [convex.clj             :as $.clj]
             [convex.cvm             :as $.cvm]
@@ -283,6 +286,41 @@
   ($.shell.stream/file-out env
                            (str (.get tuple
                                        2))))
+
+
+;;;;;;;;;; File system
+
+
+(defmethod $.shell.exec/sreq
+
+  $.shell.kw/fs-delete
+
+  ;; Deletes file or empty directory.
+
+  ;; TODO. Prints absolute path in errors.
+
+  [env ^AVector tuple]
+
+  (let [^String path (-> tuple
+                         (.get 2)
+                         ($.clj/string))]
+    (try
+      ($.shell.ctx/def-result env
+                              (-> path
+                                  (File.)
+                                  (.toPath)
+                                  (Files/deleteIfExists)
+                                  ($.cell/boolean)))
+      ;;
+      (catch DirectoryNotEmptyException _ex
+        ($.shell.exec.fail/err env
+                               ($.shell.err/fs ($.cell/string (str "Cannot delete non-empty directory: "
+                                                                   path)))))
+      ;;
+      (catch Throwable _ex
+        ($.shell.exec.fail/err env
+                               ($.shell.err/fs ($.cell/string (str "Cannot delete path: "
+                                                                   path))))))))
 
 
 ;;;;;;;;;; Logging

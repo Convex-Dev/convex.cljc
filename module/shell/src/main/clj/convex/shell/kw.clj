@@ -27,8 +27,8 @@
 (def ^Keyword dev-fatal
               ($.cell/keyword "dev.fatal"))
 
-(def ^Keyword exception?
-              ($.cell/keyword "exception?"))
+(def ^Keyword err-fs
+              ($.cell/keyword "FS"))
 
 (def ^Keyword err-reader
               ($.cell/keyword "READER"))
@@ -60,6 +60,9 @@
 (def ^Keyword eval
               ($.cell/keyword "eval"))
 
+(def ^Keyword exception?
+              ($.cell/keyword "exception?"))
+
 (def ^Keyword exec
               ($.cell/keyword "exec"))
 
@@ -74,6 +77,9 @@
 
 (def ^Keyword form
               ($.cell/keyword "form"))
+
+(def ^Keyword fs-delete
+              ($.cell/keyword "fs.delete"))
 
 (def ^Keyword juice
               ($.cell/keyword "juice"))

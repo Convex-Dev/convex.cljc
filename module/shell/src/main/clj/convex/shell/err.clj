@@ -62,6 +62,18 @@
                 message))
 
 
+
+(defn fs
+
+  "Error map for a generic filesystem error."
+
+  [message]
+
+  ($.cell/error $.shell.kw/err-stream
+                message))
+
+
+
 (defn mappify
 
   "Transforms the given CVM exception into a map.
