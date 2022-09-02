@@ -12,7 +12,6 @@
   (:require [clojure.edn      :as edn]
             [clojure.java.io  :as java.io]
             [convex.cell      :as $.cell]
-            [convex.clj       :as $.clj]
             [convex.cvm       :as $.cvm]
             [convex.read      :as $.read]
             [convex.shell.sym :as $.shell.sym]
@@ -120,7 +119,7 @@
                                    ;; Requires `$` + `$.stream` + `$.term` + `$.trx`
                                    [$.shell.sym/$-help
                                     "convex/shell/help.cvx"]
-                                   ;; Requires `$` + `$.stream` + `$.term` + `$.trx`.
+                                   ;; Requires `$` + `$.catch` + `$.stream` + `$.term` + `$.trx`.
                                    [$.shell.sym/$-repl
                                     "convex/shell/repl.cvx"]
                                    ;; Requires `$.trx`.

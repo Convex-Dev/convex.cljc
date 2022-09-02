@@ -129,7 +129,10 @@
   ^{:doc {:description ["Try-catch idiom."
                         "If `trx-try` transaction fails, `trx-catch` is executed."
                         "In any argument, `$.trx/precat` or `$.trx/prepend` can be used if more than one transaction must be executed."
-                        "In any case, `trx-finally` is finally executed if given."]}}
+                        "In any case, `trx-finally` is finally executed if given."]
+          :signature   [{:params [trx-try]}
+                        {:params [trx-try trx-catch]}
+                        {:params [trx-try trx-catch trx-finally]}]}}
 
 
   ([trx-try]
@@ -145,7 +148,10 @@
             ~trx-catch))
    ($.trx/precat `((quote ~$/*result*)
                    ~trx-try
-                   ($.catch/drop))))
+                   (do
+                     ($.catch/drop)
+                     $/*result*))))
+
 
   ([trx-try trx-catch trx-finally]
 
