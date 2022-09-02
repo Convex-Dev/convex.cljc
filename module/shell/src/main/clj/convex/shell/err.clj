@@ -96,7 +96,7 @@
   []
 
   ($.cell/error $.shell.kw/err-reader
-                ($.cell/string "String cannot be read as Convex Lisp")))
+                ($.cell/string "Cannot be read as Convex Lisp")))
 
 
 

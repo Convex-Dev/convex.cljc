@@ -105,12 +105,12 @@
   (if-some [stream (get-in env
                            [:convex.shell/stream+
                             id])]
-
+    ;; Stream exists.
     (try
-      
+      ;;
       ($.shell.ctx/def-result env
                               (f stream))
-      
+      ;;
       (catch ClassCastException _ex
         (-fail env
                id
@@ -119,8 +119,8 @@
                              ($.cell/string (format "Stream [%s] is missing capability: %s"
                                                     id
                                                     op+)))))
-
-      (catch Exception _ex
+      ;;
+      (catch Throwable _ex
         (-fail env
                id
                op+
@@ -128,7 +128,7 @@
                              ($.cell/string (format "Stream [%s] failed while performing: %s" 
                                                     id
                                                     op+))))))
-
+    ;; Stream does not exist
     (-fail env
            id
            op+

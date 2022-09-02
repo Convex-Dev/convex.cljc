@@ -122,7 +122,7 @@
             (clojure.string/join " "
                                  trx+)
             "($.repl/!.start {:intro? true})"))
-    (catch Exception ex
+    (catch Throwable ex
       ($.shell.exec.fail/top-exception ex)
       (when (not= (System/getProperty "convex.dev")
                   "true")
