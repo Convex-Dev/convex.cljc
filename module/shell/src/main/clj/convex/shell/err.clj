@@ -88,18 +88,23 @@
 
 
 
-(defn reader
+(defn reader-string
 
-  "Creates a `:READER` error map, for when the CVX reader fails."
+  "Creates a `:READER` error map, for when the CVX reader fails on a string."
 
-  ^AMap
 
-  [src]
+  ([src]
 
-  (-> ($.cell/error $.shell.kw/err-reader
-                    ($.cell/string "Cannot be read as Convex Lisp"))
-      ($.std/assoc $.shell.kw/src
-                   src)))
+   (reader-string src))
+
+
+  ([src reason]
+
+   (-> ($.cell/error $.shell.kw/err-reader
+                     (or reason
+                         ($.cell/string "String cannot be read as Convex Lisp")))
+       ($.std/assoc $.shell.kw/src
+                    src))))
 
 
 

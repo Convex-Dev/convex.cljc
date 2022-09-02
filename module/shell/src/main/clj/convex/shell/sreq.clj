@@ -9,6 +9,7 @@
 
   (:import (convex.core.data AVector)
            (convex.core.data.prim CVMLong)
+           (convex.core.exceptions ParseException)
            (convex.core.lang Context))
   (:require [convex.cell            :as $.cell]
             [convex.clj             :as $.clj]
@@ -91,9 +92,15 @@
                               (-> src
                                   (str)
                                   ($.read/string+)))
-      (catch Throwable _err
+      ;;
+      (catch ParseException ex
         ($.shell.exec.fail/err env
-                               ($.shell.err/reader src))))))
+                               ($.shell.err/reader-string src
+                                                          ($.cell/string (.getMessage ex)))))
+      ;;
+      (catch Throwable _ex
+        ($.shell.exec.fail/err env
+                               ($.shell.err/reader-string src))))))
 
 
 ;;;;;;;;;; Dev
