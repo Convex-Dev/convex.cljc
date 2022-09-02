@@ -34,9 +34,9 @@
 
   [^AMap err ^ACell phase]
 
-  (.assoc err
-          $.shell.kw/phase
-          phase))
+  ($.std/assoc err
+               $.shell.kw/phase
+               phase))
 
 
 
@@ -46,9 +46,9 @@
   
   [^AMap err ^ACell trx]
 
-  (.assoc err
-          $.shell.kw/trx
-          trx))
+  ($.std/assoc err
+               $.shell.kw/trx
+               trx))
 
 
 ;;;;;;;;;; Creating error maps
@@ -82,8 +82,8 @@
 
    (-> ex
        (mappify)
-       (.assoc $.shell.kw/trx
-               trx)
+       ($.std/assoc $.shell.kw/trx
+                    trx)
        (assoc-phase phase))))
 
 
