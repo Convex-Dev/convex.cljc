@@ -10,12 +10,14 @@
 
   {:author "Adam Helinski"}
 
-  (:import (java.lang AutoCloseable)
+  (:import (convex.core.exceptions ParseException)
+           (java.lang AutoCloseable)
            (java.io BufferedReader))
   (:refer-clojure :exclude [flush])
   (:require [convex.cell            :as $.cell]
             [convex.read            :as $.read]
             [convex.shell.ctx       :as $.shell.ctx]
+            [convex.shell.err       :as $.shell.err]
             [convex.shell.exec.fail :as $.shell.exec.fail]
             [convex.shell.io        :as $.shell.io]
             [convex.shell.kw        :as $.shell.kw]
@@ -116,25 +118,27 @@
                id
                op+
                ($.cell/error ($.cell/code-std* :ARGUMENT)
-                             ($.cell/string (format "Stream [%s] is missing capability: %s"
-                                                    id
-                                                    op+)))))
+                             ($.cell/string (str "Stream is missing capability: %s"
+                                                 op+)))))
+      ;;
+      (catch ParseException ex
+        ($.shell.exec.fail/err env
+                               ($.shell.err/reader-stream ($.cell/long id)
+                                                          ($.cell/string (.getMessage ex)))))
       ;;
       (catch Throwable _ex
         (-fail env
                id
                op+
                ($.cell/error $.shell.kw/err-stream
-                             ($.cell/string (format "Stream [%s] failed while performing: %s" 
-                                                    id
-                                                    op+))))))
+                             ($.cell/string (str "Stream failed while performing: " 
+                                                 op+))))))
     ;; Stream does not exist
     (-fail env
            id
            op+
            ($.cell/error $.shell.kw/err-stream
-                         ($.cell/string (format "Stream [%s] closed or does not exist"
-                                                id))))))
+                         ($.cell/string "Stream closed or does not exist")))))
 
 
 ;;;

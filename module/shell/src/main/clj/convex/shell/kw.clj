@@ -126,6 +126,9 @@
 (def ^Keyword sreq
               ($.cell/keyword "sreq"))
 
+(def ^Keyword stream
+              ($.cell/keyword "stream"))
+
 (def ^Keyword stream-close
               ($.cell/keyword "stream.close"))
 

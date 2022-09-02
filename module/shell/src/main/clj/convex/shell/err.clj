@@ -108,6 +108,26 @@
 
 
 
+(defn reader-stream
+
+  "Creates a `:READER` error map, for when the CVX reader fails on a stream."
+
+
+  ([id-stream]
+
+   (reader-stream id-stream
+                  nil))
+
+
+  ([id-stream reason]
+
+   (-> ($.cell/error $.shell.kw/err-reader
+                     (or reason
+                         ($.cell/string "Stream cannot be read as Convex Lisp")))
+       ($.std/assoc $.shell.kw/stream
+                    id-stream))))
+
+
 (defn sreq
 
   "Error map describing an error that occured when performing an operation for a request."
