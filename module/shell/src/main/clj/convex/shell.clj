@@ -34,10 +34,9 @@
   (:gen-class)
   (:refer-clojure :exclude [eval])
   (:require [clojure.string]
+            [convex.cell            :as $.cell]
             [convex.cvm             :as $.cvm]
-            [convex.read            :as $.read]
             [convex.shell.ctx       :as $.shell.ctx]
-            [convex.shell.err       :as $.shell.err]
             [convex.shell.exec      :as $.shell.exec]
             [convex.shell.exec.fail :as $.shell.exec.fail]
             [convex.shell.io        :as $.shell.io]
@@ -54,7 +53,7 @@
    Notably, prepares:
 
    - STDIO streams
-   - Initial context"
+   - Initial CVM context"
 
   [env]
 
@@ -86,20 +85,11 @@
 
   ([env string]
 
-   (let [env-2  (init env)
-         [ex
-          trx+] (try
-                  [nil
-                   ($.read/string+ string)]
-                  (catch Throwable ex
-                    [ex
-                     nil]))]
-     (-> (if ex
-           ($.shell.exec.fail/err env-2
-                                  ($.shell.err/reader))
-           ($.shell.ctx/precat-trx+ env-2
-                                    trx+))
-         ($.shell.exec/trx+)))))
+   (-> env
+       (init)
+       ($.shell.ctx/def-trx+ ($.cell/* (($.code/!.read+ ~($.cell/string string))
+                                        ($.trx/precat $/*result*))))
+       ($.shell.exec/trx+))))
 
 
 ;;;;;;;;;; Main functions

@@ -84,17 +84,16 @@
   
   [env ^AVector tuple]
 
-  (try
-    ($.shell.ctx/def-result env
-                          (-> (.get tuple
-                                    2)
-                              (str)
-                              ($.read/string+)))
-    (catch Throwable _err
-      ($.shell.exec.fail/err env
-                             ($.shell.err/sreq ($.cell/code-std* :ARGUMENT)
-                                               ($.cell/string "Unable to read source")
-                                               tuple)))))
+  (let [src (.get tuple
+                  2)]
+    (try
+      ($.shell.ctx/def-result env
+                              (-> src
+                                  (str)
+                                  ($.read/string+)))
+      (catch Throwable _err
+        ($.shell.exec.fail/err env
+                               ($.shell.err/reader src))))))
 
 
 ;;;;;;;;;; Dev

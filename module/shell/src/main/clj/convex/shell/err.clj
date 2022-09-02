@@ -13,7 +13,8 @@
                              AMap)
            (convex.core.lang.impl ErrorValue))
   (:require [convex.cell      :as $.cell]
-            [convex.shell.kw  :as $.shell.kw]))
+            [convex.shell.kw  :as $.shell.kw]
+            [convex.std       :as $.std]))
 
 
 (set! *warn-on-reflection*
@@ -93,10 +94,12 @@
 
   ^AMap
 
-  []
+  [src]
 
-  ($.cell/error $.shell.kw/err-reader
-                ($.cell/string "Cannot be read as Convex Lisp")))
+  (-> ($.cell/error $.shell.kw/err-reader
+                    ($.cell/string "Cannot be read as Convex Lisp"))
+      ($.std/assoc $.shell.kw/src
+                   src)))
 
 
 
