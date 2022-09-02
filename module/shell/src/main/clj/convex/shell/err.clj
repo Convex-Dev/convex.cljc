@@ -30,9 +30,7 @@
   
    A `phase` is a CVM keyword which provides an idea of what stage the error occured in."
 
-  ^AMap
-
-  [^AMap err ^ACell phase]
+  [err phase]
 
   ($.std/assoc err
                $.shell.kw/phase
@@ -44,7 +42,7 @@
 
   "Associates a transaction to the given `err` map. under `:trx`."
   
-  [^AMap err ^ACell trx]
+  [err trx]
 
   ($.std/assoc err
                $.shell.kw/trx
@@ -71,14 +69,14 @@
    If prodived, associates to the resulting error map a [[phase]] and the current transaction that caused this error."
 
 
-  (^AMap [^ErrorValue ex]
+  ([^ErrorValue ex]
 
    ($.cell/error (.getCode ex)
                  (.getMessage ex)
                  ($.cell/vector (.getTrace ex))))
 
 
-  (^AMap [ex phase ^ACell trx]
+  ([ex phase trx]
 
    (-> ex
        (mappify)
@@ -131,8 +129,6 @@
 (defn sreq
 
   "Error map describing an error that occured when performing an operation for a request."
-
-  ^AMap
 
   [code message trx]
 
