@@ -59,7 +59,7 @@
 ;;;;;;;;;;
 
 
-($.stream/!.outln
+($.stream/!.txt.outln
   (str $/line
        "~~~"
        $/line

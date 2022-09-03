@@ -113,23 +113,23 @@
 
   [result]
 
-  ($.trx/precat `(($.stream/!.out ~(if (fn? -prompt)
-                                     (-prompt)
-                                     -prompt))
+  ($.trx/precat `(($.stream/!.txt.out ~(if (fn? -prompt)
+                                         (-prompt)
+                                         -prompt))
                   ($.stream/!.flush)
                   ($.catch/!.safe '($.stream/!.line+)
                                   '$/*result*)
                   (if (:exception? $/*result*)
                     (let [result (quote ~result)]
-                      ($.trx/precat `(($.stream/!.outln (str $/line
-                                                             ($.term/fg.red)
-                                                             ($.term/bold)
-                                                             "Input cannot be parsed as Convex Lisp:"
-                                                             ($.term/reset)
-                                                             $/line
-                                                             "  "
-                                                             ~(:message $/*result*)
-                                                             $/line))
+                      ($.trx/precat `(($.stream/!.txt.outln (str $/line
+                                                                 ($.term/fg.red)
+                                                                 ($.term/bold)
+                                                                 "Input cannot be parsed as Convex Lisp:"
+                                                                 ($.term/reset)
+                                                                 $/line
+                                                                 "  "
+                                                                 ~(:message $/*result*)
+                                                                 $/line))
                                       (call $.repl
                                             (-!.next (quote ~result))))))
                     (let [form+       $/*result*
@@ -143,18 +143,16 @@
                                                                       '((def $.repl.result
                                                                              $/*result*)
                                                                         (when $.repl/*active?*
-                                                                          ($.trx/precat '(($.stream/!.out $/line)
-                                                                                          ($.stream/!.outln (if (str? $.repl.result)
-                                                                                                              (str \" $.repl.result \")
-                                                                                                              $.repl.result))
-                                                                                          ($.stream/!.out $/line)
+                                                                          ($.trx/precat '(($.stream/!.txt.out $/line)
+                                                                                          ($.stream/!.outln $.repl.result)
+                                                                                          ($.stream/!.txt.out $/line)
                                                                                           ($.stream/!.flush)
                                                                                           (let [result $.repl.result]
                                                                                             (undef $.repl.result)
                                                                                             (call $.repl
                                                                                                   (-!.next result))))))))))
                                         ;; Catch
-                                        '($.trx/precat `(~($.stream/!.outln
+                                        '($.trx/precat `(~($.stream/!.txt.outln
                                                             (str $/line
                                                                  ($.term/bold)
                                                                  ($.term/fg.red)
@@ -251,20 +249,20 @@
             (or (:prompt option+)
                 prompt))
        ($.trx/precat `(~(when (:intro? option+)
-                          ($.stream/!.outln (str ($.term/fg.blue)
-                                                 ($.term/bold)
-                                                 "Convex Shell (REPL mode)"
-                                                 ($.term/reset)
-                                                 $/line
-                                                 $/line
-                                                 "Enter transactions and build a new world."
-                                                 $/line
-                                                 $/line
-                                                 "To learn more: "
-                                                 ($.term/bold)
-                                                 "($/help)"
-                                                 ($.term/reset)
-                                                 $/line)))
+                          ($.stream/!.txt.outln (str ($.term/fg.blue)
+                                                     ($.term/bold)
+                                                     "Convex Shell (REPL mode)"
+                                                     ($.term/reset)
+                                                     $/line
+                                                     $/line
+                                                     "Enter transactions and build a new world."
+                                                     $/line
+                                                     $/line
+                                                     "To learn more: "
+                                                     ($.term/bold)
+                                                     "($/help)"
+                                                     ($.term/reset)
+                                                     $/line)))
                        (call $.repl
                              (-!.next (quote ~result))))))
      (call -self

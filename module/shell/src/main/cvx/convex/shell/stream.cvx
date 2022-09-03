@@ -165,6 +165,8 @@
   (!.out *err*
          x))
 
+
+
 (defn !.errln
 
   ^{:doc {:description "Uses `!.outln` ont `*err*` for printing `x` to the default error stream."
@@ -175,6 +177,8 @@
 
   (!.outln *err*
            x))
+
+
 
 (defn !.flush
 
@@ -263,7 +267,7 @@
 
 (defn !.outln
 
-  ^{:doc {:description "Likes `out` but also outputs a new line and flushes the `stream`."
+  ^{:doc {:description "Likes `!.out` but also outputs a new line and flushes the `stream`."
           :examples    [{:code "($.stream/!.outln :foo)"}]
           :signature   [{:params [x]}
                         {:params [stream x]}]}}
@@ -278,3 +282,45 @@
   ([stream x]
 
    [:cvm.sreq :stream.outln (-stream stream) x]))
+
+
+
+(defn !.txt.out
+
+  ^{:doc {:description ["Like `!.out` but if `cell` is a string, it will not be double-quoted."
+                        "Hence, the output might not be readable as Convex Lisp."]
+          :examples    [{:code "($.stream/!.txt.out \"This is some text\")"}]
+          :signature   [{:params [x]}
+                        {:params [stream x]}]}}
+
+
+  ([x]
+
+   (!.txt.out *out*
+              x))
+
+
+  ([stream x]
+
+   [:cvm.sreq :stream.txt.out (-stream stream) x]))
+
+
+
+(defn !.txt.outln
+
+  ^{:doc {:description ["Like `!.outln` but if `cell` is a string, it will not be double-quoted."
+                        "Hence, the output might not be readable as Convex Lisp."]
+          :examples    [{:code "($.stream/!.txt.outln \"This is some text\")"}]
+          :signature   [{:params [x]}
+                        {:params [stream x]}]}}
+
+
+  ([x]
+
+   (!.txt.outln *out*
+                x))
+
+
+  ([stream x]
+
+   [:cvm.sreq :stream.txt.outln (-stream stream) x]))

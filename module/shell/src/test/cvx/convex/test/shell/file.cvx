@@ -71,6 +71,39 @@
 
 
 
+(defn suite.rw.txt
+
+  ^{:doc {:description "Tests the difference between printing strings as text or as cells."}}
+
+  []
+
+  (T/group '((T/path.conj 'rw.txt)
+
+             ($.file/!.tmp)
+
+             (def path
+                  $/*result*)
+
+             ($.file/!.write path
+                             "test")
+
+             ($.file/!.read path)
+
+             (T/trx '(= '("test")
+                        $/*result*)
+                    {:description "Written as cell"})
+
+             ($.file/!.txt.write path
+                                 "test")
+
+             ($.file/!.read path)
+
+             (T/trx '(= '(test)
+                        $/*result*)
+                    {:description "Written as text"}))))
+
+
+
 (defn suite.stream
 
   ^{:doc {:description ["Low-level stream utilities."
@@ -142,6 +175,7 @@
   (T/group '((T/path.conj 'convex.shell.file)
              (suite.delete)
              (suite.rw)
+             (suite.rw.txt)
              (suite.stream))))
 
 

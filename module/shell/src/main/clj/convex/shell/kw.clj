@@ -159,6 +159,12 @@
 (def ^Keyword stream-outln
               ($.cell/keyword "stream.outln"))
 
+(def ^Keyword stream-txt-out
+              ($.cell/keyword "stream.txt.out"))
+
+(def ^Keyword stream-txt-outln
+              ($.cell/keyword "stream.txt.outln"))
+
 (def ^Keyword time-advance
               ($.cell/keyword "time.advance"))
 

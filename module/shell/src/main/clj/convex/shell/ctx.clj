@@ -104,7 +104,7 @@
                                    ;; No deps.
                                    [$.shell.sym/$-trx
                                     "convex/shell/trx.cvx"]
-                                   ;; Requires `$`.
+                                   ;; Requires `$` + `$.stream`.
                                    [$.shell.sym/$-term
                                     "convex/shell/term.cvx"]
                                    ;; Requires `$` + `$.stream` + `$.trx`.

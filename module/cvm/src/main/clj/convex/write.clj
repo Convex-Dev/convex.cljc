@@ -6,10 +6,10 @@
 
    Also see [[convex.read]] for the opposite idea."
 
-
   {:author "Adam Helinski"}
 
-  (:import (convex.core.data ACell)
+  (:import (convex.core.data ACell
+                             Strings)
            (java.io Writer)))
 
 
@@ -47,25 +47,28 @@
    While standard `str` is sufficient for other type of cells, this function ensures that CVX strings are escaped
    so that reading produces a CVX string as well.
   
-   For instance, CVX string \"foo\" produces the following Java string:
+   For instance, CVX string \"foo\" produces the following:
 
-   | Function                  | Cell after reading |
-   |---------------------------|-------------*------|
-   | Clojure `str`             | `\"foo\"`          |
-   | This namespace's `string` | `\"\"(+ 1 2)\"\"`  |"
+   | Function                  | Cell after reading | Type |
+   |---------------------------|--------------------|------|
+   | Clojure `str`             | `\"foo\"`          | JVM  |
+   | This namespace's `string` | `\"\"(+ 1 2)\"\"`  | Cell |"
 
   ^String
 
   [^ACell cell]
 
-  (.print cell))
+  ;; Cannot use `$.cell/string` because of a circular dependency.
+  ;
+  (if cell
+    (.print cell)
+    (Strings/create "nil")))
 
 
 ;;;;;;;;;;
 ;;
 ;; Support for binary stuff removed.
 ;; Current utilities do not pack/unpack references since they are meant for incremental updates over the wire,
-;;
 ;; which is not suited for any kind of local IO.
 
 ; 

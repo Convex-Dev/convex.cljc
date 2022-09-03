@@ -84,6 +84,23 @@
 
 
 
+(defn -!.write
+
+  ^{:private? true}
+
+  [f-outln path cell]
+
+  ($.trx/precat `(($.file/!.stream.out ~path)
+                  (let [cell      (quote ~cell)
+                        f-outln   (quote ~f-outln)
+                        id-stream $/*result*]
+                    ($.trx/precat `((~f-outln ~id-stream
+                                              (quote ~cell))
+                                    ($.stream/!.close ~id-stream)
+                                    nil))))))
+
+
+
 (defn !.write
 
   ^{:doc {:description ["Returns a request for writing `cell` to the Convex Lisp file located under `path`, in one go."
@@ -93,13 +110,24 @@
 
   [path cell]
 
-  ($.trx/precat `(($.file/!.stream.out ~path)
-                  (let [cell      (quote ~cell)
-                        id-stream $/*result*]
-                    ($.trx/precat `(($.stream/!.outln ~id-stream
-                                                      (quote ~cell))
-                                    ($.stream/!.close ~id-stream)
-                                    nil))))))
+  (-!.write '$.stream/!.outln
+            path
+            cell))
+
+
+
+(defn !.txt.write
+
+  ^{:doc {:description ["Like `!.write` but if `cell` is a string, it will not be double-quoted."
+                        "Hence, the output might be readable as Convex Lisp."]
+          :examples    [{:code "($.file/!.write.txt \"./my/file.cvx\") \"This is some text\")"}]
+          :signature   [{:params [path cell]}]}}
+
+  [path cell]
+
+  (-!.write '$.stream/!.txt.outln
+            path
+            cell))
 
 
 ;;;;;;;;;; Other filesystem operations

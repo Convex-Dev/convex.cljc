@@ -71,8 +71,8 @@
 
   [acc]
 
-  ($.trx/precat `(($.stream/!.outln ~(apply str
-                                            acc))
+  ($.trx/precat `(($.stream/!.txt.outln ~(apply str
+                                                acc))
                   nil)))
 
 
@@ -455,6 +455,6 @@
                      "."
                      $/line
                      )]
-    ($.trx/precat `(($.stream/!.outln ~text)
+    ($.trx/precat `(($.stream/!.txt.outln ~text)
                     nil))
     nil))

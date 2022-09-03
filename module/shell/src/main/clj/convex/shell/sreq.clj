@@ -549,6 +549,36 @@
                               3)))
 
 
+
+(defmethod $.shell.exec/sreq
+
+  $.shell.kw/stream-txt-out
+
+  ;; Do not double quote top-level strings.
+
+  [env ^AVector tuple]
+
+  ($.shell.stream/txt-out env
+                          (-stream tuple)
+                          (.get tuple
+                                3)))
+
+
+
+(defmethod $.shell.exec/sreq
+
+  ;; Do not double quote top-level strings.
+
+  $.shell.kw/stream-txt-outln
+
+  [env ^AVector tuple]
+
+  ($.shell.stream/txt-outln env
+                            (-stream tuple)
+                            (.get tuple
+                                  3)))
+
+
 ;;;;;;;;;; Time
 
 

@@ -78,9 +78,19 @@
 
 
 
-(defn- -str
+(defn- -str-cvx
 
-  ;; Properly stringifying cells.
+  ;; Stringifies the given `cell` to be readable.
+
+  [cell]
+
+  (str ($.write/string cell)))
+
+
+
+(defn- -str-txt
+
+  ;; Stringifies the given `cell` but do not double quote if it is a string.
 
   [cell]
 
@@ -219,20 +229,53 @@
 
 
 
-(defn out
+(defn- -out
 
-  "Writes `cell` to the requested stream."
+  ;; See [[out]].
 
-  [env id cell]
+  [env id cell stringify]
 
   (operation env
              id
              #{:write}
              (fn [stream]
                ($.write/stream stream
-                               -str
+                               stringify
                                cell)
-               cell)))
+               nil)))
+
+
+
+(defn out
+
+  "Writes `cell` to the requested stream."
+
+  [env id cell]
+
+  (-out env
+        id
+        cell
+        -str-cvx))
+
+
+
+(defn- -outln
+
+  ;; See [[outln]].
+
+  [env id cell stringify]
+
+  (operation env
+             id
+             #{:flush
+               :write}
+             (fn [stream]
+               ($.write/stream stream
+                               stringify
+                               cell)
+               ($.shell.io/newline stream)
+               ($.shell.io/flush stream)
+               nil)))
 
 
 
@@ -242,17 +285,36 @@
 
   [env id cell]
 
-  (operation env
-             id
-             #{:flush
-               :write}
-             (fn [stream]
-               ($.write/stream stream
-                               -str
-                               cell)
-               ($.shell.io/newline stream)
-               ($.shell.io/flush stream)
-               cell)))
+  (-outln env
+          id
+          cell
+          -str-cvx))
+
+
+
+(defn txt-out
+
+  "Like [[out]] but if `cell` is a string, then it is not quoted."
+
+  [env id cell]
+
+  (-out env
+        id
+        cell
+        -str-txt))
+
+
+
+(defn txt-outln
+
+  "Is to [[outln]] what [[out-txt]] is to [[out]]."
+
+  [env id cell]
+
+  (-outln env
+          id
+          cell
+          -str-txt))
 
 
 ;;;;;;;;;; Opening file streams

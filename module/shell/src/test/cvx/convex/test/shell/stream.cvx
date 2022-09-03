@@ -73,7 +73,19 @@
              (T/fail.code #{:STREAM}
                           '($.stream/!.outln 42
                                              :foo)
-                          {:description "Cannot write and flush cell to inexistent stream."}))))
+                          {:description "Cannot write and flush cell to inexistent stream."})
+
+             (T/fail.code #{:STREAM}
+                          '($.stream/!.txt.out 42
+                                               :foo)
+                          {:description "Cannot write cell as text to inexistent stream."})
+
+             (T/fail.code #{:STREAM}
+                          '($.stream/!.txt.outln 42
+                                                :foo)
+                          {:description "Cannot write and flush cell as text to inexistent stream."}))))
+
+
 
 
 ;;;
