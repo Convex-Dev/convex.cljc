@@ -15,6 +15,15 @@
 ;;;;;;;;; Private
 
 
+(def $.trx
+
+  ^{:private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.shell.trx)))
+ 
+
+
 (defn -stream
 
   ^{:doc      {:description ["Asserts that `stream` is indeed a stream."
@@ -227,7 +236,9 @@
   ^{:doc {:description ["Returns a request for reading a line from the given input `stream`."
                         "Reads from `*in*` by default."
                         "Stops when a new line is encountered."
-                        "List of read cells becomes available during next the transaction under `$/*result*`."]
+                        "List of read cells becomes available during next the transaction under `$/*result*`."
+                        "Result is `nil` when the end of the stream is reached. The stream is then closed"
+                        "automatically."]
           :examples    [{:code "($.stream/!.in* $.stream/stdin)"}]
           :signature   [{:params []}
                         {:params [stream]}]}}

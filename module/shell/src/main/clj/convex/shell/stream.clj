@@ -218,12 +218,16 @@
 
   [env id]
 
-  (operation env
-             id
-             #{:read}
-             (fn [stream]
-               (-> stream
-                   ($.read/line+)))))
+  (let [env-2 (operation env
+                         id
+                         #{:read}
+                         (fn [stream]
+                           (-> stream
+                               ($.read/line+))))]
+    (cond->
+      env-2
+      ($.shell.ctx/result env-2)
+      (close id))))
 
 
 

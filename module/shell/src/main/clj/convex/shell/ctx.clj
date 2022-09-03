@@ -99,11 +99,11 @@
                                    [$.shell.sym/$-process
                                     "convex/shell/process.cvx"]
                                    ;; No deps.
-                                   [$.shell.sym/$-stream
-                                    "convex/shell/stream.cvx"]
-                                   ;; No deps.
                                    [$.shell.sym/$-trx
                                     "convex/shell/trx.cvx"]
+                                   ;; Requires `$.trx`
+                                   [$.shell.sym/$-stream
+                                    "convex/shell/stream.cvx"]
                                    ;; Requires `$` + `$.stream`.
                                    [$.shell.sym/$-term
                                     "convex/shell/term.cvx"]
