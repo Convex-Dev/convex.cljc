@@ -11,8 +11,7 @@
   {:author "Adam Helinski"}
 
   (:import (convex.core.exceptions ParseException)
-           (java.lang AutoCloseable)
-           (java.io BufferedReader))
+           (java.lang AutoCloseable))
   (:refer-clojure :exclude [flush])
   (:require [convex.cell            :as $.cell]
             [convex.read            :as $.read]
@@ -224,7 +223,6 @@
              #{:read}
              (fn [stream]
                (-> stream
-                   (BufferedReader.)
                    ($.read/line+)))))
 
 

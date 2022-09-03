@@ -38,6 +38,63 @@
 
 
 
+(defn suite.line+
+
+  ^{:doc {:description "Reading CVX files line by line."}}
+
+  []
+
+  (T/group '((T/path.conj 'line+)
+
+             ($.file/!.tmp)
+             (def path
+                  $/*result*)
+
+             ($.file/!.stream.out path)
+
+             (def out
+                  $/*result*)
+
+             ($.stream/!.outln out
+                               :one)
+             ($.stream/!.outln out
+                               :two)
+             ($.stream/!.out out
+                             :three)
+             ($.stream/!.txt.out out
+                                 " ")
+             ($.stream/!.out out
+                             :four)
+             ($.stream/!.flush out)
+             ($.stream/!.close out)
+
+             ($.file/!.stream.in path)
+             (def in
+                  $/*result*)
+
+             ($.stream/!.line+ in)
+             (T/trx '(= '(:one)
+                        $/*result*)
+                    {:description "Line 1"})
+
+             ($.stream/!.line+ in)
+             (T/trx '(= '(:two)
+                        $/*result*)
+                    {:description "Line 2"})
+
+             ($.stream/!.line+ in)
+             (T/trx '(= '(:three :four)
+                        $/*result*)
+                    {:description "Line 3"})
+
+             ($.stream/!.line+ in)
+             (T/trx '(= nil
+                        $/*result*)
+                    {:description "End is reached"})
+             )))
+
+
+
 (defn suite.rw
 
   ^{:doc {:description "High-level utilities built on top of stream utilities."}}
@@ -174,6 +231,7 @@
 
   (T/group '((T/path.conj 'convex.shell.file)
              (suite.delete)
+             (suite.line+)
              (suite.rw)
              (suite.rw.txt)
              (suite.stream))))

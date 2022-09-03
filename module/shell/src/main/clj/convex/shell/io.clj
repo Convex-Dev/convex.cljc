@@ -7,7 +7,8 @@
 
   {:author "Adam Helinski"}
 
-  (:import (java.io File
+  (:import (java.io BufferedReader
+                    File
                     FileDescriptor
                     FileInputStream
                     FileOutputStream
@@ -70,7 +71,7 @@
 
   "Text stream for STDIN."
 
-  (FileReader. FileDescriptor/in))
+  (BufferedReader. (FileReader. FileDescriptor/in)))
 
 
 
@@ -106,7 +107,7 @@
 
   [^String path]
 
-  (FileReader. (File. path)))
+  (BufferedReader. (FileReader. (File. path))))
 
 
 
