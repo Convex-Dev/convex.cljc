@@ -119,7 +119,10 @@
                   ($.stream/!.flush)
                   ($.catch/!.safe '($.stream/!.line)
                                   '$/*result*)
-                  (if (:exception? $/*result*)
+                  (cond
+                    ;;
+                    ;; An exception occured while reading input.
+                    (:exception? $/*result*)
                     (let [result (quote ~result)]
                       (if (= (:code $/*result*)
                              :READER)
@@ -139,9 +142,15 @@
                                                                 $/line
                                                                 ($.term/bold)
                                                                 ($.term/fg.red)
-                                                                "REPL cannot read: is the input stream closed?"
+                                                                "REPL cannot read: is the input stream closed perhaps?"
                                                                 ($.term/reset)))
                                      ($.process/!.exit 3)))))
+                    ;;
+                    ;; Nil, input stream reached its end.
+                    (nil? $/*result*)
+                    ($.repl/!.stop)
+                    ;;
+                    ;; Prints result or exception after executing input.
                     (let [form+       $/*result*
                           n-form      (count form+)
                           result-real (quote ~result)]
