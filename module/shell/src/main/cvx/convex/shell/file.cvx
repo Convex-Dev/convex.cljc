@@ -100,3 +100,53 @@
                                                       (quote ~cell))
                                     ($.stream/!.close ~id-stream)
                                     nil))))))
+
+
+;;;;;;;;;; Other filesystem operations
+
+
+(defn !.delete
+
+  ^{:doc {:description "Returns a request for deleting the file or the empty folder at the given `path`."
+          :examples    [{:code "($.file/!.delete \"some-file.cvx\")"}]
+          :signature   [{:params [path]}]}}
+
+  [path]
+
+  (assert (str? path))
+  [:cvm.sreq :file.delete path])
+
+
+
+
+(defn !.tmp
+
+  ^{:doc {:description ["Returns a request for creating a temporary file."
+                        "`prefix` and `suffix` are both optional."]
+          :examples    [{:code "($.fs/!.tmp)"}
+                        {:code "($.fs/!.tmp \".cvx\")"}
+                        {:code "($.fs/!.tmp \"some-project\" \".cvx\")"}]
+          :signature   [{:params []}
+                        {:params [suffix]}
+                        {:params [prefix suffix]}]}}
+
+
+  ([]
+
+   (!.tmp nil
+          nil))
+
+
+  ([suffix]
+
+   (!.tmp nil
+          suffix))
+
+
+  ([prefix suffix]
+
+   (assert (or (nil? prefix)
+               (str? prefix))
+           (or (nil? suffix)
+               (str? suffix)))
+   [:cvm.sreq :file.tmp prefix suffix]))

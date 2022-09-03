@@ -43,6 +43,9 @@
 (def ^Symbol $-file
              ($.cell/symbol "$.file"))
 
+(def ^Symbol $-fs
+             ($.cell/symbol "$.fs"))
+
 (def ^Symbol $-help
              ($.cell/symbol "$.help"))
 

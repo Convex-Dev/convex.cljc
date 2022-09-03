@@ -264,41 +264,12 @@
 
 (defmethod $.shell.exec/sreq
 
-  $.shell.kw/file-stream-in
-
-  ;; Opens a file for reading.
-
-  [env ^AVector tuple]
-
-  ($.shell.stream/file-in env
-                          (str (.get tuple
-                                     2))))
-
-
-
-(defmethod $.shell.exec/sreq
-
-  $.shell.kw/file-stream-out
-
-  ;; Opens a file for writing.
-
-  [env ^AVector tuple]
-
-  ($.shell.stream/file-out env
-                           (str (.get tuple
-                                       2))))
-
-
-;;;;;;;;;; File system
-
-
-(defmethod $.shell.exec/sreq
-
-  $.shell.kw/fs-delete
+  $.shell.kw/file-delete
 
   ;; Deletes file or empty directory.
 
   ;; TODO. Prints absolute path in errors.
+  ;;       Make recursive over populated directories? Or too dangerous?
 
   [env ^AVector tuple]
 
@@ -327,7 +298,35 @@
 
 (defmethod $.shell.exec/sreq
 
-  $.shell.kw/fs-tmp-file
+  $.shell.kw/file-stream-in
+
+  ;; Opens a file for reading.
+
+  [env ^AVector tuple]
+
+  ($.shell.stream/file-in env
+                          (str (.get tuple
+                                     2))))
+
+
+
+(defmethod $.shell.exec/sreq
+
+  $.shell.kw/file-stream-out
+
+  ;; Opens a file for writing.
+
+  [env ^AVector tuple]
+
+  ($.shell.stream/file-out env
+                           (str (.get tuple
+                                       2))))
+
+
+
+(defmethod $.shell.exec/sreq
+
+  $.shell.kw/file-tmp
 
   ;; Creates a temporary file.
 

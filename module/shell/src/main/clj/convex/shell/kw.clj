@@ -69,20 +69,20 @@
 (def ^Keyword expand
               ($.cell/keyword "expand"))
 
+(def ^Keyword file-delete
+              ($.cell/keyword "file.delete"))
+
 (def ^Keyword file-stream-in
               ($.cell/keyword "file.stream.in"))
 
 (def ^Keyword file-stream-out
               ($.cell/keyword "file.stream.out"))
 
+(def ^Keyword file-tmp
+              ($.cell/keyword "file.tmp"))
+
 (def ^Keyword form
               ($.cell/keyword "form"))
-
-(def ^Keyword fs-delete
-              ($.cell/keyword "fs.delete"))
-
-(def ^Keyword fs-tmp-file
-              ($.cell/keyword "fs.tmp-file"))
 
 (def ^Keyword juice
               ($.cell/keyword "juice"))
