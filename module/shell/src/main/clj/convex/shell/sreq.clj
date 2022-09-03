@@ -95,7 +95,7 @@
       ($.shell.ctx/def-result env
                               (-> src
                                   (str)
-                                  ($.read/string+)))
+                                  ($.read/string)))
       ;;
       (catch ParseException ex
         ($.shell.exec.fail/err env
@@ -480,17 +480,6 @@
 
   ($.shell.stream/flush env
                         (-stream tuple)))
-
-(defmethod $.shell.exec/sreq
-
-  $.shell.kw/stream-in
-
-  ;; Reads a single cell from the given stream.
-
-  [env tuple]
-
-  ($.shell.stream/in env
-                     (-stream tuple)))
 
 
 

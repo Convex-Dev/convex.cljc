@@ -144,9 +144,6 @@
 (def ^Keyword stream-flush
               ($.cell/keyword "stream.flush"))
 
-(def ^Keyword stream-in
-              ($.cell/keyword "stream.in"))
-
 (def ^Keyword stream-in+
               ($.cell/keyword "stream.in+"))
 

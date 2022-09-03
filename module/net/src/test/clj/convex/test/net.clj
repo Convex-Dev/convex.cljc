@@ -11,7 +11,6 @@
             [convex.client :as $.client]
             [convex.cvm    :as $.cvm]
             [convex.db     :as $.db]
-            [convex.read   :as $.read]
             [convex.server :as $.server]
             [convex.sign   :as $.sign]
             [convex.std    :as $.std]))
@@ -225,7 +224,7 @@
       (T/is (= ($.cell/long 4)
                (-> ($.client/query client
                                    addr
-                                   ($.read/string "(def foo-query (+ 2 2))"))
+                                   ($.cell/* (def foo-query (+ 2 2))))
                    -deref
                    $.client/value))
             "Simple query")
@@ -233,7 +232,7 @@
       (T/is (= ($.cell/boolean false)
                (-> ($.client/query client
                                    addr
-                                   ($.read/string "(defined? foo-query)"))
+                                   ($.cell/* (defined? foo-query)))
                    -deref
                    $.client/value))
             "State change in previous query has been reversed"))))
@@ -258,7 +257,7 @@
                                       kp
                                       ($.cell/invoke addr
                                                      (-sequence client)
-                                                     ($.read/string "(def foo-transact (+ 2 2))")))
+                                                     ($.cell/* (def foo-transact (+ 2 2)))))
                    -deref
                    $.client/value))
             "Def within a transaction")

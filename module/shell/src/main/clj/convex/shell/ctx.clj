@@ -50,7 +50,7 @@
                                                                                               (-> resource
                                                                                                   (.openStream)
                                                                                                   (InputStreamReader. StandardCharsets/UTF_8)
-                                                                                                  ($.read/stream+))))]
+                                                                                                  ($.read/stream))))]
                                                                   (if sym
                                                                     ($.cell/* (def ~sym
                                                                                    (deploy (quote ~cell))))

@@ -198,20 +198,6 @@
 
 
 
-(defn in
-
-  "Reads a single cell from the requested stream."
-
-  [env id]
-
-  (-> env
-      (operation id
-                 #{:read}
-                 $.read/stream)
-      (-dissoc id)))
-
-
-
 (defn in+
 
   "Reads all available cells from the requested stream and closes it."
@@ -221,7 +207,7 @@
   (-> env
       (operation id
                  #{:read}
-                 $.read/stream+)
+                 $.read/stream)
       (-dissoc id)))
 
 
@@ -235,9 +221,7 @@
   (-> env
       (operation id
                  #{:read}
-                 (fn [stream]
-                   (-> stream
-                       ($.read/line+))))
+                 $.read/line)
       (-close-when-no-result id)))
 
 

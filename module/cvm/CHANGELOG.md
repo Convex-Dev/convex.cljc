@@ -20,6 +20,7 @@ All notable changes to this project will be documented in this file.
 - Greatly simplify `$.db`
     - Prevent bad behavior by enforcing thread-local instances
     - Remove any dealing with refs (too low-level for normal operations)
+- Discard functions from `$.read` that read only one cell and rename other ones
 
 ### Fixed
 

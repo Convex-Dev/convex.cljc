@@ -5,121 +5,114 @@
 ;;
 
 
-(do
+(defn allowance
 
+  ^{:doc {:description "Returns the memory allowance of the current or given address."}}
 
-  (defn allowance
+  ([]
 
-    ^{:doc {:description "Returns the memory allowance of the current or given address."}}
+   (allowance *address*))
 
-    ([]
+  ([addr]
 
-     (allowance *address*))
-
-    ([addr]
-
-     (:allowance (account addr))))
+   (:allowance (account addr))))
 
 
 
-  (defn env
+(defn env
 
-    ^{:doc {:description "Returns the environment of the current or given address."}}
-
-
-    ([]
-
-     (env *address*))
-
-    ([addr]
-
-     (:environment (account addr))))
+  ^{:doc {:description "Returns the environment of the current or given address."}}
 
 
+  ([]
 
-  (defn every?
+   (env *address*))
 
-    ^{:doc {:description "Returns true if all items in `coll` returns a truthy value on `f`. False otherwise."}}
+  ([addr]
 
-    [f coll]
-
-    (boolean (reduce (fn [_acc x]
-                       (or (f x)
-                           (reduced false)))
-                     true
-                     coll)))
+   (:environment (account addr))))
 
 
 
-  (defn every-index?
+(defn every?
 
-    ^{:doc {:description "Like `every?` but for indices."}}
+  ^{:doc {:description "Returns true if all items in `coll` returns a truthy value on `f`. False otherwise."}}
 
-    [f sequential]
+  [f coll]
 
-    (loop [i (dec (count sequential))]
-      (if (> i
-             0)
-        (if (f sequential
-               i)
-          (recur (dec i))
-          false)
-        true)))
+  (boolean (reduce (fn [_acc x]
+                     (or (f x)
+                         (reduced false)))
+                   true
+                   coll)))
 
 
 
-  (defn foreach
+(defn every-index?
 
-    ^{:doc {:description "Executes `f` on each item in `coll`. Only useful for producing side-effects."}}
+  ^{:doc {:description "Like `every?` but for indices."}}
 
-    [f coll]
+  [f sequential]
 
-    (reduce (fn [_acc x]
-              (f x)
-              nil)
-            nil
-            coll)
-    coll)
-
-
-
-  (defn long-percentage
-
-    ^{:doc {:description "Maps a percentage (double between 0 and 1) to a long between 0 and `n`."}}
-
-    [percent n]
-
-    (long (floor (* percent
-                    n))))
+  (loop [i (dec (count sequential))]
+    (if (> i
+           0)
+      (if (f sequential
+             i)
+        (recur (dec i))
+        false)
+      true)))
 
 
 
-  (defn some
+(defn foreach
 
-    ^{:doc {:description "Returns true if any item in `coll` returns true on `f`. False otherwise."}}
+  ^{:doc {:description "Executes `f` on each item in `coll`. Only useful for producing side-effects."}}
 
-    [f coll]
+  [f coll]
 
-    (boolean (reduce (fn [_acc x]
-                       (let [x-2 (f x)]
-                         (if x-2
-                           (reduced x-2)
-                           false)))
-                     true
-                     coll)))
-
-
-
-  (defn unused-address
-
-    ^{:doc {:description "Starting from `addr`, search the next unused address."}}
-
-    [addr]
-
-    (if (account addr)
-      (recur (address (inc (long addr))))
-      addr))
+  (reduce (fn [_acc x]
+            (f x)
+            nil)
+          nil
+          coll)
+  coll)
 
 
 
-  ) ;; End of (do)
+(defn long-percentage
+
+  ^{:doc {:description "Maps a percentage (double between 0 and 1) to a long between 0 and `n`."}}
+
+  [percent n]
+
+  (long (floor (* percent
+                  n))))
+
+
+
+(defn some
+
+  ^{:doc {:description "Returns true if any item in `coll` returns true on `f`. False otherwise."}}
+
+  [f coll]
+
+  (boolean (reduce (fn [_acc x]
+                     (let [x-2 (f x)]
+                       (if x-2
+                         (reduced x-2)
+                         false)))
+                   true
+                   coll)))
+
+
+
+(defn unused-address
+
+  ^{:doc {:description "Starting from `addr`, search the next unused address."}}
+
+  [addr]
+
+  (if (account addr)
+    (recur (address (inc (long addr))))
+    addr))

@@ -9,8 +9,7 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.data ACell
-                             AList)
+  (:import (convex.core.data AList)
            (convex.core.lang.reader AntlrReader)
            (java.io BufferedReader
                     InputStreamReader
@@ -24,8 +23,7 @@
 
 
 (declare stream
-         stream+
-         string+)
+         string)
 
 
 ;;;;;;;;;;
@@ -33,19 +31,7 @@
 
 (defn file
 
-  "Reads one cell from the given `filename`."
-
-  ^ACell
-
-  [^String filename]
-
-  (AntlrReader/read (CharStreams/fromFileName filename)))
-
-
-
-(defn file+
-
-  "Like [[file]] but reads all available cells and returns them in a CVX list."
+  "Reads all cells from the given `filename` and returns them in a CVX list."
 
   ^AList
 
@@ -55,29 +41,14 @@
 
 
 
-(defn line+
+(defn line
 
   "Reads a line from the given `java.io.BufferedReader` and parses the result as a CVX list of cells."
 
   [^BufferedReader buffered-reader]
 
   (some-> (.readLine buffered-reader)
-          string+))
-
-
-
-(defn- -resource-reader
-
-  ;; Turns resource path into a `Reader`.
-
-  ^Reader
-
-  [path]
-
-  (-> path
-      clojure.java.io/resource
-      .openStream
-      InputStreamReader.))
+          (string)))
 
 
 
@@ -90,42 +61,17 @@
   [path]
 
   (-> path
-      -resource-reader
-      stream))
-
-
-
-(defn resource+
-
-  "Like [[resource]] but reads all available cells and returns them in a CVX list."
-
-  ^AList
-
-  [path]
-
-  (-> path
-      -resource-reader
-      stream+))
+      (clojure.java.io/resource)
+      (.openStream)
+      (InputStreamReader.)
+      (stream)))
 
 
 
 (defn stream
 
-  "Reads one cell from the given `java.io.Reader` (parent class of text streams).
-  
-   Rest of the stream is discarded."
-
-  ^ACell
-
-  [^Reader reader]
-
-  (AntlrReader/read (CharStreams/fromReader reader)))
-
-
-
-(defn stream+
-
-  "Like [[stream]] but reads all available text cells and returns them in a CVX list."
+  "Reads all cells from the given `java.io.Reader` (parent class of text streams) and returns them
+   in a CVX list."
 
   ^AList
 
@@ -137,19 +83,7 @@
 
 (defn string
 
-  "Reads one cell from the given `string`."
-
-  ^ACell
-
-  [^String string]
-
-  (AntlrReader/read string))
-
-
-
-(defn string+
-
-  "Like [[string]] but reads all available text cells and returns them in a CVX list."
+  "Reads all cells from the given `string` and returns them in a CVX list."
 
   ^AList
 

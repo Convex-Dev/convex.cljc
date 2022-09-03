@@ -29,10 +29,8 @@ Overview of namespaces:
 | `convex.cell`   | Constructors for cells                                  |
 | `convex.clj`    | Translating cells into Clojure data                     |
 | `convex.cvm`    | CVM execution, manipulation, gathering various insights |
-| `convex.cvm.db` | Set which Etch instances are used by default            |
 | `convex.db`     | Open and handle Etch instances                          |
 | `convex.read`   | Parse text source into cells                            |
-| `convex.ref`    | Handle refs (low-level building blocks of some cells)   |
 | `convex.std`    | Standard library for cells, similar to `clojure.core`   |
 | `convex.write`  | Convert cells into text source                          |
 

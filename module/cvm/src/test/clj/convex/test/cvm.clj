@@ -2,18 +2,18 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.test :as t]
-            [convex.cvm   :as $.cvm]
-            [convex.read  :as $.read]))
+  (:require [clojure.test :as T]
+            [convex.cell  :as $.cell]
+            [convex.cvm   :as $.cvm]))
 
 
 ;;;;;;;;;; From expansion to execution
 
 
-(t/deftest execution
+(T/deftest execution
 
-  (let [form ($.read/string "(if true 42 0)")]
-    (t/is (= ($.read/string "42")
+  (let [form ($.cell/* (if true 42 0))]
+    (T/is (= ($.cell/* 42)
              (->> form
                   ($.cvm/eval ($.cvm/ctx))
                   $.cvm/result)

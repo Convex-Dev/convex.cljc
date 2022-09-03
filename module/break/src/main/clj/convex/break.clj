@@ -18,5 +18,5 @@
 
   (-> ($.cvm/ctx)
       ($.cvm/eval ($.cell/* (def $
-                                 (deploy (quote ~($.read/resource "convex/break.cvx"))))))
+                                 (deploy '(do ~@($.read/resource "convex/break.cvx"))))))
       $.cvm/juice-refill))
