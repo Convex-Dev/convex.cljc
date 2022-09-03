@@ -15,20 +15,45 @@
 ;;;;;;;;;; Test suites
 
 
-(defn suite.high-level
+(defn suite.delete
+
+  ^{:doc {:description "Deleting files."}}
+
+  []
+
+  (T/group '((T/path.conj 'delete)
+
+             ($.file/!.tmp)
+
+             (def path
+                  $/*result*)
+
+             (T/trx '($.trx/precat '(($.file/!.delete path)
+                                     $/*result*))
+                    {:description "File deleted."})
+
+             (T/trx '($.trx/precat '(($.file/!.delete path)
+                                     (not $/*result*)))
+                    {:description "Cannot delete file a second time."}))))
+
+
+
+(defn suite.rw
 
   ^{:doc {:description "High-level utilities built on top of stream utilities."}}
 
   []
 
-  (T/group '((T/path.conj 'high-level)
+  (T/group '((T/path.conj 'rw)
 
              (def cell
                   '(def x
                         {:foo :bar}))
 
+             ($.file/!.tmp)
+
              (def path
-                  "/tmp/test_file_high-level.cvx")
+                  $/*result*)
 
              (T/trx '($.trx/precat '(($.file/!.write path
                                                      cell)
@@ -55,8 +80,10 @@
 
   (T/group '((T/path.conj 'stream)
 
+             ($.file/!.tmp)
+
              (def path
-                  "/tmp/test_file_stream.cvx")
+                  $/*result*)
 
              ($.file/!.stream.out path)
 
@@ -113,7 +140,8 @@
   []
 
   (T/group '((T/path.conj 'convex.shell.file)
-             (suite.high-level)
+             (suite.delete)
+             (suite.rw)
              (suite.stream))))
 
 
