@@ -147,8 +147,8 @@
 (def ^Keyword stream-in+
               ($.cell/keyword "stream.in+"))
 
-(def ^Keyword stream-line+
-              ($.cell/keyword "stream.line+"))
+(def ^Keyword stream-line
+              ($.cell/keyword "stream.line"))
 
 (def ^Keyword stream-open?
               ($.cell/keyword "stream.open?"))

@@ -498,14 +498,14 @@
 
 (defmethod $.shell.exec/sreq
 
-  $.shell.kw/stream-line+
+  $.shell.kw/stream-line
 
   ;; Reads line from the given stream and extracts all available cells.
 
   [env tuple]
 
-  ($.shell.stream/line+ env
-                        (-stream tuple)))
+  ($.shell.stream/line env
+                       (-stream tuple)))
 
 
 

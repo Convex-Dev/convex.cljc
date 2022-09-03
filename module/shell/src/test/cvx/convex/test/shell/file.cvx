@@ -74,22 +74,22 @@
                         (def in
                              $/*result*)
 
-                        ($.stream/!.line+ in)
+                        ($.stream/!.line in)
                         (T/trx '(= '(:one)
                                    $/*result*)
                                {:description "Line 1"})
 
-                        ($.stream/!.line+ in)
+                        ($.stream/!.line in)
                         (T/trx '(= '(:two)
                                    $/*result*)
                                {:description "Line 2"})
 
-                        ($.stream/!.line+ in)
+                        ($.stream/!.line in)
                         (T/trx '(= '(:three :four)
                                    $/*result*)
                                {:description "Line 3"})
 
-                        ($.stream/!.line+ in)
+                        ($.stream/!.line in)
                         (T/trx '(= nil
                                    $/*result*)
                                {:description "End is reached"})
@@ -259,7 +259,7 @@
              (def stream.line
                   $/*result*)
 
-             (T/trx '($.trx/precat '(($.stream/!.line+ stream.line)
+             (T/trx '($.trx/precat '(($.stream/!.line stream.line)
                                      (= '(:foo)
                                         $/*result*)))
                     {:description "Read only first line."}))))

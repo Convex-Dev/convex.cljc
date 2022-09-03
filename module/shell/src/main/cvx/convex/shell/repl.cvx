@@ -117,7 +117,7 @@
                                          (-prompt)
                                          -prompt))
                   ($.stream/!.flush)
-                  ($.catch/!.safe '($.stream/!.line+)
+                  ($.catch/!.safe '($.stream/!.line)
                                   '$/*result*)
                   (if (:exception? $/*result*)
                     (let [result (quote ~result)]

@@ -62,7 +62,7 @@
                           {:description "Cannot read cells from inexistent stream."})
 
              (T/fail.code #{:STREAM}
-                          '($.stream/!.line+ 42)
+                          '($.stream/!.line 42)
                           {:description "Cannot read line from inexistent stream."})
 
              (T/fail.code #{:STREAM}

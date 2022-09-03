@@ -231,7 +231,7 @@
 
 
 
-(defn !.line+
+(defn !.line
 
   ^{:doc {:description ["Returns a request for reading a line from the given input `stream`."
                         "Reads from `*in*` by default."
@@ -239,19 +239,19 @@
                         "List of read cells becomes available during next the transaction under `$/*result*`."
                         "Result is `nil` when the end of the stream is reached. The stream is then closed"
                         "automatically."]
-          :examples    [{:code "($.stream/!.in+)"}]
+          :examples    [{:code "($.stream/!.line)"}]
           :signature   [{:params []}
                         {:params [stream]}]}}
 
 
   ([]
 
-   (!.line+ *in*))
+   (!.line *in*))
 
 
   ([stream]
 
-   [:cvm.sreq :stream.line+ (-stream stream)]))
+   [:cvm.sreq :stream.line (-stream stream)]))
 
 
 

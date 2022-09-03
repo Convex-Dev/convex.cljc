@@ -212,7 +212,7 @@
 
 
 
-(defn line+
+(defn line
 
   "Reads a line from the requested stream and parses it into a list of cells."
 
