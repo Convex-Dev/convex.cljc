@@ -188,7 +188,15 @@
 
              ($.stream/!.flush stream.out)
 
+             ($.stream/!.open? stream.out)
+             (T/trx '$/*result*
+                    {:description "Output stream is open"})
+
              ($.stream/!.close stream.out)
+
+             ($.stream/!.open? stream.out)
+             (T/trx '(not $/*result*)
+                    {:description "Output stream is indeed closed"})
 
              (T/fail.code #{:STREAM}
                           '($.stream/!.outln stream.out

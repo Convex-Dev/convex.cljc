@@ -153,6 +153,9 @@
 (def ^Keyword stream-line+
               ($.cell/keyword "stream.line+"))
 
+(def ^Keyword stream-open?
+              ($.cell/keyword "stream.open?"))
+
 (def ^Keyword stream-out
               ($.cell/keyword "stream.out"))
 

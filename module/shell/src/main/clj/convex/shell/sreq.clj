@@ -537,9 +537,26 @@
 
 (defmethod $.shell.exec/sreq
 
-  ;; Writes a cell to the given stream, appends a new line, and flushes everything.
+  $.shell.kw/stream-open?
+
+  ;; Is a given stream open?
+
+  [env ^AVector tuple]
+
+  ($.shell.ctx/def-result env
+                          (-> (env :convex.shell/stream+)
+                              (contains? ($.clj/long (.get tuple
+                                                           2)))
+                              ($.cell/boolean))))
+
+
+
+(defmethod $.shell.exec/sreq
+
 
   $.shell.kw/stream-outln
+
+  ;; Writes a cell to the given stream, appends a new line, and flushes everything.
 
   [env ^AVector tuple]
 
@@ -567,9 +584,9 @@
 
 (defmethod $.shell.exec/sreq
 
-  ;; Do not double quote top-level strings.
-
   $.shell.kw/stream-txt-outln
+
+  ;; Do not double quote top-level strings.
 
   [env ^AVector tuple]
 

@@ -227,7 +227,7 @@
   ^{:doc {:description ["Returns a request for reading a line from the given input `stream`."
                         "Reads from `*in*` by default."
                         "Stops when a new line is encountered."
-                        "List of read cells becomes available during next transaction under `$/*result*`."]
+                        "List of read cells becomes available during next the transaction under `$/*result*`."]
           :examples    [{:code "($.stream/!.in* $.stream/stdin)"}]
           :signature   [{:params []}
                         {:params [stream]}]}}
@@ -241,6 +241,19 @@
   ([stream]
 
    [:cvm.sreq :stream.line+ (-stream stream)]))
+
+
+
+(defn !.open?
+
+  ^{:doc {:description ["Returns a request for inspecting if the given `stream` is open."
+                        "Boolean response will be available during the next transaction under `$/*result*`."]
+          :examples    [{:code "($.stream/!.open? 42)"}]
+          :signature   [{:params [stream]}]}}
+
+  [stream]
+
+  [:cvm.sreq :stream.open? (-stream stream)])
 
 
 
