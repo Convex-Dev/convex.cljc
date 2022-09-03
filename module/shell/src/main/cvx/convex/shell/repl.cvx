@@ -121,17 +121,27 @@
                                   '$/*result*)
                   (if (:exception? $/*result*)
                     (let [result (quote ~result)]
-                      ($.trx/precat `(($.stream/!.txt.outln (str $/line
-                                                                 ($.term/fg.red)
-                                                                 ($.term/bold)
-                                                                 "Input cannot be parsed as Convex Lisp:"
-                                                                 ($.term/reset)
-                                                                 $/line
-                                                                 "  "
-                                                                 ~(:message $/*result*)
-                                                                 $/line))
-                                      (call $.repl
-                                            (-!.next (quote ~result))))))
+                      (if (= (:code $/*result*)
+                             :READER)
+                        ($.trx/precat `(($.stream/!.txt.outln (str $/line
+                                                                   ($.term/fg.red)
+                                                                   ($.term/bold)
+                                                                   "Input cannot be parsed as Convex Lisp:"
+                                                                   ($.term/reset)
+                                                                   $/line
+                                                                   "  "
+                                                                   ~(:message $/*result*)
+                                                                   $/line))
+                                        (call $.repl
+                                              (-!.next (quote ~result)))))
+                        ($.trx/set '(($.stream/!.txt.outln $.stream/*err*
+                                                           (str $/line
+                                                                $/line
+                                                                ($.term/bold)
+                                                                ($.term/fg.red)
+                                                                "REPL cannot read: is the input stream closed?"
+                                                                ($.term/reset)))
+                                     ($.process/!.exit 3)))))
                     (let [form+       $/*result*
                           n-form      (count form+)
                           result-real (quote ~result)]
