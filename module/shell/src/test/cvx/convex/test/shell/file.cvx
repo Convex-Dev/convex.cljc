@@ -38,13 +38,13 @@
 
 
 
-(defn suite.line+
+(defn suite.line
 
-  ^{:doc {:description "Reading CVX files line by line."}}
+  ^{:doc {:description "Reading files line by line as cells or text."}}
 
   []
 
-  (T/group '((T/path.conj 'line+)
+  (T/group '((T/path.conj 'line)
 
              ($.file/!.tmp)
              (def path
@@ -68,30 +68,67 @@
              ($.stream/!.flush out)
              ($.stream/!.close out)
 
-             ($.file/!.stream.in path)
-             (def in
-                  $/*result*)
+             (T/group '((T/path.conj 'cell)
 
-             ($.stream/!.line+ in)
-             (T/trx '(= '(:one)
-                        $/*result*)
-                    {:description "Line 1"})
+                        ($.file/!.stream.in path)
+                        (def in
+                             $/*result*)
 
-             ($.stream/!.line+ in)
-             (T/trx '(= '(:two)
-                        $/*result*)
-                    {:description "Line 2"})
+                        ($.stream/!.line+ in)
+                        (T/trx '(= '(:one)
+                                   $/*result*)
+                               {:description "Line 1"})
 
-             ($.stream/!.line+ in)
-             (T/trx '(= '(:three :four)
-                        $/*result*)
-                    {:description "Line 3"})
+                        ($.stream/!.line+ in)
+                        (T/trx '(= '(:two)
+                                   $/*result*)
+                               {:description "Line 2"})
 
-             ($.stream/!.line+ in)
-             (T/trx '(= nil
-                        $/*result*)
-                    {:description "End is reached"})
-             )))
+                        ($.stream/!.line+ in)
+                        (T/trx '(= '(:three :four)
+                                   $/*result*)
+                               {:description "Line 3"})
+
+                        ($.stream/!.line+ in)
+                        (T/trx '(= nil
+                                   $/*result*)
+                               {:description "End is reached"})
+
+                        ($.stream/!.open? in)
+                        (T/trx '(not $/*result*)
+                               {:description "Input stream closed automatically when end is reached"})))
+
+             (T/group '((T/path.conj 'txt)
+
+                        ($.file/!.stream.in path)
+                        (def in
+                             $/*result*)
+
+                        ($.stream/!.txt.line in)
+                        (T/trx '(= ":one"
+                                   $/*result*)
+                               {:description "Line 1"})
+
+                        ($.stream/!.txt.line in)
+                        (T/trx '(= ":two"
+                                   $/*result*)
+                               {:description "Line 2"})
+
+                        ($.stream/!.txt.line in)
+                        (T/trx '(= ":three :four"
+                                   $/*result*)
+                               {:description "Line 3"})
+
+                        ($.stream/!.txt.line in)
+                        (T/trx '(= nil
+                                   $/*result*)
+                               {:description "End is reached"})
+
+                        ($.stream/!.open? in)
+                        (T/trx '(not $/*result*)
+                               {:description "Input stream closed automatically when end is reached"}))))))
+
+
 
 
 
@@ -239,7 +276,7 @@
 
   (T/group '((T/path.conj 'convex.shell.file)
              (suite.delete)
-             (suite.line+)
+             (suite.line)
              (suite.rw)
              (suite.rw.txt)
              (suite.stream))))

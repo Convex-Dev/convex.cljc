@@ -569,6 +569,19 @@
 
 (defmethod $.shell.exec/sreq
 
+  $.shell.kw/stream-txt-line
+
+  ;; Reads a line of text.
+
+  [env tuple]
+
+  ($.shell.stream/txt-line env
+                           (-stream tuple)))
+
+
+
+(defmethod $.shell.exec/sreq
+
   $.shell.kw/stream-txt-out
 
   ;; Do not double quote top-level strings.

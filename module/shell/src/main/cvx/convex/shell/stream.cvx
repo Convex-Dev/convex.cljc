@@ -239,7 +239,7 @@
                         "List of read cells becomes available during next the transaction under `$/*result*`."
                         "Result is `nil` when the end of the stream is reached. The stream is then closed"
                         "automatically."]
-          :examples    [{:code "($.stream/!.in* $.stream/stdin)"}]
+          :examples    [{:code "($.stream/!.in+)"}]
           :signature   [{:params []}
                         {:params [stream]}]}}
 
@@ -306,6 +306,29 @@
   ([stream x]
 
    [:cvm.sreq :stream.outln (-stream stream) x]))
+
+
+
+(defn !.txt.line
+
+  ^{:doc {:description ["Returns a request for reading a line from the given input `stream` as text."
+                        "Reads from `*in*` by default."
+                        "String will be available during the next transaction under `$/*result*`."
+                        "Result is `nil` when the end of the stream is reached. The stream is then closed"
+                        "automatically."]
+          :examples    [{:code "($.stream/!.txt.line)"}]
+          :signature   [{:params []}
+                        {:params [stream]}]}}
+
+
+  ([]
+
+   (!.txt.line *in*))
+
+
+  ([stream]
+
+   [:cvm.sreq :stream.txt.line (-stream stream)]))
 
 
 

@@ -11,6 +11,7 @@
   {:author "Adam Helinski"}
 
   (:import (convex.core.exceptions ParseException)
+           (java.io BufferedReader)
            (java.lang AutoCloseable))
   (:refer-clojure :exclude [flush])
   (:require [convex.cell            :as $.cell]
@@ -28,7 +29,8 @@
       true)
 
 
-(declare outln)
+(declare close
+         outln)
 
 
 ;;;;;;;;;; Values
@@ -42,6 +44,31 @@
 
 
 ;;;;;;;;;; Private
+
+
+(defn- -close-when-no-result
+
+  ;; Sometimes it is best closing the stream if an operation returns no result.
+
+  [env id]
+
+  (cond->
+    env
+    (not ($.shell.ctx/result env))
+    (close id)))
+
+
+(defn- -dissoc
+
+  ;; Dissociates the requested stream from env.
+
+  [env id]
+
+  (update env
+          :convex.shell/stream+
+          dissoc
+          id))
+
 
 
 (defn- -fail
@@ -61,19 +88,6 @@
                       3)
     ($.shell.exec.fail/err env
                            err)))
-
-
-
-(defn- -dissoc
-
-  ;; Dissociates the requested stream from env.
-
-  [env id]
-
-  (update env
-          :convex.shell/stream+
-          dissoc
-          id))
 
 
 
@@ -218,16 +232,13 @@
 
   [env id]
 
-  (let [env-2 (operation env
-                         id
-                         #{:read}
-                         (fn [stream]
-                           (-> stream
-                               ($.read/line+))))]
-    (cond->
-      env-2
-      ($.shell.ctx/result env-2)
-      (close id))))
+  (-> env
+      (operation id
+                 #{:read}
+                 (fn [stream]
+                   (-> stream
+                       ($.read/line+))))
+      (-close-when-no-result id)))
 
 
 
@@ -291,6 +302,22 @@
           id
           cell
           -str-cvx))
+
+
+
+(defn txt-line
+
+  "Reads a line from the requested stream as text."
+
+  [env id]
+
+  (-> env
+      (operation id
+                 #{:read}
+                 (fn [^BufferedReader stream]
+                   (some-> (.readLine stream)
+                           ($.cell/string))))
+      (-close-when-no-result id)))
 
 
 

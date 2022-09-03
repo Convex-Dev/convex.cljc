@@ -162,6 +162,9 @@
 (def ^Keyword stream-outln
               ($.cell/keyword "stream.outln"))
 
+(def ^Keyword stream-txt-line
+              ($.cell/keyword "stream.txt.line"))
+
 (def ^Keyword stream-txt-out
               ($.cell/keyword "stream.txt.out"))
 
