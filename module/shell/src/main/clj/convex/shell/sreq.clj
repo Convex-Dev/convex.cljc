@@ -7,7 +7,8 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.data AVector)
+  (:import (convex.core State)
+           (convex.core.data AVector)
            (convex.core.data.prim CVMLong)
            (convex.core.exceptions ParseException)
            (convex.core.lang Context)
@@ -463,6 +464,39 @@
                                                [($.cell/string k)
                                                 ($.cell/string v)])
                                              (System/getenv))))))
+
+
+;;;;;;;;;; State
+
+
+(defmethod $.shell.exec/sreq
+
+  $.shell.kw/state-load
+
+  ;; Restores the given state and executes the given transaction afterwards.
+  ;; This transaction is mostly useful for rememberings from state to state.
+
+  [env ^AVector tuple]
+
+  (let [state (.get tuple
+                    2)
+        trx   (.get tuple
+                    3)]
+    (if (instance? State
+                   state)
+      (-> env
+          (update :convex.shell/ctx
+                  (fn [ctx]
+                    ($.cvm/state-set ctx
+                                     (.get tuple
+                                           2))))
+          (cond->
+            trx
+            ($.shell.ctx/prepend-trx trx))
+          ($.shell.ctx/def-result nil))
+      ($.shell.exec.fail/err env
+                             ($.shell.err/arg ($.cell/string "Argument is not a valid CVM state: did you perhaps modify it?")
+                                              ($.cell/* state))))))
 
 
 ;;;;;;;;;; Streams

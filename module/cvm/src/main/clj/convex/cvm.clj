@@ -359,7 +359,7 @@
 
   "Returns the current timestamp (Unix epoch in milliseconds as CVM long) assigned to the state in the given `ctx`.
   
-   Also see [[timestamp-set]]."
+   Also see [[time-set]]."
 
   ^CVMLong
 

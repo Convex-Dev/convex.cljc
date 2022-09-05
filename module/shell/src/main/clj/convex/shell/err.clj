@@ -52,6 +52,19 @@
 ;;;;;;;;;; Creating error maps
 
 
+(defn arg
+
+  "Error map for a bad argument."
+
+  [message arg-symbol]
+
+  (-> ($.cell/error ($.cell/code-std* :ARGUMENT)
+                    message)
+      ($.std/assoc $.shell.kw/arg
+                   arg-symbol)))
+
+
+
 (defn db
 
   "Error map for a generic Etch error."

@@ -15,6 +15,9 @@
 ;;;;;;;;;;
 
 
+(def ^Keyword arg
+              ($.cell/keyword "arg"))
+
 (def ^Keyword code-read+
               ($.cell/keyword "code.read+"))
 
@@ -137,6 +140,9 @@
 
 (def ^Keyword sreq
               ($.cell/keyword "sreq"))
+
+(def ^Keyword state-load
+              ($.cell/keyword "state.load"))
 
 (def ^Keyword stream
               ($.cell/keyword "stream"))

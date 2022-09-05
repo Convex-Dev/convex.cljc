@@ -4,8 +4,7 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.data ACell
-                             AList)
+  (:import (convex.core.data AList)
            (java.io InputStreamReader
                     PushbackReader)
            (java.nio.charset StandardCharsets))
@@ -236,9 +235,9 @@
 
   [env]
 
-  (.get ($.cvm/env (env :convex.shell/ctx)
-                   addr-$-trx)
-        $.shell.sym/list*))
+  ($.std/get ($.cvm/env (env :convex.shell/ctx)
+                        addr-$-trx)
+             $.shell.sym/list*))
 
 
 
@@ -272,11 +271,11 @@
 
   "Prepends a single transaction to the current list under `$.trx/*list*`."
 
-  [env ^ACell trx]
+  [env trx]
 
   (def-trx+ env
-            (.cons (current-trx+ env)
-                   trx)))
+            ($.std/cons trx
+                        (current-trx+ env))))
 
 
 ;;;;;;;;;; Retrieving information from the context
