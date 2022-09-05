@@ -40,6 +40,9 @@
 (def ^Symbol $-code
              ($.cell/symbol "$.code"))
 
+(def ^Symbol $-db
+             ($.cell/symbol "$.db"))
+
 (def ^Symbol $-file
              ($.cell/symbol "$.file"))
 

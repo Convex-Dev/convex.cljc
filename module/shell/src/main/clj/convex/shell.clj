@@ -3,7 +3,7 @@
   "CONVEX SHELL
 
    This is a whole application. It is available as a library in case it needs to be embedded. Then, only [[-main]] is really
-   useful.
+   useful. It must be called only one at a time per thread otherwise Etch utilities may greatly misbehave.
 
    Executes each form as a transaction, moving from transaction to transaction.
 
@@ -26,8 +26,6 @@
    List of transactions pending for execution is accessible in the CVX execution environment under `$.trx/*list*`. This list
    can be modified by the user, allowing for powerful metaprogramming. Besides above-mentioned requests, this feature is used
    to implement another series of useful utilities such as exception catching."
-
-  ;; TODO. Improve reader error reporting when ANTLR gets stabilized.
 
   {:author "Adam Helinski"}
 

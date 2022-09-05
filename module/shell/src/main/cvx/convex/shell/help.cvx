@@ -406,6 +406,8 @@
                               "error handling, catching exceptions")
                      (account "$.code"
                               "code related utilities, such as parsing source as cells")
+                     (account "$.db"
+                              "using Etch, the fast immutable database for cells")
                      (account "$.file"
                               (str "reading/writing files, open file streams for "
                                    ($.term/bold)

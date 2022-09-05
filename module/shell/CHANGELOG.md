@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file.
 - Functions for disabling and enabling text styling with `$.term`
 - Report JVM exceptions in temporary files
 - Requests in `$.file` and `$.stream` for reading and writing text
+- Support for handling Etch instances
 
 ### Changed
 

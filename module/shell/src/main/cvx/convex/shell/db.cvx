@@ -1,0 +1,126 @@
+(call *registry*
+      (cns-update 'convex.shell.db
+                  *address*))
+
+
+(call *registry*
+      (register {:description ["Etch is the fast, immutable database for cells embedded in the Convex Shell."
+                               "It is the same database powering peers of the Convex network."
+                               "An instance can be opened explicitly using `!.open`."
+                               "Otherwise, a temporary file will be created whenever anything from this library is"
+                               "called for the first time."
+                               ""
+                               "Etch can be understood as a key-values store where keys are hashes of the cells they"
+                               "point to. Writing takes a cell and returns a hash while reading takes a hash and returns"
+                               "a cell."]
+                 :name        "Convex Shell API for using Etch"}))
+
+
+;;;;;;;;;; Lifecycle
+
+
+(defn !.flush
+
+  ^{:doc {:description ["Returns a request for flushing the current Etch instance."
+                        "Instances are flushed when the CVX Shell terminates but it is still a"
+                        "good idea flushing once in a while explicitly to ensure everything is"
+                        "persisted on disk."]
+          :examples    [{:code "($.db/!.flush)"}]
+          :signature   [{:params []}]}}
+
+  []
+
+  [:cvm.sreq :etch.flush])
+
+
+
+(defn !.open
+
+  ^{:doc {:description ["Returns a request for explicitly opening the Etch instance located at the given `path`."
+                        "File is created if it does not exist."]
+          :examples    [{:code "($.db/!.open \"path/to/file.etch\")"}]
+          :signature   [{:params [path]}]}}
+
+  [path]
+
+  (assert (str? path))
+  [:cvm.sreq :etch.open path])
+
+
+
+(defn !.path
+
+  ^{:doc {:description ["Returns a request for retrieving the path of the current Etch instance."
+                        "Filename will be available during the next transaction under `$/*result*`."]
+          :examples    [{:code "($.db/!.flush)"}]
+          :signature   [{:params []}]}}
+
+  []
+
+  [:cvm.sreq :etch.path])
+
+
+;;;;;;;;;; R/W
+
+
+(defn !.read
+  
+  ^{:doc {:description ["Returns a request for retrieving a cell from the current Etch instance by `hash`."
+                        "Result will be available during the next transaction under `$/*result*` (nil when not found)."]
+          :examples    [{:code "($.db/!.read 0x1fa0dd51b167d4cca60177d13d731c461eae9cdb4ecd75e1e8f2158251968c66)"}]
+          :signature   [{:params [hash]}]}}
+
+  [hash]
+
+  (assert (blob? hash)
+          (= (count hash)
+             32))
+  [:cvm.sreq :etch.read hash])
+
+
+
+(defn !.write
+
+  ^{:doc {:description ["Returns a request for writing the given `cell` to the current Etch instance."
+                        "The hash of that cell will be available during the next transaction under `$/*result*`."
+                        "If the hash is nil, it means the cell what not persisted."
+                        "This happens only with a few basic cells for optimization reasons."
+                        "Precisely, those that are so simple they are usually embedded in more complex values:"
+                        "  - Addresses"
+                        "  - Empty collections"
+                        "  - Primitives (booleans, bytes, doubles, longs)"
+                        "  - Symbolic (keywords and symbols)"]
+          :examples    [{:code "($.db/!.write [:my 'cell 42])"}]
+          :signature   [{:params [cell]}]}}
+
+  []
+
+  [:cvm.sreq :etch.write cell])
+
+
+
+(defn !.root-read
+
+  ^{:doc {:description ["Returns a request for reading the root cell of the current Etch instance."
+                        "The root is simply a unique place that does not require providing a hash."
+                        "Any cell can be written there using `!.root-write`."
+                        "Otherwise, behaves exactly like `!.read`."]
+          :examples    [{:code "($.db/!.root-read)"}]
+          :signature   [{:params []}]}}
+
+  []
+
+  [:cvm.sreq :etch.root-read])
+
+
+
+(defn !.root-write
+
+  ^{:doc {:description ["Behaves exactly like `!.write` but the given `cell` will be written at the root."
+                        "See `!.root-read`."]
+          :examples    [{:code "($.db/!.root-write [:my 'cell 42])"}]
+          :signature   [{:params [cell]}]}}
+
+  [cell]
+
+  [:cvm.sreq :etch.root-write cell])

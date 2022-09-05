@@ -101,6 +101,9 @@
                                    ;; No deps.
                                    [$.shell.sym/$-trx
                                     "convex/shell/trx.cvx"]
+                                   ;; No deps.
+                                   [$.shell.sym/$-db
+                                    "convex/shell/db.cvx"]
                                    ;; Requires `$.trx`
                                    [$.shell.sym/$-stream
                                     "convex/shell/stream.cvx"]
