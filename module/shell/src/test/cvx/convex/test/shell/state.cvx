@@ -1,0 +1,56 @@
+;;
+;;
+;; Testing `convex.shell.state`.
+;;
+;;
+
+
+;;;;;;;;;;
+
+
+(def T
+     $.test)
+
+
+;;;;;;;;;; Test suites
+
+
+(defn suite.main
+
+  ^{:doc {:description ["Loading a state."]}}
+
+  []
+
+  (T/group '((T/path.conj 'convex.shell.state)
+
+             (def a
+                  1)
+
+             (def s
+                  *state*)
+
+             (def b
+                  2)
+
+             ($.state/!.load s
+                             `(do
+                                (def c
+                                     ~(inc b))
+                                ($.trx/set (quote ~$.trx/*list*))))
+             (T/trx '(= a
+                        1)
+                    {:description "`a` is still present."})
+
+             (T/trx '(not (defined? b))
+                    {:description "`b` was not present before saving the state."})
+
+             (T/trx '(= c
+                        3)
+                    {:description "`c` is the result from executing the given transaction."}))))
+
+
+;;;
+
+
+(suite.main)
+(T/print "convex.shell.state")
