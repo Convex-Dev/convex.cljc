@@ -96,6 +96,12 @@
    :maestro/doc "Improves writing complex generative tests with `ext/clojure.test.check`."}
 
 
+  :ext/portal
+
+  {:extra-deps  {djblue/portal {:mvn/version "0.29.1"}}
+   :maestro/doc "Tool for data exploration"}
+
+
   :ext/slf4j-timbre
 
   {:extra-deps      {com.fzakaria/slf4j-timbre {:mvn/version "0.3.21"}}
@@ -137,6 +143,7 @@
                      :ext/clojure.java.classpath
                      :ext/clojure.tools.namespace
                      :ext/criterium
+                     :ext/portal
                      :module/dev]}
 
 

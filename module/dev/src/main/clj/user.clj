@@ -4,10 +4,27 @@
 
   (:require [clojure.java.classpath       :as classpath]
             [clojure.string               :as string]
-            [clojure.tools.namespace.find :as namespace.find]))
+            [clojure.tools.namespace.find :as namespace.find]
+            [portal.api                   :as portal]))
 
 
 ;;;;;;;;;;
+
+
+(let [d*portal (delay
+                 (add-tap portal/submit)
+                 nil)]
+  (defn portal
+  
+    "Opens a new browser tab with Portal (data exploration UI).
+     Anything sent to `tap>` will appear there."
+  
+    []
+  
+    @d*portal
+    (portal/open {:app    false
+                  :window "convex.cljc"})))
+
 
 
 (defn req-cvx
