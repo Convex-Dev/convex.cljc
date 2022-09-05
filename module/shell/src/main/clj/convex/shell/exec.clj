@@ -16,8 +16,6 @@
             [convex.shell.err       :as $.shell.err]
             [convex.shell.exec.fail :as $.shell.exec.fail]
             [convex.shell.kw        :as $.shell.kw]
-            [convex.shell.stream    :as $.shell.stream]
-            [convex.shell.sym       :as $.shell.sym]
             [convex.std             :as $.std]))
 
 

@@ -134,7 +134,10 @@
       (update :convex.shell.db/instance
               (fn [instance]
                 (or instance
-                    ($.db/current-set ($.db/open-tmp "convex-shell")))))
+                    ($.db/current-set ($.db/open (str (Files/createTempFile "convex-shell-"
+                                                                            ".etch"
+                                                                            (make-array FileAttribute
+                                                                                        0))))))))
       ($.shell.ctx/def-result (f))))
 
 
