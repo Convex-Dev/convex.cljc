@@ -52,13 +52,13 @@
 ;;;;;;;;;; Creating error maps
 
 
-(defn fatal
+(defn db
 
-  "Creates a `:FATAL` error map."
-  
+  "Error map for a generic Etch error."
+
   [message]
-  
-  ($.cell/error ($.cell/code-std* :FATAL)
+
+  ($.cell/error $.shell.kw/err-db
                 message))
 
 

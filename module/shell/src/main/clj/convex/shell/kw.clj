@@ -27,6 +27,9 @@
 (def ^Keyword dev-fatal
               ($.cell/keyword "dev.fatal"))
 
+(def ^Keyword err-db
+              ($.cell/keyword "DB"))
+
 (def ^Keyword err-fs
               ($.cell/keyword "FS"))
 

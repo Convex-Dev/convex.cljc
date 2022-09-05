@@ -11,7 +11,8 @@
            (convex.core.data.prim CVMLong)
            (convex.core.exceptions ParseException)
            (convex.core.lang Context)
-           (java.io File)
+           (java.io File
+                    IOException)
            (java.nio.file DirectoryNotEmptyException
                           Files)
            (java.nio.file.attribute FileAttribute))
@@ -130,15 +131,20 @@
 
   [env f]
 
-  (-> env
-      (update :convex.shell.db/instance
-              (fn [instance]
-                (or instance
-                    ($.db/current-set ($.db/open (str (Files/createTempFile "convex-shell-"
-                                                                            ".etch"
-                                                                            (make-array FileAttribute
-                                                                                        0))))))))
-      ($.shell.ctx/def-result (f))))
+  (let [env-2 (update env
+                      :convex.shell.db/instance
+                      (fn [instance]
+                        (or instance
+                            ($.db/current-set ($.db/open (str (Files/createTempFile "convex-shell-"
+                                                                                    ".etch"
+                                                                                    (make-array FileAttribute
+                                                                                                0))))))))]
+    (try
+      ($.shell.ctx/def-result env-2
+                              (f))
+      (catch IOException ex
+        ($.shell.exec.fail/err env
+                               ($.shell.err/db ($.cell/string (.getMessage ex))))))))
 
 
 
@@ -174,10 +180,8 @@
              (not= path
                    path-old))
       ($.shell.exec.fail/err env
-                             ($.shell.err/sreq ($.cell/code-std* :STATE)
-                                               ($.cell/string "Cannot open another database instance, one is already in use")
-                                               tuple))
-      (do
+                             ($.shell.err/db ($.cell/string "Cannot open another database instance, one is already in use")))
+      (try
         (when-not path-old
           (-> path
              ($.clj/string)
@@ -186,7 +190,11 @@
         (-> env
             (assoc :convex.shell.db/instance
                    path)
-            ($.shell.ctx/def-result path))))))
+            ($.shell.ctx/def-result path))
+        ;;
+        (catch IOException ex
+          ($.shell.exec.fail/err env
+                                 ($.shell.err/db ($.cell/string (.getMessage ex)))))))))
 
 
 
