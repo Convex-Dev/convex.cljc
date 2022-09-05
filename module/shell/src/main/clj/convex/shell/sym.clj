@@ -64,6 +64,9 @@
 (def ^Symbol $-repl
              ($.cell/symbol "$.repl"))
 
+(def ^Symbol $-state
+             ($.cell/symbol "$.state"))
+
 (def ^Symbol $-stream
              ($.cell/symbol "$.stream"))
 

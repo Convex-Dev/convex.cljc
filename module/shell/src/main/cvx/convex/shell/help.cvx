@@ -421,6 +421,8 @@
                               "process utilities, such as reading environment variables")
                      (account "$.repl"
                               "starting and stopping the REPL")
+                     (account "$.state"
+                              "advanced time traveling, utilities for loading a state")
                      (account "$.stream"
                               "reading/writing streams (currently files and STDIO)")
                      (account "$.term"

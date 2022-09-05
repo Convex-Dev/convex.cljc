@@ -1,0 +1,42 @@
+(call *registry*
+      (cns-update 'convex.shell.state
+                  *address*))
+
+
+(call *registry*
+      (register {:description ["Advanced capabilities for doing time travel, allowing to remember and restore"
+                               "the whole state at given points in time."
+                               "Notably useful for restoring a work session in combination with `$.db` utilities."]
+                 :name        "Time travel and state utilities for the Convex Shell"}))
+
+
+;;;;;;;;;;
+
+
+(defn !.load
+
+  ^{:doc {:description ["Returns a request for discarding the current state of the Convex Shell and loading the given one."
+                        "Available udner `*state*`, States are actually a special type of cell behaving like maps."
+                        "When using functions like `assoc` on them, regular maps are returned. Such values will not work"
+                        "with this request."
+                        ""
+                        "A common use case is saving the current state on disk with `$.db/!.root-write`, retrieving it in a later"
+                        "work session using `$.db/!.root-read`, and restoring it using this request."
+                        ""
+                        "A transaction can be submitted as second argument. It will be executed after loading the state."
+                        "It is commonly used for remembering information from state to state."]
+          :examples    [{:code "($.state/!.load *state*)"}
+                        {:code "($.state/!.load *state* `(def y ~(inc x)))"}]
+          :signature   [{:params [state]}
+                        {:params [state trx]}]}}
+
+  
+  ([state]
+
+   (!.load state
+           nil))
+
+
+  ([state trx]
+
+   [:cvm.sreq :state.load state trx]))
