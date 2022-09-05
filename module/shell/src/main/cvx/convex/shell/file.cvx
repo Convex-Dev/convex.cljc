@@ -101,6 +101,21 @@
 
 
 
+(defn !.txt.read
+
+
+  ^{:doc {:description ["Returns a request for reading the file as the given `path` as text."
+                        "String will be avaible during the next transaction under `$/*result*`."]
+          :examples    [{:code "($.file/!.txt.read \"path/to/file.txt\")"}]
+          :signature   [{:params [path]}]}}
+
+  [path]
+
+  ($.trx/precat `(($.file/!.stream.in ~path)
+                  ($.stream/!.txt.in $/*result*))))
+
+
+
 (defn !.write
 
   ^{:doc {:description ["Returns a request for writing `cell` to the Convex Lisp file located under `path`, in one go."

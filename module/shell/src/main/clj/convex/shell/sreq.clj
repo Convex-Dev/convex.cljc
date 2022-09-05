@@ -558,6 +558,19 @@
 
 (defmethod $.shell.exec/sreq
 
+  $.shell.kw/stream-txt-in
+
+  ;; Reads everything as text.
+
+  [env tuple]
+
+  ($.shell.stream/txt-in env
+                         (-stream tuple)))
+
+
+
+(defmethod $.shell.exec/sreq
+
   $.shell.kw/stream-txt-line
 
   ;; Reads a line of text.

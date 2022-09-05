@@ -165,7 +165,7 @@
 
 
 
-(defn suite.rw.txt
+(defn suite.txt.rw
 
   ^{:doc {:description "Tests the difference between printing strings as text or as cells."}}
 
@@ -195,6 +195,32 @@
              (T/trx '(= '(test)
                         $/*result*)
                     {:description "Written as text"}))))
+
+                    
+
+(defn suite.txt.in
+
+
+  ^{:doc {:description "Reading a wnole stream as text."}}
+
+  []
+
+  (T/group '((T/path.conj 'txt.in)
+
+             (def txt
+                  "foo\nbar")
+
+             ($.file/!.tmp)
+             (def path
+                  $/*result*)
+
+             ($.file/!.txt.write path
+                                 txt)
+
+             ($.file/!.txt.read path)
+             (T/trx '(= txt
+                        $/*result*)
+                    {:description "Everything read at once as text"}))))
 
 
 
@@ -278,7 +304,7 @@
              (suite.delete)
              (suite.line)
              (suite.rw)
-             (suite.rw.txt)
+             (suite.txt.in)
              (suite.stream))))
 
 

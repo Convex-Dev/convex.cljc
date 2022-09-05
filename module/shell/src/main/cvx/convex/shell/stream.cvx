@@ -309,6 +309,28 @@
 
 
 
+(defn !.txt.in
+
+  ^{:doc {:description ["Returns a request for reading the rest of the given input `stream` as text."
+                        "Reads from `*in*` by default."
+                        "String will be available during the next transaction under `$/*result*`."
+                        "Stream is closed automatically."]
+          :examples    [{:code "($.stream/!.txt.in 42)"}]
+          :signature   [{:params []}
+                        {:params [stream]}]}}
+
+
+  ([]
+
+   (!.txt.in *in*))
+
+
+  ([stream]
+
+   [:cvm.sreq :stream.txt.in (-stream stream)]))
+
+
+
 (defn !.txt.line
 
   ^{:doc {:description ["Returns a request for reading a line from the given input `stream` as text."

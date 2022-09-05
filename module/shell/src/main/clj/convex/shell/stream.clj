@@ -12,7 +12,8 @@
 
   (:import (convex.core.exceptions ParseException)
            (java.io BufferedReader)
-           (java.lang AutoCloseable))
+           (java.lang AutoCloseable)
+           (java.util.stream Collectors))
   (:refer-clojure :exclude [flush])
   (:require [convex.cell            :as $.cell]
             [convex.read            :as $.read]
@@ -169,17 +170,26 @@
 
 (defn close
 
-  "Closes the requested stream."
+  "Closes the requested stream.
+   A result to propagate may be provided."
 
-  [env id]
 
-  (-> env
-      (operation id
-                 #{:close}
-                 (fn [^AutoCloseable stream]
-                   (.close stream)
-                   nil))
-      (-dissoc id)))
+  ([env id]
+
+   (close env
+          id
+          nil))
+
+
+  ([env id result]
+
+   (-> env
+       (operation id
+                  #{:close}
+                  (fn [^AutoCloseable stream]
+                    (.close stream)
+                    result))
+       (-dissoc id))))
 
 
 
@@ -286,6 +296,26 @@
           id
           cell
           -str-cvx))
+
+
+
+(defn txt-in
+
+  "Reads everything from the requested stream as text."
+
+  [env id]
+
+  (let [env-2 (operation env
+                         id
+                         #{:read}
+                         (fn [^BufferedReader stream]
+                           (-> stream
+                               (.lines)
+                               (.collect (Collectors/joining (System/lineSeparator)))
+                               ($.cell/string))))]
+    (close env-2
+           id
+           ($.shell.ctx/result env-2))))
 
 
 
