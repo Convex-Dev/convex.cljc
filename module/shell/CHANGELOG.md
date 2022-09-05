@@ -8,15 +8,26 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Basic filesystem utilities in `$.file`
+    - `!.delete` for deleting files
+    - `!.tmp` for creating temporary files
 - Functions for disabling and enabling text styling with `$.term`
+- Report JVM exceptions in temporary files
+- Requests in `$.file` and `$.stream` for reading and writing text
 
 ### Changed
 
-- Rename module from Convex Runner to Convex Shell
-- Embed `:module/cvm` ; upgrade to Convex 0.7.6
 - CVX requests symbols are now prepended with `!.`
+- Embed `:module/cvm` ; upgrade to Convex 0.7.6
+- Reading a stream to completion always closes it automatically
+- Rename module from Convex Runner to Convex Shell
 
 ### Fixed
+
+- Improve REPL behavior
+    - More detailed execution error reporting
+    - Better handling of the input stream
+- Top-level strings being ouputted as symbols by `$.file` and `$.stream`
 
 ### Removed
 
