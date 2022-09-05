@@ -46,6 +46,7 @@
 (exec "shell/account")
 (exec "shell/catch")
 (exec "shell/code")
+(exec "shell/db")
 (exec "shell/file")
 (exec "shell/log")
 (exec "shell/perf")

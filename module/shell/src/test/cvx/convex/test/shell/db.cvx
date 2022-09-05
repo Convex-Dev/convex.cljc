@@ -1,0 +1,72 @@
+;;
+;;
+;; Testing `convex.shell.db`.
+;;
+;;
+
+
+;;;;;;;;;;
+
+
+(def T
+     $.test)
+
+
+;;; Test suites
+
+
+(defn suite.main
+
+  ^{:doc {:description "Etch operations."}}
+
+  []
+
+  (T/group '((T/path.conj 'convex.shell.db)
+
+             ($.file/!.tmp)
+             (def path
+                  $/*result*)
+
+             ($.db/!.open path)
+             nil
+
+             ($.db/!.path)
+             (T/trx '(= $/*result*
+                        path)
+                    {:description "Path matches the open instance."})
+
+             (def cell
+                  [:this 'is \a "cell" 42 {:key #{42.42}}])
+
+             (def cell-hash
+                  (hash (encoding cell)))
+
+             ($.db/!.write cell)
+             (T/trx '(= $/*result*
+                        cell-hash))
+
+             ($.db/!.read cell-hash)           
+             (T/trx '(= $/*result*
+                        cell)
+                    {:description "Read by hash"})
+
+             (def cell-2
+                  (conj cell
+                        :root))
+
+             ($.db/!.root-write cell-2)
+             (T/trx '(= $/*result*
+                        (hash (encoding cell-2)))
+                    {:description "Root write"})
+
+             ($.db/!.root-read)
+             (T/trx '(= $/*result*
+                        cell-2)
+                    {:description "Root read"}))))
+
+
+;;;
+
+
+(suite.main)
+(T/print "convex.shell.db")

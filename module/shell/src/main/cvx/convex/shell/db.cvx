@@ -93,7 +93,7 @@
           :examples    [{:code "($.db/!.write [:my 'cell 42])"}]
           :signature   [{:params [cell]}]}}
 
-  []
+  [cell]
 
   [:cvm.sreq :etch.write cell])
 
