@@ -246,7 +246,7 @@
 
   [^ACell cell]
 
-  (let [hash (write cell)]
+  (when-some [hash (write cell)]
     (.setRootHash (current)
                   hash)
     hash))
