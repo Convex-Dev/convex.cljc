@@ -31,13 +31,14 @@
 
   (:gen-class)
   (:refer-clojure :exclude [eval])
-  (:require [clojure.string]
+  (:require [clojure.string         :as string]
             [convex.cell            :as $.cell]
             [convex.cvm             :as $.cvm]
             [convex.shell.ctx       :as $.shell.ctx]
             [convex.shell.exec      :as $.shell.exec]
             [convex.shell.exec.fail :as $.shell.exec.fail]
             [convex.shell.io        :as $.shell.io]
+            [convex.shell.log]
             [convex.shell.sreq]))
 
 
@@ -107,7 +108,7 @@
 
   (try
     (eval (if (seq trx+)
-            (clojure.string/join " "
+            (string/join " "
                                  trx+)
             "($.repl/!.start {:intro? true})"))
     (catch Throwable ex
