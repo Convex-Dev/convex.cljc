@@ -17,6 +17,7 @@
             [convex.cell      :as $.cell]
             [convex.cvm       :as $.cvm]
             [convex.read      :as $.read]
+            [convex.shell.err :as $.shell.err]
             [convex.shell.sym :as $.shell.sym]
             [convex.std       :as $.std]))
 
@@ -61,36 +62,34 @@
   (reduce (fn [acc [sym path]]
             (if-some [resource (java.io/resource path)]
               ;; CVX file on classpath.
-              (try
-                ;;
-                (let [ctx-2 ($.cvm/expand-compile
-                              ($.cvm/fork ctx-genesis)
-                              (let [cell ($.cell/list (cons ($.cell/* do)
+              (let [ctx-2 ($.cvm/expand-compile
+                            ($.cvm/fork ctx-genesis)
+                            (let [cell ($.cell/list (cons ($.cell/* do)
+                                                          (try
                                                             (-> resource
                                                                 (.openStream)
                                                                 (InputStreamReader. StandardCharsets/UTF_8)
-                                                                ($.read/stream))))]
-                                (if sym
-                                  ($.cell/* (def ~sym
-                                                 (deploy (quote ~cell))))
-                                  cell)))
-                      ex    ($.cvm/exception ctx-2)]
-                  (when ex
-                    ;; TODO. Is caught by try-catch below.
-                    (throw (ex-info "CVM exception while deploying prelude CVX file"
-                                    {::base :eval
-                                     ::ex   ex
-                                     ::path path})))
-                  (conj acc
-                        ($.cvm/result ctx-2)))
-                ;;
-                (catch Throwable ex
-                  (throw (ex-info "While reading prelude CVX file"
-                                  {::base :read
+                                                                ($.read/stream))
+                                                            (catch Throwable ex
+                                                              (throw (ex-info "While reading CVX library"
+                                                                              {::ex   ex
+                                                                               ::path path}))))))]
+                              (if sym
+                                ($.cell/* (def ~sym
+                                               (deploy (quote ~cell))))
+                                cell)))
+                    ex    ($.cvm/exception ctx-2)]
+                (when ex
+                  ;; TODO. Is caught by try-catch below.
+                  (throw (ex-info "CVM exception while compiling CVX library"
+                                  {::base :eval
                                    ::ex   ex
-                                   ::path path}))))
+                                   ::path path})))
+                (conj acc
+                      [path
+                       ($.cvm/result ctx-2)]))
               ;; CVX file not on classpath.
-              (throw (ex-info "Mandatory CVX file is not on classpath"
+              (throw (ex-info "Mandatory CVX library is not on classpath"
                               {::base :not-found
                                ::path path}))))
           ;;
@@ -159,23 +158,28 @@
 
   [ctx]
 
-  (let [ctx-2 (reduce (fn [ctx-2 compiled-lib]
+  (let [ctx-2 (reduce (fn [ctx-2 [path compiled-lib]]
                         (let [ctx-3 ($.cvm/exec ctx-2
-                                                compiled-lib)]
-                          ;; TODO. Handle CVM exceptions
-                          ($.cvm/juice-refill ctx-3)))
+                                                compiled-lib)
+                              ex    ($.cvm/exception ctx-3)]
+                          (if ex
+                            (reduced {::err {:cvm-ex ($.shell.err/mappify ex)
+                                             :path   path}})
+                            ($.cvm/juice-refill ctx-3))))
 
                       ctx
                       compiled-lib+)]
-    ($.cvm/def ctx-2
-               ($.cvm/look-up ctx-2
-                              $.shell.sym/$)
-               (let [[version
-                      version-convex] (-version+*)]
-                 {$.shell.sym/line           ($.cell/string (System/lineSeparator))
-                  $.shell.sym/version        ($.cell/string version)
-                  $.shell.sym/version-convex ($.cell/string (or version-convex
-                                                                "Local artifact"))}))))
+    (if (::err ctx-2)
+      ctx-2
+      ($.cvm/def ctx-2
+                 ($.cvm/look-up ctx-2
+                                $.shell.sym/$)
+                 (let [[version
+                        version-convex] (-version+*)]
+                   {$.shell.sym/line           ($.cell/string (System/lineSeparator))
+                    $.shell.sym/version        ($.cell/string version)
+                    $.shell.sym/version-convex ($.cell/string (or version-convex
+                                                                  "Local artifact"))})))))
 
 
 
@@ -183,19 +187,13 @@
 
   "Base CVM context for the CVX shell."
 
-  (deploy-lib+ ($.cvm/fork ctx-genesis)))
-
-
-
-(defn init
-
-  "Deploys CVX Shell libraries on the `env` context."
-
-  [env]
-
-  (update env
-          :convex.shell/ctx
-          deploy-lib+))
+  (let [x   (deploy-lib+ ($.cvm/fork ctx-genesis))
+        err (::err x)]
+    (when err
+      (throw (ex-info "CVM exception while deploying library in the base context"
+                      {:convex.shell.cvm/exception (err :cvm-ex)
+                       :convex.shell.lib/path      (err :path)})))
+    x))
 
 
 ;;;;;;;;;; Defining symbols in the environment's context
