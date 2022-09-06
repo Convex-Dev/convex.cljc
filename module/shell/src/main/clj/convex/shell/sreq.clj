@@ -479,7 +479,9 @@
   [env ^AVector tuple]
 
   (let [state (.get tuple
-                    2)]
+                    2)
+        trx   (.get tuple
+                    3)]
     (if (instance? State
                    state)
       (-> env
@@ -488,8 +490,9 @@
                     ($.cvm/state-set ctx
                                      (.get tuple
                                            2))))
-          ($.shell.ctx/def-trx+ ($.cell/* (~(.get tuple
-                                                  3))))
+          (cond->
+            tuple
+            ($.shell.ctx/prepend-trx trx))
           ($.shell.ctx/def-result nil))
       ($.shell.exec.fail/err env
                              ($.shell.err/arg ($.cell/string "Argument is not a valid CVM state")
