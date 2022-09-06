@@ -18,6 +18,9 @@
 (def ^Keyword arg
               ($.cell/keyword "arg"))
 
+(def ^Keyword cause
+              ($.cell/keyword "cause"))
+
 (def ^Keyword code-read+
               ($.cell/keyword "code.read+"))
 
@@ -101,6 +104,9 @@
 
 (def ^Keyword juice-exec
               ($.cell/keyword "juice.exec"))
+
+(def ^Keyword library-path
+              ($.cell/keyword "library-path"))
 
 (def ^Keyword log-clear
               ($.cell/keyword "log.clear"))

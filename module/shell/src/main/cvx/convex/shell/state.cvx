@@ -81,5 +81,7 @@
   ([state trx]
 
    (!.load state
-           `($.trx/set (quote ~(cons trx
-                                     $.trx/*list*))))))
+           `($.trx/set (quote ~(if trx
+                                 (cons trx
+                                       $.trx/*list*)
+                                 $.trx/*list*))))))

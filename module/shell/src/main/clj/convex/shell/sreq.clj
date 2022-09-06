@@ -475,6 +475,12 @@
 
   ;; Restores the given state and executes the given transaction afterwards.
   ;; This transaction is mostly useful for rememberings from state to state.
+  ;;
+  ;; There are quite a few ways to guess if a state is "shell-ready" and have access
+  ;; to CVX Shell libraries (things will go horribly wrong if it does not).
+  ;;
+  ;; However, checking should be efficient. Hence, the code below is minimalistic.
+  ;; We cannot prevent a user from screwing things on purpose anyways.
 
   [env ^AVector tuple]
 
@@ -484,16 +490,38 @@
                     3)]
     (if (instance? State
                    state)
-      (-> env
-          (update :convex.shell/ctx
-                  (fn [ctx]
-                    ($.cvm/state-set ctx
-                                     (.get tuple
-                                           2))))
-          (cond->
-            tuple
-            ($.shell.ctx/prepend-trx trx))
-          ($.shell.ctx/def-result nil))
+      ;; Given argument is a proper state.
+      (let [ctx   (env :convex.shell/ctx)
+            ctx-2 (-> ctx
+                      ($.cvm/fork)
+                      ($.cvm/state-set (.get tuple
+                                             2)))
+            $     ($.cvm/look-up ctx-2
+                                 $.shell.sym/$)
+            ok    (fn [env ctx]
+                    (-> env
+                        (assoc :convex.shell/ctx
+                               ctx)
+                        (cond->
+                          trx
+                          ($.shell.ctx/prepend-trx trx))
+                        ($.shell.ctx/def-result nil)))]
+        (if (and $
+                 ($.cvm/look-up ctx-2
+                                $
+                                $.shell.sym/version))
+          (ok env
+              ctx-2)
+          (let [x   ($.shell.ctx/deploy-lib+ ctx-2)
+                err (::$.shell.ctx/err x)]
+            (if err
+              ($.shell.exec.fail/err env
+                                     ($.shell.err/state-load ($.cell/string (err :path))
+                                                             ($.cell/string "Reverting state, cannot deploy shell library on new one")
+                                                             (err :cvm-exception)))
+              (ok env
+                  x)))))
+      ;; Given argument is not a state, cannot load it.
       ($.shell.exec.fail/err env
                              ($.shell.err/arg ($.cell/string "Argument is not a valid CVM state")
                                               ($.cell/* state))))))

@@ -151,6 +151,32 @@
                     id-stream))))
 
 
+
+(defn state
+
+  "Error map for a state exception."
+
+  [message]
+
+  ($.cell/error ($.cell/code-std* :STATE)
+                message))
+
+
+
+(defn state-load
+
+  "Error map for when library deployment fails when loading a new state."
+
+  [library-path message ex]
+
+  (-> (state message)
+      ($.std/assoc $.shell.kw/cause
+                   ex)
+      ($.std/assoc $.shell.kw/library-path 
+                   library-path)))
+
+
+
 (defn sreq
 
   "Error map describing an error that occured when performing an operation for a request."
