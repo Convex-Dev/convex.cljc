@@ -103,7 +103,7 @@
                                    ;; No deps.
                                    [$.shell.sym/$-db
                                     "convex/shell/db.cvx"]
-                                   ;; No deps.
+                                   ;; Requires `$.trx`.
                                    [$.shell.sym/$-state
                                     "convex/shell/state.cvx"]
                                    ;; Requires `$.trx`

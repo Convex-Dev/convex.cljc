@@ -10,13 +10,24 @@
                  :name        "Time travel and state utilities for the Convex Shell"}))
 
 
-;;;;;;;;;;
+;;;;;;;;;; Private
+
+
+(def $.trx
+
+  ^{:private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.shell.trx)))
+
+
+;;;;;;;;;; Library
 
 
 (defn !.load
 
   ^{:doc {:description ["Returns a request for discarding the current state of the Convex Shell and loading the given one."
-                        "Available udner `*state*`, States are actually a special type of cell behaving like maps."
+                        "Available under `*state*`, states are actually a special type of cell behaving like maps."
                         "When using functions like `assoc` on them, regular maps are returned. Such values will not work"
                         "with this request."
                         ""
@@ -40,3 +51,35 @@
   ([state trx]
 
    [:cvm.sreq :state.load state trx]))
+
+
+
+
+(defn !.load-continue
+
+  ^{:doc {:description ["Like `!.load` but the current list of transactions will replace the list of transactions"
+                        "of the loaded state."
+                        "This is what is often needed. Remember that transactions to execute are stored in the"
+                        "`$.trx` library, hence in an account that is part of the state."
+                        "That means that loading a state without restoring current transactions will result in the"
+                        "execution of transactions stored on the loaded state as opposed to the old state."
+                        ""
+                        "Note that this function simply reuses `!.load`. Users may imagine many different variants"
+                        "as to what should happen to transactions."]
+          :examples    [{:code "($.state/!.load-continue *state*)"}
+                        {:code "($.state/!.load-continue *state* `(def y ~(inc x)))"}]
+          :signature   [{:params [state]}
+                        {:params [state trx]}]}}
+
+  
+  ([state]
+
+   (!.load-continue state
+                    nil))
+
+
+  ([state trx]
+
+   (!.load state
+           `($.trx/set (quote ~(cons trx
+                                     $.trx/*list*))))))

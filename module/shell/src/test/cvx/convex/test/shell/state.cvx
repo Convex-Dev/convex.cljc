@@ -32,11 +32,10 @@
              (def b
                   2)
 
-             ($.state/!.load s
-                             `(do
-                                (def c
-                                     ~(inc b))
-                                ($.trx/set (quote ~$.trx/*list*))))
+             ($.state/!.load-continue s
+                                      `(def c
+                                            ~(inc b)))
+
              (T/trx '(= a
                         1)
                     {:description "`a` is still present."})

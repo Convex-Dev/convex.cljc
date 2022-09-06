@@ -492,7 +492,7 @@
                                                   3))))
           ($.shell.ctx/def-result nil))
       ($.shell.exec.fail/err env
-                             ($.shell.err/arg ($.cell/string "Argument is not a valid CVM state: did you perhaps modify it?")
+                             ($.shell.err/arg ($.cell/string "Argument is not a valid CVM state")
                                               ($.cell/* state))))))
 
 
