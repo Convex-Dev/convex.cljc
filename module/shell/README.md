@@ -59,7 +59,9 @@ For instance, on Ubuntu:
 
 Start a comfortable REPL:
 
-    rlwrap cvx
+    rlwrap -c cvx
+
+Note: `-c` argument provides filename completion on tab.
 
 
 ## Build
