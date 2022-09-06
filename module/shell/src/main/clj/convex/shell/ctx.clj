@@ -1,6 +1,10 @@
 (ns convex.shell.ctx
 
-  "Altering and quering informations about the CVM context attached to an env."
+  "Altering and quering informations about the CVM context attached to an env.
+  
+   All CVX Shell libraries are pre-compiled in advance and a base context is defined in a top-level
+   form as well. This significantly improves the start-up time of native images since all of those
+   are precomputed at build time instead of run time (~4x improvement)."
 
   {:author "Adam Helinski"}
 
@@ -15,6 +19,9 @@
             [convex.read      :as $.read]
             [convex.shell.sym :as $.shell.sym]
             [convex.std       :as $.std]))
+
+
+(declare lib-address)
 
 
 ;;;;;;;;;; Preparing a base context, loading libraries
@@ -39,145 +46,156 @@
 
 
 
-(let [{:keys [ctx
-              sym->addr]} (reduce (fn [acc [sym path]]
-                                    (if-some [resource (java.io/resource path)]
-                                      (try
+(def ctx-genesis
 
-                                        (let [ctx-2 ($.cvm/eval (acc :ctx)
-                                                                (let [cell ($.cell/list (cons ($.cell/* do)
-                                                                                              (-> resource
-                                                                                                  (.openStream)
-                                                                                                  (InputStreamReader. StandardCharsets/UTF_8)
-                                                                                                  ($.read/stream))))]
-                                                                  (if sym
-                                                                    ($.cell/* (def ~sym
-                                                                                   (deploy (quote ~cell))))
-                                                                    cell)))
-                                              ex    ($.cvm/exception ctx-2)]
-                                          (when ex
-                                            (throw (ex-info "While deploying prelude CVX file"
-                                                            {::base :eval
-                                                             ::ex   ex
-                                                             ::path path})))
-                                          (-> acc
-                                              (assoc :ctx
-                                                     ($.cvm/juice-refill ctx-2))
-                                              (cond->
-                                                sym
-                                                (assoc-in [:sym->addr
-                                                           sym]
-                                                          ($.cvm/result ctx-2)))))
-
-                                        (catch Throwable ex
-                                          (throw (ex-info "While reading prelude CVX file"
-                                                          {::base :read
-                                                           ::ex   ex
-                                                           ::path path}))))
-                                      (throw (ex-info "Mandatory CVX file is not on classpath"
-                                                      {::base :not-found
-                                                       ::path path}))))
-                                  {:ctx       ($.cvm/ctx)
-                                   :sym->addr {}}
-                                  [;; Not a library.
-                                   [nil
-                                    "convex/shell/self.cvx"]
-                                   ;; No deps.
-                                   [$.shell.sym/$-account
-                                    "convex/shell/account.cvx"]
-                                   ;; No deps.
-                                   [$.shell.sym/$
-                                    "convex/shell.cvx"]
-                                   ;; No deps.
-                                   [$.shell.sym/$-log
-                                    "convex/shell/log.cvx"]
-                                   ;; No deps.
-                                   [$.shell.sym/$-perf
-                                    "convex/shell/perf.cvx"]
-                                   ;; No deps.
-                                   [$.shell.sym/$-process
-                                    "convex/shell/process.cvx"]
-                                   ;; No deps.
-                                   [$.shell.sym/$-trx
-                                    "convex/shell/trx.cvx"]
-                                   ;; No deps.
-                                   [$.shell.sym/$-db
-                                    "convex/shell/db.cvx"]
-                                   ;; Requires `$.trx`.
-                                   [$.shell.sym/$-state
-                                    "convex/shell/state.cvx"]
-                                   ;; Requires `$.trx`
-                                   [$.shell.sym/$-stream
-                                    "convex/shell/stream.cvx"]
-                                   ;; Requires `$` + `$.stream`.
-                                   [$.shell.sym/$-term
-                                    "convex/shell/term.cvx"]
-                                   ;; Requires `$` + `$.stream` + `$.trx`.
-                                   [$.shell.sym/$-catch
-                                    "convex/shell/catch.cvx"]
-                                   ;; Requires `$.trx`.
-                                   [$.shell.sym/$-code
-                                    "convex/shell/code.cvx"]
-                                   ;; Requires `$.trx`.
-                                   [$.shell.sym/$-file
-                                    "convex/shell/file.cvx"]
-                                   ;; Requires `$` + `$.stream` + `$.term` + `$.trx`
-                                   [$.shell.sym/$-help
-                                    "convex/shell/help.cvx"]
-                                   ;; Requires `$` + `$.catch` + `$.stream` + `$.term` + `$.trx`.
-                                   [$.shell.sym/$-repl
-                                    "convex/shell/repl.cvx"]
-                                   ;; Requires `$.trx`.
-                                   [$.shell.sym/$-time
-                                    "convex/shell/time.cvx"]
-                                   ;; Requires `$` + `$.catch` + `$.process` + `$.term` + `$.time` + `$.trx`
-                                   [$.shell.sym/$-test
-                                    "convex/shell/test.cvx"]
-                                   ])]
-
-  (def addr-$
-
-    "Address of the `convex.shell` account in [[base]]."
-
-    (sym->addr $.shell.sym/$))
+  "Genesis state with default Convex libraries."
+  
+  ($.cvm/juice-refill ($.cvm/ctx)))
 
 
-  (def addr-$-repl
 
-    "Address of the `convex.shell.repl` account in [[base]]."
+(def compiled-lib+
 
-    (sym->addr $.shell.sym/$-repl))
+  "Pre-compiled CVX Shell libraries."
+
+  (reduce (fn [acc [sym path]]
+            (if-some [resource (java.io/resource path)]
+              ;; CVX file on classpath.
+              (try
+                ;;
+                (let [ctx-2 ($.cvm/expand-compile
+                              ($.cvm/fork ctx-genesis)
+                              (let [cell ($.cell/list (cons ($.cell/* do)
+                                                            (-> resource
+                                                                (.openStream)
+                                                                (InputStreamReader. StandardCharsets/UTF_8)
+                                                                ($.read/stream))))]
+                                (if sym
+                                  ($.cell/* (def ~sym
+                                                 (deploy (quote ~cell))))
+                                  cell)))
+                      ex    ($.cvm/exception ctx-2)]
+                  (when ex
+                    ;; TODO. Is caught by try-catch below.
+                    (throw (ex-info "CVM exception while deploying prelude CVX file"
+                                    {::base :eval
+                                     ::ex   ex
+                                     ::path path})))
+                  (conj acc
+                        ($.cvm/result ctx-2)))
+                ;;
+                (catch Throwable ex
+                  (throw (ex-info "While reading prelude CVX file"
+                                  {::base :read
+                                   ::ex   ex
+                                   ::path path}))))
+              ;; CVX file not on classpath.
+              (throw (ex-info "Mandatory CVX file is not on classpath"
+                              {::base :not-found
+                               ::path path}))))
+          ;;
+          []
+          ;;
+          [;; Not a library but points to other libraries.
+           [nil
+            "convex/shell/self.cvx"]
+           ;; No deps.
+           [$.shell.sym/$-account
+            "convex/shell/account.cvx"]
+           ;; No deps.
+           [$.shell.sym/$
+            "convex/shell.cvx"]
+           ;; No deps.
+           [$.shell.sym/$-log
+            "convex/shell/log.cvx"]
+           ;; No deps.
+           [$.shell.sym/$-perf
+            "convex/shell/perf.cvx"]
+           ;; No deps.
+           [$.shell.sym/$-process
+            "convex/shell/process.cvx"]
+           ;; No deps.
+           [$.shell.sym/$-trx
+            "convex/shell/trx.cvx"]
+           ;; No deps.
+           [$.shell.sym/$-db
+            "convex/shell/db.cvx"]
+           ;; Requires `$.trx`.
+           [$.shell.sym/$-state
+            "convex/shell/state.cvx"]
+           ;; Requires `$.trx`
+           [$.shell.sym/$-stream
+            "convex/shell/stream.cvx"]
+           ;; Requires `$` + `$.stream`.
+           [$.shell.sym/$-term
+            "convex/shell/term.cvx"]
+           ;; Requires `$` + `$.stream` + `$.trx`.
+           [$.shell.sym/$-catch
+            "convex/shell/catch.cvx"]
+           ;; Requires `$.trx`.
+           [$.shell.sym/$-code
+            "convex/shell/code.cvx"]
+           ;; Requires `$.trx`.
+           [$.shell.sym/$-file
+            "convex/shell/file.cvx"]
+           ;; Requires `$` + `$.stream` + `$.term` + `$.trx`
+           [$.shell.sym/$-help
+            "convex/shell/help.cvx"]
+           ;; Requires `$` + `$.catch` + `$.stream` + `$.term` + `$.trx`.
+           [$.shell.sym/$-repl
+            "convex/shell/repl.cvx"]
+           ;; Requires `$.trx`.
+           [$.shell.sym/$-time
+            "convex/shell/time.cvx"]
+           ;; Requires `$` + `$.catch` + `$.process` + `$.term` + `$.time` + `$.trx`
+           [$.shell.sym/$-test
+            "convex/shell/test.cvx"]]))
 
 
-  (def addr-$-stream
 
-    "Address of the `convex.shell.stream` account in [[base]]."
+(defn deploy-lib+
+  
+  "Deploys [[compiled-lib+]] on the given CVM `ctx`."
 
-    (sym->addr $.shell.sym/$-stream))
+  [ctx]
+
+  (let [ctx-2 (reduce (fn [ctx-2 compiled-lib]
+                        (let [ctx-3 ($.cvm/exec ctx-2
+                                                compiled-lib)]
+                          ;; TODO. Handle CVM exceptions
+                          ($.cvm/juice-refill ctx-3)))
+
+                      ctx
+                      compiled-lib+)]
+    ($.cvm/def ctx-2
+               ($.cvm/look-up ctx-2
+                              $.shell.sym/$)
+               (let [[version
+                      version-convex] (-version+*)]
+                 {$.shell.sym/line           ($.cell/string (System/lineSeparator))
+                  $.shell.sym/version        ($.cell/string version)
+                  $.shell.sym/version-convex ($.cell/string (or version-convex
+                                                                "Local artifact"))}))))
 
 
-  (def addr-$-trx
 
-    "Address of the `convex.shell.trx` account in [[base]]."
+(def ctx-base
 
-    (sym->addr $.shell.sym/$-trx))
+  "Base CVM context for the CVX shell."
+
+  (deploy-lib+ ($.cvm/fork ctx-genesis)))
 
 
-  (def base
 
-    "Base context used by default when executing transactions.
-    
-     Interns all the CVX Shell libraries."
+(defn init
 
-    (-> ctx
-        ($.cvm/def sym->addr)
-        ($.cvm/def addr-$
-                   (let [[version
-                          version-convex] (-version+*)]
-                     {$.shell.sym/line           ($.cell/string (System/lineSeparator))
-                      $.shell.sym/version        ($.cell/string version)
-                      $.shell.sym/version-convex ($.cell/string (or version-convex
-                                                                    "Local artifact"))})))))
+  "Deploys CVX Shell libraries on the `env` context."
+
+  [env]
+
+  (update env
+          :convex.shell/ctx
+          deploy-lib+))
 
 
 ;;;;;;;;;; Defining symbols in the environment's context
@@ -209,7 +227,8 @@
           :convex.shell/ctx
           (fn [ctx]
             ($.cvm/def ctx
-                       addr-$
+                       (lib-address env
+                                    $.shell.sym/$)
                        {$.shell.sym/result* result}))))
 
 
@@ -224,7 +243,8 @@
           :convex.shell/ctx
           (fn [ctx]
             ($.cvm/def ctx
-                       addr-$-trx
+                       (lib-address env
+                                    $.shell.sym/$-trx)
                        {$.shell.sym/list* trx+}))))
 
 
@@ -240,7 +260,8 @@
   [env]
 
   ($.std/get ($.cvm/env (env :convex.shell/ctx)
-                        addr-$-trx)
+                        (lib-address env
+                                     $.shell.sym/$-trx))
              $.shell.sym/list*))
 
 
@@ -293,9 +314,21 @@
 
   (-> env
       (:convex.shell/ctx)
-      ($.cvm/look-up addr-$-repl
+      ($.cvm/look-up (lib-address env
+                                  $.shell.sym/$-repl)
                      $.shell.sym/active?*)
       ($.std/true?)))
+
+
+
+(defn lib-address
+
+  "Retrieves the address of a shell library by symbol."
+
+  [env sym-lib]
+
+  (-> (env :convex.shell/ctx)
+      ($.cvm/look-up sym-lib)))
 
 
 
@@ -307,7 +340,8 @@
 
   (-> env
       (:convex.shell/ctx)
-      ($.cvm/look-up addr-$
+      ($.cvm/look-up (lib-address env
+                                  $.shell.sym/$)
                      $.shell.sym/result*)))
 
 

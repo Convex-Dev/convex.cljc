@@ -33,7 +33,6 @@
   (:refer-clojure :exclude [eval])
   (:require [clojure.string         :as string]
             [convex.cell            :as $.cell]
-            [convex.cvm             :as $.cvm]
             [convex.shell.ctx       :as $.shell.ctx]
             [convex.shell.exec      :as $.shell.exec]
             [convex.shell.exec.fail :as $.shell.exec.fail]
@@ -56,14 +55,12 @@
 
   [env]
 
-  (-> env
-      (assoc :convex.shell/stream+  {0 $.shell.io/stdin-txt
-                                     1 $.shell.io/stdout-txt
-                                     2 $.shell.io/stderr-txt}
-             :convex.shell.stream/id 2)
-      (update :convex.shell/ctx
-              #(or %
-                   ($.cvm/fork $.shell.ctx/base)))))
+  (assoc env
+         :convex.shell/ctx      $.shell.ctx/ctx-base
+         :convex.shell/stream+  {0 $.shell.io/stdin-txt
+                                 1 $.shell.io/stdout-txt
+                                 2 $.shell.io/stderr-txt}
+         :convex.shell.stream/id 2))
 
 
 ;;;;;;;;;; Evaluating a given source string

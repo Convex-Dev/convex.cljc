@@ -714,5 +714,6 @@
                 '())
           (-> (env :convex.shell/ctx)
               ($.cvm/fork)
-              ($.cvm/def $.shell.ctx/addr-$-trx
+              ($.cvm/def ($.shell.ctx/lib-address env
+                                                  $.shell.sym/$-trx)
                          {$.shell.sym/list* nil}))))
