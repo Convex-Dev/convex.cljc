@@ -96,6 +96,9 @@
 (def ^Keyword file-tmp
               ($.cell/keyword "file.tmp"))
 
+(def ^Keyword file-tmp-dir
+              ($.cell/keyword "file.tmp-dir"))
+
 (def ^Keyword form
               ($.cell/keyword "form"))
 
