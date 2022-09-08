@@ -148,6 +148,22 @@
 ;;;;;;;;;; Other filesystem operations
 
 
+(defn !.copy
+
+  ^{:doc {:description ["Returns a requrest for copying the file at `path-source` to `path-destination`."
+                        "If `path-destination` is a directory, `path-source` will be copied inside it."
+                        "Behaves like Unix's `cp`."]
+          :examples    [{:code "($.file/!.copy \"some_dir/foo.txt\" \"another_dir\")"}]
+          :signature   [{:params [path-source path-destination]}]}}
+
+  [path-source path-destination]
+
+  (assert (str? path-source)
+          (str? path-destination))
+  [:cvm.sreq :file.copy path-source path-destination])
+
+
+
 (defn !.delete
 
   ^{:doc {:description "Returns a request for deleting the file or the empty folder at the given `path`."

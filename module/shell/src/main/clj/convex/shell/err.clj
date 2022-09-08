@@ -76,13 +76,13 @@
 
 
 
-(defn fs
+(defn filesystem
 
   "Error map for a generic filesystem error."
 
   [message]
 
-  ($.cell/error $.shell.kw/err-stream
+  ($.cell/error $.shell.kw/err-filesystem
                 message))
 
 
