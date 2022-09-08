@@ -289,14 +289,12 @@
                                                        2))
           ^Path   source-path      (.toPath (File. source))
                   copy             (fn [^File destination-file]
-                                     (Files/copy source-path
+                                     (Files/copy ^Path source-path
                                                  (.toPath destination-file)
-                                                 (doto (make-array StandardCopyOption
-                                                                   2)
-                                                       (aset 0
-                                                             StandardCopyOption/REPLACE_EXISTING)
-                                                       (aset 1
-                                                             StandardCopyOption/COPY_ATTRIBUTES)))
+                                                 ^"[Ljava.nio.file.StandardCopyOption;"
+                                                 (into-array StandardCopyOption
+                                                             [StandardCopyOption/REPLACE_EXISTING
+                                                              StandardCopyOption/COPY_ATTRIBUTES]))
                                      ($.shell.ctx/def-result env
                                                              nil))
           ^String destination           ($.clj/string (.get tuple
@@ -348,10 +346,31 @@
                                ($.shell.err/filesystem ($.cell/string (str "Cannot delete non-empty directory: "
                                                                            path)))))
       ;;
-      (catch Throwable _ex
+      (catch Throwable ex
         ($.shell.exec.fail/err env
-                               ($.shell.err/filesystem ($.cell/string (str "Cannot delete path: "
-                                                                           path))))))))
+                               ($.shell.err/filesystem (.getMessage ex)))))))
+
+
+
+(defmethod $.shell.exec/sreq
+
+  $.shell.kw/file-exists
+
+  ;; Testing if a file exists.
+
+  [env ^AVector tuple]
+
+  (try
+    ($.shell.ctx/def-result env
+                            (-> (.get tuple
+                                      2)
+                                ^String ($.clj/string)
+                                (File.)
+                                (.exists)
+                                ($.cell/boolean)))
+    (catch Throwable ex
+      ($.shell.exec.fail/err env
+                             ($.shell.err/filesystem ($.cell/string (.getMessage ex)))))))
 
 
 
@@ -402,9 +421,9 @@
                                             0))
           (str)
           ($.cell/string)))
-    (catch Throwable _ex
+    (catch Throwable ex
       ($.shell.exec.fail/err env
-                             ($.shell.err/filesystem ($.cell/string "Unable to create temporary file"))))))
+                             ($.shell.err/filesystem ($.cell/string (.getMessage ex)))))))
 
 
 ;;;;;;;;;; Logging
