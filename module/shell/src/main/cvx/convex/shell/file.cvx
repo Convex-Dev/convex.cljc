@@ -177,6 +177,20 @@
 
 
 
+(defn !.exists?
+
+  ^{:doc {:description ["Returns a request for testing if a file exists."
+                        "Boolean result will be available during the next transaction under `$/*result*`."]
+          :examples    [{:code "($.file/!.exists? \"some_dir/some_file.txt\")"}]
+          :signatures  [{:params [path]}]}}
+
+  [path]
+
+  (assert (str? path))
+  [:cvm.sreq :file.exists path])
+
+
+
 (defn !.tmp
 
   ^{:doc {:description ["Returns a request for creating a temporary file."

@@ -84,6 +84,9 @@
 (def ^Keyword file-delete
               ($.cell/keyword "file.delete"))
 
+(def ^Keyword file-exists
+              ($.cell/keyword "file.exists"))
+
 (def ^Keyword file-stream-in
               ($.cell/keyword "file.stream.in"))
 
