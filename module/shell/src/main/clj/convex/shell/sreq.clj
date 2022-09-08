@@ -426,6 +426,29 @@
                              ($.shell.err/filesystem ($.cell/string (.getMessage ex)))))))
 
 
+
+(defmethod $.shell.exec/sreq
+
+  $.shell.kw/file-tmp-dir
+
+  ;; Creates a temporary directory.
+
+  [env ^AVector tuple]
+
+  (try
+    ($.shell.ctx/def-result
+      env
+      (-> (Files/createTempDirectory ($.clj/string (.get tuple
+                                                         2))
+                                     (make-array FileAttribute
+                                                 0))
+          (str)
+          ($.cell/string)))
+    (catch Throwable ex
+      ($.shell.exec.fail/err env
+                             ($.shell.err/filesystem ($.cell/string (.getMessage ex)))))))
+
+
 ;;;;;;;;;; Logging
 
 

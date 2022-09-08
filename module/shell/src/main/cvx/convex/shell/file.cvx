@@ -195,9 +195,9 @@
 
   ^{:doc {:description ["Returns a request for creating a temporary file."
                         "`prefix` and `suffix` are both optional."]
-          :examples    [{:code "($.fs/!.tmp)"}
-                        {:code "($.fs/!.tmp \".cvx\")"}
-                        {:code "($.fs/!.tmp \"some-project\" \".cvx\")"}]
+          :examples    [{:code "($.file/!.tmp)"}
+                        {:code "($.file/!.tmp \".cvx\")"}
+                        {:code "($.file/!.tmp \"some-project\" \".cvx\")"}]
           :signature   [{:params []}
                         {:params [suffix]}
                         {:params [prefix suffix]}]}}
@@ -222,3 +222,26 @@
            (or (nil? suffix)
                (str? suffix)))
    [:cvm.sreq :file.tmp prefix suffix]))
+
+
+
+(defn !.tmp-dir
+
+  ^{:doc {:description ["Returns a request for creating a temporary directory."
+                        "`prefix` is optional."]
+          :examples    [{:code "($.file/!.tmp-dir)"}
+                        {:code "($.file/!.tmp-dir \"some-prefix\")"}]
+          :signature   [{:params []}
+                        {:params [prefix]}]}}
+
+
+  ([]
+
+   (!.tmp-dir nil))
+
+
+  ([prefix]
+
+   (assert (or (nil? prefix)
+               (str? prefix)))
+   [:cvm.sreq :file.tmp-dir prefix]))
