@@ -36,8 +36,8 @@
 (def ^Keyword err-db
               ($.cell/keyword "DB"))
 
-(def ^Keyword err-fs
-              ($.cell/keyword "FS"))
+(def ^Keyword err-filesystem
+              ($.cell/keyword "FILESYSTEM"))
 
 (def ^Keyword err-reader
               ($.cell/keyword "READER"))
@@ -77,6 +77,9 @@
 
 (def ^Keyword expand
               ($.cell/keyword "expand"))
+
+(def ^Keyword file-copy
+              ($.cell/keyword "file.copy"))
 
 (def ^Keyword file-delete
               ($.cell/keyword "file.delete"))

@@ -15,7 +15,9 @@
            (java.io File
                     IOException)
            (java.nio.file DirectoryNotEmptyException
-                          Files)
+                          Files
+                          StandardCopyOption
+                          Path)
            (java.nio.file.attribute FileAttribute))
   (:require [convex.cell            :as $.cell]
             [convex.clj             :as $.clj]
@@ -276,6 +278,51 @@
 
 (defmethod $.shell.exec/sreq
 
+  $.shell.kw/file-copy
+
+  ;; Behaves like Unix `cp`.
+
+  [env ^AVector tuple]
+
+  (try
+    (let [^String source           ($.clj/string (.get tuple
+                                                       2))
+          ^Path   source-path      (.toPath (File. source))
+                  copy             (fn [^File destination-file]
+                                     (Files/copy source-path
+                                                 (.toPath destination-file)
+                                                 (doto (make-array StandardCopyOption
+                                                                   2)
+                                                       (aset 0
+                                                             StandardCopyOption/REPLACE_EXISTING)
+                                                       (aset 1
+                                                             StandardCopyOption/COPY_ATTRIBUTES)))
+                                     ($.shell.ctx/def-result env
+                                                             nil))
+          ^String destination           ($.clj/string (.get tuple
+                                                            3))
+          ^File   destination-file (File. destination)]
+      (if (.isDirectory destination-file)
+        (let [^String destination-2      (str destination
+                                              "/"
+                                              (.getFileName source-path))
+              ^File   destination-file-2 (File. destination-2)]
+          (if (.isDirectory destination-file-2)
+            ($.shell.exec.fail/err env
+                                   ($.shell.err/filesystem ($.cell/string (format "Cannot overwrite directory '%s' with non directory '%s'"
+                                                                                  destination-2
+                                                                                  source))))
+            (copy destination-file-2)))
+        (copy destination-file)))
+    ;;
+    (catch Throwable ex
+      ($.shell.exec.fail/err env
+                             ($.shell.err/filesystem ($.cell/string (.getMessage ex)))))))
+
+
+
+(defmethod $.shell.exec/sreq
+
   $.shell.kw/file-delete
 
   ;; Deletes file or empty directory.
@@ -298,13 +345,13 @@
       ;;
       (catch DirectoryNotEmptyException _ex
         ($.shell.exec.fail/err env
-                               ($.shell.err/fs ($.cell/string (str "Cannot delete non-empty directory: "
-                                                                   path)))))
+                               ($.shell.err/filesystem ($.cell/string (str "Cannot delete non-empty directory: "
+                                                                           path)))))
       ;;
       (catch Throwable _ex
         ($.shell.exec.fail/err env
-                               ($.shell.err/fs ($.cell/string (str "Cannot delete path: "
-                                                                   path))))))))
+                               ($.shell.err/filesystem ($.cell/string (str "Cannot delete path: "
+                                                                           path))))))))
 
 
 
@@ -357,7 +404,7 @@
           ($.cell/string)))
     (catch Throwable _ex
       ($.shell.exec.fail/err env
-                             ($.shell.err/fs ($.cell/string "Unable to create temporary file"))))))
+                             ($.shell.err/filesystem ($.cell/string "Unable to create temporary file"))))))
 
 
 ;;;;;;;;;; Logging
