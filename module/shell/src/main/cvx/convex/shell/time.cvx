@@ -4,8 +4,7 @@
 
 
 (call *registry*
-      (register {:description "Time travel utilities for the Convex Shell."
-                 :name        "Time Travel Library"}))
+      (register {:name "Convex Shell time utilities"}))
 
 
 ;;;;;;;;;;
@@ -24,7 +23,7 @@
 
 (defn !.advance
 
-  ^{:doc {:description ["Returns a request which advances the current timestamp by `millis` milliseconds."
+  ^{:doc {:description ["Returns a request for advancing the current state timestamp by `millis` milliseconds."
                         "Argument must be > 0."
                         "Great match for standard `schedule` macro."]
           :examples    [{:code "($.time/!.advance (* 60 60 1000))"}]
@@ -35,38 +34,3 @@
   (assert (>= millis
               0))
   [:cvm.sreq :time.advance millis])
-
-
-
-(defn !.pop
-
-  ^{:doc {:description ["Returns a request which restores the last state saved with `push`."
-                        "Quoted transaction, if given, is executed in the context of the restored state, allowing to pass values from one to the other."]
-          :examples    [{:code "($.time/!.pop)"}
-                        {:code "($.time/!.pop `(def bar ~foo))"}]
-          :signature   [{:params []}
-                        {:params [trx]}]}}
-
-
-  ([]
-
-   (!.pop nil))
-
-
-  ([trx]
-
-   [:cvm.sreq :time.pop `($.trx/set (quote ~(cons trx
-                                                  $.trx/*list*)))]))
-
-
-
-(defn !.push
-
-  ^{:doc {:description ["Returns a request which pushes the current state of the CVM onto a stack."
-                        "This state can later be restored using `!.pop`."]
-          :examples    [{:code "($.time/!.push)"}]
-          :signature   [{:params []}]}}
-
-  []
-
-  [:cvm.sreq :time.push])

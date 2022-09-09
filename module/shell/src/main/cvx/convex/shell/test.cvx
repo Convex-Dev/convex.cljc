@@ -53,21 +53,21 @@
 
 
 
+(def $.state
+
+  ^{:private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.shell.state)))
+
+
+
 (def $.term
 
   ^{:private? true}
 
   (call *registry*
         (cns-resolve 'convex.shell.term)))
-
-
-
-(def $.time
-
-  ^{:private? true}
-
-  (call *registry*
-        (cns-resolve 'convex.shell.time)))
 
 
 
@@ -318,7 +318,7 @@
 
 (defn group
 
-  ^{:doc {:description ["Encloses the given list of transactions using `$.time` utilities."
+  ^{:doc {:description ["Encloses the given list of transactions using `$.state` utilities."
                         "Any state change induced by those transactions will ultimately be discarded."
                         "Before executing the first transaction, CVM state is saved."
                         "After the final transaction, saved state is restored while rememberring new tests results."
@@ -347,7 +347,7 @@
 
 (defn state.pop
 
-  ^{:doc      {:description ["Like `$.time/!.pop` but ensures tests results are remembered."
+  ^{:doc      {:description ["Like `$.state/!.pop` but ensures tests results are remembered."
                              "See function `state.push`."
                              "An additional quoted `trx` can be passed to transfer other user data."]
                signature    [{:params []}
@@ -362,15 +362,15 @@
 
   ([trx]
 
-   ($.time/!.pop `($.trx/precat '((~-self/report.merge ~-self/*n-fail*
-                                                       (quote ~-self/*report+*))
-                                  ~trx)))))
+   ($.state/!.pop `($.trx/precat '((~-self/report.merge ~-self/*n-fail*
+                                                        (quote ~-self/*report+*))
+                                   ~trx)))))
 
 
 
 (defn state.push
 
-  ^{:doc      {:description ["Like `($.time/!.push)` but clears the test state from this actor."
+  ^{:doc      {:description ["Like `$.state/push` but clears the test state from this actor."
                              "Later, CVM state can be restored with `state.pop`."
                              "Provides isolation, side-effects can be discarded in a controlled fashion."]
                :signature   [{:params []}]}
@@ -378,7 +378,7 @@
 
   []
 
-  ($.trx/precat `((~$.time/!.push)
+  ($.trx/precat `((~$.state/push)
                   (~-self/report.clear))))
 
 

@@ -15,7 +15,7 @@
 ;;;;;;;;;; Test suites
 
 
-(defn suite.main
+(defn suite.load
 
   ^{:doc {:description ["Loading a state."]}}
 
@@ -65,6 +65,46 @@
                                    $)
                                {:description "It looks like libraries were deployed while loading the genesis state"}))))))
 
+
+
+(defn suite.stack
+
+  ^{:doc {:description "Pushing and popping states."}}
+
+  []
+
+  (T/group '((T/path.conj 'stack)
+             
+             (T/trx '($.trx/precat '(42
+                                     ($.state/push)
+                                     (def foo
+                                          $/*result*)
+                                     ($.state/!.pop)
+                                     (not (defined? foo))))
+                    {:description "State popped forgetting everything."})
+
+             (T/trx '($.trx/precat '(($.state/push)
+                                     (def foo
+                                          100)
+                                     ($.state/!.pop `(def bar
+                                                          ~(inc foo)))
+                                     (= bar
+                                        101)))
+                    {:description "State popped while remembering something."}))))
+
+
+;;;
+
+
+(defn suite.main
+
+  ^{:doc {:description "Suite gathering all other suites."}}
+
+  []
+
+  (T/group '((T/path.conj 'convex.shell.state)
+             (suite.load)
+             (suite.stack))))
 
 ;;;
 
