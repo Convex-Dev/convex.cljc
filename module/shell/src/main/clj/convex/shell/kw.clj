@@ -64,10 +64,10 @@
               ($.cell/keyword "etch.write"))
 
 (def ^Keyword etch-root-read
-              ($.cell/keyword "etch.root-read"))
+              ($.cell/keyword "etch.root.read"))
 
 (def ^Keyword etch-root-write
-              ($.cell/keyword "etch.root-write"))
+              ($.cell/keyword "etch.root.write"))
 
 (def ^Keyword eval
               ($.cell/keyword "eval"))

@@ -54,12 +54,12 @@
                   (conj cell
                         :root))
 
-             ($.db/!.root-write cell-2)
+             ($.db/!.root.write cell-2)
              (T/trx '(= $/*result*
                         (hash (encoding cell-2)))
                     {:description "Root write"})
 
-             ($.db/!.root-read)
+             ($.db/!.root.read)
              (T/trx '(= $/*result*
                         cell-2)
                     {:description "Root read"}))))

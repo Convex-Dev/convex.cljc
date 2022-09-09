@@ -99,28 +99,28 @@
 
 
 
-(defn !.root-read
+(defn !.root.read
 
   ^{:doc {:description ["Returns a request for reading the root cell of the current Etch instance."
                         "The root is simply a unique place that does not require providing a hash."
-                        "Any cell can be written there using `!.root-write`."
+                        "Any cell can be written there using `!.root.write`."
                         "Otherwise, behaves exactly like `!.read`."]
-          :examples    [{:code "($.db/!.root-read)"}]
+          :examples    [{:code "($.db/!.root.read)"}]
           :signature   [{:params []}]}}
 
   []
 
-  [:cvm.sreq :etch.root-read])
+  [:cvm.sreq :etch.root.read])
 
 
 
-(defn !.root-write
+(defn !.root.write
 
   ^{:doc {:description ["Behaves exactly like `!.write` but the given `cell` will be written at the root."
-                        "See `!.root-read`."]
-          :examples    [{:code "($.db/!.root-write [:my 'cell 42])"}]
+                        "See `!.root.read`."]
+          :examples    [{:code "($.db/!.root.write [:my 'cell 42])"}]
           :signature   [{:params [cell]}]}}
 
   [cell]
 
-  [:cvm.sreq :etch.root-write cell])
+  [:cvm.sreq :etch.root.write cell])
