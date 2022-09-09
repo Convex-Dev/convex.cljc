@@ -31,8 +31,8 @@
                         "When using functions like `assoc` on them, regular maps are returned. Such values will not work"
                         "with this request."
                         ""
-                        "A common use case is saving the current state on disk with `$.db/!.root-write`, retrieving it in a later"
-                        "work session using `$.db/!.root-read`, and restoring it using this request."
+                        "A common use case is saving the current state on disk with `$.db/!.root.write`, retrieving it in a later"
+                        "work session using `$.db/!.root.read`, and restoring it using this request."
                         ""
                         "A transaction can be submitted as second argument. It will be executed after loading the state."
                         "It is commonly used for remembering information from state to state."]
