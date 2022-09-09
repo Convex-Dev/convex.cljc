@@ -13,6 +13,15 @@
 ;;;;;;;;;; Private
 
 
+(def $
+
+  ^{:private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.shell)))
+
+
+
 (def $.trx
 
   ^{:private? true}
@@ -21,7 +30,7 @@
         (cns-resolve 'convex.shell.trx)))
 
 
-;;;;;;;;;; Library
+;;;;;;;;;; State loading
 
 
 (defn !.load
@@ -81,7 +90,64 @@
   ([state trx]
 
    (!.load state
-           `($.trx/set (quote ~(if trx
-                                 (cons trx
-                                       $.trx/*list*)
-                                 $.trx/*list*))))))
+           `($.trx/set (quote ~(cons trx
+                                     $.trx/*list*))))))
+
+
+;;;;;;;;;;
+
+
+(def *stack*
+
+  ^{}
+
+  (list))
+
+
+
+(defn push
+
+  ^{:callable? true
+    :doc       {:description ["Pushes the current state of the CVM onto `$.state/*stack*`."
+                              "This state can later be restored using `$.stack/!.pop`."
+                              "Unlike `$.stack/!.pop`, this is not a request and is performed righ away."]
+                :examples    [{:code "($.state/push)"}]
+                :signature   [{:params []}]}}
+
+  []
+
+  (if (= *address*
+         ~*address*)
+    (do
+      (def *stack*
+           (cons *state*
+                 *stack*))
+      $/*result*)
+    (call ~*address*
+          (push))))
+
+
+
+(defn !.pop
+
+  ^{:doc {:description ["Returns a request that will restore  the last state saved with `$.state/push`."
+                        "An optional transaction may be provided for execution after popping the state."
+                        "This is commonly used to remember something from the popped state."]
+          :examples    [{:code "($.state/!.pop)"}
+                        {:code "($.state/!.pop `(def bar ~(inc foo)))"}]
+          :signature   [{:params []}
+                        {:params [trx]}]}}
+
+
+  ([]
+
+   (!.pop nil))
+
+
+  ([trx]
+
+   (if-let [state (first *stack*)]
+     (!.load-continue state
+                      trx)
+     (fail :STATE
+           "No state to pop"))))

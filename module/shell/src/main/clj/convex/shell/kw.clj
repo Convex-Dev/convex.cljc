@@ -201,11 +201,5 @@
 (def ^Keyword time-advance
               ($.cell/keyword "time.advance"))
 
-(def ^Keyword time-pop
-              ($.cell/keyword "time.pop"))
-
-(def ^Keyword time-push
-              ($.cell/keyword "time.push"))
-
 (def ^Keyword trx
               ($.cell/keyword "trx"))

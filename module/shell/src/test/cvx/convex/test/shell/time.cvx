@@ -61,33 +61,6 @@
                     {:description "Timestamp precisely where expected."}))))
 
 
-
-(defn suite.state
-
-  ^{:doc {:description "Pushing and popping state."}}
-
-  []
-
-  (T/group '((T/path.conj 'push-pop)
-             
-             (T/trx '($.trx/precat '(42
-                                     ($.time/!.push)
-                                     (def foo
-                                          $/*result*)
-                                     ($.time/!.pop)
-                                     (not (defined? foo))))
-                    {:description "State popped forgetting everything."})
-
-             (T/trx '($.trx/precat '(($.time/!.push)
-                                     (def foo
-                                          24)
-                                     ($.time/!.pop `(def bar
-                                                         ~foo))
-                                     (= 24
-                                        bar)))
-                    {:description "State popped while remembering something."}))))
-             
-
 ;;;
 
 
@@ -98,8 +71,7 @@
   []
 
   (T/group '((T/path.conj 'convex.shell.time)
-             (suite.advance)
-             (suite.state))))
+             (suite.advance))))
 
 
 ;;;
