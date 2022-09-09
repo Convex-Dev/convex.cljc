@@ -35,7 +35,7 @@
 
 (defn !.load
 
-  ^{:doc {:description ["Returns a request for discarding the current state of the Convex Shell and loading the given one."
+  ^{:doc {:description ["Returns a request for discarding the current state of the Convex Virtual Machine and loading the given one."
                         "Available under `*state*`, states are actually a special type of cell behaving like maps."
                         "When using functions like `assoc` on them, regular maps are returned. Such values will not work"
                         "with this request."
@@ -45,7 +45,10 @@
                         ""
                         "A transaction may be submitted as second argument. It will be executed after loading the state."
                         "Default one is `$/*result*`so that the last result of the old state will be transferred to the new one."
-                        "It is commonly used for remembering information from state to state."]
+                        "It is commonly used for remembering information from state to state."
+                        ""
+                        "Note that all of this is only about the state of the Convex Virtual Machine. Other resources that may have"
+                        "been opened in the Convex Shell, such as file streams, will not be changed in any way."]
           :examples    [{:code "($.state/!.load *state*)"}
                         {:code "($.state/!.load *state* `(def y ~(inc x)))"}]
           :signature   [{:params [state]}
@@ -94,7 +97,7 @@
                                      $.trx/*list*))))))
 
 
-;;;;;;;;;;
+;;;;;;;;;; Stack-base time traveling
 
 
 (def *stack*
@@ -108,7 +111,7 @@
 (defn push
 
   ^{:callable? true
-    :doc       {:description ["Pushes the current state of the Convex Shell onto `$.state/*stack*`."
+    :doc       {:description ["Pushes the current state of the Convex Virtual Machine onto `$.state/*stack*`."
                               "This state can later be restored using `$.stack/!.pop`."
                               "Unlike `$.stack/!.pop`, this is not a request and is performed right away."
                               "Returns the last `$/*result*`."]
