@@ -43,7 +43,8 @@
                         "A common use case is saving the current state on disk with `$.db/!.root.write`, retrieving it in a later"
                         "work session using `$.db/!.root.read`, and restoring it using this request."
                         ""
-                        "A transaction can be submitted as second argument. It will be executed after loading the state."
+                        "A transaction may be submitted as second argument. It will be executed after loading the state."
+                        "Default one is `$/*result*`so that the last result of the old state will be transferred to the new one."
                         "It is commonly used for remembering information from state to state."]
           :examples    [{:code "($.state/!.load *state*)"}
                         {:code "($.state/!.load *state* `(def y ~(inc x)))"}]
@@ -53,8 +54,7 @@
   
   ([state]
 
-   (!.load state
-           nil))
+   (!.load $/*result*))
 
 
   ([state trx]
@@ -84,7 +84,7 @@
   ([state]
 
    (!.load-continue state
-                    nil))
+                    $/*result*))
 
 
   ([state trx]
@@ -99,7 +99,7 @@
 
 (def *stack*
 
-  ^{}
+  ^{:doc {:description "See `$.state/push`."}}
 
   (list))
 
@@ -108,9 +108,10 @@
 (defn push
 
   ^{:callable? true
-    :doc       {:description ["Pushes the current state of the CVM onto `$.state/*stack*`."
+    :doc       {:description ["Pushes the current state of the Convex Shell onto `$.state/*stack*`."
                               "This state can later be restored using `$.stack/!.pop`."
-                              "Unlike `$.stack/!.pop`, this is not a request and is performed righ away."]
+                              "Unlike `$.stack/!.pop`, this is not a request and is performed right away."
+                              "Returns the last `$/*result*`."]
                 :examples    [{:code "($.state/push)"}]
                 :signature   [{:params []}]}}
 
@@ -130,9 +131,11 @@
 
 (defn !.pop
 
-  ^{:doc {:description ["Returns a request that will restore  the last state saved with `$.state/push`."
+  ^{:doc {:description ["Returns a request that will restore the last state saved with `$.state/push`."
                         "An optional transaction may be provided for execution after popping the state."
-                        "This is commonly used to remember something from the popped state."]
+                        "Default one is `$/*result*` so that the last result from the old state will"
+                        "be transferred to the popepd state."
+                        "This is commonly used to remember something from the discarded state."]
           :examples    [{:code "($.state/!.pop)"}
                         {:code "($.state/!.pop `(def bar ~(inc foo)))"}]
           :signature   [{:params []}
@@ -146,8 +149,11 @@
 
   ([trx]
 
-   (if-let [state (first *stack*)]
-     (!.load-continue state
-                      trx)
+   (if (>= (count *stack*)
+           1)
+     (!.load-continue (first *stack*)
+                      (if (nil? trx)
+                        $/*result*
+                        trx))
      (fail :STATE
            "No state to pop"))))

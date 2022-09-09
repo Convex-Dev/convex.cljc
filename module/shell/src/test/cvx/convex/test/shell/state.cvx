@@ -23,7 +23,13 @@
 
   (T/group '((T/path.conj 'convex.shell.state)
 
-             (T/group '((T/path.conj 'time-travel)
+             (T/group '((T/path.conj 'load)
+
+                        :another-result
+                        ($.state/!.load-continue *state*)
+                        (T/trx '(= $/*result*
+                                   :another-result)
+                               {:descriptionl "`!.load-continue` preserves the last result."})
 
                         (def a
                              1)
@@ -38,6 +44,10 @@
                                                  `(def c
                                                        ~(inc b)))
 
+                        (T/trx '(= $/*result*
+                                   3)
+                               {:description "Result matches provided transaction."})
+
                         (T/trx '(= a
                                    1)
                                {:description "`a` is still present."})
@@ -49,7 +59,7 @@
                                    3)
                                {:description "`c` is the result from executing the given transaction."})))
 
-             (T/group '((T/path.conj 'init-genesis-state)
+             (T/group '((T/path.conj 'load-with-genesis-state)
 
                         [:cvm.sreq :dev.genesis-state]
 
@@ -74,21 +84,30 @@
   []
 
   (T/group '((T/path.conj 'stack)
+
+             42
+             ($.state/push)
+
+             (T/trx '(= $/*result*
+                        42)
+                    {:description "Pushing the state returns the last result."})
+
+             (def foo
+                  1000)
+             ($.state/!.pop)
              
-             (T/trx '($.trx/precat '(42
-                                     ($.state/push)
-                                     (def foo
-                                          $/*result*)
-                                     ($.state/!.pop)
-                                     (not (defined? foo))))
-                    {:description "State popped forgetting everything."})
+             (T/trx '(= $/*result*
+                        1000)
+                    {:description "Popping the state transfers the last result."})
+             (T/trx '(not (defined? foo))
+                    {:description "What happened after pushing the state disppaers on popping."})
 
              (T/trx '($.trx/precat '(($.state/push)
-                                     (def foo
+                                     (def bar
                                           100)
-                                     ($.state/!.pop `(def bar
-                                                          ~(inc foo)))
-                                     (= bar
+                                     ($.state/!.pop `(def baz
+                                                          ~(inc bar)))
+                                     (= baz
                                         101)))
                     {:description "State popped while remembering something."}))))
 
