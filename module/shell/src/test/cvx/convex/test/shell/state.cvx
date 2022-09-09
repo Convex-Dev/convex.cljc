@@ -23,29 +23,47 @@
 
   (T/group '((T/path.conj 'convex.shell.state)
 
-             (def a
-                  1)
+             (T/group '((T/path.conj 'time-travel)
 
-             (def s
-                  *state*)
+                        (def a
+                             1)
 
-             (def b
-                  2)
+                        (def s
+                             *state*)
 
-             ($.state/!.load-continue s
-                                      `(def c
-                                            ~(inc b)))
+                        (def b
+                             2)
 
-             (T/trx '(= a
-                        1)
-                    {:description "`a` is still present."})
+                        ($.state/!.load-continue s
+                                                 `(def c
+                                                       ~(inc b)))
 
-             (T/trx '(not (defined? b))
-                    {:description "`b` was not present before saving the state."})
+                        (T/trx '(= a
+                                   1)
+                               {:description "`a` is still present."})
 
-             (T/trx '(= c
-                        3)
-                    {:description "`c` is the result from executing the given transaction."}))))
+                        (T/trx '(not (defined? b))
+                               {:description "`b` was not present before saving the state."})
+
+                        (T/trx '(= c
+                                   3)
+                               {:description "`c` is the result from executing the given transaction."})))
+
+             (T/group '((T/path.conj 'init-genesis-state)
+
+                        [:cvm.sreq :dev.genesis-state]
+
+                        ($.state/!.load-continue $/*result*
+                                                 `(def s
+                                                       (quote ~*state*)))
+
+                        $
+                        ($.state/!.load-continue s
+                                                 $/*result*)
+
+                        (T/trx '(= $/*result*
+                                   $)
+                               {:description "It looks like libraries were deployed while loading the genesis state"}))))))
 
 
 ;;;
