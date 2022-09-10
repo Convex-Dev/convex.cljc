@@ -146,26 +146,61 @@
 
   ([trx-try trx-catch]
 
-   (if (nil? trx-catch)
-     ($.trx/prepend trx-try)
-     (do
-       (push `(do
-                ($.trx/set (quote ~$.trx/*list*))
-                ~trx-catch))
-       ($.trx/precat `((quote ~$/*result*)
-                       ~trx-try
-                       (do
-                         ($.catch/drop)
-                         $/*result*))))))
+   (!.safe trx-try
+           trx-catch
+           nil))
 
 
   ([trx-try trx-catch trx-finally]
 
-   ($.trx/prepend `(let [trx-finally (quote ~trx-finally)]
-                     ($.trx/precat `((quote ~$/*result*)
-                                     ~trx-finally
-                                     (quote ~$/*result*)))))
-   (!.safe trx-try
-           (if (nil? trx-catch)
-             '$/*result*
-             trx-catch))))
+   (if (nil? trx-catch)
+     (if (nil? trx-finally)
+       ;; No 'catch' and no 'finally'.
+       ($.trx/prepend trx-try)
+       ;; No 'catch' with 'finally'.
+       (do
+         (push `(do
+                  ($.trx/set (quote ~$.trx/*list*))
+                  (let [trx-finally (quote ~trx-finally)]
+                    ($.trx/precat `((quote ~$/*result*)
+                                    ~trx-finally
+                                    [:cvm.sreq :catch.rethrow (quote ~$/*result*)])))))
+         ($.trx/prepend `(let [trx-finally (quote ~trx-finally)]
+                           ($.trx/precat `((quote ~$/*result*)
+                                           ~trx-finally
+                                           (quote ~$/*result*)))))
+         ($.trx/precat `((quote ~$/*result*)
+                         ~trx-try
+                         (do
+                           ($.catch/drop)
+                           $/*result*)))))
+     (if (nil? trx-finally)
+       ;; 'catch' without 'finally'.
+       (do
+         (push `(do
+                  ($.trx/set (quote ~$.trx/*list*))
+                  ~trx-catch))
+         ($.trx/precat `((quote ~$/*result*)
+                         ~trx-try
+                         (do
+                           ($.catch/drop)
+                           $/*result*))))
+       ;; 'catch' with 'finally'.
+       (do
+         (push `(do
+                  ($.trx/set (quote ~$.trx/*list*))
+                  ($.trx/prepend '(let [trx-finally (quote ~trx-finally)]
+                                    ($.trx/precat `((quote ~$/*result*)
+                                                    ~trx-finally
+                                                    (quote ~$/*result*)))))
+                  ($.trx/prepend (quote ~trx-catch))
+                  ($.trx/prepend `(quote ~$/*result*))))
+         ($.trx/prepend `(let [trx-finally (quote ~trx-finally)]
+                           ($.trx/precat `((quote ~$/*result*)
+                                           ~trx-finally
+                                           (quote ~$/*result*)))))
+         ($.trx/precat `((quote ~$/*result*)
+                         ~trx-try
+                         (do
+                           ($.catch/drop)
+                           $/*result*))))))))

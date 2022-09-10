@@ -75,70 +75,98 @@
 
   (T/group '((T/path.conj 'safe)
 
-             (T/group '((T/path.conj 'success)
-
-                        ($.catch/!.safe '(def x
-                                              :try)
-                                        '(def x-err
-                                              :catch)
-                                        '(def x-finally
-                                              :finally))
-
+             (T/group '((T/path.conj "Success without catch nor finally.")
+                        ($.catch/!.safe '(inc 42))
                         (T/trx '(= $/*result*
-                                   :try)
-                               {:description "Result comes from 'try' in spite of 'finally' being present."})
+                                   43)
+                               {:description "Trial executed normally."})))
 
-                        (T/trx '(= x
-                                   :try)
-                               {:description "Normal transaction executed with access to previous result."})
+             (T/group '((T/path.conj "Fail without catch nor finally.")
+                        (T/fail.code #{:ASSERT}
+                                     '($.catch/!.safe '(assert false))
+                                     {:description "Exception is thrown normally."})))
 
-                        (T/trx '(not (defined? x-err))
-                               {:description "Error transaction not executed."})
-
-                        (T/trx '(= x-finally
-                                   :finally)
-                               {:description "Finally transaction executed."})))
-
-             (T/group '((T/path.conj 'fail)
-
-                        ($.catch/!.safe '($.trx/precat '((def x
-                                                              :try-1)
-                                                         (assert false)
-                                                         (def x
-                                                              :try-2)))
-                                        '(def x-err
-                                              :catch)
-                                        '(def x-finally
-                                              :finally))
-
+             (T/group '((T/path.conj "Success with catch.")
+                        ($.catch/!.safe '(inc 42)
+                                        '(def x-catch
+                                              :catch))
                         (T/trx '(= $/*result*
-                                   :catch)
-                               {:description "Result comes from 'catch'."})
+                                   43)
+                               {:description "Result comes from trial"})
+                        (T/trx '(not (defined? x-catch))
+                               {:description "Catch is not executed."})))
 
-                        (T/trx '(= x
-                                   :try-1)
-                               {:description "Before failure, executed."})
-
-                        (T/trx '(= x-err
-                                   :catch)
-                               {:description "Error transaction executed."})
-
-                        (T/trx '(= x-finally
-                                   :finally)
-                               {:description "Finally transaction executed."})))
-
-             (T/group '((T/path.conj 'finally-without-catch)
-
+             (T/group '((T/path.conj "Fail with catch.")
                         ($.catch/!.safe '(assert false)
+                                        '{:catch $/*result*})
+                        (T/trx '(= (:code (:catch $/*result*))
+                                   :ASSERT)
+                               {:description "Exception as result in catch."})))
+
+             (T/group '((T/path.conj "Success with finally.")
+                        ($.catch/!.safe '(inc 42)
                                         nil
-                                        '(def x-finally
-                                              $/*result*))
+                                        '(do
+                                           (def x-finally
+                                                {:finally $/*result*})
+                                           :finally))
+                        (T/trx '(= $/*result*
+                                   43)
+                               {:description "Result comes from trial."})
+                        (T/trx '(= (:finally x-finally)
+                                   43)
+                               {:description "Finally was executed."})))
 
-                        (T/trx '(:exception? $/*result*)
-                               {:description "Result comes from 'catch'."})
+             (T/group '((T/path.conj "Fail with finally.")
+                        (T/fail.code #{:ASSERT}
+                                     '($.catch/!.safe '(assert false)
+                                                      nil
+                                                      '(do
+                                                         (def x-finally
+                                                              {:finally $/*result*})
+                                                         :finally))
+                                     {:description "Exception rethrown."})
+                        (T/trx '(= (:code (:finally x-finally))
+                                   :ASSERT)
+                               {:description "Finally was executed."})))
 
-                        (T/trx '(:exception? x-finally)
-                               {:description "'finally' executed with exception as last result."}))))))
+             (T/group '((T/path.conj "Success with catch and finally.")
+                        ($.catch/!.safe '(inc 42)
+                                        '(def x-catch
+                                              {:catch $/*result*})
+                                        '(do
+                                           (def x-finally
+                                               {:finally $/*result*})
+                                           :finally))
+                        (T/trx '(= $/*result*
+                                   43)
+                               {:description "Result comes from trial."})
+                        (T/trx '(not (defined? x-catch))
+                               {:description "Catch is never executed."})
+                        (T/trx '(= (:finally x-finally)
+                                   43)
+                               {:description "Finally was executed."})))
+
+             (T/group '((T/path.conj "Fail with catch and finally.")
+                        ($.catch/!.safe '(assert false)
+                                        '(do
+                                           (def x-catch
+                                                {:catch $/*result*})
+                                           :catch)
+                                        '(do
+                                           (def x-finally
+                                                {:finally $/*result*})
+                                           :finally))
+                        (T/trx '(= $/*result*
+                                   :catch)
+                               {:description "Result comes from catch."})
+                        (T/trx '(= (:code (:catch x-catch))
+                                   :ASSERT)
+                               {:description "Exception as result in catch."})
+                        (T/trx '(= (:finally x-finally)
+                                   :catch)
+                               {:description "Finally executed with result from catch."}))))))
+
 
 
 ;;;
