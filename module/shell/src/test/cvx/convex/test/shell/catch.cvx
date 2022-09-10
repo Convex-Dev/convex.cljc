@@ -218,11 +218,13 @@
                                  {:description "Finally exception bubbles up."})))
 
              (T/group '((T/path.conj "Fail with failing catch but healthy finally.")
-                        (T/fail (fn [ex]
-                                  (and (= (ex :code)
-                                          :FROM-CATCH)
-                                       (= ((ex :message) :code)
-                                          :FROM-TRY)))
+                        (defn test-ex
+                          [ex]
+                          (and (= (ex :code)
+                                  :FROM-CATCH)
+                               (= ((ex :message) :code)
+                                  :FROM-TRY)))
+                        (T/fail test-ex
                                 '($.catch/!.safe '(fail :FROM-TRY
                                                         nil)
                                                  '(fail :FROM-CATCH
@@ -231,7 +233,26 @@
                                                     (def x-finally
                                                          {:finally $/*result*})
                                                     :finally))
-                                {:description "Exception from catch bubbles up."}))))))
+                                {:description "Exception from catch bubbles up."})
+                        (T/trx '(test-ex (x-finally :finally))
+                               {:description "Finally was executed."})))
+
+             (T/group '((T/path.conj "Fail with failing catch and failing finally.")
+                        (T/fail (fn [ex-finally]
+                                  (and (= (ex-finally :code)
+                                          :FROM-FINALLY)
+                                       (let [ex-catch (ex-finally :message)]
+                                         (and (= (ex-catch :code)
+                                                 :FROM-CATCH)
+                                              (= ((ex-catch :message) :code)
+                                                 :FROM-TRY)))))
+                                '($.catch/!.safe '(fail :FROM-TRY
+                                                        nil)
+                                                 '(fail :FROM-CATCH
+                                                        $/*result*)
+                                                 '(fail :FROM-FINALLY
+                                                        $/*result*))
+                                {:description "Exception from finally bubbles up."}))))))
 
 
 ;;;
