@@ -153,52 +153,53 @@
 
   ([trx-try trx-catch trx-finally]
 
-   (if (nil? trx-catch)
-     (if (nil? trx-finally)
-       ;; No 'catch' and no 'finally'.
-       ($.trx/prepend trx-try)
-       ;; No 'catch' with 'finally'.
-       (do
-         (push `(do
-                  ($.trx/set (quote ~$.trx/*list*))
-                  (let [trx-finally (quote ~trx-finally)]
-                    ($.trx/precat `((quote ~$/*result*)
-                                    ~trx-finally
-                                    [:cvm.sreq :catch.rethrow (quote ~$/*result*)])))))
+   (if (and (nil? trx-catch)
+            (nil? trx-finally))
+     ;; If only `try` is provided, then nothing special happens.
+     ($.trx/prepend trx-try)
+     ;; At least 'catch' or 'finally' is provided, hence it calls for special handling.
+     (do
+       ;; No matter which one is provided, an error handler must be pushed on the stack.
+       (push `(do
+                ;; At this point, former transactions are restored to have a clean slate.
+                ;; TODO. Maybe restore the whole state?
+                ($.trx/set (quote ~$.trx/*list*))
+                ;; What happens next depends on what has been provided.
+                ~(if (nil? trx-catch)
+                   ;; If there is no 'catch' (but we deduce from the beginning there is 'finally').
+                   ;; 'finally' will be executed but the exception must be rethrown.
+                   `(let [trx-finally (quote ~trx-finally)]
+                      ($.trx/precat `((quote ~$/*result*)
+                                      ~trx-finally
+                                      [:cvm.sreq :catch.rethrow (quote ~$/*result*)])))
+                   (if (nil? trx-finally)
+                     ;; If there is no 'finally', 'catch' will be simply executed and this is it.
+                     trx-catch
+                     ;; If both are provided, `!.safe` is reused.
+                     ;; `catch` becomes `try` and `finally` is forwarded.
+                     ;; That way, if `catch` fails as well, `finally` is executed but the
+                     ;; new exception will be rethrown.
+                     `($.catch/!.safe (let [trx-catch (quote ~trx-catch)]
+                                        `($.trx/precat '((quote ~$/*result*)
+                                                         ~trx-catch)))
+                                      nil
+                                      (quote ~trx-finally))))))
+       ;;
+       ;; After pushing the error handler.
+       ;;
+       ;; If 'finally' is provided, already prepend this to transactions.
+       ;; This part will be executed only if 'try' succeeds due to how the error handler
+       ;; restores former transactions.
+       (when-not (nil? trx-finally)
          ($.trx/prepend `(let [trx-finally (quote ~trx-finally)]
                            ($.trx/precat `((quote ~$/*result*)
                                            ~trx-finally
-                                           (quote ~$/*result*)))))
-         ($.trx/precat `((quote ~$/*result*)
-                         ~trx-try
-                         (do
-                           ($.catch/drop)
-                           $/*result*)))))
-     (if (nil? trx-finally)
-       ;; 'catch' without 'finally'.
-       (do
-         (push `(do
-                  ($.trx/set (quote ~$.trx/*list*))
-                  ~trx-catch))
-         ($.trx/precat `((quote ~$/*result*)
-                         ~trx-try
-                         (do
-                           ($.catch/drop)
-                           $/*result*))))
-       ;; 'catch' with 'finally'.
-       (do
-         (push `(do
-                  ($.trx/set (quote ~$.trx/*list*))
-                  ($.catch/!.safe (quote ~trx-catch)
-                                  nil
-                                  (quote ~trx-finally))
-                  ($.trx/prepend `(quote ~$/*result*))))
-         ($.trx/prepend `(let [trx-finally (quote ~trx-finally)]
-                           ($.trx/precat `((quote ~$/*result*)
-                                           ~trx-finally
-                                           (quote ~$/*result*)))))
-         ($.trx/precat `((quote ~$/*result*)
-                         ~trx-try
-                         (do
-                           ($.catch/drop)
-                           $/*result*))))))))
+                                           (quote ~$/*result*))))))
+       ;; Lastly, prepend all 'try' transactions.
+       ;; If they succeed, the error handler pushed above is cleared.
+       ;; Note: if they fail, the Shell will clear the error handler.
+       ($.trx/precat `((quote ~$/*result*)
+                        ~trx-try
+                        (do
+                          ($.catch/drop)
+                          $/*result*)))))))
