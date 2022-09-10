@@ -189,11 +189,9 @@
        (do
          (push `(do
                   ($.trx/set (quote ~$.trx/*list*))
-                  ($.trx/prepend '(let [trx-finally (quote ~trx-finally)]
-                                    ($.trx/precat `((quote ~$/*result*)
-                                                    ~trx-finally
-                                                    (quote ~$/*result*)))))
-                  ($.trx/prepend (quote ~trx-catch))
+                  ($.catch/!.safe (quote ~trx-catch)
+                                  nil
+                                  (quote ~trx-finally))
                   ($.trx/prepend `(quote ~$/*result*))))
          ($.trx/prepend `(let [trx-finally (quote ~trx-finally)]
                            ($.trx/precat `((quote ~$/*result*)
