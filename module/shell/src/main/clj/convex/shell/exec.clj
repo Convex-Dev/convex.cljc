@@ -267,6 +267,7 @@
 
   (loop [env-2 env]
     (let [trx+ ($.shell.ctx/current-trx+ env-2)]
+      ; (println :trx+ trx+ \newline)
       (if (pos? (count trx+))
         (let [env-3 (trx ($.shell.ctx/def-trx+ env-2
                                                (.drop trx+
