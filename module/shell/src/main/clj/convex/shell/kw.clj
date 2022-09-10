@@ -18,6 +18,9 @@
 (def ^Keyword arg
               ($.cell/keyword "arg"))
 
+(def ^Keyword catch-rethrow
+              ($.cell/keyword "catch.rethrow"))
+
 (def ^Keyword cause
               ($.cell/keyword "cause"))
 

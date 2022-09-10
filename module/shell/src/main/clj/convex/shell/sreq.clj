@@ -80,6 +80,23 @@
                                            ($.cell/string "Unsupported request")
                                            tuple)))
 
+
+;;;;;;;;;; Catch
+
+
+(defmethod $.shell.exec/sreq
+
+  $.shell.kw/catch-rethrow
+
+  ;; Rethrows an exception map.
+
+  [env ^AVector tuple]
+
+  ($.shell.exec.fail/rethrow env
+                             (.get tuple
+                                   2)))
+
+
 ;;;;;;;;;; Code
 
 
