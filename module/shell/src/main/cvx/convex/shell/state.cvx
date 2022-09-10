@@ -57,7 +57,8 @@
   
   ([state]
 
-   (!.load $/*result*))
+   (!.load state
+           $/*result*))
 
 
   ([state trx]
@@ -135,10 +136,13 @@
 (defn !.pop
 
   ^{:doc {:description ["Returns a request that will restore the last state saved with `$.state/push`."
+                        ""
                         "An optional transaction may be provided for execution after popping the state."
                         "Default one is `$/*result*` so that the last result from the old state will"
                         "be transferred to the popepd state."
-                        "This is commonly used to remember something from the discarded state."]
+                        "This is commonly used to remember something from the discarded state."
+                        ""
+                        "Do not pop a state that you did not push."]
           :examples    [{:code "($.state/!.pop)"}
                         {:code "($.state/!.pop `(def bar ~(inc foo)))"}]
           :signature   [{:params []}
@@ -160,3 +164,22 @@
                         trx))
      (fail :STATE
            "No state to pop"))))
+
+
+
+(defn !.with
+
+  ^{:doc {:description ["Executes the given transactions after loading the given state."
+                        "Then restores the original state."
+                        "Each time, `$/*result*` is transferred."]
+          :examples    [{:code "($.state/!.with some-state '((+ $/*result* *balance*))"}]
+          :signature   [{:params [state trx+]}]}}
+
+  ;; Unquote-splicing is not yet supported, hence must use `concat`.
+
+  [state trx+]
+
+  (!.load-continue state
+                   `($.trx/precat (concat '((quote ~$/*result*))
+                                          (quote ~trx+)
+                                          '(($.state/!.load-continue (quote ~*state*)))))))

@@ -112,6 +112,28 @@
                     {:description "State popped while remembering something."}))))
 
 
+
+(defn suite.with
+
+  ^{:doc {:description "Executing transactions with a temporary state."}}
+
+  []
+
+  (T/group '((T/path.conj 'with)
+             
+             [:cvm.sreq :dev.genesis-state]
+             (def gs
+                  $/*result*)
+
+             ($.state/!.with gs
+                             '([:result (defined? gs)]))
+             (T/trx '(= $/*result*
+                        [:result false])
+                    {:description "Input state was successfully loaded."})
+             (T/trx '(defined? gs)
+                    {:description "Original state restored."}))))
+
+
 ;;;
 
 
@@ -123,7 +145,8 @@
 
   (T/group '((T/path.conj 'convex.shell.state)
              (suite.load)
-             (suite.stack))))
+             (suite.stack)
+             (suite.with))))
 
 ;;;
 
