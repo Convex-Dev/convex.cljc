@@ -423,7 +423,8 @@
                          `(~-self/report.conj (assoc ~base-report
                                                      :exception (lookup ~$
                                                                         *result*)
-                                                     :pass?     (~expected-fail? $/*result*)))))))))
+                                                     :pass?     (= (~expected-fail? $/*result*)
+                                                                   true)))))))))
 
 
 
