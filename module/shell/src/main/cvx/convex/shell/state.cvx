@@ -22,6 +22,15 @@
 
 
 
+(def $.catch
+
+  ^{:private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.shell.catch)))
+
+
+
 (def $.trx
 
   ^{:private? true}
@@ -109,6 +118,31 @@
 
 
 
+(defn drop
+
+  ^{:callable? true
+    :doc       {:description ["Opposite of `$.state/push`: drops the next state from `$.state/*stack*`."
+                              "Throws if there is no state to drop."
+                              "Returns the popped state."]
+                :examples    [{:code "($.state/push)"}]
+                :signature   [{:params []}]}}
+
+  []
+
+  (if (= *address*
+         ~*address*)
+    (if (empty? *stack*)
+      (fail :STATE
+            "No state to drop")
+      (let [state (first *stack*)]
+        (def *stack*
+             (next *stack*))
+        state))
+    (call ~*address*
+          (drop))))
+
+
+
 (defn push
 
   ^{:callable? true
@@ -142,7 +176,10 @@
                         "be transferred to the popepd state."
                         "This is commonly used to remember something from the discarded state."
                         ""
-                        "Do not pop a state that you did not push."]
+                        "Throws if there is no state to pop."
+
+                        "Attention, do not pop a state that you did not push."
+                        "Usually, things will go very baddly if you do."]
           :examples    [{:code "($.state/!.pop)"}
                         {:code "($.state/!.pop `(def bar ~(inc foo)))"}]
           :signature   [{:params []}
@@ -156,14 +193,13 @@
 
   ([trx]
 
-   (if (>= (count *stack*)
-           1)
+   (if (empty? *stack*)
+     (fail :STATE
+           "No state to pop")
      (!.load-continue (first *stack*)
                       (if (nil? trx)
                         $/*result*
-                        trx))
-     (fail :STATE
-           "No state to pop"))))
+                        trx)))))
 
 
 

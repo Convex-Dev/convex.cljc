@@ -85,31 +85,49 @@
 
   (T/group '((T/path.conj 'stack)
 
-             42
-             ($.state/push)
+             (T/group '((T/path.conj 'push-drop)
 
-             (T/trx '(= $/*result*
-                        42)
-                    {:description "Pushing the state returns the last result."})
+                        (def n
+                             (count $.state/*stack*))
 
-             (def foo
-                  1000)
-             ($.state/!.pop)
-             
-             (T/trx '(= $/*result*
-                        1000)
-                    {:description "Popping the state transfers the last result."})
-             (T/trx '(not (defined? foo))
-                    {:description "What happened after pushing the state disppaers on popping."})
+                        ($.state/push)
+                        (T/trx '(= (count $.state/*stack*)
+                                   (inc n))
+                               {:description "State has been pushed."})
 
-             (T/trx '($.trx/precat '(($.state/push)
-                                     (def bar
-                                          100)
-                                     ($.state/!.pop `(def baz
-                                                          ~(inc bar)))
-                                     (= baz
-                                        101)))
-                    {:description "State popped while remembering something."}))))
+                        ($.state/drop)
+                        (T/trx '(= (count $.state/*stack*)
+                                   n)
+                               {:description "State has been dropped."})))
+
+
+             (T/group '((T/path.conj 'push-pop)
+                        
+                        42
+                        ($.state/push)
+
+                        (T/trx '(= $/*result*
+                                   42)
+                               {:description "Pushing the state returns the last result."})
+
+                        (def foo
+                             1000)
+                        ($.state/!.pop)
+                        
+                        (T/trx '(= $/*result*
+                                   1000)
+                               {:description "Popping the state transfers the last result."})
+                        (T/trx '(not (defined? foo))
+                               {:description "What happened after pushing the state disppaers on popping."})
+
+                        (T/trx '($.trx/precat '(($.state/push)
+                                                (def bar
+                                                     100)
+                                                ($.state/!.pop `(def baz
+                                                                     ~(inc bar)))
+                                                (= baz
+                                                   101)))
+                               {:description "State popped while remembering something."}))))))
 
 
 
