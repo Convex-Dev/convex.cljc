@@ -140,6 +140,23 @@
 
 
 
+(defn !.rethrow
+
+  ^{:doc {:description ["When building low-level utilities using `$.catch/!.safe`, it is sometimes"
+                        "necessary rethrowing a caught exception."
+                        ""
+                        "This functions returns a request for doing so and should be seldom used by rather"
+                        "expert users."]
+          :examples    [{:code "($.catch/!.rethrow {:code :TEST, :exception? true})"}]
+          :signature   [{:params [exception]}]}}
+
+  [exception]
+
+  (assert (exception? exception))
+  [:cvm.sreq :catch.rethrow exception])
+
+
+
 (defn !.safe
 
   ^{:doc {:description ["Akin to the try-catch idiom found in many languages."
@@ -195,7 +212,7 @@
                    ;; 'finally' will be executed but the exception must be rethrown.
                    `(let [trx-finally (quote ~trx-finally)]
                       ($.trx/precat `(~trx-finally
-                                      [:cvm.sreq :catch.rethrow (quote ~$/*result*)])))
+                                      ($.catch/!.rethrow (quote ~$/*result*)))))
                    (if (nil? trx-finally)
                      ;; If there is no 'finally', 'catch' will be simply executed and this is it.
                      trx-catch
