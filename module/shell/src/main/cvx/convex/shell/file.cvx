@@ -11,6 +11,15 @@
 ;;;;;;;;;;
 
 
+(def $.state
+
+  ^{:private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.shell.state)))
+
+
+
 (def $.trx
 
   ^{:private? true}
@@ -57,14 +66,15 @@
 
 (defn !.exec
 
-  ^{:doc {:description "Like `read` but the read cells are passed to `$.trx/precat` for executing as transactions."
+  ^{:doc {:description ["Like `$.file/!.read` but the read cells are executed atomically as transactions."
+                        "See `$.state/!.atomic`."]
           :examples    [{:code "($.file/!.exec \"./my/file.cvx\")"}]
           :signature   [{:params [path]}]}}
 
   [path]
 
-  ($.trx/prepend '($.trx/precat $/*result*))
-  (!.read path))
+  ($.state/!.atomic `(($.file/!.read ~path)
+                      ($.trx/precat $/*result*))))
 
 
 
