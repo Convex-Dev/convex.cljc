@@ -313,7 +313,7 @@
           (path.conj item))))
 
 
-;;;;;;;;;; Time traval and global state management
+;;;;;;;;;; Time travel and global state management
 
 
 (defn group
@@ -338,44 +338,6 @@
                     ($/*result* :exception?))
        (apply $.test/report.merge
               $/*result*))))
-
-
-
-(defn state.pop
-
-  ^{:doc      {:description ["Like `$.state/!.pop` but ensures tests results are remembered."
-                             "See function `state.push`."
-                             "An additional quoted `trx` can be passed to transfer other user data."]
-               signature    [{:params []}
-                             {:params [trx]}]}
-    :private? true}
-
-
-  ([]
-
-   (state.pop nil))
-
-
-  ([trx]
-
-   ($.state/!.pop `($.trx/precat '((~-self/report.merge ~-self/*n-fail*
-                                                        (quote ~-self/*report+*))
-                                   ~trx)))))
-
-
-
-(defn state.push
-
-  ^{:doc      {:description ["Like `$.state/push` but clears the test state from this actor."
-                             "Later, CVM state can be restored with `state.pop`."
-                             "Provides isolation, side-effects can be discarded in a controlled fashion."]
-               :signature   [{:params []}]}
-    :private? true}
-
-  []
-
-  ($.trx/precat `((~$.state/push)
-                  (~-self/report.clear))))
 
 
 ;;;;;;;;;; Testing transactions
