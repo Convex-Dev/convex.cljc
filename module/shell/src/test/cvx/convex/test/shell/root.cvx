@@ -24,13 +24,13 @@
 
   [path]
 
-  ($.trx/precat `(($.state/push)
-                  ($.file/!.exec ~(str "module/shell/src/test/cvx/convex/test/"
-                                       path
-                                       ".cvx"))
-                  ($.state/!.pop (when-not (zero? $.test/*n-fail*)
-                                   '(def fail?
-                                         true))))))
+  ($.trx/precat `(($.state/!.tmp '(($.file/!.exec ~(str "module/shell/src/test/cvx/convex/test/"
+                                                        path
+                                                        ".cvx"))
+                                   $.test/*n-fail*))
+                  (when-not (zero? $/*result*)
+                    (def fail?
+                         true)))))
 
 
 ;;;;;;;;;;
