@@ -51,8 +51,7 @@
 
   [env]
 
-  (-> env
-      (:convex.shell/ctx)
+  (-> (env :convex.shell/ctx)
       ($.cvm/result)))
 
 

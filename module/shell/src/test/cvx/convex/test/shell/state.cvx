@@ -61,15 +61,73 @@
 
 
 
-(defn suite.load
+(defn suite.eval
 
-  ^{:doc {:description ["Loading a state."]}}
+  ^{:doc {:description "One-shot evaluation with any state."}}
 
   []
 
-  (T/group '((T/path.conj 'convex.shell.state)
+  (T/group '((T/path.conj 'eval)
 
-             (T/group '((T/path.conj 'load)
+             [:cvm.sreq :dev.genesis-state]
+             (def gs
+                  $/*result*)
+
+             (T/group '((T/path.conj 'success)
+
+                        ($.state/!.eval gs
+                                        '(def foo
+                                              42))
+                        (let [[result-2
+                               gs-2]    $/*result*]
+                          (def result-2
+                               result-2)
+                          (def gs-2
+                               gs-2))
+
+                        (T/trx '(= result-2
+                                   42)
+                               {:description "First transaction succeeded."})
+                        (T/trx '(not (= gs-2
+                                        gs))
+                               {:description "State was altered."})
+
+                        ($.state/!.eval gs-2
+                                        '(inc foo))
+                        (let [[result-3
+                               gs-3]    $/*result*]
+                          (def result-3
+                               result-3)
+                          (def gs-3
+                               gs-3))
+
+                        (T/trx '(= result-3
+                                   43)
+                               {:description "`foo` was indeed defined in new state."})
+                        (T/trx '(= gs-3
+                                   gs-2)
+                               {:description "Second transaction did not produce any state change."})))
+
+             (T/group '((T/path.conj 'failure)
+                        (T/fail.code #{:FROM-EVAL}
+                                     '($.state/!.eval gs
+                                                      '(fail :FROM-EVAL
+                                                             nil))
+                                     {:description "Exception is propagated."})
+                        (T/trx '(defined? gs)
+                               {:description "Original state restored."}))))))
+
+
+
+(defn suite.load
+
+  ^{:doc {:description "Loading a state."}}
+
+  []
+
+  (T/group '((T/path.conj 'load)
+
+             (T/group '((T/path.conj 'with-current-state)
 
                         'some-result
                         ($.state/!.load-continue *state*)
@@ -105,7 +163,7 @@
                                    3)
                                {:description "`c` is the result from executing the given transaction."})))
 
-             (T/group '((T/path.conj 'load-with-genesis-state)
+             (T/group '((T/path.conj 'with-genesis-state)
 
                         [:cvm.sreq :dev.genesis-state]
 
@@ -224,6 +282,7 @@
   []
 
   (T/group '((T/path.conj 'convex.shell.state)
+             (suite.eval)
              (suite.load)
              ;; Higher-level constructs based on state loading.
              (suite.atomic)
