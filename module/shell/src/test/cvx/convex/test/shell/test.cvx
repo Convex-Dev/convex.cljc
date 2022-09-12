@@ -83,17 +83,7 @@
                          (T/report.clear)
                          (and (zero? T/*n-fail*)
                               (empty? T/*report+*))))
-                    {:description "Clearing reports."})
-
-			 (T/group '((def foo
-			                 42))
-					  (fn []
-					    `(def bar
-						      (inc ~foo))))
-
-			 (T/trx '(= 43
-			            bar)
-					{:description "Given transaction called on pop."}))))
+                    {:description "Clearing reports."}))))
 
 
 ;;;

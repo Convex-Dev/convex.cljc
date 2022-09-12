@@ -318,30 +318,26 @@
 
 (defn group
 
-  ^{:doc {:description ["Encloses the given list of transactions using `$.state` utilities."
-                        "Any state change induced by those transactions will ultimately be discarded."
-                        "Before executing the first transaction, CVM state is saved."
-                        "After the final transaction, saved state is restored while rememberring new tests results."
-                        "Optional `prepare-trx-pop` function in invoked to produce a transaction that will be executed after restoring state."
-						"Useful for rememberring something."]
-          :examples    [{:code "($.test/group '[(def foo 42) ($.test/trx '(= 42 foo))])"}]
-          :signature   [{:params [trx+]}
-                        {:params [trx+ trx-pop]}]}}
+  ^{:doc {:description ["Executes the given transactions using `$.state/!.tmp`, meaning that any state change"
+                        "will be reversed afterwards with the exceptions of assertion results."
+                        ""
+                        "This is a way to scope related transactions ensuring that any changes but test results"
+                        "are discared."]
+          :examples    [{:code "($.test/group '((def foo 42) ($.test/trx '(= 42 foo))))"}]
+          :signature   [{:params [trx+]}]}}
 
+  [trx+]
 
-
-  ([trx+]
-
-   (group trx+
-          nil))
-
-
-  ([trx+ prepare-trx-pop]
-
-   ($.trx/prepend `(~state.pop ~(when prepare-trx-pop
-								  (list prepare-trx-pop))))
-   ($.trx/precat trx+)
-   ($.trx/prepend (list state.push))))
+  ($.catch/!.safe
+    `($.state/!.tmp (concat '(($.test/report.clear))
+                            (quote ~trx+)
+                            '([$.test/*n-fail*
+                               $.test/*report+*])))
+    nil
+    '(when-not (and (map? $/*result*)
+                    ($/*result* :exception?))
+       (apply $.test/report.merge
+              $/*result*))))
 
 
 
