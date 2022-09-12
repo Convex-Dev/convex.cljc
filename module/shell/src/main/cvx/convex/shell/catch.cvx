@@ -178,8 +178,7 @@
                    ;; If there is no 'catch' (but we deduce from the beginning there is 'finally').
                    ;; 'finally' will be executed but the exception must be rethrown.
                    `(let [trx-finally (quote ~trx-finally)]
-                      ($.trx/precat `((quote ~$/*result*)
-                                      ~trx-finally
+                      ($.trx/precat `(~trx-finally
                                       [:cvm.sreq :catch.rethrow (quote ~$/*result*)])))
                    (if (nil? trx-finally)
                      ;; If there is no 'finally', 'catch' will be simply executed and this is it.
@@ -201,14 +200,12 @@
        ;; restores former transactions.
        (when-not (nil? trx-finally)
          ($.trx/prepend `(let [trx-finally (quote ~trx-finally)]
-                           ($.trx/precat `((quote ~$/*result*)
-                                           ~trx-finally
+                           ($.trx/precat `(~trx-finally
                                            (quote ~$/*result*))))))
        ;; Lastly, prepend all 'try' transactions.
        ;; If they succeed, the error handler pushed above is cleared.
        ;; Note: if they fail, the Shell will clear the error handler.
-       ($.trx/precat `((quote ~$/*result*)
-                        ~trx-try
+       ($.trx/precat `(~trx-try
                         (do
                           ($.catch/drop)
                           $/*result*)))))))
