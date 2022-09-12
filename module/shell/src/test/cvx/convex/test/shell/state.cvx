@@ -25,10 +25,10 @@
 
              (T/group '((T/path.conj 'load)
 
-                        :another-result
+                        'some-result
                         ($.state/!.load-continue *state*)
                         (T/trx '(= $/*result*
-                                   :another-result)
+                                   'some-result)
                                {:descriptionl "`!.load-continue` preserves the last result."})
 
                         (def a
@@ -131,25 +131,141 @@
 
 
 
+(defn suite.atomic
+
+  ^{:doc {:description "Restoring state on failure."}}
+
+  []
+
+  (T/group '((T/path.conj 'atomic)
+
+             (T/group '((T/path.conj 'success)
+                        (def foo
+                             42)
+                        'last-result-sym
+                        ($.state/!.atomic '((def last-result
+                                                 $/*result*)
+                                            (def foo
+                                                 (inc foo))
+                                            [last-result foo]))
+                        (T/trx '(= $/*result*
+                                   ['last-result-sym 43])
+                               {:description "Success and last result was accessible."})
+                        (T/trx '(= foo
+                                   43)
+                               {:description "`foo` has been altered."})))
+
+             (T/group '((T/path.conj 'failure)
+                        (def foo
+                             42)
+                        'last-result-sym
+                        (T/fail (fn [ex]
+                                  (and (= (ex :code)
+                                          :FROM-ATOMIC)
+                                       (= (ex :message)
+                                          ['last-result-sym 43])))
+                                '($.state/!.atomic '((def last-result
+                                                          $/*result*)
+                                                     (def foo
+                                                          (inc foo))
+                                                     (fail :FROM-ATOMIC
+                                                           [last-result foo])))
+                                {:description "Exception is rethrown."})
+                        (T/trx '(= foo
+                                   42)
+                               {:description "State has been restored."}))))))
+
+
+
+(defn suite.tmp
+
+  ^{:doc {:description "Executing transactions but only remembering the last result."}}
+
+  []
+
+  (T/group '((T/path.conj 'tmp)
+
+             (def foo
+                  42)
+
+             (T/group '((T/path.conj 'success)
+                        'last-result-sym
+                        ($.state/!.tmp '((def last-result
+                                              $/*result*)
+                                         (def foo
+                                              (inc foo))
+                                         (def bar
+                                              (inc foo))
+                                         [last-result (inc bar)]))
+                        (def result
+                             $/*result*)
+                        (T/trx '(= (first result)
+                                   'last-result-sym)
+                               {:description "Access to the last result."})
+                        (T/trx '(= (second result)
+                                   45)
+                               {:description "Computation based on `foo` is correct."})
+                        (T/trx '(= foo
+                                   42)
+                               {:description "`foo` remains unchanged."})
+                        (T/trx '(not (defined? bar))
+                               {:description "`bar` does not exist anymore."})))
+
+             (T/group '((T/path.conj 'failure)
+                        'last-result-sym
+                        (T/fail (fn [ex]
+                                  (and (= (ex :code)
+                                          :FROM-TMP-STATE)
+                                       (= (ex :message)
+                                          ['last-result-sym 43])))
+                                '($.state/!.tmp '((def last-result
+                                                       $/*result*)
+                                                  (def foo
+                                                       (inc foo))
+                                                  (fail :FROM-TMP-STATE
+                                                        [last-result foo])))
+                                {:description "Exception is rethrown."})
+                        (T/trx '(= foo
+                                   42)
+                               {:description "`foo` remains unchanged."}))))))
+
+
+
 (defn suite.tmp-with
 
   ^{:doc {:description "Executing transactions with a temporary state."}}
 
   []
 
-  (T/group '((T/path.conj 'with)
+  (T/group '((T/path.conj 'tmp.with)
              
              [:cvm.sreq :dev.genesis-state]
              (def gs
                   $/*result*)
 
-             ($.state/!.tmp-with gs
-                                 '([:result (defined? gs)]))
-             (T/trx '(= $/*result*
-                        [:result false])
-                    {:description "Input state was successfully loaded."})
-             (T/trx '(defined? gs)
-                    {:description "Original state restored."}))))
+             (T/group '((T/path.conj 'success)
+                        'last-result-sym
+                        ($.state/!.tmp-with gs
+                                            '([$/*result* (defined? gs)]))
+                        (T/trx '(= $/*result*
+                                   ['last-result-sym false])
+                               {:description "Input state was successfully loaded with access to the last result."})
+                        (T/trx '(defined? gs)
+                               {:description "Original state restored."})))
+
+             (T/group '((T/path.conj 'failure)
+                        'last-result-sym
+                        (T/fail (fn [ex]
+                                  (and (= (ex :code)
+                                          :FROM-TMP-STATE)
+                                       (= (ex :message)
+                                          ['last-result-sym false])))
+                                '($.state/!.tmp-with gs
+                                                     '((fail :FROM-TMP-STATE
+                                                             [$/*result* (defined? gs)])))
+                                {:description "Exception rethrown."})
+                        (T/trx '(defined? gs)
+                               {:description "Original state restored."}))))))
 
 
 ;;;
@@ -163,7 +279,10 @@
 
   (T/group '((T/path.conj 'convex.shell.state)
              (suite.load)
+             ;; Higher-level constructs based on state loading.
+             (suite.atomic)
              (suite.stack)
+             (suite.tmp)
              (suite.tmp-with))))
 
 ;;;
