@@ -104,25 +104,11 @@
                   (let [cell      (quote ~cell)
                         f-outln   (quote ~f-outln)
                         id-stream $/*result*]
-                    ($.trx/precat `((~f-outln ~id-stream
-                                              (quote ~cell))
-                                    ($.stream/!.close ~id-stream)
-                                    nil))))))
-
-
-
-(defn !.txt.read
-
-
-  ^{:doc {:description ["Returns a request for reading the file as the given `path` as text."
-                        "String will be avaible during the next transaction under `$/*result*`."]
-          :examples    [{:code "($.file/!.txt.read \"path/to/file.txt\")"}]
-          :signature   [{:params [path]}]}}
-
-  [path]
-
-  ($.trx/precat `(($.file/!.stream.in ~path)
-                  ($.stream/!.txt.in $/*result*))))
+                    ($.catch/!.safe `($.trx/precat '((~f-outln ~id-stream
+                                                               (quote ~cell))
+                                                     nil))
+                                    nil
+                                    `($.stream/!.close ~id-stream))))))
 
 
 
@@ -138,6 +124,21 @@
   (-!.write '$.stream/!.outln
             path
             cell))
+
+
+
+(defn !.txt.read
+
+
+  ^{:doc {:description ["Returns a request for reading the file as the given `path` as text."
+                        "String will be avaible during the next transaction under `$/*result*`."]
+          :examples    [{:code "($.file/!.txt.read \"path/to/file.txt\")"}]
+          :signature   [{:params [path]}]}}
+
+  [path]
+
+  ($.trx/precat `(($.file/!.stream.in ~path)
+                  ($.stream/!.txt.in $/*result*))))
 
 
 
