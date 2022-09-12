@@ -119,9 +119,6 @@
            ;; No deps.
            [$.shell.sym/$-db
             "convex/shell/db.cvx"]
-           ;; Requires `$.trx`.
-           [$.shell.sym/$-state
-            "convex/shell/state.cvx"]
            ;; Requires `$.trx`
            [$.shell.sym/$-stream
             "convex/shell/stream.cvx"]
@@ -137,6 +134,9 @@
            ;; Requires `$.trx`.
            [$.shell.sym/$-file
             "convex/shell/file.cvx"]
+           ;; Requires `$.catch` + `$.trx`.
+           [$.shell.sym/$-state
+            "convex/shell/state.cvx"]
            ;; Requires `$` + `$.stream` + `$.term` + `$.trx`
            [$.shell.sym/$-help
             "convex/shell/help.cvx"]
