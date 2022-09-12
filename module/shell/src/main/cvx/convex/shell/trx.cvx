@@ -72,19 +72,6 @@
 
 
 
-(defn append
-
-  ^{:doc {:description "Appends `trx` to `*list*, in last position."
-          :examples    [{:code "($.trx/append '($.steam/!.outln \"Finished!\"))"}]
-          :signature   [{:params [trx]}]}}
-    
-
-  [trx]
-
-  (postcat (list trx)))
-
-
-
 (defn precat
 
   ^{:doc {:description ["Replaces `*list*` with the concatenation of `trx+` and the current value of `*list*`."
@@ -109,16 +96,3 @@
 
   (set (cons trx
              *list*)))
-
-
-
-(defn postcat
-
-  ^{:doc {:description "Opposite of `precat`, concatenates the current value of `*list*` and given `trx+`."
-          :examples    [{:code "($.trx/postcat '((def msg \"Finished!\") ($.stream/!.outln msg)))"}]
-          :signature   [{:params [trx+]}]}}
-
-  [trx+]
-
-  (set (concat *list*
-               trx+)))
