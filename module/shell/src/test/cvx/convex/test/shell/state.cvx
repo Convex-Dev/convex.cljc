@@ -15,6 +15,52 @@
 ;;;;;;;;;; Test suites
 
 
+(defn suite.atomic
+
+  ^{:doc {:description "Restoring state on failure."}}
+
+  []
+
+  (T/group '((T/path.conj 'atomic)
+
+             (T/group '((T/path.conj 'success)
+                        (def foo
+                             42)
+                        'last-result-sym
+                        ($.state/!.atomic '((def last-result
+                                                 $/*result*)
+                                            (def foo
+                                                 (inc foo))
+                                            [last-result foo]))
+                        (T/trx '(= $/*result*
+                                   ['last-result-sym 43])
+                               {:description "Success and last result was accessible."})
+                        (T/trx '(= foo
+                                   43)
+                               {:description "`foo` has been altered."})))
+
+             (T/group '((T/path.conj 'failure)
+                        (def foo
+                             42)
+                        'last-result-sym
+                        (T/fail (fn [ex]
+                                  (and (= (ex :code)
+                                          :FROM-ATOMIC)
+                                       (= (ex :message)
+                                          ['last-result-sym 43])))
+                                '($.state/!.atomic '((def last-result
+                                                          $/*result*)
+                                                     (def foo
+                                                          (inc foo))
+                                                     (fail :FROM-ATOMIC
+                                                           [last-result foo])))
+                                {:description "Exception is rethrown."})
+                        (T/trx '(= foo
+                                   42)
+                               {:description "State has been restored."}))))))
+
+
+
 (defn suite.load
 
   ^{:doc {:description ["Loading a state."]}}
@@ -74,106 +120,6 @@
                         (T/trx '(= $/*result*
                                    $)
                                {:description "It looks like libraries were deployed while loading the genesis state"}))))))
-
-
-
-(defn suite.stack
-
-  ^{:doc {:description "Pushing and popping states."}}
-
-  []
-
-  (T/group '((T/path.conj 'stack)
-
-             (T/group '((T/path.conj 'push-drop)
-
-                        (def n
-                             (count $.state/*stack*))
-
-                        ($.state/push)
-                        (T/trx '(= (count $.state/*stack*)
-                                   (inc n))
-                               {:description "State has been pushed."})
-
-                        ($.state/drop)
-                        (T/trx '(= (count $.state/*stack*)
-                                   n)
-                               {:description "State has been dropped."})))
-
-
-             (T/group '((T/path.conj 'push-pop)
-                        
-                        42
-                        ($.state/push)
-
-                        (T/trx '(= $/*result*
-                                   42)
-                               {:description "Pushing the state returns the last result."})
-
-                        (def foo
-                             1000)
-                        ($.state/!.pop)
-                        
-                        (T/trx '(= $/*result*
-                                   1000)
-                               {:description "Popping the state transfers the last result."})
-                        (T/trx '(not (defined? foo))
-                               {:description "What happened after pushing the state disppaers on popping."})
-
-                        (T/trx '($.trx/precat '(($.state/push)
-                                                (def bar
-                                                     100)
-                                                ($.state/!.pop `(def baz
-                                                                     ~(inc bar)))
-                                                (= baz
-                                                   101)))
-                               {:description "State popped while remembering something."}))))))
-
-
-
-(defn suite.atomic
-
-  ^{:doc {:description "Restoring state on failure."}}
-
-  []
-
-  (T/group '((T/path.conj 'atomic)
-
-             (T/group '((T/path.conj 'success)
-                        (def foo
-                             42)
-                        'last-result-sym
-                        ($.state/!.atomic '((def last-result
-                                                 $/*result*)
-                                            (def foo
-                                                 (inc foo))
-                                            [last-result foo]))
-                        (T/trx '(= $/*result*
-                                   ['last-result-sym 43])
-                               {:description "Success and last result was accessible."})
-                        (T/trx '(= foo
-                                   43)
-                               {:description "`foo` has been altered."})))
-
-             (T/group '((T/path.conj 'failure)
-                        (def foo
-                             42)
-                        'last-result-sym
-                        (T/fail (fn [ex]
-                                  (and (= (ex :code)
-                                          :FROM-ATOMIC)
-                                       (= (ex :message)
-                                          ['last-result-sym 43])))
-                                '($.state/!.atomic '((def last-result
-                                                          $/*result*)
-                                                     (def foo
-                                                          (inc foo))
-                                                     (fail :FROM-ATOMIC
-                                                           [last-result foo])))
-                                {:description "Exception is rethrown."})
-                        (T/trx '(= foo
-                                   42)
-                               {:description "State has been restored."}))))))
 
 
 
@@ -281,7 +227,6 @@
              (suite.load)
              ;; Higher-level constructs based on state loading.
              (suite.atomic)
-             (suite.stack)
              (suite.tmp)
              (suite.tmp-with))))
 
