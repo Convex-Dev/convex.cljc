@@ -39,6 +39,31 @@
         (cns-resolve 'convex.shell.trx)))
 
 
+;;;;;;;;;; Scoped evaluation
+
+
+(defn !.eval
+
+  ^{:doc {:description ["Returns a request for evaluating the given transaction in the context of the given state."
+                        ""
+                        "Unlike `$.state/!.load` and variants, Convex Shell libraries will never be deployed and"
+                        "the state will not be prepared in any way and the original state will always be restored."
+                        ""
+                        "This might be useful when working with a state that does not come from the Convex Shell."
+                        "This is also why only one transaction can be evaluated: the input state might not have"
+                        "access to the Convex Shell libraries providing all the bells and whistles one is accustomed to."
+                        ""
+                        "The result will be available during the next transaction under `$/*result*`: a vector"
+                        "where the first element is the result of the transaction and the second element is the state"
+                        "after execution."]
+          :examples    [{:code "($.state/!.eval some-state '(balance #42))"}]
+          :signature   [{:params [state trx]}]}}
+
+  [state trx]
+
+  [:cvm.sreq :state.eval state trx])
+
+
 ;;;;;;;;;; State loading
 
 
@@ -53,8 +78,10 @@
                         "work session using `$.db/!.root.read`, and restoring it using this request."
                         ""
                         "A transaction may be submitted as second argument. It will be executed after loading the state."
-                        "Default one is `$/*result*`so that the last result of the old state will be transferred to the new one."
+                        "Default one is `'$/*result*`so that the last result of the old state will be transferred to the new one."
                         "It is commonly used for remembering information from state to state."
+                        ""
+                        "All Convex Shell libraries will be deployed if they seem to be lacking."
                         ""
                         "Note that all of this is only about the state of the Convex Virtual Machine. Other resources that may have"
                         "been opened in the Convex Shell, such as file streams, will not be changed in any way."]
@@ -81,6 +108,7 @@
 
   ^{:doc {:description ["Like `!.load` but the current list of transactions will replace the list of transactions"
                         "of the loaded state."
+                        ""
                         "This is what is often needed. Remember that transactions to execute are stored in the"
                         "`$.trx` library, hence in an account that is part of the state."
                         "That means that loading a state without restoring current transactions will result in the"
@@ -117,6 +145,8 @@
                         "This function extends this behavior to multi-transactions."
                         "Before prepending the given transactions for execution, the `*state*` is remembered. In case of"
                         "an exception, the original state is restored and the exception is rethrown."
+                        ""
+                        "Based on `$.state/!.load`."
                         ""
                         "E.g. In the example below, an exception will be thrown and `foo` will be undefined."]
           :examples    [{:code "($.state/!.atomic '((def foo 42) (assert (< foo 1))))"}]
@@ -163,7 +193,9 @@
                         ""
                         "Useful for computing a result and erasing any state change it might have caused."
                         ""
-                        "In case of an exception, behaves like `$.state/!.atomic`."]
+                        "In case of an exception, behaves like `$.state/!.atomic`."
+                        ""
+                        "Based on `$.state/!.load`."]
           :examples    [{:code "($.state/!.tmp '((def foo 42) (inc foo)))   (and (= $/*result* 43) (not (defined? foo)))"}]
           :signature   [{:params [trx+]}]}}
 

@@ -586,6 +586,49 @@
 ;;;;;;;;;; State
 
 
+(defn- -ensure-state
+
+  ;;
+
+  [env x]
+
+  (when-not (instance? State
+                       x)
+    ($.shell.exec.fail/err env
+                            ($.shell.err/arg ($.cell/string "Argument is not a valid CVM state")
+                                             ($.cell/* state)))$.shell.exec.fail/err env
+                            ($.shell.err/arg ($.cell/string "Argument is not a valid CVM state")
+                                             ($.cell/* state))))
+
+
+
+(defmethod $.shell.exec/sreq
+
+  $.shell.kw/state-eval
+
+  ;; Evaluates a transaction in the given state, without preparing it in any way.
+
+  [env ^AVector tuple]
+
+  (let [state (.get tuple
+                    2)]
+    (or (-ensure-state env
+                       state)
+        (let [ctx (-> (env :convex.shell/ctx)
+                      ($.cvm/fork)
+                      ($.cvm/state-set state)
+                      ($.cvm/eval (.get tuple
+                                        3)))
+              ex  ($.cvm/exception ctx)]
+          (if ex
+            ($.shell.exec.fail/err env
+                                   ($.shell.err/mappify ex))
+            ($.shell.ctx/def-result env
+                                    ($.cell/* [~($.cvm/result ctx)
+                                               ~($.cvm/state ctx)])))))))
+
+
+
 (defmethod $.shell.exec/sreq
 
   $.shell.kw/state-load
@@ -602,46 +645,41 @@
   [env ^AVector tuple]
 
   (let [state (.get tuple
-                    2)
-        trx   (.get tuple
-                    3)]
-    (if (instance? State
-                   state)
-      ;; Given argument is a proper state.
-      (let [ctx   (env :convex.shell/ctx)
-            ctx-2 (-> ctx
-                      ($.cvm/fork)
-                      ($.cvm/state-set (.get tuple
-                                             2)))
-            $     ($.cvm/look-up ctx-2
-                                 $.shell.sym/$)
-            ok    (fn [env ctx]
-                    (-> env
-                        (assoc :convex.shell/ctx
-                               ctx)
-                        (cond->
-                          trx
-                          ($.shell.ctx/prepend-trx trx))
-                        ($.shell.ctx/def-result nil)))]
-        (if (and $
-                 ($.cvm/look-up ctx-2
-                                $
-                                $.shell.sym/version))
-          (ok env
-              ctx-2)
-          (let [x   ($.shell.ctx/deploy-lib+ ctx-2)
-                err (::$.shell.ctx/err x)]
-            (if err
-              ($.shell.exec.fail/err env
-                                     ($.shell.err/state-load ($.cell/string (err :path))
-                                                             ($.cell/string "Reverting state, cannot deploy shell library on new one")
-                                                             (err :cvm-exception)))
-              (ok env
-                  x)))))
-      ;; Given argument is not a state, cannot load it.
-      ($.shell.exec.fail/err env
-                             ($.shell.err/arg ($.cell/string "Argument is not a valid CVM state")
-                                              ($.cell/* state))))))
+                    2)]
+    (or (-ensure-state env
+                       state)
+        (let [trx   (.get tuple
+                          3)
+              ctx   (env :convex.shell/ctx)
+              ctx-2 (-> ctx
+                        ($.cvm/fork)
+                        ($.cvm/state-set (.get tuple
+                                               2)))
+              $     ($.cvm/look-up ctx-2
+                                   $.shell.sym/$)
+              ok    (fn [env ctx]
+                      (-> env
+                          (assoc :convex.shell/ctx
+                                 ctx)
+                          (cond->
+                            trx
+                            ($.shell.ctx/prepend-trx trx))
+                          ($.shell.ctx/def-result nil)))]
+          (if (and $
+                   ($.cvm/look-up ctx-2
+                                  $
+                                  $.shell.sym/version))
+            (ok env
+                ctx-2)
+            (let [x   ($.shell.ctx/deploy-lib+ ctx-2)
+                  err (::$.shell.ctx/err x)]
+              (if err
+                ($.shell.exec.fail/err env
+                                       ($.shell.err/state-load ($.cell/string (err :path))
+                                                               ($.cell/string "Reverting state, cannot deploy shell library on new one")
+                                                               (err :cvm-exception)))
+                (ok env
+                    x))))))))
 
 
 ;;;;;;;;;; Streams
