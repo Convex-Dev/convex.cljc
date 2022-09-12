@@ -23,29 +23,36 @@
 
   (T/group '((T/path.conj 'convex.shell.trx)
 
-             ($.trx/prepend '(def foo
-                                  42))
+             42
 
-             (T/trx '(= 42
-                        foo)
+             ($.trx/prepend '(def foo
+                                  $/*result*))
+
+             (T/trx '(= foo
+                        42)
                     {:description "Prepends a single transaction."})
 
+             100
+
              ($.trx/precat '((def foo
-                                  (inc foo))
+                                  $/*result*)
                              (def foo
                                   (inc foo))))
 
-             (T/trx '(= 44
+             (T/trx '(= 101
                         foo)
                     {:description "Prepends a list of transactions."})
 
+             
+             500
+
              ($.trx/set (concat '((def foo
-                                       (inc foo))
+                                       $/*result*)
                                   (def foo
                                        (inc foo)))
                                 $.trx/*list*))
 
-             (T/trx '(= 46
+             (T/trx '(= 501
                         foo)
                     {:description "Emulating `precat` with `set`."}))))
 

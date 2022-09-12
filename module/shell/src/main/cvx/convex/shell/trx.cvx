@@ -22,6 +22,15 @@
   *address*)
 
 
+
+(def $
+
+  ^{:private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.shell)))
+
+
 ;;;;;;;;;; Public values
 
 
@@ -41,7 +50,9 @@
 
   ^{:callable? true
     :doc       {:description ["Replaces `*list*` with the given list of transactions."
-                              "Low-level, most of the time other functions such as `precat` are used."]
+                              "Low-level, most of the time other functions such as `precat` are used."
+                              ""
+                              "Returns the current value `$/*result*`."]
                 :examples    [{:code "($.trx/set '((def foo 42) ($.stream/!.outln [:foo foo])))"}]
                 :signature   [{:params [trx+]}]}}
 
@@ -49,10 +60,11 @@
 
   (if (= *address*
          -self)
-    (def *list*
-         (do
-           (assert (list? trx+))
-           trx+))
+    (do
+      (assert (list? trx+))
+      (def *list*
+           trx+)
+      $/*result*)
     (call -self
           (set trx+))))
 
