@@ -28,7 +28,7 @@
 
              (T/trx '(= 42
                         foo)
-                    {:description "Prepend one transaction single."})
+                    {:description "Prepends a single transaction."})
 
              ($.trx/precat '((def foo
                                   (inc foo))
@@ -37,7 +37,7 @@
 
              (T/trx '(= 44
                         foo)
-                    {:description "Prepend a list of transactions."})
+                    {:description "Prepends a list of transactions."})
 
              ($.trx/set (concat '((def foo
                                        (inc foo))
@@ -47,27 +47,7 @@
 
              (T/trx '(= 46
                         foo)
-                    {:description "Emulating `precat`."})
-
-             (T/trx '(query
-                       (do
-                         ($.trx/append :foo)
-                         (= :foo
-                            (last $.trx/*list*))))
-                    {:description "Append a single transaction."})
-
-             (T/trx '(query
-                       (do
-                         ($.trx/postcat '(:foo
-                                          :bar))
-                         (let [[& _
-                                  foo
-                                  bar] $.trx/*list*]
-                           (and (= :foo
-                                   foo)
-                                (= :bar
-                                   bar)))))
-                    {:description "Append a list of transactions."}))))
+                    {:description "Emulating `precat` with `set`."}))))
 
 
 ;;;
