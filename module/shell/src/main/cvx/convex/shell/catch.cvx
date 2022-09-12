@@ -162,7 +162,6 @@
        ;; No matter which one is provided, an error handler must be pushed on the stack.
        (push `(do
                 ;; At this point, former transactions are restored to have a clean slate.
-                ;; TODO. Maybe restore the whole state?
                 ($.trx/set (quote ~$.trx/*list*))
                 ;; What happens next depends on what has been provided.
                 ~(if (nil? trx-catch)

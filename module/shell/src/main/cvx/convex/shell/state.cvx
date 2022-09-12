@@ -67,7 +67,7 @@
   ([state]
 
    (!.load state
-           $/*result*))
+           `(quote ~$/*result*)))
 
 
   ([state trx]
@@ -97,7 +97,7 @@
   ([state]
 
    (!.load-continue state
-                    $/*result*))
+                    `(quote ~$/*result*)))
 
 
   ([state trx]
@@ -202,20 +202,80 @@
                         trx)))))
 
 
+;;;;;;;;;; Executing several transactions with different guarantees
 
-(defn !.with
 
-  ^{:doc {:description ["Executes the given transactions after loading the given state."
-                        "Then restores the original state."
-                        "Each time, `$/*result*` is transferred."]
-          :examples    [{:code "($.state/!.with some-state '((+ $/*result* *balance*))"}]
+(defn !.atomic
+
+  ^{:doc {:description ["Single Convex transactions are atomic: if they fail, any state change is discarded."
+                        ""
+                        "This function extends this behavior to multi-transactions."
+                        "Before prepending the given transactions for execution, the `*state*` is remembered. In case of"
+                        "an exception, the original state is restored and the exception is rethrown."
+                        ""
+                        "E.g. In the example below, an exception will be thrown and `foo` will be undefined."]
+          :examples    [{:code "($.state/!.atomic '((def foo 42) (assert (< foo 1))))"}]
+          :signature   [{:params [trx+]}]}}
+
+  [trx+]
+
+  ($.catch/!.safe `($.trx/precat (quote ~trx+))
+                  '{:$.state.exception $/*result*}
+                  `(when-let [exception (and (map? $/*result*)
+                                             ($/*result* :$.state.exception))]
+                     ($.state/!.load (quote ~*state*)
+                                     `[:cvm.sreq :catch.rethrow (quote ~exception)]))))
+
+
+
+(defn -!.tmp
+
+  ^{:private? true}
+
+  ;; General mechanism for executing some transactions safely and restoring to a given state.
+
+  [original-state trx+]
+
+  ($.catch/!.safe `($.trx/precat (quote ~trx+))
+                  '{:$.state.exception $/*result*}
+                  `($.state/!.load (quote ~original-state)
+                                   (if-let [exception (and (map? $/*result*)
+                                                           ($/*result* :$.state.exception))]
+                                     `[:cvm.sreq :catch.rethrow (quote ~exception)]
+                                     $/*result*))))
+
+
+(defn !.tmp
+
+  ^{:doc {:description ["Remembers the current `*state*` and prepends the given transactions for execution."
+                        "After executing them, the original state is restored and the last `$/*result*` is transferred."
+                        ""
+                        "Useful for computing a result and erasing any state change it might have caused."
+                        ""
+                        "In case of an exception, behaves like `$.state/!.atomic`."]
+          :examples    [{:code "($.state/!.tmp '((def foo 42) (inc foo)))   (and (= $/*result* 43) (not (defined? foo)))"}]
+          :signature   [{:params [trx+]}]}}
+
+  [trx+]
+
+  ;; Exception must be rethrown explicitly because after loading, `$.catch/!.safe` related transactions
+  ;; are forgotten.
+
+  (-!.tmp *state*
+          trx+))
+
+
+
+(defn !.tmp-with
+
+  ^{:doc {:description ["Like `$.state/!.tmp` but the first argument is a state to load temporarily"
+                        "as oppposed to using the current `*state*`."
+                        "After the given transactions are executed, the original `*state*` is restored."]
+          :examples    [{:code "($.state/!.tmp-with some-state '(*balance*)"}]
           :signature   [{:params [state trx+]}]}}
-
-  ;; Unquote-splicing is not yet supported, hence must use `concat`.
 
   [state trx+]
 
   (!.load-continue state
-                   `($.trx/precat (concat '((quote ~$/*result*))
-                                          (quote ~trx+)
-                                          '(($.state/!.load-continue (quote ~*state*)))))))
+                   `($.state/-!.tmp (quote ~*state*)
+                                    (quote ~trx+))))
