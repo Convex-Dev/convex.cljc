@@ -105,6 +105,52 @@
                (~assert+ 'directory
                          $/*result*)))))
 
+                    
+
+(defn suite.exec
+
+  ^{:doc {:description "Executing files atomically."}}
+
+  []
+
+  (T/group '((T/path.conj 'exec)
+
+             (T/group '((T/path.conj 'success)
+                        ($.file/!.tmp)
+                        (def path
+                             $/*result*)
+                        ($.file/!.write path
+                                        '(def foo
+                                              42))
+                        ($.file/!.exec path)
+                        (T/trx '(= foo
+                                   42)
+                               {:description "Proper file executed normally."})))
+
+             (T/group '((T/path.conj 'failure)
+
+                        (T/group '((T/path.conj 'reader-error)
+                                   ($.file/!.tmp)
+                                   (def path
+                                        $/*result*)
+                                   ($.file/!.txt.write path
+                                                       "(def foo 42")
+                                   (T/fail.code #{:READER}
+                                                `($.file/!.exec ~path)
+                                                {:description "Bad CVX Lisp."})))
+
+                        (T/group '((T/path.conj 'execution-error)
+                                   ($.file/!.tmp)
+                                   (def path
+                                        $/*result*)
+                                   ($.file/!.txt.write ~path
+                                                       "(def foo 42) (fail :TEST nil)")
+                                   (T/fail.code #{:TEST}
+                                                `($.file/!.exec ~path)
+                                                {:description "Exception thrown."})
+                                   (T/trx '(not (defined? foo))
+                                          {:description "Atomic execution: original state restored."}))))))))
+
 
 
 (defn suite.exists?
@@ -254,14 +300,7 @@
                                      ($.file/!.read path)
                                      (= cell
                                         (first $/*result*))))
-                    {:description "Reading after writing."})
-
-             ($.file/!.exec path)
-
-             (T/trx '($.trx/precat '(($.file/!.exec path)
-                                     (= {:foo :bar}
-                                        x)))
-                    {:description "File executed."}))))
+                    {:description "Reading after writing."}))))
 
 
 
@@ -439,6 +478,7 @@
              (suite.stream)
              (suite.line)
              (suite.rw)
+             (suite.exec)
              (suite.txt.rw)
              (suite.txt.in)
              )))

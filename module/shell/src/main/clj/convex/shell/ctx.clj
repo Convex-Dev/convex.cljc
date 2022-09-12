@@ -131,12 +131,12 @@
            ;; Requires `$.trx`.
            [$.shell.sym/$-code
             "convex/shell/code.cvx"]
-           ;; Requires `$.trx`.
-           [$.shell.sym/$-file
-            "convex/shell/file.cvx"]
            ;; Requires `$.catch` + `$.trx`.
            [$.shell.sym/$-state
             "convex/shell/state.cvx"]
+           ;; Requires `$.state` + `$.trx`.
+           [$.shell.sym/$-file
+            "convex/shell/file.cvx"]
            ;; Requires `$` + `$.stream` + `$.term` + `$.trx`
            [$.shell.sym/$-help
             "convex/shell/help.cvx"]
