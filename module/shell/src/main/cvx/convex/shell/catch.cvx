@@ -126,13 +126,23 @@
 
 (defn !.safe
 
-  ^{:doc {:description ["Try-catch idiom."
-                        "If `trx-try` transaction fails, `trx-catch` is executed."
-                        "For any argument, `$.trx/precat`if more than one transaction must be executed."
+  ^{:doc {:description ["Akin to the try-catch idiom found in many languages."
+                        ""
+                        "If `trx-try` transaction fails, the thrown exception is bound to `$/*result*` and `trx-catch`"
+                        "is executed."
                         ""
                         "In any case, `trx-finally` is finally executed if given."
-                        "However, the end `$/*result*` will always come from `trx-try` in case of success or"
-                        "`trx-catch` in case of failure."]
+                        "However, the end `$/*result*` value will always come from `trx-try` in case of success or"
+                        "`trx-catch` in case of failure, irrelevant of what `trx-finally` does. It is commonly used"
+                        "to ensure that some resources, like file streams, are closed even in case of failure."
+                        ""
+                        "If `trx-catch` itself throws an exception, `trx-finally` will be called nonetheless but the"
+                        "new exception will ultimately propagate afterwards. If `trx-finally` itself throws an exception,"
+                        "this one will propagate."
+                        ""
+                        "For any argument, `$.trx/precat` can be used if more than one transaction must be executed."]
+          :examples    [{:code "($.catch/!.safe '(assert false) '[:caught $/*result*])"}
+                        {:code "($.catch/!.safe '(assert false) nil '($.stream/!.outln :finally!))"}]
           :signature   [{:params [trx-try]}
                         {:params [trx-try trx-catch]}
                         {:params [trx-try trx-catch trx-finally]}]}}
