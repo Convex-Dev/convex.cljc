@@ -334,8 +334,7 @@
                             '([$.test/*n-fail*
                                $.test/*report+*])))
     nil
-    '(when-not (and (map? $/*result*)
-                    ($/*result* :exception?))
+    '(when-not ($.catch/exception? $/*result*)
        (apply $.test/report.merge
               $/*result*))))
 

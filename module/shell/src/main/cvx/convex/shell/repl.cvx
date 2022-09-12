@@ -122,7 +122,7 @@
                   (cond
                     ;;
                     ;; An exception occured while reading input.
-                    (:exception? $/*result*)
+                    ($.catch/exception? $/*result*)
                     (let [result (quote ~result)]
                       (if (= (:code $/*result*)
                              :READER)

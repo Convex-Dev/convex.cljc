@@ -11,7 +11,15 @@
                  :name        "Basic exception handling for the Convex Shell"}))
 
 
-;;;;;;;;;; Importing libraries
+;;;;;;;;;; Private values
+
+
+(def -self
+
+  ^{:private? true}
+
+  *address*)
+
 
 
 (def $
@@ -31,15 +39,7 @@
         (cns-resolve 'convex.shell.trx)))
 
 
-;;;;;;;;;; Static values
-
-
-(def -self
-
-  ^{:private? true}
-
-  *address*)
-
+;;;;;;;;;; Pushing and popping exception handlers
 
 
 (def *stack*
@@ -54,7 +54,7 @@
                  ($.process/!.exit 2)))))
 
 
-;;;;;;;;;; API
+;;;
 
 
 (defn drop
@@ -121,6 +121,22 @@
       trx)
     (call -self
           (push trx))))
+
+
+;;;;;;;;;; Exception handling
+
+
+(defn exception?
+
+  ^{:doc {:description "Returns true if `x` looks like a map describing an exception."
+          :examples    [{:code "($.catch/exception? 42)"}]
+          :signature   [{:params [x]}]}}
+
+  [x]
+
+  (and (map? x)
+       (x :exception?)
+       (not (nil? (x :code)))))
 
 
 
