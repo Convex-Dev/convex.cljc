@@ -15,7 +15,7 @@
 ;;;;;;;;;; Test suites
 
 
-(defn suite.low-level
+(defn suite.push-pop
 
   ^{:doc {:description "Testing low-level pushing and popping."}}
 
@@ -64,6 +64,32 @@
                          (T/trx '(= :handler-1
                                     foo)
                                 {:description "Error bubbled to non-failing handler."}))))))
+
+
+
+(defn suite.rethrow
+
+  ^{:doc {:description "Rethrowing exceptions."}}
+  
+  []
+
+  (T/group '((T/path.conj 'rethrow)
+
+             (T/group '((T/path.conj 'success)
+                        (def ex
+                             {:code       :TEST
+                              :exception? true
+                              :foo        :bar})
+                        (T/fail (fn [x]
+                                  (= x
+                                     ex))
+                                `($.catch/!.rethrow (quote ~ex))
+                                {:description "Properly rethrown."})))
+
+             (T/group '((T/path.conj 'failure)
+                        (T/fail.code #{:ASSERT}
+                                     '($.catch/!.rethrow 42)
+                                     {:description "Only exceptions can be rethrown."}))))))
 
 
 
@@ -265,7 +291,8 @@
   []
 
   (T/group '((T/path.conj 'convex.shell.account)
-             (suite.low-level)
+             (suite.rethrow)
+             (suite.push-pop)
              (suite.safe))))
 
 

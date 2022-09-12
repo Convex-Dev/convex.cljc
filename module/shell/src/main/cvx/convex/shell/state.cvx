@@ -130,7 +130,7 @@
                   `(when-let [exception (and (map? $/*result*)
                                              ($/*result* :$.state.exception))]
                      ($.state/!.load (quote ~*state*)
-                                     `[:cvm.sreq :catch.rethrow (quote ~exception)]))))
+                                     `($.catch/!.rethrow (quote ~exception))))))
 
 
 
@@ -151,7 +151,7 @@
                   `($.state/!.load (quote ~original-state)
                                    (if-let [exception (and (map? $/*result*)
                                                            ($/*result* :$.state.exception))]
-                                     `[:cvm.sreq :catch.rethrow (quote ~exception)]
+                                     `($.catch/!.rethrow (quote ~exception))
                                      `(quote ~$/*result*)))))
 
 
