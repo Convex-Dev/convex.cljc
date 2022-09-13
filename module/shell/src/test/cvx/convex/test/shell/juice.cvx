@@ -15,13 +15,13 @@
 ;;;;;;;;;; Test suites
 
 
-(defn suite.main
+(defn suite.limit
 
-  ^{:doc {:description "Main test suite."}}
+  ^{:doc {:description "Setting and retrieving the default juice limit."}}
 
   []
 
-  (T/group '((T/path.conj 'convex.shell.juice)
+  (T/group '((T/path.conj 'limit)
 
              ($.juice/!.limit)
 
@@ -48,6 +48,38 @@
              (T/trx '(= $/*result*
                         default-limit)
                     {:description "Nil limit resets to the max limit."}))))
+
+
+
+(defn suite.track
+
+  ^{:doc {:description "Tracking juice consumption."}}
+
+  []
+
+  (T/group '((T/path.conj 'track)
+             (T/trx '($.trx/precat '(($.juice/!.track '(+ 2 2))
+                                     (and (map? $/*result*)
+                                         (= 4
+                                            (:result $/*result*))
+                                         (= (:juice $/*result*)
+                                            (+ (:juice.expand $/*result*)
+                                               (:juice.compile $/*result*)
+                                               (:juice.exec $/*result*))))))
+                    {:description "Tracking."}))))
+
+
+
+(defn suite.main
+
+  ^{:doc {:description "Main test suite."}}
+
+  []
+
+  (T/group '((T/path.conj 'convex.shell.juice)
+             (suite.limit)
+             (suite.track))))
+
 
 ;;;
 

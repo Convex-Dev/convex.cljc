@@ -4,8 +4,8 @@
 
 
 (call *registry*
-      (register {:description "Performance-related utilities."
-                 :name        "Performance library for the Convex Shell"}))
+      (register {:description "Highly experimental. Breaking changes ahead."
+                 :name        "Performance utilities for the Convex Shell"}))
 
 
 ;;;;;;;;;; API
@@ -24,17 +24,3 @@
   [trx]
 
   [:cvm.sreq :perf.bench trx])
-
-
-
-(defn !.track
-
-  ^{:doc {:description ["Returns a request for tracking juice consumption of each execution step (expansion, compilation, evaluation)."
-                        "Also pinpoints which step fails in case of error."
-                        "Report map is available during next transacation under `$/*result*`."]
-          :examples    [{:code "($.perf/!.track '(inc 42))"}
-                        {:code "($.perf/!.track (compile '(inc 42)))"}]}}
-
-  [trx]
-
-  [:cvm.sreq :perf.track trx])

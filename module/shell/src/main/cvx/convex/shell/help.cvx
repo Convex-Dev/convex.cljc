@@ -418,7 +418,7 @@
                      (account "$.log"
                               "accessing the CVM log")
                      (account "$.perf"
-                              "performance tracking, such as juice monitoring")
+                              "experimental performance utilities")
                      (account "$.process"
                               "process utilities, such as reading environment variables")
                      (account "$.repl"

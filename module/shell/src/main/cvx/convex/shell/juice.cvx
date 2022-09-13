@@ -45,3 +45,17 @@
                    (>= limit
                        100000))))
   [:cvm.sreq :juice.limit.set limit])
+
+
+
+(defn !.track
+
+  ^{:doc {:description ["Returns a request for tracking juice consumption of each execution step (expansion, compilation, evaluation)."
+                        "Also pinpoints which step fails in case of error."
+                        "Report map is available during next transacation under `$/*result*`."]
+          :examples    [{:code "($.juice/!.track '(inc 42))"}
+                        {:code "($.juice/!.track (compile '(inc 42)))"}]}}
+
+  [trx]
+
+  [:cvm.sreq :juice.track trx])
