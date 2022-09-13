@@ -305,3 +305,56 @@
                    `($.state/-!.tmp (quote ~*state*)
                                     (quote ~$/*result*)
                                     (quote ~trx+))))
+
+
+;;;;;;;;;; Specific state alterations
+
+
+(defn !.clean
+
+  ^{:doc {:description ["Prepends a series of requests for execution aimed to cleane the input state by ensuring:"
+
+                        "by ensuring:"
+                        ""
+                        "  - Custom exception handlers in `$.catch/*stack* are removed"
+                        "  - REPL is declared as off"
+                        "  - Transactions are replaced with the given ones or reset"
+                        ""
+                        "Naturally, this will fail on a state that has not been initialized with the Convex"
+                        "Shell libraries."
+                        ""
+                        "Default input state is `*state*`."
+                        ""
+                        "This is often cleaner when storing a state in Etch (see `$.db`) with the propsect"
+                        "of using it later with `$.state/!.load`."]
+          :examples    [{:code "($.state/!.clean *state* '(($.repl/!.start)))"}]
+          :signature   [{:params [state]}
+                        {:params [state option+]}]}}
+
+
+  ([]
+
+   (!.clean *state*))
+
+
+  ([state]
+
+   (!.clean state
+            nil))
+
+
+  ([state trx+]
+
+   ($.trx/precat `(($.state/!.safe (quote ~state)
+                                   {:address #2}
+                                   '(do
+                                      ;; Actually, `$.repl/!.stop` is CVX Lisp only.
+                                      ($.repl/!.stop)
+                                      ($.trx/set (quote ~(or trx+
+                                                             '())))
+                                      $.catch))
+                   ($.state/!.safe (second $/*result*)
+                                   {:address (first $/*result*)}
+                                   '(def *stack*
+                                         (list (last *stack*))))
+                   (second $/*result*)))))
