@@ -140,17 +140,6 @@
   (throw (Exception. "This is a simulated exception")))
 
 
-
-(defmethod $.shell.exec/sreq
-
-  $.shell.kw/dev-genesis-state
-
-  [env _tuple]
-
-  ($.shell.ctx/def-result env
-                          ($.cvm/state $.shell.ctx/ctx-genesis)))
-
-
 ;;;;;;;;;; Etch
 
 
