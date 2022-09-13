@@ -73,11 +73,17 @@
                         "in vector as described above and will not be recognized by the Convex Shell. Nonetheless, results"
                         "should always be handled carefully when the transaction is untrusted code."
                         ""
+                        "Note that any CVM log changes will be discarded."
                         ""
-                        "An executing address may be provided. If not, the current address will be used."
-                        "Throws if the input state does not have an account for that address."]
-          :examples    [{:code "($.state/!.safe some-state '(balance #3))"}
-                        {:code "($.state/!.safe some-state #3 '*balance*)"}]
+                        "A map of options may be provided:"
+                        ""
+                        "  :address"
+                        "    Sets the origin address (current address by default)."
+                        ""
+                        "  :juice"
+                        "    Sets the maximum juice limit (100K units by default)."]
+          :examples    [{:code "($.state/!.safe $.state/genesis '(balance #3))"}
+                        {:code "($.state/!.safe $.state/genesis {:address #3, :juice 50000} '*balance*)"}]
           :signature   [{:params [state trx]}
                         {:params [state address trx]}]}}
 
@@ -89,18 +95,24 @@
            trx))
 
 
-  ([state address trx]
+  ([state option+ trx]
 
-   (assert (or (nil? address)
-               (address? address)))
-   (let [address-2 (or address
-                       *address*)]
-     (when-not (>= (count (state :accounts))
-                   (long address-2))
-       (fail :NOBODY
-             (str "Input state does not contain address: "
-                  address-2)))
-       [:cvm.sreq :state.safe state address-2 trx])))
+   (let [address (:address option+)
+         juice   (:juice option+)]
+     (assert (or (nil? address)
+                 (address? address))
+             (or (nil? juice)
+                 (and (long? juice)
+                      (>= juice
+                          0))))
+     (let [address-2 (or address
+                         *address*)]
+       (when-not (>= (count (state :accounts))
+                     (long address-2))
+         (fail :NOBODY
+               (str "Input state does not contain address: "
+                    address-2)))
+         [:cvm.sreq :state.safe state address-2 (or juice 100000) trx]))))
 
 
 ;;;;;;;;;; State loading
@@ -124,8 +136,8 @@
                         ""
                         "Note that all of this is only about the state of the Convex Virtual Machine. Other resources that may have"
                         "been opened in the Convex Shell, such as file streams, will not be changed in any way."]
-          :examples    [{:code "($.state/!.load *state*)"}
-                        {:code "($.state/!.load *state* `(def y ~(inc x)))"}]
+          :examples    [{:code "($.state/!.load $.state/genesis)"}
+                        {:code "($.state/!.load $.state/genesis `(def y ~(inc 42)))"}]
           :signature   [{:params [state]}
                         {:params [state trx]}]}}
 
@@ -155,8 +167,8 @@
                         ""
                         "Note that this function simply reuses `!.load`. Users may imagine many different variants"
                         "as to what should happen to transactions."]
-          :examples    [{:code "($.state/!.load-continue *state*)"}
-                        {:code "($.state/!.load-continue *state* `(def y ~(inc x)))"}]
+          :examples    [{:code "($.state/!.load-continue $.state/genesis)"}
+                        {:code "($.state/!.load-continue $.state/genesis `(def y ~(inc 42)))"}]
           :signature   [{:params [state]}
                         {:params [state trx]}]}}
 
@@ -251,7 +263,7 @@
   ^{:doc {:description ["Like `$.state/!.tmp` but the first argument is a state to load temporarily"
                         "as oppposed to using the current `*state*`."
                         "After the given transactions are executed, the original `*state*` is restored."]
-          :examples    [{:code "($.state/!.tmp-with some-state '(*balance*)"}]
+          :examples    [{:code "($.state/!.tmp-with $.state/genesis '(*balance*))"}]
           :signature   [{:params [state trx+]}]}}
 
   [state trx+]

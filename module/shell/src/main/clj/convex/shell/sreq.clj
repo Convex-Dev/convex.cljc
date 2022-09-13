@@ -666,8 +666,10 @@
                         ($.cvm/fork ctx))
               ctx-3   (-> ctx-2
                           ($.cvm/state-set state)
+                          ($.cvm/juice-set ($.clj/long (.get tuple
+                                                             4)))
                           ($.cvm/eval (.get tuple
-                                            4)))
+                                            5)))
               ex      ($.cvm/exception ctx-3)]
           (if ex
             ($.shell.exec.fail/err env
