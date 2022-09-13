@@ -162,11 +162,11 @@
 (def ^Keyword sreq
               ($.cell/keyword "sreq"))
 
-(def ^Keyword state-eval
-              ($.cell/keyword "state.eval"))
-
 (def ^Keyword state-load
               ($.cell/keyword "state.load"))
+
+(def ^Keyword state-safe
+              ($.cell/keyword "state.safe"))
 
 (def ^Keyword stream
               ($.cell/keyword "stream"))

@@ -588,7 +588,7 @@
 
 (defn- -ensure-state
 
-  ;;
+  ;; Returns `env` with an error if `x` is not a `State`.
 
   [env x]
 
@@ -599,39 +599,6 @@
                                              ($.cell/* state)))$.shell.exec.fail/err env
                             ($.shell.err/arg ($.cell/string "Argument is not a valid CVM state")
                                              ($.cell/* state))))
-
-
-
-(defmethod $.shell.exec/sreq
-
-  $.shell.kw/state-eval
-
-  ;; Evaluates a transaction in the given state, without preparing it in any way.
-
-  [env ^AVector tuple]
-
-  (let [state (.get tuple
-                    2)]
-    (or (-ensure-state env
-                       state)
-        (let [address (.get tuple
-                            3)
-              ctx     (env :convex.shell/ctx)
-              ctx-2   (if address
-                        ($.cvm/fork-to ctx
-                                       address)
-                        ($.cvm/fork ctx))
-              ctx-3   (-> ctx-2
-                          ($.cvm/state-set state)
-                          ($.cvm/eval (.get tuple
-                                            4)))
-              ex      ($.cvm/exception ctx-3)]
-          (if ex
-            ($.shell.exec.fail/err env
-                                   ($.shell.err/mappify ex))
-            ($.shell.ctx/def-result env
-                                    ($.cell/* [~($.cvm/result ctx-3)
-                                               ~($.cvm/state ctx-3)])))))))
 
 
 
@@ -686,6 +653,39 @@
                                                                (err :cvm-exception)))
                 (ok env
                     x))))))))
+
+
+
+(defmethod $.shell.exec/sreq
+
+  $.shell.kw/state-safe
+
+  ;; Evaluates a transaction in the given state, without preparing it in any way.
+
+  [env ^AVector tuple]
+
+  (let [state (.get tuple
+                    2)]
+    (or (-ensure-state env
+                       state)
+        (let [address (.get tuple
+                            3)
+              ctx     (env :convex.shell/ctx)
+              ctx-2   (if address
+                        ($.cvm/fork-to ctx
+                                       address)
+                        ($.cvm/fork ctx))
+              ctx-3   (-> ctx-2
+                          ($.cvm/state-set state)
+                          ($.cvm/eval (.get tuple
+                                            4)))
+              ex      ($.cvm/exception ctx-3)]
+          (if ex
+            ($.shell.exec.fail/err env
+                                   ($.shell.err/mappify ex))
+            ($.shell.ctx/def-result env
+                                    ($.cell/* [~($.cvm/result ctx-3)
+                                               ~($.cvm/state ctx-3)])))))))
 
 
 ;;;;;;;;;; Streams

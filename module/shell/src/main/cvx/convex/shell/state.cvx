@@ -42,33 +42,37 @@
 ;;;;;;;;;; Scoped evaluation
 
 
-(defn !.eval
+(defn !.safe
 
   ^{:doc {:description ["Returns a request for evaluating the given transaction in the context of the given state."
                         ""
-                        "Unlike `$.state/!.load` and variants, Convex Shell libraries will never be deployed;"
+                        "Unlike `$.state/!.load` and variants, Convex Shell libraries will never be deployed."
                         "The input state will not be prepared in any way and the original state will always be restored."
                         ""
-                        "This might be useful when working with a state that does not come from the Convex Shell."
-                        "This is also why only one transaction can be evaluated: the input state might not have"
-                        "access to the Convex Shell libraries providing all the bells and whistles one is accustomed to."
+                        "The result will be available during the next transaction under `$/*result*`: a vector"
+                        "where the first element is the result of the transaction and the second element is the new state"
+                        "after executing it."
+                        ""
+                        "This provides an environment for safe evaluation. The current `*state*` is never modified and"
+                        "even if the input state has access to Convex Shell libraries, no request such as reading a file"
+                        "can be performed. Even if the result of the transaction is a request, it ends up being wrapped"
+                        "in vector as described above and will not be recognized by the Convex Shell. Nonetheless, results"
+                        "should always be handled carefully when the transaction is untrusted code."
+                        ""
                         ""
                         "An executing address may be provided. If not, the current address will be used."
-                        ""
-                        "The result will be available during the next transaction under `$/*result*`: a vector"
-                        "where the first element is the result of the transaction and the second element is the state"
-                        "after execution."]
-          :examples    [{:code "($.state/!.eval some-state '(balance #3))"}
-                        {:code "($.state/!.eval some-state #3 '*balance*)"}]
+                        "Throws if the input state does not have an account for that address."]
+          :examples    [{:code "($.state/!.safe some-state '(balance #3))"}
+                        {:code "($.state/!.safe some-state #3 '*balance*)"}]
           :signature   [{:params [state trx]}
                         {:params [state address trx]}]}}
 
 
   ([state trx]
 
-    (!.eval state
-            nil
-            trx))
+   (!.safe state
+           nil
+           trx))
 
 
   ([state address trx]
@@ -82,7 +86,7 @@
        (fail :NOBODY
              (str "Input state does not contain address: "
                   address-2)))
-       [:cvm.sreq :state.eval state address-2 trx])))
+       [:cvm.sreq :state.safe state address-2 trx])))
 
 
 ;;;;;;;;;; State loading

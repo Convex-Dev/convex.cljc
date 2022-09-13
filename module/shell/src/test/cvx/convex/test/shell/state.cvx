@@ -61,79 +61,6 @@
 
 
 
-(defn suite.eval
-
-  ^{:doc {:description "One-shot evaluation with any state."}}
-
-  []
-
-  (T/group '((T/path.conj 'eval)
-
-             [:cvm.sreq :dev.genesis-state]
-             (def gs
-                  $/*result*)
-
-             (T/group '((T/path.conj 'success)
-
-                        (T/group '((T/path.conj 'default-address)
-
-                                   ($.state/!.eval gs
-                                                   '(def foo
-                                                         42))
-                                   (let [[result-2
-                                          gs-2]    $/*result*]
-                                     (def result-2
-                                          result-2)
-                                     (def gs-2
-                                          gs-2))
-
-                                   (T/trx '(= result-2
-                                              42)
-                                          {:description "First transaction succeeded."})
-                                   (T/trx '(not (= gs-2
-                                                   gs))
-                                          {:description "State was altered."})
-
-                                   ($.state/!.eval gs-2
-                                                   '(inc foo))
-                                   (let [[result-3
-                                          gs-3]    $/*result*]
-                                     (def result-3
-                                          result-3)
-                                     (def gs-3
-                                          gs-3))
-
-                                   (T/trx '(= result-3
-                                              43)
-                                          {:description "`foo` was indeed defined in new state."})
-                                   (T/trx '(= gs-3
-                                              gs-2)
-                                          {:description "Second transaction did not produce any state change."})))
-
-                        (T/group '((T/path.conj 'input-address)
-                                   (def origin-address
-                                        *address*)
-                                   ($.state/!.eval *state*
-                                                   #3
-                                                   '*balance*)
-                                   (T/trx '(= (first $/*result*)
-                                              (balance #3))
-                                          {:description "Origin address did change."})
-                                   (T/trx '(= *address*
-                                              origin-address)
-                                          {:description "Origin address and state restored."})))))
-
-             (T/group '((T/path.conj 'failure)
-                        (T/fail.code #{:FROM-EVAL}
-                                     '($.state/!.eval gs
-                                                      '(fail :FROM-EVAL
-                                                             nil))
-                                     {:description "Exception is propagated."})
-                        (T/trx '(defined? gs)
-                               {:description "Original state restored."}))))))
-
-
-
 (defn suite.load
 
   ^{:doc {:description "Loading a state."}}
@@ -193,6 +120,79 @@
                         (T/trx '(= $/*result*
                                    $)
                                {:description "It looks like libraries were deployed while loading the genesis state"}))))))
+
+
+
+(defn suite.safe
+
+  ^{:doc {:description "Safe evaluation on a given state."}}
+
+  []
+
+  (T/group '((T/path.conj 'safe)
+
+             [:cvm.sreq :dev.genesis-state]
+             (def gs
+                  $/*result*)
+
+             (T/group '((T/path.conj 'success)
+
+                        (T/group '((T/path.conj 'default-address)
+
+                                   ($.state/!.safe gs
+                                                   '(def foo
+                                                         42))
+                                   (let [[result-2
+                                          gs-2]    $/*result*]
+                                     (def result-2
+                                          result-2)
+                                     (def gs-2
+                                          gs-2))
+
+                                   (T/trx '(= result-2
+                                              42)
+                                          {:description "First transaction succeeded."})
+                                   (T/trx '(not (= gs-2
+                                                   gs))
+                                          {:description "State was altered."})
+
+                                   ($.state/!.safe gs-2
+                                                   '(inc foo))
+                                   (let [[result-3
+                                          gs-3]    $/*result*]
+                                     (def result-3
+                                          result-3)
+                                     (def gs-3
+                                          gs-3))
+
+                                   (T/trx '(= result-3
+                                              43)
+                                          {:description "`foo` was indeed defined in new state."})
+                                   (T/trx '(= gs-3
+                                              gs-2)
+                                          {:description "Second transaction did not produce any state change."})))
+
+                        (T/group '((T/path.conj 'input-address)
+                                   (def origin-address
+                                        *address*)
+                                   ($.state/!.safe *state*
+                                                   #3
+                                                   '*balance*)
+                                   (T/trx '(= (first $/*result*)
+                                              (balance #3))
+                                          {:description "Origin address did change."})
+                                   (T/trx '(= *address*
+                                              origin-address)
+                                          {:description "Origin address and state restored."})))))
+
+             (T/group '((T/path.conj 'failure)
+                        (T/fail.code #{:FROM-EVAL}
+                                     '($.state/!.safe gs
+                                                      '(fail :FROM-EVAL
+                                                             nil))
+                                     {:description "Exception is propagated."})
+                        (T/trx '(defined? gs)
+                               {:description "Original state restored."}))))))
 
 
 
@@ -297,8 +297,8 @@
   []
 
   (T/group '((T/path.conj 'convex.shell.state)
-             (suite.eval)
              (suite.load)
+             (suite.safe)
              ;; Higher-level constructs based on state loading.
              (suite.atomic)
              (suite.tmp)
