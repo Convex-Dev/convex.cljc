@@ -61,6 +61,29 @@
 
 
 
+(defn suite.god
+
+  ^{:doc {:description "God mode."}}
+
+  []
+
+  (T/group '((T/path.conj 'god)
+             
+             ($.state/!.god {:address #3}
+                            '(def foo
+                                  42))
+
+             (T/trx '(= $/*result*
+                        42)
+                    {:description "Result transfered."})
+
+             (T/trx '(= #3/foo
+                        42)
+                    {:description "Transaction was executed in target account."}))))
+             
+
+
+
 (defn suite.load
 
   ^{:doc {:description "Loading a state."}}
@@ -329,6 +352,7 @@
              (suite.safe)
              ;; Higher-level constructs based on state loading.
              (suite.atomic)
+             (suite.god)
              (suite.tmp)
              (suite.tmp-with))))
 
