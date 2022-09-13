@@ -328,7 +328,7 @@
 
   [trx+]
 
-  ($.catch/!.safe
+  ($.catch/!.try
     `($.state/!.tmp (concat '(($.test/report.clear))
                             (quote ~trx+)
                             '([$.test/*n-fail*
@@ -370,18 +370,18 @@
                           :metadata metadata-2
                           :trx      (list 'quote
                                           trx)}]
-         ($.catch/!.safe ;; Try
-                         `($.trx/precat '((quote ~$/*result*)
-                                        ~trx
-                                        (~-self/report.conj (assoc ~base-report
-                                                                   :result $/*result*
-                                                                   :passe? false))))
-                         ;; Catch                                          
-                         `(~-self/report.conj (assoc ~base-report
-                                                     :exception (lookup ~$
-                                                                        *result*)
-                                                     :pass?     (= (~expected-fail? $/*result*)
-                                                                   true)))))))))
+         ($.catch/!.try ;; Try
+                        `($.trx/precat '((quote ~$/*result*)
+                                       ~trx
+                                       (~-self/report.conj (assoc ~base-report
+                                                                  :result $/*result*
+                                                                  :passe? false))))
+                        ;; Catch                                          
+                        `(~-self/report.conj (assoc ~base-report
+                                                    :exception (lookup ~$
+                                                                       *result*)
+                                                    :pass?     (= (~expected-fail? $/*result*)
+                                                                  true)))))))))
 
 
 
@@ -437,17 +437,17 @@
                           :metadata metadata-2
                           :trx      (list 'quote
                                           trx)}]
-         ($.catch/!.safe ;; Try
-                         `($.trx/precat '((quote~ $/*result*)
-                                        ~trx
-                                        (~-self/report.conj (assoc ~base-report
-                                                                   :result $/*result*
-                                                                   :pass?  (= $/*result*
-                                                                              true)))))
-                         ;; Catch
-                         `(~-self/report.conj (assoc ~base-report
-                                                     :exception $/*result*
-                                                     :pass?     false))))))))
+         ($.catch/!.try ;; Try
+                        `($.trx/precat '((quote~ $/*result*)
+                                       ~trx
+                                       (~-self/report.conj (assoc ~base-report
+                                                                  :result $/*result*
+                                                                  :pass?  (= $/*result*
+                                                                             true)))))
+                        ;; Catch
+                        `(~-self/report.conj (assoc ~base-report
+                                                    :exception $/*result*
+                                                    :pass?     false))))))))
 
 
 ;;;;;;;;;; Tracing

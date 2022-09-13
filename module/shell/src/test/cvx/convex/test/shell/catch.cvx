@@ -93,30 +93,30 @@
 
 
 
-(defn suite.safe
+(defn suite.try
 
-  ^{:doc {:description "Testing `safe`."}}
+  ^{:doc {:description "Try-catch."}}
 
   []
 
-  (T/group '((T/path.conj 'safe)
+  (T/group '((T/path.conj 'try)
 
              (T/group '((T/path.conj "Success without catch nor finally.")
-                        ($.catch/!.safe '(inc 42))
+                        ($.catch/!.try '(inc 42))
                         (T/trx '(= $/*result*
                                    43)
                                {:description "Trial executed normally."})))
 
              (T/group '((T/path.conj "Fail without catch nor finally.")
                         (T/fail.code #{:FROM-TRY}
-                                     '($.catch/!.safe '(fail :FROM-TRY
-                                                             nil))
+                                     '($.catch/!.try '(fail :FROM-TRY
+                                                            nil))
                                      {:description "Exception is thrown normally."})))
 
              (T/group '((T/path.conj "Success with catch.")
-                        ($.catch/!.safe '(inc 42)
-                                        '(def x-catch
-                                              :catch))
+                        ($.catch/!.try '(inc 42)
+                                       '(def x-catch
+                                             :catch))
                         (T/trx '(= $/*result*
                                    43)
                                {:description "Result comes from trial"})
@@ -124,9 +124,9 @@
                                {:description "Catch is not executed."})))
 
              (T/group '((T/path.conj "Fail with catch.")
-                        ($.catch/!.safe '(fail :FROM-TRY
-                                               nil)
-                                        '{:catch $/*result*})
+                        ($.catch/!.try '(fail :FROM-TRY
+                                              nil)
+                                       '{:catch $/*result*})
                         (T/trx '(= (:code (:catch $/*result*))
                                    :FROM-TRY)
                                {:description "Exception as result in catch."})))
@@ -137,14 +137,14 @@
                                           :FROM-CATCH)
                                        (= ((ex :message) :code)
                                           :FROM-TRY)))
-                                '($.catch/!.safe '(fail :FROM-TRY
-                                                        nil)
-                                                 '(fail :FROM-CATCH
-                                                        $/*result*))
+                                '($.catch/!.try '(fail :FROM-TRY
+                                                       nil)
+                                                '(fail :FROM-CATCH
+                                                       $/*result*))
                                 {:description "Exception from catch bubbles up."})))
 
              (T/group '((T/path.conj "Success with finally.")
-                        ($.catch/!.safe '(inc 42)
+                        ($.catch/!.try '(inc 42)
                                         nil
                                         '(do
                                            (def x-finally
@@ -159,13 +159,13 @@
 
              (T/group '((T/path.conj "Fail with finally.")
                         (T/fail.code #{:FROM-TRY}
-                                     '($.catch/!.safe '(fail :FROM-TRY
-                                                             nil)
-                                                      nil
-                                                      '(do
-                                                         (def x-finally
-                                                              {:finally $/*result*})
-                                                         :finally))
+                                     '($.catch/!.try '(fail :FROM-TRY
+                                                            nil)
+                                                     nil
+                                                     '(do
+                                                        (def x-finally
+                                                             {:finally $/*result*})
+                                                        :finally))
                                      {:description "Exception rethrown."})
                         (T/trx '(= (:code (:finally x-finally))
                                    :FROM-TRY)
@@ -173,21 +173,21 @@
 
              (T/group '((T/path.conj "Fail with catch which fails as well.")
                         (T/fail.code #{:FROM-FINALLY}
-                                     '($.catch/!.safe '(fail :FROM-TRY
-                                                             nil)
-                                                      nil
-                                                      '(fail :FROM-FINALLY
-                                                             nil))
+                                     '($.catch/!.try '(fail :FROM-TRY
+                                                            nil)
+                                                     nil
+                                                     '(fail :FROM-FINALLY
+                                                            nil))
                                      {:description "Exception from finally bubbles up."})))
 
              (T/group '((T/path.conj "Success with catch and finally.")
-                        ($.catch/!.safe '(inc 42)
-                                        '(def x-catch
-                                              {:catch $/*result*})
-                                        '(do
-                                           (def x-finally
-                                               {:finally $/*result*})
-                                           :finally))
+                        ($.catch/!.try '(inc 42)
+                                       '(def x-catch
+                                             {:catch $/*result*})
+                                       '(do
+                                          (def x-finally
+                                              {:finally $/*result*})
+                                          :finally))
                         (T/trx '(= $/*result*
                                    43)
                                {:description "Result comes from trial."})
@@ -198,16 +198,16 @@
                                {:description "Finally was executed."})))
 
              (T/group '((T/path.conj "Fail with catch and finally.")
-                        ($.catch/!.safe '(fail :FROM-TRY
-                                               nil)
-                                        '(do
-                                           (def x-catch
-                                                {:catch $/*result*})
-                                           :catch)
-                                        '(do
-                                           (def x-finally
-                                                {:finally $/*result*})
-                                           :finally))
+                        ($.catch/!.try '(fail :FROM-TRY
+                                              nil)
+                                       '(do
+                                          (def x-catch
+                                               {:catch $/*result*})
+                                          :catch)
+                                       '(do
+                                          (def x-finally
+                                               {:finally $/*result*})
+                                          :finally))
                         (T/trx '(= $/*result*
                                    :catch)
                                {:description "Result comes from catch."})
@@ -224,10 +224,10 @@
                                           :FROM-FINALLY)
                                        (= (ex :message)
                                           43)))
-                                '($.catch/!.safe '(inc 42)
-                                                 :CATCH
-                                                 '(fail :FROM-FINALLY
-                                                        $/*result*))
+                                '($.catch/!.try '(inc 42)
+                                                :CATCH
+                                                '(fail :FROM-FINALLY
+                                                       $/*result*))
                                 {:description "Finally exception bubbles up."})))
 
              (T/group '((T/path.conj "Fail with catch but failing finally.")
@@ -236,11 +236,11 @@
                                            :FROM-FINALLY)
                                         (= (ex :message)
                                            :CATCH)))
-                                 '($.catch/!.safe '(fail FROM-TRY
-                                                         nil)
-                                                  :CATCH
-                                                  '(fail :FROM-FINALLY
-                                                         $/*result*))
+                                 '($.catch/!.try '(fail FROM-TRY
+                                                        nil)
+                                                 :CATCH
+                                                 '(fail :FROM-FINALLY
+                                                        $/*result*))
                                  {:description "Finally exception bubbles up."})))
 
              (T/group '((T/path.conj "Fail with failing catch but healthy finally.")
@@ -251,14 +251,14 @@
                                (= ((ex :message) :code)
                                   :FROM-TRY)))
                         (T/fail test-ex
-                                '($.catch/!.safe '(fail :FROM-TRY
-                                                        nil)
-                                                 '(fail :FROM-CATCH
-                                                        $/*result*)
-                                                 '(do
-                                                    (def x-finally
-                                                         {:finally $/*result*})
-                                                    :finally))
+                                '($.catch/!.try '(fail :FROM-TRY
+                                                       nil)
+                                                '(fail :FROM-CATCH
+                                                       $/*result*)
+                                                '(do
+                                                   (def x-finally
+                                                        {:finally $/*result*})
+                                                   :finally))
                                 {:description "Exception from catch bubbles up."})
                         (T/trx '(test-ex (x-finally :finally))
                                {:description "Finally was executed."})))
@@ -272,12 +272,12 @@
                                                  :FROM-CATCH)
                                               (= ((ex-catch :message) :code)
                                                  :FROM-TRY)))))
-                                '($.catch/!.safe '(fail :FROM-TRY
-                                                        nil)
-                                                 '(fail :FROM-CATCH
-                                                        $/*result*)
-                                                 '(fail :FROM-FINALLY
-                                                        $/*result*))
+                                '($.catch/!.try '(fail :FROM-TRY
+                                                       nil)
+                                                '(fail :FROM-CATCH
+                                                       $/*result*)
+                                                '(fail :FROM-FINALLY
+                                                       $/*result*))
                                 {:description "Exception from finally bubbles up."}))))))
 
 
@@ -293,7 +293,7 @@
   (T/group '((T/path.conj 'convex.shell.account)
              (suite.rethrow)
              (suite.push-pop)
-             (suite.safe))))
+             (suite.try))))
 
 
 ;;;

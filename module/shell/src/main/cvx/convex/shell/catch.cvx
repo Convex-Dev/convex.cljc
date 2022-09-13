@@ -142,7 +142,7 @@
 
 (defn !.rethrow
 
-  ^{:doc {:description ["When building low-level utilities using `$.catch/!.safe`, it is sometimes"
+  ^{:doc {:description ["When building low-level utilities using `$.catch/!.try`, it is sometimes"
                         "necessary rethrowing a caught exception."
                         ""
                         "This functions returns a request for doing so and should be seldom used by rather"
@@ -157,7 +157,7 @@
 
 
 
-(defn !.safe
+(defn !.try
 
   ^{:doc {:description ["Akin to the try-catch idiom found in many languages."
                         ""
@@ -174,8 +174,8 @@
                         "this one will propagate."
                         ""
                         "For any argument, `$.trx/precat` can be used if more than one transaction must be executed."]
-          :examples    [{:code "($.catch/!.safe '(assert false) '[:caught $/*result*])"}
-                        {:code "($.catch/!.safe '(assert false) nil '($.stream/!.outln :finally!))"}]
+          :examples    [{:code "($.catch/!.try '(assert false) '[:caught $/*result*])"}
+                        {:code "($.catch/!.try '(assert false) nil '($.stream/!.outln :finally!))"}]
           :signature   [{:params [trx-try]}
                         {:params [trx-try trx-catch]}
                         {:params [trx-try trx-catch trx-finally]}]}}
@@ -183,15 +183,15 @@
 
   ([trx-try]
 
-   (!.safe trx-try
-           nil))
+   (!.try trx-try
+          nil))
 
 
   ([trx-try trx-catch]
 
-   (!.safe trx-try
-           trx-catch
-           nil))
+   (!.try trx-try
+          trx-catch
+          nil))
 
 
   ([trx-try trx-catch trx-finally]
@@ -216,15 +216,15 @@
                    (if (nil? trx-finally)
                      ;; If there is no 'finally', 'catch' will be simply executed and this is it.
                      trx-catch
-                     ;; If both are provided, `!.safe` is reused.
+                     ;; If both are provided, `!.try` is reused.
                      ;; `catch` becomes `try` and `finally` is forwarded.
                      ;; That way, if `catch` fails as well, `finally` is executed but the
                      ;; new exception will be rethrown.
-                     `($.catch/!.safe (let [trx-catch (quote ~trx-catch)]
-                                        `($.trx/precat '((quote ~$/*result*)
-                                                         ~trx-catch)))
-                                      nil
-                                      (quote ~trx-finally))))))
+                     `($.catch/!.try (let [trx-catch (quote ~trx-catch)]
+                                       `($.trx/precat '((quote ~$/*result*)
+                                                        ~trx-catch)))
+                                     nil
+                                     (quote ~trx-finally))))))
        ;;
        ;; After pushing the error handler.
        ;;

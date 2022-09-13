@@ -104,11 +104,11 @@
                   (let [cell      (quote ~cell)
                         f-outln   (quote ~f-outln)
                         id-stream $/*result*]
-                    ($.catch/!.safe `($.trx/precat '((~f-outln ~id-stream
-                                                               (quote ~cell))
-                                                     nil))
-                                    nil
-                                    `($.stream/!.close ~id-stream))))))
+                    ($.catch/!.try `($.trx/precat '((~f-outln ~id-stream
+                                                              (quote ~cell))
+                                                    nil))
+                                   nil
+                                   `($.stream/!.close ~id-stream))))))
 
 
 
