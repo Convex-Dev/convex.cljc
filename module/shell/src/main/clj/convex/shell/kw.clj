@@ -117,6 +117,12 @@
 (def ^Keyword juice-exec
               ($.cell/keyword "juice.exec"))
 
+(def ^Keyword juice-limit
+              ($.cell/keyword "juice.limit"))
+
+(def ^Keyword juice-limit-set
+              ($.cell/keyword "juice.limit.set"))
+
 (def ^Keyword library-path
               ($.cell/keyword "library-path"))
 

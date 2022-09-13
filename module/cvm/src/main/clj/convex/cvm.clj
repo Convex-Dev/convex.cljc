@@ -548,6 +548,7 @@
 (defn time-advance
 
   "Advances the timestamp in the state of `ctx` by `millis` milliseconds.
+   Scheduled transactions will be executed if necessary.
   
    Does not do anything if `millis` is < 0.
   
@@ -559,11 +560,11 @@
 
   (state-set ctx
              (-> ctx
-                 state
+                 (state)
                  (.applyBlock (Block/create (long (+ (.longValue (time ctx))
                                                      millis))
                                             ($.cell/vector [])))
-                 .getState)))
+                 (.getState))))
 
 
 

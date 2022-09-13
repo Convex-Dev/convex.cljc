@@ -56,11 +56,12 @@
   [env]
 
   (assoc env
-         :convex.shell/ctx      $.shell.ctx/ctx-base
-         :convex.shell/stream+  {0 $.shell.io/stdin-txt
-                                 1 $.shell.io/stdout-txt
-                                 2 $.shell.io/stderr-txt}
-         :convex.shell.stream/id 2))
+         :convex.shell/ctx         $.shell.ctx/ctx-base
+         :convex.shell/stream+     {0 $.shell.io/stdin-txt
+                                    1 $.shell.io/stdout-txt
+                                    2 $.shell.io/stderr-txt}
+         :convex.shell.juice/limit $.shell.exec/max-juice
+         :convex.shell.stream/id   2))
 
 
 ;;;;;;;;;; Evaluating a given source string

@@ -31,6 +31,15 @@
 
 
 
+(def $.juice
+
+  ^{:private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.shell.juice)))
+
+
+
 (def $.trx
 
   ^{:private? true}
@@ -49,7 +58,8 @@
                         "If another exception occurs, the shell keeps popping."
                         "Always contains at least the default error handler which is unpoppable."]}}
 
-  '(($.trx/set `(($.stream/!.err (quote ~$/*result*))
+  '(($.trx/set `(($.juice/!.limit.set nil)
+                 ($.stream/!.err (quote ~$/*result*))
                  ($.stream/!.flush $.stream/*err*)
                  ($.process/!.exit 2)))))
 

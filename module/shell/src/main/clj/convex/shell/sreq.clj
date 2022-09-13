@@ -466,6 +466,39 @@
                              ($.shell.err/filesystem ($.cell/string (.getMessage ex)))))))
 
 
+;;;;;;;;;; Juice
+
+
+(defmethod $.shell.exec/sreq
+
+  $.shell.kw/juice-limit
+
+  ;; Retrieves the current juice limit.
+
+  [env _tuple]
+
+  ($.shell.ctx/def-result env
+                          ($.cell/long (env :convex.shell.juice/limit))))
+
+
+
+(defmethod $.shell.exec/sreq
+
+  $.shell.kw/juice-limit-set
+
+  ;; Sets the current juice limit.
+
+  [env ^AVector tuple]
+
+  (-> env
+      (assoc :convex.shell.juice/limit
+             (if-some [limit (.get tuple
+                                   2)]
+               ($.clj/long limit)
+               Long/MAX_VALUE))
+      ($.shell.ctx/def-result nil)))
+
+
 ;;;;;;;;;; Logging
 
 

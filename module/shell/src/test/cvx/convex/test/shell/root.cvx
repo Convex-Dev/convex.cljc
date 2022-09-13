@@ -48,6 +48,7 @@
 (exec "shell/code")
 (exec "shell/db")
 (exec "shell/file")
+(exec "shell/juice")
 (exec "shell/log")
 (exec "shell/perf")
 (exec "shell/process")

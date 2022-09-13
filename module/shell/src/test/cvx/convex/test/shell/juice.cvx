@@ -1,0 +1,56 @@
+;;
+;;
+;; Testing `convex.shell.juice`.
+;;
+;;
+
+
+;;;;;;;;;;
+
+
+(def T
+     $.test)
+
+
+;;;;;;;;;; Test suites
+
+
+(defn suite.main
+
+  ^{:doc {:description "Main test suite."}}
+
+  []
+
+  (T/group '((T/path.conj 'convex.shell.juice)
+
+             ($.juice/!.limit)
+
+             (def default-limit
+                  $/*result*)
+
+             (T/trx '(>= (- default-limit
+                            *juice*)
+                         1000)
+                    {:description "There should not be a huge difference between the reported juice and the juice limit."})
+
+             ($.catch/!.try '(T/group '((T/path.conj 'limit.set)
+                                        ($.juice/!.limit.set 100000)
+                                        ($.juice/!.limit)
+                                        (T/trx '(= $/*result*
+                                                   100000))
+                                        (T/fail.code #{:ASSERT}
+                                                     '($.juice/!.limit.set 99999)
+                                                     {:description "Limit too low."})))
+                            nil
+                            '($.juice/!.limit.set nil))
+
+             ($.juice/!.limit)
+             (T/trx '(= $/*result*
+                        default-limit)
+                    {:description "Nil limit resets to the max limit."}))))
+
+;;;
+
+
+(suite.main)
+(T/print "convex.shell.juice")

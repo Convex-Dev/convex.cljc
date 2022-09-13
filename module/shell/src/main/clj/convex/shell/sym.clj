@@ -52,6 +52,9 @@
 (def ^Symbol $-help
              ($.cell/symbol "$.help"))
 
+(def ^Symbol $-juice
+             ($.cell/symbol "$.juice"))
+
 (def ^Symbol $-log
              ($.cell/symbol "$.log"))
 
