@@ -123,6 +123,9 @@
 (def ^Keyword juice-limit-set
               ($.cell/keyword "juice.limit.set"))
 
+(def ^Keyword juice-track
+              ($.cell/keyword "juice.track"))
+
 (def ^Keyword library-path
               ($.cell/keyword "library-path"))
 
@@ -137,9 +140,6 @@
 
 (def ^Keyword perf-bench
               ($.cell/keyword "perf.bench"))
-
-(def ^Keyword perf-track
-              ($.cell/keyword "perf.track"))
 
 (def ^Keyword phase
               ($.cell/keyword "phase"))

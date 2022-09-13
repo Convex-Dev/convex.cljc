@@ -499,6 +499,20 @@
       ($.shell.ctx/def-result nil)))
 
 
+
+(defmethod $.shell.exec/sreq
+
+  $.shell.kw/juice-track
+
+  ;; Tracks juice consumption of the given transaction.
+
+  [env ^AVector tuple]
+
+  ($.shell.exec/trx-track env
+                          (.get tuple
+                                2)))
+
+
 ;;;;;;;;;; Logging
 
 
@@ -553,20 +567,6 @@
     ($.shell.ctx/def-result env
                             ($.cell/map {($.cell/keyword "mean")   ($.cell/double (first (stat+ :mean)))
                                          ($.cell/keyword "stddev") ($.cell/double (Math/sqrt ^double (first (stat+ :variance))))}))))
-
-
-
-(defmethod $.shell.exec/sreq
-
-  $.shell.kw/perf-track
-
-  ;; Tracks juice consumption of the given transaction.
-
-  [env ^AVector tuple]
-
-  ($.shell.exec/trx-track env
-                          (.get tuple
-                                2)))
 
 
 ;;;;;;;;;; Process
