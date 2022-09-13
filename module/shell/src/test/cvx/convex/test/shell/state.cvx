@@ -173,24 +173,53 @@
                                    (def origin-address
                                         *address*)
                                    ($.state/!.safe *state*
-                                                   #3
+                                                   {:address #3}
                                                    '*balance*)
                                    (T/trx '(= (first $/*result*)
                                               (balance #3))
                                           {:description "Origin address did change."})
                                    (T/trx '(= *address*
                                               origin-address)
-                                          {:description "Origin address and state restored."})))))
+                                          {:description "Origin address and state restored."})))
+
+                        (T/group '((T/path.conj 'juice-limit)
+
+                                   (def cost-checking
+                                        40)
+
+                                   ($.state/!.safe $.state/genesis
+                                                   '*juice*)
+                                   (T/trx '(= (first $/*result*)
+                                              (- 100000
+                                                 cost-checking))
+                                          {:description "Default limit of 100K units."})
+
+                                   ($.state/!.safe $.state/genesis
+                                                   {:juice 500}
+                                                   '*juice*)
+                                   (T/trx '(= (first $/*result*)
+                                              (- 500
+                                                 cost-checking))
+                                          {:description "Limit can be set."})))))
 
              (T/group '((T/path.conj 'failure)
-                        (T/fail.code #{:FROM-EVAL}
-                                     '($.state/!.safe $.state/genesis
-                                                      '(fail :FROM-EVAL
-                                                             nil))
-                                     {:description "Exception is propagated."})
-                        (T/trx '(= foo
-                                   42)
-                               {:description "Original state restored."}))))))
+
+                        (T/group '((T/path.conj 'exception)
+                                   (T/fail.code #{:FROM-EVAL}
+                                                '($.state/!.safe $.state/genesis
+                                                                 '(fail :FROM-EVAL
+                                                                        nil))
+                                                {:description "Exception is propagated."})
+                                   (T/trx '(= foo
+                                              42)
+                                          {:description "Original state restored."})))
+
+                        (T/group '((T/path.conj 'missing-account)
+                                   (T/fail.code #{:NOBODY}
+                                                '($.state/!.safe $.state/genesis
+                                                                 {:address #123456789}
+                                                                 '(inc 42))
+                                                {:description "Missing address in input state properly handled."}))))))))
 
 
 
