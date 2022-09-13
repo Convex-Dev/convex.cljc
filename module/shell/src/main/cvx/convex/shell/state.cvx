@@ -175,13 +175,13 @@
 
   [trx+]
 
-  ($.catch/!.safe `($.trx/precat (cons '(quote ~$/*result*)
-                                       (quote ~trx+)))
-                  '{:$.state.exception $/*result*}
-                  `(when-let [exception (and (map? $/*result*)
-                                             ($/*result* :$.state.exception))]
-                     ($.state/!.load (quote ~*state*)
-                                     `($.catch/!.rethrow (quote ~exception))))))
+  ($.catch/!.try `($.trx/precat (cons '(quote ~$/*result*)
+                                      (quote ~trx+)))
+                 '{:$.state.exception $/*result*}
+                 `(when-let [exception (and (map? $/*result*)
+                                            ($/*result* :$.state.exception))]
+                    ($.state/!.load (quote ~*state*)
+                                    `($.catch/!.rethrow (quote ~exception))))))
 
 
 
@@ -191,19 +191,19 @@
 
   ;; General mechanism for executing some transactions safely and restoring to a given state.
   ;;
-  ;; Exception must be rethrown explicitly because after loading, `$.catch/!.safe` related transactions
+  ;; Exception must be rethrown explicitly because after loading, `$.catch/!.try` related transactions
   ;; are forgotten.
 
   [original-state result-begin trx+]
 
-  ($.catch/!.safe `($.trx/precat (cons '(quote ~result-begin)
-                                       (quote ~trx+)))
-                  '{:$.state.exception $/*result*}
-                  `($.state/!.load (quote ~original-state)
-                                   (if-let [exception (and (map? $/*result*)
-                                                           ($/*result* :$.state.exception))]
-                                     `($.catch/!.rethrow (quote ~exception))
-                                     `(quote ~$/*result*)))))
+  ($.catch/!.try `($.trx/precat (cons '(quote ~result-begin)
+                                      (quote ~trx+)))
+                 '{:$.state.exception $/*result*}
+                 `($.state/!.load (quote ~original-state)
+                                  (if-let [exception (and (map? $/*result*)
+                                                          ($/*result* :$.state.exception))]
+                                    `($.catch/!.rethrow (quote ~exception))
+                                    `(quote ~$/*result*)))))
 
 
 
