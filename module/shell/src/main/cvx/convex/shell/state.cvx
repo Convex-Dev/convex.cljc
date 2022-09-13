@@ -56,6 +56,39 @@
 ;;;;;;;;;; Scoped evaluation
 
 
+(defn !.god
+
+  ^{:doc {:description ["Commonly used for executing a transaction under a given address."
+                        "Effectively \"god mode\"."
+                        ""
+                        "Reuses `$.state/!.safe` and behaves exactly the same but:"
+                        ""
+                        "  - Uses `*state*` as the input state"
+                        "  - Output state will be loaded using `$.state/!.load-continue`"
+                        "  - Output result will be bound to `$/*result*`"
+                        ""
+                        "Same options."]
+          :examples    [{:code "($.state/!.god {:address #3} '(def foo 42))"}]
+          :signature   [{:params [trx]}
+                        {:params [option+ trx]}]}}
+
+
+  ([trx]
+
+   (!.god nil
+          trx))
+
+
+  ([option+ trx]
+
+   ($.trx/precat `(($.state/!.safe (quote ~*state*)
+                                   (quote ~option+)
+                                   (quote ~trx))
+                   ($.state/!.load-continue (second $/*result*)
+                                            `(quote ~(first $/*result*)))))))
+
+
+
 (defn !.safe
 
   ^{:doc {:description ["Returns a request for evaluating the given transaction in the context of the given state."
