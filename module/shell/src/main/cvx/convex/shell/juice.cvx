@@ -1,0 +1,47 @@
+(call *registry*
+      (cns-update 'convex.shell.juice
+                  *address*))
+
+
+(call *registry*
+      (register {:name "Juice utilities for the Convex Shell"}))
+
+
+;;;;;;;;;;
+
+
+(defn !.limit
+
+  ^{:doc {:description ["Returns a request for retrieving the default juice limit per transaction."
+                        "Result will be available during the next transaction under `$/*result*`."]
+          :examples    [{:code "($.juice/!.limit)"}]
+          :signature   [{:params []}]}}
+
+  []
+
+  [:cvm.sreq :juice.limit])
+
+
+
+(defn !.limit.set
+
+  ^{:doc {:description ["Returns a request for setting the default juice limit per transaction."
+                        "Minimum limit is 100K units."
+                        "A nil limit will reset it to the highest long value."
+                        ""
+                        "Most users should not have to worry about setting the juice limit. It is"
+                        "mostly a defence mechanism for failing on potential infinite loops and such"
+                        "matters."]
+          :examples    [{:code "($.juice/!.limit.set 2000000)"}]
+          :signature   [{:params [limit]}]}}
+
+  ;; Limit should never be to low so that it would break the REPL or
+  ;; other core aspects like the top error handler in `$.catch`.
+
+  [limit]
+
+  (assert (or (nil? limit)
+              (and (long? limit)
+                   (>= limit
+                       100000))))
+  [:cvm.sreq :juice.limit.set limit])

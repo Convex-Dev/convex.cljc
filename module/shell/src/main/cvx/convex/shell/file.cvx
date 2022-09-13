@@ -8,7 +8,7 @@
                  :name        "File IO for the Convex Shell"}))
 
 
-;;;;;;;;;;
+;;;;;;;;;; Private values
 
 
 (def $.state

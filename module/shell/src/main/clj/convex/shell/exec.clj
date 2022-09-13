@@ -64,9 +64,8 @@
 
   [env kw-phase f trx]
 
-  (let [ctx (f (-> env
-                   (:convex.shell/ctx)
-                   ($.cvm/juice-refill))
+  (let [ctx (f (-> (env :convex.shell/ctx)
+                   ($.cvm/juice-set (env :convex.shell.juice/limit)))
                trx)
         ex  ($.cvm/exception ctx)]
     (-> env
@@ -215,6 +214,7 @@
 
   [env trx]
   
+  ; (println :trx trx \newline)
   (let [env-2 (eval env
                     trx)]
     (if (env-2 :convex.shell/error)

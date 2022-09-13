@@ -413,6 +413,8 @@
                                    ($.term/bold)
                                    "$.stream"
                                    ($.term/reset)))
+                     (account "$.juice"
+                              "juice utilities like setting the default limit or tracking consumption")
                      (account "$.log"
                               "accessing the CVM log")
                      (account "$.perf"
