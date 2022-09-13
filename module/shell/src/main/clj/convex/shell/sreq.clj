@@ -614,18 +614,24 @@
                     2)]
     (or (-ensure-state env
                        state)
-        (let [ctx (-> (env :convex.shell/ctx)
-                      ($.cvm/fork)
-                      ($.cvm/state-set state)
-                      ($.cvm/eval (.get tuple
-                                        3)))
-              ex  ($.cvm/exception ctx)]
+        (let [address (.get tuple
+                            3)
+              ctx     (env :convex.shell/ctx)
+              ctx-2   (if address
+                        ($.cvm/fork-to ctx
+                                       address)
+                        ($.cvm/fork ctx))
+              ctx-3   (-> ctx-2
+                          ($.cvm/state-set state)
+                          ($.cvm/eval (.get tuple
+                                            4)))
+              ex      ($.cvm/exception ctx-3)]
           (if ex
             ($.shell.exec.fail/err env
                                    ($.shell.err/mappify ex))
             ($.shell.ctx/def-result env
-                                    ($.cell/* [~($.cvm/result ctx)
-                                               ~($.cvm/state ctx)])))))))
+                                    ($.cell/* [~($.cvm/result ctx-3)
+                                               ~($.cvm/state ctx-3)])))))))
 
 
 

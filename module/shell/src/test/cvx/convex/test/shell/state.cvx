@@ -75,38 +75,53 @@
 
              (T/group '((T/path.conj 'success)
 
-                        ($.state/!.eval gs
-                                        '(def foo
-                                              42))
-                        (let [[result-2
-                               gs-2]    $/*result*]
-                          (def result-2
-                               result-2)
-                          (def gs-2
-                               gs-2))
+                        (T/group '((T/path.conj 'default-address)
 
-                        (T/trx '(= result-2
-                                   42)
-                               {:description "First transaction succeeded."})
-                        (T/trx '(not (= gs-2
-                                        gs))
-                               {:description "State was altered."})
+                                   ($.state/!.eval gs
+                                                   '(def foo
+                                                         42))
+                                   (let [[result-2
+                                          gs-2]    $/*result*]
+                                     (def result-2
+                                          result-2)
+                                     (def gs-2
+                                          gs-2))
 
-                        ($.state/!.eval gs-2
-                                        '(inc foo))
-                        (let [[result-3
-                               gs-3]    $/*result*]
-                          (def result-3
-                               result-3)
-                          (def gs-3
-                               gs-3))
+                                   (T/trx '(= result-2
+                                              42)
+                                          {:description "First transaction succeeded."})
+                                   (T/trx '(not (= gs-2
+                                                   gs))
+                                          {:description "State was altered."})
 
-                        (T/trx '(= result-3
-                                   43)
-                               {:description "`foo` was indeed defined in new state."})
-                        (T/trx '(= gs-3
-                                   gs-2)
-                               {:description "Second transaction did not produce any state change."})))
+                                   ($.state/!.eval gs-2
+                                                   '(inc foo))
+                                   (let [[result-3
+                                          gs-3]    $/*result*]
+                                     (def result-3
+                                          result-3)
+                                     (def gs-3
+                                          gs-3))
+
+                                   (T/trx '(= result-3
+                                              43)
+                                          {:description "`foo` was indeed defined in new state."})
+                                   (T/trx '(= gs-3
+                                              gs-2)
+                                          {:description "Second transaction did not produce any state change."})))
+
+                        (T/group '((T/path.conj 'input-address)
+                                   (def origin-address
+                                        *address*)
+                                   ($.state/!.eval *state*
+                                                   #3
+                                                   '*balance*)
+                                   (T/trx '(= (first $/*result*)
+                                              (balance #3))
+                                          {:description "Origin address did change."})
+                                   (T/trx '(= *address*
+                                              origin-address)
+                                          {:description "Origin address and state restored."})))))
 
              (T/group '((T/path.conj 'failure)
                         (T/fail.code #{:FROM-EVAL}
