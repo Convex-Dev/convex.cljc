@@ -10,7 +10,7 @@
                  :name        "Time travel and state utilities for the Convex Shell"}))
 
 
-;;;;;;;;;; Private
+;;;;;;;;;; Private values
 
 
 (def $
@@ -38,6 +38,20 @@
   (call *registry*
         (cns-resolve 'convex.shell.trx)))
 
+
+;;;;;;;;;; Public values
+
+
+(def genesis
+
+  ^{:doc {:description ["Genesis state used as the very first state in the Convex network."
+                        ""
+                        "It provides all the official Convex actors and libraries but nothing related to"
+                        "the Convex Shell."]}}
+
+  ;; Provided by CLJ `$.shell.ctx/dpeloy-lib+`.
+
+  nil)
 
 ;;;;;;;;;; Scoped evaluation
 

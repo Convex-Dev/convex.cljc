@@ -70,11 +70,11 @@
   
    An optional map of options may be provided:
 
-   | Key | Value | Default |
-   |---|---|---|
-   | `:convex.cvm/address` | Address of the executing account | Reserved address (an actor) |
-   | `:convex.cvm/state` | Genesis state | Initial state with Convex actors and libraries |
-   | `:convex.peer/key  | Account key for the initial peer (see [[convex.cell/account-key]]) | Fake key, all 0's |"
+   | Key                   | Value                                                              | Default                                        |
+   |-----------------------|--------------------------------------------------------------------|------------------------------------------------|
+   | `:convex.cvm/address` | Address of the executing account                                   | Reserved address (an actor)                    |
+   | `:convex.cvm/state`   | Genesis state                                                      | Initial state with Convex actors and libraries |
+   | `:convex.peer/key     | Account key for the initial peer (see [[convex.cell/account-key]]) | Fake key, all 0's                              |"
 
 
   (^Context []

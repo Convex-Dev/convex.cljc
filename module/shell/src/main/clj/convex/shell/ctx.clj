@@ -171,15 +171,18 @@
                       compiled-lib+)]
     (if (::err ctx-2)
       ctx-2
-      ($.cvm/def ctx-2
-                 ($.cvm/look-up ctx-2
-                                $.shell.sym/$)
-                 (let [[version
-                        version-convex] (-version+*)]
-                   {$.shell.sym/line           ($.cell/string (System/lineSeparator))
-                    $.shell.sym/version        ($.cell/string version)
-                    $.shell.sym/version-convex ($.cell/string (or version-convex
-                                                                  "Local artifact"))})))))
+      (-> ctx-2
+          ($.cvm/def ($.cvm/look-up ctx-2
+                                    $.shell.sym/$)
+                     (let [[version
+                            version-convex] (-version+*)]
+                       {$.shell.sym/line           ($.cell/string (System/lineSeparator))
+                        $.shell.sym/version        ($.cell/string version)
+                        $.shell.sym/version-convex ($.cell/string (or version-convex
+                                                                      "Local artifact"))}))
+          ($.cvm/def ($.cvm/look-up ctx-2
+                                    $.shell.sym/$-state)
+                     {$.shell.sym/genesis ($.cvm/state ctx-genesis)})))))
 
 
 

@@ -82,6 +82,9 @@
 (def ^Symbol $-trx
              ($.cell/symbol "$.trx"))
 
+(def ^Symbol genesis
+             ($.cell/symbol "genesis"))
+
 (def ^Symbol line
              ($.cell/symbol "line"))
 

@@ -422,7 +422,7 @@
                      (account "$.repl"
                               "starting and stopping the REPL")
                      (account "$.state"
-                              "advanced time traveling, utilities for loading a state")
+                              "advanced time traveling, utilities for loading states and safe execution")
                      (account "$.stream"
                               "reading/writing streams (currently files and STDIO)")
                      (account "$.term"

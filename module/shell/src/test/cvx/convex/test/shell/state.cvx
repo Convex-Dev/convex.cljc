@@ -107,9 +107,7 @@
 
              (T/group '((T/path.conj 'with-genesis-state)
 
-                        [:cvm.sreq :dev.genesis-state]
-
-                        ($.state/!.load-continue $/*result*
+                        ($.state/!.load-continue $.state/genesis
                                                  `(def s
                                                        (quote ~*state*)))
 
@@ -131,17 +129,16 @@
 
   (T/group '((T/path.conj 'safe)
 
-             [:cvm.sreq :dev.genesis-state]
-             (def gs
-                  $/*result*)
+             (def foo
+                  42)
 
              (T/group '((T/path.conj 'success)
 
                         (T/group '((T/path.conj 'default-address)
 
-                                   ($.state/!.safe gs
-                                                   '(def foo
-                                                         42))
+                                   ($.state/!.safe $.state/genesis
+                                                   '(def bar
+                                                         84))
                                    (let [[result-2
                                           gs-2]    $/*result*]
                                      (def result-2
@@ -150,14 +147,14 @@
                                           gs-2))
 
                                    (T/trx '(= result-2
-                                              42)
+                                              84)
                                           {:description "First transaction succeeded."})
                                    (T/trx '(not (= gs-2
-                                                   gs))
+                                                   $.state/genesis))
                                           {:description "State was altered."})
 
                                    ($.state/!.safe gs-2
-                                                   '(inc foo))
+                                                   '(inc bar))
                                    (let [[result-3
                                           gs-3]    $/*result*]
                                      (def result-3
@@ -166,7 +163,7 @@
                                           gs-3))
 
                                    (T/trx '(= result-3
-                                              43)
+                                              85)
                                           {:description "`foo` was indeed defined in new state."})
                                    (T/trx '(= gs-3
                                               gs-2)
@@ -187,11 +184,12 @@
 
              (T/group '((T/path.conj 'failure)
                         (T/fail.code #{:FROM-EVAL}
-                                     '($.state/!.safe gs
+                                     '($.state/!.safe $.state/genesis
                                                       '(fail :FROM-EVAL
                                                              nil))
                                      {:description "Exception is propagated."})
-                        (T/trx '(defined? gs)
+                        (T/trx '(= foo
+                                   42)
                                {:description "Original state restored."}))))))
 
 
@@ -258,18 +256,18 @@
 
   (T/group '((T/path.conj 'tmp.with)
              
-             [:cvm.sreq :dev.genesis-state]
-             (def gs
-                  $/*result*)
+             (def foo
+                  42)
 
              (T/group '((T/path.conj 'success)
                         'last-result-sym
-                        ($.state/!.tmp-with gs
-                                            '([$/*result* (defined? gs)]))
+                        ($.state/!.tmp-with $.state/genesis
+                                            '([$/*result* (defined? foo)]))
                         (T/trx '(= $/*result*
                                    ['last-result-sym false])
                                {:description "Input state was successfully loaded with access to the last result."})
-                        (T/trx '(defined? gs)
+                        (T/trx '(= foo
+                                   42)
                                {:description "Original state restored."})))
 
              (T/group '((T/path.conj 'failure)
@@ -279,11 +277,12 @@
                                           :FROM-TMP-STATE)
                                        (= (ex :message)
                                           ['last-result-sym false])))
-                                '($.state/!.tmp-with gs
+                                '($.state/!.tmp-with $.state/genesis
                                                      '((fail :FROM-TMP-STATE
-                                                             [$/*result* (defined? gs)])))
+                                                             [$/*result* (defined? foo)])))
                                 {:description "Exception rethrown."})
-                        (T/trx '(defined? gs)
+                        (T/trx '(= foo
+                                   42)
                                {:description "Original state restored."}))))))
 
 
