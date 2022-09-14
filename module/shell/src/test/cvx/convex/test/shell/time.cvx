@@ -71,8 +71,25 @@
   (T/group '((T/path.conj 'unix)
 
              ($.time/!.unix)
-             (T/trx '(long? $/*result*)
-                    {:description "Unix timestamp returned."}))))
+             (def unix-timestamp
+                  $/*result*)
+
+             (T/trx '(long? unix-timestamp)
+                    {:description "Unix timestamp returned."})
+
+             (T/group '((T/path.conj 'iso-conversion)
+                        
+                        ($.time/!.unix->iso unix-timestamp)
+                        (def iso-string
+                             $/*result*)
+
+                        (T/trx '(str? iso-string)
+                               {:description "Conversion looks like an ISO string."})
+
+                        ($.time/!.iso->unix iso-string)
+                        (T/trx '(= $/*result*
+                                   unix-timestamp)
+                               {:description "Converting to a Unix timestamp."}))))))
 
 
 ;;;
