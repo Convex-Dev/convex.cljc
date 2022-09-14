@@ -22,6 +22,21 @@
 
 
 
+(defn key?
+
+  ^{:doc {:description "Returns true if `x` is a 32-byte blob that can act as a key."
+          :examples    [{:code "($.account/key? $.account/fake-key)"}
+                        {:code "($.account/key? 42)"}]
+          :signature   [{:params [x]}]}}
+
+  [x]
+
+  (and (blob? x)
+       (= (count x)
+          32)))
+
+
+
 (defmacro zombie
 
   ^{:doc {:description ["Macro which wraps forms into deploy code that turns the actor into a user account with `fake-key` and makes it controllable."
