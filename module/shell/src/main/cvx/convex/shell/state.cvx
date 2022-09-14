@@ -44,14 +44,17 @@
 
 (def genesis
 
-  ^{:doc {:description ["Genesis state used as the very first state in the Convex network."
+  ^{:doc {:description ["Genesis state without Convex Shell libraries."
+                        ""
+                        "It has one genesis user (the default address) holding all user allocated funds."
                         ""
                         "It provides all the official Convex actors and libraries but nothing related to"
                         "the Convex Shell."]}}
 
-  ;; Provided by CLJ `$.shell.ctx/dpeloy-lib+`.
+  ;; Provided by CLJ `$.shell.ctx/deploy-lib+`.
 
   nil)
+
 
 ;;;;;;;;;; Scoped evaluation
 
@@ -312,9 +315,7 @@
 
 (defn !.clean
 
-  ^{:doc {:description ["Prepends a series of requests for execution aimed to cleane the input state by ensuring:"
-
-                        "by ensuring:"
+  ^{:doc {:description ["Prepends a series of requests for execution aimed to clean the input state by ensuring:"
                         ""
                         "  - Custom exception handlers in `$.catch/*stack* are removed"
                         "  - REPL is declared as off"
@@ -323,11 +324,10 @@
                         "Naturally, this will fail on a state that has not been initialized with the Convex"
                         "Shell libraries."
                         ""
-                        "Default input state is `*state*`."
-                        "Default `default-address` is `#2`. It must be the address that contains aliases to"
-                        "Convex Shell libraries."
+                        "Default input state is `*state*`. In any case, it must be a state that comes from the"
+                        "Convex Shell."
                         ""
-                        "This is often cleaner when storing a state in Etch (see `$.db`) with the propsect"
+                        "Doing all this is often cleaner when storing a state in Etch (see `$.db`) with the propsect"
                         "of using it later with `$.state/!.load`."]
           :examples    [{:code "($.state/!.clean *state* '(($.repl/!.start)))"}]
           :signature   [{:params [state]}
@@ -348,17 +348,8 @@
 
   ([state trx+]
 
-   (!.clean state
-            nil
-            trx+))
-
-
-  ([state default-address trx+]
-
    ($.trx/precat `(($.state/!.safe (quote ~(or state
                                                *state*))
-                                   {:address ~(or default-address
-                                                  #2)}
                                    '(do
                                       ($.repl/stop)
                                       ($.trx/set (quote ~(or trx+
