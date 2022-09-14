@@ -66,6 +66,7 @@
 (defn !.read
   
   ^{:doc {:description ["Returns a request for retrieving a cell from the current Etch instance by `hash`."
+                        ""
                         "Result will be available during the next transaction under `$/*result*` (nil when not found)."]
           :examples    [{:code "($.db/!.read 0x1fa0dd51b167d4cca60177d13d731c461eae9cdb4ecd75e1e8f2158251968c66)"}]
           :signature   [{:params [hash]}]}}
@@ -83,6 +84,7 @@
 
   ^{:doc {:description ["Returns a request for writing the given `cell` to the current Etch instance."
                         "The hash of that cell will be available during the next transaction under `$/*result*`."
+                        ""
                         "If the hash is nil, it means the cell what not persisted."
                         "This happens only with a few basic cells for optimization reasons."
                         "Precisely, those that are so simple they are usually embedded in more complex values:"
@@ -113,7 +115,6 @@
   [:cvm.sreq :etch.root.read])
 
 
-
 (defn !.root.write
 
   ^{:doc {:description ["Behaves exactly like `!.write` but the given `cell` will be written at the root."
@@ -124,3 +125,37 @@
   [cell]
 
   [:cvm.sreq :etch.root.write cell])
+
+
+;;;;;;;;;; Read-only mode
+
+
+(defn !.read-only?
+
+  ^{:doc {:description ["Returns a request for retrieving if Etch is currently set to read-only mode,"
+                        "meaning write requests will fail."
+                        ""
+                        "By default, read only is set to `false`."
+                        "See `$.db/!.read-only`."
+                        ""
+                        "Boolean result will be available during the next transaction under `$/*result*`."]
+          :examples    [{:code "($.db/!.read-only?)"}]
+          :signature   [{:params []}]}}
+
+ []
+
+ [:cvm.sreq :etch.read-only?])
+
+
+
+(defn !.read-only
+
+  ^{:doc {:description ["Returns a request for enabling or disabling read-only mode."
+                        "See `$.db/!.read-only?`."]
+          :examples    [{:code "($.db/!.read-only true)"}]
+          :signature   [{:params [enable?]}]}}
+
+ [enable?]
+
+ (assert (boolean? enable?))
+ [:cvm.sreq :etch.read-only enable?])

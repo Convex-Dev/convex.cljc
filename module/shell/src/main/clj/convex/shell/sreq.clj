@@ -145,9 +145,8 @@
 
 (defn- -db
 
-  ;;
-
-  ;; TODO. Exception handling.
+  ;; Must be used to wrap Etch operations.
+  ;; Ensures there is an instance and handles exceptions.
 
   [env f]
 
@@ -165,6 +164,18 @@
       (catch IOException ex
         ($.shell.exec.fail/err env
                                ($.shell.err/db ($.cell/string (.getMessage ex))))))))
+
+
+
+(defn- -ensure-not-read-only
+
+  ;;
+
+  [env]
+
+  (when (env :convex.shell.etch/read-only?)
+    ($.shell.exec.fail/err env
+                           ($.shell.err/db ($.cell/string "Etch is set to read-only")))))
 
 
 
@@ -246,6 +257,33 @@
                                              2))))))
 
 
+(defmethod $.shell.exec/sreq
+
+  $.shell.kw/etch-read-only
+
+  ;;
+
+  [env ^AVector tuple]
+
+  (-> env
+      (assoc :convex.shell.etch/read-only?
+             ($.clj/boolean (.get tuple
+                                  2)))
+      ($.shell.ctx/def-result nil)))
+
+
+
+(defmethod $.shell.exec/sreq
+
+  $.shell.kw/etch-read-only?
+
+  ;;
+
+  [env _tuple]
+
+  ($.shell.ctx/def-result env
+                          ($.cell/boolean (env :convex.shell.etch/read-only?))))
+
 
 (defmethod $.shell.exec/sreq
 
@@ -269,10 +307,11 @@
 
   [env ^AVector tuple]
 
-  (-db env
-       (fn []
-         ($.db/root-write (.get tuple
-                                2)))))
+  (or (-ensure-not-read-only env)
+      (-db env
+           (fn []
+             ($.db/root-write (.get tuple
+                                    2))))))
 
 
 
@@ -284,10 +323,11 @@
 
   [env ^AVector tuple]
 
-  (-db env
-       (fn []
-         ($.db/write (.get tuple
-                           2)))))
+  (or (-ensure-not-read-only env)
+      (-db env
+           (fn []
+             ($.db/write (.get tuple
+                               2))))))
 
 
 ;;;;;;;;;; File

@@ -60,6 +60,12 @@
 (def ^Keyword etch-read
               ($.cell/keyword "etch.read"))
 
+(def ^Keyword etch-read-only
+              ($.cell/keyword "etch.read-only"))
+
+(def ^Keyword etch-read-only?
+              ($.cell/keyword "etch.read-only?"))
+
 (def ^Keyword etch-write
               ($.cell/keyword "etch.write"))
 
