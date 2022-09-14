@@ -61,6 +61,20 @@
                     {:description "Timestamp precisely where expected."}))))
 
 
+
+(defn suite.unix
+
+  ^{:doc {:description "Unix timestamps."}}
+
+  []
+
+  (T/group '((T/path.conj 'unix)
+
+             ($.time/!.unix)
+             (T/trx '(long? $/*result*)
+                    {:description "Unix timestamp returned."}))))
+
+
 ;;;
 
 
@@ -71,7 +85,8 @@
   []
 
   (T/group '((T/path.conj 'convex.shell.time)
-             (suite.advance))))
+             (suite.advance)
+             (suite.unix))))
 
 
 ;;;

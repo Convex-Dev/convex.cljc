@@ -216,5 +216,8 @@
 (def ^Keyword time-advance
               ($.cell/keyword "time.advance"))
 
+(def ^Keyword time-unix
+              ($.cell/keyword "time.unix"))
+
 (def ^Keyword trx
               ($.cell/keyword "trx"))
