@@ -31,7 +31,7 @@
                {:cvx {:enabled? true
                       :fn       (fn [entry]
                                   (binding [*out* *err*]
-                                    (-> ($.cell/* [~($.cell/string ($.shell.time/instant->iso-string (.toInstant ^Date (entry :instant))))
+                                    (-> ($.cell/* [~($.cell/string ($.shell.time/instant->iso (.toInstant ^Date (entry :instant))))
                                                     ~($.cell/keyword (name (entry :level)))
                                                     ~($.cell/* [~($.cell/symbol (entry :?ns-str))
                                                                 ~($.cell/long (entry :?line))])
