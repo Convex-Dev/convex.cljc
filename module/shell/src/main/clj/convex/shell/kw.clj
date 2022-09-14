@@ -139,6 +139,9 @@
 (def ^Keyword src
               ($.cell/keyword "src"))
 
+(def ^Keyword state-genesis
+              ($.cell/keyword "state.genesis"))
+
 (def ^Keyword state-load
               ($.cell/keyword "state.load"))
 

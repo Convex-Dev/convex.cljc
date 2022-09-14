@@ -22,6 +22,15 @@
 
 
 
+(def $.account
+
+  ^{:private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.shell.account)))
+
+
+
 (def $.catch
 
   ^{:private? true}
@@ -48,7 +57,7 @@
         (cns-resolve 'convex.shell.trx)))
 
 
-;;;;;;;;;; Public values
+;;;;;;;;;; Genesis states
 
 
 (def genesis
@@ -63,6 +72,36 @@
   ;; Provided by CLJ `$.shell.ctx/deploy-lib+`.
 
   nil)
+
+
+
+(defn !.genesis
+
+  ^{:doc {:description ["Returns a request for creating a genesis state with genesis users, one for every"
+                        "given key."
+                        ""
+                        "Vector of keys must contain at least one key for the mandatory roor genesis user."
+                        "All keys must be unique, will fail if there are duplicates."
+                        ""
+                        "Created state will be available during the next transaction under `$/*result*`."
+                        ""
+                        "Only needed when `$.state/genesis` is not enough."]
+          :examples    []
+          :signature   [{:params [genesis-key+]}]}}
+
+  [genesis-key+]
+
+  (assert (vector? genesis-key+)
+          (>= (count genesis-key+)
+              1)
+          (reduce (fn [_acc genesis-key]
+                    (or ($.account/key? genesis-key)
+                        (reduced false)))
+                  true
+                  genesis-key+)
+          (= (count genesis-key+)
+             (count (set genesis-key+))))
+  [:cvm.sreq :state.genesis genesis-key+])
 
 
 ;;;;;;;;;; Scoped evaluation

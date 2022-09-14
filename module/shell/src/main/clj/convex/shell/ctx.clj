@@ -133,7 +133,7 @@
            ;; Requires `$` + `$.catch` + `$.stream` + `$.term` + `$.trx`.
            [$.shell.sym/$-repl
             "convex/shell/repl.cvx"]
-           ;; Requires `$.catch` + `$.repl` + `$.trx`.
+           ;; Requires `$.account` + `$.catch` + `$.repl` + `$.trx`.
            [$.shell.sym/$-state
             "convex/shell/state.cvx"]
            ;; Requires `$.code` + `$.state`

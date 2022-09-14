@@ -1,0 +1,10 @@
+{
+  "resources": {
+    "includes": [
+      {"pattern": ".*.cvx$"}
+    ],
+    "excludes": [
+      {"pattern": "convex/shell/.*"}
+    ]
+  }
+}

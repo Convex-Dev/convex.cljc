@@ -61,6 +61,35 @@
 
 
 
+(defn suite.genesis
+
+  ^{:doc {:description "Creating genesis states."}}
+
+  []
+
+  (T/group '((T/path.conj 'genesis)
+
+             ($.state/!.genesis [$.account/fake-key])
+             (T/trx '(= $.state/genesis
+                        $/*result*)
+                    {:description "Able to reproduce the default genesis state."})
+
+             ($.state/!.genesis [$.account/fake-key
+                                 0x1122334455667788990011223344556677889900112233445566778899001122])
+             ($.state/!.safe $/*result*
+                             '(count (:accounts *state*)))
+             (T/trx '(= (first $/*result*)
+                        (+ (count (:accounts $.state/genesis))
+                           1))
+                    {:description "Able to create more than 1 genesis user."})
+
+             (T/fail.code #{:ASSERT}
+                          '($.state/!.genesis [$.account/fake-key
+                                               $.account/fake-key])
+                          {:description "Cannot have duplicate keys."}))))
+
+
+
 (defn suite.god
 
   ^{:doc {:description "God mode."}}
@@ -80,7 +109,6 @@
              (T/trx '(= #3/foo
                         42)
                     {:description "Transaction was executed in target account."}))))
-             
 
 
 
@@ -352,6 +380,7 @@
              (suite.safe)
              ;; Higher-level constructs based on state loading.
              (suite.atomic)
+             (suite.genesis)
              (suite.god)
              (suite.tmp)
              (suite.tmp-with))))

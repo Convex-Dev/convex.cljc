@@ -636,6 +636,26 @@
 
 (defmethod $.shell.exec/sreq
 
+  $.shell.kw/state-genesis
+
+  ;; Produces a genesis state given genesis keys.
+
+  [env ^AVector tuple]
+
+  (try
+    ($.shell.ctx/def-result env
+                            (-> ($.cvm/ctx {:convex.cvm/genesis-key+ (map $.cell/key
+                                                                          (.get tuple
+                                                                                2))})
+                                ($.cvm/state)))
+    (catch Throwable ex
+      ($.shell.exec.fail/err env
+                             ($.shell.err/state ($.cell/string (.getMessage ex)))))))
+
+
+
+(defmethod $.shell.exec/sreq
+
   $.shell.kw/state-load
 
   ;; Restores the given state and executes the given transaction afterwards.
