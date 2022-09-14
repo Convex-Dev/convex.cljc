@@ -282,6 +282,7 @@
 
   ^{:callable? true
     :doc       {:description ["Starts a REPL on next transaction."
+                              ""
                               "User can then enter transactions and see results."
                               "For stopping, see `stop`."
                               "A prompt or prompt producing function may be provided."]
@@ -319,9 +320,10 @@
                                                      "Convex Shell (REPL mode)"
                                                      ($.term/reset)
                                                      $/line
-                                                     $/line
                                                      "Enter transactions and build a new world."
                                                      $/line
+                                                     $/line
+                                                     "Powered by Protosens SRL and collaborators."
                                                      $/line
                                                      "To learn more: "
                                                      ($.term/bold)

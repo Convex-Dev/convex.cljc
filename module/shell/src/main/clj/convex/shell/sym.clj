@@ -92,4 +92,4 @@
              ($.cell/symbol "version"))
 
 (def ^Symbol version-convex
-             ($.cell/symbol "version-convex"))
+             ($.cell/symbol "version.convex"))
