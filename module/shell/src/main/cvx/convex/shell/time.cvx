@@ -136,8 +136,12 @@
                         "Highly experimental and subject to change, probably useful for CVM developers only."
                         "Depending on the given transaction, takes between one and several minutes to complete."
                         ""
-                        "Report map is available during next transaction under `$/*result*`."
-                        "Values are estimates in nanoseconds"]
+                        "Uses the Criterium library:"
+                        "  https://github.com/hugoduncan/criterium"
+                        ""
+                        "Report map will be available during next transaction under `$/*result*`."
+                        "Values are duration estimates in nanoseconds with an overhead due to forking the CVM"
+                        "context which should be in the few nanoseconds. A nil transaction might provide a base."]
           :examples    [{:code "($.time/!.bench '(+ 2 2))"}
                         {:code "($.time/!.bench (compile '(+ 2 2)))"}]
           :signature   [{:params [trx]}]}}
