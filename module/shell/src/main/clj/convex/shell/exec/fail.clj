@@ -77,7 +77,11 @@
                      writer))
     (binding [*out* *err*]
       (println)
-      (println "[FATAL ERROR] :'(")
+      (println "==================")
+      (println)
+      (println "  FATAL ERROR  :'(  ")
+      (println)
+      (println "==================")
       (println)
       (println "Please open an issue if necessary:")
       (println "    https://github.com/Convex-Dev/convex.cljc")
