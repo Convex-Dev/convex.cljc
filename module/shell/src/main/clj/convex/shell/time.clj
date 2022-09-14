@@ -15,7 +15,32 @@
       true)
 
 
-;;;;;;;;;;
+;;;;;;;;;; Clocks
+
+
+(defn nano
+
+  "High-resolution timer."
+
+  []
+
+  (System/nanoTime))
+
+
+
+(defn unix
+
+  "Current Unix timestamp in milliseconds."
+
+  []
+
+  (System/currentTimeMillis))
+
+
+;;;;;;;;;; Conversions
+
+
+;;; Instant <-> ISO 8601
 
 (let [^DateTimeFormatter formatter (.withZone DateTimeFormatter/ISO_LOCAL_DATE_TIME
                                               (ZoneId/from ZoneOffset/UTC))]
@@ -50,6 +75,8 @@
         nil))))
 
 
+;;; Instant <-> Unix
+
 
 (defn instant->unix
 
@@ -58,26 +85,6 @@
   [^Instant instant]
 
   (.toEpochMilli instant))
-
-
-
-(defn nano
-
-  "High-resolution timer."
-
-  []
-
-  (System/nanoTime))
-
-
-(defn unix
-
-  "Current Unix timestamp in milliseconds."
-
-  []
-
-  (System/currentTimeMillis))
-
 
 
 (defn unix->instant
@@ -91,17 +98,7 @@
   (Instant/ofEpochMilli unix))
 
 
-
-(defn unix->iso
-
-  "Converts a Unix timestamp to an ISO 8601 string (UTC)."
-
-  [unix]
-
-  (-> unix
-      (unix->instant)
-      (instant->iso)))
-
+;;; Unix <-> ISO
 
 
 (defn iso->unix
@@ -113,3 +110,16 @@
   (-> iso
       (iso->instant)
       (some-> (instant->unix))))
+
+
+
+(defn unix->iso
+
+  "Converts a Unix timestamp to an ISO 8601 string (UTC)."
+
+  [unix]
+
+  (-> unix
+      (unix->instant)
+      (instant->iso)))
+
