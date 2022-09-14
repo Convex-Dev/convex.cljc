@@ -99,17 +99,151 @@
   nil)
 
 
+
+;;;;;;;;;; Pretty-printing
+
+
+(defn str.exception
+
+  ^{:doc {:description ["Turns given `exception` into a nice human-readable string." 
+                        "Used by the REPL when handling exceptions thrown during evaluation."]
+          :signature   [{:params [exception]}]}}
+
+  [exception]
+
+  (str $/line
+       ($.term/bold)
+       ($.term/fg.red)
+       "Exception code:"
+       ($.term/reset)
+       $/line
+       "  "
+       ($.term/bold)
+       (exception :code)
+       $/line
+       ($.term/bold)
+       ($.term/fg.red)
+       "Message:"
+       ($.term/reset)
+       $/line
+       "  "
+       (exception :message)
+       $/line
+       ($.term/bold)
+       ($.term/fg.red)
+       "Trace:"
+       ($.term/reset)
+       (let [trace (exception :trace)]
+         (if (empty? trace)
+           (str $/line
+                "  None.")
+           (apply str
+                  (reduce (fn [acc entry]
+                            (conj acc
+                                  $/line
+                                  "  "
+                                  entry))
+                          []
+                          trace))))
+       (let [extra-data (dissoc exception
+                                :code
+                                :exception?
+                                :message
+                                :trace)]
+         (if (empty? extra-data)
+           ""
+           (str $/line
+                ($.term/bold)
+                ($.term/fg.red)
+                "Extra data:"
+                ($.term/reset)
+                $/line
+                "  "
+                extra-data)))
+       $/line))
+
+
 ;;;;;;;;;; Internal
+
+
+(declare -!.next)
+
+
+
+(defn -!.eval
+
+  ^{:private? true}
+
+  ;; Handles the evaluation part with exception handling.
+
+  [result-previous form+]
+
+  ($.trx/precat `(($.catch/!.try ;; Try
+                                 '($.trx/precat (concat '((quote ~result-previous))
+                                                        (quote ~form+)
+                                                        '((if $.repl/*active?*
+                                                            ($.trx/precat `(($.stream/!.txt.out $/line)
+                                                                            ($.stream/!.outln (quote ~$/*result*))
+                                                                            ($.stream/!.txt.out $/line)
+                                                                            ($.stream/!.flush)
+                                                                            (quote ~$/*result*)))
+                                                            $/*result*))))
+                                 ;; Catch
+                              `($.trx/precat `(($.stream/!.txt.outln ($.repl/str.exception (quote ~$/*result*)))
+                                               (quote ~$/*result*))))
+                  (if $.repl/*active?*
+                    ($.repl/-!.next $/*result*)
+                    $/*result*))))
+
+
+
+(defn -!.exception.input
+
+  ^{:private? true}
+
+  ;; Handles exceptions occuring while reading input forms.
+
+  [exception result-previous]
+
+  (if (= (exception :code)
+         :READER)
+    ;; Input is not valid Convex Lisp.
+    ($.trx/precat `(($.stream/!.txt.outln (str $/line
+                                               ($.term/fg.red)
+                                               ($.term/bold)
+                                               "Input cannot be parsed as Convex Lisp:"
+                                               ($.term/reset)
+                                               $/line
+                                               "  "
+                                               ~(exception :message)
+                                               $/line))
+                    ($.repl/-!.next (quote ~result-previous))))
+    ;; Another unforeseen exception while reading input.
+    ($.trx/set `(($.stream/!.txt.outln $.stream/*err*
+                                       (str $/line
+                                            $/line
+                                            ($.term/bold)
+                                            ($.term/fg.red)
+                                            "================================================"
+                                            $/line
+                                            "                                                "
+                                            $/line
+                                            "  Exception while reading input: stopping REPL  "
+                                            $/line
+                                            "                                                "
+                                            $/line
+                                            "================================================"
+                                            ($.term/reset))):
+                 ($.stream/!.txt.outln ($.repl/str.exception (quote ~exception)))
+                 ($.process/!.exit 3)))))
+
 
 
 (defn -!.next
 
-  ^{:callable? true
-    :doc       {:description ["After `!.start`, loops Read-Eval-Print until `!.stop` is called."
-                              "Ensures last result produced by the user is available under `$/*result*`."]}
-    :private?  true}
+  ^{:private? true}
 
-  ;; TODO. Refactor. This is too complex.
+  ;; Read-Eval-Print loop.
 
   [result-previous]
 
@@ -123,111 +257,25 @@
                     ;;
                     ;; An exception occured while reading input.
                     ($.catch/exception? $/*result*)
-                    (let [result-previous (quote ~result-previous)]
-                      (if (= (:code $/*result*)
-                             :READER)
-                        ($.trx/precat `(($.stream/!.txt.outln (str $/line
-                                                                   ($.term/fg.red)
-                                                                   ($.term/bold)
-                                                                   "Input cannot be parsed as Convex Lisp:"
-                                                                   ($.term/reset)
-                                                                   $/line
-                                                                   "  "
-                                                                   ~(:message $/*result*)
-                                                                   $/line))
-                                        ($.repl/-!.next (quote ~result-previous))))
-                        ($.trx/set '(($.stream/!.txt.outln $.stream/*err*
-                                                           (str $/line
-                                                                $/line
-                                                                ($.term/bold)
-                                                                ($.term/fg.red)
-                                                                "REPL cannot read: is the input stream closed perhaps?"
-                                                                ($.term/reset)))
-                                     ($.process/!.exit 3)))))
+                    ($.repl/-!.exception.input $/*result*
+                                               (quote ~result-previous))
                     ;;
                     ;; Nil, input stream reached its end.
                     (nil? $/*result*)
                     ($.repl/!.stop)
                     ;;
                     ;; Prints result or exception after executing input.
-                    (let [form+           $/*result*
-                          result-previous (quote ~result-previous)]
+                    (let [form+ $/*result*]
                       (if (>= (count form+)
                               1)
-                        ;; At least one form to execute.
-                        ($.trx/precat
-                          `(($.catch/!.try ;; Try
-                                           '($.trx/precat (concat '((quote ~result-previous))
-                                                                  (quote ~form+)
-                                                                  '((if $.repl/*active?*
-                                                                      ($.trx/precat `(($.stream/!.txt.out $/line)
-                                                                                      ($.stream/!.outln (quote ~$/*result*))
-                                                                                      ($.stream/!.txt.out $/line)
-                                                                                      ($.stream/!.flush)
-                                                                                      (quote ~$/*result*)))
-                                                                      $/*result*))))
-                                           ;; Catch
-                                           '($.trx/precat `(($.stream/!.txt.outln
-                                                              (str $/line
-                                                                   ($.term/bold)
-                                                                   ($.term/fg.red)
-                                                                   "Exception code:"
-                                                                   ($.term/reset)
-                                                                   $/line
-                                                                   "  "
-                                                                   ($.term/bold)
-                                                                   (:code $/*result*)
-                                                                   $/line
-                                                                   ($.term/bold)
-                                                                   ($.term/fg.red)
-                                                                   "Message:"
-                                                                   ($.term/reset)
-                                                                   $/line
-                                                                   "  "
-                                                                   (:message $/*result*)
-                                                                   $/line
-                                                                   ($.term/bold)
-                                                                   ($.term/fg.red)
-                                                                   "Trace:"
-                                                                   ($.term/reset)
-                                                                   (let [trace (:trace $/*result*)]
-                                                                     (if (empty? trace)
-                                                                       (str $/line
-                                                                            "  None.")
-                                                                       (apply str
-                                                                              (reduce (fn [acc entry]
-                                                                                        (conj acc
-                                                                                              $/line
-                                                                                              "  "
-                                                                                              entry))
-                                                                                      []
-                                                                                      trace))))
-                                                                   (let [extra-data (dissoc $/*result*
-                                                                                            :code
-                                                                                            :exception?
-                                                                                            :message
-                                                                                            :trace)]
-                                                                     (if (empty? extra-data)
-                                                                       ""
-                                                                       (str $/line
-                                                                            ($.term/bold)
-                                                                            ($.term/fg.red)
-                                                                            "Extra data:"
-                                                                            ($.term/reset)
-                                                                            $/line
-                                                                            "  "
-                                                                            extra-data)))
-                                                                   $/line
-                                                                   ))
-                                                            ~(quote $/*result*))))
-                            (if $.repl/*active?*
-                              ($.repl/-!.next $/*result*)
-                              $/*result*)))
+                        ;; At least one form to evaluate.
+                        ($.repl/-!.eval (quote ~result-previous)
+                                        form+)
                         ;; No input form, restart while keeping the same previous result.
                         ($.repl/-!.next (quote ~result-previous))))))))
 
 
-;;;;;;;;;; API
+;;;;;;;;;; Public
 
 
 (defn !.start
