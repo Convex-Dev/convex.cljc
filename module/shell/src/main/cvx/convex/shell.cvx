@@ -27,7 +27,7 @@
 
 
 
-(def version-convex
+(def version.convex
 
   ^{:doc {:description "String representing the embedded version of Convex."}}
 
