@@ -33,8 +33,9 @@
 
 (defn !.stream.in
 
-  ^{:doc {:description ["Returns a request for opening an input stream for the Convex Lisp file located under `path`."
-                        "Stream is available during next transaction under `$/*result*`."
+  ^{:doc {:description ["Returns a request for opening an input stream for file located under `path`."
+                        "Stream will available during the next transaction under `$/*result*`."
+                        ""
                         "See the `$.stream` library."]
           :examples    [{:code "($.file/!.stream.in \"./my/file.cvx\")"}]
           :signature   [{:params [path]}]}}
@@ -48,17 +49,32 @@
 
 (defn !.stream.out
 
-  ^{:doc {:description ["Returns a request for opening an output stream for the Convex Lisp file located under `path`."
-                        "Stream is available during next transaction under `$/*result*`."
-                        "See the `$.stream` library."]
-          :examples    [{:code "($.file/!.stream.out \"./my/file.cvx\")"}]
-          :signature   [{:params [path]}]}}
+  ^{:doc {:description ["Returns a request for opening an output stream for the file located under `path`."
+                        ""
+                        "Stream will be available during the next transaction under `$/*result*`."
+                        "See the `$.stream` library."
+                        ""
+                        "A map of options may be provided:"
+                        ""
+                        "  :append?"
+                        "    Writes will be appended to the end if true, otherwise file will be overwritten if it exists."
+                        "    False by default."]
+          :examples    [{:code "($.file/!.stream.out \"./my/file.cvx\")"}
+                        {:code "($.file/!.stream.out \"./my/file.cvx\" {:append? true})"}]
+          :signature   [{:params [path]}
+                        {:params [path option+]}]}}
 
 
-  [path]
+  ([path]
 
-  (assert (str? path))
-  [:cvm.sreq :file.stream.out path])
+   (!.stream.out path
+                 nil))
+
+
+  ([path option+]
+
+   (assert (str? path))
+   [:cvm.sreq :file.stream.out path (boolean (:append? option+))]))
 
 
 ;;;;;;;;;; Higher-level utilities built on stream utilities
@@ -98,9 +114,10 @@
 
   ^{:private? true}
 
-  [f-outln path cell]
+  [f-outln path cell option+]
 
-  ($.trx/precat `(($.file/!.stream.out ~path)
+  ($.trx/precat `(($.file/!.stream.out ~path
+                                       (quote ~option+))
                   (let [cell      (quote ~cell)
                         f-outln   (quote ~f-outln)
                         id-stream $/*result*]
@@ -114,16 +131,27 @@
 
 (defn !.write
 
-  ^{:doc {:description ["Returns a request for writing `cell` to the Convex Lisp file located under `path`, in one go."
-                        "File is created if needed."]
-          :examples    [{:code "($.file/!.write \"./my/file.cvx\") {:foo :bar})"}]
-          :signature   [{:params [path cell]}]}}
+  ^{:doc {:description ["Returns a request for writing `cell` to the file located under `path`, in one go."
+                        "See `$.file/!.stream.out` for options."]
+          :examples    [{:code "($.file/!.write \"./my/file.cvx\") {:foo :bar})"}
+                        {:code "($.file/!.write \"./my/file.cvx\") {:foo :bar} {:append? true})"}]
+          :signature   [{:params [path cell]}
+                        {:params [path cell option+]}]}}
 
-  [path cell]
 
-  (-!.write '$.stream/!.outln
-            path
-            cell))
+  ([path cell]
+
+   (!.write path
+            cell
+            nil))
+
+
+  ([path cell option+]
+
+   (-!.write '$.stream/!.outln
+             path
+             cell
+             option+)))
 
 
 
@@ -144,16 +172,27 @@
 
 (defn !.txt.write
 
-  ^{:doc {:description ["Like `!.write` but if `cell` is a string, it will not be double-quoted."
-                        "Hence, the output might be readable as Convex Lisp."]
-          :examples    [{:code "($.file/!.write.txt \"./my/file.cvx\") \"This is some text\")"}]
-          :signature   [{:params [path cell]}]}}
+  ^{:doc {:description ["Like `$.file/!.write` but if `cell` is a string, it will not be double-quoted."
+                        "Hence, the output might not be readable as Convex Lisp."]
+          :examples    [{:code "($.file/!.txt.write \"./my/file.cvx\" \"This is some text\")"}
+                        {:code "($.file/!.txt.write \"./my/file.cvx\" \"This is some text\" {:append? true})"}]
+          :signature   [{:params [path cell]}
+                        {:params [path cell option+]}]}}
 
-  [path cell]
 
-  (-!.write '$.stream/!.txt.outln
-            path
-            cell))
+  ([path cell]
+
+   (!.txt.write path
+                cell
+                nil))
+
+
+  ([path cell option+]
+
+   (-!.write '$.stream/!.txt.outln
+             path
+             cell
+             option+)))
 
 
 ;;;;;;;;;; Other filesystem operations

@@ -408,9 +408,11 @@
 
   "Opens an output stream for file under `path`."
 
-  [env path]
+  [env path append?]
 
   (-file env
          path
-         $.shell.io/file-out
+         (fn [path]
+           ($.shell.io/file-out path
+                                append?))
          #{:write}))

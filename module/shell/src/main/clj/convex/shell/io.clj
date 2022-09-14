@@ -113,15 +113,25 @@
 
 (defn file-out
 
-  "Opens an output text stream for the file located under `path`."
+  "Opens an output text stream for the file located under `path`.
+   By default, overwrites any existing file. Writes will be appended to the end
+   if `append?` is true."
 
-  [^String path]
+  
+  ([path]
 
-  (let [file (File. path)]
-    (-> file
-        (.getParentFile)
-        (.mkdirs))
-    (FileWriter. file)))
+   (file-out path
+             false))
+
+
+  ([^String path append?]
+
+   (let [file (File. path)]
+     (-> file
+         (.getParentFile)
+         (.mkdirs))
+     (FileWriter. file
+                  (boolean append?)))))
   
 
 ;;;;;;;;;; Miscellaneous operations
