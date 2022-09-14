@@ -3,10 +3,14 @@
                   *address*))
 
 (call *registry*
-      (register {:description ["Provides a flexible framework for unit testing where each assertion is a transaction."
+      (register {:description ["Highly experimental and guaranteed to change significantly in future releases."
+                               ""
+                               "Provides a flexible framework for unit testing where each assertion is a transaction."
+                               ""
                                "Central function for testing assertions is `trx`."
                                "Functions `fail` and `fail.code` are used to ensure expected failures."
                                "Those functions generate a report for each test and those reports are appended to `*report+*`."
+                               ""
                                "When done, reports can be printed using `print` and cleared using `report.clear`."
                                "For testing groups of assertions safely without altering global state, see `group`."
                                "Each assertion can receive metadata which is added to its report."
