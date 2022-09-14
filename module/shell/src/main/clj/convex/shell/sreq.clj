@@ -951,6 +951,19 @@
 
 (defmethod $.shell.exec/sreq
 
+  $.shell.kw/time-nano
+
+  ;; High-resolution timer.
+
+  [env _tuple]
+
+  ($.shell.ctx/def-result env
+                          ($.cell/long ($.shell.time/nano))))
+
+
+
+(defmethod $.shell.exec/sreq
+
   $.shell.kw/time-unix
 
   ;; Returns UNIX timestamp.
