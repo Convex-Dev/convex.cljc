@@ -5,7 +5,6 @@
   {:author "Adam Helinski"}
 
   (:import (convex.core Peer))
-  (:refer-clojure :exclude [sequence])
   (:require [clojure.test  :as T]
             [convex.cell   :as $.cell]
             [convex.client :as $.client]
@@ -92,12 +91,12 @@
 
 
 
-(defn -sequence
+(defn -sequence-id
 
   [client]
 
-  (-deref ($.client/sequence client
-                             user)))
+  (-deref ($.client/sequence-id client
+                                user)))
 
 
 
@@ -233,11 +232,11 @@
 
 
 
-(T/deftest sequence
+(T/deftest sequence-id
 
   (test-client+
     (fn [client]
-      (T/is (pos? (-sequence client))))))
+      (T/is (pos? (-sequence-id client))))))
 
 
 
@@ -250,7 +249,7 @@
                (-> ($.client/transact client
                                       kp
                                       ($.cell/invoke user
-                                                     (-sequence client)
+                                                     (-sequence-id client)
                                                      ($.cell/* (def foo-transact (+ 2 2)))))
                    -deref
                    $.client/value))
@@ -260,7 +259,7 @@
                (-> ($.client/transact client
                                       kp
                                       ($.cell/invoke user
-                                                     (-sequence client)
+                                                     (-sequence-id client)
                                                      ($.cell/symbol "foo-transact")))
                    -deref
                    $.client/value))
