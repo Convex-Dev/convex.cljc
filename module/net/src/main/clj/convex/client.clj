@@ -19,7 +19,6 @@
            (convex.core.data ACell
                              AVector
                              SignedData)
-           (convex.core.data.prim CVMLong)
            (convex.core.lang Symbols)
            (convex.core.store Stores)
            (convex.core.transactions ATransaction)
@@ -28,7 +27,8 @@
            (java.util.concurrent CompletableFuture)
            (java.util.function Function))
   (:refer-clojure :exclude [resolve])
-  (:require [convex.sign   :as $.sign]))
+  (:require [convex.clj  :as $.clj]
+            [convex.sign :as $.sign]))
 
 
 
@@ -218,7 +218,7 @@
 
 (defn result->error-code
 
-  "Given a result dereferenced from a future, returns the error code (a cell, typically a CVM keyword).
+  "Given a result dereferenced from a future, returns the error code (a cell, typically a CVX keyword).
   
    Returns nil if no error occured."
 
@@ -232,7 +232,7 @@
 
 (defn result->trace
 
-  "Given a result dereferenced rfom a future, returns the stacktrace (a CVM vector of CVM strings).
+  "Given a result dereferenced from a future, returns the stacktrace (a CVX vector of strings).
   
    Returns nil if no error occured."
 
@@ -248,7 +248,7 @@
 
   "Given a result dereferenced from a future, returns its value (a cell).
 
-   In case of error, this will be the error message (typically a CVM string, although not necessarily)."
+   In case of error, this will be the error message (often a CVX string but can be any value)."
 
   ^ACell
 
@@ -281,4 +281,4 @@
                                      {:convex.cell/address address
                                       :convex.error/code   ec
                                       :convex.error/trace  (result->trace result)}))
-                     (inc (.longValue ^CVMLong (result->value result))))))))
+                     (inc ($.clj/long (result->value result))))))))
