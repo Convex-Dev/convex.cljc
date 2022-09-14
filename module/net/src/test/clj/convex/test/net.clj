@@ -202,7 +202,7 @@
                (-> ($.client/resolve client
                                      (-> ($.client/peer-status client)
                                          -deref
-                                         $.client/value
+                                         $.client/result->value
                                          last
                                          $.cell/hash<-blob))
                    -deref))))))
@@ -219,7 +219,7 @@
                                    user
                                    ($.cell/* (def foo-query (+ 2 2))))
                    -deref
-                   $.client/value))
+                   $.client/result->value))
             "Simple query")
 
       (T/is (= ($.cell/boolean false)
@@ -227,7 +227,7 @@
                                    user
                                    ($.cell/* (defined? foo-query)))
                    -deref
-                   $.client/value))
+                   $.client/result->value))
             "State change in previous query has been reversed"))))
 
 
@@ -252,7 +252,7 @@
                                                      (-sequence-id client)
                                                      ($.cell/* (def foo-transact (+ 2 2)))))
                    -deref
-                   $.client/value))
+                   $.client/result->value))
             "Def within a transaction")
 
       (T/is (= ($.cell/long 4)
@@ -262,5 +262,5 @@
                                                      (-sequence-id client)
                                                      ($.cell/symbol "foo-transact")))
                    -deref
-                   $.client/value))
+                   $.client/result->value))
             "Def persisted across transactions"))))

@@ -7,9 +7,9 @@
    All IO functions return a future which ultimately resolves to a result received from the peer.
    Information from result can be extracted using:
 
-   - [[error-code]]
-   - [[trace]]
-   - [[value]]"
+   - [[result->error-code]]
+   - [[result->trace]]
+   - [[result->value]]"
 
   {:author "Adam Helinski"}
 
@@ -216,7 +216,7 @@
 ;;;;;;;;;; Results
 
 
-(defn error-code
+(defn result->error-code
 
   "Given a result dereferenced from a future, returns the error code (a cell, typically a CVM keyword).
   
@@ -230,7 +230,7 @@
 
 
 
-(defn trace
+(defn result->trace
 
   "Given a result dereferenced rfom a future, returns the stacktrace (a CVM vector of CVM strings).
   
@@ -244,7 +244,7 @@
 
 
 
-(defn value 
+(defn result->value 
 
   "Given a result dereferenced from a future, returns its value (a cell).
 
@@ -276,9 +276,9 @@
                (reify Function
 
                  (apply [_this result]
-                   (if-some [ec (error-code result)]
+                   (if-some [ec (result->error-code result)]
                      (throw (ex-info "Unable to fetch next sequence ID"
                                      {:convex.cell/address address
                                       :convex.error/code   ec
-                                      :convex.error/trace  (trace result)}))
-                     (inc (.longValue ^CVMLong (value result))))))))
+                                      :convex.error/trace  (result->trace result)}))
+                     (inc (.longValue ^CVMLong (result->value result))))))))
