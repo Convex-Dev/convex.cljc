@@ -61,6 +61,15 @@
 
 
 
+(defn nano
+
+  "High-resolution timer."
+
+  []
+
+  (System/nanoTime))
+
+
 (defn unix
 
   "Current Unix timestamp in milliseconds."

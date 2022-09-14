@@ -219,6 +219,9 @@
 (def ^Keyword time-iso->unix
               ($.cell/keyword "time.iso->unix"))
 
+(def ^Keyword time-nano
+              ($.cell/keyword "time.nano"))
+
 (def ^Keyword time-unix
               ($.cell/keyword "time.unix"))
 

@@ -93,6 +93,18 @@
 
 
 
+(defn suite.nano
+
+  ^{:doc {:description "High-resolution timer."}}
+
+  []
+
+  (T/group '((T/path.conj 'nano)
+             ($.time/!.nano)
+             (T/trx '(long? $/*result*)))))
+
+
+
 (defn suite.unix
 
   ^{:doc {:description "Unix timestamps."}}
