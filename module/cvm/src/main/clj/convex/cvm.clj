@@ -14,7 +14,7 @@
    Actions involving code (eg. [[compile]], [[exec]], ...) return a new context which holds either a [[result]] or an [[exception]].
    Those actions always consume [[juice]].
 
-   Given that a \"cell\" is the term reserved for CVM data and objects, execution consists of following steps:
+   Given that a \"cell\" is the term reserved for CVM data and objects, execution consists of the following steps:
 
    | Step | Function    | Does                                                |
    |------|-------------|-----------------------------------------------------|
@@ -22,7 +22,7 @@
    | 2    | [[compile]] | `canonical cell` -> `op`, preparing executable code |
    | 3    | [[exec]]    | Executes compiled code                              |
 
-   Any cell can be applied safely to those functions, worse that can happen is nothing (eg. providing an already compiled cell to
+   Any cell can be applied safely to those functions, worse that can happen is nothing (e.g. providing an already compiled cell to
    [[compile]]).
 
    If fine-grained control is not needed and if source is not compiled anyways, a simpler alternative is to use [[eval]] which does
@@ -319,7 +319,7 @@
 
 (defn log
 
-  "Returns the log of `ctx` (a CVM vector of size 2 vectors containing a logging address
+  "Returns the log of `ctx` (a vector cell of size 2 vectors containing a logging address
    and a logged value)."
 
   ^ABlobMap
@@ -382,7 +382,7 @@
 
 (defn time
 
-  "Returns the current timestamp (Unix epoch in milliseconds as CVM long) assigned to the state in the given `ctx`.
+  "Returns the current timestamp (Unix epoch in milliseconds as long cell) assigned to the state in the given `ctx`.
   
    Also see [[time-set]]."
 
@@ -424,7 +424,7 @@
 
   "Like calling `(def sym value)` in Convex Lisp, either in the current address of the given one.
 
-   Argument is a map of `CVM symbol` -> `CVM value`."
+   Argument is a map of `symbol cell` -> `cell`."
 
 
   (^Context [ctx sym->value]
@@ -596,7 +596,7 @@
 (defn undef
 
   "Like calling `(undef sym)` in Convex Lisp, either in the current account or the given one, repeatedly
-   on any CVM symbol in `sym+`."
+   on any symbol cell in `sym+`."
 
 
   (^Context [ctx sym+]
@@ -766,7 +766,7 @@
 
   "Invokes the given CVM `f`unction using the given `ctx`.
 
-   `arg+` is a Java array of CVM objects. See [[arg+*]] for easily and efficiently creating one.
+   `arg+` is a Java array of cells. See [[arg+*]] for easily and efficiently creating one.
   
    Returns a new `ctx` with a [[result]] or an [[exception]] in case of failure."
 
