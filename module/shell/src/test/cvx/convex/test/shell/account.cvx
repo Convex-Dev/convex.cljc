@@ -23,6 +23,9 @@
 
   (T/group '((T/path.conj 'convex.shell.account)
 
+             (T/trx '($.account/key? $.account/fake-key))
+             (T/trx '(not ($.account/key? 42)))
+
              (def actor
                   ($.account/zombie (def foo
                                          42)))
