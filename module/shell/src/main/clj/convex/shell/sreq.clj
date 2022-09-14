@@ -934,6 +934,23 @@
 
 (defmethod $.shell.exec/sreq
 
+  $.shell.kw/time-iso->unix
+
+  ;; Convers ISO string to Unix timestamp.
+
+  [env ^AVector tuple]
+
+  ($.shell.ctx/def-result env
+                          (-> (.get tuple
+                                    2)
+                              ($.clj/string)
+                              ($.shell.time/iso->unix)
+                              (some-> ($.cell/long)))))
+
+
+
+(defmethod $.shell.exec/sreq
+
   $.shell.kw/time-unix
 
   ;; Returns UNIX timestamp.
@@ -942,3 +959,20 @@
 
   ($.shell.ctx/def-result env
                           ($.cell/long ($.shell.time/unix))))
+
+
+
+(defmethod $.shell.exec/sreq
+
+  $.shell.kw/time-unix->iso
+
+  ;; Convers Unix timestamp to ISO string.
+
+  [env ^AVector tuple]
+
+  ($.shell.ctx/def-result env
+                          (-> (.get tuple
+                                    2)
+                              ($.clj/long)
+                              ($.shell.time/unix->iso)
+                              ($.cell/string))))

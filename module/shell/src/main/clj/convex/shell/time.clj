@@ -22,7 +22,7 @@
 
 
 
-  (defn instant->iso-string
+  (defn instant->iso
   
     "Converts an `Instant` to an ISO 8601 string (UTC)."
   
@@ -33,7 +33,7 @@
 
 
 
-  (defn iso-string->instant
+  (defn iso->instant
 
     "Converts an ISO 8601 string to an `Instant`.
     
@@ -41,11 +41,11 @@
 
     ^Instant
 
-    [iso-string]
+    [iso]
 
     (try
       (Instant/from (.parse formatter
-                            iso-string))
+                            iso))
       (catch DateTimeParseException _ex
         nil))))
 
@@ -83,7 +83,7 @@
 
 
 
-(defn unix->iso-string
+(defn unix->iso
 
   "Converts a Unix timestamp to an ISO 8601 string (UTC)."
 
@@ -91,16 +91,16 @@
 
   (-> unix
       (unix->instant)
-      (instant->iso-string)))
+      (instant->iso)))
 
 
 
-(defn iso-string->unix
+(defn iso->unix
 
   "Converts an ISO 8601 string (UTC) to a Unix timestamp."
 
-  [iso-string]
+  [iso]
 
-  (-> iso-string
-      (iso-string->instant)
+  (-> iso
+      (iso->instant)
       (some-> (instant->unix))))

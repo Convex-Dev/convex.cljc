@@ -27,6 +27,21 @@
 
 
 
+(defn !.iso->unix
+
+  ^{:doc {:description ["Returns a request for converting an ISO 8601 UTC date-time string into a Unix timestamp."
+                        ""
+                        "Result will be available under `$/*result*` during the next transaction."]
+          :examples    [{:code "($.time/!.iso->unix \"2022-09-14T11:43:34.633\")"}]
+          :signature   [{:params [iso-string]}]}}
+
+  [iso-string]
+
+  (assert (str? iso-string))
+  [:cvm.sreq :time.iso->unix iso-string])
+
+
+
 (defn !.unix
 
   ^{:doc {:description ["Returns a request for retrieving the current Unix timestamp in milliseconds."
@@ -39,3 +54,18 @@
   []
 
   [:cvm.sreq :time.unix])
+
+
+
+(defn !.unix->iso
+
+  ^{:doc {:description ["Returns a request for converting a Unix timestamp into an ISO 8601 UTC date-time string."
+                        ""
+                        "Result will be available under `$/*result*` during the next transaction."]
+          :examples    [{:code "($.time/!.unix->iso 1663155814633)"}]
+          :signature   [{:params [unix-timestamp]}]}}
+
+  [unix-timestamp]
+
+  (assert (long? unix-timestamp))
+  [:cvm.sreq :time.unix->iso unix-timestamp])
