@@ -80,7 +80,6 @@
                                 cell)))
                     ex    ($.cvm/exception ctx-2)]
                 (when ex
-                  ;; TODO. Is caught by try-catch below.
                   (throw (ex-info "CVM exception while compiling CVX library"
                                   {::base :eval
                                    ::ex   ex

@@ -114,7 +114,7 @@
       ($.shell.exec.fail/top-exception ex)
       (when (not= (System/getProperty "convex.dev")
                   "true")
-        (System/exit 42)))))
+        (System/exit 1)))))
 
 
 

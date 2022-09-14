@@ -76,7 +76,7 @@
 
   ;; Used in case of failure.
   ;;
-  ;; Reports error using [[convex.shell.exec.fail/err]], as expected, unless operation was involved STDERR.
+  ;; Reports error using [[convex.shell.exec.fail/err]], as expected, unless operation involved STDERR.
   ;; If using STDERR, there is no way to print errors, hence the process should terminate with a special exit code.
 
   [env id op+ err]

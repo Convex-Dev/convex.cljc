@@ -11,7 +11,6 @@
            (convex.core.data AVector)
            (convex.core.data.prim CVMLong)
            (convex.core.exceptions ParseException)
-           (convex.core.lang Context)
            (java.io File
                     IOException)
            (java.nio.file DirectoryNotEmptyException
