@@ -455,7 +455,9 @@
 
   ($.shell.stream/file-out env
                            (str (.get tuple
-                                       2))))
+                                       2))
+                           ($.clj/boolean (.get tuple
+                                                3))))
 
 
 

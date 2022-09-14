@@ -284,24 +284,38 @@
 
   []
 
-  (T/group '((T/path.conj 'rw)
+  (let [trx-rw '(T/trx '($.trx/precat '(($.file/!.write path
+                                                        cell)
+                                        ($.file/!.read path)
+                                        (= cell
+                                           (first $/*result*))))
+                       {:description "Reading after writing."})]
+    (T/group `((T/path.conj 'rw)
 
-             (def cell
-                  '(def x
-                        {:foo :bar}))
+               (def cell
+                    '(def x
+                          {:foo :bar}))
 
-             ($.file/!.tmp)
+               ($.file/!.tmp)
 
-             (def path
-                  $/*result*)
+               (def path
+                    $/*result*)
 
-             (T/trx '($.trx/precat '(($.file/!.write path
-                                                     cell)
-                                     ($.file/!.read path)
-                                     (= cell
-                                        (first $/*result*))))
-                    {:description "Reading after writing."}))))
+               ~trx-rw
 
+               (T/group (list '(T/path.conj 'idempotent-write)
+                              (quote ~trx-rw)))
+                          
+               (T/group '((T/path.conj 'append)
+                          ($.file/!.write path
+                                          cell
+                                          {:append? true})
+                          ($.file/!.read path)
+                          (T/trx '(= $/*result*
+                                     (list cell
+                                           cell))
+                                 {:description "Append mode."})))))))
+                 
 
 
 (defn suite.txt.rw
