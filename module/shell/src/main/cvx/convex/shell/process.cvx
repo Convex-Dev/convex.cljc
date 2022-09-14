@@ -40,7 +40,14 @@
 (defn !.exit
 
   ^{:doc {:description ["Returns a requestion for terminating the process with `exit-code` (long between 0 and 255 inclusive)."
-                        "By convention, a non-zero value means an error occured."]
+                        "By convention, a non-zero value means an error occured."
+                        ""
+                        "Meaning of default exit codes used by the Convex Shell:"
+                        ""
+                        "  1  Fatal error"
+                        "  2  Unhandled CVM exception"
+                        "  3  Using STDERR failed"
+                        "  4  Reading REPL input failed"]
           :examples    [{:code "($.process/!.exit 42)"}]
           :signature   [{:params [exit-code]}]}}
 

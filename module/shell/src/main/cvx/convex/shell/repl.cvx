@@ -235,7 +235,7 @@
                                             "================================================"
                                             ($.term/reset))):
                  ($.stream/!.txt.outln ($.repl/str.exception (quote ~exception)))
-                 ($.process/!.exit 3)))))
+                 ($.process/!.exit 4)))))
 
 
 
