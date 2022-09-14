@@ -928,3 +928,16 @@
                   ($.cvm/time-advance ctx
                                       (.longValue interval))))
         ($.shell.ctx/def-result interval))))
+
+
+
+(defmethod $.shell.exec/sreq
+
+  $.shell.kw/time-unix
+
+  ;; Returns UNIX timestamp.
+
+  [env _tuple]
+
+  ($.shell.ctx/def-result env
+                          ($.cell/long (System/currentTimeMillis))))

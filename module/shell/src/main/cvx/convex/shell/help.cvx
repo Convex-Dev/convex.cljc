@@ -432,7 +432,7 @@
                      (account "$.test"
                               "unit testing library")
                      (account "$.time"
-                              "time-travel utilities")
+                              "state time, Unix time, etc")
                      (account "$.trx"
                               "modifying the list of transactions pending for execution, powerful metaprogramming")
                      $/line

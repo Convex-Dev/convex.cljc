@@ -4,18 +4,8 @@
 
 
 (call *registry*
-      (register {:name "Convex Shell time utilities"}))
-
-
-;;;;;;;;;;
-
-
-(def $.trx
-
-  ^{:private? true}
-
-  (call *registry*
-        (cns-resolve 'convex.shell.trx)))
+      (register {:description ""
+                 :name        "Convex Shell time utilities"}))
 
 
 ;;;;;;;;;;
@@ -23,9 +13,9 @@
 
 (defn !.advance
 
-  ^{:doc {:description ["Returns a request for advancing the current state timestamp by `millis` milliseconds."
+  ^{:doc {:description ["Returns a request for advancing `*timestamp*` (state timestamp) by `millis` milliseconds."
                         "Argument must be > 0."
-                        "Great match for standard `schedule` macro."]
+                        "Great match for the standard `schedule` macro."]
           :examples    [{:code "($.time/!.advance (* 60 60 1000))"}]
           :signature   [{:params [millis]}]}}
 
@@ -34,3 +24,18 @@
   (assert (>= millis
               0))
   [:cvm.sreq :time.advance millis])
+
+
+
+(defn !.unix
+
+  ^{:doc {:description ["Returns a request for retrieving the current Unix timestamp."
+                        "This is the timestamp of the machine, not `*timestamp*` (state timestamp)."
+                        ""
+                        "Result will be available under `$/*result*` during the next transaction."]
+          :examples    [{:code "($.time/!.unix)"}]
+          :signature   [{:params []}]}}
+
+  []
+
+  [:cvm.sreq :time.unix])
