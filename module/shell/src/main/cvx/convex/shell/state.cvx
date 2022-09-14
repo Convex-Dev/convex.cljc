@@ -324,17 +324,20 @@
                         "Shell libraries."
                         ""
                         "Default input state is `*state*`."
+                        "Default `default-address` is `#2`. It must be the address that contains aliases to"
+                        "Convex Shell libraries."
                         ""
                         "This is often cleaner when storing a state in Etch (see `$.db`) with the propsect"
                         "of using it later with `$.state/!.load`."]
           :examples    [{:code "($.state/!.clean *state* '(($.repl/!.start)))"}]
           :signature   [{:params [state]}
-                        {:params [state option+]}]}}
+                        {:params [state trx+]}
+                        {:params [state default-address trx+]}]}}
 
 
   ([]
 
-   (!.clean *state*))
+   (!.clean nil))
 
 
   ([state]
@@ -345,8 +348,17 @@
 
   ([state trx+]
 
-   ($.trx/precat `(($.state/!.safe (quote ~state)
-                                   {:address #2}
+   (!.clean state
+            nil
+            trx+))
+
+
+  ([state default-address trx+]
+
+   ($.trx/precat `(($.state/!.safe (quote ~(or state
+                                               *state*))
+                                   {:address ~(or default-address
+                                                  #2)}
                                    '(do
                                       ($.repl/stop)
                                       ($.trx/set (quote ~(or trx+
