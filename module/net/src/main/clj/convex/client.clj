@@ -27,8 +27,7 @@
            (java.net InetSocketAddress)
            (java.util.concurrent CompletableFuture)
            (java.util.function Function))
-  (:refer-clojure :exclude [resolve
-                            sequence])
+  (:refer-clojure :exclude [resolve])
   (:require [convex.sign   :as $.sign]))
 
 
@@ -198,7 +197,7 @@
    `:module/net`).
 
    It is important that transactions are created for the account matching the key pair and that the right
-   sequence number is used. See [[sequence]]."
+   sequence ID is used. See [[sequence-id]]."
 
 
   (^CompletableFuture [^Convex client ^SignedData signed-transaction]
@@ -261,12 +260,12 @@
 ;;;;;;;;;; Networking - Higher-level
 
 
-(defn sequence
+(defn sequence-id
 
-  "Uses [[query]] to retrieve the next sequence number required for a transaction.
+  "Uses [[query]] to retrieve the next sequence ID required for a transaction.
   
-   Eacht account has a sequence number which is incremented on each successful transaction to prevent replay
-   attacks. Providing a transaction (eg. `convex.cell/invoke` from `:module/cvm`) with a wrong sequence
+   Eacht account has a sequence ID, a number being incremented on each successful transaction to prevent replay
+   attacks. Providing a transaction (eg. `convex.cell/invoke` from `:module/cvm`) with a wrong sequence ID
    number will fail."
 
   [^Convex client address]
@@ -278,7 +277,7 @@
 
                  (apply [_this result]
                    (if-some [ec (error-code result)]
-                     (throw (ex-info "Unable to fetch next sequence"
+                     (throw (ex-info "Unable to fetch next sequence ID"
                                      {:convex.cell/address address
                                       :convex.error/code   ec
                                       :convex.error/trace  (trace result)}))
