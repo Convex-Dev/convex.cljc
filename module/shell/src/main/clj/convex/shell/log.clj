@@ -4,33 +4,16 @@
   
    Note: SLF4J from the core Java libraries is being redirected to Timbre."
 
-  (:import (java.time ZoneId
-                      ZoneOffset)
-           (java.time.format DateTimeFormatter)
-           (java.util Date))
-  (:require [convex.cell     :as $.cell]
-            [convex.std      :as $.std]
-            [convex.write    :as $.write]
-            [taoensso.timbre :as log]))
+  (:import (java.util Date))
+  (:require [convex.cell       :as $.cell]
+            [convex.shell.time :as $.shell.time]
+            [convex.std        :as $.std]
+            [convex.write      :as $.write]
+            [taoensso.timbre   :as log]))
 
 
 (set! *warn-on-reflection*
       true)
-
-
-;;;;;;;;;; Helpers
-
-
-(let [^DateTimeFormatter formatter (.withZone DateTimeFormatter/ISO_LOCAL_DATE_TIME
-                                              (ZoneId/from ZoneOffset/UTC))]
-  (defn instant->iso-string
-  
-    "Converts an `Instant` to an ISO 8601 string (UTC)."
-  
-    [instant]
-
-    (.format formatter
-             instant)))
 
 
 ;;;;;;;;;;
@@ -48,7 +31,7 @@
                {:cvx {:enabled? true
                       :fn       (fn [entry]
                                   (binding [*out* *err*]
-                                    (-> ($.cell/* [~($.cell/string (instant->iso-string (.toInstant ^Date (entry :instant))))
+                                    (-> ($.cell/* [~($.cell/string ($.shell.time/instant->iso-string (.toInstant ^Date (entry :instant))))
                                                     ~($.cell/keyword (name (entry :level)))
                                                     ~($.cell/* [~($.cell/symbol (entry :?ns-str))
                                                                 ~($.cell/long (entry :?line))])

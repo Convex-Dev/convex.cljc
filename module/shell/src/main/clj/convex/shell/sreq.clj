@@ -31,6 +31,7 @@
             [convex.shell.kw        :as $.shell.kw]
             [convex.shell.stream    :as $.shell.stream]
             [convex.shell.sym       :as $.shell.sym]
+            [convex.shell.time      :as $.shell.time]
             [criterium.core         :as criterium]))
 
 
@@ -940,4 +941,4 @@
   [env _tuple]
 
   ($.shell.ctx/def-result env
-                          ($.cell/long (System/currentTimeMillis))))
+                          ($.cell/long ($.shell.time/unix))))

@@ -29,7 +29,7 @@
 
 (defn !.unix
 
-  ^{:doc {:description ["Returns a request for retrieving the current Unix timestamp."
+  ^{:doc {:description ["Returns a request for retrieving the current Unix timestamp in milliseconds."
                         "This is the timestamp of the machine, not `*timestamp*` (state timestamp)."
                         ""
                         "Result will be available under `$/*result*` during the next transaction."]
