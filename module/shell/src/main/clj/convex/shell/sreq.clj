@@ -921,8 +921,9 @@
         cell  (.get tuple
                     2)
         stat+ (criterium/benchmark* (fn []
-                                      (.query ^Context ctx
-                                              cell))
+                                      (-> ctx
+                                          ($.cvm/fork)
+                                          ($.cvm/eval cell)))
                                     {})]
     ($.shell.ctx/def-result env
                             ($.cell/* {:mean   ~($.cell/double (first (stat+ :mean)))
