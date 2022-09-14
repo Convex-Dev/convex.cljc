@@ -144,9 +144,6 @@
 (def ^Keyword path
               ($.cell/keyword "path"))
 
-(def ^Keyword perf-bench
-              ($.cell/keyword "perf.bench"))
-
 (def ^Keyword phase
               ($.cell/keyword "phase"))
 
@@ -215,6 +212,9 @@
 
 (def ^Keyword time-advance
               ($.cell/keyword "time.advance"))
+
+(def ^Keyword time-bench
+              ($.cell/keyword "time.bench"))
 
 (def ^Keyword time-iso->unix
               ($.cell/keyword "time.iso->unix"))

@@ -123,3 +123,26 @@
 
   (assert (long? unix-timestamp))
   [:cvm.sreq :time.unix->iso unix-timestamp])
+
+
+;;;;;;;;;; Miscellaneous
+
+
+(defn !.bench
+
+  ^{:doc {:description ["Returns a request for measuring the mean execution time of the given transaction."
+                        "Executed in a query a high number of times."
+                        ""
+                        "Highly experimental and subject to change, probably useful for CVM developers only."
+                        "Depending on the given transaction, takes between one and several minutes to complete."
+                        ""
+                        "Report map is available during next transaction under `$/*result*`."
+                        "Values are estimates in nanoseconds"]
+          :examples    [{:code "($.time/!.bench '(+ 2 2))"}
+                        {:code "($.time/!.bench (compile '(+ 2 2)))"}]
+          :signature   [{:params [trx]}]}}
+
+
+  [trx]
+
+  [:cvm.sreq :time.bench trx])

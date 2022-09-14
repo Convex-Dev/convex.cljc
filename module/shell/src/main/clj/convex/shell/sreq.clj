@@ -587,29 +587,6 @@
                           ($.cvm/log (env :convex.shell/ctx))))
 
 
-;;;;;;;;;; Performance
-
-
-(defmethod $.shell.exec/sreq
-
-  $.shell.kw/perf-bench
-
-  ;; Benchmarks a transaction using Criterium.
-
-  [env ^AVector tuple]
-
-  (let [ctx   ($.cvm/fork (env :convex.shell/ctx))
-        cell  (.get tuple
-                    2)
-        stat+ (criterium/benchmark* (fn []
-                                      (.query ^Context ctx
-                                              cell))
-                                    {})]
-    ($.shell.ctx/def-result env
-                            ($.cell/map {($.cell/keyword "mean")   ($.cell/double (first (stat+ :mean)))
-                                         ($.cell/keyword "stddev") ($.cell/double (Math/sqrt ^double (first (stat+ :variance))))}))))
-
-
 ;;;;;;;;;; Process
 
 
@@ -929,6 +906,27 @@
                   ($.cvm/time-advance ctx
                                       (.longValue interval))))
         ($.shell.ctx/def-result interval))))
+
+
+
+(defmethod $.shell.exec/sreq
+
+  $.shell.kw/time-bench
+
+  ;; Benchmarks a transaction using Criterium.
+
+  [env ^AVector tuple]
+
+  (let [ctx   ($.cvm/fork (env :convex.shell/ctx))
+        cell  (.get tuple
+                    2)
+        stat+ (criterium/benchmark* (fn []
+                                      (.query ^Context ctx
+                                              cell))
+                                    {})]
+    ($.shell.ctx/def-result env
+                            ($.cell/* {:mean   ~($.cell/double (first (stat+ :mean)))
+                                       :stddev ~($.cell/double (Math/sqrt ^double (first (stat+ :variance))))}))))
 
 
 

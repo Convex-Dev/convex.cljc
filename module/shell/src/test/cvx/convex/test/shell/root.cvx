@@ -50,7 +50,6 @@
 (exec "shell/file")
 (exec "shell/juice")
 (exec "shell/log")
-(exec "shell/perf")
 (exec "shell/process")
 (exec "shell/state")
 (exec "shell/stream")

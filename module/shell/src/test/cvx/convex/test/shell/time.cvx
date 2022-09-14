@@ -62,6 +62,23 @@
 
 
 
+(defn suite.bench
+
+  ^{:doc {:description "Benchmarking transactions."}}
+
+  []
+
+  (T/group '((T/path.conj 'bench)
+
+             (T/trx '($.trx/precat '(($.time/!.bench '(+ 2 2))
+                                     (and (map? $/*result*)
+                                     (< ($/*result* :stddev)
+                                        ($/*result* :mean)))))
+                    {:description "Benchmarking."
+                     :slow?       true}))))
+
+
+
 (defn suite.iso
 
   ^{:doc {:description "ISO date-time strings."}}
@@ -146,6 +163,7 @@
 
   (T/group '((T/path.conj 'convex.shell.time)
              (suite.advance)
+             (suite.bench)
              (suite.iso)
              (suite.unix))))
 
