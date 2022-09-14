@@ -135,8 +135,7 @@
                                                                    "  "
                                                                    ~(:message $/*result*)
                                                                    $/line))
-                                        (call $.repl
-                                              (-!.next (quote ~result-previous)))))
+                                        ($.repl/-!.next (quote ~result-previous))))
                         ($.trx/set '(($.stream/!.txt.outln $.stream/*err*
                                                            (str $/line
                                                                 $/line
@@ -222,12 +221,10 @@
                                                                    ))
                                                             ~(quote $/*result*))))
                             (if $.repl/*active?*
-                              (call $.repl
-                                    (-!.next $/*result*))
+                              ($.repl/-!.next $/*result*)
                               $/*result*)))
                         ;; No input form, restart while keeping the same previous result.
-                        (call $.repl
-                              (-!.next (quote ~result-previous)))))))))
+                        ($.repl/-!.next (quote ~result-previous))))))))
 
 
 ;;;;;;;;;; API
@@ -283,8 +280,7 @@
                                                      "($/help)"
                                                      ($.term/reset)
                                                      $/line)))
-                       (call $.repl
-                             (-!.next (quote ~result-previous))))))
+                       ($.repl/-!.next (quote ~result-previous)))))
      (call -self
            (!.start option+
                     result-previous)))))
