@@ -52,7 +52,8 @@
 
   ^{:doc {:description ["Returns a request for tracking juice consumption of each execution step (expansion, compilation, evaluation)."
                         "Also pinpoints which step fails in case of error."
-                        "Report map is available during next transacation under `$/*result*`."]
+                        ""
+                        "Report map will be available during the next transaction under `$/*result*`."]
           :examples    [{:code "($.juice/!.track '(inc 42))"}
                         {:code "($.juice/!.track (compile '(inc 42)))"}]}}
 
