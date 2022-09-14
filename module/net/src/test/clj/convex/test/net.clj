@@ -35,15 +35,8 @@
 
 
 
-(def addr
-     ($.cell/address 12))
-
-
-
-(def ctx
-     (-> ($.cvm/ctx {:convex.peer/key account-key})
-         ($.cvm/fork-to addr)
-         ($.cvm/eval ($.cell/* (set-key ~account-key)))))
+(def user
+     $.cvm/genesis-user)
 
 
 
@@ -55,11 +48,12 @@
 (def d*server
      (delay
        ($.server/create kp
-                        {:convex.server/controller addr
+                        {:convex.server/controller user
                          :convex.server/db         @d*db
                          :convex.server/host       "localhost"
                          :convex.server/port       port
-                         :convex.server/state      [:use ($.cvm/state ctx)]})))
+                         :convex.server/state      [:use (-> ($.cvm/ctx {:convex.cvm/genesis-key+ [account-key]})
+                                                             ($.cvm/state))]})))
 
 
 ;;;
@@ -103,7 +97,7 @@
   [client]
 
   (-deref ($.client/sequence client
-                             addr)))
+                             user)))
 
 
 
@@ -137,7 +131,7 @@
 
 (T/deftest controller
 
-  (T/is (= addr
+  (T/is (= user
            ($.server/controller @d*server))))
 
 
@@ -223,7 +217,7 @@
 
       (T/is (= ($.cell/long 4)
                (-> ($.client/query client
-                                   addr
+                                   user
                                    ($.cell/* (def foo-query (+ 2 2))))
                    -deref
                    $.client/value))
@@ -231,7 +225,7 @@
 
       (T/is (= ($.cell/boolean false)
                (-> ($.client/query client
-                                   addr
+                                   user
                                    ($.cell/* (defined? foo-query)))
                    -deref
                    $.client/value))
@@ -255,7 +249,7 @@
       (T/is (= ($.cell/long 4)
                (-> ($.client/transact client
                                       kp
-                                      ($.cell/invoke addr
+                                      ($.cell/invoke user
                                                      (-sequence client)
                                                      ($.cell/* (def foo-transact (+ 2 2)))))
                    -deref
@@ -265,7 +259,7 @@
       (T/is (= ($.cell/long 4)
                (-> ($.client/transact client
                                       kp
-                                      ($.cell/invoke addr
+                                      ($.cell/invoke user
                                                      (-sequence client)
                                                      ($.cell/symbol "foo-transact")))
                    -deref

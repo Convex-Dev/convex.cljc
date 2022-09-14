@@ -1,12 +1,13 @@
 (ns convex.cvm
 
-  "Code execution in the CVM, altering state, and gaining insights.
+  "Code execution in the Convex Virtual Machine, altering its state, and gaining insights.
 
-   Central entities of this namespaces are contextes and they can be created using [[ctx]].
+   The central entity of this namespace is the execution context created by [[ctx]]. They embed a [[state]] and allow
+   executing code to alter it.
 
-   All other functions revolve around them. While the design of a context is mostly immutable, whenever an altering function
-   is applied (eg. [[juice-set]]) or code is handled in any way (eg. [[eval]]), old context must be discarded and only returned
-   one should be used.
+   All other functions revolve around contextes. While the design of a context is mostly immutable, whenever an altering function
+   is applied (eg. [[juice-set]]) or code is handled in any way (eg. [[eval]]), the old context must be discarded and only the
+   returned one should be used.
 
    Cheap copies can be created using [[fork]].
 
@@ -61,20 +62,41 @@
          state-set)
 
 
+;;;;;;;;;; Values
+
+
+(def fake-key
+
+  "Fake key (all zeroes) meant for testing."
+
+  ($.cell/key ($.cell/blob (byte-array 32))))
+
+
+
+(def genesis-user
+
+  "Address of the first genesis user when the CVM [[state]] is created in [[ctx]].
+   Might change in the future.
+
+   It receives half of the funds reserved for all users in the state."
+
+  Init/GENESIS_ADDRESS)
+
+
 ;;;;;;;;;; Creating a new context
 
 
 (defn ctx
 
-  "Creates a \"fake\" context. Ideal for testing and repl'ing around.
+  "Creates an execution context.
   
    An optional map of options may be provided:
 
-   | Key                   | Value                                                              | Default                                        |
-   |-----------------------|--------------------------------------------------------------------|------------------------------------------------|
-   | `:convex.cvm/address` | Address of the executing account                                   | Reserved address (an actor)                    |
-   | `:convex.cvm/state`   | Genesis state                                                      | Initial state with Convex actors and libraries |
-   | `:convex.peer/key     | Account key for the initial peer (see [[convex.cell/account-key]]) | Fake key, all 0's                              |"
+   | Key                        | Value                                           | Default                                            |
+   |----------------------------|-------------------------------------------------|----------------------------------------------------|
+   | `:convex.cvm/address`      | Address of the executing account                | [[genesis-user]]                                   |
+   | `:convex.cvm/genesis-key+` | Vector of keys for genesis users (at least one) | Vector with only [[fake-key]] for [[genesis-user]] |
+   | `:convex.cvm/state`        | State (see [[state]])                           | Initial state with Convex actors and libraries     |"
 
 
   (^Context []
@@ -85,10 +107,10 @@
   (^Context [option+]
 
    (Context/createFake (or (:convex.cvm/state option+)
-                           (Init/createState [(or (:convex.peer/key option+)
-                                                  ($.cell/key ($.cell/blob (byte-array 32))))]))
+                           (Init/createState (or (:convex.cvm/genesis-key+ option+)
+                                                 [fake-key])))
                        (or (:convex.cvm/address option+)
-                           Init/RESERVED_ADDRESS))))
+                           genesis-user))))
 
 
 
@@ -344,6 +366,9 @@
 (defn state
 
   "Returns the whole CVM state associated with `ctx`.
+
+   It is a special type of cell behaving like a map cell. It notably holds all accounts and can be explored
+   using [[convex.std]] map functions.
   
    Also see [[state-set]]."
 
@@ -366,8 +391,8 @@
   [^Context ctx]
 
   (-> ctx
-      state
-      .getTimeStamp))
+      (state)
+      (.getTimeStamp)))
 
 
 ;;;;;;;;;; Modifying context properties
