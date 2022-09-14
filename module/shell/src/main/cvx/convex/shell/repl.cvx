@@ -105,13 +105,13 @@
 (defn -!.next
 
   ^{:callable? true
-    :doc       {:description ["After `start`, loops Read-Eval-Print until `stop` is called."
+    :doc       {:description ["After `!.start`, loops Read-Eval-Print until `!.stop` is called."
                               "Ensures last result produced by the user is available under `$/*result*`."]}
     :private?  true}
 
-  ;; TODO. Refactor. This is very complex to follow.
+  ;; TODO. Refactor. This is too complex.
 
-  [result]
+  [result-previous]
 
   ($.trx/precat `(($.stream/!.txt.out ~(if (fn? -prompt)
                                          (-prompt)
@@ -123,7 +123,7 @@
                     ;;
                     ;; An exception occured while reading input.
                     ($.catch/exception? $/*result*)
-                    (let [result (quote ~result)]
+                    (let [result-previous (quote ~result-previous)]
                       (if (= (:code $/*result*)
                              :READER)
                         ($.trx/precat `(($.stream/!.txt.outln (str $/line
@@ -136,7 +136,7 @@
                                                                    ~(:message $/*result*)
                                                                    $/line))
                                         (call $.repl
-                                              (-!.next (quote ~result)))))
+                                              (-!.next (quote ~result-previous)))))
                         ($.trx/set '(($.stream/!.txt.outln $.stream/*err*
                                                            (str $/line
                                                                 $/line
@@ -151,82 +151,83 @@
                     ($.repl/!.stop)
                     ;;
                     ;; Prints result or exception after executing input.
-                    (let [form+       $/*result*
-                          n-form      (count form+)
-                          result-real (quote ~result)]
-                      (if (>= n-form
+                    (let [form+           $/*result*
+                          result-previous (quote ~result-previous)]
+                      (if (>= (count form+)
                               1)
-                        ($.catch/!.try ;; Try
-                                       `($.trx/precat (quote ~(concat `((quote ~result-real))
-                                                                     form+
-                                                                     '((def $.repl.result
-                                                                            $/*result*)
-                                                                       (when $.repl/*active?*
-                                                                         ($.trx/precat '(($.stream/!.txt.out $/line)
-                                                                                         ($.stream/!.outln $.repl.result)
-                                                                                         ($.stream/!.txt.out $/line)
-                                                                                         ($.stream/!.flush)
-                                                                                         (let [result $.repl.result]
-                                                                                           (undef $.repl.result)
-                                                                                           (call $.repl
-                                                                                                 (-!.next result))))))))))
-                                       ;; Catch
-                                       '($.trx/precat '(($.stream/!.txt.outln
-                                                          (str $/line
-                                                               ($.term/bold)
-                                                               ($.term/fg.red)
-                                                               "Exception code:"
-                                                               ($.term/reset)
-                                                               $/line
-                                                               "  "
-                                                               ($.term/bold)
-                                                               (:code $/*result*)
-                                                               $/line
-                                                               ($.term/bold)
-                                                               ($.term/fg.red)
-                                                               "Message:"
-                                                               ($.term/reset)
-                                                               $/line
-                                                               "  "
-                                                               (:message $/*result*)
-                                                               $/line
-                                                               ($.term/bold)
-                                                               ($.term/fg.red)
-                                                               "Trace:"
-                                                               ($.term/reset)
-                                                               (let [trace (:trace $/*result*)]
-                                                                 (if (empty? trace)
-                                                                   (str $/line
-                                                                        "  None.")
-                                                                   (apply str
-                                                                          (reduce (fn [acc entry]
-                                                                                    (conj acc
-                                                                                          $/line
-                                                                                          "  "
-                                                                                          entry))
-                                                                                  []
-                                                                                  trace))))
-                                                               (let [extra-data (dissoc $/*result*
-                                                                                        :code
-                                                                                        :exception?
-                                                                                        :message
-                                                                                        :trace)]
-                                                                 (if (empty? extra-data)
-                                                                   ""
-                                                                   (str $/line
-                                                                        ($.term/bold)
-                                                                        ($.term/fg.red)
-                                                                        "Extra data:"
-                                                                        ($.term/reset)
-                                                                        $/line
-                                                                        "  "
-                                                                        extra-data)))
-                                                               $/line
-                                                               ))
-                                                        (call $.repl                                       
-                                                              (-!.next (quote ~$/*result*))))))
+                        ;; At least one form to execute.
+                        ($.trx/precat
+                          `(($.catch/!.try ;; Try
+                                           '($.trx/precat (concat '((quote ~result-previous))
+                                                                  (quote ~form+)
+                                                                  '((if $.repl/*active?*
+                                                                      ($.trx/precat `(($.stream/!.txt.out $/line)
+                                                                                      ($.stream/!.outln (quote ~$/*result*))
+                                                                                      ($.stream/!.txt.out $/line)
+                                                                                      ($.stream/!.flush)
+                                                                                      (quote ~$/*result*)))
+                                                                      $/*result*))))
+                                           ;; Catch
+                                           '($.trx/precat `(($.stream/!.txt.outln
+                                                              (str $/line
+                                                                   ($.term/bold)
+                                                                   ($.term/fg.red)
+                                                                   "Exception code:"
+                                                                   ($.term/reset)
+                                                                   $/line
+                                                                   "  "
+                                                                   ($.term/bold)
+                                                                   (:code $/*result*)
+                                                                   $/line
+                                                                   ($.term/bold)
+                                                                   ($.term/fg.red)
+                                                                   "Message:"
+                                                                   ($.term/reset)
+                                                                   $/line
+                                                                   "  "
+                                                                   (:message $/*result*)
+                                                                   $/line
+                                                                   ($.term/bold)
+                                                                   ($.term/fg.red)
+                                                                   "Trace:"
+                                                                   ($.term/reset)
+                                                                   (let [trace (:trace $/*result*)]
+                                                                     (if (empty? trace)
+                                                                       (str $/line
+                                                                            "  None.")
+                                                                       (apply str
+                                                                              (reduce (fn [acc entry]
+                                                                                        (conj acc
+                                                                                              $/line
+                                                                                              "  "
+                                                                                              entry))
+                                                                                      []
+                                                                                      trace))))
+                                                                   (let [extra-data (dissoc $/*result*
+                                                                                            :code
+                                                                                            :exception?
+                                                                                            :message
+                                                                                            :trace)]
+                                                                     (if (empty? extra-data)
+                                                                       ""
+                                                                       (str $/line
+                                                                            ($.term/bold)
+                                                                            ($.term/fg.red)
+                                                                            "Extra data:"
+                                                                            ($.term/reset)
+                                                                            $/line
+                                                                            "  "
+                                                                            extra-data)))
+                                                                   $/line
+                                                                   ))
+                                                            ~(quote $/*result*))))
+                            (if $.repl/*active?*
+                              (call $.repl
+                                    (-!.next $/*result*))
+                              $/*result*)))
+                        ;; No input form, restart while keeping the same previous result.
                         (call $.repl
-                              (-!.next (quote ~result)))))))))
+                              (-!.next (quote ~result-previous)))))))))
 
 
 ;;;;;;;;;; API
@@ -257,7 +258,7 @@
             $/*result*))
 
 
-  ([option+ result]
+  ([option+ result-previous]
  
    (if (= *address*
           -self)
@@ -283,10 +284,10 @@
                                                      ($.term/reset)
                                                      $/line)))
                        (call $.repl
-                             (-!.next (quote ~result))))))
+                             (-!.next (quote ~result-previous))))))
      (call -self
            (!.start option+
-                    result)))))
+                    result-previous)))))
 
 
 
