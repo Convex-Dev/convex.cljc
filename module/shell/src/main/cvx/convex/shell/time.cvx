@@ -8,7 +8,18 @@
                  :name        "Convex Shell time utilities"}))
 
 
-;;;;;;;;;;
+;;;;;;;;;; Private values
+
+
+(def $.trx
+
+  ^{:private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.shell.trx)))
+
+
+;;;;;;;;;; Public
 
 
 (defn !.advance
@@ -24,6 +35,20 @@
   (assert (>= millis
               0))
   [:cvm.sreq :time.advance millis])
+
+
+
+(defn !.iso
+
+  ^{:doc {:description ["Prepends requests for producing the current date-time in ISO 8601 UTC format."
+                        ""
+                        "Result will be available under `$/*result*` during the next transaction."]
+          :examples    [{:code "($.time/!.iso)"}]
+          :signature   [{:params []}]}}
+  []
+
+  ($.trx/precat '(($.time/!.unix)
+                  ($.time/!.unix->iso $/*result*))))
 
 
 
