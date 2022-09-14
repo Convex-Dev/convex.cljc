@@ -111,9 +111,6 @@
            [$.shell.sym/$-log
             "convex/shell/log.cvx"]
            ;; No deps.
-           [$.shell.sym/$-perf
-            "convex/shell/perf.cvx"]
-           ;; No deps.
            [$.shell.sym/$-process
             "convex/shell/process.cvx"]
            ;; No deps.

@@ -417,8 +417,6 @@
                               "juice utilities like setting the default limit or tracking consumption")
                      (account "$.log"
                               "accessing the CVM log")
-                     (account "$.perf"
-                              "experimental performance utilities")
                      (account "$.process"
                               "process utilities, such as reading environment variables")
                      (account "$.repl"
