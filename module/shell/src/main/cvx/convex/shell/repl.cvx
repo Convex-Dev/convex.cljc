@@ -262,7 +262,7 @@
                     ;;
                     ;; Nil, input stream reached its end.
                     (nil? $/*result*)
-                    ($.repl/!.stop)
+                    ($.repl/stop)
                     ;;
                     ;; Prints result or exception after executing input.
                     (let [form+ $/*result*]
@@ -335,11 +335,14 @@
 
 
 
-(defn !.stop
+(defn stop
 
   ^{:callable? true
-    :doc       {:description "If currently running, stops the REPL on next transaction."
-                :examples    [{:code "($.repl/!.stop)"}]
+    :doc       {:description ["If currently running, sets `$.repl/*active?*` to false so that the REPL"
+                              "will stop at the next transaction."
+                              ""
+                              "Returns nil."]
+                :examples    [{:code "($.repl/stop)"}]
                 :signature   [{:params []}]}}
 
   []
@@ -353,5 +356,4 @@
            nil)
       nil)
     (call -self
-          (!.stop)))
-  nil)
+          (stop))))

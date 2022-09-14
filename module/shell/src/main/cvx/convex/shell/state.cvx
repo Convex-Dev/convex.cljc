@@ -348,8 +348,7 @@
    ($.trx/precat `(($.state/!.safe (quote ~state)
                                    {:address #2}
                                    '(do
-                                      ;; Actually, `$.repl/!.stop` is CVX Lisp only.
-                                      ($.repl/!.stop)
+                                      ($.repl/stop)
                                       ($.trx/set (quote ~(or trx+
                                                              '())))
                                       $.catch))
