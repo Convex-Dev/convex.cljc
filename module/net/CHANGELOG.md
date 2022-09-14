@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Prefix `$.client` functions for results with `result->`
 - Rename `$.client/sequence` to `$.client/sequence-id`
 - Upgrade to Convex 0.7.8
 
