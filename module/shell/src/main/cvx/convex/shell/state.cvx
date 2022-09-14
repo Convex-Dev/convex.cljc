@@ -358,5 +358,5 @@
                    ($.state/!.safe (second $/*result*)
                                    {:address (first $/*result*)}
                                    '(def *stack*
-                                         (list (last *stack*))))
+                                         '(($.catch/top-handler))))
                    (second $/*result*)))))

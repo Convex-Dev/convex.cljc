@@ -51,17 +51,29 @@
 ;;;;;;;;;; Pushing and popping exception handlers
 
 
+(defn top-handler
+
+  ^{:doc {:description ["Top exception handler in `$.catch/*stack*`."
+                        "Will print the exception to STDERR and exit the process."]
+          :signature   [{:params [exception]}]}}
+
+  [exception]
+
+  ($.trx/set `(($.juice/!.limit.set nil)
+               ($.stream/!.err (quote ~exception))
+               ($.stream/!.flush $.stream/*err*)
+               ($.process/!.exit 2))))
+
+
+
 (def *stack*
 
   ^{:doc {:description ["List of transactions used as error handlers."
                         "When an exception is thrown, the shell uses `pop`."
                         "If another exception occurs, the shell keeps popping."
                         "Always contains at least the default error handler which is unpoppable."]}}
-
-  '(($.trx/set `(($.juice/!.limit.set nil)
-                 ($.stream/!.err (quote ~$/*result*))
-                 ($.stream/!.flush $.stream/*err*)
-                 ($.process/!.exit 2)))))
+ 
+  '(($.catch/top-handler $/*result*)))
 
 
 ;;;
