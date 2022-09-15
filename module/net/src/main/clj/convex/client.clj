@@ -85,10 +85,10 @@
 
 (defn connect-local
 
-  "Like [[connect]] but the returned client is optimized to talk to a server peer running
+  "Like [[connect]] but the returned client is optimized to talk to a peer `server` running
    in the same process.
   
-   Takes that peer server as sole argument."
+   See [[convex.server]]."
 
   ^Convex
 
@@ -132,23 +132,19 @@
 
 (defn resolve
 
-  "Given a `hash` (see `convex.cell/hash` in `:module/cvm`), peer looks into its database and returns
-   the value it finds for that hash.
+  "Sends the given `hash` to the peer to resolve it as a cell using its Etch instance.
+
+   See `convex.db` from `:module/cvm` for more about hashes and values in the context of Etch.
   
    Returns a future resolving to a result."
 
 
-  (^CompletableFuture [^Convex client hash]
+  ^CompletableFuture
+  
+  [^Convex client hash]
 
-   (.acquire client
-             hash))
-
-
-  (^CompletableFuture [^Convex client hash store]
-
-   (.acquire client
-             hash
-             store)))
+  (.acquire client
+            hash))
 
 
 
