@@ -20,14 +20,14 @@
                              AVector
                              SignedData)
            (convex.core.lang Symbols)
-           (convex.core.store Stores)
            (convex.core.transactions ATransaction)
            (convex.peer Server)
            (java.net InetSocketAddress)
            (java.util.concurrent CompletableFuture)
            (java.util.function Function))
   (:refer-clojure :exclude [resolve])
-  (:require [convex.clj  :as $.clj]
+  (:require [convex.db   :as $.db]
+            [convex.clj  :as $.clj]
             [convex.sign :as $.sign]))
 
 
@@ -79,7 +79,7 @@
                    nil
                    nil
                    (or (:convex.client/db option+)
-                       (Stores/current)))))
+                       ($.db/current)))))
 
 
 

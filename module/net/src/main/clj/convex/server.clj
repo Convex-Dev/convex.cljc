@@ -6,7 +6,7 @@
    - Run locally, synced with other local peers
    - Run locally but synced with the test network on `convex.world`
   
-   Examples are provided in README."
+   See README."
 
   {:author "Adam Helinski"}
 
@@ -44,7 +44,7 @@
    | `:convex.server/n-peer`          | Maximum number of other peers this one should broadcast to | `20`                                        |
    | `:convex.server/persist-at-stop? | True if peer data should be persisted in DB when stopped   | `false`                                     |
    | `:convex.server/port`            | Port                                                       | `18888`                                     |
-   | `:convex.server/url              | URL of this peer (string) that will be registered on chain | Not set                                     |
+   | `:convex.server/url              | URL of this peer (string) that will be registered on chain |                                             |
 
    The URL, if given, is stored on-chain so that other peers can use it to broadcast beliefs and state updates.
    It is typically different from `:convex.server/bind` and `:convex.server/port`. For instance, `convex.world`
@@ -71,6 +71,7 @@
   ;; Following options are undocumented for the time being:
   ;;
   ;;   :convex.server/hook
+  ;;   :convex.server/n-peer
   ;;   :convex.server/poll-delay
 
 
@@ -157,8 +158,10 @@
 
    Persisted data can be recovered when creating a server with the same database (see `:convex.server/state`
    option in [[create]]).
+
+   However, the database is not flushed. See `convex.db/flush` from `:module/cvm`.
   
-   Returns server."
+   Returns the `server`."
 
   ^Server
 
@@ -175,7 +178,7 @@
 
    If peer syncing was configured in [[create]], also connects to remote peer.
   
-   Returns server."
+   Returns the `server`."
 
   ^Server
 

@@ -28,7 +28,7 @@
 
 
   ;; 
-  ;; Many types have been directly modeled on what we find in Clojure.
+  ;; Many types have been directly modeled on Clojure data.
   ;;
   ;; This is because we know that data is king and that data-centric applications
   ;; are key for building robust systems. Thanks Rich!
@@ -46,6 +46,15 @@
   ;;
   ($.cell/vector [($.cell/long 42)
                   ($.cell/keyword "foo")])
+
+  ;; Same vector using a conveninent macro...
+  ;;
+  ($.cell/* [42 :foo])
+
+  
+  ;; To avoid confusion, let's talk about Convex data by designating it with "CVX".
+  ;;
+  ;;  E.g. Keyword Vs. CVX keyword
 
 
   ;;
@@ -87,13 +96,15 @@
 
 
   ;; Each cell can be encoded to an efficient, dense binary representation.
+  ;; This encoding is meant for incremental updates, making it perfect for handling large data
+  ;; structures over the network.
   ;;
   ($.cell/encoding my-vector)
 
 
   ;; A SHA256 hash can be computed over an encoding.
   ;;
-  ;; Does not sound very exciting but very important for later!
+  ;; It does not sound very exciting but very important for [[convex.recipe.db]].
   ;;
   ($.cell/hash my-vector)
 
@@ -114,7 +125,7 @@
           ($.cell/* [:c :d]))
 
 
-  ;; Other classic Clojure functions can be found in the `convex.std` namespace.
+  ;; Other classic Clojure functions can be found in the [[convex.std]] namespace.
   ;;
   ($.std/conj ($.cell/* [:a :b])
               ($.cell/* :c))
@@ -123,13 +134,13 @@
              ($.cell/* :a))
 
 
-  ;; Sometimes it is useful converting a cell to a Clojure type via the `convex.clj` namespace.
+  ;; Sometimes it is useful converting a cell to a Clojure type via the [[convex.clj]] namespace.
   ;;
   (-> ($.cell/address 42)
-      $.clj/address)
+      ($.clj/address))
 
 
-  ;; And in the rare where all of this is not enough, there is always Java interop.
+  ;; And in the rare cases where all of this is not enough, there is always Java interop.
   ;;
   ;; https://www.javadoc.io/doc/world.convex/convex-core/latest/convex/core/data/package-summary.html
 
@@ -137,7 +148,7 @@
   ;;
   ;; READER
   ;;
-  ;; The Convex Lisp reader takes a string of code as input and outputs a cell.
+  ;; The Convex Lisp reader takes a string of code as input and outputs a CVX list of cells.
   ;;
   ;; Convex Lisp is the language used for querying data from the network or submitting transactions, such as
   ;; creating smart contracts. It is almost a subset of Clojure with added capabilities.
@@ -152,12 +163,12 @@
 
   ;; Most commonly used when fetching smart contracts written in file.
   ;;
-  ;; For instance, this simple smart contract is used in `convex.recipe.client`.
+  ;; For instance, this simple smart contract is used in [[convex.recipe.client]].
   ;;
-  ($.read/file "project/recipe/src/cvx/main/simple_contract.cvx")
+  ($.read/file "module/recipe/src/main/cvx/simple_contract.cvx")
 
 
-  ;; Cells can be printed to Convex Lisp.
+  ;; Cells can be printed to readable Convex Lisp.
   ;;
   ($.write/string ($.cell/* (+ 2 2)))
 

@@ -71,14 +71,14 @@
   ;;
   ;; Also see `convex.recipe.key-pair`.
   ;;
-  (def kp
+  (def key-pair
        ($.sign/ed25519))
 
 
   ;; Creates a new account.
   ;;
   (def addr
-       (create-account kp))
+       (create-account key-pair))
 
 
   ;; Initially, a new account has 0 coins. Let's request for a 100 millions.

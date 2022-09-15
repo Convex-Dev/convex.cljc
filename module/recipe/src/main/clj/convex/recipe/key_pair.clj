@@ -9,9 +9,9 @@
    each is given a alias and protected by a dedicated password. The file itself can be protected by a
    password as well.
 
-   Creating and handling Ed25519 key pairs is done using namespace `convex.sign`.
+   Creating and handling Ed25519 key pairs is done using namespace [[convex.sign]].
 
-   Creating and handling PFX iles is done using namespace `convex.pfx`.
+   Creating and handling PFX iles is done using namespace [[convex.pfx]].
 
    More information about public-key cryptography: https://en.wikipedia.org/wiki/Public-key_cryptography"
 
@@ -113,7 +113,7 @@
 
   ;;
   ;; Although not mandatory, it is a good idea also specifying a password for the key store itself
-  ;; when using `$.pfx/create`, `$.pfx/save`, and `$.pfx/load`.
+  ;; when using [[$.pfx/create]], [[$.pfx/save]], and [[$.pfx/load]].
   ;;  
 
 

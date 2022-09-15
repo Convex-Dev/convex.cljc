@@ -2,16 +2,16 @@
 
   "The CVM (Convex Virtual Machine) is the execution engine of the Convex network.
   
-   Whenever a query or a transaction is submitted to a peer, as seen in `convex.recipe.client`, peers
+   Whenever a query or a transaction is submitted to a peer, as seen in [[convex.recipe.client]], peers
    execute code given as a cell using the CVM.
 
-   This example provides an overview to get an idea of what is going on.
+   These examples provide an overview to get an idea of what is going on.
 
    In essence, code undergoes the 3 steps that any true Lisp follows:
 
-   - Expansion, executing macros
-   - Compilation
-   - Execution
+   - Expansion, executing macros : data -> data
+   - Compilation                 : date -> code
+   - Execution                   : code -> result
 
    Those steps combined together form the well-known `eval`."
 
@@ -55,24 +55,29 @@
 (comment
 
 
+  ;; The [[convex.cvm]] namespace explains how an execution context should be handled and hints
+  ;; at why it is being "forked" below. For now, forking is a detail.
+
+
   ;; EVAL
   ;;
   ;; Executing code straightaway.
-  ;; We get the result and stringify it so it is easier to read.
   ;;
-  (-> ($.cvm/eval ctx
-                  code)
-      $.cvm/result)
+  (-> ctx
+      ($.cvm/fork)
+      ($.cvm/eval code)
+      ($.cvm/result))
 
 
   ;; EXPANSION
   ;;
-  ;; In Convex, `if` is a macro that expands to low-level operation `cond`.
+  ;; E.g. In Convex Lisp, `if` is a macro that expands to low-level operation `cond`.
   ;;
   (def expanded
-       (-> ($.cvm/expand ctx
-                         code)
-           $.cvm/result))
+       (-> ctx
+           ($.cvm/fork)
+           ($.cvm/expand code)
+           ($.cvm/result)))
 
   expanded
 
@@ -82,8 +87,9 @@
   ;; We can see that our expanded code compiles indeed to the `cond` low-level operation.
   ;;
   (def compiled
-       (-> ($.cvm/compile ctx
-                          expanded)
+       (-> ctx
+           ($.cvm/fork)
+           ($.cvm/compile expanded)
            $.cvm/result))
 
   (class compiled)
@@ -91,11 +97,12 @@
 
   ;; EXECUTION
   ;;
-  ;; Compile code is ready for execution.
+  ;; Compiled code is ready for execution.
   ;;
-  (-> ($.cvm/exec ctx
-                  compiled)
-      $.cvm/result)
+  (-> ctx
+      ($.cvm/fork)
+      ($.cvm/exec compiled)
+      ($.cvm/result))
 
 
   ;;
@@ -111,9 +118,10 @@
   ;; When possible, it is best to compile code ahead before submitting it as a transaction. Otherwise
   ;; peers have to compile it themselves and overall execution is simply more expensive.
   ;;
-  (-> ($.cvm/expand-compile ctx
-                            code)
-      $.cvm/result)
+  (-> ctx
+      ($.cvm/fork)
+      ($.cvm/expand-compile code)
+      ($.cvm/result))
 
 
   ;; Preparing and executing code in any way uses 'juice'.
@@ -126,5 +134,8 @@
   ;;
   ($.cvm/juice-refill ctx)
 
+
+  ;; Note that the input to all those functions is always a cell and so is the output. Even compiled code
+  ;; is considered a cell and can be stored in the Etch database (see [[convex.recipe.db]] for examples).
 
   )
