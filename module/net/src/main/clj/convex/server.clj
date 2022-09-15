@@ -40,11 +40,11 @@
    | `:convex.server/bind`            | Bind address (string)                                      | `\"localhost\"`                             |
    | `:convex.server/state`           | See below                                                  | `[:genesis]`                                |
    | `:convex.server/controller`      | Controller account address                                 | Retrieved from state                        |
-   | `:convex.server/db`              | Database (see `:module/cvm`)                               | Default temp database created automatically |
+   | `:convex.server/db`              | Database (see `:module/cvm`)                               | Default temp instance created automatically |
    | `:convex.server/n-peer`          | Maximum number of other peers this one should broadcast to | `20`                                        |
-   | `:convex.server/persist-at-stop? | True if peer data should be persisted in DB when stopped   | `false`                                     |
+   | `:convex.server/persist-at-stop? | True if peer data should be persisted in DB when stopped   | `true`                                      |
    | `:convex.server/port`            | Port                                                       | `18888`                                     |
-   | `:convex.server/url              | URL of this peer (string) that will be registered on chain |                                             |
+   | `:convex.server/url              | URL of this peer (string) that will be registered on chain | /                                           |
 
    The URL, if given, is stored on-chain so that other peers can use it to broadcast beliefs and state updates.
    It is typically different from `:convex.server/bind` and `:convex.server/port`. For instance, `convex.world`
@@ -71,7 +71,6 @@
   ;; Following options are undocumented for the time being:
   ;;
   ;;   :convex.server/hook
-  ;;   :convex.server/n-peer
   ;;   :convex.server/poll-delay
 
 
@@ -128,9 +127,10 @@
                     (some->> (:convex.server/n-peer option+)
                              (.put h
                                    Keywords/OUTGOING_CONNECTIONS))
-                    (some->> (:convex.server/persist-at-stop? option+)
-                             (.put h
-                                   Keywords/PERSIST))
+                    (.put h
+                          Keywords/PERSIST
+                          (not (= (:convex.server/persist-at-stop? option+)
+                                  false)))
                     (some->> (:convex.server/poll-delay option+)
                              (.put h
                                    Keywords/POLL_DELAY))
@@ -154,10 +154,12 @@
 
 (defn persist
 
-  "Persists peer data at the root of the server's database.
+  "Persists peer data at the root of the server's Etch instance
 
-   Persisted data can be recovered when creating a server with the same database (see `:convex.server/state`
+   Persisted data can be recovered when creating a server with the same Etch instance (see `:convex.server/state`
    option in [[create]]).
+
+   Done automatically at [[stop]] is `:convex.server/persist-at-stop?` as set to `true` at [[create]].
 
    However, the database is not flushed. See `convex.db/flush` from `:module/cvm`.
   
@@ -191,7 +193,9 @@
 
 (defn stop
 
-  "Stops `server` previously started with `start`."
+  "Stops `server` previously started with `start`.
+  
+   Does not close the Etch instance optionally provided when starting."
 
   [^Server server]
 
@@ -218,7 +222,7 @@
 
 (defn db
 
-  "Returns the database used by the `server`."
+  "Returns the Etch instance used by the `server`."
 
   ^AStore
 

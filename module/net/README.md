@@ -3,20 +3,24 @@
 [![Clojars](https://img.shields.io/clojars/v/world.convex/net.clj.svg)](https://clojars.org/world.convex/net.clj)  
 [![cljdoc](https://cljdoc.org/badge/world.convex/net.clj)](https://cljdoc.org/d/world.convex/net.clj/CURRENT)
 
-This library hosts network utilities from the Convex stack. Peers are nodes of the Convex network that perform
-transactions and keep state. The fast binary client is used to connect to a peer for querying information from
-the network or submitting transactions, such as creating or calling smart contracts.
+This library hosts network utilities from the Convex stack. Peers are nodes of
+the Convex network that perform transactions in consensus and keep a state in
+sync. The fast binary client is used to connect to a peer for querying
+information from the network or submitting transactions, such as creating or
+calling smart contracts.
 
-Most network interactions require a key pair. For instance, each user account in the network has a public key attached.
-When a transaction is submitted for an account, executed on behalf of that account, it must be signed using the
-matching private key. This is [public-key cryptography](https://en.wikipedia.org/wiki/Public-key_cryptography) and
-it ensures that only the owner of an account, owning its secret private key, can submit code to be executed in the
-context of that account.
+Most network interactions require a key pair. For instance, each user account in
+the network has a public key attached. When a transaction is submitted for an
+account, executed on behalf of that account, it must be signed using the
+matching private key. This is [public-key
+cryptography](https://en.wikipedia.org/wiki/Public-key_cryptography) and it
+ensures that only the owner of an account, owning its secret private key, can
+submit code to be executed in the context of that account.
 
 Overview of namespaces:
 
-| Namespace | Purpose |
-|-----------|---------|
+| Namespace       | Purpose                                              |
+|-----------------|------------------------------------------------------|
 | `convex.client` | Fast binary client for talking to the Convex network |
 | `convex.pfx`    | Store key pairs securely in password protected files |
 | `convex.server` | Run a peer node                                      |
