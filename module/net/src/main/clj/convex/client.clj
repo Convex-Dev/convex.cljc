@@ -9,7 +9,9 @@
 
    - [[result->error-code]]
    - [[result->trace]]
-   - [[result->value]]"
+   - [[result->value]]
+  
+   Clients need an access to Etch. See `convex.db` from `:module/cvm`."
 
   {:author "Adam Helinski"}
 
@@ -55,14 +57,16 @@
 (defn connect
 
   "Opens a new client connection to a peer server using the binary protocol.
+
+   Will use the Etch instance found with `convex.db/current`. It important keeping the client
+   on a thread that has always access to the very same instance.
   
-   An optional map may be provided:
+   A map of options may be provided:
 
    | Key                   | Value           | Default       |
    |-----------------------|-----------------|---------------|
    | `:convex.server/host` | Peer IP address | \"localhost\" |
-   | `:convex.server/port` | Peer port       | 18888         |
-   "
+   | `:convex.server/port` | Peer port       | 18888         |"
 
 
   (^Convex []
@@ -78,8 +82,7 @@
                                                  Server/DEFAULT_PORT)))
                    nil
                    nil
-                   (or (:convex.client/db option+)
-                       ($.db/current)))))
+                   ($.db/current))))
 
 
 
@@ -87,6 +90,9 @@
 
   "Like [[connect]] but the returned client is optimized to talk to a peer `server` running
    in the same process.
+
+   It is important the client is always on a thread that has the same store being returned on
+   `convex.db/current` (from `:module/cvm`) as the store used by the `server`.
   
    See [[convex.server]]."
 
