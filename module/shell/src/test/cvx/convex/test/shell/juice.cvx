@@ -59,14 +59,10 @@
 
   (T/group '((T/path.conj 'track)
              (T/trx '($.trx/precat '(($.juice/!.track '(+ 2 2))
-                                     (and (map? $/*result*)
-                                         (= 4
-                                            (:result $/*result*))
-                                         (= (:juice $/*result*)
-                                            (+ (:juice.expand $/*result*)
-                                               (:juice.compile $/*result*)
-                                               (:juice.exec $/*result*))))))
-                    {:description "Tracking."}))))
+                                     (and (> (first $/*result*)
+                                             0)
+                                          (= (second $/*result*)
+                                             4))))))))
 
 
 

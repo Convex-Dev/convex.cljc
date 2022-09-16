@@ -643,10 +643,10 @@
            (result ctx)))
 
 
-  (^Context [^Context ctx object]
+  (^Context [^Context ctx cell]
 
    (.expand ctx
-            object)))
+            cell)))
 
 
 
@@ -684,10 +684,10 @@
                    (result ctx)))
 
 
-  (^Context [^Context ctx object]
+  (^Context [^Context ctx cell]
 
    (.expandCompile ctx
-                   object)))
+                   cell)))
 
 
 ;;;;;;;;;; Pahse 3 - Executing compiled code
@@ -719,14 +719,14 @@
 
 (defn eval
 
-  "Evaluates the given `cell`, going efficiently through [[expand]], [[compile]], and [[exec]].
+  "Evaluates the given `cell` after forking the `ctx`, going efficiently through [[expand]], [[compile]], and [[exec]].
 
    Works with any kind of `cell` and is sufficient when there is no need for fine-grained control.
 
    An important difference with the aforementioned cycle is that the cell passes through `*lang*`, a function
    possibly set by the user for intercepting a cell (eg. modifying the cell and evaluating explicitley).
 
-   Returns a new `ctx` with a [[result]] or an [[exception]] in case of failure."
+   Returns the forked `ctx` with a [[result]] or an [[exception]] in case of failure."
 
   (^Context [ctx]
 

@@ -24,20 +24,6 @@
 ;;;;;;;;;; Altering error maps
 
 
-(defn assoc-phase
-
-  "Associates a `phase` to the given `err`.
-  
-   A `phase` is a CVM keyword which provides an idea of what stage the error occured in."
-
-  [err phase]
-
-  ($.std/assoc err
-               $.shell.kw/phase
-               phase))
-
-
-
 (defn assoc-trx
 
   "Associates a transaction to the given `err` map. under `:trx`."
@@ -94,20 +80,11 @@
    If prodived, associates to the resulting error map a [[phase]] and the current transaction that caused this error."
 
 
-  ([^ErrorValue ex]
+  [^ErrorValue ex]
 
-   ($.cell/error (.getCode ex)
-                 (.getMessage ex)
-                 ($.cell/vector (.getTrace ex))))
-
-
-  ([ex phase trx]
-
-   (-> ex
-       (mappify)
-       ($.std/assoc $.shell.kw/trx
-                    trx)
-       (assoc-phase phase))))
+  ($.cell/error (.getCode ex)
+                (.getMessage ex)
+                ($.cell/vector (.getTrace ex))))
 
 
 
@@ -185,7 +162,6 @@
 
   (-> ($.cell/error code
                     message)
-      (assoc-phase $.shell.kw/sreq)
       (assoc-trx trx)))
 
 

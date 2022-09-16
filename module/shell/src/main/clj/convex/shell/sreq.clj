@@ -550,9 +550,9 @@
 
   [env ^AVector tuple]
 
-  ($.shell.exec/trx-track env
-                          (.get tuple
-                                2)))
+  ($.shell.exec/trx-track-juice env
+                                (.get tuple
+                                      2)))
 
 
 ;;;;;;;;;; Logging

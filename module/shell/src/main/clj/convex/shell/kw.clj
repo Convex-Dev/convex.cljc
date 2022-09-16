@@ -5,9 +5,7 @@
   {:author "Adam Helinski"}
 
   (:import (convex.core.data Keyword))
-  (:refer-clojure :exclude [compile
-                            do
-                            eval
+  (:refer-clojure :exclude [do
                             read])
   (:require [convex.cell :as $.cell]))
 
@@ -26,9 +24,6 @@
 
 (def ^Keyword code-read+
               ($.cell/keyword "code.read+"))
-
-(def ^Keyword compile
-              ($.cell/keyword "compile"))
 
 (def ^Keyword cvm-sreq
               ($.cell/keyword "cvm.sreq"))
@@ -75,17 +70,11 @@
 (def ^Keyword etch-root-write
               ($.cell/keyword "etch.root.write"))
 
-(def ^Keyword eval
-              ($.cell/keyword "eval"))
-
 (def ^Keyword exception?
               ($.cell/keyword "exception?"))
 
 (def ^Keyword exec
               ($.cell/keyword "exec"))
-
-(def ^Keyword expand
-              ($.cell/keyword "expand"))
 
 (def ^Keyword file-copy
               ($.cell/keyword "file.copy"))
@@ -111,18 +100,6 @@
 (def ^Keyword form
               ($.cell/keyword "form"))
 
-(def ^Keyword juice
-              ($.cell/keyword "juice"))
-
-(def ^Keyword juice-expand
-              ($.cell/keyword "juice.expand"))
-
-(def ^Keyword juice-compile
-              ($.cell/keyword "juice.compile"))
-
-(def ^Keyword juice-exec
-              ($.cell/keyword "juice.exec"))
-
 (def ^Keyword juice-limit
               ($.cell/keyword "juice.limit"))
 
@@ -144,9 +121,6 @@
 (def ^Keyword path
               ($.cell/keyword "path"))
 
-(def ^Keyword phase
-              ($.cell/keyword "phase"))
-
 (def ^Keyword process-env
               ($.cell/keyword "process.env"))
 
@@ -164,9 +138,6 @@
 
 (def ^Keyword src
               ($.cell/keyword "src"))
-
-(def ^Keyword sreq
-              ($.cell/keyword "sreq"))
 
 (def ^Keyword state-load
               ($.cell/keyword "state.load"))
