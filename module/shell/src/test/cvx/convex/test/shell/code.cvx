@@ -35,6 +35,34 @@
 
 
 
+(defn suite.gensym
+
+  ^{:doc {:description "Generating hygenic symbols."}}
+
+  []
+
+  (T/group '((T/path.conj 'gensym)
+
+             (T/trx '(symbol? ($.code/gensym))
+                    {:description "Result is a symbol."})
+
+             (T/trx '(not (= ($.code/gensym)
+                             ($.code/gensym)))
+                    {:description "Results should be unique."})
+
+             (T/trx '(not (= ($.code/gensym "foo")
+                             ($.code/gensym "foo")))
+                    {:description "Results should be unique even with a prefix."})
+
+             (T/trx '(let [s (str ($.code/gensym "foo"))]
+                       (= (str (nth s 0)
+                               (nth s 1)
+                               (nth s 2))
+                          "foo"))
+                    {:description "Prefix is correctly applied."}))))
+
+
+
 (defn suite.read+
 
   ^{:doc {:description "Convex Lisp reader."}}
@@ -65,6 +93,7 @@
 
   (T/group '((T/path.conj 'convex.shell.code)
              (suite.decompile)
+             (suite.gensym)
              (suite.read+))))
 
 
