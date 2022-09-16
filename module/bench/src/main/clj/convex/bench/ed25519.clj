@@ -4,7 +4,6 @@
   
    Each implementation simply returns a vector of functions `[sign verify]`."
 
-  (:import (java.nio.charset StandardCharsets))
   (:require [convex.bench.ed25519.native     :as $.bench.ed25519.native]
             [convex.bench.ed25519.lazysodium :as $.bench.ed25519.lazysodium]
             [criterium.core                  :as CT]))
@@ -17,8 +16,7 @@
 
   "Test payload."
 
-  (.getBytes (str (range 100))
-             StandardCharsets/UTF_8))
+  (byte-array (range 32)))
 
 
 ;;;;;;;;;;
