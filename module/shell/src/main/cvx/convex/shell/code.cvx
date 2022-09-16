@@ -8,7 +8,7 @@
                  :name        "Code handling library for the Convex Shell"}))
 
 
-;;;;;;;;;; Importing libraries
+;;;;;;;;;; Private values
 
 
 (def $.trx
@@ -19,13 +19,62 @@
         (cns-resolve 'convex.shell.trx)))
 
 
-;;;;;;;;;; API
+;;;;;;;;;; Genereting hygenic
+
+
+(def -*gensym*
+
+  ^{:private? true}
+
+  0)
+
+
+
+(defn gensym
+
+  ^{:callable? true
+    :doc       {:description ["Returns a symbol guaranteed to be unique relative to other symbols generated"
+                              "with this function in the context of a single process."
+                              ""
+                              "A prefix string may be provided (default to \"G_\")."
+                              ""
+                              "Useful for metaprogramming."]
+                :examples    [{:code "($.code/gensym)"}
+                              {:code "($.code/gensym \"some-prefix-b\")"}]
+                :signature   [{:params []}
+                              {:params [prefix]}]}}
+
+  
+  ([]
+
+   (gensym nil))
+
+
+  ([prefix]
+
+   (if (= *address*
+          ~*address*)
+     (do
+       (let [id -*gensym*]
+         (def -*gensym*
+              (inc id))
+         (symbol (str (or prefix
+                          "G_")
+                      id))))
+     (call ~*address*
+           (gensym prefix)))))
+
+
+;;;;;;;;;; Requests
 
 
 (defn !.decompile
 
   ^{:doc {:description ["Compiles the given cell, such as a function, into data."
-                        "Uses `read+`. Result is availabe during next transaction under `$/*result*`."
+                        "Uses `$.code/read+`."
+                        ""
+                        "Result will be availabe during next transaction under `$/*result*`."
+                        ""
                         "Experimental! Currently, cells containing local bindings are not eval-ready (eg. functions)."]
           :examples    [{:code "($.code/!.decompile (fn [x] (inc x)))"}]
           :signature   [{:params [cell]}]}}
