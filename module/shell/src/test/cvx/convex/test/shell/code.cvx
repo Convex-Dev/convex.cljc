@@ -15,26 +15,57 @@
 ;;;;;;;;;; Test suites
 
 
-(defn suite.main
+(defn suite.decompile
 
-  ^{:doc {:description "Main test suite."}}
+  ^{:doc {:description "Experimental decompilation"}}
+
+  []
+
+  (T/group '((T/path.conj 'decompile)
+
+             ($.code/!.decompile (fn [x] x))
+             (T/trx '(= '(fn [x] %0)
+                        $/*result*)
+                    {:description "Function."})
+
+             ($.code/!.decompile (compile '(+ 2 2)))
+             (T/trx `(= $/*result*
+                        '((lookup ~*address* +) 2 2))
+                    {:description "Compiled op."}))))
+
+
+
+(defn suite.read+
+
+  ^{:doc {:description "Convex Lisp reader."}}
+
+  []
+
+  (T/group '((T/path.conj 'read)
+
+             (def a
+                  '(+ 2 2))
+
+             (def b
+                  '(fn [x] (inc x)))
+
+             ($.code/!.read+ (str a
+                                  b))
+
+             (T/trx '(= '((+ 2 2)
+                          (fn [x] (inc x)))
+                        $/*result*)))))
+
+;;;
+
+
+(defn suite.main
 
   []
 
   (T/group '((T/path.conj 'convex.shell.code)
-
-             ($.code/!.read+ "(+ 2 2) (fn [x] (inc x))")
-
-             (T/trx '(= '((+ 2 2)
-                          (fn [x] (inc x)))
-                        $/*result*)
-                    {:description "Reading source."})
-
-             ($.code/!.decompile (fn [x] x))
-
-             (T/trx '(= '(fn [x] %0)
-                        $/*result*)
-                    {:description "Experimental decompilation."}))))
+             (suite.decompile)
+             (suite.read+))))
 
 
 ;;;
