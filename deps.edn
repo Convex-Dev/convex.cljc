@@ -188,11 +188,11 @@
 
   :module/bench
 
-  {:extra-paths    ["module/bench/src/main/clj"]
-   :maestro/dir    "module/bench"
-   :maestro/doc    "Namespaces for benchmarking various areas of Convex" 
-   :maesto/require [:ext/criterium
-                    :module/cvm]}
+  {:extra-paths     ["module/bench/src/main/clj"]
+   :maestro/dir     "module/bench"
+   :maestro/doc     "Namespaces for benchmarking various areas of Convex" 
+   :maestro/require [:ext/criterium
+                     :module/cvm]}
 
   ;---
 
