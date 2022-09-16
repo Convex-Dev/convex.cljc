@@ -85,9 +85,11 @@
    :maestro/doc "Testing framework"}
 
 
-  :ext/maestro {:extra-deps  {com.protosens/maestro {:git/sha "b98268e8e6df2d99b9a3a1b376a8254a013c996b"
-                                                     :git/url "https://github.com/protosens/maestro.clj.git"}}
-                :maestro/doc "Library used for managing this repo as a monorepo"}
+  :ext/maestro
+  
+  {:extra-deps  {com.protosens/maestro {:git/sha "b98268e8e6df2d99b9a3a1b376a8254a013c996b"
+                                        :git/url "https://github.com/protosens/maestro.clj.git"}}
+   :maestro/doc "Library used for managing this repo as a monorepo"}
 
 
   :ext/mprop
@@ -181,6 +183,16 @@
                      :ext/clojure.test.check
                      :module/break
                      :module/cvm]}
+
+  ;---
+
+  :module/bench
+
+  {:extra-paths    ["module/bench/src/main/clj"]
+   :maestro/dir    "module/bench"
+   :maestro/doc    "Namespaces for benchmarking various areas of Convex" 
+   :maesto/require [:ext/criterium
+                    :module/cvm]}
 
   ;---
 
