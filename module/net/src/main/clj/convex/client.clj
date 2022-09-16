@@ -28,7 +28,7 @@
            (java.util.function Function))
   (:refer-clojure :exclude [resolve])
   (:require [convex.clj  :as $.clj]
-            [convex.sign :as $.sign]))
+    #_        [convex.sign :as $.sign]))
 
 
 
@@ -208,7 +208,7 @@
 
   (^CompletableFuture [client ^AKeyPair key-pair ^ATransaction transaction]
 
-   (transact client
+   #_(transact client
              ($.sign/signed key-pair
                             transaction))))
 

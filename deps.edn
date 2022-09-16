@@ -314,6 +314,7 @@
                                :ext/criterium
                                :ext/graal-build-time
                                :module/cvm
+                               :module/net
                                {dev :dev/shell}]
    :maestro.build/type        :uberjar
    :maestro.build.path/output "private/target/shell.uber.jar"

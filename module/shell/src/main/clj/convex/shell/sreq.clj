@@ -19,6 +19,7 @@
                           Path)
            (java.nio.file.attribute FileAttribute))
   (:require [convex.cell            :as $.cell]
+            [convex.client          :as $.client]
             [convex.clj             :as $.clj]
             [convex.cvm             :as $.cvm]
             [convex.db              :as $.db]
@@ -31,6 +32,7 @@
             [convex.shell.stream    :as $.shell.stream]
             [convex.shell.sym       :as $.shell.sym]
             [convex.shell.time      :as $.shell.time]
+            [convex.std             :as $.std]
             [criterium.core         :as criterium]))
 
 
@@ -95,6 +97,55 @@
   ($.shell.exec.fail/rethrow env
                              (.get tuple
                                    2)))
+
+
+;;;;;;;;;; Client
+
+
+(defmethod $.shell.exec/sreq
+
+  $.shell.kw/client-connect
+
+  ;; Connects new client and store in the env.
+  
+  ;; TODO. Must support several clients (e.g. talking to several peers)
+
+  [env tuple]
+
+  (-> env
+      (update :convex.shell/client
+              #(or %
+                   (let [options ($.std/get tuple
+                                            ($.cell/* 2))]
+                     ($.client/connect {:convex.server/host (some-> ($.std/get options
+                                                                               ($.cell/* :host))
+                                                                    $.clj/any)
+                                        :convex.server/port (some-> ($.std/get options
+                                                                               ($.cell/* :port))
+                                                                    $.clj/any)}))))
+      ($.shell.ctx/def-result nil)))
+
+
+
+(defmethod $.shell.exec/sreq
+
+  $.shell.kw/client-query
+
+  ;; Performs a query.
+
+  [env tuple]
+
+  ;; TODO. Fail if no client.
+  ;; TODO. Make async?
+  ($.shell.ctx/def-result env
+                          @($.client/query (env :convex.shell/client)
+                                           ($.std/get tuple
+                                                      ($.cell/* 2))
+                                           ($.std/get tuple
+                                                      ($.cell/* 3)))))
+
+
+
 
 
 ;;;;;;;;;; Code

@@ -22,6 +22,12 @@
 (def ^Keyword cause
               ($.cell/keyword "cause"))
 
+(def ^Keyword client-connect
+              ($.cell/keyword "client.connect"))
+
+(def ^Keyword client-query
+              ($.cell/keyword "client.query"))
+
 (def ^Keyword code-read+
               ($.cell/keyword "code.read+"))
 
