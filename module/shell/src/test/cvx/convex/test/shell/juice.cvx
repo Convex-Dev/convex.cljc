@@ -58,11 +58,81 @@
   []
 
   (T/group '((T/path.conj 'track)
-             (T/trx '($.trx/precat '(($.juice/!.track '(+ 2 2))
-                                     (and (> (first $/*result*)
-                                             0)
-                                          (= (second $/*result*)
-                                             4))))))))
+
+             (def code
+                  '(if (< 1 2)
+                     :good
+                     :bad))
+   
+             ($.juice/!.track code)
+             (do
+               (def cost-total
+                    (first $/*result*))
+               (def result
+                    (second $/*result*)))
+
+             (T/group '((T/path.conj 'total)
+                        (T/trx '(= result
+                                   :good)
+                               {:description "Proper result reported."})
+
+                        (T/trx '(> cost-total
+                                   0)
+                               {:description "Total cost is definitely non-zero."})))
+
+             (T/group '((T/path.conj 'steps)
+
+                        ($.juice/!.track-steps code)
+                        (do
+                          (def cost-raw
+                               (first $/*result*))
+                          (def result-raw
+                               (second $/*result*)))
+
+                        (T/group '((T/path.conj 'raw)
+                                   (T/trx '(= result-raw
+                                              :good)
+                                          {:description "Proper result reported."})
+                                   (T/trx '(and (not (zero? (cost-raw 0)))
+                                                (not (zero? (cost-raw 1)))
+                                                (not (zero? (cost-raw 2)))
+                                                (not (zero? (cost-raw 3))))
+                                          {:description "Had to go through all steps."})
+                                   (T/trx '(= (cost-raw 3)
+                                              cost-total)
+                                          {:description "Total reported cost is consistent."})))
+
+                        (T/group '((T/path.conj 'expanded)
+                                   ($.juice/!.track-steps (expand code))
+                                   (def cost-expanded
+                                        (first $/*result*))
+                                   (T/trx '(zero? (cost-expanded 0))
+                                          {:description "No need for expansion."})
+                                   (T/trx '(= (cost-expanded 1)
+                                              (cost-raw 1))
+                                          {:description "Cost of compilation remains the same."})
+                                   (T/trx '(= (cost-expanded 2)
+                                              (cost-raw 2))
+                                          {:description "Cost of execution remains the same."})
+                                   (T/trx '(= (cost-expanded 3)
+                                              (- (cost-raw 3)
+                                                 (cost-raw 0)))
+                                          {:description "Expansion removed from total cost."})))
+                        
+                        (T/group '((T/path.conj 'compiled)
+                                   ($.juice/!.track-steps (compile code))
+                                   (def cost-compiled
+                                        (first $/*result*))
+                                   (T/trx '(zero? (cost-compiled 0))
+                                          {:description "No need for expansion."})
+                                   (T/trx '(zero? (cost-compiled 1))
+                                          {:description "No need for compilation."})
+                                   (T/trx '(= (cost-compiled 2)
+                                              (cost-raw 2))
+                                          {:description "Cost of execution remains the same."})
+                                   (T/trx '(= (cost-compiled 3)
+                                              (cost-compiled 2))
+                                          {:description "Total cost reflects only the cost of execution."}))))))))
 
 
 

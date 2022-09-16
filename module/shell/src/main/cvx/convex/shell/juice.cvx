@@ -84,3 +84,49 @@
   [trx]
 
   [:cvm.sreq :juice.track trx])
+
+
+
+(defn !.track-steps
+
+  ^{:doc {:description ["Uses `$.juice/!.track` successively to isolate the juice cost of expansion, compilation,"
+                        "and execution."
+                        ""
+                        "Result is similar but the first item in the vector will be another vector:"
+                        ""
+                        "    [expansion-cost compilation-cost execution-cost total-cost]"]
+          :examples    [{:code "($.juice/!.track-steps '(inc 42))"}
+                        {:code "($.juice/!.track-steps (compile '(inc 42)))"}]}}
+
+  [trx]
+
+  (let [compile+exec_ ($.code/gensym)
+        exec_         ($.code/gensym)
+        result_       ($.code/gensym)
+        total_        ($.code/gensym)
+        trx_          ($.code/gensym)]
+    ($.state/!.tmp `((def ~trx_
+                          (quote ~trx))
+                     ($.juice/!.track ~trx_)
+                     (do
+                       (def ~result_
+                            (second $/*result*))
+                       (def ~total_
+                            (first $/*result*)))
+                     ($.juice/!.track (expand ~trx_))
+                     (def ~compile+exec_
+                          (first $/*result*))
+                     ($.juice/!.track (compile ~trx_))
+                     (def ~exec_
+                          (first $/*result*))
+                     [[;; Expand
+                       (- ~total_
+                          ~compile+exec_)
+                       ;; Compile
+                       (- ~compile+exec_
+                          ~exec_)
+                       ;; Exec
+                       ~exec_
+                       ;; Total
+                       ~total_]
+                      ~result_]))))
