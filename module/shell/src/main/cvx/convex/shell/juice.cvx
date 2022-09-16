@@ -7,7 +7,27 @@
       (register {:name "Juice utilities for the Convex Shell"}))
 
 
-;;;;;;;;;;
+;;;;;;;;;; Private values
+
+
+(def $.code
+
+  ^{:private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.shell.code)))
+
+
+
+(def $.state
+
+  ^{:private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.shell.state)))
+
+
+;;;;;;;;;; Public
 
 
 (defn !.limit
@@ -50,10 +70,14 @@
 
 (defn !.track
 
-  ^{:doc {:description ["Returns a request for tracking juice consumption of each execution step (expansion, compilation, evaluation)."
-                        "Also pinpoints which step fails in case of error."
+  ^{:doc {:description ["Returns a request for tracking the juice consumption of the given transaction."
                         ""
-                        "Report map will be available during the next transaction under `$/*result*`."]
+                        "End result is a vector where the first item is the number of units of juice"
+                        "consumed by the transaction and the second item is the result of the transaction."
+                        ""
+                        "It will be available during the next transaction under `$/*result*`."
+                        ""
+                        "All state changes are discarded, the transaction will have no effect."]
           :examples    [{:code "($.juice/!.track '(inc 42))"}
                         {:code "($.juice/!.track (compile '(inc 42)))"}]}}
 

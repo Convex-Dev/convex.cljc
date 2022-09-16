@@ -34,14 +34,12 @@
 
 (defn juice
 
-  "Computes consumed juice, extracting [[max-juice]] from the current value."
+  "Computes consumed juice based on the current limit."
 
   [env]
 
-  (- max-juice
-     (-> env
-         (:convex.shell/ctx)
-         ($.cvm/juice))))
+  (- (env :convex.shell.juice/limit)
+     ($.cvm/juice (env :convex.shell/ctx))))
 
 
 
@@ -53,29 +51,6 @@
 
   (-> (env :convex.shell/ctx)
       ($.cvm/result)))
-
-
-
-(defn update-ctx
-
-  "Refills the current context with maximum juice and calls `f` with that context and `trx`.
-  
-   The context is then reattached to `env`."
-
-  [env kw-phase f trx]
-
-  (let [ctx (f (-> (env :convex.shell/ctx)
-                   ($.cvm/juice-set (env :convex.shell.juice/limit)))
-               trx)
-        ex  ($.cvm/exception ctx)]
-    (-> env
-        (assoc :convex.shell/ctx
-               ctx)
-        (cond->
-          ex
-          ($.shell.exec.fail/err (-> ($.shell.err/mappify ex)
-                                     ($.shell.err/assoc-phase kw-phase)
-                                     ($.shell.err/assoc-trx trx)))))))
 
 
 ;;;;;;;;;; Special transactions
@@ -120,76 +95,12 @@
   :default :unknown)
 
 
-;;;;;;;;;; Execution steps
-
-
-(defn expand
-
-  "Expands the given `trx` using the current context."
-
-
-  ([env]
-
-   (expand env
-           (result env)))
-
-
-  ([env trx]
-
-   (update-ctx env
-               $.shell.kw/expand
-               $.cvm/expand
-               trx)))
-
-
-
-(defn compile
-
-  "Compiles the given, previously expanded `trx` using the current context.
-
-   See [[expand]]."
-
-
-  ([env]
-
-   (compile env
-            (result env)))
-
-
-  ([env trx-canonical]
-
-   (update-ctx env
-               $.shell.kw/compile
-               $.cvm/compile
-               trx-canonical)))
-
-
-
-(defn exec
-
-  "Runs the given, previously compiled `trx` using the current context.
-  
-   See [[compile]]."
-
-
-  ([env]
-
-   (exec env
-         (result env)))
-
-
-  ([env trx-compiled]
-
-   (update-ctx env
-               $.shell.kw/exec
-               $.cvm/exec
-               trx-compiled)))
-
+;;;;;;;;;; Transactions
 
 
 (defn eval
 
-  "Evaluates `trx`."
+  "Evaluates `trx` after refilling juice."
 
   ([env]
 
@@ -199,13 +110,19 @@
 
   ([env trx]
 
-   (update-ctx env
-               $.shell.kw/eval
-               $.cvm/eval
-               trx)))
+   (let [ctx (-> (env :convex.shell/ctx)
+                 ($.cvm/juice-set (env :convex.shell.juice/limit))
+                 ($.cvm/eval trx))
+         ex  ($.cvm/exception ctx)]
+     (-> env
+         (assoc :convex.shell/ctx
+                ctx)
+         (cond->
+           ex
+           ($.shell.exec.fail/err (-> ex
+                                      ($.shell.err/mappify)
+                                      ($.shell.err/assoc-trx trx))))))))
 
-
-;;;;;;;;;; Transactions
 
 
 (defn trx
@@ -224,37 +141,19 @@
 
 
 
-(defn trx-track
+(defn trx-track-juice
 
-  "Similar to [[trx]].
-
-   However, requests are not performed and juice consumption is tracked by going manually through
-   [[expand]], [[compile]], and [[exec]]. Those are reported with the actual result in a map interned
-   under `$/*result*`."
+  "Similar to [[trx]] but requests are not performed, new state is discarded, and `$/*result*` is `[consumed-juice trx-result]`."
 
   [env trx]
 
-  (let [env-2 (expand env
-                      trx)]
+  (let [env-2 (eval env
+                    trx)]
     (if (env-2 :convex.shell/error)
       env-2
-      (let [juice-expand (juice env-2)
-            env-3        (compile env-2)]
-        (if (env-3 :convex.shell/error)
-          env-3
-          (let [juice-compile (juice env-3)
-                env-4         (exec env-3)]
-            (if (env-4 :convex.shell/error)
-              env-4
-              (let [juice-exec (juice env-4)]
-                ($.shell.ctx/def-result env-4
-                                      ($.cell/map {$.shell.kw/juice         ($.cell/long (+ juice-expand
-                                                                                            juice-compile
-                                                                                            juice-exec))
-                                                   $.shell.kw/juice-expand  ($.cell/long juice-expand)
-                                                   $.shell.kw/juice-compile ($.cell/long juice-compile)
-                                                   $.shell.kw/juice-exec    ($.cell/long juice-exec)
-                                                   $.shell.kw/result        (result env-2)}))))))))))
+      ($.shell.ctx/def-result env
+                              ($.cell/* [~($.cell/long (juice env-2))
+                                         ~(result env-2)])))))
 
 
 

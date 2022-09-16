@@ -104,9 +104,6 @@
            [$.shell.sym/$
             "convex/shell.cvx"]
            ;; No deps.
-           [$.shell.sym/$-juice
-            "convex/shell/juice.cvx"]
-           ;; No deps.
            [$.shell.sym/$-log
             "convex/shell/log.cvx"]
            ;; No deps.
@@ -133,6 +130,9 @@
            ;; Requires `$.catch` + `$.trx`.
            [$.shell.sym/$-state
             "convex/shell/state.cvx"]
+           ;; Requires `$.code` + `$.state`
+           [$.shell.sym/$-juice
+            "convex/shell/juice.cvx"]
            ;; Requires `$.state` + `$.trx`.
            [$.shell.sym/$-file
             "convex/shell/file.cvx"]
