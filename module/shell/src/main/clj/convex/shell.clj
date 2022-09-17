@@ -37,6 +37,7 @@
             [convex.shell.exec      :as $.shell.exec]
             [convex.shell.exec.fail :as $.shell.exec.fail]
             [convex.shell.io        :as $.shell.io]
+            [convex.shell.kw        :as $.shell.kw]
             [convex.shell.log]
             [convex.shell.sreq]))
 
@@ -57,9 +58,9 @@
 
   (assoc env
          :convex.shell/ctx             $.shell.ctx/ctx-base
-         :convex.shell/stream+         {0 $.shell.io/stdin-txt
-                                        1 $.shell.io/stdout-txt
-                                        2 $.shell.io/stderr-txt}
+         :convex.shell/stream+         {$.shell.kw/stderr $.shell.io/stderr-txt
+                                        $.shell.kw/stdin  $.shell.io/stdin-txt
+                                        $.shell.kw/stdout $.shell.io/stdout-txt}
          :convex.shell.etch/read-only? false
          :convex.shell.juice/limit     $.shell.exec/max-juice
          :convex.shell.stream/id       2))
@@ -115,25 +116,3 @@
       (when (not= (System/getProperty "convex.dev")
                   "true")
         (System/exit 1)))))
-
-
-
-
-(comment
-
-   
-  (-main "[:cvm.sreq :etch.open \"/tmp/foo.etch\"] [:cvm.sreq :etch.root-write {:a :b}] ($.stream/!.outln $/*result*)")
-  (-main "[:cvm.sreq :etch.open \"/tmp/foo.etch\"] [:cvm.sreq :etch.root-read] ($.stream/!.outln $/*result*)")
-  (-main "42 [:cvm.sreq :etch.flush] ($.stream/!.outln $/*result*)")
-  (-main "[:cvm.sreq :etch.path] ($.stream/!.outln $/*result*)")
-  (-main "[:cvm.sreq :etch.write [:foo :bar]] [:cvm.sreq :etch.read $/*result*] ($.stream/!.outln $/*result*)")
-  (-main "[:cvm.sreq :etch.open \"/tmp/foo2.etch\"] ($.stream/!.outln $/*result*)")
-  (-main "[:cvm.sreq :etch.open \"/tmp/foo3.etch\"] [:cvm.sreq :etch.open \"/tmp/foo3.etch\"]")
-
-  (-main)
-
-  (-main "(+ 2 2)")
-
-
-
-  )

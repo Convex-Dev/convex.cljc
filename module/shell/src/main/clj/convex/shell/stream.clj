@@ -33,17 +33,6 @@
 (declare close
          outln)
 
-
-;;;;;;;;;; Values
-
-
-(def id-stderr
-
-  "Id of STDERR."
-
-  2)
-
-
 ;;;;;;;;;; Private
 
 
@@ -82,7 +71,7 @@
   [env id op+ err]
 
   (if (and (= id
-              id-stderr)
+              $.shell.kw/stderr)
            (or (op+ :flush)
                (op+ :write)))
     ($.shell.ctx/exit env
@@ -141,27 +130,27 @@
         (-fail env
                id
                op+
-               ($.shell.err/stream ($.cell/long id)
+               ($.shell.err/stream id
                                    ($.cell/string (str "Stream is missing capability: %s"
                                                        op+)))))
       ;;
       (catch ParseException ex
         ($.shell.exec.fail/err env
-                               ($.shell.err/reader-stream ($.cell/long id)
+                               ($.shell.err/reader-stream id
                                                           ($.cell/string (.getMessage ex)))))
       ;;
       (catch Throwable _ex
         (-fail env
                id
                op+
-               ($.shell.err/stream ($.cell/long id)
+               ($.shell.err/stream id
                                    ($.cell/string (str "Stream failed while performing: " 
                                                        op+))))))
     ;; Stream does not exist
     (-fail env
            id
            op+
-           ($.shell.err/stream ($.cell/long id)
+           ($.shell.err/stream id
                                ($.cell/string "Stream closed or does not exist")))))
 
 
@@ -367,18 +356,17 @@
 
   ;; Used by [[file-in]] and [[file-out]].
 
-  [env path open str-op]
+  [env id path open str-op]
+
+;; ENSURE ID NOT OVERWRITTEN
 
   (try
-    (let [file (open (str path))
-          id   (inc (env :convex.shell.stream/id))]
+    (let [file (open (str path))]
       (-> env
-          (assoc :convex.shell.stream/id
-                 id)
           (assoc-in [:convex.shell/stream+
                      id]
                     file)
-          ($.shell.ctx/def-result ($.cell/long id))))
+          ($.shell.ctx/def-result id)))
 
     ;(catch FileNotFoundException _ex
 
@@ -395,9 +383,10 @@
 
   "Opens an input stream for file under `path`."
 
-  [env path]
+  [env id path]
 
   (-file env
+         id
          path
          $.shell.io/file-in
          #{:read}))
@@ -408,9 +397,10 @@
 
   "Opens an output stream for file under `path`."
 
-  [env path append?]
+  [env id path append?]
 
   (-file env
+         id
          path
          (fn [path]
            ($.shell.io/file-out path

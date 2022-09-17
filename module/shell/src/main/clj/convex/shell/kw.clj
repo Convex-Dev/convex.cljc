@@ -145,6 +145,15 @@
 (def ^Keyword state-safe
               ($.cell/keyword "state.safe"))
 
+(def ^Keyword stderr
+              ($.cell/keyword "stderr"))
+
+(def ^Keyword stdin
+              ($.cell/keyword "stdin"))
+
+(def ^Keyword stdout
+              ($.cell/keyword "stdout"))
+
 (def ^Keyword stream
               ($.cell/keyword "stream"))
 

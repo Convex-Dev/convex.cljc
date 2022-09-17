@@ -25,15 +25,15 @@
 
   (T/group '((T/path.conj 'convex.shell.stream)
 
-             (T/trx '(= 0
+             (T/trx '(= :stdin
                         $.stream/stdin)
                     {:description "STDIN is set."})
 
-             (T/trx '(= 1
+             (T/trx '(= :stdout
                         $.stream/stdout)
                     {:description "STDOUT is set."})
 
-             (T/trx '(= 2
+             (T/trx '(= :stderr
                         $.stream/stderr)
                     {:description "STDERR is set."})
 

@@ -23,20 +23,6 @@
         (cns-resolve 'convex.shell.trx)))
  
 
-
-(defn -stream
-
-  ^{:doc      {:description ["Asserts that `stream` is indeed a stream."
-                             "Returns its argument or throw an exception."]
-               :signature   [{:params [stream]}]}
-    :private? true}
-
-  [stream]
-
-  (assert (long? stream))
-  stream)
-
-
 ;;;;;;;;;; STDIO streams
 
 
@@ -44,7 +30,7 @@
 
   ^{:doc {:description "Stream for STDERR"}}
 
-  2)
+  :stderr)
 
 
 
@@ -52,7 +38,7 @@
 
   ^{:doc {:description "Stream for STDIN."}}
 
-  0)
+  :stdin)
 
 
 
@@ -60,7 +46,7 @@
 
   ^{:doc {:description "Stream for STDOUT"}}
 
-  1)
+  :stdout)
 
 
 ;;;;;;;;;; Default streams
@@ -106,7 +92,7 @@
   (if (= *address*
          ~*address*)
     (def *err*
-         (-stream stream))
+         stream)
     (call ~*address*
           (set.err stream))))
 
@@ -123,7 +109,7 @@
   (if (= *address*
          ~*address*)
     (def *in*
-         (-stream stream))
+         stream)
     (call ~*address*
           (set.in stream))))
 
@@ -140,7 +126,7 @@
   (if (= *address*
          ~*address*)
     (def *out*
-         (-stream stream))
+         stream)
     (call ~*address*
           (set.out stream))))
 
@@ -159,7 +145,7 @@
 
   (assert (not (= stream
                   stderr)))
-  [:cvm.sreq :stream.close (-stream stream)])
+  [:cvm.sreq :stream.close stream])
 
 
 
@@ -205,7 +191,7 @@
 
   ([stream]
 
-   [:cvm.sreq :stream.flush (-stream stream)]))
+   [:cvm.sreq :stream.flush stream]))
 
 
 
@@ -227,7 +213,7 @@
 
   ([stream]
 
-   [:cvm.sreq :stream.in+ (-stream stream)]))
+   [:cvm.sreq :stream.in+ stream]))
 
 
 
@@ -251,7 +237,7 @@
 
   ([stream]
 
-   [:cvm.sreq :stream.line (-stream stream)]))
+   [:cvm.sreq :stream.line stream]))
 
 
 
@@ -264,7 +250,7 @@
 
   [stream]
 
-  [:cvm.sreq :stream.open? (-stream stream)])
+  [:cvm.sreq :stream.open? stream])
 
 
 
@@ -285,7 +271,7 @@
 
   ([stream x]
 
-   [:cvm.sreq :stream.out (-stream stream) x]))
+   [:cvm.sreq :stream.out stream x]))
 
 
 
@@ -305,7 +291,7 @@
 
   ([stream x]
 
-   [:cvm.sreq :stream.outln (-stream stream) x]))
+   [:cvm.sreq :stream.outln stream x]))
 
 
 
@@ -327,7 +313,7 @@
 
   ([stream]
 
-   [:cvm.sreq :stream.txt.in (-stream stream)]))
+   [:cvm.sreq :stream.txt.in stream]))
 
 
 
@@ -350,7 +336,7 @@
 
   ([stream]
 
-   [:cvm.sreq :stream.txt.line (-stream stream)]))
+   [:cvm.sreq :stream.txt.line stream]))
 
 
 
@@ -371,7 +357,7 @@
 
   ([stream x]
 
-   [:cvm.sreq :stream.txt.out (-stream stream) x]))
+   [:cvm.sreq :stream.txt.out stream x]))
 
 
 
@@ -392,4 +378,4 @@
 
   ([stream x]
 
-   [:cvm.sreq :stream.txt.outln (-stream stream) x]))
+   [:cvm.sreq :stream.txt.outln stream x]))

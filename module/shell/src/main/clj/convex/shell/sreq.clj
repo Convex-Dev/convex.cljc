@@ -38,19 +38,6 @@
       true)
 
 
-;;;;;;;;;; Helpers
-
-
-(defn- -stream
-
-  ;; Given a request, returns the stream values it contains as a Java long.
-
-  [^AVector tuple]
-
-  (.longValue ^CVMLong (.get tuple
-                             2)))
-
-
 ;;;;;;;;;; Setup
 
 
@@ -440,8 +427,10 @@
   [env ^AVector tuple]
 
   ($.shell.stream/file-in env
+                          (.get tuple
+                                2)
                           (str (.get tuple
-                                     2))))
+                                     3))))
 
 
 
@@ -454,10 +443,12 @@
   [env ^AVector tuple]
 
   ($.shell.stream/file-out env
+                           (.get tuple
+                                 2)
                            (str (.get tuple
-                                       2))
+                                       3))
                            ($.clj/boolean (.get tuple
-                                                3))))
+                                                4))))
 
 
 
@@ -740,10 +731,11 @@
 
   ;; Closes the given stream.
 
-  [env tuple]
+  [env ^AVector tuple]
 
   ($.shell.stream/close env
-                        (-stream tuple)))
+                        (.get tuple
+                              2)))
 
 
 
@@ -756,7 +748,8 @@
   [env ^AVector tuple]
 
   ($.shell.stream/flush env
-                        (-stream tuple)))
+                        (.get tuple
+                              2)))
 
 
 
@@ -766,10 +759,11 @@
 
   ;; Reads all available cells from the given stream.
 
-  [env tuple]
+  [env ^AVector tuple]
 
   ($.shell.stream/in+ env
-                      (-stream tuple)))
+                      (.get tuple
+                            2)))
 
 
 
@@ -779,10 +773,11 @@
 
   ;; Reads line from the given stream and extracts all available cells.
 
-  [env tuple]
+  [env ^AVector tuple]
 
   ($.shell.stream/line env
-                       (-stream tuple)))
+                       (.get tuple
+                             2)))
 
 
 
@@ -795,7 +790,8 @@
   [env ^AVector tuple]
 
   ($.shell.stream/out env
-                      (-stream tuple)
+                      (.get tuple
+                            2)
                       (.get tuple
                             3)))
 
@@ -811,8 +807,8 @@
 
   ($.shell.ctx/def-result env
                           (-> (env :convex.shell/stream+)
-                              (contains? ($.clj/long (.get tuple
-                                                           2)))
+                              (contains? (.get tuple
+                                               2))
                               ($.cell/boolean))))
 
 
@@ -827,7 +823,8 @@
   [env ^AVector tuple]
 
   ($.shell.stream/outln env
-                        (-stream tuple)
+                        (.get tuple
+                              2)
                         (.get tuple
                               3)))
 
@@ -839,10 +836,11 @@
 
   ;; Reads everything as text.
 
-  [env tuple]
+  [env ^AVector tuple]
 
   ($.shell.stream/txt-in env
-                         (-stream tuple)))
+                         (.get tuple
+                               2)))
 
 
 
@@ -852,10 +850,11 @@
 
   ;; Reads a line of text.
 
-  [env tuple]
+  [env ^AVector tuple]
 
   ($.shell.stream/txt-line env
-                           (-stream tuple)))
+                           (.get tuple
+                                 2)))
 
 
 
@@ -868,7 +867,8 @@
   [env ^AVector tuple]
 
   ($.shell.stream/txt-out env
-                          (-stream tuple)
+                          (.get tuple
+                                2)
                           (.get tuple
                                 3)))
 
@@ -883,7 +883,8 @@
   [env ^AVector tuple]
 
   ($.shell.stream/txt-outln env
-                            (-stream tuple)
+                            (.get tuple
+                                  2)
                             (.get tuple
                                   3)))
 

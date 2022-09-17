@@ -11,6 +11,15 @@
 ;;;;;;;;;; Private values
 
 
+(def $.code
+
+  ^{:private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.shell.code)))
+
+
+
 (def $.state
 
   ^{:private? true}
@@ -43,7 +52,7 @@
   [path]
 
   (assert (str? path))
-  [:cvm.sreq :file.stream.in path])
+  [:cvm.sreq :file.stream.in ($.code/gensym "$.file-") path])
 
 
 
@@ -74,7 +83,7 @@
   ([path option+]
 
    (assert (str? path))
-   [:cvm.sreq :file.stream.out path (boolean (:append? option+))]))
+   [:cvm.sreq :file.stream.out ($.code/gensym "$.file-") path (boolean (:append? option+))]))
 
 
 ;;;;;;;;;; Higher-level utilities built on stream utilities
@@ -121,11 +130,11 @@
                   (let [cell      (quote ~cell)
                         f-outln   (quote ~f-outln)
                         id-stream $/*result*]
-                    ($.catch/!.try `($.trx/precat '((~f-outln ~id-stream
+                    ($.catch/!.try `($.trx/precat '((~f-outln (quote ~id-stream)
                                                               (quote ~cell))
                                                     nil))
                                    nil
-                                   `($.stream/!.close ~id-stream))))))
+                                   `($.stream/!.close (quote ~id-stream)))))))
 
 
 

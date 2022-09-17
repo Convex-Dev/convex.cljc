@@ -61,7 +61,7 @@
 
   ($.trx/set `(($.juice/!.limit.set nil)
                ($.stream/!.err (quote ~exception))
-               ($.stream/!.flush $.stream/*err*)
+               ($.stream/!.flush $.stream/stderr)
                ($.process/!.exit 2))))
 
 
