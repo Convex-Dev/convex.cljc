@@ -2,10 +2,17 @@
 
   "Comparing various Ed25519 implementations.
   
-   Each implementation simply returns a vector of functions `[sign verify]`."
+   Each implementation simply returns a vector of functions `[sign verify]`.
 
-  (:require [convex.bench.ed25519.native     :as $.bench.ed25519.native]
+
+   NOTES:
+
+     - JDK implementation does not seem to be able to generate a key pair from a seed
+     - Libsodium implementation leveraging Project Panama could be more optimized"
+
+  (:require [convex.bench.ed25519.jdk        :as $.bench.ed25519.jdk]
             [convex.bench.ed25519.lazysodium :as $.bench.ed25519.lazysodium]
+            [convex.bench.ed25519.libsodium  :as $.bench.ed25519.libsodium]
             [criterium.core                  :as CT]))
 
 
@@ -16,27 +23,30 @@
 
   "Test payload."
 
-  (byte-array (range 32)))
+  (byte-array 32))
 
 
-;;;;;;;;;;
+;;;;;;;;;; Key pairs
+
+
+;;; JDK default implementtion
 
 
 (let [[sign
-       verify] ($.bench.ed25519.native/key-pair)]
-  (def signature-native
+       verify] ($.bench.ed25519.jdk/key-pair)]
+  (def signature-jdk
        (sign payload))
-  (def sign-native
+  (def sign-jdk
        sign)
-  (def verify-native
+  (def verify-jdk
        verify))
 
 
-(assert (verify-native payload
-                       signature-native))
+(assert (verify-jdk payload
+                    signature-jdk))
 
 
-;;;
+;;; Lazysodium
 
 
 (let [[sign
@@ -53,19 +63,45 @@
                            signature-lazysodium))
 
 
+;;; Libsodium
+
+
+(let [[sign
+       verify] ($.bench.ed25519.libsodium/key-pair)]
+  (def signature-libsodium
+       (sign payload))
+  (def sign-libsodium
+       sign)
+  (def verify-libsodium
+       verify))
+
+
+(assert (verify-libsodium payload
+                          signature-libsodium))
+(assert (= (vec signature-lazysodium)
+           (vec signature-libsodium)))
+
+
 ;;;;;;;;;;
 
 
 (comment
 
 
-  ;; Benchmarked on 2022-09-16 with a Macbook Pro M1 Max 64GB
+  ;; Benchmarked on 2022-09 with a Macbook Pro M1 Max 64GB
   ;;
-  ;;   Sign  : LazySodium 6.03x
-  ;;   Verify: LazySodium 2.95x
+  ;;   Sign  : Libsodium   4.96x  faster than LazySodium
+  ;;           LazySodium  6.03x  faster than JDK
+  ;;
+  ;;   Verify: Libsodium   3.69x  faster than LazySodium
+  ;;           LazySodium  2.95x  faster than JDK
 
 
-  (CT/bench (sign-native payload))
+
+
+  ;; JDK DEFAULT IMPLEMENTATION
+
+  (CT/bench (sign-jdk payload))
 
   ;; Evaluation count : 146820 in 60 samples of 2447 calls.
   ;;              Execution time mean : 410,291944 µs
@@ -80,8 +116,8 @@
   ;;  Variance from outliers : 1,6389 % Variance is slightly inflated by outliers
 
 
-  (CT/bench (verify-native payload
-                           signature-native))
+  (CT/bench (verify-jdk payload
+                        signature-jdk))
   ;;
   ;; Evaluation count : 143940 in 60 samples of 2399 calls.
   ;;              Execution time mean : 416,925115 µs
@@ -94,6 +130,10 @@
   ;; 	low-severe	 1 (1,6667 %)
   ;;  Variance from outliers : 1,6389 % Variance is slightly inflated by outliers
 
+
+
+
+  ;; LAZYSODIUM
 
   (CT/bench (sign-lazysodium payload))
 
@@ -123,6 +163,38 @@
   ;; Found 1 outliers in 60 samples (1,6667 %)
   ;; 	low-severe	 1 (1,6667 %)
   ;;  Variance from outliers : 1,6389 % Variance is slightly inflated by outliers
+
+
+
+
+  ;; LIBSODIUM VIA PROJECT PANAMA
+
+  (CT/bench (sign-libsodium payload))
+
+  ;; Evaluation count : 4568640 in 60 samples of 76144 calls.
+  ;;              Execution time mean : 13,719964 µs
+  ;;     Execution time std-deviation : 1,103597 µs
+  ;;    Execution time lower quantile : 13,109832 µs ( 2,5%)
+  ;;    Execution time upper quantile : 16,133924 µs (97,5%)
+  ;;                    Overhead used : 1,928943 ns
+  ;; 
+  ;; Found 13 outliers in 60 samples (21,6667 %)
+  ;; 	low-severe	 13 (21,6667 %)
+  ;;  Variance from outliers : 60,1361 % Variance is severely inflated by outliers
+
+  (CT/bench (verify-libsodium payload
+                              signature-libsodium))
+
+  ;; Evaluation count : 1582860 in 60 samples of 26381 calls.
+  ;;              Execution time mean : 38,492005 µs
+  ;;     Execution time std-deviation : 1,808988 µs
+  ;;    Execution time lower quantile : 37,745792 µs ( 2,5%)
+  ;;    Execution time upper quantile : 44,397610 µs (97,5%)
+  ;;                    Overhead used : 1,928943 ns
+  ;; 
+  ;; Found 7 outliers in 60 samples (11,6667 %)
+  ;; 	low-severe	 7 (11,6667 %)
+  ;;  Variance from outliers : 33,5556 % Variance is moderately inflated by outliers
 
 
   )

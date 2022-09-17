@@ -1,4 +1,4 @@
-(ns convex.bench.ed25519.native
+(ns convex.bench.ed25519.jdk
 
   "JDK implementation."
 

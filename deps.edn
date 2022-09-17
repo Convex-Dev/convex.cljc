@@ -42,6 +42,14 @@
    :maestro/doc "Namespace utilities"}
 
 
+  :ext/coffi
+
+  {:extra-deps  {org.suskalo/coffi {:mvn/version "0.5.357"}}
+   :jvm-opts    ["--add-modules=jdk.incubator.foreign"
+                 "--enable-native-access=ALL-UNNAMED"]
+   :maestro/doc "FFI using Project Panama"}
+
+
   :ext/convex-core
 
   {:extra-deps      {world.convex/convex-core {:mvn/version "0.7.8"}}
@@ -192,6 +200,7 @@
    :maestro/dir     "module/bench"
    :maestro/doc     "Namespaces for benchmarking various areas of Convex" 
    :maestro/require [:ext/criterium
+                     :ext/coffi
                      :module/cvm]}
 
   ;---
