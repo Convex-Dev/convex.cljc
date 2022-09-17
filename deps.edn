@@ -327,7 +327,7 @@
   :module/shell
 
   {:convex.shell/version      "0.0.0-alpha3"
-   :extra-paths               ["module/shell/resource"
+   :extra-paths               ["module/shell/resource/main"
                                "module/shell/src/main/clj"
                                "module/shell/src/main/cvx"]
    :maestro/dir               "module/shell"
