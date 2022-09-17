@@ -149,6 +149,22 @@
 
 
 
+(defn !.close-soft
+
+  ^{:doc {:description ["Like `$.stream/!.close` but idempotent."
+                        "In other words, will not fail if the stream has already been closed or does not exist."]
+          :examples    [{:code "($.stream/!.close-soft :my-handle)"}]
+          :signature   [{:params [handle]}]}}
+
+  [handle]
+
+  ($.trx/precat `(($.stream/!.open? (quote ~handle))
+                  (when $/*result*
+                    ($.stream/!.close (quote ~handle)))
+                  nil)))
+
+
+
 (defn !.err
 
   ^{:doc {:description "Uses `$.stream/!.out` ont `*err*` for printing `x` to the default error stream."

@@ -57,6 +57,10 @@
                           '($.stream/!.close 42)
                           {:description "Cannot close inexistent stream."})
 
+             ($.stream/!.close-soft 42)
+             (T/trx '(nil? $/*result*)
+                    {:description "Soft close does not throw on inexistent stream."})
+
              (T/fail.code #{:STREAM}
                           '($.stream/!.flush 42)
                           {:description "Cannot flush inexistent stream."})
