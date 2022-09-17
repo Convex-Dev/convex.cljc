@@ -10,10 +10,11 @@
      - JDK implementation does not seem to be able to generate a key pair from a seed
      - Libsodium implementation leveraging Project Panama could be more optimized"
 
-  (:require [convex.bench.ed25519.jdk        :as $.bench.ed25519.jdk]
-            [convex.bench.ed25519.lazysodium :as $.bench.ed25519.lazysodium]
-            [convex.bench.ed25519.libsodium  :as $.bench.ed25519.libsodium]
-            [criterium.core                  :as CT]))
+  (:require [convex.bench.ed25519.bouncycastle :as $.bench.ed25519.bouncycastle]
+            [convex.bench.ed25519.jdk          :as $.bench.ed25519.jdk]
+            [convex.bench.ed25519.lazysodium   :as $.bench.ed25519.lazysodium]
+            [convex.bench.ed25519.libsodium    :as $.bench.ed25519.libsodium]
+            [criterium.core                    :as CT]))
 
 
 ;;;;;;;;;;
@@ -27,6 +28,23 @@
 
 
 ;;;;;;;;;; Key pairs
+
+
+;;; BouncyCastle
+
+
+(let [[sign
+       verify] ($.bench.ed25519.bouncycastle/key-pair)]
+  (def signature-bouncycastle
+       (sign payload))
+  (def sign-bouncycastle
+       sign)
+  (def verify-bouncycastle
+       verify))
+
+
+(assert (verify-bouncycastle payload
+                             signature-bouncycastle))
 
 
 ;;; JDK default implementtion
@@ -90,12 +108,47 @@
 
   ;; Benchmarked on 2022-09 with a Macbook Pro M1 Max 64GB
   ;;
-  ;;   Sign  : Libsodium   4.96x  faster than LazySodium
-  ;;           LazySodium  6.03x  faster than JDK
+  ;;   Sign  : Libsodium     4.96x  faster than LazySodium
+  ;;           BouncyCastle  2.62x  faster than LazySodium  
+  ;;           LazySodium    6.03x  faster than JDK
   ;;
-  ;;   Verify: Libsodium   3.69x  faster than LazySodium
-  ;;           LazySodium  2.95x  faster than JDK
+  ;;   Verify: Libsodium     3.69x  faster than LazySodium
+  ;;           BouncyCastle  1.75x  faster than LazySodium 
+  ;;           LazySodium    2.95x  faster than JDK
 
+
+
+
+  ;; BouncyCastle
+
+  (CT/bench (sign-bouncycastle payload))
+
+  ;; Evaluation count : 2075520 in 60 samples of 34592 calls.
+  ;;              Execution time mean : 26,064949 µs
+  ;;     Execution time std-deviation : 144,038443 ns
+  ;;    Execution time lower quantile : 25,897140 µs ( 2,5%)
+  ;;    Execution time upper quantile : 26,350503 µs (97,5%)
+  ;;                    Overhead used : 1,898586 ns
+  ;; 
+  ;; Found 4 outliers in 60 samples (6,6667 %)
+  ;; 	low-severe	 2 (3,3333 %)
+  ;; 	low-mild	 2 (3,3333 %)
+  ;;  Variance from outliers : 1,6389 % Variance is slightly inflated by outliers
+
+  (CT/bench (verify-bouncycastle payload
+                                 signature-bouncycastle))
+
+  ;; Evaluation count : 645420 in 60 samples of 10757 calls.
+  ;;              Execution time mean : 81,493145 µs
+  ;;     Execution time std-deviation : 512,283233 ns
+  ;;    Execution time lower quantile : 80,870572 µs ( 2,5%)
+  ;;    Execution time upper quantile : 82,651154 µs (97,5%)
+  ;;                    Overhead used : 1,898586 ns
+  ;; 
+  ;; Found 4 outliers in 60 samples (6,6667 %)
+  ;; 	low-severe	 2 (3,3333 %)
+  ;; 	low-mild	 2 (3,3333 %)
+  ;;  Variance from outliers : 1,6389 % Variance is slightly inflated by outliers
 
 
 
