@@ -8,18 +8,28 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- Basic filesystem utilities in `$.file`
-    - `!.delete` for deleting files
-    - `!.tmp` for creating temporary files
+- Advanced time-traveling and state utilities via the new `$.state` library
+- Full JVM-like try-catch semantics for CVX `$.catch/!.try` (formerly `$.catch/!.safe`)
 - Functions for disabling and enabling text styling with `$.term`
+- Hygenic symbol generation with CVX `$.account/gensym`
+- Improve `$.time`
+    - New requests for handling clocks
+- New CVX libraries
+    - `$.db` offering support for Etch (immutable database for cells)
+    - `$.juice` for limiting juice and more precise juice tracking
+    - `$.state` for advanced time traveling, CVM state utilities, god-mode, ...
 - Report JVM exceptions in temporary files
-- Requests in `$.file` and `$.stream` for reading and writing text
-- Support for handling Etch instances
+- Requests in `$.file` and `$.stream`
+    - Append mode
+    - Basic filesystem utilities (copy, delete, create temporary files, ...)
+    - Reading and writing text, append mode
+    - Stream handles can be any cell and user-provided when opening file streams
 
 ### Changed
 
 - CVX requests symbols are now prepended with `!.`
-- Embed `:module/cvm` ; upgrade to Convex 0.7.6
+- Embed `:module/cvm` ; upgrade to Convex 0.7.8
+- Move benchmarking to `$.time`
 - Reading a stream to completion always closes it automatically
 - Rename module from Convex Runner to Convex Shell
 
@@ -28,11 +38,11 @@ All notable changes to this project will be documented in this file.
 - Improve REPL behavior
     - More detailed execution error reporting
     - Better handling of the input stream
-- Top-level strings being ouputted as symbols by `$.file` and `$.stream`
 
 ### Removed
 
-- Unproven `$.doc` CVX library
+- Stack-based time traveling from CVX `$.time` in favor of new CVX `$.state` library
+- Unproven CVX `$.doc` library
 
 
 
