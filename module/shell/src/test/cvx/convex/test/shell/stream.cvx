@@ -49,6 +49,10 @@
                         $.stream/stdout)
                     {:description "Default output stream defaults to STDOUT."})
 
+             (T/fail.code #{:ASSERT}
+                          '($.stream/!.close $.stream/stderr)
+                          {:description "Cannot close STDERR."})
+
              (T/fail.code #{:STREAM}
                           '($.stream/!.close 42)
                           {:description "Cannot close inexistent stream."})
