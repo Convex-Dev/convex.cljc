@@ -201,7 +201,8 @@
    :maestro/doc     "Namespaces for benchmarking various areas of Convex" 
    :maestro/require [:ext/criterium
                      :ext/coffi
-                     :module/cvm]}
+                     :module/cvm
+                     :module/net]}
 
   ;---
 

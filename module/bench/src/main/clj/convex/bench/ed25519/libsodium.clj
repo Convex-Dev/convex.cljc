@@ -94,9 +94,12 @@
 
 (defn key-pair
   []
-  (let [ba-private           (ffi.mem/alloc 64)
+  (let [ba-seed              (ffi.mem/alloc 32)
+        ;;
+        ;;                   Will contain both the seed and the actual private key.
+        ba-private           (ffi.mem/alloc 64)
+        ;;
         ba-public            (ffi.mem/alloc 32)
-        ba-seed              (ffi.mem/alloc 32)
         ptr-signature-length (ffi.mem/alloc ffi.mem/long-size)
         sign                 (fn sign [^bytes payload]
                                (let [ba-signature (ffi.mem/alloc 64)]

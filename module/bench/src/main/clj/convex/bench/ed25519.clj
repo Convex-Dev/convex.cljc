@@ -34,7 +34,10 @@
 
 
 (let [[sign
-       verify] ($.bench.ed25519.bouncycastle/key-pair)]
+       verify
+       key-public] ($.bench.ed25519.bouncycastle/key-pair)]
+  (def key-public-bouncycastle
+       key-public)
   (def signature-bouncycastle
        (sign payload))
   (def sign-bouncycastle
@@ -68,7 +71,10 @@
 
 
 (let [[sign
-       verify] ($.bench.ed25519.lazysodium/key-pair)]
+       verify
+       key-public] ($.bench.ed25519.lazysodium/key-pair)]
+  (def key-public-lazysodium
+       key-public)
   (def signature-lazysodium
        (sign payload))
   (def sign-lazysodium
@@ -96,8 +102,18 @@
 
 (assert (verify-libsodium payload
                           signature-libsodium))
-(assert (= (vec signature-lazysodium)
+
+
+;;;;;;;;;;
+
+
+(assert (= (vec signature-bouncycastle)
+           (vec signature-lazysodium)
            (vec signature-libsodium)))
+
+
+(assert (= key-public-bouncycastle
+           key-public-lazysodium))
 
 
 ;;;;;;;;;;

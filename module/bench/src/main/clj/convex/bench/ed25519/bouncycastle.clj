@@ -2,9 +2,7 @@
 
   "BouncyCastle pure Java implementations."
 
-  (:import (java.security SecureRandom)
-           (org.bouncycastle.crypto.generators Ed25519KeyPairGenerator)
-           (org.bouncycastle.crypto.params Ed25519KeyGenerationParameters)
+  (:import (org.bouncycastle.crypto.params Ed25519PrivateKeyParameters)
            (org.bouncycastle.crypto.signers Ed25519Signer)))
 
 
@@ -15,38 +13,34 @@
 ;;;;;;;;;;
 
 
-(let [generator (Ed25519KeyPairGenerator.)]
-  (.init generator
-         (Ed25519KeyGenerationParameters. (SecureRandom.)))
-  
-  (defn key-pair
+(defn key-pair
 
-    []
+  []
 
-    (let [key-pair    (.generateKeyPair generator)
-          key-private (.getPrivate key-pair)
-          key-public  (.getPublic key-pair)
-          signer      (Ed25519Signer.)
-          sign        (fn sign [^bytes payload]
-                        (.reset signer)
-                        (.init signer
-                               true
-                               key-private)
-                        (.update signer
-                                 payload
-                                 0
-                                 (count payload))
-                        (.generateSignature signer))
-          verify      (fn verify [^bytes payload ^bytes signature]
-                        (.reset signer)
-                        (.init signer
-                               false
-                               key-public)
-                        (.update signer
-                                 payload
-                                 0
-                                 (count payload))
-                        (.verifySignature signer
-                                          signature))]
-      [sign
-       verify])))
+  (let [key-private (Ed25519PrivateKeyParameters. (byte-array Ed25519PrivateKeyParameters/KEY_SIZE))
+        key-public  (.generatePublicKey key-private)
+        signer      (Ed25519Signer.)
+        sign        (fn sign [^bytes payload]
+                      (.reset signer)
+                      (.init signer
+                             true
+                             key-private)
+                      (.update signer
+                               payload
+                               0
+                               (count payload))
+                      (.generateSignature signer))
+        verify      (fn verify [^bytes payload ^bytes signature]
+                      (.reset signer)
+                      (.init signer
+                             false
+                             key-public)
+                      (.update signer
+                               payload
+                               0
+                               (count payload))
+                      (.verifySignature signer
+                                        signature))]
+    [sign
+     verify
+     (vec (.getEncoded key-public))]))

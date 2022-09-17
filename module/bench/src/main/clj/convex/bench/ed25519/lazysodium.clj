@@ -21,7 +21,10 @@
     []
   
     (let [ba-seed    (byte-array 32)
+          ;;
+          ;;         Will contain both the seed and the actual private key.
           ba-private (byte-array 64)
+          ;;
           ba-public  (byte-array 32)
           sign       (fn sign [^bytes payload]
                        (let [ba-signature (byte-array 64)]
@@ -42,4 +45,5 @@
                               ba-private
                               ba-seed)
       [sign
-       verify])))
+       verify
+       (vec ba-public)])))
