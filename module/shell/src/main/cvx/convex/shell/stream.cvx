@@ -4,9 +4,9 @@
 
 
 (call *registry*
-      (register {:description ["IO utilities for reading and writing streams."
-                               ""
-                               "Stream are able to read or write text or cells."
+      (register {:description ["Stream are able to read or write text or cells."
+                               "When handled, they are designated by a handle that can be any cell"
+                               "often provided by the user."
                                ""
                                "For instance, see the `$.file` library for dealing with files."]
                  :name        "Stream library for the Convex Shell"}))
@@ -23,7 +23,7 @@
         (cns-resolve 'convex.shell.trx)))
  
 
-;;;;;;;;;; STDIO streams
+;;;;;;;;;; STDIO handles
 
 
 (def stderr
@@ -49,7 +49,7 @@
   :stdout)
 
 
-;;;;;;;;;; Default streams
+;;;;;;;;;; Default handles
 
 
 (def *err*
@@ -84,51 +84,51 @@
 (defn set.err
 
   ^{:callable? true
-    :doc       {:description "Sets `*err*` to the given `stream`."
-                :signature   [{:params [stream]}]}}
+    :doc       {:description "Sets `*err*` to the given `handle`."
+                :signature   [{:params [handle]}]}}
 
-  [stream]
+  [handle]
 
   (if (= *address*
          ~*address*)
     (def *err*
-         stream)
+         handle)
     (call ~*address*
-          (set.err stream))))
+          (set.err handle))))
 
 
 
 (defn set.in
 
   ^{:callable? true
-    :doc       {:description "Sets `*in*` to the given `stream`."
-                :signature   [{:params [stream]}]}}
+    :doc       {:description "Sets `*in*` to the given `handle`."
+                :signature   [{:params [handle]}]}}
 
-  [stream]
+  [handle]
 
   (if (= *address*
          ~*address*)
     (def *in*
-         stream)
+         handle)
     (call ~*address*
-          (set.in stream))))
+          (set.in handle))))
 
 
 
 (defn set.out
 
   ^{:callable? true
-    :doc       {:description "Sets `*out* to the given `stream`."
-                :signature   [{:params [stream]}]}}
+    :doc       {:description "Sets `*out* to the given `handle`."
+                :signature   [{:params [handle]}]}}
 
-  [stream]
+  [handle]
 
   (if (= *address*
          ~*address*)
     (def *out*
-         stream)
+         handle)
     (call ~*address*
-          (set.out stream))))
+          (set.out handle))))
 
 
 ;;;;;;;;;; Requests for handling streams
@@ -136,22 +136,22 @@
 
 (defn !.close
 
-  ^{:doc {:description ["Returns a request for closing the given `stream`."
+  ^{:doc {:description ["Returns a request for closing the given `handle`."
                         "`$.stream/stderr` cannot be closed."]
           :examples    [{:code "($.stream/!.close $.stream/stdout)"}]
-          :signature   [{:params [stream]}]}}
+          :signature   [{:params [handle]}]}}
 
-  [stream]
+  [handle]
 
-  (assert (not (= stream
+  (assert (not (= handle
                   stderr)))
-  [:cvm.sreq :stream.close stream])
+  [:cvm.sreq :stream.close handle])
 
 
 
 (defn !.err
 
-  ^{:doc {:description "Uses `!.out` ont `*err*` for printing `x` to the default error stream."
+  ^{:doc {:description "Uses `$.stream/!.out` ont `*err*` for printing `x` to the default error stream."
           :examples    [{:code "($.stream/!.err {:some :error})"}]
           :signature   [{:params [x]}]}}
 
@@ -164,7 +164,7 @@
 
 (defn !.errln
 
-  ^{:doc {:description "Uses `!.outln` ont `*err*` for printing `x` to the default error stream."
+  ^{:doc {:description "Uses `$.stream/!.outln` ont `*err*` for printing `x` to the default error stream."
           :examples    [{:code "($.stream/!.errln {:some :error})"}]
           :signature   [{:params [x]}]}}
 
@@ -177,11 +177,11 @@
 
 (defn !.flush
 
-  ^{:doc {:description ["Returns a request for flushing the given output `stream` and ensuring all outputs are processed."
+  ^{:doc {:description ["Returns a request for flushing the given output `handle` and ensuring all outputs are processed."
                         "Flushes `*out*` by default."]
           :examples    [{:code "($.stream/!.flush)"}]
           :signature   [{:params []}
-                        {:params [stream]}]}}
+                        {:params [handle]}]}}
 
 
   ([]
@@ -189,21 +189,21 @@
    (!.flush *out*))
 
 
-  ([stream]
+  ([handle]
 
-   [:cvm.sreq :stream.flush stream]))
+   [:cvm.sreq :stream.flush handle]))
 
 
 
 (defn !.in+
 
-  ^{:doc {:description ["Returns a request for reading the given input `stream`."
+  ^{:doc {:description ["Returns a request for reading the given input `handle`."
                         "Reads from `*in*` by default."
-                        "Whole input is read and `stream` is automatically closed."
+                        "Whole input is read and `handle` is automatically closed."
                         "List of read cells becomes available during next transaction under `$/*result*`."]
           :examples    [{:code "($.stream/!.in+ $.stream/stdin)"}]
           :signature   [{:params []}
-                        {:params [stream]}]}}
+                        {:params [handle]}]}}
 
 
   ([]
@@ -211,15 +211,15 @@
    (!.in+ *in*))
 
 
-  ([stream]
+  ([handle]
 
-   [:cvm.sreq :stream.in+ stream]))
+   [:cvm.sreq :stream.in+ handle]))
 
 
 
 (defn !.line
 
-  ^{:doc {:description ["Returns a request for reading a line from the given input `stream`."
+  ^{:doc {:description ["Returns a request for reading a line from the given input `handle`."
                         "Reads from `*in*` by default."
                         "Stops when a new line is encountered."
                         "List of read cells becomes available during next the transaction under `$/*result*`."
@@ -227,7 +227,7 @@
                         "automatically."]
           :examples    [{:code "($.stream/!.line)"}]
           :signature   [{:params []}
-                        {:params [stream]}]}}
+                        {:params [handle]}]}}
 
 
   ([]
@@ -235,32 +235,32 @@
    (!.line *in*))
 
 
-  ([stream]
+  ([handle]
 
-   [:cvm.sreq :stream.line stream]))
+   [:cvm.sreq :stream.line handle]))
 
 
 
 (defn !.open?
 
-  ^{:doc {:description ["Returns a request for inspecting if the given `stream` is open."
+  ^{:doc {:description ["Returns a request for inspecting if the given `handle` is open."
                         "Boolean response will be available during the next transaction under `$/*result*`."]
           :examples    [{:code "($.stream/!.open? 42)"}]
-          :signature   [{:params [stream]}]}}
+          :signature   [{:params [handle]}]}}
 
-  [stream]
+  [handle]
 
-  [:cvm.sreq :stream.open? stream])
+  [:cvm.sreq :stream.open? handle])
 
 
 
 (defn !.out
 
-  ^{:doc {:description ["Returns a request for writing `x` to the given output `stream`."
+  ^{:doc {:description ["Returns a request for writing `x` to the given output `handle`."
                         "Writes to `*out*` by default."]
           :examples    [{:code "($.stream/!.out :foo)"}]
           :signature   [{:params [x]}
-                        {:params [stream x]}]}}
+                        {:params [handle x]}]}}
 
 
   ([x]
@@ -269,18 +269,18 @@
           x))
 
 
-  ([stream x]
+  ([handle x]
 
-   [:cvm.sreq :stream.out stream x]))
+   [:cvm.sreq :stream.out handle x]))
 
 
 
 (defn !.outln
 
-  ^{:doc {:description "Likes `!.out` but also outputs a new line and flushes the `stream`."
+  ^{:doc {:description "Likes `$.stream/!.out` but also outputs a new line and flushes the `handle`."
           :examples    [{:code "($.stream/!.outln :foo)"}]
           :signature   [{:params [x]}
-                        {:params [stream x]}]}}
+                        {:params [handle x]}]}}
 
 
   ([x]
@@ -289,21 +289,21 @@
             x))
 
 
-  ([stream x]
+  ([handle x]
 
-   [:cvm.sreq :stream.outln stream x]))
+   [:cvm.sreq :stream.outln handle x]))
 
 
 
 (defn !.txt.in
 
-  ^{:doc {:description ["Returns a request for reading the rest of the given input `stream` as text."
+  ^{:doc {:description ["Returns a request for reading the rest of the given input `handle` as text."
                         "Reads from `*in*` by default."
                         "String will be available during the next transaction under `$/*result*`."
                         "Stream is closed automatically."]
           :examples    [{:code "($.stream/!.txt.in 42)"}]
           :signature   [{:params []}
-                        {:params [stream]}]}}
+                        {:params [handle]}]}}
 
 
   ([]
@@ -311,22 +311,22 @@
    (!.txt.in *in*))
 
 
-  ([stream]
+  ([handle]
 
-   [:cvm.sreq :stream.txt.in stream]))
+   [:cvm.sreq :stream.txt.in handle]))
 
 
 
 (defn !.txt.line
 
-  ^{:doc {:description ["Returns a request for reading a line from the given input `stream` as text."
+  ^{:doc {:description ["Returns a request for reading a line from the given input `handle` as text."
                         "Reads from `*in*` by default."
                         "String will be available during the next transaction under `$/*result*`."
                         "Result is `nil` when the end of the stream is reached. The stream is then closed"
                         "automatically."]
           :examples    [{:code "($.stream/!.txt.line)"}]
           :signature   [{:params []}
-                        {:params [stream]}]}}
+                        {:params [handle]}]}}
 
 
   ([]
@@ -334,19 +334,19 @@
    (!.txt.line *in*))
 
 
-  ([stream]
+  ([handle]
 
-   [:cvm.sreq :stream.txt.line stream]))
+   [:cvm.sreq :stream.txt.line handle]))
 
 
 
 (defn !.txt.out
 
-  ^{:doc {:description ["Like `!.out` but if `cell` is a string, it will not be double-quoted."
+  ^{:doc {:description ["Like `$.stream/!.out` but if `cell` is a string, it will not be double-quoted."
                         "Hence, the output might not be readable as Convex Lisp."]
           :examples    [{:code "($.stream/!.txt.out \"This is some text\")"}]
           :signature   [{:params [x]}
-                        {:params [stream x]}]}}
+                        {:params [handle x]}]}}
 
 
   ([x]
@@ -355,19 +355,19 @@
               x))
 
 
-  ([stream x]
+  ([handle x]
 
-   [:cvm.sreq :stream.txt.out stream x]))
+   [:cvm.sreq :stream.txt.out handle x]))
 
 
 
 (defn !.txt.outln
 
-  ^{:doc {:description ["Like `!.outln` but if `cell` is a string, it will not be double-quoted."
+  ^{:doc {:description ["Like `$.stream/!.outln` but if `cell` is a string, it will not be double-quoted."
                         "Hence, the output might not be readable as Convex Lisp."]
           :examples    [{:code "($.stream/!.txt.outln \"This is some text\")"}]
           :signature   [{:params [x]}
-                        {:params [stream x]}]}}
+                        {:params [handle x]}]}}
 
 
   ([x]
@@ -376,6 +376,6 @@
                 x))
 
 
-  ([stream x]
+  ([handle x]
 
-   [:cvm.sreq :stream.txt.outln stream x]))
+   [:cvm.sreq :stream.txt.outln handle x]))

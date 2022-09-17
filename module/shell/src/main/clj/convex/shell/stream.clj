@@ -40,24 +40,24 @@
 
   ;; Sometimes it is best closing the stream if an operation returns no result.
 
-  [env id]
+  [env handle]
 
   (cond->
     env
     (not ($.shell.ctx/result env))
-    (close id)))
+    (close handle)))
 
 
 (defn- -dissoc
 
   ;; Dissociates the requested stream from env.
 
-  [env id]
+  [env handle]
 
   (update env
           :convex.shell/stream+
           dissoc
-          id))
+          handle))
 
 
 
@@ -68,9 +68,9 @@
   ;; Reports error using [[convex.shell.exec.fail/err]], as expected, unless operation involved STDERR.
   ;; If using STDERR, there is no way to print errors, hence the process should terminate with a special exit code.
 
-  [env id op+ err]
+  [env handle op+ err]
 
-  (if (and (= id
+  (if (and (= handle
               $.shell.kw/stderr)
            (or (op+ :flush)
                (op+ :write)))
@@ -111,15 +111,15 @@
 
   "Generic function for carrying out an operation.
   
-   Retrieves the stream associated with `id` and executes `(f env stream`).
+   Retrieves the stream associated with `handle` and executes `(f env stream`).
   
    Takes care of failure."
 
-  [env id op+ f]
+  [env handle op+ f]
 
   (if-some [stream (get-in env
                            [:convex.shell/stream+
-                            id])]
+                            handle])]
     ;; Stream exists.
     (try
       ;;
@@ -128,29 +128,29 @@
       ;;
       (catch ClassCastException _ex
         (-fail env
-               id
+               handle
                op+
-               ($.shell.err/stream id
+               ($.shell.err/stream handle
                                    ($.cell/string (str "Stream is missing capability: "
                                                        op+)))))
       ;;
       (catch ParseException ex
         ($.shell.exec.fail/err env
-                               ($.shell.err/reader-stream id
+                               ($.shell.err/reader-stream handle
                                                           ($.cell/string (.getMessage ex)))))
       ;;
       (catch Throwable _ex
         (-fail env
-               id
+               handle
                op+
-               ($.shell.err/stream id
+               ($.shell.err/stream handle
                                    ($.cell/string (str "Stream failed while performing: " 
                                                        op+))))))
     ;; Stream does not exist
     (-fail env
-           id
+           handle
            op+
-           ($.shell.err/stream id
+           ($.shell.err/stream handle
                                ($.cell/string "Stream closed or does not exist")))))
 
 
@@ -163,22 +163,22 @@
    A result to propagate may be provided."
 
 
-  ([env id]
+  ([env handle]
 
    (close env
-          id
+          handle
           nil))
 
 
-  ([env id result]
+  ([env handle result]
 
    (-> env
-       (operation id
+       (operation handle
                   #{:close}
                   (fn [^AutoCloseable stream]
                     (.close stream)
                     result))
-       (-dissoc id))))
+       (-dissoc handle))))
 
 
 
@@ -186,10 +186,10 @@
 
   "Flushes the requested stream."
 
-  [env id]
+  [env handle]
 
   (operation env
-             id
+             handle
              #{:flush}
              (fn [stream]
                ($.shell.io/flush stream)
@@ -201,13 +201,13 @@
 
   "Reads all available cells from the requested stream and closes it."
 
-  [env id]
+  [env handle]
 
   (-> env
-      (operation id
+      (operation handle
                  #{:read}
                  $.read/stream)
-      (-dissoc id)))
+      (-dissoc handle)))
 
 
 
@@ -215,13 +215,13 @@
 
   "Reads a line from the requested stream and parses it into a list of cells."
 
-  [env id]
+  [env handle]
 
   (-> env
-      (operation id
+      (operation handle
                  #{:read}
                  $.read/line)
-      (-close-when-no-result id)))
+      (-close-when-no-result handle)))
 
 
 
@@ -229,10 +229,10 @@
 
   ;; See [[out]].
 
-  [env id cell stringify]
+  [env handle cell stringify]
 
   (operation env
-             id
+             handle
              #{:write}
              (fn [stream]
                ($.write/stream stream
@@ -246,10 +246,10 @@
 
   "Writes `cell` to the requested stream."
 
-  [env id cell]
+  [env handle cell]
 
   (-out env
-        id
+        handle
         cell
         -str-cvx))
 
@@ -259,10 +259,10 @@
 
   ;; See [[outln]].
 
-  [env id cell stringify]
+  [env handle cell stringify]
 
   (operation env
-             id
+             handle
              #{:flush
                :write}
              (fn [stream]
@@ -279,10 +279,10 @@
 
   "Like [[out]] but appends a new line and flushes the stream."
 
-  [env id cell]
+  [env handle cell]
 
   (-outln env
-          id
+          handle
           cell
           -str-cvx))
 
@@ -292,10 +292,10 @@
 
   "Reads everything from the requested stream as text."
 
-  [env id]
+  [env handle]
 
   (let [env-2 (operation env
-                         id
+                         handle
                          #{:read}
                          (fn [^BufferedReader stream]
                            (-> stream
@@ -303,7 +303,7 @@
                                (.collect (Collectors/joining (System/lineSeparator)))
                                ($.cell/string))))]
     (close env-2
-           id
+           handle
            ($.shell.ctx/result env-2))))
 
 
@@ -312,15 +312,15 @@
 
   "Reads a line from the requested stream as text."
 
-  [env id]
+  [env handle]
 
   (-> env
-      (operation id
+      (operation handle
                  #{:read}
                  (fn [^BufferedReader stream]
                    (some-> (.readLine stream)
                            ($.cell/string))))
-      (-close-when-no-result id)))
+      (-close-when-no-result handle)))
 
 
 
@@ -328,10 +328,10 @@
 
   "Like [[out]] but if `cell` is a string, then it is not quoted."
 
-  [env id cell]
+  [env handle cell]
 
   (-out env
-        id
+        handle
         cell
         -str-txt))
 
@@ -341,10 +341,10 @@
 
   "Is to [[outln]] what [[out-txt]] is to [[out]]."
 
-  [env id cell]
+  [env handle cell]
 
   (-outln env
-          id
+          handle
           cell
           -str-txt))
 
@@ -356,7 +356,7 @@
 
   ;; Used by [[file-in]] and [[file-out]].
 
-  [env id path open str-op]
+  [env handle path open str-op]
 
 ;; ENSURE ID NOT OVERWRITTEN
 
@@ -364,9 +364,9 @@
     (let [file (open (str path))]
       (-> env
           (assoc-in [:convex.shell/stream+
-                     id]
+                     handle]
                     file)
-          ($.shell.ctx/def-result id)))
+          ($.shell.ctx/def-result handle)))
 
     ;(catch FileNotFoundException _ex
 
@@ -383,10 +383,10 @@
 
   "Opens an input stream for file under `path`."
 
-  [env id path]
+  [env handle path]
 
   (-file env
-         id
+         handle
          path
          $.shell.io/file-in
          #{:read}))
@@ -397,10 +397,10 @@
 
   "Opens an output stream for file under `path`."
 
-  [env id path append?]
+  [env handle path append?]
 
   (-file env
-         id
+         handle
          path
          (fn [path]
            ($.shell.io/file-out path

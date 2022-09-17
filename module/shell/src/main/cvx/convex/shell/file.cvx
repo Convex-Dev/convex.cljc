@@ -4,7 +4,10 @@
 
 
 (call *registry*
-      (register {:description "Utilities for reading and writing Convex Lisp files."
+      (register {:description ["Utilities for reading and writing files."
+                               "Either plain text or cells."
+                               ""
+                               "Based on and meant to work with `$.stream`."]
                  :name        "File IO for the Convex Shell"}))
 
 
@@ -40,13 +43,13 @@
 ;;;;;;;;;; Private helpers
 
 
-(defn -id
+(defn -handle
 
   ^{:private? true}
 
-  [id]
+  [handle]
 
-  (or id
+  (or handle
       ($.code/gensym "$.file-")))
            
 
@@ -55,13 +58,19 @@
 
 (defn !.stream.in
 
-  ^{:doc {:description ["Returns a request for opening an input stream for file located under `path`."
-                        "Stream will available during the next transaction under `$/*result*`."
+  ^{:doc {:description ["Returns a request for opening an input stream for the file located under `path`."
+                        ""
+                        "Handle for that stream will available during the next transaction under `$/*result*`."
+                        "See the `$.stream` library."
+                        ""
+                        "Any cell can be provided as a handle for identifying the stream."
+                        "If not provided, one will be generated."
                         ""
                         "See the `$.stream` library."]
           :examples    [{:code "($.file/!.stream.in \"./my/file.cvx\")"}
                         {:code "($.file/!.stream.in :my-handle \"./my/file.cvx\")"}]
-          :signature   [{:params [path]}]}}
+          :signature   [{:params [path]}
+                        {:params [handle path]}]}}
 
 
   ([path]
@@ -70,10 +79,10 @@
                 path))
 
 
-  ([id path]
+  ([handle path]
 
    (assert (str? path))
-   [:cvm.sreq :file.stream.in (or id ($.code/gensym "$.file-")) path]))
+   [:cvm.sreq :file.stream.in (-handle handle) path]))
 
 
 
@@ -81,8 +90,11 @@
 
   ^{:doc {:description ["Returns a request for opening an output stream for the file located under `path`."
                         ""
-                        "Stream will be available during the next transaction under `$/*result*`."
+                        "Handle will be available during the next transaction under `$/*result*`."
                         "See the `$.stream` library."
+                        ""
+                        "Any cell can be provided as a handle for identifying the stream."
+                        "If not provided, one will be generated."
                         ""
                         "A map of options may be provided:"
                         ""
@@ -93,7 +105,8 @@
                         {:code "($.file/!.stream.out :my-handle \"./my/file.cvx\")"}
                         {:code "($.file/!.stream.out :my-handle \"./my/file.cvx\" {:append? true})"}]
           :signature   [{:params [path]}
-                        {:params [path option+]}]}}
+                        {:params [handle path]}
+                        {:params [handle path option+]}]}}
 
 
   ([path]
@@ -102,17 +115,17 @@
                  path))
 
 
-  ([id path]
+  ([handle path]
 
-   (!.stream.out id
+   (!.stream.out handle
                  path
                  nil))
 
 
-  ([id path option+]
+  ([handle path option+]
 
    (assert (str? path))
-   [:cvm.sreq :file.stream.out (or id ($.code/gensym "$.file-")) path (boolean (:append? option+))]))
+   [:cvm.sreq :file.stream.out (-handle handle) path (boolean (:append? option+))]))
 
 
 ;;;;;;;;;; Higher-level utilities built on stream utilities
@@ -154,14 +167,14 @@
 
   [f-outln path cell option+]
 
-  (let [id (-id nil)]
-    ($.trx/precat `(($.file/!.stream.out (quote ~id)
+  (let [handle (-handle nil)]
+    ($.trx/precat `(($.file/!.stream.out (quote ~handle)
                                          ~path
                                          (quote ~option+))
-                    ($.catch/!.try '(~f-outln (quote ~id)
+                    ($.catch/!.try '(~f-outln (quote ~handle)
                                               (quote ~cell))
                                    nil
-                                   '($.stream/!.close (quote ~id)))))))
+                                   '($.stream/!.close (quote ~handle)))))))
 
 
 
