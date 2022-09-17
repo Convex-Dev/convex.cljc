@@ -93,8 +93,9 @@
 
 (def -prompt
 
-  ^{:doc      {:description "Currently used prompt."}
-    :private? true}
+  ^{:private? true}
+
+  ;; Currently used prompt.
 
   nil)
 
@@ -167,6 +168,24 @@
 
 
 (declare -!.next)
+
+
+
+(defn -boot
+
+  ^{:callable? true
+    :private?  true}
+
+  ;; Exists so that CVX `$.state/!.load-continue` can try to maintain the REPL
+  ;; in the newly loaded state.
+
+  [prompt]
+
+  (def *active?*
+       true)
+  (def -prompt
+       prompt)
+  nil)
 
 
 
@@ -247,9 +266,7 @@
 
   [result-previous]
 
-  ($.trx/precat `(($.stream/!.txt.out ~(if (fn? -prompt)
-                                         (-prompt)
-                                         -prompt))
+  ($.trx/precat `(($.stream/!.txt.out ~(-prompt))
                   ($.stream/!.flush)
                   ($.catch/!.try '($.stream/!.line)
                                  '$/*result*)
@@ -285,9 +302,10 @@
                               ""
                               "User can then enter transactions and see results."
                               "For stopping, see `stop`."
-                              "A prompt or prompt producing function may be provided."]
+                              ""
+                              "A no-arg function for producing a prompt may be provided."]
                 :examples    [{:code "($.repl/!.start)"}
-                              {:code "($.repl/!.start {:prompt \"my-repl>>> \"})"}]
+                              {:code "($.repl/!.start {:prompt (fn [] \"my-repl>>> \")})"}]
                 :signature   [{:params []}
                               {:params [option+]}]}}
 
@@ -309,11 +327,8 @@
    (if (= *address*
           -self)
      (when-not *active?*
-       (def *active?*
-            true)
-       (def -prompt
-            (or (:prompt option+)
-                prompt))
+       (-boot (or (:prompt option+)
+                  prompt))
        ($.trx/precat `(~(when (:intro? option+)
                           ($.stream/!.txt.outln (str ($.term/fg.blue)
                                                      ($.term/bold)

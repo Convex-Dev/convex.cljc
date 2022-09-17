@@ -31,6 +31,15 @@
 
 
 
+(def $.repl
+
+  ^{:private? true}
+
+  (call *registry*
+        (cns-resolve 'convex.shell.repl)))
+
+
+
 (def $.trx
 
   ^{:private? true}
@@ -201,6 +210,13 @@
                         "That means that loading a state without restoring current transactions will result in the"
                         "execution of transactions stored on the loaded state as opposed to the old state."
                         ""
+                        "However, keep in mind the transactions transferred to the loaded state might fail due to a"
+                        "variety of reasons. For instance, reading a value from an account that does not exist in the"
+                        "loaded state."
+                        ""
+                        "If the REPL is active, the request tries to ensure it will remain active in the loaded state."
+                        "See `$.repl`."
+                        ""
                         "Note that this function simply reuses `!.load`. Users may imagine many different variants"
                         "as to what should happen to transactions."]
           :examples    [{:code "($.state/!.load-continue $.state/genesis)"}
@@ -218,8 +234,13 @@
   ([state trx]
 
    (!.load state
-           `($.trx/set (quote ~(cons trx
-                                     $.trx/*list*))))))
+           `($.trx/set (quote ~(let [trx+ (cons trx
+                                                $.trx/*list*)]
+                                 (if $.repl/*active?*
+                                   (cons `(call $.repl
+                                                (-boot ~$.repl/-prompt))
+                                         trx+)
+                                   trx+)))))))
 
 
 ;;;;;;;;;; Executing several transactions with different guarantees
