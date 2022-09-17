@@ -133,7 +133,7 @@
            ;; Requires `$.code` + `$.state`
            [$.shell.sym/$-juice
             "convex/shell/juice.cvx"]
-           ;; Requires `$.code` + `$.state` + `$.trx`.
+           ;; Requires `$.catch` + `$.code` + `$.state` + `$.trx`.
            [$.shell.sym/$-file
             "convex/shell/file.cvx"]
            ;; Requires `$` + `$.stream` + `$.term` + `$.trx`

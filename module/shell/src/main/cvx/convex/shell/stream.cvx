@@ -5,10 +5,10 @@
 
 (call *registry*
       (register {:description ["IO utilities for reading and writing streams."
-                               "Input streams are able to parse text as cells."
-                               "Output streams are able to print cells as text."
-                               "This account keeps references to STDIO streams."
-                               "The `$.file` library offers utilities for opening file streams."]
+                               ""
+                               "Stream are able to read or write text or cells."
+                               ""
+                               "For instance, see the `$.file` library for dealing with files."]
                  :name        "Stream library for the Convex Shell"}))
 
 
@@ -137,7 +137,7 @@
 (defn !.close
 
   ^{:doc {:description ["Returns a request for closing the given `stream`."
-                        "`stderr` cannot be closed."]
+                        "`$.stream/stderr` cannot be closed."]
           :examples    [{:code "($.stream/!.close $.stream/stdout)"}]
           :signature   [{:params [stream]}]}}
 

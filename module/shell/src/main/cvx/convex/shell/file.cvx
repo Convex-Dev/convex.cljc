@@ -35,6 +35,19 @@
 
   (call *registry*
         (cns-resolve 'convex.shell.trx)))
+
+
+;;;;;;;;;; Private helpers
+
+
+(defn -id
+
+  ^{:private? true}
+
+  [id]
+
+  (or id
+      ($.code/gensym "$.file-")))
            
 
 ;;;;;;;;;; Opening streams
@@ -46,13 +59,21 @@
                         "Stream will available during the next transaction under `$/*result*`."
                         ""
                         "See the `$.stream` library."]
-          :examples    [{:code "($.file/!.stream.in \"./my/file.cvx\")"}]
+          :examples    [{:code "($.file/!.stream.in \"./my/file.cvx\")"}
+                        {:code "($.file/!.stream.in :my-handle \"./my/file.cvx\")"}]
           :signature   [{:params [path]}]}}
 
-  [path]
 
-  (assert (str? path))
-  [:cvm.sreq :file.stream.in ($.code/gensym "$.file-") path])
+  ([path]
+
+   (!.stream.in nil
+                path))
+
+
+  ([id path]
+
+   (assert (str? path))
+   [:cvm.sreq :file.stream.in (or id ($.code/gensym "$.file-")) path]))
 
 
 
@@ -69,21 +90,29 @@
                         "    Writes will be appended to the end if true, otherwise file will be overwritten if it exists."
                         "    False by default."]
           :examples    [{:code "($.file/!.stream.out \"./my/file.cvx\")"}
-                        {:code "($.file/!.stream.out \"./my/file.cvx\" {:append? true})"}]
+                        {:code "($.file/!.stream.out :my-handle \"./my/file.cvx\")"}
+                        {:code "($.file/!.stream.out :my-handle \"./my/file.cvx\" {:append? true})"}]
           :signature   [{:params [path]}
                         {:params [path option+]}]}}
 
 
   ([path]
 
-   (!.stream.out path
+   (!.stream.out nil
+                 path))
+
+
+  ([id path]
+
+   (!.stream.out id
+                 path
                  nil))
 
 
-  ([path option+]
+  ([id path option+]
 
    (assert (str? path))
-   [:cvm.sreq :file.stream.out ($.code/gensym "$.file-") path (boolean (:append? option+))]))
+   [:cvm.sreq :file.stream.out (or id ($.code/gensym "$.file-")) path (boolean (:append? option+))]))
 
 
 ;;;;;;;;;; Higher-level utilities built on stream utilities
@@ -125,16 +154,14 @@
 
   [f-outln path cell option+]
 
-  ($.trx/precat `(($.file/!.stream.out ~path
-                                       (quote ~option+))
-                  (let [cell      (quote ~cell)
-                        f-outln   (quote ~f-outln)
-                        id-stream $/*result*]
-                    ($.catch/!.try `($.trx/precat '((~f-outln (quote ~id-stream)
-                                                              (quote ~cell))
-                                                    nil))
+  (let [id (-id nil)]
+    ($.trx/precat `(($.file/!.stream.out (quote ~id)
+                                         ~path
+                                         (quote ~option+))
+                    ($.catch/!.try '(~f-outln (quote ~id)
+                                              (quote ~cell))
                                    nil
-                                   `($.stream/!.close (quote ~id-stream)))))))
+                                   '($.stream/!.close (quote ~id)))))))
 
 
 

@@ -131,7 +131,7 @@
                id
                op+
                ($.shell.err/stream id
-                                   ($.cell/string (str "Stream is missing capability: %s"
+                                   ($.cell/string (str "Stream is missing capability: "
                                                        op+)))))
       ;;
       (catch ParseException ex
