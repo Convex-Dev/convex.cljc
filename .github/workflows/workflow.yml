@@ -1,0 +1,169 @@
+name: workflow
+
+on: push
+
+
+##########
+
+
+jobs:
+
+
+  # Tests modules
+  #
+  test:
+
+    strategy:
+      matrix:
+        java-version:
+          - "17"
+        os:
+          - macos-12
+          - ubuntu-latest
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Prepare Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: "zulu"
+          java-version: ${{ matrix.java-version }}
+
+      - name: Prepare Clojure
+        uses: DeLaGuardo/setup-clojure@9.5
+        with:
+          bb:        latest
+          cli:       latest
+          clj-kondo: latest
+
+      - name: Caching for Clojure dependencies
+        uses: actions/cache@v3
+        with:
+          key:          clojure-${{ hashFiles('deps.edn', 'bb.edn') }}
+          path:         |
+                        ~/.deps.clj
+                        ~/.gitlibs
+                        ~/.m2/repository
+          restore-keys: test-
+         
+      - name: Test `:module/break`
+        env:
+          MPROP_MAX_SIZE:  50
+          MPROP_NUM_TESTS: 50
+        run:  clojure -M$( bb aliases:test :module/break )
+
+      - name: Test `:module/cvm`
+        run:  clojure -M$( bb aliases:test :module/cvm )
+
+      - name: Test `:module/net`
+        run:  clojure -M$( bb aliases:test :module/net )
+
+
+  # Builds the uberjar for the Convex Shell
+  #
+  build-shell-uberjar:
+
+    needs: test
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Prepare Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Prepare Clojure
+        uses: DeLaGuardo/setup-clojure@9.5
+        with:
+          bb:  latest
+          cli: latest
+
+      - name: Caching for Clojure dependencies
+        uses: actions/cache@v3
+        with:
+          key:          build-shell-uberjar-${{ hashFiles('deps.edn', 'bb.edn') }}
+          path:         |
+                        ~/.deps.clj
+                        ~/.gitlibs
+                        ~/.m2/repository
+          restore-keys: build-shell-uberjar-
+
+      - name: Build Convex Shell
+        run:  bb build :module/shell
+
+      - name: Test Convex Shell
+        run:  java -jar ./private/target/shell.uber.jar '(def fast? true) ($.file/!.exec "./module/shell/src/test/cvx/convex/test/shell/root.cvx")'
+
+      - name: Upload uberjar
+        uses: actions/upload-artifact@v3
+        with:
+          if-no-files-found: error
+          name             : shell.uber.jar
+          path             : ./private/target/shell.uber.jar
+
+
+
+  # Builds native images for the Convex Shell
+  #
+  build-shell-native:
+
+    needs: build-shell-uberjar
+
+    strategy:
+      matrix:
+        os:
+          - macos-12
+          - ubuntu-latest
+          # Windows currently fails mysteriously at the very last step of generating the image
+          # - windows-latest 
+        platform:
+          - amd64
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Prepare Clojure
+        uses: DeLaGuardo/setup-clojure@9.5
+        with:
+          bb:  latest
+
+      - name: Prepare GraalVM
+        uses: graalvm/setup-graalvm@v1
+        with:
+          components:   'native-image'
+          java-version: 17
+          version:      '22.2.0'
+
+      - name: Download Convex Shell uberjar
+        uses: actions/download-artifact@v3
+        with:
+          name: shell.uber.jar
+          path: ./private/target
+
+      - name: Build native Convex Shell
+        run:  bb native:image :module/shell
+
+      - name: Test native Convex Shell
+        run:  ./private/target/shell '(def fast? true) ($.file/!.exec "./module/shell/src/test/cvx/convex/test/shell/root.cvx")'
+
+      - name: Upload native executable
+        uses: actions/upload-artifact@v3
+        with:
+          if-no-files-found: error
+          name             : shell-${{ runner.os }}-${{ matrix.platform }}
+          path             : ./private/target/shell

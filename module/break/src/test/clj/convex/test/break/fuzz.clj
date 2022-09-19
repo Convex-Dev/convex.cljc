@@ -25,13 +25,12 @@
   ;; Generating randorm forms that should either fail or succeed on the CVM, but no
   ;; JVM exception should be thrown without being handled.
 
-  {:ratio-num 5}
+  {:ratio-num 2}
 
   (TC.prop/for-all [core-sym ($.break.gen/core-symbol $.break/ctx)
-                    arg+     (TC.gen/vector (TC.gen/fmap $.cell/quoted
-                                                         $.gen/any)
+                    arg+     (TC.gen/vector ($.gen/quoted $.gen/any)
                                             1
-                                            8)]
+                                            4)]
     ($.eval/ctx $.break/ctx
                 ($.cell/* (~core-sym ~@arg+)))
     true))
