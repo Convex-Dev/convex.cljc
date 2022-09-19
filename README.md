@@ -1,5 +1,7 @@
 # Any aspect of the Convex stack
 
+![Workflow](https://github.com/convex-dev/convex.cljc/actions/workflows/workflow.yml/badge.svg)
+
 This monorepo hosts a variety of applications and libraries written in Clojure providing access to all aspects of the
 [Convex network](https://github.com/Convex-Dev/convex).
 
