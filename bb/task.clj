@@ -20,8 +20,8 @@
   (-> (bb.task/shell {:out :string}
                      (format "clojure -A%s -Spath"
                              (maestro.alias/stringify+ aliases)))
-      deref
-      :out))
+      (deref)
+      (:out)))
 
 
 (defn- -tool

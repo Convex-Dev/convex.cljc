@@ -8,6 +8,47 @@ on: push
 
 jobs:
 
+  
+  # Lint Clojure
+  #
+  lint:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Prepare Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: 17
+
+      - name: Caching for Clojure dependencies
+        uses: actions/cache@v3
+        with:
+          key:          clj-kondo-${{ hashFiles('bb.edn', 'deps.edn') }}
+          path:         |
+                        ~/.deps.clj
+                        ~/.gitlibs
+                        ~/.m2/repository
+          restore-keys: clj-kondo-
+
+      - name: Prepare Clojure
+        uses: DeLaGuardo/setup-clojure@9.5
+        with:
+          bb:        latest
+          cli:       latest
+          clj-kondo: latest
+
+      - name: Prepare Clj-kondo
+        run:  bb lint:import
+
+      - name: Run Clj-kondo
+        run:  bb lint
+
 
   # Tests modules
   #
@@ -16,7 +57,7 @@ jobs:
     strategy:
       matrix:
         java-version:
-          - "17"
+          - 17
         os:
           - macos-12
           - ubuntu-latest
@@ -31,26 +72,25 @@ jobs:
       - name: Prepare Java
         uses: actions/setup-java@v3
         with:
-          distribution: "zulu"
+          distribution: 'zulu'
           java-version: ${{ matrix.java-version }}
-
-      - name: Prepare Clojure
-        uses: DeLaGuardo/setup-clojure@9.5
-        with:
-          bb:        latest
-          cli:       latest
-          clj-kondo: latest
 
       - name: Caching for Clojure dependencies
         uses: actions/cache@v3
         with:
-          key:          clojure-${{ hashFiles('deps.edn', 'bb.edn') }}
+          key:          test-${{ hashFiles('deps.edn', 'bb.edn') }}
           path:         |
                         ~/.deps.clj
                         ~/.gitlibs
                         ~/.m2/repository
           restore-keys: test-
-         
+
+      - name: Prepare Clojure
+        uses: DeLaGuardo/setup-clojure@9.5
+        with:
+          bb:  latest
+          cli: latest
+   
       - name: Test `:module/break`
         env:
           MPROP_MAX_SIZE:  50
@@ -82,6 +122,16 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '17'
+
+      - name: Caching for Clojure dependencies
+        uses: actions/cache@v3
+        with:
+          key:          shell-uberjar-${{ hashFiles('bb.edn', 'deps.edn') }}
+          path:         |
+                        ~/.deps.clj
+                        ~/.gitlibs
+                        ~/.m2/repository
+          restore-keys: shell-uberjar-
 
       - name: Prepare Clojure
         uses: DeLaGuardo/setup-clojure@9.5
