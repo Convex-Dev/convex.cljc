@@ -420,7 +420,7 @@
 
 (let [kw-message (keyword "message")]
 
-  (defn ^AMap error
+  (defn error
   
     "An error value as Convex data.
 
@@ -428,19 +428,19 @@
      string), and `trace` is an optional stacktrace (vector cell of string cells)."
   
   
-    ([message]
+    (^AMap [message]
   
      (map [[Keywords/CODE ErrorCodes/ASSERT]
            [kw-message    message]]))
   
 
-    ([code message]
+    (^AMap [code message]
 
      (map [[Keywords/CODE code]
            [kw-message    message]]))
   
 
-    ([code message trace]
+    (^AMap [code message trace]
 
      (map [[Keywords/CODE  code]
            [kw-message     message]

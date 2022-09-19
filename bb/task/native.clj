@@ -67,7 +67,6 @@
              (get-in [:aliases
                       (edn/read-string (first *command-line-args*))
                       :maestro.build.path/output]))
-         ;;"--initialize-at-build-time"
          "--no-fallback"
          "-H:+ReportExceptionStackTraces"
          (rest *command-line-args*)))

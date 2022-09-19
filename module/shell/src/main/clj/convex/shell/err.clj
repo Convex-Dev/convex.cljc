@@ -9,9 +9,7 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.data ACell
-                             AMap)
-           (convex.core.lang.impl ErrorValue))
+  (:import (convex.core.lang.impl ErrorValue))
   (:require [convex.cell      :as $.cell]
             [convex.shell.kw  :as $.shell.kw]
             [convex.std       :as $.std]))

@@ -1,2 +1,3 @@
-{:config-paths ["io.helins/mprop"]
+{:config-paths ["io.helins/mprop"
+                "org.suskalo/coffi"]
  :hooks        {:analyze-call {convex.cell/* hooks.convex/cell*}}}

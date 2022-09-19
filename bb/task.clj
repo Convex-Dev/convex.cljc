@@ -174,4 +174,4 @@
   []
 
   (let [cp (-> (maestro.required/create-basis) :aliases keys -cp)]
-    (bb.task/shell "clj-kondo --parallel --lint" cp "--dependencies")))
+    (bb.task/shell "clj-kondo --parallel --copy-configs --lint" cp "--dependencies")))

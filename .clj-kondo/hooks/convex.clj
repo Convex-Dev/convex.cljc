@@ -24,6 +24,7 @@
   ([acc child]
 
    (if (or (hook/list-node? child)
+           (hook/map-node? child)
            (hook/vector-node? child))
      (reduce -traverse
              acc
