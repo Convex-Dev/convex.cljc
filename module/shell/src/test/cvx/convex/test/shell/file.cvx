@@ -361,7 +361,9 @@
   (T/group '((T/path.conj 'txt.in)
 
              (def txt
-                  "foo\nbar")
+                  (str "foo"
+                       $/line
+                       "bar"))
 
              ($.file/!.tmp)
              (def path
