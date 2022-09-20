@@ -8,7 +8,19 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- Function from extracting information from CVX exceptions
+### Changed
+
+### Fixed
+
+### Removed
+
+
+
+## [0.0.0-alpha4] - 2022-09-22
+
+### Added
+
+- Function fom extracting information from CVX exceptions
 - Support for unquote splicing in `$.cell/*`
 - `$.cvm/look-up`
 - `$.gen/any-coll`
@@ -16,11 +28,11 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Uppgrade to Convex 0.7.9
+- Discard functions from `$.read` that read only one cell and rename other ones
 - Greatly simplify `$.db`
     - Prevent bad behavior by enforcing thread-local instances
     - Remove any dealing with refs (too low-level for normal operations)
-- Discard functions from `$.read` that read only one cell and rename other ones
+- Update to Convex 0.7.9
 
 ### Fixed
 
@@ -28,7 +40,7 @@ All notable changes to this project will be documented in this file.
 
 ### Removed
 
-- `$.ref`, obsolete since new `$.db` namespace and too low-level
+- `$.ref` namespace, obsolete since new `$.db` namespace and considered too low-level
 
 
 
@@ -57,7 +69,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Upgrade `convex-core` to `0.7.1`
+- Update Convex to 0.7.1
 
 ### Removed
 
@@ -85,8 +97,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Depends on Java `convex-core/0.7.0`
 - Move form building from `$.cell` to new namespace `$.form`
+- Update to Convex 0.7.0
 
 ### Removed
 
@@ -104,12 +116,13 @@ All notable changes to this project will be documented in this file.
     - Executing CVX code, handling CVM contextes
     - Converting CVX source into cells in various ways
     - Converting cells into CVX source in various ways
-- Depends on Java `convex-core/0.7.0-rc1`
+- Depends on Convex 0.7.0-rc1
 
 
 
-[Unreleased]:    https://github.com/convex-dec/convex.cljc/compare/cvm/0.0.0-alpha3...HEAD
-[0.0.0-alpha3]:  https://github.com/convex-dev/convex.cljc/compare/cvm/0.0.0-alpha2...cvm/0.0.0-alpha3
-[0.0.0-alpha2]:  https://github.com/convex-dev/convex.cljc/compare/cvm/0.0.0-alpha1...cvm/0.0.0-alpha2
-[0.0.0-alpha1]:  https://github.com/convex-dev/convex.cljc/compare/cvm/0.0.0-alpha0...cvm/0.0.0-alpha1
-[0.0.0-alpha0]:  https://github.com/convex-dev/convex.cljc/releases/tag/cvm/0.0.0-alpha0
+[Unreleased]:    https://github.com/convex-dec/convex.cljc/compare/release/cvm/0.0.0-alpha4...HEAD
+[0.0.0-alpha4]:  https://github.com/convex-dev/convex.cljc/compare/release/cvm/0.0.0-alpha3...release/cvm/0.0.0-alpha4
+[0.0.0-alpha3]:  https://github.com/convex-dev/convex.cljc/compare/release/cvm/0.0.0-alpha2...release/cvm/0.0.0-alpha3
+[0.0.0-alpha2]:  https://github.com/convex-dev/convex.cljc/compare/release/cvm/0.0.0-alpha1...release/cvm/0.0.0-alpha2
+[0.0.0-alpha1]:  https://github.com/convex-dev/convex.cljc/compare/release/cvm/0.0.0-alpha0...release/cvm/0.0.0-alpha1
+[0.0.0-alpha0]:  https://github.com/convex-dev/convex.cljc/releases/tag/release/cvm/0.0.0-alpha0

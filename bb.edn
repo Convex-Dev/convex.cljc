@@ -45,7 +45,7 @@
 
   {:doc      "Deploy to Clojars ; needs username, filename leading to Clojars token, and alias ; see `build`"
    :requires ([task])
-   :task     (task/install)}
+   :task     (task/deploy)}
 
 
   install
