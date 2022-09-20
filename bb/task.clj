@@ -83,8 +83,8 @@
       (maestro.required/print)))
 
 
-(defn aliases-test
-        
+(defn- -alias-test
+
   [direct?]
 
   (-> (maestro.required/create-basis)
@@ -95,8 +95,25 @@
       (maestro.required/search)
       (-prepare-kaocha)
       :maestro/require
-      (maestro.alias/stringify+)
-      print))
+      (maestro.alias/stringify+)))
+
+
+(defn aliases-test
+        
+  [direct?]
+
+  (print (-alias-test direct?)))
+
+
+;;;;;;;;;; Testing
+
+
+(defn test
+
+  []
+
+  (bb.task/clojure (str "-M"
+                        (-alias-test true))))
 
 
 ;;;;;;;;;; Artifact-related tasks

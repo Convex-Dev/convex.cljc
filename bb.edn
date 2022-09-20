@@ -95,4 +95,13 @@
    {:doc      "Pretty prints the classpath read from STDIN - Great match for Clojure's `-Spath` argument"
     :requires ([protosens.maestro.task :as maestro.task])
     :task     (maestro.task/pprint-cp)}
+
+
+   test
+
+   {:doc      "Shortcut for testing an alias provided as argument"
+    :requires ([task])
+    :task     (task/test)}
+
+
    }}
