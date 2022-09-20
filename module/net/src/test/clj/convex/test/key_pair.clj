@@ -53,8 +53,8 @@
 
 
 
-(T/deftest signed
+(T/deftest sign
 
   (T/is (instance? SignedData
-                   ($.key-pair/signed kp
-                                      ($.cell/* {:a :b})))))
+                   ($.key-pair/sign kp
+                                    ($.cell/* {:a :b})))))

@@ -122,9 +122,12 @@
 ;;;;;;;;;; Using key pairs
 
 
-(defn signed
+(defn sign
 
-  "Returns the given `cell` signed by `key-pair`."
+  "Returns the given `cell` as data signed by `key-pair`.
+
+   Most useful for signing transactions.
+   See [[convex.client/transact]]."
 
   ^SignedData
 

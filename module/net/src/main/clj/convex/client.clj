@@ -194,7 +194,8 @@
    - `convex.cell/invoke` for executing code
    - `convex.cell/transfer` for executing a transfer of Convex Coins
 
-   Transaction must be either pre-signed or a key pair must be provided (see the [[convex.key-pair]] namespace).
+   Transaction must be either pre-signed beforehand or a key pair must be provided to sign it.
+   See the [[convex.key-pair]] namespace to learn more about key pairs.
 
    It is important that transactions are created for the account matching the key pair and that the right
    sequence ID is used. See [[sequence-id]]."
@@ -209,8 +210,8 @@
   (^CompletableFuture [client ^AKeyPair key-pair ^ATransaction transaction]
 
    (transact client
-             ($.key-pair/signed key-pair
-                                transaction))))
+             ($.key-pair/sign key-pair
+                              transaction))))
 
 
 ;;;;;;;;;; Results

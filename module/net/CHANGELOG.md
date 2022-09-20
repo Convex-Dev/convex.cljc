@@ -16,6 +16,7 @@ All notable changes to this project will be documented in this file.
 - Prefix `$.client` functions for results with `result->`
 - Rename `$.client/sequence` to `$.client/sequence-id`
 - Rename `$.sign` to `$.key-pair`
+- Rename `$.sign/signed` to `$.key-pair/sign`
 - Upgrade to Convex 0.7.8
 
 ### Fixed
