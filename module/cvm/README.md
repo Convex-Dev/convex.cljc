@@ -38,3 +38,8 @@ Those namespaces are built on top of [`convex-core` in the core Java repository]
 and provide commonly needed features for building tools and decentralized applications.
 
 Examples and walk-through can be found in [`:module/recipe`](../recipe).
+
+This library offers support for
+[Clj-kondo](https://github.com/clj-kondo/clj-kondo). Follow the [usual steps for
+copying the
+required configuration](https://github.com/clj-kondo/clj-kondo#project-setup).
