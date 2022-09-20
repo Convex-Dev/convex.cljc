@@ -28,7 +28,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - CVX requests symbols are now prepended with `!.`
-- Embed `:module/cvm` ; upgrade to Convex 0.7.8
+- Embed `:module/cvm` ; update to Convex 0.7.9
 - Move benchmarking to `$.time`
 - Reading a stream to completion always closes it automatically
 - Rename module from Convex Runner to Convex Shell

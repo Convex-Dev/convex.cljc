@@ -52,14 +52,14 @@
 
   :ext/convex-core
 
-  {:extra-deps      {world.convex/convex-core {:mvn/version "0.7.8"}}
+  {:extra-deps      {world.convex/convex-core {:mvn/version "0.7.9"}}
    :maestro/doc     "Java implementation of the CVM and related utilities"
    :maestro/require [:ext/slf4j-timbre]}
 
 
   :ext/convex-peer
 
-  {:extra-deps  {world.convex/convex-peer {:mvn/version "0.7.8"}}
+  {:extra-deps  {world.convex/convex-peer {:mvn/version "0.7.9"}}
    :maestro/doc "Mostly used for its Convex binary client."}
 
 
