@@ -53,8 +53,15 @@
 
 
 
-(T/deftest sign
+(T/deftest sign+verify
 
-  (T/is (instance? SignedData
-                   ($.key-pair/sign kp
-                                    ($.cell/* {:a :b})))))
+  (let [cell   ($.cell/* [1 2 3])
+        signed ($.key-pair/sign kp
+                                cell)]
+    (T/is (= ($.key-pair/signed->account-key signed)
+             ($.key-pair/account-key kp)))
+    (T/is (= ($.key-pair/signed->cell signed)
+             cell))
+    (T/is ($.key-pair/verify ($.key-pair/account-key kp)
+                             ($.key-pair/signed->signature signed)
+                             cell))))

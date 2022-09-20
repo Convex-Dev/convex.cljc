@@ -9,7 +9,9 @@
   {:author "Adam Helinski"}
 
   (:import (convex.core.crypto AKeyPair
-                               Ed25519KeyPair)
+                               ASignature
+                               Ed25519KeyPair
+                               Ed25519Signature)
            (convex.core.data AccountKey
                              ACell
                              Blob
@@ -119,12 +121,15 @@
   (.getSeed key-pair))
 
 
-;;;;;;;;;; Using key pairs
+;;;;;;;;;; Sign cells and verify signatures
 
 
 (defn sign
 
-  "Returns the given `cell` as data signed by `key-pair`.
+  "Returns the given `cell` as data signed by `key-pair`. That value is a cell itself
+   and can be stored in Etch if required (see the `convex.db` namespace from `:module/cvm`).
+
+   `signed->...` functions allows for extracting information from signed data.
 
    Most useful for signing transactions.
    See [[convex.client/transact]]."
@@ -135,3 +140,62 @@
 
   (.signData key-pair
              cell))
+
+
+
+(defn signed->account-key
+
+  "Given signed data, returns the [[account-key]] of the signer.
+  
+   See [[sign]]."
+
+  ^AccountKey
+
+  [^SignedData signed]
+
+  (.getAccountKey signed))
+
+
+
+(defn signed->cell
+
+  "Given signed data, returns the cell that was signed.
+
+   See [[sign]]."
+
+  ^ACell
+
+  [^SignedData signed]
+
+  (-> signed
+      (.getDataRef)
+      (.getValue)))
+
+
+(defn signed->signature
+
+  "Given signed data, returns the signature as a blob cell.
+
+   See [[sign]]."
+
+  ^Blob
+
+  [^SignedData signed]
+
+  (-> signed
+      ^Ed25519Signature (.getSignature)
+      (.getSignatureBlob)))
+
+
+
+(defn verify
+
+  "Returns true if the given `cell` has indeed been signed by the given [[account-key]].
+
+   `signature` is the signature to verify as a blob cell."
+
+  [^AccountKey account-key ^Blob signature ^ACell cell]
+
+  (.checkSignature (SignedData/create account-key
+                                      (ASignature/fromBlob signature)
+                                      (.getRef cell))))

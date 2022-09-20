@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Signature verification in `$.key-pair` (formerly `$.sign`)
 - Support for local clients
 
 ### Changed

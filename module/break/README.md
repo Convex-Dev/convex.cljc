@@ -19,7 +19,7 @@ for writing such sophisticated tests fearlessly.
 
 ## Running tests
 
-By default, they take several minutes depending on hardware.
+By default, they take about a minute to run on modern hardware.
 
 From your terminal, at the root of this repository:
 
