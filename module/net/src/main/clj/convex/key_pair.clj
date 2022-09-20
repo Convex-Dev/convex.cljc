@@ -1,4 +1,4 @@
-(ns convex.sign
+(ns convex.key-pair
 
   "Signing cells using public key cryptography, most notably transactions as required prior to submission.
 
@@ -31,7 +31,7 @@
 
    It is generated from a [[seed]], a 32-byte blob. If not given, one is generated randomly.
 
-   Alternatively, a [[public-key]] and a [[private-key]] retrieved from an existing key pair can
+   Alternatively, a [[key-public]] and a [[key-private]] retrieved from an existing key pair can
    be provided."
 
 
@@ -57,8 +57,9 @@
 (defn account-key
 
   "Returns the account key of the given `key-pair`.
-  
-   This is effectively the public key presented as a cell."
+
+   An account key is a specialized cell behaving like a blob and representing the public key
+   of an account."
 
   ^AccountKey
 
@@ -107,7 +108,9 @@
 
 (defn seed
 
-  "Returns the seed of"
+  "Returns the seed of the given `key-pair`.
+
+   Attention, this is very sensitive information since it allows rebuilding the key-pair using [[ed25519]]."
 
   ^Blob
 

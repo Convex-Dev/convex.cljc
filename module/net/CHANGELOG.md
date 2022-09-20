@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 - Peer servers now persist their data when stopping by default
 - Prefix `$.client` functions for results with `result->`
 - Rename `$.client/sequence` to `$.client/sequence-id`
+- Rename `$.sign` to `$.key-pair`
 - Upgrade to Convex 0.7.8
 
 ### Fixed

@@ -31,7 +31,7 @@
 
   "Returns a new server that can be started using [[start]] when required.
 
-   A key pair is mandatory. See the [[convex.sign]].
+   A key pair is mandatory. See the [[convex.key-pair]].
 
    An map of options may be provided:
 

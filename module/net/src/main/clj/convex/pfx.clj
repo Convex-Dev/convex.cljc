@@ -2,7 +2,7 @@
 
   "Creating and managing a key store for storing key pairs in a file.
   
-   See [[convex.sign]] about key pairs."
+   See [[convex.key-pair]] about key pairs."
 
   {:author "Adam Helinski"}
 

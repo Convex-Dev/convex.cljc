@@ -28,10 +28,9 @@
            (java.util.concurrent CompletableFuture)
            (java.util.function Function))
   (:refer-clojure :exclude [resolve])
-  (:require [convex.db   :as $.db]
-            [convex.clj  :as $.clj]
-            [convex.sign :as $.sign]))
-
+  (:require [convex.db       :as $.db]
+            [convex.clj      :as $.clj]
+            [convex.key-pair :as $.key-pair]))
 
 
 (set! *warn-on-reflection*
@@ -195,8 +194,7 @@
    - `convex.cell/invoke` for executing code
    - `convex.cell/transfer` for executing a transfer of Convex Coins
 
-   Transaction must be either pre-signed or a key pair must be provided (see `convex.sign` namespace from
-   `:module/net`).
+   Transaction must be either pre-signed or a key pair must be provided (see the [[convex.key-pair]] namespace).
 
    It is important that transactions are created for the account matching the key pair and that the right
    sequence ID is used. See [[sequence-id]]."
@@ -211,8 +209,8 @@
   (^CompletableFuture [client ^AKeyPair key-pair ^ATransaction transaction]
 
    (transact client
-             ($.sign/signed key-pair
-                            transaction))))
+             ($.key-pair/signed key-pair
+                                transaction))))
 
 
 ;;;;;;;;;; Results

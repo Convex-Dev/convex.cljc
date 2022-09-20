@@ -19,12 +19,12 @@ submit code to be executed in the context of that account.
 
 Overview of namespaces:
 
-| Namespace       | Purpose                                              |
-|-----------------|------------------------------------------------------|
-| `convex.client` | Fast binary client for talking to the Convex network |
-| `convex.pfx`    | Store key pairs securely in password protected files |
-| `convex.server` | Run a peer node                                      |
-| `convex.sign`   | Generate and handle key pairs                        |
+| Namespace        | Purpose                                              |
+|------------------|------------------------------------------------------|
+| `convex.client`  | Fast binary client for talking to the Convex network |
+| `convex.key-pair`| Generate and handle key pairs                        |
+| `convex.pfx`     | Store key pairs securely in password protected files |
+| `convex.server`  | Run a peer node                                      |
 
 Those namespaces are built on top of [`convex-core` and `convex-peer` in the core Java
 repository](https://github.com/Convex-Dev/convex) and provide commonly needed features for building tools and

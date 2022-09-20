@@ -6,9 +6,9 @@
 
   (:import (java.io File))
   (:refer-clojure :exclude [alias])
-  (:require [clojure.test :as T]
-            [convex.pfx   :as $.pfx]
-            [convex.sign  :as $.sign]))
+  (:require [clojure.test    :as T]
+            [convex.key-pair :as $.key-pair]
+            [convex.pfx      :as $.pfx]))
 
 
 ;;;;;;;;;; Setup
@@ -19,7 +19,7 @@
 
 
 (def kp
-     ($.sign/ed25519))
+     ($.key-pair/ed25519))
 
 
 

@@ -5,14 +5,14 @@
   {:author "Adam Helinski"}
 
   (:import (convex.core Peer))
-  (:require [clojure.test  :as T]
-            [convex.cell   :as $.cell]
-            [convex.client :as $.client]
-            [convex.cvm    :as $.cvm]
-            [convex.db     :as $.db]
-            [convex.server :as $.server]
-            [convex.sign   :as $.sign]
-            [convex.std    :as $.std]))
+  (:require [clojure.test    :as T]
+            [convex.cell     :as $.cell]
+            [convex.client   :as $.client]
+            [convex.cvm      :as $.cvm]
+            [convex.db       :as $.db]
+            [convex.key-pair :as $.key-pair]
+            [convex.server   :as $.server]
+            [convex.std      :as $.std]))
 
 
 ;;;;;;;;;; Setup
@@ -25,12 +25,12 @@
 
 
 (def kp
-     ($.sign/ed25519))
+     ($.key-pair/ed25519))
 
 
 
 (def account-key
-     ($.sign/account-key kp))
+     ($.key-pair/account-key kp))
 
 
 
