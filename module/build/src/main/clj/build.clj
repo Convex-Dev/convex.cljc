@@ -2,6 +2,8 @@
 
   "Building jars and uberjars."
 
+  (:import (java.nio.file Files)
+           (java.nio.file.attribute FileAttribute))
   (:require [clojure.tools.build.api :as tools.build]
             [protosens.maestro.alias :as maestro.alias]
             [protosens.maestro.profile :as maestro.profile]
@@ -15,8 +17,10 @@
 
   [ctx]
 
-  (println "Cleaning target directory")
-  (tools.build/delete {:path (ctx :maestro.build.path/target)})
+  (let [path (ctx :maestro.build.path/output)]
+    (println "Removing any previous output:"
+             path)
+    (tools.build/delete {:path path}))
   ctx)
 
 
@@ -107,11 +111,15 @@
                                               (name root-alias))
                                     :extra-deps])
                             (first))
-        dir             (alias-data :maestro/dir)
-        path-target     (str dir "/target")
-        path-class      (str path-target "/classes")
+        dir-tmp         (str (Files/createTempDirectory "convex-cljc-build-"
+                                                        (make-array FileAttribute
+                                                                    0)))
+        path-class      (str dir-tmp
+                             "/classes")
         path-src+       (maestro.alias/extra-path+ basis-maestro
                                                    required-alias+)]
+    (println "Using temporary directory for building:"
+             dir-tmp)
     (-> (merge alias-data
                {:maestro.build/artifact    artifact
                 :maestro.build/basis       (tools.build/create-basis {:aliases required-alias+
@@ -120,7 +128,7 @@
                                                 :mvn/version)
                 :maestro.build.path/class  path-class
                 :maestro.build.path/src+   path-src+
-                :maestro.build.path/target path-target}
+                :maestro.build.path/target dir-tmp}
                arg+)
         (clean)
         (copy-src)
