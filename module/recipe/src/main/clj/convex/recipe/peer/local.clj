@@ -98,12 +98,14 @@
 
   ;; For the sake of simplicity, we can reuse our controller for testing the network.
   ;;
+  ;; For learning about transaction, see `convex.recipe.client`.
+  ;;
   (-> ($.client/transact client
-                         key-pair
-                         ($.cell/invoke controller
-                                        (deref ($.client/sequence-id client
-                                                                     controller))
-                                        ($.cell/* (def foo (inc 41)))))
+                         ($.key-pair/sign key-pair
+                                          ($.cell/invoke controller
+                                                         (deref ($.client/sequence-id client
+                                                                                      controller))
+                                                         ($.cell/* (def foo (inc 41))))))
       (deref))
 
 

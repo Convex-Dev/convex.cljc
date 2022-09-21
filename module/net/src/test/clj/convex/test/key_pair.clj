@@ -4,8 +4,7 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.data AccountKey
-                             SignedData))
+  (:import (convex.core.data AccountKey))
   (:refer-clojure :exclude [keys])
   (:require [clojure.test    :as T]
             [convex.cell     :as $.cell]

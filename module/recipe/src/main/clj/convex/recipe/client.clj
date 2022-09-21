@@ -15,6 +15,7 @@
             [convex.cell            :as $.cell]
             [convex.client          :as $.client]
             [convex.db              :as $.db]
+            [convex.key-pair        :as $.key-pair]
             [convex.read            :as $.read]
             [convex.recipe.key-pair :as $.recipe.key-pair]
             [convex.recipe.rest     :as $.recipe.rest]))
@@ -175,7 +176,8 @@
   ;; We can query it from the network and increment it each time. To make the following examples simpler,
   ;; let us write a function.
   ;;
-  ;; (In practice it should have error handling)
+  ;; In practice it should have error handling and we would cache and maintain that sequence ID locally
+  ;; instead of querying it repeatedly.
   ;;
   (defn sequence-id
     []
@@ -185,18 +187,16 @@
 
   ;; Okay, first transaction!
   ;;
-  ;; Let us provide:
+  ;; An `invoke` transaction is created for our address, providing the right sequence ID as well
+  ;; as the actual code to invoke as a transaction.
   ;;
-  ;; - Code to execute as a cell
-  ;; - Address of our account
-  ;; - Maching key pair for signing the transaction
-  ;; - Right sequence id
+  ;; It is then signed using our key pair and submitted.
   ;;
   (-> ($.client/transact client
-                         key-pair
-                         ($.cell/invoke addr
-                                        (sequence-id)
-                                        ($.cell/* (def foo (inc 41)))))
+                         ($.key-pair/sign key-pair
+                                          ($.cell/invoke addr
+                                                         (sequence-id)
+                                                         ($.cell/* (def foo (inc 41))))))
       (deref))
 
 
@@ -233,10 +233,10 @@
   ;;
   (def my-actor
        (-> ($.client/transact client
-                              key-pair
-                              ($.cell/invoke addr
-                                             (sequence-id)
-                                             (first ($.read/file "module/recipe/src/main/cvx/simple_contract.cvx"))))
+                              ($.key-pair/sign key-pair
+                                               ($.cell/invoke addr
+                                                              (sequence-id)
+                                                              (first ($.read/file "module/recipe/src/main/cvx/simple_contract.cvx")))))
            (deref)
            ($.client/result->value)))
 
@@ -247,11 +247,11 @@
   ;; `lookup` is a way for retrieving a value by providing an address and a symbol.
   ;;
   (-> ($.client/transact client
-                         key-pair
-                         ($.cell/invoke addr
-                                        (sequence-id)
-                                        ($.cell/* ((lookup ~my-actor
-                                                           set-value) 42))))
+                         ($.key-pair/sign key-pair
+                                          ($.cell/invoke addr
+                                                         (sequence-id)
+                                                         ($.cell/* ((lookup ~my-actor
+                                                                            set-value) 42)))))
       (deref))
 
 
@@ -273,11 +273,11 @@
   ;; in the context of the function owner.
   ;;
   (-> ($.client/transact client
-                         key-pair
-                         ($.cell/invoke addr
-                                        (sequence-id)
-                                        ($.cell/* (call ~my-actor
-                                                        (set-value-in-actor 100)))))
+                         ($.key-pair/sign key-pair
+                                          ($.cell/invoke addr
+                                                         (sequence-id)
+                                                         ($.cell/* (call ~my-actor
+                                                                         (set-value-in-actor 100))))))
       (deref))
 
 
