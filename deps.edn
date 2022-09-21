@@ -246,7 +246,8 @@
 
   :release/cvm
 
-  {:extra-deps {world.convex/cvm.clj {:mvn/version "0.0.0-alpha3"}}}
+  {:extra-deps      {world.convex/cvm.clj {:mvn/version "0.0.0-alpha3"}}
+   :maestro/require [{test :test/cvm}]}
 
 
   :test/cvm
@@ -278,7 +279,8 @@
 
   :release/gen
 
-  {:extra-deps {world.convex/gen.clj {:mvn/version "0.0.0-alpha0"}}}
+  {:extra-deps      {world.convex/gen.clj {:mvn/version "0.0.0-alpha0"}}
+   :maestro/require [{test :test/gen}]}
 
 
   :test/gen
@@ -302,7 +304,8 @@
 
   :release/net
 
-  {:extra-deps {world.convex/net.clj {:mvn/version "0.0.0-alpha2"}}}
+  {:extra-deps       {world.convex/net.clj {:mvn/version "0.0.0-alpha2"}}
+   :maaestro/require [{test :test/net}]}
 
 
   :test/net
