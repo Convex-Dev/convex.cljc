@@ -15,7 +15,7 @@
 
   (:require [clj-http.client   :as http]
             [clojure.data.json :as json]
-            [convex.sign       :as $.sign]))
+            [convex.key-pair   :as $.key-pair]))
 
 
 ;;;;;;;;;; Useful methods
@@ -34,7 +34,7 @@
   [key-pair]
 
   (-> (http/post "https://convex.world/api/v1/createAccount"
-                 {:body               (json/write-str {"accountKey" ($.sign/hex-string key-pair)})
+                 {:body               (json/write-str {"accountKey" ($.key-pair/hex-string key-pair)})
                   :connection-timeout 4000})
       :body
       json/read-str
@@ -72,7 +72,7 @@
   ;; Also see `convex.recipe.key-pair`.
   ;;
   (def key-pair
-       ($.sign/ed25519))
+       ($.key-pair/ed25519))
 
 
   ;; Creates a new account.

@@ -17,8 +17,8 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.pfx  :as $.pfx]
-            [convex.sign :as $.sign]))
+  (:require [convex.key-pair :as $.key-pair]
+            [convex.pfx      :as $.pfx]))
 
 
 ;;;;;;;;;; One plausible example
@@ -43,7 +43,7 @@
                               "my-password"))
 
       (catch Throwable _ex
-        (let [key-pair ($.sign/ed25519)]
+        (let [key-pair ($.key-pair/ed25519)]
           (-> ($.pfx/create file-key-store)
               ($.pfx/key-pair-set "my-key-pair"
                                   key-pair
@@ -81,7 +81,7 @@
   ;; Generating a key pair.
   ;;
   (def key-pair
-       ($.sign/ed25519))
+       ($.key-pair/ed25519))
 
 
   ;; File for storing our "key store" capable of securely hosting one or several key pairs.

@@ -11,9 +11,9 @@
             [convex.client          :as $.client]
             [convex.cvm             :as $.cvm]
             [convex.db              :as $.db]
+            [convex.key-pair        :as $.key-pair]
             [convex.recipe.key-pair :as $.recipe.key-pair]
-            [convex.server          :as $.server]
-            [convex.sign            :as $.sign]))
+            [convex.server          :as $.server]))
 
 
 ;;;;;;;;;;
@@ -47,7 +47,7 @@
   ;; The public key of the key pair above is provided for the genesis account that will act as our controller.
   ;;
   (def genesis-state
-       (-> ($.cvm/ctx {:convex.cvm/genesis-key+ [($.sign/account-key key-pair)]})
+       (-> ($.cvm/ctx {:convex.cvm/genesis-key+ [($.key-pair/account-key key-pair)]})
            ($.cvm/state)))
 
   ;; Hence this is the address of the controller.

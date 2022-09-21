@@ -18,10 +18,10 @@
   (:require [convex.cell            :as $.cell]
             [convex.client          :as $.client]
             [convex.db              :as $.db]
+            [convex.key-pair        :as $.key-pair]
             [convex.recipe.key-pair :as $.recipe.key-pair]
             [convex.recipe.rest     :as $.recipe.rest]
-            [convex.server          :as $.server]
-            [convex.sign            :as $.sign]))
+            [convex.server          :as $.server]))
 
 
 ;;;;;;;;;;
@@ -92,7 +92,7 @@
                                                              ;; Sequence ID for that account.
                                                              ;; It's new so we know its the first transaction.
                                                              1  
-                                                             ($.cell/* (create-peer ~($.sign/account-key key-pair)
+                                                             ($.cell/* (create-peer ~($.key-pair/account-key key-pair)
                                                                                     50000000))))
                            (deref 4000
                                   nil))]
