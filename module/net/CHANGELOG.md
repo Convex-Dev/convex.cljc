@@ -8,6 +8,18 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+
+
+## [0.0.0-alpha3] - 2022-09-22
+
+### Added
+
 - Signature verification in `$.key-pair` (formerly `$.sign`)
 - Support for local clients
 
@@ -18,11 +30,7 @@ All notable changes to this project will be documented in this file.
 - Rename `$.client/sequence` to `$.client/sequence-id`
 - Rename `$.sign` to `$.key-pair`
 - Rename `$.sign/signed` to `$.key-pair/sign`
-- Update to Convex 0.7.9
-
-### Fixed
-
-### Removed
+- Update to `:module/cvm` 0.0.0-alpha4 and Convex 0.7.9
 
 
 
@@ -63,7 +71,8 @@ All notable changes to this project will be documented in this file.
 
 
 
-[Unreleased]:   https://github.com/convex-dev/convex.cljc/compare/net/0.0.0-alpha2...HEAD
-[0.0.0-alpha2]: https://github.com/convex-dev/convex.cljc/compare/net/0.0.0-alpha1...net/0.0.0-alpha2
-[0.0.0-alpha1]: https://github.com/convex-dev/convex.cljc/compare/net/0.0.0-alpha0...net/0.0.0-alpha1
-[0.0.0-alpha0]: https://github.com/convex-dev/convex.cljc/releases/tag/net/0.0.0-alpha0
+[Unreleased]:   https://github.com/convex-dev/convex.cljc/compare/release/net/0.0.0-alpha3...HEAD
+[0.0.0-alpha2]: https://github.com/convex-dev/convex.cljc/compare/release/net/0.0.0-alpha2...release/net/0.0.0-alpha3
+[0.0.0-alpha2]: https://github.com/convex-dev/convex.cljc/compare/release/net/0.0.0-alpha1...release/net/0.0.0-alpha2
+[0.0.0-alpha1]: https://github.com/convex-dev/convex.cljc/compare/release/net/0.0.0-alpha0...release/net/0.0.0-alpha1
+[0.0.0-alpha0]: https://github.com/convex-dev/convex.cljc/releases/tag/release/net/0.0.0-alpha0

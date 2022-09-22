@@ -304,8 +304,8 @@
 
   :release/net
 
-  {:extra-deps       {world.convex/net.clj {:mvn/version "0.0.0-alpha2"}}
-   :maaestro/require [{test :test/net}]}
+  {:extra-deps      {world.convex/net.clj {:mvn/version "0.0.0-alpha3"}}
+   :maestro/require [{test :test/net}]}
 
 
   :test/net

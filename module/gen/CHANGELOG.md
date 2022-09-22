@@ -18,6 +18,8 @@ All notable changes to this project will be documented in this file.
 
 ## [0.0.0-alpha0] - 2022-09-22
 
+### Added
+
 - Generators
     - `double-bounded`
     - `falsy`
@@ -26,6 +28,10 @@ All notable changes to this project will be documented in this file.
     - `string-symbolic`
     - `truthy`
     - `tuple`
+
+### Changed
+
+- Update `:module/cvm` to 0.0.0-alpha4 (Convex 0.7.9)
 
 
 
