@@ -8,6 +8,16 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+
+
+## [0.0.0-alpha0] - 2022-09-22
+
 - Generators
     - `double-bounded`
     - `falsy`
@@ -16,12 +26,6 @@ All notable changes to this project will be documented in this file.
     - `string-symbolic`
     - `truthy`
     - `tuple`
-
-### Changed
-
-### Fixed
-
-### Removed
 
 
 
@@ -35,5 +39,6 @@ All notable changes to this project will be documented in this file.
 
 
 
-[Unreleased]:   https://github.com/convex-dev/convex.cljc/compare/gen/0.0.0-alpha0...HEAD
-[0.0.0-alpha0]: https://github.com/convex-dev/convex.cljc/releases/tag/gen/0.0.0-alpha0
+[Unreleased]:   https://github.com/convex-dev/convex.cljc/compare/release/gen/0.0.0-alpha1...HEAD
+[0.0.0-alpha1]: https://github.com/convex-dev/convex.cljc/compare/release/gen/0.0.0-alpha0...release/gen/0.0.0-alpha1
+[0.0.0-alpha0]: https://github.com/convex-dev/convex.cljc/releases/tag/release/gen/0.0.0-alpha0

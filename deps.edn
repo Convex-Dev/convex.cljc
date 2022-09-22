@@ -279,7 +279,7 @@
 
   :release/gen
 
-  {:extra-deps      {world.convex/gen.clj {:mvn/version "0.0.0-alpha0"}}
+  {:extra-deps      {world.convex/gen.clj {:mvn/version "0.0.0-alpha1"}}
    :maestro/require [{test :test/gen}]}
 
 
