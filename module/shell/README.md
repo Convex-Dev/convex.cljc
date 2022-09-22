@@ -28,7 +28,7 @@ allowing for scripted or dynamic interactions with networks of peers.
 ## Usage
 
 Install the [latest
-release](https://github.com/Convex-Dev/convex.cljc/releases/tag/run%2F0.0.0-alpha3)
+release](https://github.com/Convex-Dev/convex.cljc/releases/tag/release/shell/0.0.0-alpha4)
 on your system.
 
 The native version is highly recommended, but a jar file is provided in case

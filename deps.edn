@@ -329,7 +329,7 @@
 
   :module/shell
 
-  {:convex.shell/version      "0.0.0-alpha3"
+  {:convex.shell/version      "0.0.0-alpha4"
    :extra-paths               ["module/shell/resource/main"
                                "module/shell/src/main/clj"
                                "module/shell/src/main/cvx"]

@@ -8,6 +8,18 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+
+
+## [0.0.0-alpha4] - 2022-09-22
+
+### Added
+
 - Advanced time-traveling and state utilities via the new `$.state` library
 - Full JVM-like try-catch semantics for CVX `$.catch/!.try` (formerly `$.catch/!.safe`)
 - Functions for disabling and enabling text styling with `$.term`
@@ -89,8 +101,5 @@ All notable changes to this project will be documented in this file.
 
 
 
-[Unreleased]:   https://github.com/convex-dev/convex.cljc/compare/run/0.0.0-alpha2...HEAD
-[0.0.0-alpha3]: https://github.com/convex-dev/convex.cljc/compare/run/0.0.0-alpha2...run/0.0.0-alpha3
-[0.0.0-alpha2]: https://github.com/convex-dev/convex.cljc/compare/run/0.0.0-alpha1...run/0.0.0-alpha2
-[0.0.0-alpha1]: https://github.com/convex-dev/convex.cljc/compare/run/0.0.0-alpha0...run/0.0.0-alpha1
-[0.0.0-alpha0]: https://github.com/convex-dev/convex.cljc/releases/tag/run/0.0.0-alpha0
+[Unreleased]:   https://github.com/convex-dev/convex.cljc/compare/release/shell/0.0.0-alpha4...HEAD
+[0.0.0-alpha4]: https://github.com/convex-dev/convex.cljc/releases/tag/release/shell/0.0.0-alpha4
