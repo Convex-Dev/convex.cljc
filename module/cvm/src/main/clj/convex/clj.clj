@@ -63,6 +63,16 @@
 
 
 
+(defn blob->hex
+
+  "Returns the given `blob` as a hex string."
+
+  [^ABlob blob]
+
+  (.toHexString blob))
+
+
+
 (defn boolean
 
   "Returns the given `boolean` cell as a JVM boolean."

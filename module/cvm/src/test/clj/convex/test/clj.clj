@@ -113,3 +113,16 @@
              ($.clj/vector cell)
              ($.clj/any cell))
           "Vector")))
+
+
+
+(T/deftest blob->hex
+
+  (let [b ($.cell/blob (byte-array 4))
+        h  "00000000"]
+    (T/is (= h
+             ($.clj/blob->hex b))
+          "Blob converted to hex string")
+    (T/is (= b
+             ($.cell/blob<-hex h))
+          "Hex string is correct")))
