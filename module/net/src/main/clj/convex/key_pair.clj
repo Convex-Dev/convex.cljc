@@ -15,6 +15,7 @@
            (convex.core.data AccountKey
                              ACell
                              Blob
+                             Hash
                              SignedData)
            (java.security PrivateKey
                           PublicKey)))
@@ -199,3 +200,35 @@
   (.checkSignature (SignedData/create account-key
                                       (ASignature/fromBlob signature)
                                       (.getRef cell))))
+
+
+;;;;;;;;;; Sign and verify hashes directly
+
+
+(defn sign-hash
+
+  "Signs the given `hash` with the given `key-pair`.
+   Returns the signature as a blob.
+
+   See `convex.cell/hash` from `:module/cvm`."
+
+  [^AKeyPair key-pair ^Hash hash]
+
+  (-> ^Ed25519Signature (.sign key-pair
+                               hash)
+      (.getSignatureBlob)))
+
+
+
+(defn verify-hash
+
+  "Verifies that the given `signature` is indeed the given `hash` signed by the given
+   [[account-key]].
+  
+   See [[sign-hash]]."
+
+  [^AccountKey account-key ^Blob signature ^Hash hash]
+
+  (-> (ASignature/fromBlob signature)
+      (.verify hash
+               account-key)))
