@@ -2,10 +2,9 @@
 
   "Does a bit of setup when starting."
 
-  (:require [clojure.java.classpath       :as classpath]
-            [clojure.string               :as string]
-            [clojure.tools.namespace.find :as namespace.find]
-            [portal.api                   :as portal]))
+  (:require [clojure.string         :as string]
+            [portal.api             :as portal]
+            [protosens.maestro.user :as maestro.user]))
 
 
 ;;;;;;;;;;
@@ -27,36 +26,28 @@
 
 
 
-(defn req-cvx
+(defn req
 
-  "Require Convex namespaces found on the classpath aliasing them in
-   the usual way."
+  "Require all namespaces from this repository that are present on the classpath."
 
   []
 
-  (doseq [nmspace (sort (filter (fn [nmspace]
-                                  (string/starts-with? (str nmspace)
-                                                       "convex"))
-                                (namespace.find/find-namespaces (classpath/classpath))))
-          :let    [as-alias (-> nmspace
-                                (str)
-                                (string/split #"\.")
-                                (assoc 0
-                                       "$")
-                                (->> (string/join "."))
-                                (symbol))]]
-    (println (format "Requiring `%s` as `%s`"
-                     nmspace
-                     as-alias))
-    (try
-      (require [nmspace :as as-alias])
-      (println "    OK")
-      (catch Exception _ex
-        (println "    FAIL")
-        (println _ex)))))
+  (maestro.user/require-filtered {:map-namespace  (fn [nmspace]
+                                                    (when (string/includes? (str nmspace)
+                                                                            "convex")
+                                                      [nmspace
+                                                       :as
+                                                       (symbol (str "$."
+                                                                    (second (string/split (str nmspace)
+                                                                                          #"convex\."))))]))
+                                  :require.before (fn [nmspace]
+                                                    (println "Require"
+                                                             nmspace))}))
 
 
-;;;;;;;;;;
 
+(def required-ns+
 
-(req-cvx)
+  "Namespace required automatically."
+
+  (req))
