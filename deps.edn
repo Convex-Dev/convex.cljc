@@ -247,16 +247,6 @@
 
   ;---
 
-  :module/build
-
-  {:extra-paths     ["module/build/src/main/clj"]
-   :maestro/doc     "Building modules from this repository for production"
-   :maestro/require [:ext/clojure.tools.build
-                     :ext/maestro]
-   :maestro/root    "module/build"}
-
-  ;---
-
   :module/cvm
 
   {:extra-paths                         ["module/cvm/src/main/clj"]
