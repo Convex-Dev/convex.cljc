@@ -12,3 +12,4 @@ Overview:
 | [`:module/net`](./net)            | Convex network stack (running peers and using the binary client)           |
 | [`:module/recipe`](./recipe)      | Recipes for understanding Convex and writing dApps                         |
 | [`:module/shell`](./shell)        | Convex Lisp Shell, advanced terminal application for executing Convex Lisp |
+| [`:module/task`](./task)          | Babashka tasks used in this repository                                     |

@@ -3,7 +3,7 @@
 
 
  :paths
- ["bb"]
+ ["module/task/src/main/bb"]
 
 
  :tasks
@@ -17,20 +17,20 @@
   aliases:dev
 
   {:doc      "Given one or several aliases in a vector, prints all aliases required for dev"
-   :requires ([task.aliases])
-   :task     (task.aliases/dev :print)}
+   :requires ([convex.task.aliases])
+   :task     (convex.task.aliases/dev :print)}
   
   aliases:test
 
   {:doc      "Like `aliases:dev` but prints all aliases required for testing"
-   :requires ([task.aliases])
-   :task     (task.aliases/test :print)}
+   :requires ([convex.task.aliases])
+   :task     (convex.task.aliases/test :print)}
 
   aliases:test:upstream
 
   {:doc      "Like `aliases:test` but tests all transitive modules as well"
-   :requires ([task.aliases])
-   :task     (task.aliases/test-upstream :print)}
+   :requires ([convex.task.aliases])
+   :task     (convex.task.aliases/test-upstream :print)}
 
 
   build
@@ -57,8 +57,8 @@
   dev
 
   {:doc      "Shortcut for starting dev mode given alias or a vector of aliases and/or profiles"
-   :requires ([task.aliases])
-   :task     (task.aliases/dev :-M)}
+   :requires ([convex.task.aliases])
+   :task     (convex.task.aliases/dev :-M)}
 
 
   lint
@@ -78,22 +78,22 @@
    native:agent
 
    {:doc      "Starts Java command setting the native-image-agent to output tracing to './private/agent' (eg. reflection configuration for task 'native:image')"
-    :requires ([task.native])
-    :task     (task.native/agent)}
+    :requires ([convex.task.native])
+    :task     (convex.task.native/agent)}
 
 
    native:reflect-config
 
    {:doc      "Copies './private/agent/reflect-config.json' to the folder given as argument after preparing it"
-    :requires ([task.native])
+    :requires ([convex.task.native])
     :task     (task.native/reflect-config)}
 
 
    native:image
 
    {:doc      "Builds a native image in `./private/target` from an uberjar ; requires alias that has been used to `build` the uberjar"
-    :requires ([task.native])
-    :task     (task.native/image)}
+    :requires ([convex.task.native])
+    :task     (convex.task.native/image)}
 
 
    pprint-cp
@@ -106,14 +106,14 @@
    test
 
    {:doc      "Shortcut for testing the given alias (or vector of aliases and profiltes)"
-   :requires ([task.aliases])
-   :task     (task.aliases/test :-M)}
+   :requires ([convex.task.aliases])
+   :task     (convex.task.aliases/test :-M)}
 
 
    test:upstream
 
    {:doc      "Shortcut for testing the given alias (or vector of aliases and profiltes) as well as transitive modules"
-   :requires ([task.aliases])
-   :task     (task.aliases/test-upstream :-M)}
+   :requires ([convex.task.aliases])
+   :task     (convex.task.aliases/test-upstream :-M)}
 
    }}

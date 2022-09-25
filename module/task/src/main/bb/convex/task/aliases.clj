@@ -1,4 +1,4 @@
-(ns task.aliases
+(ns convex.task.aliases
 
   "Alias related tasks."
 
@@ -11,8 +11,6 @@
 
 
 (defn- -task
-
-  ;;
 
   [behavior basis]
 
@@ -40,8 +38,6 @@
 
 
 (defn -test-basis
-
-  ;;
 
   [direct?]
 

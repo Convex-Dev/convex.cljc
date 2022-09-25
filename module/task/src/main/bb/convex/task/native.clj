@@ -1,16 +1,15 @@
-(ns task.native
+(ns convex.task.native
 
   "Building native iamges."
 
   {:author "Adam Helinski"}
 
   (:refer-clojure :exclude [agent])
-  (:require [babashka.tasks              :as bb.task]
-            [cheshire.core               :as cheshire]
-            [clojure.edn                 :as edn]
-            [clojure.java.io]
-            [clojure.string]
-            [protosens.maestro.required  :as maestro.required]))
+  (:require [babashka.tasks    :as bb.task]
+            [cheshire.core     :as cheshire]
+            [clojure.edn       :as edn]
+            [clojure.java.io   :as java.io]
+            [protosens.maestro :as maestro]))
 
 
 ;;;;;;;;;;
@@ -46,11 +45,11 @@
                                        "methods" [{"name"           "canAccess"
                                                    "parameterTypes" ["java.lang.Object"]}]}
                                       hmap))
-                                  (cheshire/parse-stream (clojure.java.io/reader "./private/agent/reflect-config.json")))
-                            (clojure.java.io/writer (str (or (first *command-line-args*)
-                                                             (throw (ex-info "Path to project root missing"
-                                                                             {})))
-                                                         "reflect-config.json"))
+                                  (cheshire/parse-stream (java.io/reader "./private/agent/reflect-config.json")))
+                            (java.io/writer (str (or (first *command-line-args*)
+                                                     (throw (ex-info "Path to project root missing"
+                                                                     {})))
+                                                 "reflect-config.json"))
                             {:pretty true}))
 
 
@@ -63,10 +62,10 @@
   (apply bb.task/shell
          "native-image"
          "-jar"
-         (-> (maestro.required/create-basis)
+         (-> (maestro/create-basis)
              (get-in [:aliases
                       (edn/read-string (first *command-line-args*))
-                      :maestro.build.path/output]))
+                      :maestro.plugin.build.path/output]))
          "--no-fallback"
          "-H:+ReportExceptionStackTraces"
          (rest *command-line-args*)))
