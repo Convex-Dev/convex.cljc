@@ -54,6 +54,13 @@
    :task     (protosens.maestro.plugin.deps-deploy/local :task/deploy)}
 
 
+  dev
+
+  {:doc      "Shortcut for starting dev mode given alias or a vector of aliases and/or profiles"
+   :requires ([task.aliases])
+   :task     (task.aliases/dev :-M)}
+
+
   lint
 
   {:doc      "Lint the repository using `clj-kondo`"
