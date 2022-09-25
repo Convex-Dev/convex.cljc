@@ -5,4 +5,4 @@
  :tests
  [#meta-merge [{:id                 :unit
                 :kaocha/ns-patterns [".+"]}
-               #include "private/maestro_kaocha.edn"]]}
+               #include "private/maestro-kaocha.edn"]]}

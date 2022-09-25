@@ -1,6 +1,5 @@
 {:deps
- {com.protosens/maestro {:git/sha "b98268e8e6df2d99b9a3a1b376a8254a013c996b"
-                         :git/url "https://github.com/protosens/maestro.clj.git"}}
+ {com.protosens/maestro {:mvn/version "0.0.0-alpha0"}}
 
 
  :paths
@@ -9,64 +8,64 @@
 
  :tasks
  {aliases
+
   {:doc      "Resolves and prints all required aliases - Takes either a root alias or a vector of root aliases and/or profiles"
-   :requires ([protosens.maestro.task :as maestro.task])
-   :task     (maestro.task/alias+)}
+   :requires ([protosens.maestro])
+   :task     (protosens.maestro/task)}
+
 
   aliases:dev
 
   {:doc      "Given one or several aliases in a vector, prints all aliases required for dev"
-   :requires ([task])
-   :task     (task/aliases-dev)}
-  
+   :requires ([task.aliases])
+   :task     (task.aliases/dev :print)}
   
   aliases:test
 
   {:doc      "Like `aliases:dev` but prints all aliases required for testing"
-   :requires ([task])
-   :task     (task/aliases-test true)}
-  
+   :requires ([task.aliases])
+   :task     (task.aliases/test :print)}
 
-  aliases:test:downstream
+  aliases:test:upstream
 
   {:doc      "Like `aliases:test` but tests all transitive modules as well"
-   :requires ([task])
-   :task     (task/aliases-test false)}
+   :requires ([task.aliases])
+   :task     (task.aliases/test-upstream :print)}
 
 
   build
 
-  {:doc      "Packages the given aliases in an jar or uberjar depending on its alias data"
-   :requires ([task])
-   :task     (task/build nil)}
+  {:doc      "Build the given alias"
+   :requires ([protosens.maestro.plugin.build])
+   :task     (protosens.maestro.plugin.build/task :task/build)}
 
 
-  deploy
+  deploy:clojars
 
-  {:doc      "Deploy to Clojars ; needs username, filename leading to Clojars token, and alias ; see `build`"
-   :requires ([task])
-   :task     (task/deploy)}
-
-
-  install
-
-  {:doc      "Install alias to local Maven repo ; see `build`"
-   :requires ([task])
-   :task     (task/install)}
+  {:doc      "Deploy to Clojars: <username> <path-to-token> <alias>"
+   :requires ([protosens.maestro.plugin.deps-deploy])
+   :task     (protosens.maestro.plugin.deps-deploy/clojars :task/deploy)}
 
 
-   lint
+  deploy:local
 
-   {:doc      "Starts Clj-kondo on the path given as argument ; understands globs"
-    :requires ([task])
-    :task     (task/lint)}
+  {:doc      "Deploy alias to local Maven cache"
+   :requires ([protosens.maestro.plugin.deps-deploy])
+   :task     (protosens.maestro.plugin.deps-deploy/local :task/deploy)}
 
 
-   lint:import
+  lint
 
-   {:doc      "Initializes Clj-kondo and copies configuration files from dependencies ; uses classpath received as STDIN"
-    :requires ([task])
-    :task     (task/lint-import)}
+  {:doc      "Lint the repository using `clj-kondo`"
+   :requires ([protosens.maestro.plugin.clj-kondo])
+   :task     (protosens.maestro.plugin.clj-kondo/lint)}
+
+
+  lint:prepare
+
+  {:doc      "Lints dependencies using `clj-kondo` and copy configuration files"
+   :requires ([protosens.maestro.plugin.clj-kondo])
+   :task     (protosens.maestro.plugin.clj-kondo/prepare)}
 
 
    native:agent
@@ -93,15 +92,21 @@
    pprint-cp
 
    {:doc      "Pretty prints the classpath read from STDIN - Great match for Clojure's `-Spath` argument"
-    :requires ([protosens.maestro.task :as maestro.task])
-    :task     (maestro.task/pprint-cp)}
+    :requires ([protosens.maestro.classpath])
+    :task     (protosens.maestro.classpath/pprint)}
 
 
    test
 
-   {:doc      "Shortcut for testing an alias provided as argument"
-    :requires ([task])
-    :task     (task/test)}
+   {:doc      "Shortcut for testing the given alias (or vector of aliases and profiltes)"
+   :requires ([task.aliases])
+   :task     (task.aliases/test :-M)}
 
+
+   test:upstream
+
+   {:doc      "Shortcut for testing the given alias (or vector of aliases and profiltes) as well as transitive modules"
+   :requires ([task.aliases])
+   :task     (task.aliases/test-upstream :-M)}
 
    }}

@@ -1,4 +1,16 @@
-{:aliases
+{
+ 
+ ;; OPTIONS
+
+
+ :maestro.plugin.build.path/exclude ["(?i)^META-INF/license/.*"
+                                     "^license/.*"]
+ :maestro.plugin.kaocha/path        "private/maestro-kaocha.edn"
+ 
+ 
+
+
+ :aliases
  {
 
 
@@ -95,8 +107,7 @@
 
   :ext/maestro
   
-  {:extra-deps  {com.protosens/maestro {:git/sha "b98268e8e6df2d99b9a3a1b376a8254a013c996b"
-                                        :git/url "https://github.com/protosens/maestro.clj.git"}}
+  {:extra-deps  {com.protosens/maestro {:mvn/version "0.0.0-alpha0"}}
    :maestro/doc "Library used for managing this repo as a monorepo"}
 
 
@@ -130,19 +141,31 @@
   ;; USEFUL BUNDLES OF ALIASES
 
   :bundle/test
-  {:maestro/doc     "Test utilities"
-   :maestro/require [:ext/clojure.test.check
-                     :ext/kaocha
-                     :ext/mprop]}
+  {:maestro/doc        "Test utilities"
+   :maestro/require    [:ext/clojure.test.check
+                        :ext/kaocha
+                        :ext/maestro
+                        :ext/mprop]
+   :maestro/on-require [protosens.maestro.plugin.kaocha/prepare]}
+
 
   
 
 
   ;; FOR TASKS
 
+  :task/build
+
+  {:maestro/doc     "Building artifacts"
+   :maestro/require [:ext/clojure.tools.build
+                     :ext/maestro]}
+
+
   :task/deploy
+
   {:maestro/doc     "Installing or deploying artifacts"
-   :maestro/require [:ext/deps-deploy]}
+   :maestro/require [:ext/deps-deploy
+                     :ext/maestro]}
 
 
   :task/dev
@@ -173,6 +196,7 @@
 
   {:maestro/doc     "All major modules"
    :maestro/require [:module/app.fuzz
+                     :module/bench
                      :module/break
                      :module/cvm
                      :module/gen
@@ -185,24 +209,24 @@
 
   {:exec-fn         convex.app.fuzz/random
    :extra-paths     ["module/app/fuzz/src/main/clj"]
-   :maestro/dir     "module/app/fuzz"
    :maestro/doc     "Generates and executes random CVX forms while keeping track of unforeseen failures"
    :maestro/require [:ext/clojure
                      :ext/clojure.test.check
                      :module/break
-                     :module/cvm]}
+                     :module/cvm]
+   :maestro/root    "module/app/fuzz"}
 
   ;---
 
   :module/bench
 
   {:extra-paths     ["module/bench/src/main/clj"]
-   :maestro/dir     "module/bench"
    :maestro/doc     "Namespaces for benchmarking various areas of Convex" 
    :maestro/require [:ext/criterium
                      :ext/coffi
                      :module/cvm
-                     :module/net]}
+                     :module/net]
+   :maestro/root    "module/bench"}
 
   ;---
 
@@ -210,11 +234,11 @@
 
   {:extra-paths     ["module/break/src/main/clj"
                      "module/break/src/main/cvx"]
-   :maestro/dir     "module/break"
    :maestro/doc     "Advanced generative testing against the CVM"
    :maestro/require [:module/cvm
                      :module/gen
-                     {test :test/break}]}
+                     {test :test/break}]
+   :maestro/root    "module/break"}
 
 
   :test/break
@@ -226,22 +250,23 @@
   :module/build
 
   {:extra-paths     ["module/build/src/main/clj"]
-   :maestro/dir     "module/build"
    :maestro/doc     "Building modules from this repository for production"
    :maestro/require [:ext/clojure.tools.build
-                     :ext/maestro]}
+                     :ext/maestro]
+   :maestro/root    "module/build"}
 
   ;---
 
   :module/cvm
 
-  {:extra-paths               ["module/cvm/src/main/clj"]
-   :maestro/dir                "module/cvm"
-   :maestro/doc                "Handling CVM contexts and Convex cells"
-   :maestro/require           [:ext/convex-core
-                               {test :test/cvm}]
-   :maestro.build/type        :jar
-   :maestro.build.path/output "private/target/cvm.jar"}
+  {:extra-paths                         ["module/cvm/src/main/clj"]
+   :maestro/doc                          "Handling CVM contexts and Convex cells"
+   :maestro/require                     [:ext/convex-core
+                                         {test :test/cvm}]
+   :maestro/root                        "module/cvm"
+   :maestro.plugin.build/type           :jar
+   :maestro.plugin.build.alias/artifact :release/cvm
+   :maestro.plugin.build.path/output    "private/target/cvm.jar"}
 
 
   :release/cvm
@@ -266,15 +291,16 @@
 
   :module/gen
 
-  {:extra-paths               ["module/gen/src/main/clj"]
-   :maestro/dir               "module/gen"
-   :maestro/doc               "`test.check` generators for Convex cells"
-   :maestro/require           [:ext/clojure.test.check
-                               {default :module/cvm
-                                release :release/cvm}
-                               {test :test/gen}]
-   :maestro.build/type        :jar
-   :maestro.build.path/output "private/target/gen.jar"}
+  {:extra-paths                         ["module/gen/src/main/clj"]
+   :maestro/doc                         "`test.check` generators for Convex cells"
+   :maestro/require                     [:ext/clojure.test.check
+                                         {default :module/cvm
+                                          release :release/cvm}
+                                         {test :test/gen}]
+   :maestro/root                        "module/gen"
+   :maestro.plugin.build/type           :jar
+   :maestro.plugin.build.alias/artifact :release/gen
+   :maestro.plugin.build.path/output    "private/target/gen.jar"}
 
 
   :release/gen
@@ -291,15 +317,16 @@
 
   :module/net
 
-  {:extra-paths               ["module/net/src/main/clj"]
-   :maestro/doc               "Convex network utilities"
-   :maestro/dir               "module/net"
-   :maestro/require           [:ext/convex-peer
-                               {default :module/cvm
-                                release :release/cvm}
-                               {test :test/net}]
-   :maestro.build/type        :jar
-   :maestro.build.path/output "private/target/net.jar"}
+  {:extra-paths                         ["module/net/src/main/clj"]
+   :maestro/doc                         "Convex network utilities"
+   :maestro/require                     [:ext/convex-peer
+                                         {default :module/cvm
+                                          release :release/cvm}
+                                         {test :test/net}]
+   :maestro/root                        "module/net"
+   :maestro.plugin.build/type           :jar
+   :maestro.plugin.build.alias/artifact :release/net
+   :maestro.plugin.build.path/output    "private/target/net.jar"}
 
 
   :release/net
@@ -318,39 +345,41 @@
 
   {:extra-paths     ["module/recipe/src/main/clj"
                      "module/recipe/src/main/cvx"]
-   :maestro/dir     "module/recipe"
    :maestro/doc     "Examples for common use cases meant for the REPL"
    :maestro/require [:ext/clj-http
                      :ext/json
                      :module/cvm
-                     :module/net]}
+                     :module/net]
+   :maestro/root    "module/recipe"}
 
   ;---
 
   :module/shell
 
-  {:convex.shell/version      "0.0.0-alpha4"
-   :extra-paths               ["module/shell/resource/main"
-                               "module/shell/src/main/clj"
-                               "module/shell/src/main/cvx"]
-   :maestro/dir               "module/shell"
-   :maestro/doc               "Convex Lisp Shell"
-   :maestro/require           [:ext/clojure
-                               :ext/criterium
-                               :ext/graal-build-time
-                               :module/cvm
-                               {dev :dev/shell}]
-   :maestro.build/type        :uberjar
-   :maestro.build.path/output "private/target/shell.uber.jar"
-   :maestro.uberjar/compiler  {:direct-linking true
-                               :elide-meta     [:column
-                                                :doc
-                                                :file
-                                                :line]}
-   :maestro.uberjar/main      convex.shell}
+  {:convex.shell/version                   "0.0.0-alpha4"
+   :extra-paths                            ["module/shell/resource/main"
+                                            "module/shell/src/main/clj"
+                                            "module/shell/src/main/cvx"]
+   :maestro/doc                            "Convex Lisp Shell"
+   :maestro/require                        [:ext/clojure
+                                            :ext/criterium
+                                            :ext/graal-build-time
+                                            :module/cvm
+                                            {dev :dev/shell}]
+   :maestro/root                           "module/shell"
+   :maestro.plugin.build/type              :uberjar
+   :maestro.plugin.build.path/output       "private/target/shell.uber.jar"
+   :maestro.plugin.build.uberjar/compiler  {:direct-linking true
+                                            :elide-meta     [:column
+                                                             :doc
+                                                             :file
+                                                             :line]}
+   :maestro.plugin.build.uberjar/main      convex.shell}
 
 
   :dev/shell
 
   {:extra-paths  ["module/shell/src/dev/cvx"]}
+
+
  }}
