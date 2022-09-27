@@ -1,5 +1,7 @@
 {:deps
- {com.protosens/maestro {:mvn/version "0.0.0-alpha0"}}
+ {com.protosens/maestro {:deps/root "module/maestro"
+                         :git/sha   "d90d754512329d442439fd4bfecbe97f351a2c14"
+                         :git/url   "https://github.com/protosens/monorepo.cljc"}}
 
 
  :paths
@@ -59,6 +61,13 @@
   {:doc      "Shortcut for starting dev mode given alias or a vector of aliases and/or profiles"
    :requires ([convex.task.aliases])
    :task     (convex.task.aliases/dev :-M)}
+
+
+  gitlib
+  
+  {:doc      "Generate `deps.edn` for modules exposed as git libraries"
+   :requires ([protosens.maestro.git.lib])
+   :task     (protosens.maestro.git.lib/gen-deps)}
 
 
   lint

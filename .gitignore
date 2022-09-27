@@ -20,6 +20,8 @@
 
 !/.clj-kondo/config.edn
 !/.clj-kondo/hooks
+/**/.clj-kondo
+/**/.lsp
 !/bb/script/dev.clj
 /**/dev.clj
 /.clj-kondo/*

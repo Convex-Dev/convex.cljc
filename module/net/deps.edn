@@ -1,0 +1,10 @@
+;; This is a generated file allowing this module to be consumed
+;; as a git dependency via `:deps/root`.
+;;
+{:deps
+ {com.fzakaria/slf4j-timbre {:mvn/version "0.3.21"},
+  com.taoensso/timbre {:mvn/version "5.2.1"},
+  word.convex/cvm.clj {:local/root "../cvm"},
+  world.convex/convex-core {:mvn/version "0.7.9"},
+  world.convex/convex-peer {:mvn/version "0.7.9"}},
+ :paths ["src/main/clj"]}

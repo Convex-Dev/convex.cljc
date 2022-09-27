@@ -107,7 +107,9 @@
 
   :ext/maestro
   
-  {:extra-deps  {com.protosens/maestro {:mvn/version "0.0.0-alpha0"}}
+  {:extra-deps  {com.protosens/maestro {:deps/root "module/maestro"
+                                        :git/sha   "d90d754512329d442439fd4bfecbe97f351a2c14"
+                                        :git/url   "https://github.com/protosens/monorepo.cljc"}}
    :maestro/doc "Library used for managing this repo as a monorepo"}
 
 
@@ -254,6 +256,7 @@
    :maestro/require                     [:ext/convex-core
                                          {test :test/cvm}]
    :maestro/root                        "module/cvm"
+   :maestro.git.lib/name                 word.convex/cvm.clj
    :maestro.plugin.build/type           :jar
    :maestro.plugin.build.alias/artifact :release/cvm
    :maestro.plugin.build.path/output    "private/target/cvm.jar"}
@@ -288,6 +291,7 @@
                                           release :release/cvm}
                                          {test :test/gen}]
    :maestro/root                        "module/gen"
+   :maestro.git.lib/name                 world.convex/gen.clj
    :maestro.plugin.build/type           :jar
    :maestro.plugin.build.alias/artifact :release/gen
    :maestro.plugin.build.path/output    "private/target/gen.jar"}
@@ -314,6 +318,7 @@
                                           release :release/cvm}
                                          {test :test/net}]
    :maestro/root                        "module/net"
+   :maestro.git.lib/name                 world.convex/net.clj
    :maestro.plugin.build/type           :jar
    :maestro.plugin.build.alias/artifact :release/net
    :maestro.plugin.build.path/output    "private/target/net.jar"}
