@@ -1,7 +1,7 @@
 {:deps
- {com.protosens/maestro {:deps/root "module/maestro"
-                         :git/sha   "d90d754512329d442439fd4bfecbe97f351a2c14"
-                         :git/url   "https://github.com/protosens/monorepo.cljc"}}
+ {protosens/maestro {:deps/root "module/maestro"
+                     :git/sha   "aa5cb8058c734db259a2edd73dc1caf9f9cb98ea"
+                     :git/url   "https://github.com/protosens/monorepo.cljc"}}
 
 
  :paths
@@ -14,26 +14,6 @@
   {:doc      "Resolves and prints all required aliases - Takes either a root alias or a vector of root aliases and/or profiles"
    :requires ([protosens.maestro])
    :task     (protosens.maestro/task)}
-
-
-  aliases:dev
-
-  {:doc      "Given one or several aliases in a vector, prints all aliases required for dev"
-   :requires ([convex.task.aliases])
-   :task     (convex.task.aliases/dev :print)}
-  
-  aliases:test
-
-  {:doc      "Like `aliases:dev` but prints all aliases required for testing"
-   :requires ([convex.task.aliases])
-   :task     (convex.task.aliases/test :print)}
-
-  aliases:test:upstream
-
-  {:doc      "Like `aliases:test` but tests all transitive modules as well"
-   :requires ([convex.task.aliases])
-   :task     (convex.task.aliases/test-upstream :print)}
-
 
   build
 
@@ -59,11 +39,12 @@
   dev
 
   {:doc      "Shortcut for starting dev mode given alias or a vector of aliases and/or profiles"
-   :requires ([convex.task.aliases])
-   :task     (convex.task.aliases/dev :-M)}
+   :requires ([protosens.maestro])
+   :task     (protosens.maestro/clojure "-M"
+                                        {:maestro/mode :dev})}
 
 
-  gitlib
+  expose
   
   {:doc      "Generate `deps.edn` for modules exposed as git libraries"
    :requires ([protosens.maestro.git.lib])
@@ -114,15 +95,10 @@
 
    test
 
-   {:doc      "Shortcut for testing the given alias (or vector of aliases and profiltes)"
-   :requires ([convex.task.aliases])
-   :task     (convex.task.aliases/test :-M)}
+   {:doc     "Shortcut for testing the given alias (or vector of aliases and profiltes)"
+   :requires ([protosens.maestro])
+   :task     (protosens.maestro/clojure "-M"
+                                        {:maestro/mode :test})}
 
-
-   test:upstream
-
-   {:doc      "Shortcut for testing the given alias (or vector of aliases and profiltes) as well as transitive modules"
-   :requires ([convex.task.aliases])
-   :task     (convex.task.aliases/test-upstream :-M)}
 
    }}

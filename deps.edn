@@ -1,6 +1,15 @@
-{
- 
- ;; OPTIONS
+{;; MAESTRO MODES
+ :maestro/mode+ {:dev           {:maestro/alias+   [:task/dev]
+                                 :maestro/profile+ [dev
+                                                    test]}
+                 :test          {:maestro/alias+   [:task/test]
+                                 :maestro/profile+ [^:direct? test]}
+                 :test-upstream {:maestro/alias+   [:task/test]
+                                 :maestro/profile+ [test]}}
+
+
+
+ ;; OPTIONS FOR MAESTRO PLUGINS
 
 
  :maestro.plugin.build.path/exclude ["(?i)^META-INF/license/.*"
@@ -107,9 +116,9 @@
 
   :ext/maestro
   
-  {:extra-deps  {com.protosens/maestro {:deps/root "module/maestro"
-                                        :git/sha   "d90d754512329d442439fd4bfecbe97f351a2c14"
-                                        :git/url   "https://github.com/protosens/monorepo.cljc"}}
+  {:extra-deps  {protosens/maestro {:deps/root "module/maestro"
+                                    :git/sha   "aa5cb8058c734db259a2edd73dc1caf9f9cb98ea"
+                                    :git/url   "https://github.com/protosens/monorepo.cljc"}}
    :maestro/doc "Library used for managing this repo as a monorepo"}
 
 
