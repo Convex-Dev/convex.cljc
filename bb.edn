@@ -2,94 +2,127 @@
  {local/task {:local/root "module/task"}}
 
 
+ :pods
+ {clj-kondo/clj-kondo {:version "2022.09.08"}}
+
+
+ ;;;;;;;;;;
+
+
  :tasks
  {aliases
 
-  {:doc      "Resolves and prints all required aliases - Takes either a root alias or a vector of root aliases and/or profiles"
-   :requires ([protosens.maestro])
-   :task     (protosens.maestro/task)}
+  {:doc         "Resolves and prints all required aliases"
+   :maestro/doc "Given an alias or a vector of aliases and profiles, prints all necessary
+                 aliases, following `:maestro/require` in `deps.edn`.
+
+                     bb aliases :module/cvm
+                     bb aliases '[:module/cvm :module/net]'
+                
+                 A `:maestro/mode` can also be activated (see `deps.edn`):
+
+                     bb aliases :dev '[:module/cvm :module/net]'
+                
+                 Provide any additional aliases you might need for your dev workflow.
+                 For instance, an alias for NREPL locate in your `~/.clojure/deps.edn`."
+   :requires    ([protosens.maestro])
+   :task        (protosens.maestro/task)}
+
 
   build
 
-  {:doc      "Build the given alias"
+  {:doc      "Build the given module"
    :requires ([protosens.maestro.plugin.build])
    :task     (protosens.maestro.plugin.build/task :task/build)}
 
 
-  deploy:clojars
-
-  {:doc      "Deploy to Clojars: <username> <path-to-token> <alias>"
-   :requires ([protosens.maestro.plugin.deps-deploy])
-   :task     (protosens.maestro.plugin.deps-deploy/clojars :task/deploy)}
-
-
-  deploy:local
-
-  {:doc      "Deploy alias to local Maven cache"
-   :requires ([protosens.maestro.plugin.deps-deploy])
-   :task     (protosens.maestro.plugin.deps-deploy/local :task/deploy)}
-
 
   dev
 
-  {:doc      "Shortcut for starting dev mode given alias or a vector of aliases and/or profiles"
-   :requires ([protosens.maestro])
-   :task     (protosens.maestro/clojure "-M"
+  {:doc         "Shortcut for starting dev mode"
+   :maestro/doc "Same kind of arguments as the `aliases` task but activates the `:dev` mode."
+   :requires    ([protosens.maestro])
+   :task        (protosens.maestro/clojure "-M"
                                         {:maestro/mode :dev})}
+
+
+  doc:task
+
+  {:doc         "Print extra information for the given task"
+   :maestro/doc "If there is any"
+   :requires    ([protosens.maestro.doc])
+   :task        (protosens.maestro.doc/print-task)}
 
 
   expose
   
-  {:doc      "Generate `deps.edn` for modules exposed as git libraries"
-   :requires ([protosens.maestro.git.lib])
-   :task     (protosens.maestro.git.lib/task)}
+  {:doc         "Expose modules as Git libraries"
+   :maestro/doc "By generating a custom `deps.edn` file for those having a `:maestro.git.lib/name`
+                 in their alias data."
+   :requires    ([protosens.maestro.git.lib])
+   :task        (protosens.maestro.git.lib/task)}
 
 
   lint
 
-  {:doc      "Lint the repository using `clj-kondo`"
-   :requires ([protosens.maestro.plugin.clj-kondo])
-   :task     (protosens.maestro.plugin.clj-kondo/lint)}
+  {:doc         "Lint the whole repository"
+   :maestro/doc "Using Clj-kondo.
+                 See the `lint:prepare` task."
+   :requires    ([protosens.maestro.plugin.clj-kondo])
+   :task        (protosens.maestro.plugin.clj-kondo/lint)}
 
 
   lint:prepare
 
-  {:doc      "Lints dependencies using `clj-kondo` and copy configuration files"
-   :requires ([protosens.maestro.plugin.clj-kondo])
-   :task     (protosens.maestro.plugin.clj-kondo/prepare)}
+  {:doc         "Prepare for `lint`"
+   :maestro/doc "Must be run prior to the first time `lint` is run and on dependency changes."
+   :requires    ([protosens.maestro.plugin.clj-kondo])
+   :task        (protosens.maestro.plugin.clj-kondo/prepare)}
 
 
    native:agent
 
-   {:doc      "Starts Java command setting the native-image-agent to output tracing to './private/agent' (eg. reflection configuration for task 'native:image')"
-    :requires ([convex.task.native])
-    :task     (convex.task.native/agent)}
+   {:doc         "Use `java` with native-image-agent tracing"
+    :maestro/doc "Provide the same argument you would provide to `java`
+    
+                  Analyze runtime behavior and output results to `./private/agent`
+                  Will contain things like reflection configuration for the `native:image` task."
+    :requires    ([convex.task.native])
+    :task        (convex.task.native/agent)}
 
 
    native:reflect-config
 
-   {:doc      "Copies './private/agent/reflect-config.json' to the folder given as argument after preparing it"
-    :requires ([convex.task.native])
-    :task     (task.native/reflect-config)}
+   {:doc         "Copies reflection configuration"
+    :maestro/doc "See the `native:agent` task.
+                 
+                  Will copy to the directory given as argument after doing some preparation on the configuration file."
+    :requires    ([convex.task.native])
+    :task        (task.native/reflect-config)}
 
 
    native:image
 
-   {:doc      "Builds a native image in `./private/target` from an uberjar ; requires alias that has been used to `build` the uberjar"
-    :requires ([convex.task.native])
-    :task     (convex.task.native/image)}
+   {:doc         "Build a native image for the given module"
+    :maestro/doc "Assumes its uberjar has been built using the `build` task.
+                  Uberjar describes the output path in its native image properties."
+    :requires    ([convex.task.native])
+    :task        (convex.task.native/image)}
 
 
    pprint-cp
 
-   {:doc      "Pretty prints the classpath read from STDIN - Great match for Clojure's `-Spath` argument"
-    :requires ([protosens.maestro.classpath])
-    :task     (protosens.maestro.classpath/pprint)}
+   {:doc         "Pretty prints the classpath read from STDIN"
+    :maestro/doc "Useful for things like:
+
+                    clojure -Spath -A$( bb aliases :module/cvm ) | bb pprint-cp"
+    :requires    ([protosens.maestro.classpath])
+    :task        (protosens.maestro.classpath/pprint)}
 
 
    test
 
-   {:doc     "Shortcut for testing the given alias (or vector of aliases and profiltes)"
+   {:doc      "Like the `dev` task but launches tests"
     :requires ([protosens.maestro])
     :task     (protosens.maestro/clojure "-M"
                                          {:maestro/mode :test})}
