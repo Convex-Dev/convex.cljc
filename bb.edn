@@ -1,11 +1,5 @@
 {:deps
- {protosens/maestro {:deps/root "module/maestro"
-                     :git/sha   "aa5cb8058c734db259a2edd73dc1caf9f9cb98ea"
-                     :git/url   "https://github.com/protosens/monorepo.cljc"}}
-
-
- :paths
- ["module/task/src/main/bb"]
+ {local/task {:local/root "module/task"}}
 
 
  :tasks
@@ -48,7 +42,7 @@
   
   {:doc      "Generate `deps.edn` for modules exposed as git libraries"
    :requires ([protosens.maestro.git.lib])
-   :task     (protosens.maestro.git.lib/gen-deps)}
+   :task     (protosens.maestro.git.lib/task)}
 
 
   lint
@@ -96,9 +90,9 @@
    test
 
    {:doc     "Shortcut for testing the given alias (or vector of aliases and profiltes)"
-   :requires ([protosens.maestro])
-   :task     (protosens.maestro/clojure "-M"
-                                        {:maestro/mode :test})}
+    :requires ([protosens.maestro])
+    :task     (protosens.maestro/clojure "-M"
+                                         {:maestro/mode :test})}
 
 
    }}

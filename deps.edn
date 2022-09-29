@@ -385,5 +385,16 @@
 
   {:extra-paths  ["module/shell/src/dev/cvx"]}
 
+ ;---
+
+ :module/task
+
+ {:extra-paths          ["module/task/src/main/bb"]
+  :maestro/doc          ["Tasks used in this repository."
+                         "Not meant for public use."]
+  :maestro/require      [:ext/maestro]
+  :maestro/root         "module/task"
+  :maestro.git.lib/name local/task}
+
 
  }}
