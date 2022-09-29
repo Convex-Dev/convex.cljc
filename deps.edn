@@ -15,6 +15,14 @@
  :maestro.plugin.build.path/exclude ["(?i)^META-INF/license/.*"
                                      "^license/.*"]
  :maestro.plugin.kaocha/path        "private/maestro-kaocha.edn"
+ :maestro.plugin.quickdoc/option+   {:git/branch  "main"
+                                     :github/repo "https://github.com/Convex-Dev/convex.cljc"
+                                     :toc         true
+                                     :var-links   true
+                                     :var-pattern :wikilinks}
+
+
+
  
  
 
@@ -268,7 +276,8 @@
    :maestro.git.lib/name                 word.convex/cvm.clj
    :maestro.plugin.build/type           :jar
    :maestro.plugin.build.alias/artifact :release/cvm
-   :maestro.plugin.build.path/output    "private/target/cvm.jar"}
+   :maestro.plugin.build.path/output    "private/target/cvm.jar"
+   :maestro.plugin.quickdoc.path/output "module/cvm/API.md"}
 
 
   :release/cvm
@@ -303,7 +312,8 @@
    :maestro.git.lib/name                 world.convex/gen.clj
    :maestro.plugin.build/type           :jar
    :maestro.plugin.build.alias/artifact :release/gen
-   :maestro.plugin.build.path/output    "private/target/gen.jar"}
+   :maestro.plugin.build.path/output    "private/target/gen.jar"
+   :maestro.plugin.quickdoc.path/output "module/gen/API.md"}
 
 
   :release/gen
@@ -330,7 +340,8 @@
    :maestro.git.lib/name                 world.convex/net.clj
    :maestro.plugin.build/type           :jar
    :maestro.plugin.build.alias/artifact :release/net
-   :maestro.plugin.build.path/output    "private/target/net.jar"}
+   :maestro.plugin.build.path/output    "private/target/net.jar"
+   :maestro.plugin.quickdoc.path/output "module/net/API.md"}
 
 
   :release/net
@@ -373,6 +384,7 @@
    :maestro/root                           "module/shell"
    :maestro.plugin.build/type              :uberjar
    :maestro.plugin.build.path/output       "private/target/shell.uber.jar"
+   :maestro.plugin.quickdoc.path/output    "module/shell/API.md"
    :maestro.plugin.build.uberjar/compiler  {:direct-linking true
                                             :elide-meta     [:column
                                                              :doc

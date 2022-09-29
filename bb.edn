@@ -46,6 +46,17 @@
                                         {:maestro/mode :dev})}
 
 
+  doc:module
+
+  {:doc         "Generate documentation for modules"
+   :maestro/doc "Produce an `API.md` file at the root of relevant modules.
+                 
+                 It will contain a full description of all namespaces belonging to the module,
+                 with vars and usage."
+   :requires    ([protosens.maestro.plugin.quickdoc])
+   :task        (protosens.maestro.plugin.quickdoc/module+)}
+
+
   doc:task
 
   {:doc         "Print extra information for the given task"
