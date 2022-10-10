@@ -31,6 +31,12 @@
  {
 
 
+
+  :cvxcli
+
+  {:extra-deps {world.convex/convex-cli {:mvn/version "0.7.9"}}}
+
+
   ;; EXTERNAL DEPENDENCIES
 
 
@@ -125,9 +131,48 @@
   :ext/maestro
   
   {:extra-deps  {protosens/maestro {:deps/root "module/maestro"
-                                    :git/sha   "0710ba7f1b94bff6c682eb9ec5d5bbad1648e784"
+                                    :git/sha   "98f817a"
+                                    :git/tag   "stable/2022-10-10"
                                     :git/url   "https://github.com/protosens/monorepo.cljc"}}
-   :maestro/doc "Library used for managing this repo as a monorepo"}
+   :maestro/doc "Collection of tools for managing this repo as a monorepo"}
+
+
+  :ext/maestro.plugin.build
+  
+  {:extra-deps  {protosens/maestro.plugin.build {:deps/root "module/maestro.plugin.build"
+                                                 :git/sha   "98f817a"
+                                                 :git/tag   "stable/2022-10-10"
+                                                 :git/url   "https://github.com/protosens/monorepo.cljc"}}
+   :maestro/doc "`:ext/maestro`plugin for `tools.build`"}
+
+
+  :ext/maestro.plugin.clj-kondo
+  
+  {:extra-deps  {protosens/maestro.plugin.clj-kondo {:deps/root "module/maestro.plugin.clj-kondo"
+                                                     :git/sha   "98f817a"
+                                                     :git/tag   "stable/2022-10-10"
+                                                     :git/url   "https://github.com/protosens/monorepo.cljc"}}
+   :maestro/doc "`:ext/maestro` plugin for Clj-kondo"}
+
+
+  :ext/maestro.plugin.kaocha
+  
+  {:extra-deps  {protosens/maestro.plugin.kaocha {:deps/root "module/maestro.plugin.kaocha"
+                                                  :git/sha   "98f817a"
+                                                  :git/tag   "stable/2022-10-10"
+                                                  :git/url   "https://github.com/protosens/monorepo.cljc"}}
+   :maestro/doc "`:ext/maestro` plugin for the Kaocha test runner.
+                 Brings Kaocha alongside."}
+
+
+  :ext/maestro.plugin.quickdoc
+  
+  {:extra-deps  {protosens/maestro.plugin.quickdoc {:deps/root "module/maestro.plugin.quickdoc"
+                                                    :git/sha   "98f817a"
+                                                    :git/tag   "stable/2022-10-10"
+                                                    :git/url   "https://github.com/protosens/monorepo.cljc"}}
+   :maestro/doc "`:ext/maestro for Quickdoc"}
+
 
 
   :ext/mprop
@@ -140,6 +185,47 @@
 
   {:extra-deps  {djblue/portal {:mvn/version "0.29.1"}}
    :maestro/doc "Tool for data exploration"}
+
+
+  :ext/protosens.bb.help
+
+  {:extra-deps  {protosens/bb.help {:deps/root "module/bb.help"
+                                    :git/sha   "98f817a"
+                                    :git/tag   "stable/2022-10-10"
+                                    :git/url   "https://github.com/protosens/monorepo.cljc"}}
+   :maestro/doc "Printing extra documentation for Babashka tasks"
+   :maestro/url "https://github.com/protosens/monorepo.cljc/module/bb.help"}
+
+
+
+  :ext/protosens.classpath
+
+  {:extra-deps  {protosens/classpath {:deps/root "module/classpath"
+                                      :git/sha   "98f817a"
+                                      :git/tag   "stable/2022-10-10"
+                                      :git/url   "https://github.com/protosens/monorepo.cljc"}}
+   :maestro/doc "Classpath utiltiies"
+   :maestro/url "https://github.com/protosens/monorepo.cljc/module/classpath"}
+
+
+  :ext/protosens.namespace
+
+  {:extra-deps  {protosens/namespace {:deps/root "module/namespace"
+                                      :git/sha   "98f817a"
+                                      :git/tag   "stable/2022-10-10"
+                                      :git/url   "https://github.com/protosens/monorepo.cljc"}}
+   :maestro/doc "Requiring some namespaces automatically"
+   :maestro/url "https://github.com/protosens/monorepo.cljc/module/namespace"}
+
+
+  :ext/protosens.symbol
+
+  {:extra-deps  {protosens/symbol {:deps/root "module/symbol"
+                                   :git/sha   "98f817a"
+                                   :git/tag   "stable/2022-10-10"
+                                   :git/url   "https://github.com/protosens/monorepo.cljc"}}
+   :maestro/doc "Handling symbols"
+   :maestro/url "https://github.com/protosens/monorepo.cljc/module/symbol"}
 
 
   :ext/slf4j-timbre
@@ -159,11 +245,25 @@
 
   ;; USEFUL BUNDLES OF ALIASES
 
+
+  :bundle/module
+
+  {:maestro/doc     "All major modules"
+   :maestro/require [:module/app.fuzz
+                     ;:module/bench
+                     :module/break
+                     :module/cvm
+                     :module/gen
+                     :module/net
+                     :module/recipe
+                     :module/shell]}
+
+
   :bundle/test
   {:maestro/doc        "Test utilities"
    :maestro/require    [:ext/clojure.test.check
                         :ext/kaocha
-                        :ext/maestro
+                        :ext/maestro.plugin.kaocha
                         :ext/mprop]
    :maestro/on-require [protosens.maestro.plugin.kaocha/prepare]}
 
@@ -172,19 +272,6 @@
 
 
   ;; FOR TASKS
-
-  :task/build
-
-  {:maestro/doc     "Building artifacts"
-   :maestro/require [:ext/clojure.tools.build
-                     :ext/maestro]}
-
-
-  :task/deploy
-
-  {:maestro/doc     "Installing or deploying artifacts"
-   :maestro/require [:ext/deps-deploy
-                     :ext/maestro]}
 
 
   :task/dev
@@ -195,7 +282,6 @@
                      :ext/clojure.java.classpath
                      :ext/clojure.tools.namespace
                      :ext/criterium
-                     :ext/portal
                      :module/dev]}
 
 
@@ -210,18 +296,6 @@
 
 
   ;; MODULES
-
-  :module/all
-
-  {:maestro/doc     "All major modules"
-   :maestro/require [:module/app.fuzz
-                     :module/bench
-                     :module/break
-                     :module/cvm
-                     :module/gen
-                     :module/net
-                     :module/recipe
-                     :module/shell]}
 
 
   :module/app.fuzz
@@ -277,7 +351,7 @@
    :maestro.plugin.build/type           :jar
    :maestro.plugin.build.alias/artifact :release/cvm
    :maestro.plugin.build.path/output    "private/target/cvm.jar"
-   :maestro.plugin.quickdoc.path/output "module/cvm/API.md"}
+   :maestro.plugin.quickdoc.path/output "module/cvm/doc/API.md"}
 
 
   :release/cvm
@@ -295,8 +369,11 @@
 
   :module/dev
 
-  {:extra-paths ["module/dev/src/main/clj"]
-   :maestro/doc "Dev utilities for this repository"}
+  {:extra-paths     ["module/dev/src/main/clj"]
+   :maestro/doc     "Dev utilities for this repository"
+   :maestro/require [:ext/portal
+                     :ext/protosens.namespace
+                     :ext/protosens.symbol]}
 
   ;---
 
@@ -313,7 +390,7 @@
    :maestro.plugin.build/type           :jar
    :maestro.plugin.build.alias/artifact :release/gen
    :maestro.plugin.build.path/output    "private/target/gen.jar"
-   :maestro.plugin.quickdoc.path/output "module/gen/API.md"}
+   :maestro.plugin.quickdoc.path/output "module/gen/doc/API.md"}
 
 
   :release/gen
@@ -341,7 +418,7 @@
    :maestro.plugin.build/type           :jar
    :maestro.plugin.build.alias/artifact :release/net
    :maestro.plugin.build.path/output    "private/target/net.jar"
-   :maestro.plugin.quickdoc.path/output "module/net/API.md"}
+   :maestro.plugin.quickdoc.path/output "module/net/doc/API.md"}
 
 
   :release/net
@@ -371,26 +448,26 @@
 
   :module/shell
 
-  {:convex.shell/version                   "0.0.0-alpha4"
-   :extra-paths                            ["module/shell/resource/main"
-                                            "module/shell/src/main/clj"
-                                            "module/shell/src/main/cvx"]
-   :maestro/doc                            "Convex Lisp Shell"
-   :maestro/require                        [:ext/clojure
-                                            :ext/criterium
-                                            :ext/graal-build-time
-                                            :module/cvm
-                                            {dev :dev/shell}]
-   :maestro/root                           "module/shell"
-   :maestro.plugin.build/type              :uberjar
-   :maestro.plugin.build.path/output       "private/target/shell.uber.jar"
-   :maestro.plugin.quickdoc.path/output    "module/shell/API.md"
-   :maestro.plugin.build.uberjar/compiler  {:direct-linking true
-                                            :elide-meta     [:column
-                                                             :doc
-                                                             :file
-                                                             :line]}
-   :maestro.plugin.build.uberjar/main      convex.shell}
+  {:convex.shell/version                  "0.0.0-alpha4"
+   :extra-paths                           ["module/shell/resource/main"
+                                           "module/shell/src/main/clj"
+                                           "module/shell/src/main/cvx"]
+   :maestro/doc                           "Convex Lisp Shell"
+   :maestro/require                       [:ext/clojure
+                                           :ext/criterium
+                                           :ext/graal-build-time
+                                           :module/cvm
+                                           {dev :dev/shell}]
+   :maestro/root                          "module/shell"
+   :maestro.plugin.build/type             :uberjar
+   :maestro.plugin.build.path/output      "private/target/shell.uber.jar"
+   :maestro.plugin.build.uberjar/compiler {:direct-linking true
+                                           :elide-meta     [:column
+                                                            :doc
+                                                            :file
+                                                            :line]}
+   :maestro.plugin.build.uberjar/main     convex.shell
+   :maestro.plugin.quickdoc.path/output   "module/shell/doc/API.md"}
 
 
   :dev/shell
@@ -401,12 +478,17 @@
 
  :module/task
 
- {:extra-paths          ["module/task/src/main/bb"]
-  :maestro/doc          ["Tasks used in this repository."
-                         "Not meant for public use."]
-  :maestro/require      [:ext/maestro]
-  :maestro/root         "module/task"
-  :maestro.git.lib/name local/task}
+ {:extra-paths     ["module/task/src/main/bb"]
+  :maestro/doc     "Tasks used in this repository.
+                    Not meant for public use."
+  :maestro/require [:ext/maestro
+                    :ext/maestro.plugin.build
+                    :ext/maestro.plugin.clj-kondo
+                    :ext/maestro.plugin.kaocha
+                    :ext/maestro.plugin.quickdoc
+                    :ext/protosens.bb.help
+                    :ext/protosens.classpath]
+  :maestro/root    "module/task"}
 
 
  }}
