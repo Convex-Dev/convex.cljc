@@ -347,17 +347,8 @@
    :maestro/require                     [:ext/convex-core
                                          {test :test/cvm}]
    :maestro/root                        "module/cvm"
-   :maestro.git.lib/name                 word.convex/cvm.clj
-   :maestro.plugin.build/type           :jar
-   :maestro.plugin.build.alias/artifact :release/cvm
-   :maestro.plugin.build.path/output    "private/target/cvm.jar"
+   :maestro.module.expose/name          world.convex/cvm
    :maestro.plugin.quickdoc.path/output "module/cvm/doc/API.md"}
-
-
-  :release/cvm
-
-  {:extra-deps      {world.convex/cvm.clj {:mvn/version "0.0.0-alpha4"}}
-   :maestro/require [{test :test/cvm}]}
 
 
   :test/cvm
@@ -382,21 +373,11 @@
   {:extra-paths                         ["module/gen/src/main/clj"]
    :maestro/doc                         "`test.check` generators for Convex cells"
    :maestro/require                     [:ext/clojure.test.check
-                                         {default :module/cvm
-                                          release :release/cvm}
+                                         :module/cvm
                                          {test :test/gen}]
    :maestro/root                        "module/gen"
-   :maestro.git.lib/name                 world.convex/gen.clj
-   :maestro.plugin.build/type           :jar
-   :maestro.plugin.build.alias/artifact :release/gen
-   :maestro.plugin.build.path/output    "private/target/gen.jar"
+   :maestro.module.expose/name          world.convex/gen
    :maestro.plugin.quickdoc.path/output "module/gen/doc/API.md"}
-
-
-  :release/gen
-
-  {:extra-deps      {world.convex/gen.clj {:mvn/version "0.0.0-alpha1"}}
-   :maestro/require [{test :test/gen}]}
 
 
   :test/gen
@@ -410,21 +391,11 @@
   {:extra-paths                         ["module/net/src/main/clj"]
    :maestro/doc                         "Convex network utilities"
    :maestro/require                     [:ext/convex-peer
-                                         {default :module/cvm
-                                          release :release/cvm}
+                                         :module/cvm
                                          {test :test/net}]
    :maestro/root                        "module/net"
-   :maestro.git.lib/name                 world.convex/net.clj
-   :maestro.plugin.build/type           :jar
-   :maestro.plugin.build.alias/artifact :release/net
-   :maestro.plugin.build.path/output    "private/target/net.jar"
+   :maestro.module.expose/name          world.convex/net
    :maestro.plugin.quickdoc.path/output "module/net/doc/API.md"}
-
-
-  :release/net
-
-  {:extra-deps      {world.convex/net.clj {:mvn/version "0.0.0-alpha3"}}
-   :maestro/require [{test :test/net}]}
 
 
   :test/net
