@@ -348,6 +348,8 @@
                                          {test :test/cvm}]
    :maestro/root                        "module/cvm"
    :maestro.module.expose/name          world.convex/cvm
+   :maestro.module.requirer/namespace   convex.cvm.-requirer
+   :maestro.module.requirer/path        "module/cvm/src/main/clj"
    :maestro.plugin.quickdoc.path/output "module/cvm/doc/API.md"}
 
 
@@ -377,6 +379,8 @@
                                          {test :test/gen}]
    :maestro/root                        "module/gen"
    :maestro.module.expose/name          world.convex/gen
+   :maestro.module.requirer/namespace   convex.gen.-requirer
+   :maestro.module.requirer/path        "module/gen/src/main/clj"
    :maestro.plugin.quickdoc.path/output "module/gen/doc/API.md"}
 
 
@@ -395,6 +399,8 @@
                                          {test :test/net}]
    :maestro/root                        "module/net"
    :maestro.module.expose/name          world.convex/net
+   :maestro.module.requirer/namespace   convex.net.-requirer
+   :maestro.module.requirer/path        "module/net/src/main/clj"
    :maestro.plugin.quickdoc.path/output "module/net/doc/API.md"}
 
 
