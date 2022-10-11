@@ -1,4 +1,4 @@
-# `module/gen` - [API](doc/API.md) 
+# `module/gen` - [API](doc/API.md)  - [CHANGES](doc/changelog.md)
 
 Convex cells generators.
 

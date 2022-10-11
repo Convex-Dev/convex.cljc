@@ -1,4 +1,4 @@
-# `module/net` - [API](doc/API.md) 
+# `module/net` - [API](doc/API.md)  - [CHANGES](doc/changelog.md)
 
 Interact with a Convex network.
 

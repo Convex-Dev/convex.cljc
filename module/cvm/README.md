@@ -1,4 +1,4 @@
-# `module/cvm` - [API](doc/API.md) 
+# `module/cvm` - [API](doc/API.md)  - [CHANGES](doc/changelog.md)
 
 Core uilities related to the Convex Virtual Machine.
 

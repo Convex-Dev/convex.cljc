@@ -483,7 +483,8 @@
                                            "module/shell/src/main/clj"
                                            "module/shell/src/main/cvx"]
    :maestro/doc                            "Convex Shell"
-   :maestro/platform+                     [:jvm]
+   :maestro/platform+                     [:jvm
+                                           :native]
    :maestro/require                       [:ext/clojure
                                            :ext/criterium
                                            :ext/graal-build-time

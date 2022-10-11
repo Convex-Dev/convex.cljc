@@ -1,11 +1,11 @@
-# `module/shell` - [API](doc/API.md) 
+# `module/shell` - [API](doc/API.md)  - [CHANGES](doc/changelog.md)
 
 Convex Shell
 
 ```clojure
 ;; Supported platforms:
 ;;
-[:jvm]
+[:jvm :native]
 ```
 
 
@@ -32,6 +32,9 @@ unforeseen heights with very fast feedback.
 
 In the future, the Convex Shell will also integrate client capabilities,
 allowing for scripted or dynamic interactions with networks of peers.
+
+
+---
 
 
 ## Usage
@@ -85,6 +88,9 @@ Start a comfortable REPL:
 
 Note: `-c` argument provides filename completion on tab. Ultimately, prepare the
 alias that suits your need.
+
+
+---
 
 
 ## Build
