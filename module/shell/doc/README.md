@@ -1,16 +1,3 @@
-# `module/shell` - [API](doc/API.md) 
-
-Convex Shell
-
-```clojure
-;; Supported platforms:
-;;
-[:jvm]
-```
-
-
----
-
 One-size fits all tool for sophisticated development, testing, and analysis of
 Convex Lisp in a fun and highly productive environment. Meant for more advanced
 users already familiar with [Convex Lisp and the Convex Virtual
@@ -114,4 +101,3 @@ Assuming everything is ready and the uberjar has been built:
 
 After a few minutes of work and quite a bit of memory usage, the native binary
 for your system will be available under `./private/target/shell`.
-

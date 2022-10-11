@@ -1,26 +1,3 @@
-# `module/net` - [API](doc/API.md) 
-
-Interact with a Convex network.
-
-```clojure
-;; Add to dependencies in `deps.edn`:
-;;
-world.convex/net
-{:deps/root "module/net"
- :git/sha   "..."
- :git/tag   "..."
- :git/url   "null"}
-```
-
-```clojure
-;; Supported platforms:
-;;
-[:jvm]
-```
-
-
----
-
 This library hosts network utilities for the Convex stack. Peers are nodes of
 the Convex network that perform transactions in consensus and keep a state in
 sync. The fast binary client is used to connect to a peer for querying
@@ -49,4 +26,3 @@ repository](https://github.com/Convex-Dev/convex) and provide commonly needed fe
 decentralized applications.
 
 Examples and walk-through can be found in [`:module/recipe`](../recipe).
-

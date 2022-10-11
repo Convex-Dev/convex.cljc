@@ -1,6 +1,11 @@
-# `:module/task`
+# `module/task` 
 
-[Babashka](https://github.com/babashka/babashka) tasks used in this repository.
+Tasks used in this repository.  
+Not meant for public use.
 
-Exposed as a local library so that dependencies needed by tasks can be defined
-in the root `deps.edn`.
+```clojure
+;; Supported platforms:
+;;
+[:bb :jvm]
+```
+

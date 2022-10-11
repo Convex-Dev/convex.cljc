@@ -1,16 +1,3 @@
-# `module/break` 
-
-Advanced suite of generative tests targeting the Convex Virtual Machine.
-
-```clojure
-;; Supported platforms:
-;;
-[:jvm]
-```
-
-
----
-
 Builds on utilities from [`:module/cvm`](../cvm) and
 [test.check](https://github.com/clojure/test.check) generators from
 [`:module/gen`](../gen).
@@ -40,4 +27,3 @@ variable (default is 200) while the number of tests per case can be set with
 
 
     env MPROP_MAX_SIZE=400 MPROP_NUM_TESTS=300 clojure -M$( bb aliases:test :module/break )
-

@@ -1,26 +1,3 @@
-# `module/cvm` - [API](doc/API.md) 
-
-Core uilities related to the Convex Virtual Machine.
-
-```clojure
-;; Add to dependencies in `deps.edn`:
-;;
-world.convex/cvm
-{:deps/root "module/cvm"
- :git/sha   "..."
- :git/tag   "..."
- :git/url   "null"}
-```
-
-```clojure
-;; Supported platforms:
-;;
-[:jvm]
-```
-
-
----
-
 The CVM executes operations over state, as described in [CAD
 005](https://github.com/Convex-Dev/design/blob/main/cad/005_cvmex/README.md).
 
@@ -59,4 +36,3 @@ This library offers support for
 [Clj-kondo](https://github.com/clj-kondo/clj-kondo). Follow the [usual steps for
 copying the
 required configuration](https://github.com/clj-kondo/clj-kondo#project-setup).
-

@@ -1,16 +1,3 @@
-# `module/recipe` 
-
-Examples for common use cases meant for the REPL.
-
-```clojure
-;; Supported platforms:
-;;
-[:jvm]
-```
-
-
----
-
 This module hosts a series of recipes, concrete examples regarding how Convex works and how to build high-performance
 decentralized applications. They are meant to run at the REPL. Early recipes explain core concepts while latter ones
 focus on networking and interacting with the current testnet.
@@ -51,4 +38,3 @@ Adding to this vector any other alias that might be useful for you (e.g. an NREP
 Often, especially when running a peer, it is best setting the log level to `:debug` in order to see more accurately what is going on:
 
     env TIMBRE_LEVEL=:debug bb dev '[:module/recipe ...]'
-

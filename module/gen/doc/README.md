@@ -1,26 +1,3 @@
-# `module/gen` - [API](doc/API.md) 
-
-Convex cells generators.
-
-```clojure
-;; Add to dependencies in `deps.edn`:
-;;
-world.convex/gen
-{:deps/root "module/gen"
- :git/sha   "..."
- :git/tag   "..."
- :git/url   "null"}
-```
-
-```clojure
-;; Supported platforms:
-;;
-[:jvm]
-```
-
-
----
-
 This library hosts generators for [test.check](https://github.com/clojure/test.check) and is useful for advanced
 generative testing of smart contracts. It is meant for users already familiar with `test.check`. The overall API tends
 to resemble the `clojure.test.generators` namespace.
@@ -35,4 +12,3 @@ to resemble the `clojure.test.generators` namespace.
 
 [`:module/break`](../../module/break) is an extensive generative test suite
 targeting the Convex Virtual Machine.
-

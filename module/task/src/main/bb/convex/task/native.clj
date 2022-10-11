@@ -5,11 +5,11 @@
   {:author "Adam Helinski"}
 
   (:refer-clojure :exclude [agent])
-  (:require [babashka.tasks    :as bb.task]
-            [cheshire.core     :as cheshire]
+  (:require [cheshire.core     :as cheshire]
             [clojure.edn       :as edn]
             [clojure.java.io   :as java.io]
-            [protosens.maestro :as maestro]))
+            [protosens.maestro :as maestro]
+            [protosens.process :as P.process]))
 
 
 ;;;;;;;;;;
@@ -21,10 +21,11 @@
 
   []
 
-  (apply bb.task/shell
-         "java"
-         "-agentlib:native-image-agent=config-output-dir=./private/agent"
-         *command-line-args*))
+  (-> (P.process/shell (concat ["java"
+                                "-agentlib:native-image-agent=config-output-dir=./private/agent"]
+                               *command-line-args*))
+      (P.process/success?)))
+
 
 
 (defn reflect-config
@@ -53,19 +54,20 @@
                             {:pretty true}))
 
 
+
 (defn image
 
   "Builds a native image."
 
   []
 
-  (apply bb.task/shell
-         "native-image"
-         "-jar"
-         (-> (maestro/create-basis)
-             (get-in [:aliases
-                      (edn/read-string (first *command-line-args*))
-                      :maestro.plugin.build.path/output]))
-         "--no-fallback"
-         "-H:+ReportExceptionStackTraces"
-         (rest *command-line-args*)))
+  (-> (P.process/run (concat ["native-image"
+                              "-jar"
+                              (-> (maestro/create-basis)
+                                  (get-in [:aliases
+                                           (edn/read-string (first *command-line-args*))
+                                           :maestro.plugin.build.path/output]))
+                              "--no-fallback"
+                              "-H:+ReportExceptionStackTraces"]
+                             (rest *command-line-args*)))
+      (P.process/success?)))

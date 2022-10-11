@@ -31,13 +31,21 @@
  {
 
 
-
-  :cvxcli
-
-  {:extra-deps {world.convex/convex-cli {:mvn/version "0.7.9"}}}
-
-
   ;; EXTERNAL DEPENDENCIES
+
+
+  :ext/babashka.fs
+
+  {:extra-deps  {babashka/fs {:mvn/version "0.1.11"}}
+   :maestro/doc "Library for filesystem operations"
+   :maestro/url "https://github.com/babashka/fs"}
+
+
+  :ext/cheshire
+
+  {:extra-deps  {cheshire/cheshire {:mvn/version "5.11.0"}}
+   :maestro/doc "R/W JSON"
+   :maestro/url "https://github.com/dakrone/cheshire"}
 
 
   :ext/clj-http
@@ -208,6 +216,16 @@
    :maestro/url "https://github.com/protosens/monorepo.cljc/module/classpath"}
 
 
+  :ext/protosens.git
+
+  {:extra-deps  {protosens/git {:deps/root "module/git"
+                                :git/sha   "98f817a"
+                                :git/tag   "stable/2022-10-10"
+                                :git/url   "https://github.com/protosens/monorepo.cljc"}}
+   :maestro/doc "Common Git operations"
+   :maestro/url "https://github.com/protosens/monorepo.cljc/module/git"}
+
+
   :ext/protosens.namespace
 
   {:extra-deps  {protosens/namespace {:deps/root "module/namespace"
@@ -218,6 +236,26 @@
    :maestro/url "https://github.com/protosens/monorepo.cljc/module/namespace"}
 
 
+  :ext/protosens.process
+
+  {:extra-deps  {protosens/process {:deps/root "module/process"
+                                    :git/sha   "98f817a"
+                                    :git/tag   "stable/2022-10-10"
+                                    :git/url   "https://github.com/protosens/monorepo.cljc"}}
+   :maestro/doc "Spawning processes"
+   :maestro/url "https://github.com/protosens/monorepo.cljc/module/process"}
+
+
+  :ext/protosens.string
+
+  {:extra-deps  {protosens/string {:deps/root "module/string"
+                                   :git/sha   "98f817a"
+                                   :git/tag   "stable/2022-10-10"
+                                   :git/url   "https://github.com/protosens/monorepo.cljc"}}
+   :maestro/doc "String functions complementing `clojure.string`"
+   :maestro/url "https://github.com/protosens/monorepo.cljc/module/string"}
+
+
   :ext/protosens.symbol
 
   {:extra-deps  {protosens/symbol {:deps/root "module/symbol"
@@ -226,6 +264,13 @@
                                    :git/url   "https://github.com/protosens/monorepo.cljc"}}
    :maestro/doc "Handling symbols"
    :maestro/url "https://github.com/protosens/monorepo.cljc/module/symbol"}
+
+
+  :ext/selmer
+
+  {:extra-deps  {selmer/selmer {:mvn/version "1.12.55"}}
+   :maestro/doc "A fast, Django inspired template system"
+   :maestro/url "https://github.com/yogthos/selmer"}
 
 
   :ext/slf4j-timbre
@@ -300,38 +345,41 @@
 
   :module/app.fuzz
 
-  {:exec-fn         convex.app.fuzz/random
-   :extra-paths     ["module/app/fuzz/src/main/clj"]
-   :maestro/doc     "Generates and executes random CVX forms while keeping track of unforeseen failures"
-   :maestro/require [:ext/clojure
-                     :ext/clojure.test.check
-                     :module/break
-                     :module/cvm]
-   :maestro/root    "module/app/fuzz"}
+  {:exec-fn           convex.app.fuzz/random
+   :extra-paths       ["module/app.fuzz/src/main/clj"]
+   :maestro/doc       "Parallel generation and execution of random Convex Lisp forms involving standard functions."
+   :maestro/platform+ [:jvm]
+   :maestro/require   [:ext/clojure
+                       :ext/clojure.test.check
+                       :module/break
+                       :module/cvm]
+   :maestro/root      "module/app.fuzz"}
 
   ;---
 
   :module/bench
 
-  {:extra-paths     ["module/bench/src/main/clj"]
-   :maestro/doc     "Namespaces for benchmarking various areas of Convex" 
-   :maestro/require [:ext/criterium
-                     :ext/coffi
-                     :module/cvm
-                     :module/net]
-   :maestro/root    "module/bench"}
+  {:extra-paths       ["module/bench/src/main/clj"]
+   :maestro/doc       "Namespaces for benchmarking various areas of Convex." 
+   :maestro/platform+ [:jvm]
+   :maestro/require   [:ext/criterium
+                       :ext/coffi
+                       :module/cvm
+                       :module/net]
+   :maestro/root      "module/bench"}
 
   ;---
 
   :module/break
 
-  {:extra-paths     ["module/break/src/main/clj"
-                     "module/break/src/main/cvx"]
-   :maestro/doc     "Advanced generative testing against the CVM"
-   :maestro/require [:module/cvm
-                     :module/gen
-                     {test :test/break}]
-   :maestro/root    "module/break"}
+  {:extra-paths       ["module/break/src/main/clj"
+                       "module/break/src/main/cvx"]
+   :maestro/doc       "Advanced suite of generative tests targeting the Convex Virtual Machine."
+   :maestro/platform+ [:jvm]
+   :maestro/require   [:module/cvm
+                       :module/gen
+                       {test :test/break}]
+   :maestro/root      "module/break"}
 
 
   :test/break
@@ -343,7 +391,8 @@
   :module/cvm
 
   {:extra-paths                         ["module/cvm/src/main/clj"]
-   :maestro/doc                          "Handling CVM contexts and Convex cells"
+   :maestro/doc                         "Core uilities related to the Convex Virtual Machine."
+   :maestro/platform+                   [:jvm]
    :maestro/require                     [:ext/convex-core
                                          {test :test/cvm}]
    :maestro/root                        "module/cvm"
@@ -363,7 +412,8 @@
   :module/dev
 
   {:extra-paths     ["module/dev/src/main/clj"]
-   :maestro/doc     "Dev utilities for this repository"
+   :maestro/doc     "Dev utilities for this repository.  
+                     Not meant for public use."
    :maestro/require [:ext/portal
                      :ext/protosens.namespace
                      :ext/protosens.symbol]}
@@ -373,7 +423,8 @@
   :module/gen
 
   {:extra-paths                         ["module/gen/src/main/clj"]
-   :maestro/doc                         "`test.check` generators for Convex cells"
+   :maestro/doc                         "Convex cells generators."
+   :maestro/platform+                   [:jvm]
    :maestro/require                     [:ext/clojure.test.check
                                          :module/cvm
                                          {test :test/gen}]
@@ -393,7 +444,8 @@
   :module/net
 
   {:extra-paths                         ["module/net/src/main/clj"]
-   :maestro/doc                         "Convex network utilities"
+   :maestro/doc                         "Interact with a Convex network."
+   :maestro/platform+                   [:jvm]
    :maestro/require                     [:ext/convex-peer
                                          :module/cvm
                                          {test :test/net}]
@@ -412,14 +464,15 @@
 
   :module/recipe
 
-  {:extra-paths     ["module/recipe/src/main/clj"
-                     "module/recipe/src/main/cvx"]
-   :maestro/doc     "Examples for common use cases meant for the REPL"
-   :maestro/require [:ext/clj-http
-                     :ext/json
-                     :module/cvm
-                     :module/net]
-   :maestro/root    "module/recipe"}
+  {:extra-paths       ["module/recipe/src/main/clj"
+                       "module/recipe/src/main/cvx"]
+   :maestro/doc       "Examples for common use cases meant for the REPL."
+   :maestro/platform+ [:jvm]
+   :maestro/require   [:ext/clj-http
+                       :ext/json
+                       :module/cvm
+                       :module/net]
+   :maestro/root      "module/recipe"}
 
   ;---
 
@@ -429,7 +482,8 @@
    :extra-paths                           ["module/shell/resource/main"
                                            "module/shell/src/main/clj"
                                            "module/shell/src/main/cvx"]
-   :maestro/doc                           "Convex Lisp Shell"
+   :maestro/doc                            "Convex Shell"
+   :maestro/platform+                     [:jvm]
    :maestro/require                       [:ext/clojure
                                            :ext/criterium
                                            :ext/graal-build-time
@@ -455,17 +509,25 @@
 
  :module/task
 
- {:extra-paths     ["module/task/src/main/bb"]
-  :maestro/doc     "Tasks used in this repository.
-                    Not meant for public use."
-  :maestro/require [:ext/maestro
-                    :ext/maestro.plugin.build
-                    :ext/maestro.plugin.clj-kondo
-                    :ext/maestro.plugin.kaocha
-                    :ext/maestro.plugin.quickdoc
-                    :ext/protosens.bb.help
-                    :ext/protosens.classpath]
-  :maestro/root    "module/task"}
+ {:extra-paths       ["module/task/src/main/bb"]
+  :maestro/doc       "Tasks used in this repository.  
+                      Not meant for public use."
+  :maestro/platform+ [:bb
+                      :jvm]
+  :maestro/require   [:ext/babashka.fs
+                      :ext/cheshire
+                      :ext/maestro
+                      :ext/maestro.plugin.build
+                      :ext/maestro.plugin.clj-kondo
+                      :ext/maestro.plugin.kaocha
+                      :ext/maestro.plugin.quickdoc
+                      :ext/protosens.bb.help
+                      :ext/protosens.classpath
+                      :ext/protosens.git
+                      :ext/protosens.string
+                      :ext/protosens.process
+                      :ext/selmer]
+  :maestro/root      "module/task"}
 
 
  }}
