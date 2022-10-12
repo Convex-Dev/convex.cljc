@@ -1,12 +1,14 @@
 (ns convex.server
 
-  "Creating a peer which can either:
+  "Running a peer server.
+
+   Can either:
 
    - Run alone for dev and test
    - Run locally, synced with other local peers
    - Run locally but synced with the test network on `convex.world`
   
-   See README."
+   See [README](../)."
 
   {:author "Adam Helinski"}
 
@@ -29,7 +31,9 @@
 
 (defn create
 
-  "Returns a new server that can be started using [[start]] when required.
+  "Returns a new peer server.
+  
+   Can be started using [[start]] when required.
 
    A key pair is mandatory. See the [[convex.key-pair]].
 
@@ -154,7 +158,7 @@
 
 (defn persist
 
-  "Persists peer data at the root of the server's Etch instance
+  "Persists peer data at the root of the server's Etch instance.
 
    Persisted data can be recovered when creating a server with the same Etch instance (see `:convex.server/state`
    option in [[create]]).
@@ -176,7 +180,9 @@
 
 (defn start
 
-  "Starts `server` created in [[create]].
+  "Starts `server`.
+
+   See [[create]] first.
 
    If peer syncing was configured in [[create]], also connects to remote peer.
   
@@ -193,7 +199,9 @@
 
 (defn stop
 
-  "Stops `server` previously started with `start`.
+  "Stops `server`.
+  
+   Previously started with [[start]].
   
    Does not close the Etch instance optionally provided when starting."
 
@@ -244,8 +252,9 @@
 
 (defn peer
 
-  "Advanced feature. Returns the peer object wrapped by the server. More precisely, the server
-   provided network connectivity over this object."
+  "Returns the peer object wrapped by the server.
+   
+   For advanced users only."
 
   ^Peer
 

@@ -55,7 +55,7 @@
 
 (defn connect
 
-  "Opens a new client connection to a peer server using the binary protocol.
+  "Connects to a peer server as a client using the binary protocol.
 
    Will use the Etch instance found with `convex.db/current`. It important keeping the client
    on a thread that has always access to the very same instance.
@@ -87,8 +87,10 @@
 
 (defn connect-local
 
-  "Like [[connect]] but the returned client is optimized to talk to a peer `server` running
-   in the same process.
+  "Connects to an in-process peer server.
+
+   If an application embeds a peer server, using a \"local\" client for interacting with it
+   will be a lot more efficient.
 
    It is important the client is always on a thread that has the same store being returned on
    `convex.db/current` (from `:module/cvm`) as the store used by the `server`.
@@ -188,8 +190,10 @@
 
 (defn transact
 
-  "Performs a transaction which is one of the following (from `:module/cvm`):
+  "Performs a transaction.
 
+   3 types of transactions exists in [`module/cvm`](../../cvm/doc/API.md):
+ 
    - `convex.cell/call` for an actor call
    - `convex.cell/invoke` for executing code
    - `convex.cell/transfer` for executing a transfer of Convex Coins
@@ -219,9 +223,11 @@
 
 (defn result->error-code
 
-  "Given a result dereferenced from a future, returns the error code (a cell, typically a CVX keyword).
+  "Given a result de-referenced from a future, returns the error code.
   
-   Returns nil if no error occured."
+   Could be any cell but typically a CVX keyword.
+  
+   Returns nil if the result is not an error."
 
   ^ACell
 
@@ -233,9 +239,11 @@
 
 (defn result->trace
 
-  "Given a result dereferenced from a future, returns the stacktrace (a CVX vector of strings).
+  "Given a result de-referenced from a future, returns the stacktrace.
+   
+   A CVX vector of strings.
   
-   Returns nil if no error occured."
+   Returns nil if the result is not an error."
 
   ^AVector
 
@@ -247,7 +255,9 @@
 
 (defn result->value 
 
-  "Given a result dereferenced from a future, returns its value (a cell).
+  "Given a result de-referenced from a future, returns its value.
+
+   Could be any cell.
 
    In case of error, this will be the error message (often a CVX string but can be any value)."
 
@@ -263,9 +273,11 @@
 
 (defn sequence-id
 
-  "Uses [[query]] to retrieve the next sequence ID required for a transaction.
+  "Retrieves the next sequence ID required for a transaction.
+
+   Uses [[query]].
   
-   Eacht account has a sequence ID, a number being incremented on each successful transaction to prevent replay
+   Each account has a sequence ID, a number being incremented on each successful transaction to prevent replay
    attacks. Providing a transaction (eg. `convex.cell/invoke` from `:module/cvm`) with a wrong sequence ID
    number will fail."
 

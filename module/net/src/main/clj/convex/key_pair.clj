@@ -1,10 +1,10 @@
 (ns convex.key-pair
 
-  "Signing cells using public key cryptography, most notably transactions as required prior to submission.
+  "Signing cells using public key cryptography, most notably transactions.
 
    More precisely, is signed the hash of the encoding of the cell, producing a signed data cell.
   
-   Uses Ed25519."
+   Uses [Ed25519](https://ed25519.cr.yp.to)."
 
   {:author "Adam Helinski"}
 
@@ -74,8 +74,9 @@
 
 (defn hex-string
 
-  "Returns the public key of the given `key-pair` as a hex-string (64-char string where each pair of 
-   chars represents a byte in hexadecimal)."
+  "Returns the public key of the given `key-pair` as a hex-string.
+   
+   64-char string where each pair of chars represents a byte in hexadecimal."
 
   [^AKeyPair key-pair]
 
@@ -146,9 +147,9 @@
 
 (defn signed->account-key
 
-  "Given signed data, returns the [[account-key]] of the signer.
-  
-   See [[sign]]."
+  "Given signed data, returns the account key of the signer.
+
+   See [[account-key]], [[sign]]."
 
   ^AccountKey
 
@@ -223,9 +224,9 @@
 (defn verify-hash
 
   "Verifies that the given `signature` is indeed the given `hash` signed by the given
-   [[account-key]].
+   account key.
   
-   See [[sign-hash]]."
+   See [[account-key]], [[sign-hash]]."
 
   [^AccountKey account-key ^Blob signature ^Hash hash]
 

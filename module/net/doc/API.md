@@ -1,48 +1,48 @@
 # Table of contents
 -  [`convex.client`](#convex.client)  - Interacting with a peer server via the binary protocol.
     -  [`close`](#convex.client/close) - Closes the given <code>client</code>.
-    -  [`connect`](#convex.client/connect) - Opens a new client connection to a peer server using the binary protocol.
-    -  [`connect-local`](#convex.client/connect-local) - Like [[connect]] but the returned client is optimized to talk to a peer <code>server</code> running in the same process.
+    -  [`connect`](#convex.client/connect) - Connects to a peer server as a client using the binary protocol.
+    -  [`connect-local`](#convex.client/connect-local) - Connects to an in-process peer server.
     -  [`connected?`](#convex.client/connected?) - Returns true if the given <code>client</code> is still connected.
     -  [`peer-status`](#convex.client/peer-status) - Advanced feature.
     -  [`query`](#convex.client/query) - Performs a query, <code>cell</code> representing code to execute.
     -  [`resolve`](#convex.client/resolve) - Sends the given <code>hash</code> to the peer to resolve it as a cell using its Etch instance.
-    -  [`result->error-code`](#convex.client/result->error-code) - Given a result dereferenced from a future, returns the error code (a cell, typically a CVX keyword).
-    -  [`result->trace`](#convex.client/result->trace) - Given a result dereferenced from a future, returns the stacktrace (a CVX vector of strings).
-    -  [`result->value`](#convex.client/result->value) - Given a result dereferenced from a future, returns its value (a cell).
-    -  [`sequence-id`](#convex.client/sequence-id) - Uses [[query]] to retrieve the next sequence ID required for a transaction.
+    -  [`result->error-code`](#convex.client/result->error-code) - Given a result de-referenced from a future, returns the error code.
+    -  [`result->trace`](#convex.client/result->trace) - Given a result de-referenced from a future, returns the stacktrace.
+    -  [`result->value`](#convex.client/result->value) - Given a result de-referenced from a future, returns its value.
+    -  [`sequence-id`](#convex.client/sequence-id) - Retrieves the next sequence ID required for a transaction.
     -  [`state`](#convex.client/state) - Requests the currrent network state from the peer.
-    -  [`transact`](#convex.client/transact) - Performs a transaction which is one of the following (from <code>:module/cvm</code>): - <code>convex.cell/call</code> for an actor call - <code>convex.cell/invoke</code> for executing code - <code>convex.cell/transfer</code> for executing a transfer of Convex Coins Transaction must be either pre-signed beforehand or a key pair must be provided to sign it.
--  [`convex.key-pair`](#convex.key-pair)  - Signing cells using public key cryptography, most notably transactions as required prior to submission.
+    -  [`transact`](#convex.client/transact) - Performs a transaction.
+-  [`convex.key-pair`](#convex.key-pair)  - Signing cells using public key cryptography, most notably transactions.
     -  [`account-key`](#convex.key-pair/account-key) - Returns the account key of the given <code>key-pair</code>.
     -  [`ed25519`](#convex.key-pair/ed25519) - Creates an Ed25519 key pair.
-    -  [`hex-string`](#convex.key-pair/hex-string) - Returns the public key of the given <code>key-pair</code> as a hex-string (64-char string where each pair of chars represents a byte in hexadecimal).
+    -  [`hex-string`](#convex.key-pair/hex-string) - Returns the public key of the given <code>key-pair</code> as a hex-string.
     -  [`key-private`](#convex.key-pair/key-private) - Returns the <code>java.security.PrivateKey</code> of the given <code>key-pair</code>.
     -  [`key-public`](#convex.key-pair/key-public) - Returns the <code>java.security.PublicKey</code> of the given <code>key-pair</code>.
     -  [`seed`](#convex.key-pair/seed) - Returns the seed of the given <code>key-pair</code>.
     -  [`sign`](#convex.key-pair/sign) - Returns the given <code>cell</code> as data signed by <code>key-pair</code>.
     -  [`sign-hash`](#convex.key-pair/sign-hash) - Signs the given <code>hash</code> with the given <code>key-pair</code>.
-    -  [`signed->account-key`](#convex.key-pair/signed->account-key) - Given signed data, returns the [[account-key]] of the signer.
+    -  [`signed->account-key`](#convex.key-pair/signed->account-key) - Given signed data, returns the account key of the signer.
     -  [`signed->cell`](#convex.key-pair/signed->cell) - Given signed data, returns the cell that was signed.
     -  [`signed->signature`](#convex.key-pair/signed->signature) - Given signed data, returns the signature as a blob cell.
     -  [`verify`](#convex.key-pair/verify) - Returns true if the given <code>cell</code> has indeed been signed by the given [[account-key]].
-    -  [`verify-hash`](#convex.key-pair/verify-hash) - Verifies that the given <code>signature</code> is indeed the given <code>hash</code> signed by the given [[account-key]].
+    -  [`verify-hash`](#convex.key-pair/verify-hash) - Verifies that the given <code>signature</code> is indeed the given <code>hash</code> signed by the given account key.
 -  [`convex.pfx`](#convex.pfx)  - Creating and managing a key store for storing key pairs in a file.
     -  [`create`](#convex.pfx/create) - Creates a new key store in the file under <code>path</code>.
     -  [`key-pair-get`](#convex.pfx/key-pair-get) - Retrieves a key pair from the given <code>key-store</code>.
     -  [`key-pair-set`](#convex.pfx/key-pair-set) - Adds the given <code>key-pair</code> to the <code>key-store</code>, protected by a mandatory <code>passphrase</code>.
     -  [`load`](#convex.pfx/load) - Loads a key store from the file under <code>path</code>.
     -  [`save`](#convex.pfx/save) - Saves the given <code>key-store</code> to the file under <code>path</code>.
--  [`convex.server`](#convex.server)  - Creating a peer which can either: - Run alone for dev and test - Run locally, synced with other local peers - Run locally but synced with the test network on <code>convex.world</code> See README.
+-  [`convex.server`](#convex.server)  - Running a peer server.
     -  [`controller`](#convex.server/controller) - Returns the controller associated with <code>server</code>.
-    -  [`create`](#convex.server/create) - Returns a new server that can be started using [[start]] when required.
+    -  [`create`](#convex.server/create) - Returns a new peer server.
     -  [`db`](#convex.server/db) - Returns the Etch instance used by the <code>server</code>.
     -  [`host`](#convex.server/host) - Returns bind address used by the <code>server</code> as a string.
-    -  [`peer`](#convex.server/peer) - Advanced feature.
-    -  [`persist`](#convex.server/persist) - Persists peer data at the root of the server's Etch instance Persisted data can be recovered when creating a server with the same Etch instance (see <code>:convex.server/state</code> option in [[create]]).
+    -  [`peer`](#convex.server/peer) - Returns the peer object wrapped by the server.
+    -  [`persist`](#convex.server/persist) - Persists peer data at the root of the server's Etch instance.
     -  [`port`](#convex.server/port) - Returns the port used by the <code>server</code>.
-    -  [`start`](#convex.server/start) - Starts <code>server</code> created in [[create]].
-    -  [`stop`](#convex.server/stop) - Stops <code>server</code> previously started with <code>start</code>.
+    -  [`start`](#convex.server/start) - Starts <code>server</code>.
+    -  [`stop`](#convex.server/stop) - Stops <code>server</code>.
 
 -----
 # <a name="convex.client">convex.client</a>
@@ -83,7 +83,7 @@ Closes the given `client`.
 ```
 
 
-Opens a new client connection to a peer server using the binary protocol.
+Connects to a peer server as a client using the binary protocol.
 
    Will use the Etch instance found with `convex.db/current`. It important keeping the client
    on a thread that has always access to the very same instance.
@@ -95,22 +95,24 @@ Opens a new client connection to a peer server using the binary protocol.
    | `:convex.server/host` | Peer IP address | "localhost" |
    | `:convex.server/port` | Peer port       | 18888         |
 
-## <a name="convex.client/connect-local">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/client.clj#L88-L104) `connect-local`</a>
+## <a name="convex.client/connect-local">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/client.clj#L88-L106) `connect-local`</a>
 ``` clojure
 
 (connect-local server)
 ```
 
 
-Like [`connect`](#convex.client/connect) but the returned client is optimized to talk to a peer `server` running
-   in the same process.
+Connects to an in-process peer server.
+
+   If an application embeds a peer server, using a "local" client for interacting with it
+   will be a lot more efficient.
 
    It is important the client is always on a thread that has the same store being returned on
    `convex.db/current` (from `:module/cvm`) as the store used by the `server`.
   
    See [`convex.server`](#convex.server).
 
-## <a name="convex.client/connected?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/client.clj#L108-L118) `connected?`</a>
+## <a name="convex.client/connected?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/client.clj#L110-L120) `connected?`</a>
 ``` clojure
 
 (connected? client)
@@ -123,7 +125,7 @@ Returns true if the given `client` is still connected.
   
    See [`close`](#convex.client/close).
 
-## <a name="convex.client/peer-status">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/client.clj#L124-L134) `peer-status`</a>
+## <a name="convex.client/peer-status">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/client.clj#L126-L136) `peer-status`</a>
 ``` clojure
 
 (peer-status client)
@@ -134,7 +136,7 @@ Advanced feature. The peer status is a vector of blobs which are hashes to data 
    For instance, blob 4 is the hash of the state. That is how [`state`](#convex.client/state) works, retrieving the hash
    from the peer status and then using [`resolve`](#convex.client/resolve).
 
-## <a name="convex.client/query">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/client.clj#L156-L171) `query`</a>
+## <a name="convex.client/query">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/client.clj#L158-L173) `query`</a>
 ``` clojure
 
 (query client address cell)
@@ -148,7 +150,7 @@ Performs a query, `cell` representing code to execute.
   
    Returns a future resolving to a result.
 
-## <a name="convex.client/resolve">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/client.clj#L138-L152) `resolve`</a>
+## <a name="convex.client/resolve">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/client.clj#L140-L154) `resolve`</a>
 ``` clojure
 
 (resolve client hash)
@@ -161,53 +163,61 @@ Sends the given `hash` to the peer to resolve it as a cell using its Etch instan
   
    Returns a future resolving to a result.
 
-## <a name="convex.client/result->error-code">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/client.clj#L220-L230) `result->error-code`</a>
+## <a name="convex.client/result->error-code">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/client.clj#L224-L236) `result->error-code`</a>
 ``` clojure
 
 (result->error-code result)
 ```
 
 
-Given a result dereferenced from a future, returns the error code (a cell, typically a CVX keyword).
+Given a result de-referenced from a future, returns the error code.
   
-   Returns nil if no error occured.
+   Could be any cell but typically a CVX keyword.
+  
+   Returns nil if the result is not an error.
 
-## <a name="convex.client/result->trace">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/client.clj#L234-L244) `result->trace`</a>
+## <a name="convex.client/result->trace">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/client.clj#L240-L252) `result->trace`</a>
 ``` clojure
 
 (result->trace result)
 ```
 
 
-Given a result dereferenced from a future, returns the stacktrace (a CVX vector of strings).
+Given a result de-referenced from a future, returns the stacktrace.
+   
+   A CVX vector of strings.
   
-   Returns nil if no error occured.
+   Returns nil if the result is not an error.
 
-## <a name="convex.client/result->value">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/client.clj#L248-L258) `result->value`</a>
+## <a name="convex.client/result->value">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/client.clj#L256-L268) `result->value`</a>
 ``` clojure
 
 (result->value result)
 ```
 
 
-Given a result dereferenced from a future, returns its value (a cell).
+Given a result de-referenced from a future, returns its value.
+
+   Could be any cell.
 
    In case of error, this will be the error message (often a CVX string but can be any value).
 
-## <a name="convex.client/sequence-id">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/client.clj#L264-L285) `sequence-id`</a>
+## <a name="convex.client/sequence-id">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/client.clj#L274-L297) `sequence-id`</a>
 ``` clojure
 
 (sequence-id client address)
 ```
 
 
-Uses [`query`](#convex.client/query) to retrieve the next sequence ID required for a transaction.
+Retrieves the next sequence ID required for a transaction.
+
+   Uses [`query`](#convex.client/query).
   
-   Eacht account has a sequence ID, a number being incremented on each successful transaction to prevent replay
+   Each account has a sequence ID, a number being incremented on each successful transaction to prevent replay
    attacks. Providing a transaction (eg. `convex.cell/invoke` from `:module/cvm`) with a wrong sequence ID
    number will fail.
 
-## <a name="convex.client/state">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/client.clj#L175-L185) `state`</a>
+## <a name="convex.client/state">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/client.clj#L177-L187) `state`</a>
 ``` clojure
 
 (state client)
@@ -218,7 +228,7 @@ Requests the currrent network state from the peer.
 
    Returns a future resolving to a result.
 
-## <a name="convex.client/transact">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/client.clj#L189-L214) `transact`</a>
+## <a name="convex.client/transact">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/client.clj#L191-L218) `transact`</a>
 ``` clojure
 
 (transact client signed-transaction)
@@ -226,8 +236,10 @@ Requests the currrent network state from the peer.
 ```
 
 
-Performs a transaction which is one of the following (from `:module/cvm`):
+Performs a transaction.
 
+   3 types of transactions exists in [`module/cvm`](../../cvm/doc/API.md):
+ 
    - `convex.cell/call` for an actor call
    - `convex.cell/invoke` for executing code
    - `convex.cell/transfer` for executing a transfer of Convex Coins
@@ -242,11 +254,11 @@ Performs a transaction which is one of the following (from `:module/cvm`):
 # <a name="convex.key-pair">convex.key-pair</a>
 
 
-Signing cells using public key cryptography, most notably transactions as required prior to submission.
+Signing cells using public key cryptography, most notably transactions.
 
    More precisely, is signed the hash of the encoding of the cell, producing a signed data cell.
   
-   Uses Ed25519.
+   Uses [Ed25519](https://ed25519.cr.yp.to).
 
 
 
@@ -279,17 +291,18 @@ Creates an Ed25519 key pair.
    Alternatively, a [`key-public`](#convex.key-pair/key-public) and a [`key-private`](#convex.key-pair/key-private) retrieved from an existing key pair can
    be provided.
 
-## <a name="convex.key-pair/hex-string">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/key_pair.clj#L75-L84) `hex-string`</a>
+## <a name="convex.key-pair/hex-string">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/key_pair.clj#L75-L85) `hex-string`</a>
 ``` clojure
 
 (hex-string key-pair)
 ```
 
 
-Returns the public key of the given `key-pair` as a hex-string (64-char string where each pair of 
-   chars represents a byte in hexadecimal).
+Returns the public key of the given `key-pair` as a hex-string.
+   
+   64-char string where each pair of chars represents a byte in hexadecimal.
 
-## <a name="convex.key-pair/key-private">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/key_pair.clj#L88-L96) `key-private`</a>
+## <a name="convex.key-pair/key-private">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/key_pair.clj#L89-L97) `key-private`</a>
 ``` clojure
 
 (key-private key-pair)
@@ -298,7 +311,7 @@ Returns the public key of the given `key-pair` as a hex-string (64-char string w
 
 Returns the `java.security.PrivateKey` of the given `key-pair`.
 
-## <a name="convex.key-pair/key-public">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/key_pair.clj#L100-L108) `key-public`</a>
+## <a name="convex.key-pair/key-public">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/key_pair.clj#L101-L109) `key-public`</a>
 ``` clojure
 
 (key-public key-pair)
@@ -307,7 +320,7 @@ Returns the `java.security.PrivateKey` of the given `key-pair`.
 
 Returns the `java.security.PublicKey` of the given `key-pair`.
 
-## <a name="convex.key-pair/seed">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/key_pair.clj#L112-L122) `seed`</a>
+## <a name="convex.key-pair/seed">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/key_pair.clj#L113-L123) `seed`</a>
 ``` clojure
 
 (seed key-pair)
@@ -318,7 +331,7 @@ Returns the seed of the given `key-pair`.
 
    Attention, this is very sensitive information since it allows rebuilding the key-pair using [`ed25519`](#convex.key-pair/ed25519).
 
-## <a name="convex.key-pair/sign">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/key_pair.clj#L128-L143) `sign`</a>
+## <a name="convex.key-pair/sign">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/key_pair.clj#L129-L144) `sign`</a>
 ``` clojure
 
 (sign key-pair cell)
@@ -333,7 +346,7 @@ Returns the given `cell` as data signed by `key-pair`. That value is a cell itse
    Most useful for signing transactions.
    See [`convex.client/transact`](#convex.client/transact).
 
-## <a name="convex.key-pair/sign-hash">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/key_pair.clj#L208-L219) `sign-hash`</a>
+## <a name="convex.key-pair/sign-hash">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/key_pair.clj#L209-L220) `sign-hash`</a>
 ``` clojure
 
 (sign-hash key-pair hash)
@@ -345,18 +358,18 @@ Signs the given `hash` with the given `key-pair`.
 
    See `convex.cell/hash` from `:module/cvm`.
 
-## <a name="convex.key-pair/signed->account-key">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/key_pair.clj#L147-L157) `signed->account-key`</a>
+## <a name="convex.key-pair/signed->account-key">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/key_pair.clj#L148-L158) `signed->account-key`</a>
 ``` clojure
 
 (signed->account-key signed)
 ```
 
 
-Given signed data, returns the [`account-key`](#convex.key-pair/account-key) of the signer.
-  
-   See [`sign`](#convex.key-pair/sign).
+Given signed data, returns the account key of the signer.
 
-## <a name="convex.key-pair/signed->cell">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/key_pair.clj#L161-L173) `signed->cell`</a>
+   See [`account-key`](#convex.key-pair/account-key), [`sign`](#convex.key-pair/sign).
+
+## <a name="convex.key-pair/signed->cell">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/key_pair.clj#L162-L174) `signed->cell`</a>
 ``` clojure
 
 (signed->cell signed)
@@ -367,7 +380,7 @@ Given signed data, returns the cell that was signed.
 
    See [`sign`](#convex.key-pair/sign).
 
-## <a name="convex.key-pair/signed->signature">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/key_pair.clj#L176-L188) `signed->signature`</a>
+## <a name="convex.key-pair/signed->signature">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/key_pair.clj#L177-L189) `signed->signature`</a>
 ``` clojure
 
 (signed->signature signed)
@@ -378,7 +391,7 @@ Given signed data, returns the signature as a blob cell.
 
    See [`sign`](#convex.key-pair/sign).
 
-## <a name="convex.key-pair/verify">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/key_pair.clj#L192-L202) `verify`</a>
+## <a name="convex.key-pair/verify">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/key_pair.clj#L193-L203) `verify`</a>
 ``` clojure
 
 (verify account-key signature cell)
@@ -389,7 +402,7 @@ Returns true if the given `cell` has indeed been signed by the given [`account-k
 
    `signature` is the signature to verify as a blob cell.
 
-## <a name="convex.key-pair/verify-hash">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/key_pair.clj#L223-L234) `verify-hash`</a>
+## <a name="convex.key-pair/verify-hash">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/key_pair.clj#L224-L235) `verify-hash`</a>
 ``` clojure
 
 (verify-hash account-key signature hash)
@@ -397,9 +410,9 @@ Returns true if the given `cell` has indeed been signed by the given [`account-k
 
 
 Verifies that the given `signature` is indeed the given `hash` signed by the given
-   [`account-key`](#convex.key-pair/account-key).
+   account key.
   
-   See [`sign-hash`](#convex.key-pair/sign-hash).
+   See [`account-key`](#convex.key-pair/account-key), [`sign-hash`](#convex.key-pair/sign-hash).
 
 -----
 
@@ -479,18 +492,20 @@ Saves the given `key-store` to the file under `path`.
 # <a name="convex.server">convex.server</a>
 
 
-Creating a peer which can either:
+Running a peer server.
+
+   Can either:
 
    - Run alone for dev and test
    - Run locally, synced with other local peers
    - Run locally but synced with the test network on `convex.world`
   
-   See README.
+   See [README](../).
 
 
 
 
-## <a name="convex.server/controller">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/server.clj#L209-L219) `controller`</a>
+## <a name="convex.server/controller">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/server.clj#L217-L227) `controller`</a>
 ``` clojure
 
 (controller server)
@@ -501,7 +516,7 @@ Returns the controller associated with `server`.
   
    It was either explicitly specified in [`create`](#convex.server/create) or retrieved from the state.
 
-## <a name="convex.server/create">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/server.clj#L30-L149) `create`</a>
+## <a name="convex.server/create">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/server.clj#L32-L153) `create`</a>
 ``` clojure
 
 (create keypair)
@@ -509,7 +524,9 @@ Returns the controller associated with `server`.
 ```
 
 
-Returns a new server that can be started using [`start`](#convex.server/start) when required.
+Returns a new peer server.
+  
+   Can be started using [`start`](#convex.server/start) when required.
 
    A key pair is mandatory. See the [`convex.key-pair`](#convex.key-pair).
 
@@ -548,7 +565,7 @@ Returns a new server that can be started using [`start`](#convex.server/start) w
    | `:convex.server/host` | Address of the remote peer | `"localhost"` |
    | `:convex.server/port` | Port of the remote peer    | `18888`         |
 
-## <a name="convex.server/db">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/server.clj#L223-L231) `db`</a>
+## <a name="convex.server/db">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/server.clj#L231-L239) `db`</a>
 ``` clojure
 
 (db server)
@@ -557,7 +574,7 @@ Returns a new server that can be started using [`start`](#convex.server/start) w
 
 Returns the Etch instance used by the `server`.
 
-## <a name="convex.server/host">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/server.clj#L235-L241) `host`</a>
+## <a name="convex.server/host">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/server.clj#L243-L249) `host`</a>
 ``` clojure
 
 (host server)
@@ -566,24 +583,25 @@ Returns the Etch instance used by the `server`.
 
 Returns bind address used by the `server` as a string.
 
-## <a name="convex.server/peer">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/server.clj#L245-L254) `peer`</a>
+## <a name="convex.server/peer">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/server.clj#L253-L263) `peer`</a>
 ``` clojure
 
 (peer server)
 ```
 
 
-Advanced feature. Returns the peer object wrapped by the server. More precisely, the server
-   provided network connectivity over this object.
+Returns the peer object wrapped by the server.
+   
+   For advanced users only.
 
-## <a name="convex.server/persist">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/server.clj#L155-L173) `persist`</a>
+## <a name="convex.server/persist">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/server.clj#L159-L177) `persist`</a>
 ``` clojure
 
 (persist server)
 ```
 
 
-Persists peer data at the root of the server's Etch instance
+Persists peer data at the root of the server's Etch instance.
 
    Persisted data can be recovered when creating a server with the same Etch instance (see `:convex.server/state`
    option in [`create`](#convex.server/create)).
@@ -594,7 +612,7 @@ Persists peer data at the root of the server's Etch instance
   
    Returns the `server`.
 
-## <a name="convex.server/port">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/server.clj#L258-L264) `port`</a>
+## <a name="convex.server/port">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/server.clj#L267-L273) `port`</a>
 ``` clojure
 
 (port server)
@@ -603,26 +621,30 @@ Persists peer data at the root of the server's Etch instance
 
 Returns the port used by the `server`.
 
-## <a name="convex.server/start">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/server.clj#L177-L190) `start`</a>
+## <a name="convex.server/start">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/server.clj#L181-L196) `start`</a>
 ``` clojure
 
 (start server)
 ```
 
 
-Starts `server` created in [`create`](#convex.server/create).
+Starts `server`.
+
+   See [`create`](#convex.server/create) first.
 
    If peer syncing was configured in [`create`](#convex.server/create), also connects to remote peer.
   
    Returns the `server`.
 
-## <a name="convex.server/stop">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/server.clj#L194-L203) `stop`</a>
+## <a name="convex.server/stop">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/net/src/main/clj/convex/server.clj#L200-L211) `stop`</a>
 ``` clojure
 
 (stop server)
 ```
 
 
-Stops `server` previously started with `start`.
+Stops `server`.
+  
+   Previously started with [`start`](#convex.server/start).
   
    Does not close the Etch instance optionally provided when starting.
