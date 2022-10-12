@@ -1,6 +1,6 @@
 (ns convex.gen
 
-  "`test.check` generators for cells."
+  "[`test.check`](https://github.com/clojure/test.check) generators for cells."
 
   {:author "Adam Helinski"}
 
@@ -225,7 +225,9 @@
 
 (def char-alphanum
 
-  "Like [[char]] but alphanumeric, hence always printable."
+  "Alphanumeric char.
+
+   More restricted than [[char]], always printable."
 
   (TC.gen/fmap $.cell/char
                TC.gen/char-alphanumeric))
@@ -243,7 +245,7 @@
 
 (defn double-bounded
 
-  "Like [[double]] but accept a map with `:min` and `:max` for setting boundaries.
+  "Double cell but accept a map with `:min` and `:max` for setting boundaries.
   
    Both are optional."
 
@@ -310,7 +312,9 @@
 
 (defn long-bounded
 
-  "Like [[long]] but accept a map with `:min` and `:max` for setting boundaries.
+  "Long cell but accept a map with `:min` and `:max` for setting boundaries.
+
+   Also see [[long]].
   
    Both are optional."
 
@@ -322,7 +326,9 @@
 
 (def number
 
-  "Either [[double]] or [[long]]."
+  "Numeric cell.
+  
+   Either [[double]] or [[long]]."
 
   (TC.gen/one-of [double
                   long]))
@@ -331,7 +337,9 @@
 
 (defn number-bounded
 
-  "Like [[number]] but accept a map with `:min` and `:max` for setting boundaries.
+  "Numeric cell but accept a map with `:min` and `:max` for setting boundaries.
+
+   Also see [[number]].
   
    Both are optional."
 
@@ -352,7 +360,9 @@
 
 (defn string
 
-  "String cell containing [[char]]."
+  "String cell.
+  
+   Containing [[char]]s."
 
 
   ([]
@@ -379,7 +389,9 @@
 
 (defn string-alphanum
 
-  "String cell containing [[char-alphanum]]."
+  "String cell.
+  
+   Containing only [[char-alphanum]]s."
 
 
   ([]
@@ -426,7 +438,9 @@
 
 (def scalar
 
-  "Any CVM cell that is not a collection:
+  "Any CVM cell that is not a collection.
+
+   More precisely:
 
    - [[address]]
    - [[blob]]
@@ -742,7 +756,7 @@
 
 (def any
 
-  "Combines [[scalar]] and [[recursive]] to produce any CVM cell.
+  "Any scalar or recursive cell.
   
    Once in a while, generates a [[syntax]] as well."
 

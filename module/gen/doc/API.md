@@ -1,7 +1,7 @@
 # Table of contents
--  [`convex.gen`](#convex.gen)  - <code>test.check</code> generators for cells.
+-  [`convex.gen`](#convex.gen)  - [<code>test.check</code>](https://github.com/clojure/test.check) generators for cells.
     -  [`address`](#convex.gen/address) - Address cell.
-    -  [`any`](#convex.gen/any) - Combines [[scalar]] and [[recursive]] to produce any CVM cell.
+    -  [`any`](#convex.gen/any) - Any scalar or recursive cell.
     -  [`any-coll`](#convex.gen/any-coll) - Any collection.
     -  [`any-list`](#convex.gen/any-list) - Recursive list cell where an item can be any cell.
     -  [`any-map`](#convex.gen/any-map) - Recursive hash map cell where an item can be any cell.
@@ -13,25 +13,25 @@
     -  [`boolean`](#convex.gen/boolean) - Boolean cell.
     -  [`byte`](#convex.gen/byte) - Byte cell.
     -  [`char`](#convex.gen/char) - Char cell between 0 and 255 inclusive.
-    -  [`char-alphanum`](#convex.gen/char-alphanum) - Like [[char]] but alphanumeric, hence always printable.
+    -  [`char-alphanum`](#convex.gen/char-alphanum) - Alphanumeric char.
     -  [`double`](#convex.gen/double) - Double cell.
-    -  [`double-bounded`](#convex.gen/double-bounded) - Like [[double]] but accept a map with <code>:min</code> and <code>:max</code> for setting boundaries.
+    -  [`double-bounded`](#convex.gen/double-bounded) - Double cell but accept a map with <code>:min</code> and <code>:max</code> for setting boundaries.
     -  [`falsy`](#convex.gen/falsy) - False or nil.
     -  [`hex-string`](#convex.gen/hex-string) - A hex-string where each byte is written as two hex digits.
     -  [`keyword`](#convex.gen/keyword) - Keyword cell.
     -  [`list`](#convex.gen/list) - List cell where item are generated using <code>gen</code>.
     -  [`long`](#convex.gen/long) - Long cell.
-    -  [`long-bounded`](#convex.gen/long-bounded) - Like [[long]] but accept a map with <code>:min</code> and <code>:max</code> for setting boundaries.
+    -  [`long-bounded`](#convex.gen/long-bounded) - Long cell but accept a map with <code>:min</code> and <code>:max</code> for setting boundaries.
     -  [`map`](#convex.gen/map) - Map cell where item are generated using <code>gen</code>.
     -  [`nothing`](#convex.gen/nothing) - Generates nil.
-    -  [`number`](#convex.gen/number) - Either [[double]] or [[long]].
-    -  [`number-bounded`](#convex.gen/number-bounded) - Like [[number]] but accept a map with <code>:min</code> and <code>:max</code> for setting boundaries.
+    -  [`number`](#convex.gen/number) - Numeric cell.
+    -  [`number-bounded`](#convex.gen/number-bounded) - Numeric cell but accept a map with <code>:min</code> and <code>:max</code> for setting boundaries.
     -  [`quoted`](#convex.gen/quoted) - Wraps the given <code>gen</code> so that the output is wrapped in a <code>quote</code> form.
     -  [`recursive`](#convex.gen/recursive) - Base generators for recursive collection cells where an item of a collection can be a collection as well.
-    -  [`scalar`](#convex.gen/scalar) - Any CVM cell that is not a collection: - [[address]] - [[blob]] - [[boolean]] - [[byte]] - [[char-alphanum]] - [[double]] - [[keyword]] - [[long]] - [[nothing]] - [[string-alphanum]] - [[symbol]] This excludes non-CVM cells such as the different transaction types.
+    -  [`scalar`](#convex.gen/scalar) - Any CVM cell that is not a collection.
     -  [`set`](#convex.gen/set) - Set cell where item are generated using <code>gen</code>.
-    -  [`string`](#convex.gen/string) - String cell containing [[char]].
-    -  [`string-alphanum`](#convex.gen/string-alphanum) - String cell containing [[char-alphanum]].
+    -  [`string`](#convex.gen/string) - String cell.
+    -  [`string-alphanum`](#convex.gen/string-alphanum) - String cell.
     -  [`string-symbolic`](#convex.gen/string-symbolic) - String that can be used to construct a keyword or a symbol.
     -  [`symbol`](#convex.gen/symbol) - Symbol cell.
     -  [`syntax`](#convex.gen/syntax) - Syntax cell.
@@ -43,7 +43,7 @@
 # <a name="convex.gen">convex.gen</a>
 
 
-`test.check` generators for cells.
+[`test.check`](https://github.com/clojure/test.check) generators for cells.
 
 
 
@@ -52,29 +52,29 @@
 
 Address cell.
 
-## <a name="convex.gen/any">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L743-L757) `any`</a>
+## <a name="convex.gen/any">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L757-L771) `any`</a>
 
-Combines [`scalar`](#convex.gen/scalar) and [`recursive`](#convex.gen/recursive) to produce any CVM cell.
+Any scalar or recursive cell.
   
    Once in a while, generates a [`syntax`](#convex.gen/syntax) as well.
 
-## <a name="convex.gen/any-coll">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L761-L766) `any-coll`</a>
+## <a name="convex.gen/any-coll">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L775-L780) `any-coll`</a>
 
 Any collection.
 
-## <a name="convex.gen/any-list">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L648-L665) `any-list`</a>
+## <a name="convex.gen/any-list">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L662-L679) `any-list`</a>
 
 Recursive list cell where an item can be any cell.
 
-## <a name="convex.gen/any-map">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L679-L697) `any-map`</a>
+## <a name="convex.gen/any-map">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L693-L711) `any-map`</a>
 
 Recursive hash map cell where an item can be any cell.
 
-## <a name="convex.gen/any-set">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L701-L717) `any-set`</a>
+## <a name="convex.gen/any-set">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L715-L731) `any-set`</a>
 
 Recursive set cell where an item can be any cell.
 
-## <a name="convex.gen/any-vector">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L721-L737) `any-vector`</a>
+## <a name="convex.gen/any-vector">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L735-L751) `any-vector`</a>
 
 Recursive vector cell where an item can be any cell.
 
@@ -97,7 +97,7 @@ Blob cell.
 
    Useful for CVM hashes and keys.
 
-## <a name="convex.gen/blob-map">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L490-L520) `blob-map`</a>
+## <a name="convex.gen/blob-map">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L504-L534) `blob-map`</a>
 ``` clojure
 
 (blob-map gen-k gen-v)
@@ -124,30 +124,32 @@ Byte cell.
 
 Char cell between 0 and 255 inclusive.
 
-## <a name="convex.gen/char-alphanum">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L226-L231) `char-alphanum`</a>
+## <a name="convex.gen/char-alphanum">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L226-L233) `char-alphanum`</a>
 
-Like [`char`](#convex.gen/char) but alphanumeric, hence always printable.
+Alphanumeric char.
 
-## <a name="convex.gen/double">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L235-L240) `double`</a>
+   More restricted than [`char`](#convex.gen/char), always printable.
+
+## <a name="convex.gen/double">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L237-L242) `double`</a>
 
 Double cell.
 
-## <a name="convex.gen/double-bounded">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L244-L253) `double-bounded`</a>
+## <a name="convex.gen/double-bounded">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L246-L255) `double-bounded`</a>
 ``` clojure
 
 (double-bounded option+)
 ```
 
 
-Like [`double`](#convex.gen/double) but accept a map with `:min` and `:max` for setting boundaries.
+Double cell but accept a map with `:min` and `:max` for setting boundaries.
   
    Both are optional.
 
-## <a name="convex.gen/falsy">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L803-L808) `falsy`</a>
+## <a name="convex.gen/falsy">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L817-L822) `falsy`</a>
 
 False or nil.
 
-## <a name="convex.gen/hex-string">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L265-L289) `hex-string`</a>
+## <a name="convex.gen/hex-string">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L267-L291) `hex-string`</a>
 ``` clojure
 
 (hex-string)
@@ -158,11 +160,11 @@ False or nil.
 
 A hex-string where each byte is written as two hex digits.
 
-## <a name="convex.gen/keyword">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L293-L298) `keyword`</a>
+## <a name="convex.gen/keyword">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L295-L300) `keyword`</a>
 
 Keyword cell.
 
-## <a name="convex.gen/list">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L461-L486) `list`</a>
+## <a name="convex.gen/list">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L475-L500) `list`</a>
 ``` clojure
 
 (list gen)
@@ -175,22 +177,24 @@ List cell where item are generated using `gen`.
   
    When length target is not provided, depends on current `test.check` size.
 
-## <a name="convex.gen/long">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L302-L307) `long`</a>
+## <a name="convex.gen/long">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L304-L309) `long`</a>
 
 Long cell.
 
-## <a name="convex.gen/long-bounded">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L311-L320) `long-bounded`</a>
+## <a name="convex.gen/long-bounded">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L313-L324) `long-bounded`</a>
 ``` clojure
 
 (long-bounded option+)
 ```
 
 
-Like [`long`](#convex.gen/long) but accept a map with `:min` and `:max` for setting boundaries.
+Long cell but accept a map with `:min` and `:max` for setting boundaries.
+
+   Also see [`long`](#convex.gen/long).
   
    Both are optional.
 
-## <a name="convex.gen/map">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L524-L552) `map`</a>
+## <a name="convex.gen/map">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L538-L566) `map`</a>
 ``` clojure
 
 (map gen-k gen-v)
@@ -203,22 +207,26 @@ Map cell where item are generated using `gen`.
   
    When length target is not provided, depends on current `test.check` size.
 
-## <a name="convex.gen/nothing">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L345-L349) `nothing`</a>
+## <a name="convex.gen/nothing">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L353-L357) `nothing`</a>
 
 Generates nil.
 
-## <a name="convex.gen/number">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L323-L328) `number`</a>
+## <a name="convex.gen/number">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L327-L334) `number`</a>
 
-Either [`double`](#convex.gen/double) or [`long`](#convex.gen/long).
+Numeric cell.
+  
+   Either [`double`](#convex.gen/double) or [`long`](#convex.gen/long).
 
-## <a name="convex.gen/number-bounded">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L332-L341) `number-bounded`</a>
+## <a name="convex.gen/number-bounded">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L338-L349) `number-bounded`</a>
 ``` clojure
 
 (number-bounded option+)
 ```
 
 
-Like [`number`](#convex.gen/number) but accept a map with `:min` and `:max` for setting boundaries.
+Numeric cell but accept a map with `:min` and `:max` for setting boundaries.
+
+   Also see [`number`](#convex.gen/number).
   
    Both are optional.
 
@@ -231,7 +239,7 @@ Like [`number`](#convex.gen/number) but accept a map with `:min` and `:max` for 
 
 Wraps the given `gen` so that the output is wrapped in a `quote` form.
 
-## <a name="convex.gen/recursive">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L616-L644) `recursive`</a>
+## <a name="convex.gen/recursive">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L630-L658) `recursive`</a>
 
 Base generators for recursive collection cells where an item of a collection can be a collection as well.
   
@@ -245,9 +253,11 @@ Base generators for recursive collection cells where an item of a collection can
   
    Produces a [`scalar`](#convex.gen/scalar) in roughly 10% of outputs.
 
-## <a name="convex.gen/scalar">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L427-L455) `scalar`</a>
+## <a name="convex.gen/scalar">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L439-L469) `scalar`</a>
 
-Any CVM cell that is not a collection:
+Any CVM cell that is not a collection.
+
+   More precisely:
 
    - [`address`](#convex.gen/address)
    - [`blob`](#convex.gen/blob)
@@ -263,7 +273,7 @@ Any CVM cell that is not a collection:
   
   This excludes non-CVM cells such as the different transaction types.
 
-## <a name="convex.gen/set">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L556-L581) `set`</a>
+## <a name="convex.gen/set">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L570-L595) `set`</a>
 ``` clojure
 
 (set gen)
@@ -276,7 +286,7 @@ Set cell where item are generated using `gen`.
   
    When length target is not provided, depends on current `test.check` size.
 
-## <a name="convex.gen/string">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L353-L376) `string`</a>
+## <a name="convex.gen/string">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L361-L386) `string`</a>
 ``` clojure
 
 (string)
@@ -285,9 +295,11 @@ Set cell where item are generated using `gen`.
 ```
 
 
-String cell containing [`char`](#convex.gen/char).
+String cell.
+  
+   Containing [`char`](#convex.gen/char)s.
 
-## <a name="convex.gen/string-alphanum">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L380-L403) `string-alphanum`</a>
+## <a name="convex.gen/string-alphanum">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L390-L415) `string-alphanum`</a>
 ``` clojure
 
 (string-alphanum)
@@ -296,17 +308,19 @@ String cell containing [`char`](#convex.gen/char).
 ```
 
 
-String cell containing [`char-alphanum`](#convex.gen/char-alphanum).
+String cell.
+  
+   Containing only [`char-alphanum`](#convex.gen/char-alphanum)s.
 
-## <a name="convex.gen/string-symbolic">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L407-L412) `string-symbolic`</a>
+## <a name="convex.gen/string-symbolic">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L419-L424) `string-symbolic`</a>
 
 String that can be used to construct a keyword or a symbol.
 
-## <a name="convex.gen/symbol">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L416-L421) `symbol`</a>
+## <a name="convex.gen/symbol">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L428-L433) `symbol`</a>
 
 Symbol cell.
 
-## <a name="convex.gen/syntax">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L772-L797) `syntax`</a>
+## <a name="convex.gen/syntax">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L786-L811) `syntax`</a>
 ``` clojure
 
 (syntax)
@@ -319,11 +333,11 @@ Syntax cell.
   
    By default, `gen-value` is [`any`](#convex.gen/any) and `gen-meta` is either [`any-map`](#convex.gen/any-map) or [`nothing`](#convex.gen/nothing).
 
-## <a name="convex.gen/truthy">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L812-L820) `truthy`</a>
+## <a name="convex.gen/truthy">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L826-L834) `truthy`</a>
 
 Like `any` but neither false nor nil.
 
-## <a name="convex.gen/tuple">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L826-L834) `tuple`</a>
+## <a name="convex.gen/tuple">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L840-L848) `tuple`</a>
 ``` clojure
 
 (tuple & generator+)
@@ -332,7 +346,7 @@ Like `any` but neither false nor nil.
 
 CVX vector where each of the given generator respectively produces an item.
 
-## <a name="convex.gen/vector">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L585-L610) `vector`</a>
+## <a name="convex.gen/vector">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/gen/src/main/clj/convex/gen.clj#L599-L624) `vector`</a>
 ``` clojure
 
 (vector gen)
