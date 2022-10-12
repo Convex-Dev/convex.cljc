@@ -1,6 +1,6 @@
 (ns convex.eval
 
-  "Quick helpers built on top of [[convex.cvm/eval]].
+  "Quick helpers for evaluating Convex Lisp code.
   
    Systematically forks the used context before any operation so that it remains intact.
   
@@ -16,7 +16,7 @@
 
 (defn ctx
 
-  "Evaluates the given `cell` and returns `ctx`."
+  "Evaluates the given `cell` and the resulting `ctx`."
 
   [ctx cell]
 
@@ -29,7 +29,9 @@
 
 (defn exception
 
-  "Like [[ctx]] but returns the current exception or nil if there is none."
+  "Evaluates the given `cell` and returns the resulting CVM exception.
+  
+   Or nil."
 
   [ctx cell]
 
@@ -39,10 +41,11 @@
 
 
 (defn exception-code
-  
-  "Shortcut on top of [[exception]]. Returns the code of the exception associated with `ctx` or
-   nil if no exception occured."
 
+  "Evaluates the given `cell` and returns the resulting CVM exception code.
+
+   Or nil."
+  
   [ctx cell]
 
   (some-> (exception ctx
@@ -53,7 +56,7 @@
 
 (defn result
 
-  "Like [[ctx]] but returns the result."
+  "Evaluates the given `cell` and returns the result."
 
   [ctx cell]
 
@@ -63,7 +66,7 @@
 
 (defn true?
 
-  "Shortcut on top of [[result]]. Returns true if the result is CVX true.
+  "Evaluates the given `cell` and returns JVM `true` if the result is CVM `true`.
   
    Notably useful for test assertions."
 

@@ -1,6 +1,8 @@
 (ns convex.cvm
 
-  "Code execution in the Convex Virtual Machine, altering its state, and gaining insights.
+  "Code execution in the Convex Virtual Machine
+
+   Altering its state and gaining insights.
 
    The central entity of this namespace is the execution context created by [[ctx]]. They embed a [[state]] and allow
    executing code to alter it.
@@ -75,8 +77,10 @@
 
 (def genesis-user
 
-  "Address of the first genesis user when the CVM [[state]] is created in [[ctx]].
-   Might change in the future.
+  "Address of the first genesis user.
+  
+   More precisely, when the CVM [[state]] is created in [[ctx]].
+   This behavior might change in the future.
 
    It receives half of the funds reserved for all users in the state."
 
@@ -121,11 +125,11 @@
 
 (defn fork
 
-  "Duplicates the given [[ctx]] (very cheap).
+  "Duplicates the given `ctx` (very cheap).
 
    Any operation on the returned copy has no impact on the original context.
   
-   Attention, forking a `ctx` looses any attached [[result]] or [[exception]]."
+   Attention, forking a [[ctx]] looses any attached [[result]] or [[exception]]."
 
   ^Context
   
@@ -137,9 +141,9 @@
 
 (defn fork-to
 
-  "Like [[fork]] but switches the executing account.
-  
-   Note: CVM log is lost."
+  "Duplicates the given `ctx` and switches the executing account.
+
+   Like [[fork]] but the CVM log is lost."
 
   ^Context
 
@@ -215,11 +219,12 @@
 
 (defn exception
 
-  "The CVM enters in exceptional state in case of error or particular patterns such as
+  "Returns the exception attached to the CVM (or nil).
+  
+   The CVM enters in exceptional state in case of error or particular patterns such as
    halting or doing a rollback.
 
-   Returns the current exception or nil if `ctx` is not in such a state meaning that [[result]]
-   can be safely used.
+   A nil result means [[result]] can be safely used on this context.
   
    An exception code can be provided as a filter, meaning that even if an exception occured, this
    functions will return nil unless that exception has the given `code`.
@@ -307,7 +312,9 @@
 
 (defn key
 
-  "Returns the key of the given `address` (or the address associated with `ctx`)."
+  "Returns the key of the given `address`.
+  
+   Or the address associated with `ctx`."
 
   (^AccountKey [ctx]
 
@@ -324,8 +331,9 @@
 
 (defn log
 
-  "Returns the log of `ctx` (a vector cell of size 2 vectors containing a logging address
-   and a logged value)."
+  "Returns the log of `ctx`.
+  
+   A vector cell of size 2 vectors containing a logging address and a logged value."
 
   ^ABlobMap
   
@@ -337,8 +345,9 @@
 
 (defn look-up
 
-  "Returns the cell associated with the given `sym` in the environment of the given `address`
-   (or the currently used one)."
+  "Returns the cell associated with the given `sym`.
+  
+   From the environment of the given `address` (or the currently used one)."
 
 
   (^ACell [ctx sym]
@@ -387,7 +396,9 @@
 
 (defn time
 
-  "Returns the current timestamp (Unix epoch in milliseconds as long cell) assigned to the state in the given `ctx`.
+  "Returns the current timestamp assigned to the state in the given `ctx`.
+
+   A timetamp is a Unix epoch in milliseconds (long cell);
   
    Also see [[time-set]]."
 
@@ -600,8 +611,9 @@
 
 (defn undef
 
-  "Like calling `(undef sym)` in Convex Lisp, either in the current account or the given one, repeatedly
-   on any symbol cell in `sym+`."
+  "Like calling `(undef sym)` in Convex Lisp.
+  
+   Either in the current account or the given one, repeatedly on any symbol cell in `sym+`."
 
 
   (^Context [ctx sym+]
@@ -680,7 +692,9 @@
 
 (defn expand-compile
 
-  "Chains [[expand]] and [[compile]] in a slightly more efficient fashion than calling both separately."
+  "Expands and compiles in one go.
+
+   More efficient than chaining [[expand]] and [[compile]] yourself."
 
   
   (^Context [ctx]
@@ -724,7 +738,9 @@
 
 (defn eval
 
-  "Evaluates the given `cell` after forking the `ctx`, going efficiently through [[expand]], [[compile]], and [[exec]].
+  "Evaluates the given `cell` after forking the `ctx`.
+  
+   Goes efficiently through [[expand]], [[compile]], and [[exec]].
 
    Works with any kind of `cell` and is sufficient when there is no need for fine-grained control.
 
@@ -750,7 +766,9 @@
 
 (defmacro arg+*
 
-  "See [[invoke]]."
+  "Prepares arguments for invokation.
+  
+   See [[invoke]]."
 
   [& arg+]
 

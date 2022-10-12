@@ -151,7 +151,8 @@
 
 (defn open-tmp
 
-  "Like [[open]] but creates a temporary file.
+  "Opens an instance under a temporary file.
+
    A prefix string may be provided for the filename."
 
 

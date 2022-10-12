@@ -206,11 +206,13 @@
 
 (defn syntax
 
-  "Returns the given `syntax` cell as a Clojure map such as:
+  "Returns the given `syntax` cell as a Clojure map.
 
-   | Key | Value |
-   |---|---|
-   | `:meta` | Clojure map of metadata |
+   Such as:
+
+   | Key      | Value                            |
+   |----------|----------------------------------|
+   | `:meta`  | Clojure map of metadata          |
    | `:value` | Value wrapped, converted as well |"
 
   [^Syntax syntax]

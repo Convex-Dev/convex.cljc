@@ -1,8 +1,6 @@
 (ns convex.write
 
-  "Writing, encoding CVX cells various kind of sources.
-
-   Binary is big-endian and text is UTF-8.
+  "Writing CVX cells as UTF-8 text.
 
    Also see [[convex.read]] for the opposite idea."
 

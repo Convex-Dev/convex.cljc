@@ -1,6 +1,6 @@
 (ns convex.std
 
-  "Provides an API for cells with classic `convex.core` functions such as [[conj]].
+  "Provides an API for cells with classic `convex.core`-like functions.
 
    All `clojure.core` functions related to sequences usually understand Convex collections, making them
    easy to handle. Some of those (eg. `cons`, `next`) have counterparts in this namespace in case the return
@@ -11,9 +11,7 @@
    Sometimes, it can be useful converting cells to Clojure data, such as unwrapping blob to byte arrays,
    which is the purpose of the [[convex.clj]] namespace.
 
-   Lastly, in the rare cases where all of this would not be enough, Java interop can be used:
-
-     https://www.javadoc.io/doc/world.convex/convex-core/latest/convex/core/data/package-summary.html"
+   Lastly, in the rare cases where all of this would not be enough, [Java interop can be used](https://www.javadoc.io/doc/world.convex/convex-core/latest/convex/core/data/package-summary.html);"
 
   {:author "Adam Helinski"}
 
@@ -892,7 +890,9 @@
 
 (defn signum
 
-  "Returns the sign of the number:
+  "Returns the sign of the number.
+
+   More precisely:
   
    - `-1` if negative
    - `0` if 0

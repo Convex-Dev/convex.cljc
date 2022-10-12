@@ -1,6 +1,6 @@
 (ns convex.cell
 
-  "Constructors for CVM cells and related type predicate functions."
+  "Constructors for CVM cells."
 
   {:author "Adam Helinski"}
 
@@ -184,7 +184,7 @@
 
 (defn byte
 
-  "Creates a byte cell from a value between 0 and 255 inclusive."
+  "Creates a byte cell from a value between 0 and 255 (inclusive)."
 
   ^CVMByte
 
@@ -221,8 +221,9 @@
 
 (defmacro code-std*
 
-  "Given a Clojure keyword, returns the corresponding standard error code (any of the Convex keyword the CVM itself
-   uses):
+  "Given a Clojure keyword, returns the corresponding standard error code.
+ 
+   Those are errors codes used by the CVM itself:
   
    - `:ARGUMENT`
    - `:ARITY`
@@ -318,7 +319,7 @@
 
 (defn encoding
 
-  "Returns a [[blob]] representing the encoding of the given `cell`.
+  "Returns a blob representing the encoding of the given `cell`.
 
    This encoding is meant for incremental updates."
 
@@ -346,7 +347,9 @@
 
 (defn hash<-blob
 
-  "Converts a 32-byte [[blob]] to a [[hash]]."
+  "Converts a 32-byte blob to a hash.
+  
+   See [[hash]]."
 
   ^Hash
 
@@ -358,7 +361,9 @@
 
 (defn hash<-hex
 
-  "Creates a [[hash]] from a hex string.
+  "Creates a hash from a hex string.
+
+   See [[hash]].
   
    Returns nil if hex string is of wrong format."
 
@@ -386,7 +391,7 @@
 
 (defn key
 
-  "Creates an account key from a 32-byte [[blob]].
+  "Creates an account key from a 32-byte blob.
 
    Returns nil if the given [[blob]] is of wrong size."
 
@@ -400,7 +405,9 @@
 
 (def key-fake
 
-  "Zeroed [[key]] that can be used during dev and testing so that an account is considered as a user, not an actor."
+  "Zeroed account key for testing purposes.
+
+   See [[key]]."
 
   (key (blob (byte-array 32))))
 
