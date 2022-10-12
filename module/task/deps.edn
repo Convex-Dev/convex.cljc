@@ -4,17 +4,7 @@
 ;;
 ;;     :ext/babashka.fs
 ;;     :ext/cheshire
-;;     :ext/maestro
-;;     :ext/maestro.plugin.build
-;;     :ext/maestro.plugin.clj-kondo
-;;     :ext/maestro.plugin.kaocha
-;;     :ext/maestro.plugin.quickdoc
-;;     :ext/protosens.bb.help
-;;     :ext/protosens.classpath
-;;     :ext/protosens.git
-;;     :ext/protosens.process
-;;     :ext/protosens.string
-;;     :ext/selmer
+;;     :ext/protosens.maestro.idiom
 ;;     :module/task
 ;;
 ;; All files found in those paths are hard links to follow from the
@@ -24,57 +14,11 @@
 ;; be checkout out in version control.
 ;;
 {:deps
- {selmer/selmer {:mvn/version "1.12.55"},
-  protosens/maestro.plugin.quickdoc
-  {:deps/root "module/maestro.plugin.quickdoc",
-   :git/sha "98f817a",
-   :git/tag "stable/2022-10-10",
-   :git/url "https://github.com/protosens/monorepo.cljc"},
-  protosens/maestro
-  {:deps/root "module/maestro",
-   :git/sha "98f817a",
-   :git/tag "stable/2022-10-10",
-   :git/url "https://github.com/protosens/monorepo.cljc"},
-  protosens/maestro.plugin.clj-kondo
-  {:deps/root "module/maestro.plugin.clj-kondo",
-   :git/sha "98f817a",
-   :git/tag "stable/2022-10-10",
-   :git/url "https://github.com/protosens/monorepo.cljc"},
-  protosens/classpath
-  {:deps/root "module/classpath",
-   :git/sha "98f817a",
-   :git/tag "stable/2022-10-10",
-   :git/url "https://github.com/protosens/monorepo.cljc"},
-  protosens/bb.help
-  {:deps/root "module/bb.help",
-   :git/sha "98f817a",
-   :git/tag "stable/2022-10-10",
-   :git/url "https://github.com/protosens/monorepo.cljc"},
-  protosens/process
-  {:deps/root "module/process",
-   :git/sha "98f817a",
-   :git/tag "stable/2022-10-10",
-   :git/url "https://github.com/protosens/monorepo.cljc"},
-  protosens/maestro.plugin.build
-  {:deps/root "module/maestro.plugin.build",
-   :git/sha "98f817a",
-   :git/tag "stable/2022-10-10",
-   :git/url "https://github.com/protosens/monorepo.cljc"},
-  protosens/maestro.plugin.kaocha
-  {:deps/root "module/maestro.plugin.kaocha",
-   :git/sha "98f817a",
-   :git/tag "stable/2022-10-10",
-   :git/url "https://github.com/protosens/monorepo.cljc"},
+ {babashka/fs {:mvn/version "0.1.11"},
   cheshire/cheshire {:mvn/version "5.11.0"},
-  protosens/git
-  {:deps/root "module/git",
-   :git/sha "98f817a",
-   :git/tag "stable/2022-10-10",
-   :git/url "https://github.com/protosens/monorepo.cljc"},
-  protosens/string
-  {:deps/root "module/string",
-   :git/sha "98f817a",
-   :git/tag "stable/2022-10-10",
-   :git/url "https://github.com/protosens/monorepo.cljc"},
-  babashka/fs {:mvn/version "0.1.11"}},
+  protosens/maestro.idiom
+  {:deps/root "module/maestro.idiom",
+   :git/sha "692fea6",
+   :git/tag "stable/2022-10-12",
+   :git/url "https://github.com/protosens/monorepo.cljc"}},
  :paths ["src/main/bb"]}

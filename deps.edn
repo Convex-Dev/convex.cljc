@@ -195,82 +195,14 @@
    :maestro/doc "Tool for data exploration"}
 
 
-  :ext/protosens.bb.help
+  :ext/protosens.maestro.idiom
 
-  {:extra-deps  {protosens/bb.help {:deps/root "module/bb.help"
-                                    :git/sha   "98f817a"
-                                    :git/tag   "stable/2022-10-10"
-                                    :git/url   "https://github.com/protosens/monorepo.cljc"}}
-   :maestro/doc "Printing extra documentation for Babashka tasks"
-   :maestro/url "https://github.com/protosens/monorepo.cljc/module/bb.help"}
-
-
-
-  :ext/protosens.classpath
-
-  {:extra-deps  {protosens/classpath {:deps/root "module/classpath"
-                                      :git/sha   "98f817a"
-                                      :git/tag   "stable/2022-10-10"
-                                      :git/url   "https://github.com/protosens/monorepo.cljc"}}
-   :maestro/doc "Classpath utiltiies"
-   :maestro/url "https://github.com/protosens/monorepo.cljc/module/classpath"}
-
-
-  :ext/protosens.git
-
-  {:extra-deps  {protosens/git {:deps/root "module/git"
-                                :git/sha   "98f817a"
-                                :git/tag   "stable/2022-10-10"
-                                :git/url   "https://github.com/protosens/monorepo.cljc"}}
-   :maestro/doc "Common Git operations"
-   :maestro/url "https://github.com/protosens/monorepo.cljc/module/git"}
-
-
-  :ext/protosens.namespace
-
-  {:extra-deps  {protosens/namespace {:deps/root "module/namespace"
-                                      :git/sha   "98f817a"
-                                      :git/tag   "stable/2022-10-10"
-                                      :git/url   "https://github.com/protosens/monorepo.cljc"}}
-   :maestro/doc "Requiring some namespaces automatically"
-   :maestro/url "https://github.com/protosens/monorepo.cljc/module/namespace"}
-
-
-  :ext/protosens.process
-
-  {:extra-deps  {protosens/process {:deps/root "module/process"
-                                    :git/sha   "98f817a"
-                                    :git/tag   "stable/2022-10-10"
-                                    :git/url   "https://github.com/protosens/monorepo.cljc"}}
-   :maestro/doc "Spawning processes"
-   :maestro/url "https://github.com/protosens/monorepo.cljc/module/process"}
-
-
-  :ext/protosens.string
-
-  {:extra-deps  {protosens/string {:deps/root "module/string"
-                                   :git/sha   "98f817a"
-                                   :git/tag   "stable/2022-10-10"
-                                   :git/url   "https://github.com/protosens/monorepo.cljc"}}
-   :maestro/doc "String functions complementing `clojure.string`"
-   :maestro/url "https://github.com/protosens/monorepo.cljc/module/string"}
-
-
-  :ext/protosens.symbol
-
-  {:extra-deps  {protosens/symbol {:deps/root "module/symbol"
-                                   :git/sha   "98f817a"
-                                   :git/tag   "stable/2022-10-10"
-                                   :git/url   "https://github.com/protosens/monorepo.cljc"}}
-   :maestro/doc "Handling symbols"
-   :maestro/url "https://github.com/protosens/monorepo.cljc/module/symbol"}
-
-
-  :ext/selmer
-
-  {:extra-deps  {selmer/selmer {:mvn/version "1.12.55"}}
-   :maestro/doc "A fast, Django inspired template system"
-   :maestro/url "https://github.com/yogthos/selmer"}
+  {:extra-deps  {protosens/maestro.idiom {:deps/root "module/maestro.idiom"
+                                          :git/sha   "692fea6"
+                                          :git/tag   "stable/2022-10-12"
+                                          :git/url   "https://github.com/protosens/monorepo.cljc"}}
+   :maestro/doc "Provides Maestro for managing this monorepo and related useful tooling."
+   :maestro/url "https://github.com/protosens/monorepo.cljc/tree/develop/module/maestro.idiom"}
 
 
   :ext/slf4j-timbre
@@ -517,17 +449,7 @@
                       :jvm]
   :maestro/require   [:ext/babashka.fs
                       :ext/cheshire
-                      :ext/maestro
-                      :ext/maestro.plugin.build
-                      :ext/maestro.plugin.clj-kondo
-                      :ext/maestro.plugin.kaocha
-                      :ext/maestro.plugin.quickdoc
-                      :ext/protosens.bb.help
-                      :ext/protosens.classpath
-                      :ext/protosens.git
-                      :ext/protosens.string
-                      :ext/protosens.process
-                      :ext/selmer]
+                      :ext/protosens.maestro.idiom]
   :maestro/root      "module/task"}
 
 

@@ -1,4 +1,4 @@
-# `convex.cljc` - [CHANGES](./doc/changelog.md)
+# `convex.cljc` - [CHANGES](./doc/changelog.md) - [MODULES](./module)
 
 ![Workflow](https://github.com/convex-dev/convex.cljc/actions/workflows/workflow.yml/badge.svg)
 

@@ -402,6 +402,8 @@ Verifies that the given `signature` is indeed the given `hash` signed by the giv
    See [`sign-hash`](#convex.key-pair/sign-hash).
 
 -----
+
+-----
 # <a name="convex.pfx">convex.pfx</a>
 
 
