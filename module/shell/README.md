@@ -1,6 +1,6 @@
 # `module/shell` - [API](doc/API.md)  - [CHANGES](doc/changelog.md)
 
-Convex Shell
+Convex Shell, execute Convex Lisp in the terminal
 
 ```clojure
 ;; Supported platforms:

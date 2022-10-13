@@ -1,17 +1,5 @@
 {:deps
- {local/task {:local/root "module/task"}
- ; protosens/maestro {:deps/root "module/maestro"
- ;                                   :git/sha   "b1b120fe6d29d3375b28297e70f7752a1b4a5e71"
- ;                                   :git/url   "https://github.com/protosens/monorepo.cljc"}
- ; 
-
-
-;protosens/maestro.plugin.clj-kondo {:deps/root "module/maestro.plugin.clj-kondo"
-;                                                     :git/sha   "a7162fb2b1d23a6ca7e8555b6bfd14dc0d64cb55"
-;                                                     :git/url   "https://github.com/protosens/monorepo.cljc"}
-;
-}
-
+ {local/task {:local/root "module/task"}}
 
 
  :pods
@@ -37,7 +25,7 @@
                    Provide any additional aliases you might need for your dev workflow.
                    For instance, an alias for NREPL located in your `~/.clojure/deps.edn`."
    :requires      ([protosens.maestro])
-   :task          (protosens.maestro/task)}
+   :task          (protosens.maestro/main)}
 
 
   api
@@ -53,7 +41,7 @@
   build
   {:doc      "Build the given module"
    :requires ([protosens.maestro.plugin.build])
-   :task     (protosens.maestro.plugin.build/task :ext/maestro.plugin.build)}
+   :task     (protosens.maestro.plugin.build/main :ext/maestro.plugin.build)}
 
 
   changelog+
@@ -148,7 +136,6 @@
 
 
   lint:prepare
-
   {:doc           "Prepare for `lint`"
    :protosens/doc "Must be run prior to the first time `lint` is run and on dependency changes."
    :requires      ([protosens.maestro.plugin.clj-kondo])
@@ -158,8 +145,8 @@
   module:listing
   {:doc           "Generate `./module/README.md`"
    :protosens/doc "Lists all exposed and private modules."
-   :requires      ([protosens.maestro.idiom.listing])
-   :task          (protosens.maestro.idiom.listing/main "module/README.md")}
+   :requires      ([convex.task.listing])
+   :task          (convex.task.listing/main)}
 
 
   module:readme

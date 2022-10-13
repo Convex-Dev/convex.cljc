@@ -198,8 +198,8 @@
   :ext/protosens.maestro.idiom
 
   {:extra-deps  {protosens/maestro.idiom {:deps/root "module/maestro.idiom"
-                                          :git/sha   "692fea6"
-                                          :git/tag   "stable/2022-10-12"
+                                          :git/sha   "2d41c8a"
+                                          :git/tag   "stable/2022-10-13"
                                           :git/url   "https://github.com/protosens/monorepo.cljc"}}
    :maestro/doc "Provides Maestro for managing this monorepo and related useful tooling."
    :maestro/url "https://github.com/protosens/monorepo.cljc/tree/develop/module/maestro.idiom"}
@@ -277,7 +277,8 @@
 
   :module/app.fuzz
 
-  {:exec-fn           convex.app.fuzz/random
+  {:convex/type       #{:test}
+   :exec-fn           convex.app.fuzz/random
    :extra-paths       ["module/app.fuzz/src/main/clj"]
    :maestro/doc       "Parallel generation and execution of random Convex Lisp forms involving standard functions."
    :maestro/platform+ [:jvm]
@@ -291,7 +292,8 @@
 
   :module/bench
 
-  {:extra-paths       ["module/bench/src/main/clj"]
+  {:convex/type       #{:test}
+   :extra-paths       ["module/bench/src/main/clj"]
    :maestro/doc       "Namespaces for benchmarking various areas of Convex." 
    :maestro/platform+ [:jvm]
    :maestro/require   [:ext/criterium
@@ -304,7 +306,8 @@
 
   :module/break
 
-  {:extra-paths       ["module/break/src/main/clj"
+  {:convex/type       #{:test}
+   :extra-paths       ["module/break/src/main/clj"
                        "module/break/src/main/cvx"]
    :maestro/doc       "Advanced suite of generative tests targeting the Convex Virtual Machine."
    :maestro/platform+ [:jvm]
@@ -322,8 +325,9 @@
 
   :module/cvm
 
-  {:extra-paths                         ["module/cvm/src/main/clj"]
-   :maestro/doc                         "Core uilities related to the Convex Virtual Machine."
+  {:convex/type                         #{:lib}
+   :extra-paths                         ["module/cvm/src/main/clj"]
+   :maestro/doc                         "Core utilities related to the Convex Virtual Machine."
    :maestro/platform+                   [:jvm]
    :maestro/require                     [:ext/convex-core
                                          {test :test/cvm}]
@@ -343,7 +347,8 @@
 
   :module/dev
 
-  {:extra-paths     ["module/dev/src/main/clj"]
+  {:convex/type     #{:dev}
+   :extra-paths     ["module/dev/src/main/clj"]
    :maestro/doc     "Dev utilities for this repository.  
                      Not meant for public use."
    :maestro/require [:ext/portal
@@ -354,7 +359,8 @@
 
   :module/gen
 
-  {:extra-paths                         ["module/gen/src/main/clj"]
+  {:convex/type                         #{:lib}
+   :extra-paths                         ["module/gen/src/main/clj"]
    :maestro/doc                         "Convex cells generators."
    :maestro/platform+                   [:jvm]
    :maestro/require                     [:ext/clojure.test.check
@@ -375,7 +381,8 @@
 
   :module/net
 
-  {:extra-paths                         ["module/net/src/main/clj"]
+  {:convex/type                         #{:lib}
+   :extra-paths                         ["module/net/src/main/clj"]
    :maestro/doc                         "Interact with a Convex network."
    :maestro/platform+                   [:jvm]
    :maestro/require                     [:ext/convex-peer
@@ -396,7 +403,8 @@
 
   :module/recipe
 
-  {:extra-paths       ["module/recipe/src/main/clj"
+  {:convex/type       #{:learn}
+   :extra-paths       ["module/recipe/src/main/clj"
                        "module/recipe/src/main/cvx"]
    :maestro/doc       "Examples for common use cases meant for the REPL."
    :maestro/platform+ [:jvm]
@@ -410,7 +418,8 @@
 
   :module/shell
 
-  {:convex.shell/version                  "0.0.0-alpha4"
+  {:convex/type                           #{:app}
+   :convex.shell/version                  "0.0.0-alpha4"
    :extra-paths                           ["module/shell/resource/main"
                                            "module/shell/src/main/clj"
                                            "module/shell/src/main/cvx"]
@@ -442,7 +451,8 @@
 
  :module/task
 
- {:extra-paths       ["module/task/src/main/bb"]
+ {:convex/type       #{:dev}
+  :extra-paths       ["module/task/src/main/bb"]
   :maestro/doc       "Tasks used in this repository.  
                       Not meant for public use."
   :maestro/platform+ [:bb

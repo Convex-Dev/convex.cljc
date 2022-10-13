@@ -1,6 +1,6 @@
 # `module/cvm` - [API](doc/API.md)  - [CHANGES](doc/changelog.md)
 
-Core uilities related to the Convex Virtual Machine.
+Core utilities related to the Convex Virtual Machine.
 
 ```clojure
 ;; Add to dependencies in `deps.edn`:

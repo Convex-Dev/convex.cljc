@@ -24,7 +24,7 @@ link](https://convex.world/cvm).
 
 ## Public work
 
-Modules exposed publicly are listed in [`./module`](./module).
+Modules exposed publicly, various libraries and applications, are listed in [`./module`](./module).
 
 This repository uses [calver](https://calver.org) and follows best effort
 towards avoiding known breaking changes in publicly exposed modules. Excepts
@@ -32,23 +32,6 @@ regarding experimental module starting with `lab.` which may be subject to
 breaking changes or removal.
 
 All consumed modules must be required with the same `stable/YYYY-0M-0D` tag.
-
-
-Applications:
-
-- [`shell`](./module/shell)
-
-Libraries exposed as [Git
-dependencies](https://clojure.org/guides/deps_and_cli#_using_git_libraries) by
-[Clojure CLI](https://clojure.org/guides/deps_and_cli):
-
-- [`cvm`](./module/cvm)
-- [`gen`](./module/gen)
-- [`net`](./module/net)
-
-Learning materials:
-
-- [`recipe`](./module/recipe)
 
 
 ---
