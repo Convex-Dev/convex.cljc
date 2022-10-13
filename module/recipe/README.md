@@ -34,11 +34,13 @@ Recommended order is:
 - [convex.recipe.peer.testnet](./src/main/clj/convex/recipe/peer/testnet.clj), to run a peer connected to the current testnet
 
 
+---
+
+
 Steps:
 
-- Clone/fork this repo
-- Ensure [Babashka](https://github.com/babashka/babashka) is installed
-- Start REPL from the root of this whole repository
+- [Fork this repository](../../doc/fork_this_repository.md)
+- Start a REPL from the root of this whole repository
 - Open any of the namespaces above and eval stuff
 
 

@@ -414,7 +414,7 @@
    :extra-paths                           ["module/shell/resource/main"
                                            "module/shell/src/main/clj"
                                            "module/shell/src/main/cvx"]
-   :maestro/doc                            "Convex Shell"
+   :maestro/doc                           "Convex Shell, execute Convex Lisp in the terminal"
    :maestro/platform+                     [:jvm
                                            :native]
    :maestro/require                       [:ext/clojure
