@@ -41,7 +41,7 @@
   build
   {:doc      "Build the given module"
    :requires ([protosens.maestro.plugin.build])
-   :task     (protosens.maestro.plugin.build/main :ext/maestro.plugin.build)}
+   :task     (protosens.maestro.plugin.build/main :ext/protosens.maestro.idiom)}
 
 
   changelog+

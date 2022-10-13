@@ -145,44 +145,6 @@
    :maestro/doc "Collection of tools for managing this repo as a monorepo"}
 
 
-  :ext/maestro.plugin.build
-  
-  {:extra-deps  {protosens/maestro.plugin.build {:deps/root "module/maestro.plugin.build"
-                                                 :git/sha   "98f817a"
-                                                 :git/tag   "stable/2022-10-10"
-                                                 :git/url   "https://github.com/protosens/monorepo.cljc"}}
-   :maestro/doc "`:ext/maestro`plugin for `tools.build`"}
-
-
-  :ext/maestro.plugin.clj-kondo
-  
-  {:extra-deps  {protosens/maestro.plugin.clj-kondo {:deps/root "module/maestro.plugin.clj-kondo"
-                                                     :git/sha   "98f817a"
-                                                     :git/tag   "stable/2022-10-10"
-                                                     :git/url   "https://github.com/protosens/monorepo.cljc"}}
-   :maestro/doc "`:ext/maestro` plugin for Clj-kondo"}
-
-
-  :ext/maestro.plugin.kaocha
-  
-  {:extra-deps  {protosens/maestro.plugin.kaocha {:deps/root "module/maestro.plugin.kaocha"
-                                                  :git/sha   "98f817a"
-                                                  :git/tag   "stable/2022-10-10"
-                                                  :git/url   "https://github.com/protosens/monorepo.cljc"}}
-   :maestro/doc "`:ext/maestro` plugin for the Kaocha test runner.
-                 Brings Kaocha alongside."}
-
-
-  :ext/maestro.plugin.quickdoc
-  
-  {:extra-deps  {protosens/maestro.plugin.quickdoc {:deps/root "module/maestro.plugin.quickdoc"
-                                                    :git/sha   "98f817a"
-                                                    :git/tag   "stable/2022-10-10"
-                                                    :git/url   "https://github.com/protosens/monorepo.cljc"}}
-   :maestro/doc "`:ext/maestro for Quickdoc"}
-
-
-
   :ext/mprop
 
   {:extra-deps  {io.helins/mprop {:mvn/version "0.0.1"}}
@@ -195,6 +157,16 @@
    :maestro/doc "Tool for data exploration"}
 
 
+  :ext/protosens.lab.bench
+
+  {:extra-deps  {protosens/lab.bench {:deps/root "module/lab.bench"
+                                      :git/sha   "2d41c8a"
+                                      :git/tag   "stable/2022-10-13"
+                                      :git/url   "https://github.com/protosens/monorepo.cljc"}}
+   :maestro/doc "Higher-level helpers for Criterium"
+   :maestro/url "https://github.com/protosens/monorepo.cljc/blob/main/module/lab.bench"}
+
+
   :ext/protosens.maestro.idiom
 
   {:extra-deps  {protosens/maestro.idiom {:deps/root "module/maestro.idiom"
@@ -202,7 +174,7 @@
                                           :git/tag   "stable/2022-10-13"
                                           :git/url   "https://github.com/protosens/monorepo.cljc"}}
    :maestro/doc "Provides Maestro for managing this monorepo and related useful tooling."
-   :maestro/url "https://github.com/protosens/monorepo.cljc/tree/develop/module/maestro.idiom"}
+   :maestro/url "https://github.com/protosens/monorepo.cljc/blob/main/module/maestro.idiom"}
 
 
   :ext/slf4j-timbre
@@ -240,8 +212,8 @@
   {:maestro/doc        "Test utilities"
    :maestro/require    [:ext/clojure.test.check
                         :ext/kaocha
-                        :ext/maestro.plugin.kaocha
-                        :ext/mprop]
+                        :ext/mprop
+                        :ext/protosens.maestro.idiom]
    :maestro/on-require [protosens.maestro.plugin.kaocha/prepare]}
 
 
@@ -256,9 +228,7 @@
   {:jvm-opts        ["-Dconvex.dev=true"]
    :maestro/doc     "Automatically invoked during dev, brings commonly needed utilities"
    :maestro/require [:bundle/test
-                     :ext/clojure.java.classpath
-                     :ext/clojure.tools.namespace
-                     :ext/criterium
+                     :ext/protosens.lab.bench
                      :module/dev]}
 
 
@@ -296,8 +266,8 @@
    :extra-paths       ["module/bench/src/main/clj"]
    :maestro/doc       "Namespaces for benchmarking various areas of Convex." 
    :maestro/platform+ [:jvm]
-   :maestro/require   [:ext/criterium
-                       :ext/coffi
+   :maestro/require   [; :ext/coffi - needed for Project Panama disabled since only works with Java > 18
+                       :ext/protosens.lab.bench
                        :module/cvm
                        :module/net]
    :maestro/root      "module/bench"}
@@ -348,12 +318,11 @@
   :module/dev
 
   {:convex/type     #{:dev}
-   :extra-paths     ["module/dev/src/main/clj"]
+   :extra-paths     ["module/dev/src/dev/clj"]
    :maestro/doc     "Dev utilities for this repository.  
                      Not meant for public use."
    :maestro/require [:ext/portal
-                     :ext/protosens.namespace
-                     :ext/protosens.symbol]}
+                     :ext/protosens.maestro.idiom]}
 
   ;---
 

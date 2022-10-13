@@ -1,7 +1,7 @@
 #kaocha/v1
 {:kaocha/reporter
  [kaocha.report/documentation]
- 
+
  :tests
  [#meta-merge [{:id                 :unit
                 :kaocha/ns-patterns [".+"]}

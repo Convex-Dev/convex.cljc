@@ -33,8 +33,10 @@
   []   
 
   (P.namespace/require-cp-dir+ (fn [nmspace]
-                                 (when (P.symbol/starts-with? nmspace
-                                                              'convex.)
+                                 (when (and (P.symbol/starts-with? nmspace
+                                                                   'convex.)
+                                            (not= nmspace
+                                                  'convex.bench.ed25519.libsodium))
                                    [nmspace
                                     :as
                                     (P.symbol/replace-first nmspace

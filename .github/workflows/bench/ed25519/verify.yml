@@ -1,0 +1,55 @@
+# Benchmarking Ed25519 signature verification.
+
+name: bench/ed25519/verify
+
+on: workflow_dispatch
+
+
+##########
+
+
+jobs:
+
+  bench:
+
+    strategy:
+      matrix:
+        java-version:
+          - 11
+          - 17
+          - 18
+        os:
+          - macos-12
+          - ubuntu-latest
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Prepare Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: ${{ matrix.java-version }}
+
+      - name: Caching for Clojure dependencies
+        uses: actions/cache@v3
+        with:
+          key:          verify-ed25519-${{ hashFiles('bb.edn', 'deps.edn') }}
+          path:         |
+                        ~/.deps.clj
+                        ~/.gitlibs
+                        ~/.m2/repository
+          restore-keys: verify-ed25519
+
+      - name: Prepare Clojure
+        uses: DeLaGuardo/setup-clojure@9.5
+        with:
+          bb:  latest
+          cli: latest
+   
+      - name: Benchmark Ed25519 signature verification
+        run:  bb mtempl :module/bench -- clojure -X__ convex.bench.ed25519/verify--bouncy-castle-vs-lazysodium

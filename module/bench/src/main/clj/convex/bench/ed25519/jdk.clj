@@ -2,6 +2,8 @@
 
   "JDK implementation."
 
+  ;; Java > 15 only.
+
   (:import (java.security KeyPair
                           KeyPairGenerator
                           Signature)))
