@@ -44,7 +44,7 @@ jobs:
           clj-kondo: latest
 
       - name: Prepare Clj-kondo
-        run:  bb lint:import
+        run:  bb lint:prepare
 
       - name: Run Clj-kondo
         run:  bb lint
@@ -61,7 +61,7 @@ jobs:
         os:
           - macos-12
           - ubuntu-latest
-          - windows-latest
+          # - windows-latest
 
     runs-on: ${{ matrix.os }}
 
@@ -118,7 +118,7 @@ jobs:
         os:
           - macos-12
           - ubuntu-latest
-          - windows-latest
+          # - windows-latest
 
     runs-on: ${{ matrix.os }}
 
