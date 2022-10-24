@@ -67,14 +67,6 @@
 ;;;;;;;;;; Values
 
 
-(def fake-key
-
-  "Fake key (all zeroes) meant for testing."
-
-  ($.cell/key ($.cell/blob (byte-array 32))))
-
-
-
 (def genesis-user
 
   "Address of the first genesis user.
@@ -117,7 +109,7 @@
 
    (Context/createFake (or (:convex.cvm/state option+)
                            (Init/createState (or (:convex.cvm/genesis-key+ option+)
-                                                 [fake-key])))
+                                                 [$.cell/key-fake])))
                        (or (:convex.cvm/address option+)
                            genesis-user))))
 

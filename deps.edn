@@ -9,9 +9,9 @@
 
 
 
- ;; OPTIONS FOR MAESTRO PLUGINS
+ ;; OPTIONS FOR MAESTRO PLUGINS AND TOOLS
 
-
+ :maestro.module.expose/url         "https://github.com/convex-dev/convex.cljc"
  :maestro.plugin.build.path/exclude ["(?i)^META-INF/license/.*"
                                      "^license/.*"]
  :maestro.plugin.kaocha/path        "private/maestro-kaocha.edn"
