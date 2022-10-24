@@ -7,9 +7,9 @@ Core utilities related to the Convex Virtual Machine.
 ;;
 world.convex/cvm
 {:deps/root "module/cvm"
- :git/sha   "..."
- :git/tag   "..."
- :git/url   "null"}
+ :git/sha   "29299dc"
+ :git/tag   "stable/2022-10-24"
+ :git/url   "https://github.com/convex-dev/convex.cljc"}
 ```
 
 ```clojure
