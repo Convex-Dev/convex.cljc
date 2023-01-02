@@ -157,6 +157,16 @@
    :maestro/doc "Tool for data exploration"}
 
 
+  :ext/protosens.git
+
+  {:extra-deps  {protosens/git {:deps/root "module/git"
+                                :git/sha   "2d41c8a"
+                                :git/tag   "stable/2022-10-13"
+                                :git/url   "https://github.com/protosens/monorepo.cljc"}}
+   :maestro/doc "Shelling out Git operations"
+   :maestro/url "https://github.com/protosens/monorepo.cljc/tree/main/module/git"}
+
+
   :ext/protosens.lab.bench
 
   {:extra-deps  {protosens/lab.bench {:deps/root "module/lab.bench"
@@ -175,6 +185,16 @@
                                           :git/url   "https://github.com/protosens/monorepo.cljc"}}
    :maestro/doc "Provides Maestro for managing this monorepo and related useful tooling."
    :maestro/url "https://github.com/protosens/monorepo.cljc/blob/main/module/maestro.idiom"}
+
+
+  :ext/protosens.string
+
+  {:extra-deps  {protosens/string {:deps/root "module/string"
+                                   :git/sha   "2d41c8a"
+                                   :git/tag   "stable/2022-10-13"
+                                   :git/url   "https://github.com/protosens/monorepo.cljc"}}
+   :maestro/doc "String manipulation library complementing `clojure.string`"
+   :maestro/url "https://github.com/protosens/monorepo.cljc/tree/main/module/string"}
 
 
   :ext/slf4j-timbre
@@ -324,7 +344,7 @@
    :maestro/require [:ext/portal
                      :ext/protosens.maestro.idiom]}
 
-  ;---
+    ;---
 
   :module/gen
 
@@ -395,9 +415,12 @@
    :maestro/doc                           "Convex Shell, execute Convex Lisp in the terminal"
    :maestro/platform+                     [:jvm
                                            :native]
-   :maestro/require                       [:ext/clojure
+   :maestro/require                       [:ext/babashka.fs
+                                           :ext/clojure
                                            :ext/criterium
                                            :ext/graal-build-time
+                                           :ext/protosens.git
+                                           :ext/protosens.string
                                            :module/cvm
                                            {dev :dev/shell}]
    :maestro/root                          "module/shell"
