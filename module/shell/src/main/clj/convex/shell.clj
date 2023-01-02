@@ -33,6 +33,7 @@
   (:refer-clojure :exclude [eval])
   (:require [clojure.string         :as string]
             [convex.cell            :as $.cell]
+            [convex.cvm             :as $.cvm]
             [convex.shell.ctx       :as $.shell.ctx]
             [convex.shell.exec      :as $.shell.exec]
             [convex.shell.exec.fail :as $.shell.exec.fail]
@@ -57,7 +58,7 @@
   [env]
 
   (assoc env
-         :convex.shell/ctx             $.shell.ctx/ctx-base
+         :convex.shell/ctx             ($.cvm/fork $.shell.ctx/ctx-base)
          :convex.shell/stream+         {$.shell.kw/stderr $.shell.io/stderr-txt
                                         $.shell.kw/stdin  $.shell.io/stdin-txt
                                         $.shell.kw/stdout $.shell.io/stdout-txt}
