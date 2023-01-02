@@ -1,6 +1,7 @@
 (ns convex.shell.dep
 
-  (:refer-clojure :exclude [import])
+  (:refer-clojure :exclude [import
+                            read])
   (:require [babashka.fs       :as bb.fs]
             [clojure.string    :as string]
             [convex.cell       :as $.cell]
@@ -104,113 +105,114 @@
 
 
 
-(defn- -walk
+(defn- -read
 
-  [ctx]
+  ;; Helper for [[read]].
 
-  (if-some [required (ctx :required)]
-    (let [[alias
-           path
+  [state]
+
+  (if-some [required (state :convex.shell.dep/required)]
+    ;; 
+    (let [[dep-alias
+           dep-path
            & required-2] required
-          project        (get-in ctx
-                                 [:project+ (ctx :project)])
+          project        (get-in state
+                                 [:convex.shell.dep/project+
+                                  (state :convex.shell.dep/project)])
           dep            (get-in project
                                  [($.cell/* :deps)
-                                  (first path)])
+                                  (first dep-path)])
           dep-type       (get dep
                               ($.cell/* :type))]
       (cond
         (= dep-type
            ($.cell/* :relative))
-        (let [src   ($.read/file (format "%s/%s/%s.cvx"
-                                         (get project
-                                              ($.cell/* :dir))
-                                         (get dep
-                                              ($.cell/* :relative.path))
-                                         (string/join "/"
-                                                      (rest path))))
-              hash  ($.cell/hash src)
-              req   (get (first src)
-                         ($.cell/* :require))
-              ctx-2 (-> ctx
-                        (assoc-in [:hash->src
-                                   hash]
-                                  (cond->
-                                    src
-                                    req
-                                    ($.std/next)))
-                        (update-in [:dep
-                                    (ctx :target)]
-                                   (fnil conj
-                                         [])
-                                   [alias
-                                    hash]))]
+        (let [src          ($.read/file (format "%s/%s/%s.cvx"
+                                                (get project
+                                                     ($.cell/* :dir))
+                                                (get dep
+                                                     ($.cell/* :relative.path))
+                                                (string/join "/"
+                                                             (rest dep-path))))
+              src-hash     ($.cell/hash src)
+              dep-required (get (first src)
+                                ($.cell/* :require))
+              state-2      (-> state
+                               (assoc-in [:convex.shell.dep/hash->src
+                                          src-hash]
+                                         (cond->
+                                           src
+                                           dep-required
+                                           ($.std/next)))
+                               (update-in [:convex.shell.dep/child+
+                                           (state :convex.shell.dep/target)]
+                                          (fnil conj
+                                                [])
+                                          [dep-alias
+                                           src-hash]))]
           (when (some (fn [hash-parent]
                         (= hash-parent
                            hash))
-                      (ctx :parent+))
+                      (state-2 :convex.shell.dep/parent+))
             (throw (Exception. "Circular dependency")))
-          (-> (if req
-                (-> ctx-2
-                    (assoc :target   hash
-                           :required req)
-                    (update :parent+
+          (-> (if dep-required
+                (-> state-2
+                    (assoc :convex.shell.dep/target   src-hash
+                           :convex.shell.dep/required dep-required)
+                    (update :convex.shell.dep/parent+
                             conj
-                            hash)
-                    (-walk)
-                    (merge (select-keys ctx
-                                        [:parent+
-                                         :target])))
-                ctx-2)
-              (assoc :required
+                            src-hash)
+                    (-read)
+                    (merge (select-keys state
+                                        [:convex.shell.dep/parent+
+                                         :convex.shell.dep/target])))
+                state-2)
+              (assoc :convex.shell.dep/required
                      required-2)
               (recur)))
         ;;
         (= dep-type
            ($.cell/* :git))
-        (let [sha      (str (get dep
-                                 ($.cell/* :git.sha)))
-              url      (str (get dep
-                                 ($.cell/* :git.url)))
-              worktree (git url
-                            sha)
-              k        [:git worktree]
-              ctx-2    (update-in ctx
-                                  [:project+ k]
-                                  #(or %
-                                       (convex.shell.dep/project worktree)))
-              ]
-          (when (some (fn [hash-parent]
-                        (= hash-parent
-                           hash))
-                      (ctx :parent+))
-            (throw (Exception. "Circular dependency")))
-          (-> ctx-2
-              (assoc :project  k
-                     :required ($.cell/* [~alias
-                                          ~($.std/next path)]))
-              (-walk)
-              (merge (select-keys ctx
-                                  [:project]))
-              (assoc :required
+        (let [git-sha      (str (get dep
+                                     ($.cell/* :git.sha)))
+              git-url      (str (get dep
+                                     ($.cell/* :git.url)))
+              git-worktree (git git-url
+                                git-sha)
+              k-project    [:git git-worktree]]
+          (-> state
+              (update-in [:convex.shell.dep/project+
+                          k-project]
+                         #(or %
+                              (convex.shell.dep/project git-worktree)))
+              (assoc :convex.shell.dep/project  k-project
+                     :convex.shell.dep/required ($.cell/* [~dep-alias
+                                                           ~($.std/next dep-path)]))
+              (-read)
+              (merge (select-keys state
+                                  [:convex.shell/project]))
+              (assoc :convex.shell.dep/required
                      required-2)
               (recur)))
         ;;
         :else
         (throw (Exception. "Unknown dependency type"))))
-    ctx))
+    ;;
+    ;; No dependencies are required.
+    ;;
+    state))
 
 
 
-(defn walk
+(defn read
 
   [dir-project required]
 
-  (-walk {:parent+  []
-          :project  :root
-          :project+ {:root (project dir-project)}
-          :required required
-          :target   :root}))
+  (-read {:convex.shell.dep/parent+  []
+          :convex.shell.dep/project  :root
+          :convex.shell.dep/project+ {:root (project dir-project)}
+          :convex.shell.dep/required required
+          :convex.shell.dep/target   :root}))
 
 
 
@@ -218,7 +220,7 @@
 
   [walked]
 
-  (let [target  (walked :target)
+  (let [target  (walked :convex.shell.dep/target)
         address (get-in walked
                         [:deployed target])]
     (println :target target address)
@@ -228,13 +230,13 @@
              :address
              address)
       ;;
-      (if-some [dep+ (get-in walked
-                             [:dep target])]
+      (if-some [child+ (get-in walked
+                             [:convex.shell.dep/child+ target])]
         ;;
-        (let [_ (println :dep+ dep+)
+        (let [_ (println :child+ child+)
               walked-2 (reduce (fn [walked-2 [sym src-hash]]
                                  (let [walked-3 (deploy (assoc walked-2
-                                                               :target
+                                                               :convex.shell.dep/target
                                                                src-hash))]
                                    (assoc walked-3
                                           :let
@@ -244,9 +246,9 @@
                                (assoc walked
                                       :let
                                       [])
-                               dep+)
+                               child+)
               hash-src (get-in walked
-                               [:hash->src target])]
+                               [:convex.shell.dep/hash->src target])]
           (if hash-src
             (let [_ (println :deploy hash-src)
                   ctx-2    ($.cvm/deploy (walked-2 :convex.shell/ctx)
@@ -260,11 +262,11 @@
                      :deployed (assoc (walked-2 :deployed)
                                       target
                                       address)
-                     :target  target))
+                     :convex.shell.dep/target  target))
             walked-2))
         ;;
         (if-some [hash-src (get-in walked
-                                   [:hash->src
+                                   [:convex.shell.dep/hash->src
                                    target])]
           (let [_ (println :deploy hash-src)
                 ctx-2   ($.cvm/deploy (walked :convex.shell/ctx)
@@ -288,7 +290,7 @@
   [env dir-project required]
 
   (merge env
-         (select-keys (deploy (assoc (walk dir-project
+         (select-keys (deploy (assoc (read dir-project
                                            required)
                                      :convex.shell/ctx
                                      (env :convex.shell/ctx)))
