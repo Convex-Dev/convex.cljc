@@ -122,16 +122,14 @@
           dep            (get-in project
                                  [($.cell/* :deps)
                                   (first dep-path)])
-          dep-type       (get dep
-                              ($.cell/* :type))]
+          dep-type       (first dep)]
       (cond
         (= dep-type
            ($.cell/* :relative))
         (let [src          ($.read/file (format "%s/%s/%s.cvx"
                                                 (get project
                                                      ($.cell/* :dir))
-                                                (get dep
-                                                     ($.cell/* :relative.path))
+                                                (second dep)
                                                 (string/join "/"
                                                              (rest dep-path))))
               src-hash     ($.cell/hash src)
@@ -173,10 +171,10 @@
         ;;
         (= dep-type
            ($.cell/* :git))
-        (let [git-sha      (str (get dep
-                                     ($.cell/* :git.sha)))
-              git-url      (str (get dep
-                                     ($.cell/* :git.url)))
+        (let [git-sha      (str ($.std/nth dep
+                                           2))
+              git-url      (str ($.std/nth dep
+                                           1))
               git-worktree (git git-url
                                 git-sha)
               k-project    [:git git-worktree]]
