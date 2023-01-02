@@ -24,6 +24,7 @@
             [convex.db              :as $.db]
             [convex.read            :as $.read]
             [convex.shell.ctx       :as $.shell.ctx]
+            [convex.shell.dep       :as $.shell.dep]
             [convex.shell.err       :as $.shell.err]
             [convex.shell.exec      :as $.shell.exec]
             [convex.shell.exec.fail :as $.shell.exec.fail]
@@ -125,6 +126,22 @@
   [_env _tuple]
 
   (throw (Exception. "This is a simulated exception")))
+
+
+;;;;;;;;;; Dependencies
+
+
+(defmethod $.shell.exec/sreq
+
+  ($.cell/* :dep)
+
+  [env ^AVector tuple]
+
+  ($.shell.dep/import env
+                      (str (.get tuple
+                                 2))
+                      (.get tuple
+                            3)))
 
 
 ;;;;;;;;;; Etch

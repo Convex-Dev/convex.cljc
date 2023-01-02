@@ -1,8 +1,10 @@
 (ns convex.shell.dep
 
+  (:refer-clojure :exclude [import])
   (:require [babashka.fs       :as bb.fs]
             [clojure.string    :as string]
             [convex.cell       :as $.cell]
+            [convex.cvm        :as $.cvm]
             [convex.read       :as $.read]
             [convex.std        :as $.std]
             [protosens.git     :as P.git]
@@ -128,18 +130,21 @@
                                          (string/join "/"
                                                       (rest path))))
               hash  ($.cell/hash src)
+              req   (get (first src)
+                         ($.cell/* :require))
               ctx-2 (-> ctx
                         (assoc-in [:hash->src
                                    hash]
-                                  src)
+                                  (cond->
+                                    src
+                                    req
+                                    ($.std/next)))
                         (update-in [:dep
                                     (ctx :target)]
                                    (fnil conj
                                          [])
                                    [alias
-                                    hash]))
-              req   (get (first src)
-                         ($.cell/* :require))]
+                                    hash]))]
           (when (some (fn [hash-parent]
                         (= hash-parent
                            hash))
@@ -206,3 +211,87 @@
           :project+ {:root (project dir-project)}
           :required required
           :target   :root}))
+
+
+
+(defn deploy
+
+  [walked]
+
+  (let [target  (walked :target)
+        address (get-in walked
+                        [:deployed target])]
+    (println :target target address)
+    (if address
+      ;;
+      (assoc walked
+             :address
+             address)
+      ;;
+      (if-some [dep+ (get-in walked
+                             [:dep target])]
+        ;;
+        (let [_ (println :dep+ dep+)
+              walked-2 (reduce (fn [walked-2 [sym src-hash]]
+                                 (let [walked-3 (deploy (assoc walked-2
+                                                               :target
+                                                               src-hash))]
+                                   (assoc walked-3
+                                          :let
+                                          (conj (walked-2 :let)
+                                                sym
+                                                (walked-3 :address)))))
+                               (assoc walked
+                                      :let
+                                      [])
+                               dep+)
+              hash-src (get-in walked
+                               [:hash->src target])]
+          (if hash-src
+            (let [_ (println :deploy hash-src)
+                  ctx-2    ($.cvm/deploy (walked-2 :convex.shell/ctx)
+                                         ($.std/concat ($.cell/* (let ~($.cell/vector (walked-2 :let))))
+                                                       hash-src))
+                  address  ($.cvm/result ctx-2)]
+              (println :address address)
+              (assoc walked-2
+                     :address address
+                     :convex.shell/ctx ctx-2
+                     :deployed (assoc (walked-2 :deployed)
+                                      target
+                                      address)
+                     :target  target))
+            walked-2))
+        ;;
+        (if-some [hash-src (get-in walked
+                                   [:hash->src
+                                   target])]
+          (let [_ (println :deploy hash-src)
+                ctx-2   ($.cvm/deploy (walked :convex.shell/ctx)
+                                      ($.std/cons ($.cell/* do)
+                                                  hash-src))
+                address ($.cvm/result ctx-2)]
+            (println :address address)
+            (assoc walked
+                   :address address
+                   :convex.shell/ctx     ctx-2
+                   :deployed (assoc (walked :deployed)
+                                    target
+                                    address)
+                   ))
+          walked)))))
+
+
+
+(defn import
+
+  [env dir-project required]
+
+  (merge env
+         (select-keys (deploy (assoc (walk dir-project
+                                           required)
+                                     :convex.shell/ctx
+                                     (env :convex.shell/ctx)))
+                      [:convex.shell/ctx
+                       :deployed
+                       :let])))
