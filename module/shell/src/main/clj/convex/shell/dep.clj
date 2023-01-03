@@ -132,13 +132,21 @@
       ;;
       (catch NoSuchFileException _ex
         (throw (ex-info ""
-                        {:convex.shell/exception (-> ($.cell/error ($.cell/code-std* :STATE)
+                        {:convex.shell/exception (-> ($.cell/error $.shell.kw/err-stream
                                                                    ($.cell/string (str "`project.cvx` not found for "
                                                                                        (if (= dep
                                                                                               $.shell.kw/root)
                                                                                          "the current project"
                                                                                          "a dependency"))))
-                                                     ($.std/assoc ($.cell/* :project)
+                                                     ($.std/assoc $.shell.kw/project
+                                                                  dep))})))
+      ;;
+      (catch ParseException ex
+        (throw (ex-info ""
+                        {:convex.shell/exception (-> ($.shell.err/reader-file ($.cell/string path)
+                                                                              ($.cell/string (format "Cannot read `project.cvx`: %s"
+                                                                                                     (.getMessage ex))))
+                                                     ($.std/assoc $.shell.kw/project
                                                                   dep))}))))))
 
 
