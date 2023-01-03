@@ -86,6 +86,27 @@
 
 
 
+(defn reader-file
+
+  "Creates a `:READER` error map, for when the CVX reader fails on a file."
+
+
+  ([path]
+
+   (reader-file path
+                nil))
+
+
+  ([path reason]
+
+   (-> ($.cell/error $.shell.kw/err-reader
+                     (or reason
+                         ($.cell/string "File cannot be read as Convex Lisp")))
+       ($.std/assoc $.shell.kw/path
+                    path))))
+
+
+
 (defn reader-string
 
   "Creates a `:READER` error map, for when the CVX reader fails on a string."

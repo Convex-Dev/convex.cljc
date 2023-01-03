@@ -6,7 +6,8 @@
 
   (:import (convex.core.data Keyword))
   (:refer-clojure :exclude [do
-                            read])
+                            read
+                            require])
   (:require [convex.cell :as $.cell]))
 
 
@@ -127,8 +128,14 @@
 (def ^Keyword process-exit
               ($.cell/keyword "process.exit"))
 
+(def ^Keyword project
+              ($.cell/keyword "project"))
+
 (def ^Keyword report
               ($.cell/keyword "report"))
+
+(def ^Keyword require
+              ($.cell/keyword "require"))
 
 (def ^Keyword result
               ($.cell/keyword "result"))

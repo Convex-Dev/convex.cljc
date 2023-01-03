@@ -1,6 +1,7 @@
 (ns convex.shell.dep
 
-  (:import (java.nio.file NoSuchFileException))
+  (:import (convex.core.exceptions ParseException)
+           (java.nio.file NoSuchFileException))
   (:refer-clojure :exclude [read])
   (:require [babashka.fs            :as bb.fs]
             [clojure.string         :as string]
@@ -8,13 +9,44 @@
             [convex.cvm             :as $.cvm]
             [convex.read            :as $.read]
             [convex.shell.ctx       :as $.shell.ctx]
+            [convex.shell.err       :as $.shell.err]
             [convex.shell.exec.fail :as $.shell.exec.fail]
+            [convex.shell.kw        :as $.shell.kw]
             [convex.std             :as $.std]
             [protosens.git          :as P.git]
             [protosens.process      :as P.process]
             [protosens.string       :as P.string]))
 
 ;;;;;;;;;;
+
+
+(defn read-file
+
+  [k-project src-path dep-alias dep-path]
+
+  (let [fail (fn [message]
+               (throw (ex-info ""
+                               {:convex.shell/exception (-> ($.shell.err/reader-file ($.cell/string src-path)
+                                                                                     (some-> message
+                                                                                             ($.cell/string)))
+                                                            ($.std/assoc $.shell.kw/require
+                                                                         ($.cell/* [~dep-alias
+                                                                                    ~dep-path]))
+                                                            ($.std/assoc $.shell.kw/project
+                                                                         k-project))})))]
+    (try
+      ;;
+      ($.read/file src-path)
+      ;;
+      (catch NoSuchFileException _ex
+        (fail "File not found"))
+      ;;
+      (catch ParseException ex
+        (fail (.getMessage ex)))
+      ;;
+      (catch Throwable _ex
+        (fail nil)))))
+
 
 
 (defn src
@@ -100,8 +132,14 @@
       ;;
       (catch NoSuchFileException _ex
         (throw (ex-info ""
-                        {:convex.shell/dep       dep
-                         :convex.shell.dep/error :project}))))))
+                        {:convex.shell/exception (-> ($.cell/error ($.cell/code-std* :STATE)
+                                                                   ($.cell/string (str "`project.cvx` not found for "
+                                                                                       (if (= dep
+                                                                                              $.shell.kw/root)
+                                                                                         "the current project"
+                                                                                         "a dependency"))))
+                                                     ($.std/assoc ($.cell/* :project)
+                                                                  dep))}))))))
 
 
 
@@ -116,9 +154,10 @@
     (let [[dep-alias
            dep-path
            & required-2] required
+          k-project      (state :convex.shell.dep/project)
           project        (get-in state
                                  [:convex.shell.dep/project+
-                                  (state :convex.shell.dep/project)])
+                                  k-project])
           dep            (get-in project
                                  [($.cell/* :deps)
                                   (first dep-path)])
@@ -126,12 +165,16 @@
       (cond
         (= dep-type
            ($.cell/* :relative))
-        (let [src          ($.read/file (format "%s/%s/%s.cvx"
-                                                (get project
-                                                     ($.cell/* :dir))
-                                                (second dep)
-                                                (string/join "/"
-                                                             (rest dep-path))))
+        (let [src-path     (format "%s/%s/%s.cvx"
+                                   (get project
+                                        ($.cell/* :dir))
+                                   (second dep)
+                                   (string/join "/"
+                                                (rest dep-path)))
+              src          (read-file k-project
+                                      src-path
+                                      dep-alias
+                                      dep-path)
               src-hash     ($.cell/hash src)
               dep-required (get (first src)
                                 ($.cell/* :require))
@@ -171,13 +214,13 @@
         ;;
         (= dep-type
            ($.cell/* :git))
-        (let [git-sha      (str ($.std/nth dep
-                                           2))
-              git-url      (str ($.std/nth dep
-                                           1))
-              git-worktree (git git-url
-                                git-sha)
-              k-project    [:git git-url git-sha]]
+        (let [git-sha      ($.std/nth dep
+                                      2)
+              git-url      ($.std/nth dep
+                                      1)
+              git-worktree (git (str git-url)
+                                (str git-sha))
+              k-project    ($.cell/* [:git ~git-url ~git-sha])]
           (-> state
               (update-in [:convex.shell.dep/project+
                           k-project]
@@ -208,11 +251,11 @@
   [dir-project required]
 
   (-read {:convex.shell.dep/downstream []
-          :convex.shell.dep/project    :root
-          :convex.shell.dep/project+   {:root (project :root
-                                                       dir-project)}
+          :convex.shell.dep/project    $.shell.kw/root
+          :convex.shell.dep/project+   {$.shell.kw/root (project $.shell.kw/root
+                                                                 dir-project)}
           :convex.shell.dep/required   required
-          :convex.shell.dep/target     :root}))
+          :convex.shell.dep/target     $.shell.kw/root}))
 
 
 
@@ -297,17 +340,7 @@
           ($.shell.ctx/def-result nil)))
     ;;
     (catch clojure.lang.ExceptionInfo ex
-      (let [data (ex-data ex)]
-        (if-some [error (data :convex.shell.dep/error)]
-          (case error
-            ;;
-            :project
-            (let [k-project (data :convex.shell/dep)]
-              ($.shell.exec.fail/err env
-                                     ($.cell/error ($.cell/code-std* :STATE)
-                                                   ($.cell/string (if (identical? k-project
-                                                                                  :root)
-                                                                    "No `project.cvx` found for the current project"
-                                                                    (format "No `project.cvx` found for: %s"
-                                                                                         k-project)))))))
-          (throw ex))))))
+      (if-some [shell-ex (:convex.shell/exception (ex-data ex))]
+        ($.shell.exec.fail/err env
+                               shell-ex)
+        (throw ex)))))
