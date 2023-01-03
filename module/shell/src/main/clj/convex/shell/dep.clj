@@ -176,12 +176,12 @@
       (cond
         (= dep-type
            ($.cell/* :relative))
-        (let [state-2      (update state
-                                   :convex.shell.dep/ancestry
-                                   $.std/conj
-                                   ($.cell/* [~k-project
-                                              ~dep-path]))
-              
+        (let [ancestry     (-> (state :convex.shell.dep/ancestry)
+                               ($.std/conj ($.cell/* [~k-project
+                                                      ~dep-path])))
+              state-2      (assoc state
+                                  :convex.shell.dep/ancestry
+                                  ancestry)
               src-path     (format "%s/%s/%s.cvx"
                                    (get project
                                         ($.cell/* :dir))
@@ -194,6 +194,10 @@
               dep-required (get (first src)
                                 ($.cell/* :require))
               state-3      (-> state-2
+                               (update-in [:convex.shell.dep/hash->ancestry
+                                           src-hash]
+                                          #(or %
+                                               ancestry))
                                (assoc-in [:convex.shell.dep/hash->src
                                           src-hash]
                                          (cond->
@@ -279,6 +283,32 @@
 
 
 
+
+(defn- -deploy-actor
+
+  [state target code]
+
+  (let [ctx ($.cvm/deploy (state :convex.shell/ctx)
+                          code)
+        ex  ($.cvm/exception ctx)]
+    (if ex
+      (throw (ex-info ""
+                      {:convex.shell/exception (-> ex
+                                                   ($.shell.err/mappify)
+                                                   ($.std/assoc ($.cell/* :ancestry)
+                                                                (get-in state
+                                                                        [:convex.shell.dep/hash->ancestry
+                                                                         target])))}))
+      (let [address ($.cvm/result ctx)]
+        (-> state
+            (assoc :convex.shell/ctx         ctx
+                   :convex.shell.dep/address address)
+            (assoc-in [:convex.shell.dep/hash->address
+                       target]
+                      address))))))
+
+
+
 (defn deploy-read
 
   [state]
@@ -311,32 +341,21 @@
               hash-src (get-in state
                                [:convex.shell.dep/hash->src target])]
           (if hash-src
-            (let [ctx-2   ($.cvm/deploy (state-2 :convex.shell/ctx)
-                                        ($.std/concat ($.cell/* (let ~($.cell/vector (state-2 :convex.shell.dep/let))))
-                                                      hash-src))
-                  address ($.cvm/result ctx-2)]
-              (-> state-2
-                  (assoc :convex.shell/ctx         ctx-2
-                         :convex.shell.dep/address address
-                         :convex.shell.dep/target  target)
-                  (assoc-in [:convex.shell.dep/hash->address
-                             target]
-                            address)))
+            (-> (-deploy-actor state-2
+                               target
+                               ($.std/concat ($.cell/* (let ~($.cell/vector (state-2 :convex.shell.dep/let))))
+                                             hash-src))
+                (assoc :convex.shell.dep/target
+                       target))
             state-2))
         ;;
         (if-some [hash-src (get-in state
                                    [:convex.shell.dep/hash->src
                                     target])]
-          (let [ctx-2   ($.cvm/deploy (state :convex.shell/ctx)
-                                      ($.std/cons ($.cell/* do)
-                                                  hash-src))
-                address ($.cvm/result ctx-2)]
-            (-> state
-                (assoc :convex.shell/ctx         ctx-2
-                       :convex.shell.dep/address address)
-                (assoc-in [:convex.shell.dep/hash->address
-                           target]
-                          address)))
+          (-deploy-actor state
+                         target
+                         ($.std/cons ($.cell/* do)
+                                     hash-src))
           state)))))
 
 
