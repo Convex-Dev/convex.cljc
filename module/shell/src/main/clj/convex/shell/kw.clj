@@ -133,6 +133,9 @@
 (def ^Keyword result
               ($.cell/keyword "result"))
 
+(def ^Keyword root
+              ($.cell/keyword "root"))
+
 (def ^Keyword splice
               ($.cell/keyword "splice"))
 
