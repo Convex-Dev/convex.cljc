@@ -133,11 +133,11 @@
 
 (defmethod $.shell.exec/sreq
 
-  ($.cell/* :dep)
+  ($.cell/* :dep.deploy)
 
   [env ^AVector tuple]
 
-  ($.shell.dep/import env
+  ($.shell.dep/deploy env
                       (str (.get tuple
                                  2))
                       (.get tuple

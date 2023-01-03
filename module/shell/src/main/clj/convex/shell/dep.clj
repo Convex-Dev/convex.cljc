@@ -7,6 +7,7 @@
             [convex.cell       :as $.cell]
             [convex.cvm        :as $.cvm]
             [convex.read       :as $.read]
+            [convex.shell.ctx  :as $.shell.ctx]
             [convex.std        :as $.std]
             [protosens.git     :as P.git]
             [protosens.process :as P.process]
@@ -214,84 +215,80 @@
 
 
 
-(defn deploy
+(defn deploy-read
 
-  [walked]
+  [state]
 
-  (let [target  (walked :convex.shell.dep/target)
-        address (get-in walked
-                        [:deployed target])]
-    (println :target target address)
+  (let [target  (state :convex.shell.dep/target)
+        address (get-in state
+                        [:convex.shell.dep/hash->address target])]
     (if address
       ;;
-      (assoc walked
-             :address
+      (assoc state
+             :convex.shell.dep/address
              address)
       ;;
-      (if-some [child+ (get-in walked
-                             [:convex.shell.dep/child+ target])]
+      (if-some [child+ (get-in state
+                               [:convex.shell.dep/child+ target])]
         ;;
-        (let [_ (println :child+ child+)
-              walked-2 (reduce (fn [walked-2 [sym src-hash]]
-                                 (let [walked-3 (deploy (assoc walked-2
-                                                               :convex.shell.dep/target
-                                                               src-hash))]
-                                   (assoc walked-3
-                                          :let
-                                          (conj (walked-2 :let)
+        (let [state-2 (reduce (fn [state-2 [sym src-hash]]
+                                 (let [state-3 (deploy-read (assoc state-2
+                                                                   :convex.shell.dep/target
+                                                                   src-hash))]
+                                   (assoc state-3
+                                          :convex.shell.dep/let
+                                          (conj (state-2 :convex.shell.dep/let)
                                                 sym
-                                                (walked-3 :address)))))
-                               (assoc walked
-                                      :let
+                                                (state-3 :convex.shell.dep/address)))))
+                               (assoc state
+                                      :convex.shell.dep/let
                                       [])
                                child+)
-              hash-src (get-in walked
+              hash-src (get-in state
                                [:convex.shell.dep/hash->src target])]
           (if hash-src
-            (let [_ (println :deploy hash-src)
-                  ctx-2    ($.cvm/deploy (walked-2 :convex.shell/ctx)
-                                         ($.std/concat ($.cell/* (let ~($.cell/vector (walked-2 :let))))
-                                                       hash-src))
-                  address  ($.cvm/result ctx-2)]
-              (println :address address)
-              (assoc walked-2
-                     :address address
-                     :convex.shell/ctx ctx-2
-                     :deployed (assoc (walked-2 :deployed)
-                                      target
-                                      address)
-                     :convex.shell.dep/target  target))
-            walked-2))
+            (let [ctx-2   ($.cvm/deploy (state-2 :convex.shell/ctx)
+                                        ($.std/concat ($.cell/* (let ~($.cell/vector (state-2 :convex.shell.dep/let))))
+                                                      hash-src))
+                  address ($.cvm/result ctx-2)]
+              (-> state-2
+                  (assoc :convex.shell/ctx         ctx-2
+                         :convex.shell.dep/address address
+                         :convex.shell.dep/target  target)
+                  (assoc-in [:convex.shell.dep/hash->address
+                             target]
+                            address)))
+            state-2))
         ;;
-        (if-some [hash-src (get-in walked
+        (if-some [hash-src (get-in state
                                    [:convex.shell.dep/hash->src
-                                   target])]
-          (let [_ (println :deploy hash-src)
-                ctx-2   ($.cvm/deploy (walked :convex.shell/ctx)
+                                    target])]
+          (let [ctx-2   ($.cvm/deploy (state :convex.shell/ctx)
                                       ($.std/cons ($.cell/* do)
                                                   hash-src))
                 address ($.cvm/result ctx-2)]
-            (println :address address)
-            (assoc walked
-                   :address address
-                   :convex.shell/ctx     ctx-2
-                   :deployed (assoc (walked :deployed)
-                                    target
-                                    address)
-                   ))
-          walked)))))
+            (-> state
+                (assoc :convex.shell/ctx         ctx-2
+                       :convex.shell.dep/address address)
+                (assoc-in [:convex.shell.dep/hash->address
+                           target]
+                          address)))
+          state)))))
 
 
 
-(defn import
+(defn deploy
 
   [env dir-project required]
 
-  (merge env
-         (select-keys (deploy (assoc (read dir-project
-                                           required)
-                                     :convex.shell/ctx
-                                     (env :convex.shell/ctx)))
-                      [:convex.shell/ctx
-                       :deployed
-                       :let])))
+  (let [state (-> (read dir-project
+                        required)
+                  (assoc :convex.shell/ctx
+                         (env :convex.shell/ctx))
+                  (deploy-read))]
+    (-> env
+        (assoc :convex.shell/ctx
+               (state :convex.shell/ctx))
+        ($.shell.ctx/def-current (partition 2
+                                            (state :convex.shell.dep/let)))
+        ($.shell.ctx/def-result nil))))
