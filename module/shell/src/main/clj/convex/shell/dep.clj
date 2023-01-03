@@ -22,18 +22,16 @@
 
 (defn read-file
 
-  [k-project src-path dep-alias dep-path]
+  [state src-path]
 
   (let [fail (fn [message]
                (throw (ex-info ""
                                {:convex.shell/exception (-> ($.shell.err/reader-file ($.cell/string src-path)
                                                                                      (some-> message
                                                                                              ($.cell/string)))
-                                                            ($.std/assoc $.shell.kw/require
-                                                                         ($.cell/* [~dep-alias
-                                                                                    ~dep-path]))
-                                                            ($.std/assoc $.shell.kw/project
-                                                                         k-project))})))]
+                                                            
+                                                            ($.std/assoc ($.cell/* :ancestry)
+                                                                         (state :convex.shell.dep/ancestry)))})))]
     (try
       ;;
       ($.read/file src-path)
@@ -178,20 +176,24 @@
       (cond
         (= dep-type
            ($.cell/* :relative))
-        (let [src-path     (format "%s/%s/%s.cvx"
+        (let [state-2      (update state
+                                   :convex.shell.dep/ancestry
+                                   $.std/conj
+                                   ($.cell/* [~k-project
+                                              ~dep-path]))
+              
+              src-path     (format "%s/%s/%s.cvx"
                                    (get project
                                         ($.cell/* :dir))
                                    (second dep)
                                    (string/join "/"
                                                 (rest dep-path)))
-              src          (read-file k-project
-                                      src-path
-                                      dep-alias
-                                      dep-path)
+              src          (read-file state-2
+                                      src-path)
               src-hash     ($.cell/hash src)
               dep-required (get (first src)
                                 ($.cell/* :require))
-              state-2      (-> state
+              state-3      (-> state-2
                                (assoc-in [:convex.shell.dep/hash->src
                                           src-hash]
                                          (cond->
@@ -207,10 +209,10 @@
           (when (some (fn [hash-up]
                         (= hash-up
                            src-hash))
-                      (state-2 :convex.shell.dep/downstream))
+                      (state-3 :convex.shell.dep/downstream))
             (throw (Exception. "Circular dependency")))
           (-> (if dep-required
-                (-> state-2
+                (-> state-3
                     (assoc :convex.shell.dep/target   src-hash
                            :convex.shell.dep/required dep-required)
                     (update :convex.shell.dep/downstream
@@ -218,9 +220,10 @@
                             src-hash)
                     (-read)
                     (merge (select-keys state
-                                        [:convex.shell.dep/downstream
+                                        [:convex.shell.dep/ancestry
+                                         :convex.shell.dep/downstream
                                          :convex.shell.dep/target])))
-                state-2)
+                state-3)
               (assoc :convex.shell.dep/required
                      required-2)
               (recur)))
@@ -263,7 +266,8 @@
 
   [dir-project required]
 
-  (-read {:convex.shell.dep/downstream []
+  (-read {:convex.shell.dep/ancestry   ($.cell/* [])
+          :convex.shell.dep/downstream []
           :convex.shell.dep/project    $.shell.kw/root
           :convex.shell.dep/project+   {$.shell.kw/root (project $.shell.kw/root
                                                                  dir-project)}
