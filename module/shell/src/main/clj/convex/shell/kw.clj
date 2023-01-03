@@ -38,6 +38,9 @@
 (def ^Keyword err-filesystem
               ($.cell/keyword "FILESYSTEM"))
 
+(def ^Keyword err-git
+              ($.cell/keyword "GIT"))
+
 (def ^Keyword err-reader
               ($.cell/keyword "READER"))
 

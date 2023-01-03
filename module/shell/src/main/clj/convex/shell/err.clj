@@ -71,6 +71,19 @@
 
 
 
+(defn git
+
+  "Error map for a Git-related error."
+
+  [message url sha]
+
+  (-> ($.cell/error $.shell.kw/err-git
+                    message)
+      ($.std/assoc $.shell.kw/project
+                   ($.cell/* [:git ~url ~sha]))))
+
+
+
 (defn mappify
 
   "Transforms the given CVM exception into a map.

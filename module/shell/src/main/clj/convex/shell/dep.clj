@@ -88,7 +88,12 @@
                          path)
         worktree (format "%s/worktree/%s"
                          path
-                         sha)]
+                         sha)
+        fail     (fn [message]
+                   (throw (ex-info ""
+                                   {:convex.shell/exception ($.shell.err/git ($.cell/string message)
+                                                                             ($.cell/string url)
+                                                                             ($.cell/string sha))})))]
     (when-not (bb.fs/exists? worktree)
       (bb.fs/create-dirs path)
       (when-not (bb.fs/exists? repo)
@@ -98,18 +103,18 @@
                              url
                              repo])]
           (when-not (P.process/success? p)
-            (throw (Exception. (P.process/err p))))))
+            (fail "Unable to clone Git repository"))))
       (let [p (P.git/exec ["fetch"]
                           {:dir repo})]
         (when-not (P.process/success? p)
-          (throw (Exception. (P.process/err p)))))
+          (fail "Unable to fetch Git repository")))
       (let [p (P.git/exec ["worktree"
                            "add"
                            worktree
                            sha]
                           {:dir repo})]
         (when-not (P.process/success? p)
-          (throw (Exception. (P.process/err p))))))
+          (fail "Unable to create worktree for Git repository under requested rev"))))
     worktree))
 
 
