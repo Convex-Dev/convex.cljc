@@ -206,11 +206,14 @@
                                                 [])
                                           [dep-alias
                                            src-hash]))]
-          (when (some (fn [hash-up]
-                        (= hash-up
-                           src-hash))
-                      (state-3 :convex.shell.dep/downstream))
-            (throw (Exception. "Circular dependency")))
+          (when (contains? (state-3 :convex.shell.dep/downstream)
+                           src-hash)
+            (throw (ex-info ""
+                            {:convex.shell/exception
+                             (-> ($.cell/error ($.cell/code-std* :STATE)
+                                               ($.cell/string "Circular dependency"))
+                                 ($.std/assoc ($.cell/* :ancestry)
+                                              (state-3 :convex.shell.dep/ancestry)))})))
           (-> (if dep-required
                 (-> state-3
                     (assoc :convex.shell.dep/target   src-hash
@@ -248,7 +251,7 @@
                                                            ~($.std/next dep-path)]))
               (-read)
               (merge (select-keys state
-                                  [:convex.shell/project]))
+                                  [:convex.shell.dep/project]))
               (assoc :convex.shell.dep/required
                      required-2)
               (recur)))
@@ -267,7 +270,7 @@
   [dir-project required]
 
   (-read {:convex.shell.dep/ancestry   ($.cell/* [])
-          :convex.shell.dep/downstream []
+          :convex.shell.dep/downstream #{}
           :convex.shell.dep/project    $.shell.kw/root
           :convex.shell.dep/project+   {$.shell.kw/root (project $.shell.kw/root
                                                                  dir-project)}
