@@ -73,6 +73,34 @@
             (file-seq (bb.fs/file root-2)))))
 
 
+(defn validate-required
+
+  [required ancestry]
+
+  (let [fail (fn [message]
+               (throw (ex-info ""
+                               {:convex.shell/exception
+                                (-> ($.cell/error ($.cell/code-std* :ARGUMENT)
+                                                  ($.cell/string message))
+                                    ($.std/assoc ($.cell/* :ancestry)
+                                                 ancestry))})))]
+    (when-not ($.std/vector? required)
+      (fail "Required paths must be in a vector"))
+    (when-not (even? ($.std/count required))
+      (fail "Required paths must consist of bindings like `let`"))
+    (doseq [[dep-alias
+             dep-path] (partition 2
+                                  required)]
+      (when-not ($.std/symbol? dep-alias)
+        (fail (format "Dependency alias must be a symbol, not:  %s"
+                      dep-alias)))
+      (when-not ($.std/vector? dep-path)
+        (fail (format "Dependency path for `%s` must be a vector"
+                      dep-alias)))
+      (when ($.std/empty? dep-path)
+        (fail (format "Dependenty path for `%s` is empty"
+                      dep-alias)))))
+  required)
 
 
 
@@ -401,8 +429,9 @@
               src          (read-file state-2
                                       src-path)
               src-hash     ($.cell/hash src)
-              dep-required (get (first src)
-                                ($.cell/* :require))
+              dep-required (some-> (get (first src)
+                                        ($.cell/* :require))
+                                   (validate-required ancestry))
               state-3      (-> state-2
                                (update-in [:convex.shell.dep/hash->ancestry
                                            src-hash]
@@ -488,6 +517,8 @@
 
   [ctx dir-project required]
 
+  (validate-required required
+                     ($.cell/* []))
   (-read {:convex.shell/ctx            ctx
           :convex.shell.dep/ancestry   ($.cell/* [])
           :convex.shell.dep/downstream #{}
