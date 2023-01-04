@@ -216,6 +216,7 @@
         (let [p (P.git/exec ["clone"
                              "--quiet"
                              "--no-tags"
+                             "--bare"
                              (if (and scheme-file?
                                       (bb.fs/relative? url))
                                (format "%s/%s"
