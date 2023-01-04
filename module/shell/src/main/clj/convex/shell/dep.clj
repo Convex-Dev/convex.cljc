@@ -73,14 +73,116 @@
 
 
 
+
+
+(def ^:private git-url-regex
+  #"([a-z0-9+.-]+):\/\/(?:(?:(?:[^@]+?)@)?([^/]+?)(?::[0-9]*)?)?(/[^:]+)")
+
+(def ^:private git-scp-regex
+  #"(?:(?:[^@]+?)@)?(.+?):([^:]+)")
+
+
+(defn git-path
+  "Convert url into a safe relative path (this is not a reversible transformation)
+  based on scheme, host, and path (drop user and port).
+  Examples:
+    ssh://git@gitlab.com:3333/org/repo.git     => ssh/gitlab.com/org/repo
+    git@github.com:dotted.org/dotted.repo.git  => ssh/github.com/dotted.org/dotted.repo
+    file://../foo                              => file/REL/_DOTDOT_/foo
+    file:///Users/user/foo.git                 => file/Users/user/foo
+    ../foo                                     => file/REL/_DOTDOT_/foo
+    ~user/foo.git                              => file/REL/_TILDE_user/foo
+  * https://git-scm.com/docs/git-clone#_git_urls
+  * https://git-scm.com/book/en/v2/Git-on-the-Server-The-Protocols
+  "
+  [parent-project-dir url]
+  (let [[scheme
+         host
+         path]     (cond
+                     ;;
+                     (string/starts-with? url "file://")
+                     ["file"
+                      nil
+                      (-> url
+                          (subs 7)
+                          #_(string/replace #"^([^/])"
+                                          "REL/$1"))]
+                     ;;
+                     (string/includes? url
+                                       "://")
+                     (let [[_
+                            s
+                            h
+                            p] (re-matches git-url-regex
+                                           url)]
+                       [s
+                        h
+                        p])
+                     ;;
+                     (string/includes? url
+                                       ":")
+                     (let [[_
+                            h
+                            p] (re-matches git-scp-regex
+                                           url)]
+                       ["ssh"
+                        h
+                        p])
+                     ;;
+                     :else
+                     ["file"
+                      nil
+                      url
+                      #_(string/replace url
+                                      #"^([^/])"
+                                      "REL/$1")])
+        clean-path (-> path
+                       (string/replace #"\.git/?$"
+                                       "")         ;; remove trailing .git or .git/
+                       )
+        clean-path-2 (if (= scheme
+                            "file")
+                       (-> (if (bb.fs/relative? clean-path)
+                             (format "%s/%s"
+                                     parent-project-dir
+                                     clean-path)
+                             clean-path)
+                           (bb.fs/canonicalize)
+                           (str))
+                       clean-path)
+        dir-parts  (->> (concat [scheme host]
+                                (string/split clean-path-2
+                                              #"/")) ;; split on /
+                        (remove string/blank?) ;; remove any missing path segments
+                        (map #(-> % ({"." "_DOT_", ".." "_DOTDOT_"} %))))] ;; replace . or .. segments
+    [scheme host clean-path]
+    dir-parts
+    [scheme (string/join "___" (rest dir-parts))]
+    (string/join "/"
+                 dir-parts)
+    ))
+
+
+
+(comment
+
+  (git-path "/root" "a/b/../foo/bar")
+  (git-path "./" "/a/b")
+  (git-path "./" "ssh://git@gitlab.com:3333/org/repo.git")
+  (git-path "./" "https://github.com/clojure/tools.gitlibs.git")
+  (git-path "./" "git@github.com:dotted.org/dotted/../repo.git")
+  )
+
+
+
 (defn git
 
-  [url sha]
+  [parent-project-dir url sha]
 
-  (let [path     (-> (format "~/.convex-shell/dep/git/%s"
-                             (-> ($.cell/string url)
-                                 ($.cell/hash)
-                                 (str)))
+  (let [path-rel (git-path parent-project-dir
+                           url)
+        path     (-> (format "~/.convex-shell/dep/git/%s"
+                             path-rel)
                      (bb.fs/expand-home))
         repo     (format "%s/repo"
                          path)
@@ -89,16 +191,23 @@
                          sha)
         fail     (fn [message]
                    (throw (ex-info ""
-                                   {:convex.shell/exception ($.shell.err/git ($.cell/string message)
-                                                                             ($.cell/string url)
-                                                                             ($.cell/string sha))})))]
+                                   {:convex.shell/exception
+                                    ($.shell.err/git ($.cell/string message)
+                                                     ($.cell/string url)
+                                                     ($.cell/string sha))})))]
     (when-not (bb.fs/exists? worktree)
       (bb.fs/create-dirs path)
       (when-not (bb.fs/exists? repo)
         (let [p (P.git/exec ["clone"
                              "-l"
                              "--no-tags"
-                             url
+                             (if (and (string/starts-with? path-rel
+                                                           "file")
+                                      (bb.fs/relative? url))
+                               (format "%s/%s"
+                                       parent-project-dir
+                                       url)
+                               url)
                              repo])]
           (when-not (P.process/success? p)
             (fail "Unable to clone Git repository"))))
@@ -171,7 +280,7 @@
                 (when (not-string? path)
                   (fail-2 (format "Relative dependency `%s` in `project.cvx` must specify a path as a string"
                                   sym)))
-                (when-not (string/starts-with? (str (bb.fs/canonicalize (str path)))
+                (when-not (string/starts-with? (str (bb.fs/canonicalize (str dir "/" path)))
                                                dir)
                   (fail-2 (format "Relative dependency `%s` in `project.cvx` specifies a path outside of the project"
                                   sym)))))
@@ -314,7 +423,9 @@
                                       2)
               git-url      ($.std/nth dep
                                       1)
-              git-worktree (git (str git-url)
+              git-worktree (git (str ($.std/get project
+                                                $.shell.kw/dir))
+                                (str git-url)
                                 (str git-sha))
               k-project    ($.cell/* [:git ~git-url ~git-sha])]
           (-> state
