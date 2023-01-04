@@ -119,7 +119,7 @@
 
 (defn validate-project
 
-  [project fail]
+  [project fail dir]
 
   (let [fail-2 (fn [message]
                  (fail ($.cell/error ($.cell/code-std* :ARGUMENT)
@@ -161,12 +161,20 @@
             ;;
             (= resolution
                ($.cell/* :relative))
-            (when (or (not= ($.std/count dep)
-                            2)
-                      (not-string? ($.std/nth dep
-                                              1)))
-              (fail-2 (format "Relative dependency `%s` in `project.cvx` must specify a path as a string"
-                              sym)))
+            (do
+              (when (< ($.std/count dep)
+                        2)
+                (fail-2 (format "Relative dependency `%s` in `project.cvx` must specify a path"
+                                sym)))
+              (let [path ($.std/nth dep
+                                    1)]
+                (when (not-string? path)
+                  (fail-2 (format "Relative dependency `%s` in `project.cvx` must specify a path as a string"
+                                  sym)))
+                (when-not (string/starts-with? (str (bb.fs/canonicalize (str path)))
+                                               dir)
+                  (fail-2 (format "Relative dependency `%s` in `project.cvx` specifies a path outside of the project"
+                                  sym)))))
             ;;
             :else
             (fail-2 (format "Unknown resolution mechanism for `%s` dependency in `project.cvx`: %s"
@@ -198,7 +206,8 @@
       (-> path
           ($.read/file)
           (first)
-          (validate-project fail)
+          (validate-project fail
+                            dir-2)
           ($.std/assoc ($.cell/* :dir)
                        ($.cell/string dir-2)))
       ;;
