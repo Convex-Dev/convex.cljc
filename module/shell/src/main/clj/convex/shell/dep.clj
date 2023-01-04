@@ -177,7 +177,7 @@
 
 (defn git
 
-  [parent-project-dir url sha]
+  [foreign-parent? parent-project-dir url sha]
 
   (let [path-rel (git-path parent-project-dir
                            url)
@@ -194,15 +194,29 @@
                                    {:convex.shell/exception
                                     ($.shell.err/git ($.cell/string message)
                                                      ($.cell/string url)
-                                                     ($.cell/string sha))})))]
+                                                     ($.cell/string sha))})))
+        scheme-file? (string/starts-with? path-rel
+                                          "file")
+        scheme-file-relative? (and scheme-file?
+                                   (bb.fs/relative? url))]
+    (when (and foreign-parent?
+               (or (and scheme-file-relative?
+                        (not (string/starts-with? (-> (format "%s/%s"
+                                                              parent-project-dir
+                                                              url)
+                                                      (bb.fs/canonicalize)
+                                                      (str))
+                                                  parent-project-dir)))
+                   (and scheme-file?
+                        (not (bb.fs/relative? url)))))
+      (fail "Foreign project requested a local Git dependency from outside its directory"))
     (when-not (bb.fs/exists? worktree)
       (bb.fs/create-dirs path)
       (when-not (bb.fs/exists? repo)
         (let [p (P.git/exec ["clone"
                              "-l"
                              "--no-tags"
-                             (if (and (string/starts-with? path-rel
-                                                           "file")
+                             (if (and scheme-file?
                                       (bb.fs/relative? url))
                                (format "%s/%s"
                                        parent-project-dir
@@ -222,7 +236,8 @@
                           {:dir repo})]
         (when-not (P.process/success? p)
           (fail "Unable to create worktree for Git repository under requested rev"))))
-    worktree))
+    [(not scheme-file?)
+     worktree]))
 
 
 
@@ -419,14 +434,16 @@
         ;;
         (= dep-type
            ($.cell/* :git))
-        (let [git-sha      ($.std/nth dep
-                                      2)
-              git-url      ($.std/nth dep
-                                      1)
-              git-worktree (git (str ($.std/get project
-                                                $.shell.kw/dir))
-                                (str git-url)
-                                (str git-sha))
+        (let [git-sha       ($.std/nth dep
+                                       2)
+              git-url       ($.std/nth dep
+                                       1)
+              [foreign?
+               git-worktree] (git (state :convex.shell.dep/foreign?)
+                                  (str ($.std/get project
+                                                  $.shell.kw/dir))
+                                  (str git-url)
+                                  (str git-sha))
               k-project    ($.cell/* [:git ~git-url ~git-sha])]
           (-> state
               (update-in [:convex.shell.dep/project+
@@ -434,12 +451,14 @@
                          #(or %
                               (convex.shell.dep/project k-project
                                                         git-worktree)))
-              (assoc :convex.shell.dep/project  k-project
+              (assoc :convex.shell.dep/foreign? foreign?
+                     :convex.shell.dep/project  k-project
                      :convex.shell.dep/required ($.cell/* [~dep-alias
                                                            ~($.std/next dep-path)]))
               (-read)
               (merge (select-keys state
-                                  [:convex.shell.dep/project]))
+                                  [:convex.shell.dep/foreign?
+                                   :convex.shell.dep/project]))
               (assoc :convex.shell.dep/required
                      required-2)
               (recur)))))
@@ -456,6 +475,7 @@
 
   (-read {:convex.shell.dep/ancestry   ($.cell/* [])
           :convex.shell.dep/downstream #{}
+          :convex.shell.dep/foreign?   false
           :convex.shell.dep/project    $.shell.kw/root
           :convex.shell.dep/project+   {$.shell.kw/root (project $.shell.kw/root
                                                                  dir-project)}
