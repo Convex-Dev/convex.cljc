@@ -144,6 +144,20 @@
                             3)))
 
 
+
+(defmethod $.shell.exec/sreq
+
+  ($.cell/* :dep.fetch)
+
+  [env ^AVector tuple]
+
+  ($.shell.dep/fetch env
+                     (str (.get tuple
+                                2))
+                     (.get tuple
+                           3)))
+
+
 ;;;;;;;;;; Etch
 
 

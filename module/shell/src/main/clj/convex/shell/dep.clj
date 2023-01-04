@@ -494,6 +494,32 @@
 
 
 
+(defn- -safe
+
+  [env *d]
+
+  (try
+    @*d
+    (catch clojure.lang.ExceptionInfo ex
+      (if-some [shell-ex (:convex.shell/exception (ex-data ex))]
+        ($.shell.exec.fail/err env
+                               shell-ex)
+        (throw ex)))))
+
+
+
+(defn fetch
+
+  [env dir-project required]
+
+  (-safe env
+         (delay
+           (read dir-project
+                 required)
+           ($.shell.ctx/def-result env
+                                   nil))))
+
+
 
 (defn- -deploy-actor
 
@@ -575,22 +601,16 @@
 
   [env dir-project required]
 
-  (try
-    ;;
-    (let [state (-> (read dir-project
-                          required)
-                    (assoc :convex.shell/ctx
-                           (env :convex.shell/ctx))
-                    (deploy-read))]
-      (-> env
-          (assoc :convex.shell/ctx
-                 (state :convex.shell/ctx))
-          ($.shell.ctx/def-current (partition 2
-                                              (state :convex.shell.dep/let)))
-          ($.shell.ctx/def-result nil)))
-    ;;
-    (catch clojure.lang.ExceptionInfo ex
-      (if-some [shell-ex (:convex.shell/exception (ex-data ex))]
-        ($.shell.exec.fail/err env
-                               shell-ex)
-        (throw ex)))))
+  (-safe env
+         (delay
+           (let [state (-> (read dir-project
+                                 required)
+                           (assoc :convex.shell/ctx
+                                  (env :convex.shell/ctx))
+                           (deploy-read))]
+             (-> env
+                 (assoc :convex.shell/ctx
+                        (state :convex.shell/ctx))
+                 ($.shell.ctx/def-current (partition 2
+                                                     (state :convex.shell.dep/let)))
+                 ($.shell.ctx/def-result nil))))))
