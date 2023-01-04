@@ -12,6 +12,7 @@
             [convex.shell.err       :as $.shell.err]
             [convex.shell.exec.fail :as $.shell.exec.fail]
             [convex.shell.kw        :as $.shell.kw]
+            [convex.shell.sym       :as $.shell.sym]
             [convex.std             :as $.std]
             [protosens.git          :as P.git]
             [protosens.process      :as P.process]
@@ -177,11 +178,15 @@
 
 (defn git
 
-  [foreign-parent? parent-project-dir url sha]
+  [ctx foreign-parent? parent-project-dir url sha]
 
   (let [path-rel (git-path parent-project-dir
                            url)
-        path     (-> (format "~/.convex-shell/dep/git/%s"
+        path     (-> (format "%s/dep/git/%s"
+                             ($.cvm/look-up ctx
+                                            ($.shell.ctx/lib-address {:convex.shell/ctx ctx}
+                                                                     $.shell.sym/$)
+                                            ($.cell/* *root*))
                              path-rel)
                      (bb.fs/expand-home))
         repo     (format "%s/repo"
@@ -233,7 +238,6 @@
                           {:dir repo})]
         (when-not (P.process/success? p)
           (fail "Unable to fetch Git commit")))
-
       (let [rev (P.git/resolve sha
                                {:dir repo})]
         (when-not (= sha
@@ -449,7 +453,8 @@
               git-url       ($.std/nth dep
                                        1)
               [foreign?
-               git-worktree] (git (state :convex.shell.dep/foreign?)
+               git-worktree] (git (state :convex.shell/ctx)
+                                  (state :convex.shell.dep/foreign?)
                                   (str ($.std/get project
                                                   $.shell.kw/dir))
                                   (str git-url)
@@ -481,9 +486,10 @@
 
 (defn read
 
-  [dir-project required]
+  [ctx dir-project required]
 
-  (-read {:convex.shell.dep/ancestry   ($.cell/* [])
+  (-read {:convex.shell/ctx            ctx
+          :convex.shell.dep/ancestry   ($.cell/* [])
           :convex.shell.dep/downstream #{}
           :convex.shell.dep/foreign?   false
           :convex.shell.dep/project    $.shell.kw/root
@@ -514,7 +520,8 @@
 
   (-safe env
          (delay
-           (read dir-project
+           (read (env :convex.shell/ctx)
+                 dir-project
                  required)
            ($.shell.ctx/def-result env
                                    nil))))
@@ -607,7 +614,8 @@
 
   (-safe env
          (delay
-           (let [state (-> (read dir-project
+           (let [state (-> (read (env :convex.shell/ctx)
+                                 dir-project
                                  required)
                            (assoc :convex.shell/ctx
                                   (env :convex.shell/ctx))

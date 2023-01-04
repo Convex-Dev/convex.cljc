@@ -37,6 +37,47 @@
 ;;;;;;;;;; DYNAMIC VALUES
 
 
+(def *root*
+
+  ^{:doc {:description ["Path to the directory used by the Convex Shell for"
+                        "operations such as building a dependency cache (see `$.dep`)."
+                        ""
+                        "See `$/root.set` for changing this value."]}}
+
+  "~/.convex-shell")
+
+
+
+(defn root.set
+
+  ^{:callable? true
+    :doc       {:description ["Sets the value of `$/*root*`."
+                              "Takes either a path to a directory or nil."
+                              "Nil resets the value to the default directory."]
+                :examples    [{:code "($/root.set nil)"}
+                              {:code "($/root.set \"/some/dir\")"}]
+                :signature   [{:params [dir]}]}}
+
+  [dir]
+
+  (if (= *address*
+         ~*address*)
+    (if (nil? dir)
+      (def *root*
+           "~/.convex-shell")
+      (do
+        (when-not (str? dir)
+          (fail :ARGUMENT
+                "Root directory must be a string or nil"))
+        (def *root*
+             dir)))
+    (call ~*address*
+          (root.set dir))))
+
+
+;;;
+
+
 (def *result*
 
   ^{:doc {:description "Dynamic value, result of the previous transaction."}}
