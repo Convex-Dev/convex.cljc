@@ -563,14 +563,18 @@
                                [:convex.shell.dep/child+ target])]
         ;;
         (let [state-2 (reduce (fn [state-2 [sym src-hash]]
-                                 (let [state-3 (deploy-read (assoc state-2
-                                                                   :convex.shell.dep/target
-                                                                   src-hash))]
-                                   (assoc state-3
-                                          :convex.shell.dep/let
-                                          (conj (state-2 :convex.shell.dep/let)
-                                                sym
-                                                (state-3 :convex.shell.dep/address)))))
+                                (let [state-3 (-> state-2
+                                                  (assoc :convex.shell.dep/target
+                                                         src-hash)
+                                                  (deploy-read))]
+                                  (assoc state-3
+                                         :convex.shell.dep/let
+                                         (cond->
+                                           (state-2 :convex.shell.dep/let)
+                                           (not= sym
+                                                 ($.cell/* _))
+                                           (conj sym
+                                                 (state-3 :convex.shell.dep/address))))))
                                (assoc state
                                       :convex.shell.dep/let
                                       [])

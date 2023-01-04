@@ -110,7 +110,7 @@
   (try
     (eval (if (seq trx+)
             (string/join " "
-                                 trx+)
+                         trx+)
             "($.repl/!.start {:intro? true})"))
     (catch Throwable ex
       ($.shell.exec.fail/top-exception ex)
