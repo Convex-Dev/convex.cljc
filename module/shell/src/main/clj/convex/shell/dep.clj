@@ -232,14 +232,20 @@
                            sha]
                           {:dir repo})]
         (when-not (P.process/success? p)
-          (fail "Unable to fetch Git repository")))
-      (let [p (P.git/exec ["worktree"
-                           "add"
-                           worktree
-                           sha]
-                          {:dir repo})]
-        (when-not (P.process/success? p)
-          (fail "Unable to create worktree for Git repository under requested rev"))))
+          (fail "Unable to fetch Git commit")))
+
+      (let [rev (P.git/resolve sha
+                               {:dir repo})]
+        (when-not (= sha
+                     rev)
+          (fail "Git commit must be specified as a full SHA"))
+        (let [p (P.git/exec ["worktree"
+                             "add"
+                             worktree
+                             sha]
+                            {:dir repo})]
+          (when-not (P.process/success? p)
+            (fail "Unable to create worktree for Git repository under requested commit")))))
     [(not scheme-file?)
      worktree]))
 
