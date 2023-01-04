@@ -32,6 +32,9 @@
 (def ^Keyword dev-fatal
               ($.cell/keyword "dev.fatal"))
 
+(def ^Keyword dir
+              ($.cell/keyword "dir"))
+
 (def ^Keyword err-db
               ($.cell/keyword "DB"))
 

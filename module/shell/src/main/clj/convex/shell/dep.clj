@@ -125,7 +125,15 @@
                   (bb.fs/expand-home)
                   (bb.fs/canonicalize))
         path  (format "%s/project.cvx"
-                      dir-2)]
+                      dir-2)
+        fail  (fn [shell-ex]
+                (throw (ex-info ""
+                                {:convex.shell/exception
+                                 (-> shell-ex
+                                     ($.std/assoc $.shell.kw/dir
+                                                  ($.cell/string (str dir-2)))
+                                     ($.std/assoc $.shell.kw/project
+                                                  dep))})))]
     (try
       (-> path
           ($.read/file)
@@ -134,23 +142,17 @@
                        ($.cell/string (str dir-2))))
       ;;
       (catch NoSuchFileException _ex
-        (throw (ex-info ""
-                        {:convex.shell/exception (-> ($.cell/error $.shell.kw/err-stream
-                                                                   ($.cell/string (str "`project.cvx` not found for "
-                                                                                       (if (= dep
-                                                                                              $.shell.kw/root)
-                                                                                         "the current project"
-                                                                                         "a dependency"))))
-                                                     ($.std/assoc $.shell.kw/project
-                                                                  dep))})))
+        (fail ($.cell/error $.shell.kw/err-stream
+                            ($.cell/string (str "`project.cvx` not found for "
+                                                (if (= dep
+                                                       $.shell.kw/root)
+                                                  "the requested project"
+                                                  "a dependency"))))))
       ;;
       (catch ParseException ex
-        (throw (ex-info ""
-                        {:convex.shell/exception (-> ($.shell.err/reader-file ($.cell/string path)
-                                                                              ($.cell/string (format "Cannot read `project.cvx`: %s"
-                                                                                                     (.getMessage ex))))
-                                                     ($.std/assoc $.shell.kw/project
-                                                                  dep))}))))))
+        (fail ($.shell.err/reader-file ($.cell/string path)
+                                       ($.cell/string (format "Cannot read `project.cvx`: %s"
+                                                              (.getMessage ex)))))))))
 
 
 
