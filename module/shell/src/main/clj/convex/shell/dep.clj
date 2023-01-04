@@ -227,12 +227,13 @@
                             src-hash)
                     (-read)
                     (merge (select-keys state
-                                        [:convex.shell.dep/ancestry
-                                         :convex.shell.dep/downstream
+                                        [:convex.shell.dep/downstream
                                          :convex.shell.dep/target])))
                 state-3)
               (assoc :convex.shell.dep/required
                      required-2)
+              (merge (select-keys state
+                                  [:convex.shell.dep/ancestry]))
               (recur)))
         ;;
         (= dep-type
