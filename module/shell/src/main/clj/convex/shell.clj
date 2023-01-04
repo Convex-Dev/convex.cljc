@@ -117,3 +117,17 @@
       (when (not= (System/getProperty "convex.dev")
                   "true")
         (System/exit 1)))))
+
+
+
+
+(comment
+
+  (-main "(+ 4 4)")
+
+  (-main "[:cvm.sreq :dep.deploy \"/Users/adam/Code/convex/clj/tool/private/lab/dep/vote\" '[convex.vote [main convex vote] vote.trust [main vote trust]]] [convex.vote vote.trust]")
+
+  (-main "($.file/!.exec \"/Users/adam/Code/convex/clj/tool/private/lab/dep/dao/dev/workspace.cvx\")")
+  
+  
+  )

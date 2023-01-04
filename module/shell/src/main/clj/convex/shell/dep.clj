@@ -214,7 +214,7 @@
       (bb.fs/create-dirs path)
       (when-not (bb.fs/exists? repo)
         (let [p (P.git/exec ["clone"
-                             "-l"
+                             "--quiet"
                              "--no-tags"
                              (if (and scheme-file?
                                       (bb.fs/relative? url))
@@ -225,7 +225,10 @@
                              repo])]
           (when-not (P.process/success? p)
             (fail "Unable to clone Git repository"))))
-      (let [p (P.git/exec ["fetch"]
+      (let [p (P.git/exec ["fetch"
+                           "--quiet"
+                           "origin"
+                           sha]
                           {:dir repo})]
         (when-not (P.process/success? p)
           (fail "Unable to fetch Git repository")))
