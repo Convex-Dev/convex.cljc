@@ -1,4 +1,4 @@
-(ns convex.shell.dep
+(ns convex.shell.dep        
 
   (:import (convex.core.exceptions ParseException)
            (java.nio.file NoSuchFileException))
@@ -117,13 +117,73 @@
 
 
 
+(defn validate-project
+
+  [project fail]
+
+  (let [fail-2 (fn [message]
+                 (fail ($.cell/error ($.cell/code-std* :ARGUMENT)
+                                     ($.cell/string message))))]
+    (when-not ($.std/map? project)
+      (fail-2 "`project.cvx` must be a map"))
+    (when-some [dep+ ($.std/get project
+                                ($.cell/* :deps))]
+      (when-not ($.std/map? dep+)
+        (fail-2 "`:deps` in `project.cvx` must be a map"))
+      (doseq [[sym
+               dep] dep+]
+        (when-not ($.std/vector? dep)
+          (fail-2 (format "`%s` dependency in `project.cvx` must be a vector"
+                          sym)))
+        (let [resolution  (first dep)
+              not-string? (fn [x]
+                            (or (not ($.std/string? x))
+                                ($.std/empty? x)))]
+          (when (nil? resolution)
+            (fail-2 (format "Missing resolution mechanism for `%s` dependency in `project.cvx`"
+                            sym)))
+          (cond
+            (= resolution
+               ($.cell/* :git))
+            (do
+              (when-not (= ($.std/count dep)
+                           3)
+                (fail-2 (format "Git dependency `%s` in `project.cvx` must contain a URL and a SHA"
+                                sym)))
+              (when (not-string? ($.std/nth dep
+                                            1))
+                (fail-2 (format "Git dependency `%s` in `project.cvx` must specify the repository URL as a string"
+                                sym)))
+              (when (not-string? ($.std/nth dep
+                                            2))
+                (fail-2 (format "Git dependency `%s` in `project.cvx` must specify a commit SHA as a string"
+                                sym))))
+            ;;
+            (= resolution
+               ($.cell/* :relative))
+            (when (or (not= ($.std/count dep)
+                            2)
+                      (not-string? ($.std/nth dep
+                                              1)))
+              (fail-2 (format "Relative dependency `%s` in `project.cvx` must specify a path as a string"
+                              sym)))
+            ;;
+            :else
+            (fail-2 (format "Unknown resolution mechanism for `%s` dependency in `project.cvx`: %s"
+                            sym
+                            resolution)))))))
+  project)
+
+
+
 (defn project
 
   [dep dir]
 
   (let [dir-2 (-> dir
                   (bb.fs/expand-home)
-                  (bb.fs/canonicalize))
+                  (bb.fs/canonicalize)
+                  (str))
         path  (format "%s/project.cvx"
                       dir-2)
         fail  (fn [shell-ex]
@@ -131,15 +191,16 @@
                                 {:convex.shell/exception
                                  (-> shell-ex
                                      ($.std/assoc $.shell.kw/dir
-                                                  ($.cell/string (str dir-2)))
+                                                  ($.cell/string dir-2))
                                      ($.std/assoc $.shell.kw/project
                                                   dep))})))]
     (try
       (-> path
           ($.read/file)
           (first)
+          (validate-project fail)
           ($.std/assoc ($.cell/* :dir)
-                       ($.cell/string (str dir-2))))
+                       ($.cell/string dir-2)))
       ;;
       (catch NoSuchFileException _ex
         (fail ($.cell/error $.shell.kw/err-stream
@@ -261,10 +322,7 @@
                                   [:convex.shell.dep/project]))
               (assoc :convex.shell.dep/required
                      required-2)
-              (recur)))
-        ;;
-        :else
-        (throw (Exception. "Unknown dependency type"))))
+              (recur)))))
     ;;
     ;; No dependencies are required.
     ;;
