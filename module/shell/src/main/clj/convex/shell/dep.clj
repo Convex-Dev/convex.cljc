@@ -407,9 +407,19 @@
           project        (get-in state
                                  [:convex.shell.dep/project+
                                   k-project])
+          project-alias  (first dep-path)
           dep            (get-in project
                                  [($.cell/* :deps)
-                                  (first dep-path)])
+                                  project-alias])
+          _              (when-not dep
+                           (throw (ex-info ""
+                                           {:convex.shell/exception
+                                            (-> ($.cell/error ($.cell/code-std* :ARGUMENT)
+                                                              ($.cell/string (format "Dependency alias not found: %s"
+                                                                                     project-alias)))
+                                                ($.std/assoc ($.cell/* :ancestry)
+                                                             (state :convex.shell.dep/ancestry)))})))
+
           dep-type       (first dep)]
       (cond
         (= dep-type
