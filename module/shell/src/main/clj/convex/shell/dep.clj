@@ -184,12 +184,8 @@
                                               #"/")) ;; split on /
                         (remove string/blank?) ;; remove any missing path segments
                         (map #(-> % ({"." "_DOT_", ".." "_DOTDOT_"} %))))] ;; replace . or .. segments
-    [scheme host clean-path]
-    dir-parts
-    [scheme (string/join "___" (rest dir-parts))]
     (string/join "/"
-                 dir-parts)
-    ))
+                 dir-parts)))
 
 
 
@@ -244,7 +240,14 @@
                         (not (bb.fs/relative? url)))))
       (fail "Foreign project requested a local Git dependency from outside its directory"))
     (when-not (bb.fs/exists? worktree)
-      (bb.fs/create-dirs path)
+      (try
+        (bb.fs/create-dirs path)
+        (catch Exception _ex
+          (throw (ex-info ""
+                          {:convex.shell/exception
+                           ($.shell.err/filesystem ($.cell/string (format "Unable to create directories for Git dependency at: %s"
+                                                                          path)))}))))
+
       (when-not (bb.fs/exists? repo)
         (let [p (P.git/exec ["clone"
                              "--quiet"
