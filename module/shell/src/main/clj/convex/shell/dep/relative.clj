@@ -77,25 +77,20 @@
 
   [env project-child dep-parent actor-sym actor-path]
 
-  (let [ancestry        (-> (env :convex.shell.dep/ancestry)
-                            ($.std/conj ($.cell/* [~(env :convex.shell/dep)
-                                                   ~actor-path])))
-        env-2           (assoc env
-                               :convex.shell.dep/ancestry
-                               ancestry)
-        src-path        (format "%s/%s/%s.cvx"
+  (let [src-path        (format "%s/%s/%s.cvx"
                                 (get project-child
                                      ($.cell/* :dir))
                                 (second dep-parent)
                                 (string/join "/"
                                              (rest actor-path)))
-        src             (read env-2
+        src             (read env
                               src-path)
         hash            ($.cell/hash src)
+        ancestry        (env :convex.shell.dep/ancestry)
         required-parent (some-> (get (first src)
                                      ($.cell/* :require))
                                 (validate-required ancestry))
-        env-3           (-> env-2
+        env-2           (-> env
                             (update-in [:convex.shell.dep/hash->ancestry
                                         hash]
                                        #(or %
@@ -112,25 +107,23 @@
                                              [])
                                        [actor-sym
                                         hash]))]
-    (when (contains? (env-3 :convex.shell.dep.hash/pending+)
+    (when (contains? (env-2 :convex.shell.dep.hash/pending+)
                      hash)
       (throw (ex-info ""
                       {:convex.shell/exception
                        (-> ($.cell/error ($.cell/code-std* :STATE)
                                          ($.cell/string "Circular dependency"))
                            ($.std/assoc ($.cell/* :ancestry)
-                                        (env-3 :convex.shell.dep/ancestry)))})))
-    (-> (if required-parent
-          (-> env-3
-              (assoc :convex.shell.dep/hash     hash
-                     :convex.shell.dep/required required-parent)
-              (update :convex.shell.dep.hash/pending+
-                      conj
-                      hash)
-              ((env-3 :convex.shell.dep/fetch))
-              (merge (select-keys env
-                                  [:convex.shell.dep.hash/pending+
-                                   :convex.shell.dep/hash])))
-          env-3)
-        (merge (select-keys env
-                            [:convex.shell.dep/ancestry])))))
+                                        (env-2 :convex.shell.dep/ancestry)))})))
+    (if required-parent
+      (-> env-2
+          (assoc :convex.shell.dep/hash     hash
+                 :convex.shell.dep/required required-parent)
+          (update :convex.shell.dep.hash/pending+
+                  conj
+                  hash)
+          ((env-2 :convex.shell.dep/fetch))
+          (merge (select-keys env
+                              [:convex.shell.dep.hash/pending+
+                               :convex.shell.dep/hash])))
+      env-2)))

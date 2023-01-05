@@ -96,40 +96,39 @@
 
   [env dir-project-parent url sha]
 
-  (let [path-rel (path-cache-repo dir-project-parent
-                                  url)
-        path     (-> (format "%s/dep/git/%s"
-                             ($.cvm/look-up (env :convex.shell/ctx)
-                                            ($.shell.ctx/lib-address env
-                                                                     $.shell.sym/$)
-                                            ($.cell/* *root*))
-                             path-rel)
-                     (bb.fs/expand-home))
-        repo     (format "%s/repo"
-                         path)
-        worktree (format "%s/worktree/%s"
-                         path
-                         sha)
-        fail     (fn [message]
-                   (throw (ex-info ""
-                                   {:convex.shell/exception
-                                    ($.shell.err/git ($.cell/string message)
-                                                     ($.cell/string url)
-                                                     ($.cell/string sha))})))
+  (let [path-rel     (path-cache-repo dir-project-parent
+                                      url)
+        path         (-> (format "%s/dep/git/%s"
+                                 ($.cvm/look-up (env :convex.shell/ctx)
+                                                ($.shell.ctx/lib-address env
+                                                                         $.shell.sym/$)
+                                                ($.cell/* *root*))
+                                 path-rel)
+                         (bb.fs/expand-home))
+        repo         (format "%s/repo"
+                             path)
+        worktree     (format "%s/worktree/%s"
+                             path
+                             sha)
+        fail         (fn [message]
+                       (throw (ex-info ""
+                                       {:convex.shell/exception
+                                        (-> ($.shell.err/git ($.cell/string message)
+                                                             ($.cell/string url)
+                                                             ($.cell/string sha))
+                                            ($.std/assoc ($.cell/* :ancestry)
+                                                         (env :convex.shell.dep/ancestry)))})))
         scheme-file? (string/starts-with? path-rel
-                                          "file")
-        scheme-file-relative? (and scheme-file?
-                                   (bb.fs/relative? url))]
+                                          "file")]
     (when (and (env :convex.shell.dep/foreign?)
-               (or (and scheme-file-relative?
-                        (not (string/starts-with? (-> (format "%s/%s"
-                                                              dir-project-parent
-                                                              url)
-                                                      (bb.fs/canonicalize)
-                                                      (str))
-                                                  dir-project-parent)))
-                   (and scheme-file?
-                        (not (bb.fs/relative? url)))))
+               scheme-file?
+               (or (bb.fs/absolute? url)
+                   (not (string/starts-with? (-> (format "%s/%s"
+                                                         dir-project-parent
+                                                         url)
+                                                 (bb.fs/canonicalize)
+                                                 (str))
+                                             dir-project-parent))))
       (fail "Foreign project requested a local Git dependency from outside its directory"))
     (when-not (bb.fs/exists? worktree)
       (try

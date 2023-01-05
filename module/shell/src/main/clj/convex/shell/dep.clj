@@ -85,13 +85,17 @@
              fetch-parent  (get {($.cell/* :git)      $.shell.dep.git/fetch  
                                  ($.cell/* :relative) $.shell.dep.relative/fetch}
                                 (first dep-parent))]
-         (-> (fetch-parent env
-                           project-child
+         (-> env
+             (update :convex.shell.dep/ancestry
+                     $.std/conj
+                     ($.cell/* [~(env :convex.shell/dep)
+                                ~actor-path]))
+             (fetch-parent project-child
                            dep-parent
                            actor-sym
                            actor-path)
-             (assoc :convex.shell.dep/required
-                    required-2))))
+             (assoc :convex.shell.dep/ancestry (env :convex.shell.dep/ancestry)
+                    :convex.shell.dep/required required-2))))
      ;;
      ;; No actor is required.
      ;;
