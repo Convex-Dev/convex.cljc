@@ -90,8 +90,12 @@
 (defn global-set
 
   "When an instance is used in more than one thread, it is a good idea using this function.
-   Convex tooling will then use the given `instance` in all thread automatically unless it is
-   overwritten with [[current-set]] on a thread per thread basis."
+   Convex tooling will then use the given `instance` in all thread automatically where no store
+   has been initialized yet.
+  
+   Setting a store global will **not** impact threads which already started handling an instance.
+   Hence, this function is best used when one needs only one store throught the lifetime of the
+   process, preferably setting it at the beginning."
 
   ^EtchStore
 
