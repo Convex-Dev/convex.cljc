@@ -27,7 +27,14 @@
                                                                          (state :convex.shell.dep/ancestry)))})))]
     (try
       ;;
-      ($.read/file path)
+      (let [src        ($.read/file path)
+            first-form (first src)]
+        (if ($.std/map? first-form)
+          ($.std/assoc first-form
+                       ($.cell/* :src)
+                       (or ($.std/next src)
+                           ($.cell/* ())))
+          ($.cell/* {:src ~src})))
       ;;
       (catch NoSuchFileException _ex
         (fail "File not found"))
@@ -83,12 +90,14 @@
                                 (second dep-parent)
                                 (string/join "/"
                                              (rest actor-path)))
-        src             (read env
+        content         (read env
                               src-path)
-        hash            ($.cell/hash src)
+        src             ($.std/get content
+                                   ($.cell/* :src))
+        hash            ($.cell/hash content)
         ancestry        (env :convex.shell.dep/ancestry)
-        required-parent (some-> (get (first src)
-                                     ($.cell/* :require))
+        required-parent (some-> ($.std/get content
+                                           ($.cell/* :deploy))
                                 (validate-required ancestry))
         env-2           (-> env
                             (update-in [:convex.shell.dep/hash->ancestry
@@ -97,10 +106,7 @@
                                             ancestry))
                             (assoc-in [:convex.shell.dep/hash->src
                                        hash]
-                                      (cond->
-                                        src
-                                        required-parent
-                                        ($.std/next)))
+                                      src)
                             (update-in [:convex.shell.dep/hash->binding+
                                         (env :convex.shell.dep/hash)]
                                        (fnil conj
