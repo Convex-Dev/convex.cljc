@@ -13,28 +13,44 @@
 ;;;;;;;;;;
 
 
+(defn path
+
+  [project-child dep-parent actor-path]
+
+  (format "%s/%s/%s.cvx"
+          (get project-child
+               ($.cell/* :dir))
+          (second dep-parent)
+          (string/join "/"
+                       (rest actor-path))))
+
+
+
 (defn read
 
-  [state path]
+  [env path]
 
   (let [fail (fn [message]
                (throw (ex-info ""
-                               {:convex.shell/exception (-> ($.shell.err/reader-file ($.cell/string path)
-                                                                                     (some-> message
-                                                                                             ($.cell/string)))
-                                                            
-                                                            ($.std/assoc ($.cell/* :ancestry)
-                                                                         (state :convex.shell.dep/ancestry)))})))]
+                               {:convex.shell/exception
+                                (-> ($.shell.err/reader-file ($.cell/string path)
+                                                             (some-> message
+                                                                     ($.cell/string)))
+                                    
+                                    ($.std/assoc ($.cell/* :ancestry)
+                                                 (env :convex.shell.dep/ancestry)))})))]
     (try
       ;;
       (let [src        ($.read/file path)
             first-form (first src)]
-        (if ($.std/map? first-form)
-          ($.std/assoc first-form
-                       ($.cell/* :src)
-                       (or ($.std/next src)
-                           ($.cell/* ())))
-          ($.cell/* {:src ~src})))
+        (-> (if ($.std/map? first-form)
+              ($.std/assoc first-form
+                           ($.cell/* :src)
+                           (or ($.std/next src)
+                               ($.cell/* ())))
+              ($.cell/* {:src ~src}))
+            ($.std/assoc ($.cell/* :path)
+                         ($.cell/string path))))
       ;;
       (catch NoSuchFileException _ex
         (fail "File not found"))
@@ -80,16 +96,26 @@
 ;;;;;;;;; Fetching actors
 
 
+(defn content
+
+  [env project-child dep-parent _actor-sym actor-path]
+
+  (assoc env
+         :convex.shell.dep/content
+         (read env
+               (path project-child
+                     dep-parent
+                     actor-path))))
+
+
+
 (defn fetch
 
   [env project-child dep-parent actor-sym actor-path]
 
-  (let [src-path        (format "%s/%s/%s.cvx"
-                                (get project-child
-                                     ($.cell/* :dir))
-                                (second dep-parent)
-                                (string/join "/"
-                                             (rest actor-path)))
+  (let [src-path        (path project-child
+                              dep-parent
+                              actor-path)
         content         (read env
                               src-path)
         src             ($.std/get content

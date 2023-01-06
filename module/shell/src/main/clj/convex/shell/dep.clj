@@ -82,9 +82,9 @@
                                                                                         project-sym)))
                                                    ($.std/assoc ($.cell/* :ancestry)
                                                                 (env :convex.shell.dep/ancestry)))})))
-             fetch-parent  (get {($.cell/* :git)      $.shell.dep.git/fetch  
-                                 ($.cell/* :relative) $.shell.dep.relative/fetch}
-                                (first dep-parent))]
+             fetch-parent  (get-in env
+                                   [:convex.shell.dep/resolver+
+                                    (first dep-parent)])]
          (-> env
              (update :convex.shell.dep/ancestry
                      $.std/conj
@@ -107,17 +107,24 @@
    (let [ancestry ($.cell/* [])]
      ($.shell.dep.relative/validate-required required
                                              ancestry)
-     (-fetch (merge env
-                    {:convex.shell/dep               $.shell.kw/root
-                     :convex.shell.dep/ancestry      ancestry
-                     :convex.shell.dep/dep->project  {$.shell.kw/root (project $.shell.kw/root
-                                                                               dir-project)}
-                     :convex.shell.dep/fetch         -fetch
-                     :convex.shell.dep/foreign?      false
-                     :convex.shell.dep/hash          $.shell.kw/root
-                     :convex.shell.dep/read-project  project
-                     :convex.shell.dep/required      required
-                     :convex.shell.dep.hash/pending+ #{}})))))
+     (-fetch (-> env
+                 (update-in [:convex.shell.dep/resolver+
+                             ($.cell/* :relative)]
+                            #(or %
+                                 $.shell.dep.relative/fetch))
+                 (assoc-in [:convex.shell.dep/resolver+
+                            ($.cell/* :git)]
+                           $.shell.dep.git/fetch)
+                 (merge {:convex.shell/dep               $.shell.kw/root
+                         :convex.shell.dep/ancestry      ancestry
+                         :convex.shell.dep/dep->project  {$.shell.kw/root (project $.shell.kw/root
+                                                                                   dir-project)}
+                         :convex.shell.dep/fetch         -fetch
+                         :convex.shell.dep/foreign?      false
+                         :convex.shell.dep/hash          $.shell.kw/root
+                         :convex.shell.dep/read-project  project
+                         :convex.shell.dep/required      required
+                         :convex.shell.dep.hash/pending+ #{}}))))))
 
 
 
@@ -132,6 +139,25 @@
                    required)
            ($.shell.ctx/def-result env
                                    nil))))
+
+
+;;;;;;;;;; Retrieving source
+
+
+(defn content
+
+  [env dir-project required]
+
+  (-safe env
+         (delay
+           ($.shell.ctx/def-result env
+                                   (-> env
+                                       (assoc-in [:convex.shell.dep/resolver+
+                                                  ($.cell/* :relative)]
+                                                 $.shell.dep.relative/content)
+                                       (-fetch dir-project
+                                               required)
+                                       (:convex.shell.dep/content))))))
 
 
 ;;;;;;;;;; Deploying actors
