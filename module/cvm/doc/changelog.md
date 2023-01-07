@@ -6,6 +6,14 @@ repository.
 
 ---
 
+## {{ next-release }}
+
+- Add
+    - `$.cell/fake`
+
+
+---
+
 
 ## 2022-10-24
 

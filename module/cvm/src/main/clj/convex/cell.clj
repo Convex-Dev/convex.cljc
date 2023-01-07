@@ -4,7 +4,8 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core ErrorCodes)
+  (:import (clojure.lang IDeref)
+           (convex.core ErrorCodes)
            (convex.core.data AccountKey
                              Address
                              ABlob
@@ -94,6 +95,10 @@
 
 ;;;
 
+
+(prefer-method print-method
+               ACell
+               IDeref)
 
 (prefer-method print-method
                ACell
@@ -787,3 +792,88 @@
   [x]
 
   (-* x))
+
+
+;;;;;;;;;; Fake cells
+
+
+(def ^:private ^Keyword -deref-me
+
+  ;; See [[fake]].
+
+  (keyword "DEREF-ME"))
+
+
+
+(defn fake
+
+  "Returns a proxy class which looks like a cell, wrapping `x` which can be
+   any JVM value.
+  
+   For expert users only!
+   Primarily useful for allowing actual cells to store any arbitrary JVM values.
+
+   `deref` will return `x`.
+  
+   Prints as the symbol cell `DEREF-ME` but is not an actual symbol cell.
+   Similarly, writing this fake cell to Etch writes the symbol cell `DEREF-ME`.
+   Obviously, reading from Etch will return that actual symbol cell since only
+   real cells can be serialized and deserialized (see [[convex.db]])."
+
+  ^ACell
+
+  [x]
+
+  (proxy
+
+    [ACell
+     IDeref]
+
+    []
+
+    ;; IDeref
+
+    (deref []
+      x)
+
+    ;; AObject
+
+    (print [blob-builder limit]
+      (.print -deref-me
+              blob-builder
+              limit))
+
+   ;; ACell
+
+    (encode [byte+ pos]
+      (.encode -deref-me
+               byte+
+               pos))
+
+    (estimatedEncodingSize []
+      (.estimatedEncodingSize -deref-me))
+
+    (getRefCount []
+      (.getRefCount -deref-me))
+
+    (getTag []
+      (.getTag -deref-me))
+
+    (isCanonical []
+      (.isCanonical -deref-me))
+
+    (toCanonical []
+      (.toCanonical -deref-me))))
+
+
+
+(defn fake?
+
+  "Returns true if `cell` has been produced by [[fake]]."
+
+  [^ACell cell]
+
+  (and (not (instance? Keyword
+                       cell))
+       (= (.toCanonical cell)
+          -deref-me)))

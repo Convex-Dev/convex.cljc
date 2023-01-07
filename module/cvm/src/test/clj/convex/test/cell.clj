@@ -7,7 +7,8 @@
   (:refer-clojure :exclude [*])
   (:require [clojure.test :as T]
             [convex.cell  :as $.cell]
-            [convex.read  :as $.read]))
+            [convex.read  :as $.read]
+            [convex.std   :as $.std]))
 
 
 ;;;;;;;;;; Printing
@@ -174,3 +175,37 @@
   (T/is (= (first ($.read/string "\"foo\""))
            ($.cell/any "foo"))
         "String"))
+
+
+;;;;;;;;;; Fake cells
+
+
+(T/deftest fake
+
+  (let [f (fn [])
+        x ($.cell/fake f)]
+    
+    (T/is (= f
+             @x)
+          "Deref returns the wrapped value")
+
+    (T/is ($.std/cell? x)
+          "A cell indeed")
+
+    (T/is (= ":DEREF-ME"
+             (str x))
+          "Prints as the expected CVX keyword")
+
+    (T/is (= ($.cell/hash ($.cell/* :DEREF-ME))
+             ($.cell/hash x))
+          "Hashes like the expected CVX keyword")))
+
+
+
+(T/deftest fake?
+
+  (T/is (not ($.cell/fake? ($.cell/* :DEREF-ME)))
+        "Real cell")
+
+  (T/is ($.cell/fake? ($.cell/fake (fn [])))
+        "Fake cell"))

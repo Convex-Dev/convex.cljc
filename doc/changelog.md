@@ -10,6 +10,15 @@ provided.
 ---
 
 
+## {{ next-release }}
+
+- Impacted
+    - [`module/cvm`]
+
+
+---
+
+
 ## 2022-10-24
 
 Transition from [semver](https://semver.org) to [calver](https://calver.org).

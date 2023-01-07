@@ -81,6 +81,22 @@
         "Cannot write after closing an instance"))
 
 
+;;;
+
+
+(T/deftest fake-cell-support
+
+  (-open)
+
+  (T/is (= ($.cell/hash ($.cell/* :DEREF-ME))
+           ($.db/root-write ($.cell/fake (fn []))))
+        "Writes the actual :DEREF-ME keyword")
+
+  (T/is (= ($.cell/* :DEREF-ME)
+           ($.db/root-read))
+        "Reads the actual :DEREF-ME keyword"))
+
+
 ;;;;;;;;;; Gen tests
 
 
