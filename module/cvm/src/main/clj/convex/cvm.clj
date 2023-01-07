@@ -491,6 +491,27 @@
 
 
 
+(defn exception-set
+
+  "Returns a `ctx` set in an exceptional state.
+  
+   See [[exception]]."
+
+
+  (^Context [^Context ctx ^ErrorValue exception]
+
+   (.withError ctx
+               exception))
+
+
+  (^Context [^Context ctx ^ACell code ^ACell message]
+
+   (.withError ctx
+               (ErrorValue/createRaw code
+                                     message))))
+
+
+
 (defn juice-preserve
 
   "Executes `(f ctx)`, `f` being a function `ctx` -> `ctx`.

@@ -10,6 +10,7 @@ repository.
 
 - Add
     - `$.cell/fake`
+    - `$.cvm/exception-set`
 
 
 ---
