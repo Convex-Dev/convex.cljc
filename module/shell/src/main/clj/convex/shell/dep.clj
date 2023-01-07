@@ -10,6 +10,7 @@
             [convex.shell.exec.fail    :as $.shell.exec.fail]
             [convex.shell.kw           :as $.shell.kw]
             [convex.shell.project      :as $.shell.project]
+            [convex.shell.sym          :as $.shell.sym]
             [convex.std                :as $.std]))
 
 
@@ -72,7 +73,7 @@
                                      dep-child])
              project-sym    (first actor-path)
              dep-parent     (get-in project-child
-                                    [($.cell/* :deps)
+                                    [$.shell.kw/deps
                                      project-sym])
              _              (when-not dep-parent
                               (throw (ex-info ""
@@ -80,7 +81,7 @@
                                                (-> ($.cell/error ($.cell/code-std* :ARGUMENT)
                                                                  ($.cell/string (format "Dependency alias not found: %s"
                                                                                         project-sym)))
-                                                   ($.std/assoc ($.cell/* :ancestry)
+                                                   ($.std/assoc $.shell.kw/ancestry
                                                                 (env :convex.shell.dep/ancestry)))})))
              fetch-parent  (get-in env
                                    [:convex.shell.dep/resolver+
@@ -109,11 +110,11 @@
                                              ancestry)
      (-fetch (-> env
                  (update-in [:convex.shell.dep/resolver+
-                             ($.cell/* :relative)]
+                             $.shell.kw/relative]
                             #(or %
                                  $.shell.dep.relative/fetch))
                  (assoc-in [:convex.shell.dep/resolver+
-                            ($.cell/* :git)]
+                            $.shell.kw/git]
                            $.shell.dep.git/fetch)
                  (merge {:convex.shell/dep               $.shell.kw/root
                          :convex.shell.dep/ancestry      ancestry
@@ -153,7 +154,7 @@
            ($.shell.ctx/def-result env
                                    (-> env
                                        (assoc-in [:convex.shell.dep/resolver+
-                                                  ($.cell/* :relative)]
+                                                  $.shell.kw/relative]
                                                  $.shell.dep.relative/content)
                                        (-fetch dir-project
                                                required)
@@ -174,7 +175,7 @@
                   (throw (ex-info ""
                          {:convex.shell/exception (-> ex
                                                       ($.shell.err/mappify)
-                                                      ($.std/assoc ($.cell/* :ancestry)
+                                                      ($.std/assoc $.shell.kw/ancestry
                                                                    (get-in env
                                                                            [:convex.shell.dep/hash->ancestry
                                                                             hash])))})))
@@ -216,7 +217,7 @@
                                          (cond->
                                            (env-2 :convex.shell.dep/let)
                                            (not= actor-sym
-                                                 ($.cell/* _))
+                                                 $.shell.sym/_)
                                            (conj actor-sym
                                                  (env-3 :convex.shell.dep/address))))))
                                (assoc env
@@ -239,7 +240,7 @@
                                     hash])]
           (deploy-actor env
                         hash
-                        ($.std/cons ($.cell/* do)
+                        ($.std/cons $.shell.sym/do
                                     hash-src))
           env)))))
 

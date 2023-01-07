@@ -5,7 +5,8 @@
   {:author "Adam Helinski"}
 
   (:import (convex.core.data Symbol))
-  (:refer-clojure :exclude [list*])
+  (:refer-clojure :exclude [do
+                            list*])
   (:require [convex.cell :as $.cell]))
 
 
@@ -24,9 +25,15 @@
 (def ^Symbol result*
              ($.cell/symbol "*result*"))
 
+(def ^Symbol root*
+             ($.cell/symbol "*root*"))
+
 
 ;;;;;;;;;; Static symbols
 
+
+(def ^Symbol _
+             ($.cell/symbol "_"))
 
 (def ^Symbol $
              ($.cell/symbol "$"))
@@ -81,6 +88,9 @@
 
 (def ^Symbol $-trx
              ($.cell/symbol "$.trx"))
+
+(def ^Symbol do
+             ($.cell/symbol "do"))
 
 (def ^Symbol genesis
              ($.cell/symbol "genesis"))

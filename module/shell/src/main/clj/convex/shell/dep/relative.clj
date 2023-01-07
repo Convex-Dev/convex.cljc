@@ -7,6 +7,7 @@
             [convex.cell      :as $.cell]
             [convex.read      :as $.read]
             [convex.shell.err :as $.shell.err]
+            [convex.shell.kw  :as $.shell.kw]
             [convex.std       :as $.std]))
 
 
@@ -19,7 +20,7 @@
 
   (format "%s/%s/%s.cvx"
           (get project-child
-               ($.cell/* :dir))
+               $.shell.kw/dir)
           (second dep-parent)
           (string/join "/"
                        (rest actor-path))))
@@ -37,7 +38,7 @@
                                                              (some-> message
                                                                      ($.cell/string)))
                                     
-                                    ($.std/assoc ($.cell/* :ancestry)
+                                    ($.std/assoc $.shell.kw/ancestry
                                                  (env :convex.shell.dep/ancestry)))})))]
     (try
       ;;
@@ -45,11 +46,11 @@
             first-form (first src)]
         (-> (if ($.std/map? first-form)
               ($.std/assoc first-form
-                           ($.cell/* :src)
+                           $.shell.kw/src
                            (or ($.std/next src)
                                ($.cell/* ())))
               ($.cell/* {:src ~src}))
-            ($.std/assoc ($.cell/* :path)
+            ($.std/assoc $.shell.kw/path
                          ($.cell/string path))))
       ;;
       (catch NoSuchFileException _ex
@@ -72,7 +73,7 @@
                                {:convex.shell/exception
                                 (-> ($.cell/error ($.cell/code-std* :ARGUMENT)
                                                   ($.cell/string message))
-                                    ($.std/assoc ($.cell/* :ancestry)
+                                    ($.std/assoc $.shell.kw/ancestry
                                                  ancestry))})))]
     (when-not ($.std/vector? required)
       (fail "Required paths must be in a vector"))
@@ -119,11 +120,11 @@
         content         (read env
                               src-path)
         src             ($.std/get content
-                                   ($.cell/* :src))
+                                   $.shell.kw/src)
         hash            ($.cell/hash content)
         ancestry        (env :convex.shell.dep/ancestry)
         required-parent (some-> ($.std/get content
-                                           ($.cell/* :deploy))
+                                           $.shell.kw/deploy)
                                 (validate-required ancestry))
         env-2           (-> env
                             (update-in [:convex.shell.dep/hash->ancestry
@@ -145,7 +146,7 @@
                       {:convex.shell/exception
                        (-> ($.cell/error ($.cell/code-std* :STATE)
                                          ($.cell/string "Circular dependency"))
-                           ($.std/assoc ($.cell/* :ancestry)
+                           ($.std/assoc $.shell.kw/ancestry
                                         (env-2 :convex.shell.dep/ancestry)))})))
     (if required-parent
       (-> env-2

@@ -14,6 +14,9 @@
 ;;;;;;;;;;
 
 
+(def ^Keyword ancestry
+              ($.cell/keyword "ancestry"))
+
 (def ^Keyword arg
               ($.cell/keyword "arg"))
 
@@ -28,6 +31,12 @@
 
 (def ^Keyword cvm-sreq
               ($.cell/keyword "cvm.sreq"))
+
+(def ^Keyword deploy
+              ($.cell/keyword "deploy"))
+
+(def ^Keyword deps
+              ($.cell/keyword "deps"))
 
 (def ^Keyword dev-fatal
               ($.cell/keyword "dev.fatal"))
@@ -107,6 +116,9 @@
 (def ^Keyword form
               ($.cell/keyword "form"))
 
+(def ^Keyword git
+              ($.cell/keyword "git"))
+
 (def ^Keyword juice-limit
               ($.cell/keyword "juice.limit"))
 
@@ -136,6 +148,9 @@
 
 (def ^Keyword project
               ($.cell/keyword "project"))
+
+(def ^Keyword relative
+              ($.cell/keyword "relative"))
 
 (def ^Keyword report
               ($.cell/keyword "report"))

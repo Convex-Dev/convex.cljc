@@ -102,7 +102,7 @@
                                  ($.cvm/look-up (env :convex.shell/ctx)
                                                 ($.shell.ctx/lib-address env
                                                                          $.shell.sym/$)
-                                                ($.cell/* *root*))
+                                                $.shell.sym/root*)
                                  path-rel)
                          (bb.fs/expand-home))
         repo         (format "%s/repo"
@@ -116,7 +116,7 @@
                                         (-> ($.shell.err/git ($.cell/string message)
                                                              ($.cell/string url)
                                                              ($.cell/string sha))
-                                            ($.std/assoc ($.cell/* :ancestry)
+                                            ($.std/assoc $.shell.kw/ancestry
                                                          (env :convex.shell.dep/ancestry)))})))
         scheme-file? (string/starts-with? path-rel
                                           "file")]
@@ -193,7 +193,7 @@
                                                    $.shell.kw/dir))
                                    (str git-url)
                                    (str git-sha))
-        dep-child-2      ($.cell/* [:git ~git-url ~git-sha])]
+        dep-child-2      ($.cell/* [~$.shell.kw/git ~git-url ~git-sha])]
     (-> env
         (update-in [:convex.shell.dep/dep->project
                     dep-parent]
