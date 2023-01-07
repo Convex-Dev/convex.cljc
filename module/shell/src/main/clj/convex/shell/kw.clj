@@ -131,6 +131,9 @@
 (def ^Keyword library-path
               ($.cell/keyword "library-path"))
 
+(def ^Keyword local
+              ($.cell/keyword "local"))
+
 (def ^Keyword log-clear
               ($.cell/keyword "log.clear"))
 

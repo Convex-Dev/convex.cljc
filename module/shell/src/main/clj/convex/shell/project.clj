@@ -115,6 +115,18 @@
                     (fail-2 (format "Relative dependency `%s` in `project.cvx` specifies a path outside of the project"
                                     sym))))))
             ;;
+            (= resolution
+               $.shell.kw/local)
+            (do
+              (when (< ($.std/count dep)
+                       2)
+                (fail-2 (format "Local dependency `%s` in `project.cvx` must specify a path"
+                                sym)))
+              (when (not-string? ($.std/nth dep
+                                            1))
+                (fail-2 (format "Local dependency `%s` in `project.cvx` must specify a path as a string"
+                                sym))))
+            ;;
             :else
             (fail-2 (format "Unknown resolution mechanism for `%s` dependency in `project.cvx`: %s"
                             sym

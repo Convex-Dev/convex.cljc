@@ -5,6 +5,7 @@
             [convex.cvm                :as $.cvm]
             [convex.shell.ctx          :as $.shell.ctx]
             [convex.shell.dep.git      :as $.shell.dep.git]
+            [convex.shell.dep.local    :as $.shell.dep.local]
             [convex.shell.dep.relative :as $.shell.dep.relative]
             [convex.shell.err          :as $.shell.err]
             [convex.shell.exec.fail    :as $.shell.exec.fail]
@@ -109,13 +110,14 @@
      ($.shell.dep.relative/validate-required required
                                              ancestry)
      (-fetch (-> env
-                 (update-in [:convex.shell.dep/resolver+
-                             $.shell.kw/relative]
-                            #(or %
-                                 $.shell.dep.relative/fetch))
-                 (assoc-in [:convex.shell.dep/resolver+
-                            $.shell.kw/git]
-                           $.shell.dep.git/fetch)
+                 (update :convex.shell.dep/resolver+
+                         (fn [resolver+]
+                           (-> resolver+
+                               (assoc $.shell.kw/git   $.shell.dep.git/fetch
+                                      $.shell.kw/local $.shell.dep.local/fetch)
+                               (update $.shell.kw/relative
+                                       #(or %
+                                            $.shell.dep.relative/fetch)))))
                  (merge {:convex.shell/dep               $.shell.kw/root
                          :convex.shell.dep/ancestry      ancestry
                          :convex.shell.dep/dep->project  {$.shell.kw/root (project $.shell.kw/root
