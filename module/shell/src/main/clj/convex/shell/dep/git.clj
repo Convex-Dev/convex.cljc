@@ -192,15 +192,14 @@
                                    (str ($.std/get project-child
                                                    $.shell.kw/dir))
                                    (str git-url)
-                                   (str git-sha))
-        dep-child-2      ($.cell/* [~$.shell.kw/git ~git-url ~git-sha])]
+                                   (str git-sha))]
     (-> env
         (update-in [:convex.shell.dep/dep->project
                     dep-parent]
                    #(or %
-                        ((env :convex.shell.dep/read-project) dep-child-2
+                        ((env :convex.shell.dep/read-project) dep-parent
                                                               git-worktree)))
-        (assoc :convex.shell/dep          dep-child-2
+        (assoc :convex.shell/dep          dep-parent
                :convex.shell.dep/foreign? foreign-parent?
                :convex.shell.dep/required ($.cell/* [~actor-sym
                                                      ~($.std/next actor-path)]))
