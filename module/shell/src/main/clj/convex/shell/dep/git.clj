@@ -199,11 +199,10 @@
                    #(or %
                         ((env :convex.shell.dep/read-project) dep-parent
                                                               git-worktree)))
-        (assoc :convex.shell/dep          dep-parent
-               :convex.shell.dep/foreign? foreign-parent?
-               :convex.shell.dep/required ($.cell/* [~actor-sym
-                                                     ~($.std/next actor-path)]))
-        ((env :convex.shell.dep/fetch))
-        (merge (select-keys env
-                            [:convex.shell/dep
-                             :convex.shell.dep/foreign?])))))
+        (assoc :convex.shell.dep/foreign?
+               foreign-parent?)
+        ((env :convex.shell.dep/jump) dep-parent
+                                      actor-sym
+                                      actor-path)
+        (assoc :convex.shell.dep/foreign?
+               (env :convex.shell.dep/foreign?)))))

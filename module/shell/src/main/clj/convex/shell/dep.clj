@@ -15,6 +15,9 @@
             [convex.std                :as $.std]))
 
 
+(declare ^:private -jump)
+
+
 ;;;;;;;;;; Private
 
 
@@ -125,9 +128,24 @@
                          :convex.shell.dep/fetch         -fetch
                          :convex.shell.dep/foreign?      false
                          :convex.shell.dep/hash          $.shell.kw/root
+                         :convex.shell.dep/jump          -jump
                          :convex.shell.dep/read-project  project
                          :convex.shell.dep/required      required
                          :convex.shell.dep.hash/pending+ #{}}))))))
+
+
+
+(defn- -jump
+
+  [env dep-parent actor-sym actor-path]
+
+  (-> env
+      (assoc :convex.shell/dep          dep-parent
+             :convex.shell.dep/required ($.cell/* [~actor-sym
+                                                   ~($.std/next actor-path)]))
+      (-fetch)
+      (assoc :convex.shell/dep
+             (env :convex.shell/dep))))
 
 
 

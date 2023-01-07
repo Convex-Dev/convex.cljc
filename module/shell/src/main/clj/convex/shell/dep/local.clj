@@ -42,9 +42,6 @@
                                                                                          ($.std/assoc $.shell.kw/ancestry
                                                                                                       (env :convex.shell.dep/ancestry)))})))
                                                                   dir-2))))))
-      (assoc :convex.shell/dep          dep-parent
-             :convex.shell.dep/required ($.cell/* [~actor-sym
-                                                   ~($.std/next actor-path)]))
-      ((env :convex.shell.dep/fetch))
-      (assoc :convex.shell/dep
-             (env :convex.shell/dep))))
+      ((env :convex.shell.dep/jump) dep-parent
+                                    actor-sym
+                                    actor-path)))
