@@ -15,13 +15,23 @@
             [convex.std       :as $.std]))
 
 
-;;;;;;;;;;
+;;;;;;;;;; Private
 
 
-(def address
+(defn- -resource-cvx
 
-  ($.cell/address 0))
+  [path]
 
+  (or (-> path
+          (java.io/resource)
+          (some-> (.openStream)
+                  (InputStreamReader. StandardCharsets/UTF_8)
+                  ($.read/stream)))
+      (throw (Exception. (format "CVX file missing from classpath: %s"
+                                 path)))))
+
+
+;;;;;;;;;; Public
 
 
 (def invoker
@@ -61,54 +71,26 @@
                                ($.cell/string "Convex Shell invocation require a symbol")))))))
 
 
-
+;;;;;;;;;;
 
 
 (def ctx
 
-  (let [ctx (reduce (fn [ctx path]
-                      (if-some [resource (java.io/resource path)]
-                        ;; CVX file on classpath.
-                        (let [ctx-2 ($.cvm/eval
-                                      ctx
-                                      ($.cell/list (cons ($.cell/* do)
-                                                         (try
-                                                           (-> resource
-                                                               (.openStream)
-                                                               (InputStreamReader. StandardCharsets/UTF_8)
-                                                               ($.read/stream))
-                                                           (catch Throwable ex
-                                                             (throw (ex-info "While reading CVX library"
-                                                                             {::ex   ex
-                                                                              ::path path})))))))
-                              ex    ($.cvm/exception ctx-2)]
-                          (when ex
-                            (throw (ex-info "CVM exception while compiling CVX library"
-                                            {::base :eval
-                                             ::ex   ex
-                                             ::path path})))
-                          ctx-2)
-                        ;; CVX file not on classpath.
-                        (throw (ex-info "Mandatory CVX library is not on classpath"
-                                        {::base :not-found
-                                         ::path path}))))
-                    ;;
-                    (-> ($.cvm/ctx)
-                        ($.cvm/juice-refill)
-                        ($.cvm/fork-to address))
-                    ;;
-                    ["convex/shell2.cvx"])]
-    (-> ctx
-        ($.cvm/def address
-                   ($.cell/* {shell.env    [true
-                                            ~($.cell/fake {:convex.shell/req+            convex.shell.req/impl
-                                                           :convex.shell/handle->stream  {($.cell/* :stderr) $.shell.io/stderr-txt
-                                                                                          ($.cell/* :stdin)  $.shell.io/stdin-txt
-                                                                                          ($.cell/* :stdout) $.shell.io/stdout-txt}
-                                                           :convex.shell.etch/read-only? false})]
-                              shell.invoke ~invoker
-                              sys.eol      ~($.cell/string (System/lineSeparator))}))
-        ($.cvm/fork-to $.cvm/genesis-user)
-        ($.cvm/juice-refill))))
+  (-> ($.cvm/ctx)
+      ($.cvm/juice-refill)
+      ($.cvm/fork-to ($.cell/address 0))
+      ($.cvm/eval ($.std/cons ($.cell/* do)
+                              (-resource-cvx "convex/shell2.cvx")))
 
-
+      ($.cvm/def ($.cell/address 0)
+                 ($.std/merge ($.cell/* {shell.env    [true
+                                                       ~($.cell/fake {:convex.shell/req+            convex.shell.req/impl
+                                                                      :convex.shell/handle->stream  {($.cell/* :stderr) $.shell.io/stderr-txt
+                                                                                                     ($.cell/* :stdin)  $.shell.io/stdin-txt
+                                                                                                     ($.cell/* :stdout) $.shell.io/stdout-txt}
+                                                                      :convex.shell.etch/read-only? false})]
+                                         shell.invoke ~invoker
+                                         sys.eol      ~($.cell/string (System/lineSeparator))})
+                              (first (-resource-cvx "convex/shell/version.cvx"))))
+      ($.cvm/fork-to $.cvm/genesis-user)
+      ($.cvm/juice-refill)))

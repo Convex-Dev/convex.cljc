@@ -437,7 +437,7 @@
 
   :dev/shell
 
-  {:extra-paths  ["module/shell/src/dev/cvx"]}
+  {:extra-paths  ["module/shell/src/dev/clj"]}
 
  ;---
 

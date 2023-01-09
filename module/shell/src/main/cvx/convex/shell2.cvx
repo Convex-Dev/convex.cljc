@@ -1221,3 +1221,17 @@
 
 (def prn
      stream.outln)
+
+
+
+
+
+(def version.shell
+
+  nil)
+
+
+
+(def version.convex
+
+  nil)
