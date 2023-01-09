@@ -3,11 +3,11 @@
   (:refer-clojure :exclude [read])
   (:require [convex.cell               :as $.cell]
             [convex.cvm                :as $.cvm]
-            [convex.shell.ctx          :as $.shell.ctx]
             [convex.shell.dep.git      :as $.shell.dep.git]
             [convex.shell.dep.local    :as $.shell.dep.local]
             [convex.shell.dep.relative :as $.shell.dep.relative]
             [convex.shell.fail         :as $.shell.fail]
+            [convex.shell.flow         :as $.shell.flow]
             [convex.shell.kw           :as $.shell.kw]
             [convex.shell.project      :as $.shell.project]
             [convex.shell.sym          :as $.shell.sym]
@@ -41,12 +41,11 @@
   [ctx dep dir]
 
   (let [fail    (fn [code message]
-                  ($.shell.ctx/fail ctx
-                                    code
-                                    ($.std/assoc message
-                                                 ($.cell/* :dep)
-                                                 dep)))
-
+                  ($.shell.flow/fail ctx
+                                     code
+                                     ($.std/assoc message
+                                                  ($.cell/* :dep)
+                                                  dep)))
         project ($.shell.project/read dir
                                       fail)]
     ($.shell.project/dep+ project
@@ -79,11 +78,11 @@
                                     [$.shell.kw/deps
                                      project-sym])
              _              (when-not dep-parent
-                              ($.shell.ctx/fail (env :convex.shell/ctx)
-                                                ($.cell/code-std* :ARGUMENT)
-                                                ($.cell/* {:ancestry ~(env :convex.shell.dep/ancestry)
-                                                           :message  ~($.cell/string (format "Dependency alias not found: %s"
-                                                                                             project-sym))})))
+                              ($.shell.flow/fail (env :convex.shell/ctx)
+                                                 ($.cell/code-std* :ARGUMENT)
+                                                 ($.cell/* {:ancestry ~(env :convex.shell.dep/ancestry)
+                                                            :message  ~($.cell/string (format "Dependency alias not found: %s"
+                                                                                              project-sym))})))
              fetch-parent  (get-in env
                                    [:convex.shell.dep/resolver+
                                     (first dep-parent)])]

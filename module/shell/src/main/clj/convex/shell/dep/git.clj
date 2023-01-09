@@ -4,7 +4,7 @@
             [clojure.string    :as string]
             [convex.cell       :as $.cell]
             [convex.cvm        :as $.cvm]
-            [convex.shell.ctx  :as $.shell.ctx]
+            [convex.shell.flow :as $.shell.flow]
             [convex.shell.kw   :as $.shell.kw]
             [convex.std        :as $.std]
             [protosens.git     :as P.git]
@@ -108,12 +108,12 @@
                              path
                              sha)
         fail         (fn [message]
-                       ($.shell.ctx/fail (env :convex.shell/ctx)
-                                         ($.cell/* :SHELL.DEP.GIT)
-                                         ($.cell/* {:ancestry ~(env :convex.shell.dep/ancestry)
-                                                    :message  ~($.cell/string message)
-                                                    :sha      ~($.cell/string sha)
-                                                    :url      ~($.cell/string url)})))
+                       ($.shell.flow/fail (env :convex.shell/ctx)
+                                          ($.cell/* :SHELL.DEP.GIT)
+                                          ($.cell/* {:ancestry ~(env :convex.shell.dep/ancestry)
+                                                     :message  ~($.cell/string message)
+                                                     :sha      ~($.cell/string sha)
+                                                     :url      ~($.cell/string url)})))
         scheme-file? (string/starts-with? path-rel
                                           "file")]
     (when (and (env :convex.shell.dep/foreign?)

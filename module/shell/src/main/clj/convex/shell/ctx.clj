@@ -1,39 +1,96 @@
 (ns convex.shell.ctx
 
-  (:require [convex.cvm :as $.cvm]))
+  (:import (convex.core.lang Context)
+           (convex.core.lang.impl CoreFn
+                                  ErrorValue)
+           (java.io InputStreamReader)
+           (java.nio.charset StandardCharsets))
+  (:require [clojure.java.io  :as java.io]
+            [convex.cell      :as $.cell]
+            [convex.cvm       :as $.cvm]
+            [convex.read      :as $.read]
+            [convex.shell.env :as $.shell.env]
+            [convex.shell.io  :as $.shell.io]
+            [convex.shell.req :as $.shell.req]
+            [convex.std       :as $.std]))
 
 
-(declare return)
+;;;;;;;;;; Private
+
+
+(defn- -resource-cvx
+
+  [path]
+
+  (or (-> path
+          (java.io/resource)
+          (some-> (.openStream)
+                  (InputStreamReader. StandardCharsets/UTF_8)
+                  ($.read/stream)))
+      (throw (Exception. (format "CVX file missing from classpath: %s"
+                                 path)))))
+
+
+;;;;;;;;;; Public
+
+
+(def invoker
+
+  (proxy
+
+    [CoreFn]
+
+    [($.cell/* shell.invoke)]
+
+    (invoke [ctx arg+]
+      (let [sym (first arg+)]
+        (if ($.std/symbol? sym)
+          (if-some [f (-> ctx
+                          ($.shell.env/get)
+                          (get-in [:convex.shell/req+
+                                   sym]))]
+            
+            (let [^Context    ctx-2 (f ctx
+                                       (rest arg+))
+                  ^ErrorValue ex    ($.cvm/exception ctx-2)]
+              (if ex
+                (.withException ctx-2
+                                (doto ex
+                                  (.addTrace (format "In Convex Shell request: %s"
+                                                     sym))))
+                ctx-2))
+
+            ($.cvm/exception-set ctx
+                                 ($.cell/code-std* :ARGUMENT)
+                                 ($.cell/string (format "Unknown Convex Shell request: %s"
+                                                        sym))))
+
+          
+          ($.cvm/exception-set ctx
+                               ($.cell/code-std* :ARGUMENT)
+                               ($.cell/string "Convex Shell invocation require a symbol")))))))
 
 
 ;;;;;;;;;;
 
 
-(defn fail
+(def genesis
 
-  [ctx code message]
+  (-> ($.cvm/ctx)
+      ($.cvm/juice-refill)
+      ($.cvm/fork-to ($.cell/address 0))
+      ($.cvm/eval ($.std/cons ($.cell/* do)
+                              (-resource-cvx "convex/shell2.cvx")))
 
-  (return ($.cvm/exception-set ctx
-                               code
-                               message)))
-
-
-
-(defn return
-
-  [ctx]
-
-  (throw (ex-info ""
-                  {:convex.shell/ctx ctx})))
-
-
-
-(defn safe
-
-  [*d]
-
-  (try
-    @*d
-    (catch clojure.lang.ExceptionInfo ex
-      (or (:convex.shell/ctx (ex-data ex))
-          (throw ex)))))
+      ($.cvm/def ($.cell/address 0)
+                 ($.std/merge ($.cell/* {shell.env    [true
+                                                       ~($.cell/fake {:convex.shell/req+            convex.shell.req/impl
+                                                                      :convex.shell/handle->stream  {($.cell/* :stderr) $.shell.io/stderr-txt
+                                                                                                     ($.cell/* :stdin)  $.shell.io/stdin-txt
+                                                                                                     ($.cell/* :stdout) $.shell.io/stdout-txt}
+                                                                      :convex.shell.etch/read-only? false})]
+                                         shell.invoke ~invoker
+                                         sys.eol      ~($.cell/string (System/lineSeparator))})
+                              (first (-resource-cvx "convex/shell/version.cvx"))))
+      ($.cvm/fork-to $.cvm/genesis-user)
+      ($.cvm/juice-refill)))

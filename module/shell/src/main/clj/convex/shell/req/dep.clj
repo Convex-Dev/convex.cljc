@@ -3,9 +3,9 @@
   (:refer-clojure :exclude [read])
   (:require [convex.cell               :as $.cell]
             [convex.cvm                :as $.cvm]
-            [convex.shell.ctx          :as $.shell.ctx]
             [convex.shell.dep          :as $.shell.dep]
-            [convex.shell.dep.relative :as $.shell.dep.relative]))
+            [convex.shell.dep.relative :as $.shell.dep.relative]
+            [convex.shell.flow         :as $.shell.flow]))
 
 
 ;;;;;;;;;;
@@ -15,7 +15,7 @@
 
   [ctx [required]]
 
-  ($.shell.ctx/safe
+  ($.shell.flow/safe
     (delay
       (let [env (-> {:convex.shell/ctx ctx}
                     ($.shell.dep/fetch required)
@@ -30,7 +30,7 @@
 
   [ctx [required]]
   
-  ($.shell.ctx/safe
+  ($.shell.flow/safe
     (delay
       (let [env ($.shell.dep/fetch {:convex.shell/ctx ctx}
                                    required)]
@@ -48,7 +48,7 @@
 
   [ctx [required]]
 
-  ($.shell.ctx/safe
+  ($.shell.flow/safe
     (delay
       ($.cvm/result-set ctx
                         (-> {:convex.shell/ctx           ctx

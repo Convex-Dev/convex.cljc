@@ -33,7 +33,7 @@
   (:require [clojure.string      :as string]
             [convex.cell         :as $.cell]
             [convex.cvm          :as $.cvm]
-            [convex.shell.entry  :as $.shell.entry]
+            [convex.shell.ctx    :as $.shell.ctx]
             [convex.shell.fail   :as $.shell.fail]
             [convex.shell.log]))
 
@@ -45,7 +45,7 @@
 
   []
 
-  ($.cvm/fork $.shell.entry/ctx))
+  ($.cvm/fork $.shell.ctx/genesis))
 
 
 

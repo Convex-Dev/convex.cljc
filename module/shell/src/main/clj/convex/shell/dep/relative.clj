@@ -3,12 +3,12 @@
   (:import (convex.core.exceptions ParseException)
            (java.nio.file NoSuchFileException))
   (:refer-clojure :exclude [read])
-  (:require [clojure.string   :as string]
-            [convex.cell      :as $.cell]
-            [convex.read      :as $.read]
-            [convex.shell.ctx :as $.shell.ctx]
-            [convex.shell.kw  :as $.shell.kw]
-            [convex.std       :as $.std]))
+  (:require [clojure.string    :as string]
+            [convex.cell       :as $.cell]
+            [convex.read       :as $.read]
+            [convex.shell.flow :as $.shell.flow]
+            [convex.shell.kw   :as $.shell.kw]
+            [convex.std        :as $.std]))
 
 
 ;;;;;;;;;;
@@ -32,12 +32,12 @@
   [env path]
 
   (let [fail (fn [message]
-               ($.shell.ctx/fail (env :convex.shell/ctx)
-                                 ($.cell/* :READER)
-                                 ($.cell/* {:ancestry ~(env :convex.shell.dep/ancestry)
-                                            :filename ~($.cell/string path)
-                                            :message  ~(some-> message
-                                                               ($.cell/string))})))]
+               ($.shell.flow/fail (env :convex.shell/ctx)
+                                  ($.cell/* :READER)
+                                  ($.cell/* {:ancestry ~(env :convex.shell.dep/ancestry)
+                                             :filename ~($.cell/string path)
+                                             :message  ~(some-> message
+                                                                ($.cell/string))})))]
     (try
       ;;
       (let [src        ($.read/file path)
@@ -67,10 +67,10 @@
   [ctx required ancestry]
 
   (let [fail (fn [message]
-               ($.shell.ctx/fail ctx
-                                 ($.cell/code-std* :ARGUMENT)
-                                 ($.cell/* {:ancestry ~ancestry
-                                            :message  ~($.cell/string message)})))]
+               ($.shell.flow/fail ctx
+                                  ($.cell/code-std* :ARGUMENT)
+                                  ($.cell/* {:ancestry ~ancestry
+                                             :message  ~($.cell/string message)})))]
     (when-not ($.std/vector? required)
       (fail "Required paths must be in a vector"))
     (when-not (even? ($.std/count required))
@@ -146,10 +146,10 @@
                                         hash]))]
     (when (contains? (env-2 :convex.shell.dep.hash/pending+)
                      hash)
-      ($.shell.ctx/fail (env-2 :convex.shell/ctx)
-                        ($.cell/* :SHELL.DEP)
-                        ($.cell/* {:ancestry ~(env-2 :convex.shell.dep/ancestry)
-                                   :message  "Circular dependency"})))
+      ($.shell.flow/fail (env-2 :convex.shell/ctx)
+                         ($.cell/* :SHELL.DEP)
+                         ($.cell/* {:ancestry ~(env-2 :convex.shell.dep/ancestry)
+                                    :message  "Circular dependency"})))
     (if required-parent
       (-> env-2
           (assoc :convex.shell.dep/hash     hash
