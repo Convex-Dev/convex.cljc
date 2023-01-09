@@ -39,7 +39,8 @@
                                   CVMChar
                                   CVMDouble
                                   CVMLong)
-           (convex.core.lang RT))
+           (convex.core.lang IFn
+                             RT))
   (:refer-clojure :exclude [+
                             -
                             *
@@ -68,6 +69,7 @@
                             empty
                             empty?
                             false?
+                            fn?
                             find
                             get
                             hash-map
@@ -1203,6 +1205,18 @@
 
   (= x
      CVMBool/FALSE))
+
+
+
+(defn fn?
+
+  "Is `x` a CVM function?"
+
+  [x]
+
+  (instance? IFn
+             x))
+
 
 
 (defn hash-map?

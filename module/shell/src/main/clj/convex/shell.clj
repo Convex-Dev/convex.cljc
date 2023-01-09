@@ -30,69 +30,41 @@
   {:author "Adam Helinski"}
 
   (:gen-class)
-  (:refer-clojure :exclude [eval])
-  (:require [clojure.string         :as string]
-            [convex.cell            :as $.cell]
-            [convex.cvm             :as $.cvm]
-            [convex.shell.ctx       :as $.shell.ctx]
-            [convex.shell.exec      :as $.shell.exec]
-            [convex.shell.exec.fail :as $.shell.exec.fail]
-            [convex.shell.io        :as $.shell.io]
-            [convex.shell.kw        :as $.shell.kw]
-            [convex.shell.log]
-            [convex.shell.sreq]))
+  (:require [clojure.string      :as string]
+            [convex.cell         :as $.cell]
+            [convex.cvm          :as $.cvm]
+            [convex.shell.entry  :as $.shell.entry]
+            [convex.shell.fail   :as $.shell.fail]
+            [convex.shell.log]))
 
 
-;;;;;;;;;; Initialization
+;;;;;;;;;; Main
 
 
 (defn init
 
-  "Used by [[eval]] to initiate `env`.
+  []
 
-   Notably, prepares:
-
-   - STDIO streams
-   - Initial CVM context"
-
-  [env]
-
-  (assoc env
-         :convex.shell/ctx             ($.cvm/fork $.shell.ctx/ctx-base)
-         :convex.shell/stream+         {$.shell.kw/stderr $.shell.io/stderr-txt
-                                        $.shell.kw/stdin  $.shell.io/stdin-txt
-                                        $.shell.kw/stdout $.shell.io/stdout-txt}
-         :convex.shell.etch/read-only? false
-         :convex.shell.juice/limit     $.shell.exec/max-juice
-         :convex.shell.stream/id       2))
+  ($.cvm/fork $.shell.entry/ctx))
 
 
-;;;;;;;;;; Evaluating a given source string
 
+(defn transact
 
-(defn eval
+  [ctx trx]
 
-  "Uses [[init]], reads the given `string` of transactions and starts executing them.
-  
-   Used by [[-main]]."
+  (try
+    ($.cvm/eval ctx
+                trx)
+    ;;
+    (catch clojure.lang.ExceptionInfo ex
+      (or (:convex.shell/ctx (ex-data ex))
+          ($.shell.fail/top-exception ctx
+                                      ex)))
+    (catch Throwable ex
+      ($.shell.fail/top-exception ctx
+                                  ex))))
 
-
-  ([string]
-
-   (eval nil
-         string))
-
-
-  ([env string]
-
-   (-> env
-       (init)
-       ($.shell.ctx/def-trx+ ($.cell/* (($.code/!.read+ ~($.cell/string string))
-                                        ($.trx/precat $/*result*))))
-       ($.shell.exec/trx+))))
-
-
-;;;;;;;;;; Main functions
 
 
 (defn -main
@@ -107,13 +79,39 @@
 
   [& trx+]
 
-  (try
-    (eval (if (seq trx+)
-            (string/join " "
-                         trx+)
-            "($.repl/!.start {:intro? true})"))
-    (catch Throwable ex
-      ($.shell.exec.fail/top-exception ex)
-      (when (not= (System/getProperty "convex.dev")
-                  "true")
-        (System/exit 1)))))
+  (let [ctx (-> (init)
+                (transact ($.cell/*
+                            (eval (cons 'do
+                                        ((lookup ~($.cell/address 0)
+                                                 code.read+)
+                                         ~($.cell/string (string/join " "
+                                                                      trx+))))))))
+        ex  ($.cvm/exception ctx)]
+    (if ex
+      (let [exit-code (if (= ($.cvm/exception-code ex)
+                             ($.cell/* :SHELL.FATAL))
+                        (do
+                          (binding [*out* *err*]
+                            (println)
+                            (println "==================")
+                            (println)
+                            (println "  FATAL ERROR  :'(  ")
+                            (println)
+                            (println "==================")
+                            (println)
+                            (println "Please open an issue if necessary:")
+                            (println "    https://github.com/Convex-Dev/convex.cljc")
+                            (println)
+                            (println "Report printed to:")
+                            (println "   "
+                                     (-> ex
+                                         ($.cvm/exception-message)
+                                         (get ($.cell/* :report))))
+                            (flush))
+                          1)
+                        2)]
+          (println (str ($.shell.fail/mappify-cvm-ex ex)))
+          (System/exit exit-code))
+      (do
+        (println (str ($.cvm/result ctx)))
+        (System/exit 0)))))

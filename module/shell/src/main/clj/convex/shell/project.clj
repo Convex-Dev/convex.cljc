@@ -7,7 +7,6 @@
             [clojure.string   :as string]
             [convex.cell      :as $.cell]
             [convex.read      :as $.read]
-            [convex.shell.err :as $.shell.err]
             [convex.shell.kw  :as $.shell.kw]
             [convex.std       :as $.std]))
 
@@ -19,36 +18,36 @@
 
   [dir fail]
 
-  (let [dir-2   (-> dir
-                    (bb.fs/expand-home)
-                    (bb.fs/canonicalize)
-                    (str))
-        path    (format "%s/project.cvx"
-                        dir-2)
-        fail-2  (fn [shell-ex]
-                  (-> shell-ex
-                      ($.std/assoc $.shell.kw/dir
-                                   ($.cell/string dir-2))
-                      (fail)))
-        project (try
-                  (-> path
-                      ($.read/file)
-                      (first))
-                  ;;
-                  (catch NoSuchFileException _ex
-                    (fail-2 ($.cell/error $.shell.kw/err-stream
-                                          ($.cell/string "`project.cvx` not found"))))
-                  ;;
-                  (catch ParseException ex
-                    (fail-2 ($.shell.err/reader-file ($.cell/string path)
-                                                     ($.cell/string (format "Cannot read `project.cvx`: %s"
-                                                                            (.getMessage ex)))))))]
+  (let [dir-2    (-> dir
+                     (bb.fs/expand-home)
+                     (bb.fs/canonicalize)
+                     (str))
+        dir-cell ($.cell/string dir-2)
+        path     (format "%s/project.cvx"
+                         dir-2)
+        fail-2   (fn [code message]
+                   (fail code
+                         ($.cell/* {:dir     ~dir-cell
+                                    :message ~($.cell/string message)})))
+        project  (try
+                   (-> path
+                       ($.read/file)
+                       (first))
+                   ;;
+                   (catch NoSuchFileException _ex
+                     (fail-2 ($.cell/* :STREAM)
+                             "`project.cvx` not found"))
+                   ;;
+                   (catch ParseException ex
+                     (fail-2 ($.cell/* :READER)
+                             (format "Cannot read `project.cvx`: %s"
+                                     (.getMessage ex)))))]
     (when-not ($.std/map? project)
-      (fail ($.cell/error ($.cell/code-std* :ARGUMENT)
-                          ($.cell/string "`project.cvx` must contain a map"))))
+      (fail-2 ($.cell/code-std* :ARGUMENT)
+              "`project.cvx` must contain a map"))
     ($.std/assoc project
-                 $.shell.kw/dir
-                 ($.cell/string dir-2))))
+                 ($.cell/* :dir)
+                 dir-cell)))
     
 
 ;;;;;;;;;;
@@ -59,8 +58,8 @@
   [project fail]
 
   (let [fail-2 (fn [message]
-                 (fail ($.cell/error ($.cell/code-std* :ARGUMENT)
-                                     ($.cell/string message))))]
+                 (fail ($.cell/code-std* :ARGUMENT)
+                       ($.cell/string message)))]
     (when-some [dep+ ($.std/get project
                                 ($.cell/* :deps))]
       (when-not ($.std/map? dep+)

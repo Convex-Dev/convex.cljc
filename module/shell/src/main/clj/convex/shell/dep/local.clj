@@ -1,10 +1,11 @@
 (ns convex.shell.dep.local
 
-  (:require [babashka.fs     :as bb.fs]
-            [clojure.string  :as string]
-            [convex.cell     :as $.cell]
-            [convex.shell.kw :as $.shell.kw]
-            [convex.std      :as $.std]))
+  (:require [babashka.fs      :as bb.fs]
+            [clojure.string   :as string]
+            [convex.cell      :as $.cell]
+            [convex.shell.ctx :as $.shell.ctx]
+            [convex.shell.kw  :as $.shell.kw]
+            [convex.std       :as $.std]))
 
 
 ;;;;;;;;;;
@@ -35,12 +36,10 @@
                                                                   (when (and (env :convex.shell.dep/foreign?)
                                                                              (not (string/starts-with? dir-child
                                                                                                        dir-2)))
-                                                                    (throw (ex-info ""
-                                                                                    {:convex.shell/exception
-                                                                                     (-> ($.cell/error ($.cell/code-std* :ARGUMENT)
-                                                                                                       ($.cell/string "Foreign dependency cannot require a `:local` dependency outside of its project"))
-                                                                                         ($.std/assoc $.shell.kw/ancestry
-                                                                                                      (env :convex.shell.dep/ancestry)))})))
+                                                                    ($.shell.ctx/fail (env :convex.shell/ctx)
+                                                                                      ($.cell/code-std* :ARGUMENT)
+                                                                                      ($.cell/* {:ancestry ~(env :convex.shell.dep/ancestry)
+                                                                                                 :message  "Foreign dependency cannot require a `:local` dependency outside of its project"})))
                                                                   dir-2))))))
       ((env :convex.shell.dep/jump) dep-parent
                                     actor-sym

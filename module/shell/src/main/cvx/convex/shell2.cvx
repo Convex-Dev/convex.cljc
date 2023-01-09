@@ -1,0 +1,1223 @@
+
+
+(defn bench.trx
+
+  ^{:doc {:description ["Returns a request for measuring the mean execution time of the given transaction."
+                        "Executed in a query a high number of times."
+                        ""
+                        "Highly experimental and subject to change, probably useful for CVM developers only."
+                        "Depending on the given transaction, takes between one and several minutes to complete."
+                        ""
+                        "Uses the Criterium library:"
+                        "  https://github.com/hugoduncan/criterium"
+                        ""
+                        "Report map will be available during next transaction under `$/*result*`."
+                        "Values are duration estimates in nanoseconds with an overhead due to forking the CVM"
+                        "context which should be in the few nanoseconds. A nil transaction might provide a base."]
+          :examples    [{:code "($.time/!.bench '(+ 2 2))"}
+                        {:code "($.time/!.bench (compile '(+ 2 2)))"}]
+          :signature   [{:params [trx]}]}}
+
+
+  [trx]
+
+  (shell.invoke 'bench.trx
+                trx))
+
+
+
+
+
+
+(def code.*gensym*
+
+  ^{:private? true}
+
+  0)
+
+
+
+(defn code.gensym
+
+  ^{:callable? true
+    :doc       {:description ["Returns a symbol guaranteed to be unique relative to other symbols generated"
+                              "with this function in the context of a single process."
+                              ""
+                              "A prefix string may be provided (default to \"G_\")."
+                              ""
+                              "Useful for metaprogramming."]
+                :examples    [{:code "($.code/gensym)"}
+                              {:code "($.code/gensym \"some-prefix-b\")"}]
+                :signature   [{:params []}
+                              {:params [prefix]}]}}
+
+  
+  ([]
+
+   (code.gensym nil))
+
+
+  ([prefix]
+
+   (if (= *address*
+          #0)
+     (do
+       (let [id code.*gensym*]
+         (def code.*gensym*
+              (inc id))
+         (symbol (str (or prefix
+                          "G_")
+                      id))))
+     (call #0
+           (code.gensym prefix)))))
+
+
+
+
+
+(defn code.read+
+
+  [string]
+
+  (shell.invoke 'code.read+
+                string))
+
+
+
+
+
+
+
+
+(defn dep.fetch
+
+  [required]
+
+  (shell.invoke 'dep.fetch
+                 (if (list? required)
+                   ['_ required]
+                   required)))
+
+
+
+(defn dep.deploy
+
+  [required]
+
+  (shell.invoke 'dep.deploy
+                required))
+
+
+
+(defn dep.exec
+
+  [required]
+
+  (let [file       (dep.read required)
+        required-2 (:deploy file)]
+    (when required-2
+      (reduce (fn [_ [sym addr]]
+                (eval `(def ~sym
+                            ~addr))
+                nil)
+              nil
+              (dep.deploy required-2)))
+    (eval (cons 'do
+                (:src file)))))
+
+
+
+(defn dep.read
+
+  [required]
+
+  (if (list? required)
+    (get (shell.invoke 'dep.read
+                       ['x required])
+         'x)
+    (shell.invoke 'dep.read
+                  required)))
+
+
+
+(def dep.root
+
+  "./")
+
+
+
+(defn dep.root.set
+
+  ^{:callable? true}
+
+  [dir]
+
+  (if (= *address*
+         #0)
+    (do
+      (when-not (fs.exists? dir)
+        (fail :FS
+              "Given project directory does not exist"))
+      (def dep.root
+           dir))
+    (call #0
+          (dep.root.set dir))))
+
+
+
+
+
+
+
+
+
+
+
+
+
+(defn db.flush
+
+  ^{:doc {:description ["Returns a request for flushing the current Etch instance."
+                        "Instances are flushed when the CVX Shell terminates but it is still a"
+                        "good idea flushing once in a while explicitly to ensure everything is"
+                        "persisted on disk."]
+          :examples    [{:code "($.db/!.flush)"}]
+          :signature   [{:params []}]}}
+
+  []
+
+  (shell.invoke 'db.flush))
+
+
+
+(defn db.open
+
+  ^{:doc {:description ["Returns a request for explicitly opening the Etch instance located at the given `path`."
+                        "File is created if it does not exist."]
+          :examples    [{:code "($.db/!.open \"path/to/file.etch\")"}]
+          :signature   [{:params [path]}]}}
+
+  [path]
+
+  (shell.invoke 'db.open
+                path))
+
+
+
+(defn db.path
+
+  ^{:doc {:description ["Returns a request for retrieving the path of the current Etch instance."
+                        "Filename will be available during the next transaction under `$/*result*`."]
+          :examples    [{:code "($.db/!.flush)"}]
+          :signature   [{:params []}]}}
+
+  []
+
+  (shell.invoke 'db.path))
+
+
+
+(defn db.read
+  
+  ^{:doc {:description ["Returns a request for retrieving a cell from the current Etch instance by `hash`."
+                        ""
+                        "Result will be available during the next transaction under `$/*result*` (nil when not found)."]
+          :examples    [{:code "($.db/!.read 0x1fa0dd51b167d4cca60177d13d731c461eae9cdb4ecd75e1e8f2158251968c66)"}]
+          :signature   [{:params [hash]}]}}
+
+  [hash]
+
+  (shell.invoke 'db.read
+                hash))
+
+
+
+(defn db.root.read
+
+  ^{:doc {:description ["Returns a request for reading the root cell of the current Etch instance."
+                        "The root is simply a unique place that does not require providing a hash."
+                        "Any cell can be written there using `!.root.write`."
+                        "Otherwise, behaves exactly like `!.read`."]
+          :examples    [{:code "($.db/!.root.read)"}]
+          :signature   [{:params []}]}}
+
+  []
+
+  (shell.invoke 'db.root.read))
+
+
+
+(defn db.root.write
+
+  ^{:doc {:description ["Behaves exactly like `!.write` but the given `cell` will be written at the root."
+                        "See `!.root.read`."]
+          :examples    [{:code "($.db/!.root.write [:my 'cell 42])"}]
+          :signature   [{:params [cell]}]}}
+
+  [cell]
+
+  (shell.invoke 'db.root.write
+                cell))
+
+
+
+(defn db.write
+
+  ^{:doc {:description ["Returns a request for writing the given `cell` to the current Etch instance."
+                        "The hash of that cell will be available during the next transaction under `$/*result*`."
+                        ""
+                        "If the hash is nil, it means the cell what not persisted."
+                        "This happens only with a few basic cells for optimization reasons."
+                        "Precisely, those that are so simple they are usually embedded in more complex values:"
+                        "  - Addresses"
+                        "  - Empty collections"
+                        "  - Primitives (booleans, bytes, doubles, longs)"
+                        "  - Symbolic (keywords and symbols)"]
+          :examples    [{:code "($.db/!.write [:my 'cell 42])"}]
+          :signature   [{:params [cell]}]}}
+
+  [cell]
+
+  (shell.invoke 'db.write
+                cell))
+
+
+
+
+
+
+
+(defn file.exec
+
+  ^{:doc {:description ["Like `$.file/!.read` but the read cells are executed atomically as transactions."
+                        "See `$.state/!.atomic`."]
+          :examples    [{:code "($.file/!.exec \"./my/file.cvx\")"}]
+          :signature   [{:params [path]}]}}
+
+  [path]
+
+  (eval (cons 'do
+              (file.read path))))
+
+
+
+(defn file.read
+
+  ^{:doc {:description ["Returns a request for reading the Convex Lisp file located under `path` in one go."
+                        "List of read cells is available during next transaction under `$/*result*`."]
+          :examples    [{:code "($.file/!.read \"./my/file.cvx\")"}]
+          :signature   [{:params [path]}]}}
+
+  ;; Stream is closed automatically in the Clojure code.
+
+  [path]
+
+  (stream.in+ (file.stream.in [(code.gensym)
+                               path]
+                              path)))
+
+
+
+(defn file.stream.in
+
+  ^{:doc {:description ["Returns a request for opening an input stream for the file located under `path`."
+                        ""
+                        "Handle for that stream will available during the next transaction under `$/*result*`."
+                        "See the `$.stream` library."
+                        ""
+                        "Any cell can be provided as a handle for identifying the stream."
+                        "If not provided, one will be generated."
+                        ""
+                        "See the `$.stream` library."]
+          :examples    [{:code "($.file/!.stream.in \"./my/file.cvx\")"}
+                        {:code "($.file/!.stream.in :my-handle \"./my/file.cvx\")"}]
+          :signature   [{:params [path]}
+                        {:params [handle path]}]}}
+
+
+  ([path]
+
+   (file.stream.in nil
+                   path))
+
+
+  ([handle path]
+
+   (shell.invoke 'file.stream.in
+                 handle
+                 path)))
+
+
+
+(defn file.stream.out
+
+  ^{:doc {:description ["Returns a request for opening an output stream for the file located under `path`."
+                        ""
+                        "Handle will be available during the next transaction under `$/*result*`."
+                        "See the `$.stream` library."
+                        ""
+                        "Any cell can be provided as a handle for identifying the stream."
+                        "If not provided, one will be generated."
+                        ""
+                        "A map of options may be provided:"
+                        ""
+                        "  :append?"
+                        "    Writes will be appended to the end if true, otherwise file will be overwritten if it exists."
+                        "    False by default."]
+          :examples    [{:code "($.file/!.stream.out \"./my/file.cvx\")"}
+                        {:code "($.file/!.stream.out :my-handle \"./my/file.cvx\")"}
+                        {:code "($.file/!.stream.out :my-handle \"./my/file.cvx\" {:append? true})"}]
+          :signature   [{:params [path]}
+                        {:params [handle path]}
+                        {:params [handle path option+]}]}}
+
+
+  ([path]
+
+   (file.stream.out nil
+                    path))
+
+
+  ([handle path]
+
+   (file.stream.out handle
+                    path
+                    nil))
+
+
+  ([handle path option+]
+
+   (shell.invoke 'file.stream.out
+                 handle
+                 path
+                 (:append? option+))))
+
+
+
+
+(defn file.-write
+
+  ^{:private? true}
+
+  [f-outln path cell option+]
+
+  (let [handle (-handle nil)]
+    ($.trx/precat `(($.file/!.stream.out (quote ~handle)
+                                         ~path
+                                         (quote ~option+))
+                    ($.catch/!.try '(~f-outln (quote ~handle)
+                                              (quote ~cell))
+                                   nil
+                                   '($.stream/!.close (quote ~handle)))))))
+
+
+
+(defn file.write
+
+  ^{:doc {:description ["Returns a request for writing `cell` to the file located under `path`, in one go."
+                        "See `$.file/!.stream.out` for options."]
+          :examples    [{:code "($.file/!.write \"./my/file.cvx\") {:foo :bar})"}
+                        {:code "($.file/!.write \"./my/file.cvx\") {:foo :bar} {:append? true})"}]
+          :signature   [{:params [path cell]}
+                        {:params [path cell option+]}]}}
+
+
+  ([path cell]
+
+   (file.write path
+               cell
+               nil))
+
+
+  ([path cell option+]
+
+   (let [handle   (file.stream.out [(code.gensym)
+                                    path]
+                                    path
+                                    option+)
+         [ok?
+          result] (state.safe (fn []
+                                (stream.outln handle
+                                              cell)))]
+     (stream.close handle)
+     (if ok?
+       result
+       (fail :RETHROW
+             result)))))
+
+
+
+
+(defn fs.copy
+
+  ^{:doc {:description ["Returns a requrest for copying the file at `path-source` to `path-destination`."
+                        "If `path-destination` is a directory, `path-source` will be copied inside it."
+                        "Behaves like Unix's `cp`."]
+          :examples    [{:code "($.file/!.copy \"some_dir/foo.txt\" \"another_dir\")"}]
+          :signature   [{:params [path-source path-destination]}]}}
+
+  [path-source path-destination]
+
+  (shell.invoke 'fs.copy
+                path-source
+                path-destination))
+
+
+
+(defn fs.delete
+
+  ^{:doc {:description "Returns a request for deleting the file or the empty folder at the given `path`."
+          :examples    [{:code "($.file/!.delete \"some-file.cvx\")"}]
+          :signature   [{:params [path]}]}}
+
+  [path]
+
+  (shell.invoke 'fs.delete
+                path))
+
+
+
+(defn fs.exists?
+
+  ^{:doc {:description ["Returns a request for testing if a file exists."
+                        "Boolean result will be available during the next transaction under `$/*result*`."]
+          :examples    [{:code "($.file/!.exists? \"some_dir/some_file.txt\")"}]
+          :signatures  [{:params [path]}]}}
+
+  [path]
+
+  (shell.invoke 'fs.exists?
+                path))
+
+
+
+(defn fs.tmp
+
+  ^{:doc {:description ["Returns a request for creating a temporary file."
+                        "`prefix` and `suffix` are both optional."]
+          :examples    [{:code "($.file/!.tmp)"}
+                        {:code "($.file/!.tmp \".cvx\")"}
+                        {:code "($.file/!.tmp \"some-project\" \".cvx\")"}]
+          :signature   [{:params []}
+                        {:params [suffix]}
+                        {:params [prefix suffix]}]}}
+
+
+  ([]
+
+   (fs.tmp nil
+           nil))
+
+
+  ([suffix]
+
+   (fs.tmp nil
+           suffix))
+
+
+  ([prefix suffix]
+
+   (shell.invoke 'fs.tmp
+                 (or prefix
+                     "")
+                 (or suffix
+                     ""))))
+
+
+
+(defn fs.tmp.dir
+
+  ^{:doc {:description ["Returns a request for creating a temporary directory."
+                        "`prefix` is optional."]
+          :examples    [{:code "($.file/!.tmp-dir)"}
+                        {:code "($.file/!.tmp-dir \"some-prefix\")"}]
+          :signature   [{:params []}
+                        {:params [prefix]}]}}
+
+
+  ([]
+
+   (fs.tmp.dir nil))
+
+
+  ([prefix]
+
+   (shell.invoke 'fs.tmp.dir
+                 (or prefix
+                     ""))))
+
+
+
+
+
+(defn juice.get
+
+  []
+
+  (shell.invoke 'juice.get))
+
+
+
+(def juice.get.overhead
+
+  95)
+
+
+
+(defn juice.refill
+
+  []
+
+  (juice.set 9223372036854775807))
+
+
+
+(defn juice.set
+
+  [n-unit]
+
+  (shell.invoke 'juice.set
+                n-unit))
+
+
+
+(defmacro juice.track*
+
+  ;; Overhead of measurment seems to be 95 units of juice.
+  ;; `form` is effectively compiled <!>
+
+  [form]
+
+  `(let [[j-1
+          r
+          j-2] [(#0/juice.get)
+                ~form
+                (#0/juice.get)]]
+     [(- j-1
+         j-2
+         #0/juice.get.overhead)
+      r]))
+
+
+
+(defn juice.track.trx
+
+  [trx]
+
+  (shell.invoke 'juice.track.trx
+                trx))
+
+     
+
+
+
+
+
+
+
+(defn log.clear
+
+  ^{:doc {:description "Returns a request for clearing the state of the CVM log."
+          :signature   [{:params []}]}}
+
+  []
+
+  (shell.invoke 'log.clear))
+
+
+
+(defn log.get
+
+  ^{:doc {:description ["Returns a request for retrieving the current state of the CVM log."
+                        "Result is available during next transaction under `$/*result*`."]
+          :signature   [{:params []}]}}
+
+  []
+
+  (shell.invoke 'log.get))
+
+
+
+
+
+(def shell.root
+
+  "~/.convex-shell")
+
+
+
+
+
+(defn state.safe
+
+  [f]
+
+  (shell.invoke 'state.safe
+                f))
+
+
+
+(defmacro state.safe*
+
+  [& form+]
+
+  `(#0/state.safe (fn []
+                    ~(cons 'do
+                           form+))))
+
+
+
+(defn state.switch
+
+
+  ([state]
+
+   (state.switch state
+                 nil))
+
+
+  ([state result]
+
+   (shell.invoke 'state.switch
+                 state
+                 result)))
+
+
+
+
+
+
+
+
+
+;;;;;;;;;; STDIO handles
+
+
+(def stream.stderr
+
+  ^{:doc {:description "Stream for STDERR"}}
+
+  :stderr)
+
+
+
+(def stream.stdin
+
+  ^{:doc {:description "Stream for STDIN."}}
+
+  :stdin)
+
+
+
+(def stream.stdout
+
+  ^{:doc {:description "Stream for STDOUT"}}
+
+  :stdout)
+
+
+;;;;;;;;;; Default handles
+
+
+(def stream.*err*
+
+  ^{:doc {:description ["Default error stream, originally set to `stderr`."
+                        "See `set.err`."]}}
+
+  stream.stderr)
+
+
+
+(def stream.*in*
+
+  ^{:doc {:description ["Default input stream, originally set to `stdin`."
+                        "See `set.in`."]}}
+
+  stream.stdin)
+
+
+
+(def stream.*out*
+
+  ^{:doc {:description ["Default output stream, originally set to `stdout`."
+                        "See `set.out`."]}}
+
+  stream.stdout)
+
+
+;;;;;;;;;; Setting dynamic values
+
+
+(defn stream.set.err
+
+  ^{:callable? true
+    :doc       {:description "Sets `*err*` to the given `handle`."
+                :signature   [{:params [handle]}]}}
+
+  [handle]
+
+  (if (= *address*
+         #0)
+    (def stream.*err*
+         handle)
+    (call #0
+          (stream.set.err handle))))
+
+
+
+(defn stream.set.in
+
+  ^{:callable? true
+    :doc       {:description "Sets `*in*` to the given `handle`."
+                :signature   [{:params [handle]}]}}
+
+  [handle]
+
+  (if (= *address*
+         #0)
+    (def stream.*in*
+         handle)
+    (call #0
+          (stream.set.in handle))))
+
+
+
+(defn stream.set.out
+
+  ^{:callable? true
+    :doc       {:description "Sets `*out* to the given `handle`."
+                :signature   [{:params [handle]}]}}
+
+  [handle]
+
+  (if (= *address*
+         #0)
+    (def stream.*out*
+         handle)
+    (call #0
+          (stream.set.out handle))))
+
+
+;;;;;;;;;; Requests for handling streams
+
+
+(defn stream.close
+
+  ^{:doc {:description ["Returns a request for closing the given `handle`."
+                        "`$.stream/stderr` cannot be closed."]
+          :examples    [{:code "($.stream/!.close $.stream/stdout)"}]
+          :signature   [{:params [handle]}]}}
+
+  [handle]
+
+  ;(assert (not (= handle
+  ;                stderr)))
+  (shell.invoke 'stream.close
+                handle))
+
+
+
+(defn stream.err
+
+  ^{:doc {:description "Uses `$.stream/!.out` ont `*err*` for printing `x` to the default error stream."
+          :examples    [{:code "($.stream/!.err {:some :error})"}]
+          :signature   [{:params [x]}]}}
+
+  [x]
+
+  (stream.out stream.*err*
+              x))
+
+
+
+(defn stream.errln
+
+  ^{:doc {:description "Uses `$.stream/!.outln` ont `*err*` for printing `x` to the default error stream."
+          :examples    [{:code "($.stream/!.errln {:some :error})"}]
+          :signature   [{:params [x]}]}}
+
+  [x]
+
+  (stream.outln stream.*err*
+                x))
+
+
+
+(defn stream.flush
+
+  ^{:doc {:description ["Returns a request for flushing the given output `handle` and ensuring all outputs are processed."
+                        "Flushes `*out*` by default."]
+          :examples    [{:code "($.stream/!.flush)"}]
+          :signature   [{:params []}
+                        {:params [handle]}]}}
+
+
+  ([]
+
+   (stream.flush stream.*out*))
+
+
+  ([handle]
+
+   (shell.invoke 'stream.flush
+                 handle)))
+
+
+
+(defn stream.in+
+
+  ^{:doc {:description ["Returns a request for reading the given input `handle`."
+                        "Reads from `*in*` by default."
+                        "Whole input is read and `handle` is automatically closed."
+                        "List of read cells becomes available during next transaction under `$/*result*`."]
+          :examples    [{:code "($.stream/!.in+ $.stream/stdin)"}]
+          :signature   [{:params []}
+                        {:params [handle]}]}}
+
+
+  ([]
+
+   (stream.in+ stream.*in*))
+
+
+  ([handle]
+
+   (shell.invoke 'stream.in+
+                 handle)))
+
+
+
+(defn stream.line
+
+  ^{:doc {:description ["Returns a request for reading a line from the given input `handle`."
+                        "Reads from `*in*` by default."
+                        "Stops when a new line is encountered."
+                        "List of read cells becomes available during next the transaction under `$/*result*`."
+                        "Result is `nil` when the end of the stream is reached. The stream is then closed"
+                        "automatically."]
+          :examples    [{:code "($.stream/!.line)"}]
+          :signature   [{:params []}
+                        {:params [handle]}]}}
+
+
+  ([]
+
+   (stream.line stream.*in*))
+
+
+  ([handle]
+
+   (shell.invoke 'stream.line
+                 handle)))
+
+
+
+(defn stream.open?
+
+  ^{:doc {:description ["Returns a request for inspecting if the given `handle` is open."
+                        "Boolean response will be available during the next transaction under `$/*result*`."]
+          :examples    [{:code "($.stream/!.open? 42)"}]
+          :signature   [{:params [handle]}]}}
+
+  [handle]
+
+  (shell.invoke 'stream.open?
+                handle))
+
+
+
+(defn stream.out
+
+  ^{:doc {:description ["Returns a request for writing `x` to the given output `handle`."
+                        "Writes to `*out*` by default."]
+          :examples    [{:code "($.stream/!.out :foo)"}]
+          :signature   [{:params [x]}
+                        {:params [handle x]}]}}
+
+
+  ([x]
+
+   (stream.out stream.*out*
+               x))
+
+
+  ([handle x]
+
+   (shell.invoke 'stream.out
+                 handle
+                 x)))
+
+
+
+(defn stream.outln
+
+  ^{:doc {:description "Likes `$.stream/!.out` but also outputs a new line and flushes the `handle`."
+          :examples    [{:code "($.stream/!.outln :foo)"}]
+          :signature   [{:params [x]}
+                        {:params [handle x]}]}}
+
+
+  ([x]
+
+   (stream.outln stream.*out*
+                 x))
+
+
+  ([handle x]
+   
+   (shell.invoke 'stream.outln
+                 handle
+                 x)))
+
+
+
+(defn stream.txt.in
+
+  ^{:doc {:description ["Returns a request for reading the rest of the given input `handle` as text."
+                        "Reads from `*in*` by default."
+                        "String will be available during the next transaction under `$/*result*`."
+                        "Stream is closed automatically."]
+          :examples    [{:code "($.stream/!.txt.in 42)"}]
+          :signature   [{:params []}
+                        {:params [handle]}]}}
+
+
+  ([]
+
+   (stream.txt.in stream.*in*))
+
+
+  ([handle]
+
+   (shell.invoke 'stream.txt.in
+                 handle)))
+
+
+
+(defn stream.txt.line
+
+  ^{:doc {:description ["Returns a request for reading a line from the given input `handle` as text."
+                        "Reads from `*in*` by default."
+                        "String will be available during the next transaction under `$/*result*`."
+                        "Result is `nil` when the end of the stream is reached. The stream is then closed"
+                        "automatically."]
+          :examples    [{:code "($.stream/!.txt.line)"}]
+          :signature   [{:params []}
+                        {:params [handle]}]}}
+
+
+  ([]
+
+   (stream.txt.line stream.*in*))
+
+
+  ([handle]
+
+   (shell.invoke 'stream.txt.line
+                 handle)))
+
+
+
+(defn stream.txt.out
+
+  ^{:doc {:description ["Like `$.stream/!.out` but if `cell` is a string, it will not be double-quoted."
+                        "Hence, the output might not be readable as Convex Lisp."]
+          :examples    [{:code "($.stream/!.txt.out \"This is some text\")"}]
+          :signature   [{:params [x]}
+                        {:params [handle x]}]}}
+
+
+  ([x]
+
+   (stream.txt.out stream.*out*
+                   x))
+
+
+  ([handle x]
+
+   (shell.invoke 'stream.txt.out
+                 handle
+                 x)))
+
+
+
+(defn stream.txt.outln
+
+  ^{:doc {:description ["Like `$.stream/!.outln` but if `cell` is a string, it will not be double-quoted."
+                        "Hence, the output might not be readable as Convex Lisp."]
+          :examples    [{:code "($.stream/!.txt.outln \"This is some text\")"}]
+          :signature   [{:params [x]}
+                        {:params [handle x]}]}}
+
+
+  ([x]
+
+   (stream.txt.outln stream.*out*
+                     x))
+
+
+  ([handle x]
+
+   (shell.invoke 'stream.txt.outln
+                 handle
+                 x)))
+
+
+
+
+
+
+(defn sys.arch
+
+  []
+
+  (shell.invoke 'sys.arch))
+
+
+
+(defn sys.env
+
+  []
+
+  (shell.invoke 'sys.env))
+
+
+
+(defn sys.env.var
+
+  [var]
+
+  (shell.invoke 'sys.env.var
+                var))
+
+
+
+(def sys.eol
+
+  ;; Set from Clojure.
+
+  nil)
+
+
+
+(defn sys.home
+
+  []
+
+  (shell.invoke 'sys.home))
+
+
+
+(defn sys.os
+
+  []
+
+  (shell.invoke 'sys.os))
+
+
+
+
+
+
+(defn time.advance
+
+  ^{:doc {:description ["Returns a request for advancing `*timestamp*` (state timestamp) by `millis` milliseconds."
+                        "Argument must be > 0."
+                        "Great match for the standard `schedule` macro."]
+          :examples    [{:code "($.time/!.advance (* 60 60 1000))"}]
+          :signature   [{:params [millis]}]}}
+
+  [millis]
+
+  (shell.invoke 'time.advance
+                millis))
+
+
+
+(defn time.iso
+
+  []
+
+  (time.unix->iso (time.unix)))
+
+
+
+(defn time.iso->unix
+
+  ^{:doc {:description ["Returns a request for converting an ISO 8601 UTC date-time string into a Unix timestamp."
+                        ""
+                        "Result will be available under `$/*result*` during the next transaction."]
+          :examples    [{:code "($.time/!.iso->unix \"2022-09-14T11:43:34.633\")"}]
+          :signature   [{:params [iso-string]}]}}
+
+  [iso-string]
+
+  (shell.invoke 'time.iso->unix
+                iso-string))
+
+
+
+(defn time.nano
+
+  ^{:doc {:description ["Returns a request for retrieving the current value of a high-resolution timer."
+                        "Result in nanoseconds will be available under `$/*result*` during the next transaction."
+                        ""
+                        "Guarantees:"
+                        ""
+                        "  - Timer is monotonic if the OS supports it"
+                        "  - Resolution is at least as good as that of `$.time/!.unix`"
+                        ""
+                        "Useful for timing things as it is usually more reliable than `$.time/!.unix`."
+                        "This timer has no particular, predictable origin. Hence the first value is meaningless."
+                        "However, the difference between 2 values from the same process offers a precise interval."
+                        "It follows that values from different process are not comparable."]
+          :examples    [{:code "($.time/!.nano)"}]
+          :signature   [{:params []}]}}
+
+  []
+
+  (shell.invoke 'time.nano))
+
+
+
+(defn time.unix
+
+  ^{:doc {:description ["Returns a request for retrieving the current Unix timestamp in milliseconds."
+                        "This reflects the machine's clock, not `*timestamp*` (state timestamp)."
+                        "Resolution depends on the OS."
+                        ""
+                        "Result will be available under `$/*result*` during the next transaction."
+                        ""
+                        "For timing things, prefer `$.time/!.nano`."]
+          :examples    [{:code "($.time/!.unix)"}]
+          :signature   [{:params []}]}}
+
+  []
+
+  (shell.invoke 'time.unix))
+
+
+
+(defn time.unix->iso
+
+  ^{:doc {:description ["Returns a request for converting a Unix timestamp into an ISO 8601 UTC date-time string."
+                        ""
+                        "Result will be available under `$/*result*` during the next transaction."]
+          :examples    [{:code "($.time/!.unix->iso 1663155814633)"}]
+          :signature   [{:params [unix-timestamp]}]}}
+
+  [time-unix]
+
+  (shell.invoke 'time.unix->iso
+                time-unix))
+
+
+
+
+
+(def pr
+     stream.out)
+
+
+(def prn
+     stream.outln)

@@ -5,9 +5,7 @@
             [convex.cell       :as $.cell]
             [convex.cvm        :as $.cvm]
             [convex.shell.ctx  :as $.shell.ctx]
-            [convex.shell.err  :as $.shell.err]
             [convex.shell.kw   :as $.shell.kw]
-            [convex.shell.sym  :as $.shell.sym]
             [convex.std        :as $.std]
             [protosens.git     :as P.git]
             [protosens.process :as P.process]))
@@ -100,9 +98,8 @@
                                       url)
         path         (-> (format "%s/dep/git/%s"
                                  ($.cvm/look-up (env :convex.shell/ctx)
-                                                ($.shell.ctx/lib-address env
-                                                                         $.shell.sym/$)
-                                                $.shell.sym/root*)
+                                                ($.cell/address 0)
+                                                ($.cell/* shell.root))
                                  path-rel)
                          (bb.fs/expand-home))
         repo         (format "%s/repo"
@@ -111,13 +108,12 @@
                              path
                              sha)
         fail         (fn [message]
-                       (throw (ex-info ""
-                                       {:convex.shell/exception
-                                        (-> ($.shell.err/git ($.cell/string message)
-                                                             ($.cell/string url)
-                                                             ($.cell/string sha))
-                                            ($.std/assoc $.shell.kw/ancestry
-                                                         (env :convex.shell.dep/ancestry)))})))
+                       ($.shell.ctx/fail (env :convex.shell/ctx)
+                                         ($.cell/* :SHELL.DEP.GIT)
+                                         ($.cell/* {:ancestry ~(env :convex.shell.dep/ancestry)
+                                                    :message  ~($.cell/string message)
+                                                    :sha      ~($.cell/string sha)
+                                                    :url      ~($.cell/string url)})))
         scheme-file? (string/starts-with? path-rel
                                           "file")]
     (when (and (env :convex.shell.dep/foreign?)
@@ -134,11 +130,8 @@
       (try
         (bb.fs/create-dirs path)
         (catch Exception _ex
-          (throw (ex-info ""
-                          {:convex.shell/exception
-                           ($.shell.err/filesystem ($.cell/string (format "Unable to create directories for Git dependency at: %s"
-                                                                          path)))}))))
-
+          (fail (format "Unable to create directories for Git dependency at: %s"
+                        path))))
       (when-not (bb.fs/exists? repo)
         (let [p (P.git/exec ["clone"
                              "--quiet"
@@ -197,7 +190,8 @@
         (update-in [:convex.shell.dep/dep->project
                     dep-parent]
                    #(or %
-                        ((env :convex.shell.dep/read-project) dep-parent
+                        ((env :convex.shell.dep/read-project) (env :convex.shell/ctx)
+                                                              dep-parent
                                                               git-worktree)))
         (assoc :convex.shell.dep/foreign?
                foreign-parent?)

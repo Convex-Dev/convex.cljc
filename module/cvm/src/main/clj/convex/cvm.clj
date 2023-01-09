@@ -452,10 +452,10 @@
                   (.putAccount s
                                addr
                                (.withEnvironment a
-                                                 (reduce (fn [^AHashMap env [^ACell sym ^ACell value]]
-                                                           (.assoc env
-                                                                   sym
-                                                                   value))
+                                                 (reduce (fn [env [^ACell sym ^ACell value]]
+                                                           ($.std/assoc env
+                                                                        sym
+                                                                        value))
                                                          (.getEnvironment a)
                                                          sym->value))))
        ctx))))
@@ -722,7 +722,7 @@
                    cell)))
 
 
-;;;;;;;;;; Pahse 3 - Executing compiled code
+;;;;;;;;;; Phase 3 - Executing compiled code
 
 
 (defn exec

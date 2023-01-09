@@ -7,31 +7,30 @@
             [convex.shell.dep.git      :as $.shell.dep.git]
             [convex.shell.dep.local    :as $.shell.dep.local]
             [convex.shell.dep.relative :as $.shell.dep.relative]
-            [convex.shell.err          :as $.shell.err]
-            [convex.shell.exec.fail    :as $.shell.exec.fail]
+            [convex.shell.fail         :as $.shell.fail]
             [convex.shell.kw           :as $.shell.kw]
             [convex.shell.project      :as $.shell.project]
             [convex.shell.sym          :as $.shell.sym]
             [convex.std                :as $.std]))
 
 
-(declare ^:private -jump)
+(declare fetch)
 
 
 ;;;;;;;;;; Private
 
 
-(defn- -safe
+(defn- -jump
 
-  [env *d]
+  [env dep-parent actor-sym actor-path]
 
-  (try
-    @*d
-    (catch clojure.lang.ExceptionInfo ex
-      (if-some [shell-ex (:convex.shell/exception (ex-data ex))]
-        ($.shell.exec.fail/err env
-                               shell-ex)
-        (throw ex)))))
+  (-> env
+      (assoc :convex.shell/dep          dep-parent
+             :convex.shell.dep/required ($.cell/* [~actor-sym
+                                                   ~($.std/next actor-path)]))
+      (fetch)
+      (assoc :convex.shell/dep
+             (env :convex.shell/dep))))
 
 
 ;;;;;;;;;; Miscellaneous
@@ -39,14 +38,14 @@
 
 (defn project
 
-  [dep dir]
+  [ctx dep dir]
 
-  (let [fail    (fn [shell-ex]
-                  (throw (ex-info ""
-                                  {:convex.shell/exception
-                                   ($.std/assoc shell-ex
-                                                $.shell.kw/project
-                                                dep)})))
+  (let [fail    (fn [code message]
+                  ($.shell.ctx/fail ctx
+                                    code
+                                    ($.std/assoc message
+                                                 ($.cell/* :dep)
+                                                 dep)))
 
         project ($.shell.project/read dir
                                       fail)]
@@ -58,7 +57,7 @@
 ;;;;;;;;;; Fetching actors
 
 
-(defn- -fetch
+(defn fetch
 
 
   ([env]
@@ -80,13 +79,11 @@
                                     [$.shell.kw/deps
                                      project-sym])
              _              (when-not dep-parent
-                              (throw (ex-info ""
-                                              {:convex.shell/exception
-                                               (-> ($.cell/error ($.cell/code-std* :ARGUMENT)
-                                                                 ($.cell/string (format "Dependency alias not found: %s"
-                                                                                        project-sym)))
-                                                   ($.std/assoc $.shell.kw/ancestry
-                                                                (env :convex.shell.dep/ancestry)))})))
+                              ($.shell.ctx/fail (env :convex.shell/ctx)
+                                                ($.cell/code-std* :ARGUMENT)
+                                                ($.cell/* {:ancestry ~(env :convex.shell.dep/ancestry)
+                                                           :message  ~($.cell/string (format "Dependency alias not found: %s"
+                                                                                             project-sym))})))
              fetch-parent  (get-in env
                                    [:convex.shell.dep/resolver+
                                     (first dep-parent)])]
@@ -107,78 +104,37 @@
      env))
 
 
-  ([env dir-project required]
+  ([env required]
 
-   (let [ancestry ($.cell/* [])]
-     ($.shell.dep.relative/validate-required required
+
+   (let [ancestry ($.cell/* [])
+         ctx      (env :convex.shell/ctx)]
+     ($.shell.dep.relative/validate-required ctx
+                                             required
                                              ancestry)
-     (-fetch (-> env
-                 (update :convex.shell.dep/resolver+
-                         (fn [resolver+]
-                           (-> resolver+
-                               (assoc $.shell.kw/git   $.shell.dep.git/fetch
-                                      $.shell.kw/local $.shell.dep.local/fetch)
-                               (update $.shell.kw/relative
-                                       #(or %
-                                            $.shell.dep.relative/fetch)))))
-                 (merge {:convex.shell/dep               $.shell.kw/root
-                         :convex.shell.dep/ancestry      ancestry
-                         :convex.shell.dep/dep->project  {$.shell.kw/root (project $.shell.kw/root
-                                                                                   dir-project)}
-                         :convex.shell.dep/fetch         -fetch
-                         :convex.shell.dep/foreign?      false
-                         :convex.shell.dep/hash          $.shell.kw/root
-                         :convex.shell.dep/jump          -jump
-                         :convex.shell.dep/read-project  project
-                         :convex.shell.dep/required      required
-                         :convex.shell.dep.hash/pending+ #{}}))))))
-
-
-
-(defn- -jump
-
-  [env dep-parent actor-sym actor-path]
-
-  (-> env
-      (assoc :convex.shell/dep          dep-parent
-             :convex.shell.dep/required ($.cell/* [~actor-sym
-                                                   ~($.std/next actor-path)]))
-      (-fetch)
-      (assoc :convex.shell/dep
-             (env :convex.shell/dep))))
-
-
-
-(defn fetch
-
-  [env dir-project required]
-
-  (-safe env
-         (delay
-           (-fetch env
-                   dir-project
-                   required)
-           ($.shell.ctx/def-result env
-                                   nil))))
-
-
-;;;;;;;;;; Retrieving source
-
-
-(defn content
-
-  [env dir-project required]
-
-  (-safe env
-         (delay
-           ($.shell.ctx/def-result env
-                                   (-> env
-                                       (assoc-in [:convex.shell.dep/resolver+
-                                                  $.shell.kw/relative]
-                                                 $.shell.dep.relative/content)
-                                       (-fetch dir-project
-                                               required)
-                                       (:convex.shell.dep/content))))))
+     (fetch (-> env
+                (update :convex.shell.dep/resolver+
+                        (fn [resolver+]
+                          (-> resolver+
+                              (assoc $.shell.kw/git   $.shell.dep.git/fetch
+                                     $.shell.kw/local $.shell.dep.local/fetch)
+                              (update $.shell.kw/relative
+                                      #(or %
+                                           $.shell.dep.relative/fetch)))))
+                (merge {:convex.shell/dep               $.shell.kw/root
+                        :convex.shell.dep/ancestry      ancestry
+                        :convex.shell.dep/dep->project  {$.shell.kw/root (project ctx
+                                                                                  $.shell.kw/root
+                                                                                  (str ($.cvm/look-up ctx
+                                                                                                      ($.cell/address 0)
+                                                                                                      ($.cell/* dep.root))))}
+                        :convex.shell.dep/fetch         fetch
+                        :convex.shell.dep/foreign?      false
+                        :convex.shell.dep/hash          $.shell.kw/root
+                        :convex.shell.dep/jump          -jump
+                        :convex.shell.dep/read-project  project
+                        :convex.shell.dep/required      required
+                        :convex.shell.dep.hash/pending+ #{}}))))))
 
 
 ;;;;;;;;;; Deploying actors
@@ -194,7 +150,7 @@
         _       (when ex
                   (throw (ex-info ""
                          {:convex.shell/exception (-> ex
-                                                      ($.shell.err/mappify)
+                                                      ($.shell.fail/mappify-cvm-ex)
                                                       ($.std/assoc $.shell.kw/ancestry
                                                                    (get-in env
                                                                            [:convex.shell.dep/hash->ancestry
@@ -244,43 +200,25 @@
                                       :convex.shell.dep/let
                                       [])
                                binding+)
-              hash-src (get-in env
-                               [:convex.shell.dep/hash->src hash])]
-          (if hash-src
+              src     (get-in env
+                              [:convex.shell.dep/hash->file
+                               hash
+                               ($.cell/* :src)])]
+          (if src
             (-> (deploy-actor env-2
                                hash
                                ($.std/concat ($.cell/* (let ~($.cell/vector (env-2 :convex.shell.dep/let))))
-                                             hash-src))
+                                             src))
                 (assoc :convex.shell.dep/hash
                        hash))
             env-2))
         ;;
-        (if-some [hash-src (get-in env
-                                   [:convex.shell.dep/hash->src
-                                    hash])]
+        (if-some [src (get-in env
+                              [:convex.shell.dep/hash->file
+                               hash
+                               ($.cell/* :src)])]
           (deploy-actor env
                         hash
                         ($.std/cons $.shell.sym/do
-                                    hash-src))
+                                    src))
           env)))))
-
-
-
-(defn deploy
-
-  [env dir-project required]
-
-  (-safe env
-         (delay
-           (let [env-2 (-> (-fetch env
-                                   dir-project
-                                   required)
-                           (assoc :convex.shell/ctx
-                                  (env :convex.shell/ctx))
-                           (deploy-fetched))]
-             (-> env
-                 (assoc :convex.shell/ctx
-                        (env-2 :convex.shell/ctx))
-                 ($.shell.ctx/def-current (partition 2
-                                                     (env-2 :convex.shell.dep/let)))
-                 ($.shell.ctx/def-result nil))))))
