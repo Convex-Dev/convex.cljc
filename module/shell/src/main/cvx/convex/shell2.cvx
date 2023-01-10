@@ -29,49 +29,6 @@
 
 
 
-(def .code.*gensym*
-
-  ^{:private? true}
-
-  0)
-
-
-
-(defn .code.gensym
-
-  ^{:callable? true
-    :doc       {:description ["Returns a symbol guaranteed to be unique relative to other symbols generated"
-                              "with this function in the context of a single process."
-                              ""
-                              "A prefix string may be provided (default to \"G_\")."
-                              ""
-                              "Useful for metaprogramming."]
-                :examples    [{:code "($.code/gensym)"}
-                              {:code "($.code/gensym \"some-prefix-b\")"}]
-                :signature   [{:params []}
-                              {:params [prefix]}]}}
-
-  
-  ([]
-
-   (.code.gensym nil))
-
-
-  ([prefix]
-
-   (if (= *address*
-          $CORE$)
-     (do
-       (let [id .code.*gensym*]
-         (def .code.*gensym*
-              (inc id))
-         (symbol (str (or prefix
-                          "G_")
-                      id))))
-     (call $CORE$
-           (.code.gensym prefix)))))
-
-
 
 
 
@@ -312,7 +269,7 @@
 
   [path]
 
-  (.stream.in+ (.file.stream.in [(.code.gensym)
+  (.stream.in+ (.file.stream.in [(.gensym)
                                  path]
                                 path)))
  
@@ -413,7 +370,7 @@
 
   ([path cell option+]
 
-   (let [handle   (.file.stream.out [(.code.gensym)
+   (let [handle   (.file.stream.out [(.gensym)
                                      path]
                                      path
                                      option+)
@@ -527,6 +484,55 @@
    (.shell.invoke 'fs.tmp.dir
                   (or prefix
                       ""))))
+
+
+
+
+
+
+(def .*gensym*
+
+  ^{:private? true}
+
+  0)
+
+
+
+(defn .gensym
+
+  ^{:callable? true
+    :doc       {:description ["Returns a symbol guaranteed to be unique relative to other symbols generated"
+                              "with this function in the context of a single process."
+                              ""
+                              "A prefix string may be provided (default to \"G_\")."
+                              ""
+                              "Useful for metaprogramming."]
+                :examples    [{:code "($.gensym)"}
+                              {:code "($.gensym \"some-prefix-b\")"}]
+                :signature   [{:params []}
+                              {:params [prefix]}]}}
+
+  
+  ([]
+
+   (.gensym nil))
+
+
+  ([prefix]
+
+   (if (= *address*
+          $CORE$)
+     (do
+       (let [id .*gensym*]
+         (def .*gensym*
+              (inc id))
+         (symbol (str (or prefix
+                          "G_")
+                      id))))
+     (call $CORE$
+           (.gensym prefix)))))
+
+
 
 
 
