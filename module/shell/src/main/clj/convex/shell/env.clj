@@ -38,10 +38,10 @@
   (let [v (-get ctx)]
     ($.cvm/def ctx
                ($.cell/address 8)
-               ($.cell/* {.shell.env [(-> v
-                                          ($.std/nth 0)
-                                          ($.std/true?)
-                                          (not)
-                                          ($.cell/boolean))
+               ($.cell/* {.shell.env [~(-> v
+                                           ($.std/nth 0)
+                                           ($.std/true?)
+                                           (not)
+                                           ($.cell/boolean))
                                       ~($.cell/fake (f @($.std/nth v
                                                                    1)))]}))))
