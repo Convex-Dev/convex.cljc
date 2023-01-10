@@ -59,6 +59,7 @@
    ($.cell/* stream.txt.out)   $.shell.req.stream/txt-out
    ($.cell/* stream.txt.outln) $.shell.req.stream/txt-outln
    ($.cell/* sys.arch)         $.shell.req.sys/arch
+   ($.cell/* sys.cwd)          $.shell.req.sys/cwd
    ($.cell/* sys.exit)         $.shell.req.sys/exit
    ($.cell/* sys.env)          $.shell.req.sys/env
    ($.cell/* sys.env.var)      $.shell.req.sys/env-var

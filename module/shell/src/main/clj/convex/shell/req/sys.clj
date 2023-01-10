@@ -18,6 +18,15 @@
 
 
 
+(defn cwd
+
+  [ctx _arg+]
+
+  ($.cvm/result-set ctx
+                    ($.cell/string (System/getProperty "user.dir"))))
+
+
+
 (defn env
 
   [ctx _arg+]

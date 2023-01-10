@@ -1312,6 +1312,14 @@
 
 
 
+(defn .sys.cwd
+
+  []
+
+  (.shell.invoke 'sys.cwd))
+
+
+
 (defn .sys.env
 
   []
