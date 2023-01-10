@@ -40,7 +40,7 @@
 
     [CoreFn]
 
-    [($.cell/* shell.invoke)]
+    [($.cell/* .shell.invoke)]
 
     (invoke [ctx arg+]
       (let [sym (first arg+)]
@@ -83,14 +83,14 @@
                               (-resource-cvx "convex/shell2.cvx")))
 
       ($.cvm/def ($.cell/address 8)
-                 ($.std/merge ($.cell/* {shell.env    [true
-                                                       ~($.cell/fake {:convex.shell/req+            convex.shell.req/impl
-                                                                      :convex.shell/handle->stream  {($.cell/* :stderr) $.shell.io/stderr-txt
-                                                                                                     ($.cell/* :stdin)  $.shell.io/stdin-txt
-                                                                                                     ($.cell/* :stdout) $.shell.io/stdout-txt}
-                                                                      :convex.shell.etch/read-only? false})]
-                                         shell.invoke ~invoker
-                                         sys.eol      ~($.cell/string (System/lineSeparator))})
+                 ($.std/merge ($.cell/* {.shell.env    [true
+                                                        ~($.cell/fake {:convex.shell/req+            convex.shell.req/impl
+                                                                       :convex.shell/handle->stream  {($.cell/* :stderr) $.shell.io/stderr-txt
+                                                                                                      ($.cell/* :stdin)  $.shell.io/stdin-txt
+                                                                                                      ($.cell/* :stdout) $.shell.io/stdout-txt}
+                                                                       :convex.shell.etch/read-only? false})]
+                                         .shell.invoke ~invoker
+                                         .sys.eol      ~($.cell/string (System/lineSeparator))})
                               (first (-resource-cvx "convex/shell/version.cvx"))))
       ($.cvm/fork-to $.cvm/genesis-user)
       ($.cvm/juice-refill)))

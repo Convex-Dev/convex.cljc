@@ -99,7 +99,7 @@
         path         (-> (format "%s/dep/git/%s"
                                  ($.cvm/look-up (env :convex.shell/ctx)
                                                 ($.cell/address 8)
-                                                ($.cell/* shell.root))
+                                                ($.cell/* .shell.root))
                                  path-rel)
                          (bb.fs/expand-home))
         repo         (format "%s/repo"
