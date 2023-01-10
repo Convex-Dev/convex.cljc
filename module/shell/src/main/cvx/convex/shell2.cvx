@@ -1118,6 +1118,545 @@
 
 
 
+(def term.style?
+
+  ^{:doc {:description ["True if text styling with functions from this account is enabled."
+                        "False means that functions returning a color will instead return an empty string."]}}
+
+  true)
+
+
+
+(defn term.style
+
+ ^{:private? true}
+
+ [x]
+
+ (if term.style?
+   x
+   ""))
+
+
+
+(defn term.style.enable?
+
+  ^{:callable? true}
+
+  [enable?]
+
+  (if (= *address*
+         ~*address*)
+    (def term.style?
+         (boolean enable?))
+    (call ~*address*
+          (term.style.enable? enable?))))
+
+
+;;;;;;;;;; Background colors
+
+
+(defn term.bg.black
+
+  ^{:doc {:description "Background color black."}}
+
+  []
+
+  (term.style "\033[40m"))
+
+
+
+(defn term.bg.blue
+
+  ^{:doc {:description "Background color blue."}}
+
+  []
+
+  (term.style "\033[44m"))
+
+
+
+(defn term.bg.cyan
+
+  ^{:doc {:description "Background color cyan."}}
+
+  []
+
+  (term.style "\033[46m"))
+
+
+
+(defn term.bg.green
+
+  ^{:doc {:description "Background color green."}}
+
+  []
+
+  (term.style "\033[42m"))
+
+
+
+(defn term.bg.magenta
+
+  ^{:doc {:description "Background color magenta."}}
+
+  []
+
+  (term.style "\033[45m"))
+
+
+(defn term.bg.red
+
+  ^{:doc {:description "Background color red."}}
+
+  []
+
+  (term.style "\033[41m"))
+
+
+
+(defn term.bg.white
+
+  ^{:doc {:description "Background color white."}}
+
+  []
+
+  (term.style "\033[47m"))
+
+
+
+(defn term.bg.yellow
+
+  ^{:doc {:description "Background color yellow."}}
+
+  []
+
+  (term.style "\033[43m"))
+
+
+;;
+
+
+(defn term.bg.rgb
+
+  ^{:doc {:description "Computes RGB color escape code for background color."
+          :examples    [{:code "($.term/bg.rgb 156 120 201)"}]
+          :signature   [{:params [r g b]}]}}
+
+  [r g b]
+
+  (if term.style?
+    (str "\033[48;2;" r ";" g ";" b "m")
+    ""))
+
+
+;;;;;;;;;; Foreground colors
+
+
+(defn term.fg.black
+
+  ^{:doc {:description "Foreground color black."}}
+
+  []
+
+  (term.style "\033[30m"))
+
+
+
+(defn term.fg.blue
+
+  ^{:doc {:description "Foreground color blue."}}
+
+  []
+
+  (term.style "\033[34m"))
+
+
+
+(defn term.fg.cyan
+
+  ^{:doc {:description "Foreground color cyan."}}
+
+  []
+
+  (term.style "\033[36m"))
+
+
+
+(defn term.fg.green
+
+  ^{:doc {:description "Foreground color green."}}
+
+  []
+
+  (term.style "\033[32m"))
+
+
+
+(defn term.fg.magenta
+
+  ^{:doc {:description "Foreground color magenta."}}
+
+  []
+
+  (term.style "\033[35m"))
+
+
+
+(defn term.fg.white
+
+  ^{:doc {:description "Foreground color white."}}
+
+  []
+
+  (term.style "\033[37m"))
+
+
+
+(defn term.fg.red
+
+  ^{:doc {:description "Foreground color red."}}
+
+  []
+
+  (term.style "\033[31m"))
+
+
+
+(defn term.fg.yellow
+
+  ^{:doc {:description "Foreground color yellow."}}
+
+  []
+
+  (term.style "\033[33m"))
+
+
+;;
+
+
+(defn term.fg.rgb
+
+  ^{:doc {:description "Computes RGB color escape code for foreground color."
+          :examples    [{:code "($.term/fg.rgb 156 120 201)"}]
+          :signature   [{:params [r g b]}]}}
+
+
+  [r g b]
+
+  (if term.style?
+    (str "\033[38;2;" r ";" g ";" b "m")
+    ""))
+
+
+;;;;;;;;;; Effects
+
+
+(defn term.bold
+
+  ^{:doc {:description "Bold effect."}}
+
+  []
+
+  (term.style "\033[1m"))
+
+
+
+(defn term.reset
+
+  ^{:doc {:description "Resets all colors and effects."}}
+
+  []
+
+  (term.style "\033[0m"))
+
+
+
+(defn term.reversed
+
+  ^{:doc {:description "Reverses background and foreground colors."}}
+
+  []
+
+  (term.style "\033[7m"))
+
+
+
+(defn term.underline
+
+  ^{:doc {:description "Underlines text."}}
+
+  []
+
+  (term.style "\033[4m"))
+
+
+;;;;;;;;;; Moving
+
+
+(defn term.col
+
+  ^{:doc {:description "Moves to column `n`."
+          :examples    [{:code "($.term/col 42)"}]
+          :signature   [{:params [n]}]}}
+
+  [n]
+
+  (str "\033[" n "G"))
+
+
+
+(def term.cursor.save
+
+  ^{:doc {:description ["Escape code for saving current cursor position."
+                        "See `cursor.restore`."]}}
+
+  "\033[s")
+
+
+
+(def term.cursor.restore
+
+  ^{:doc {:description ["Escape code for restoring last saved cursor position."
+                        "See `cursor.save`."]}}
+
+  "\033[u")
+
+
+
+(defn term.down
+
+  ^{:doc {:description ["Comptes escape code for moving the cursor `n` lines down."
+                        "Defaults to one line."]
+          :examples    [{:code "($.term/down 4)"}]
+          :signature   [{:params []}
+                        {:params [n]}]}}
+
+
+  ([]
+
+   (term.down 1))
+
+
+  ([n]
+
+   (str "\033[" n "B")))
+
+
+
+(defn term.down.begin
+
+  ^{:doc {:description ["Comptes escape code for moving the cursor to the beginning of the line and then `n` lines down."
+                        "Defaults to one line."]
+          :examples    [{:code "($.term/down-begin 4)"}]
+          :signature   [{:params []}
+                        {:params [n]}]}}
+
+
+  ([]
+
+   (term.down.begin 1))
+
+
+  ([n]
+
+   (str "\033[" n "E")))
+
+
+
+(defn term.left
+
+  ^{:doc {:description ["Comptes escape code for moving the cursor `n` columns left."
+                        "Defaults to one column."]
+          :examples    [{:code "($.term/left 4)"}]
+          :signature   [{:params []}
+                        {:params [n]}]}}
+
+
+  ([]
+
+   (term.left 1))
+
+
+  ([n]
+
+   (str "\033[" n "D")))
+
+
+
+(defn term.right
+
+  ^{:doc {:description ["Comptes escape code for moving the cursor `n` columns right."
+                        "Defaults to one column."]
+          :examples    [{:code "($.term/right 4)"}]
+          :signature   [{:params []}
+                        {:params [n]}]}}
+
+
+  ([]
+
+   (term.right 1))
+
+
+  ([n]
+
+   (str "\033[" n "C")))
+
+
+
+(defn term.up
+
+  ^{:doc {:description ["Comptes escape code for moving the cursor `n` lines up."
+                        "Defaults to one line."]
+          :examples    [{:code "($.term/up 4)"}]
+          :signature   [{:params []}
+                        {:params [n]}]}}
+
+
+  ([]
+
+   (term.up 1))
+
+
+  ([n]
+
+   (str "\033[" n "A")))
+
+
+
+(defn term.up.begin
+
+  ^{:doc {:description ["Comptes escape code for moving the cursor to the beginning of the line and then `n` lines up."
+                        "Defaults to one line."]
+          :examples    [{:code "($.term/up-begin 4)"}]
+          :signature   [{:params []}
+                        {:params [n]}]}}
+
+
+  ([]
+
+   (term.up.begin 1))
+
+
+  ([n]
+
+   (str "\033[" n "F")))
+
+
+;;;;;;;;;; Clearing
+
+
+(defn term.clear
+
+  ^{:doc {:description "Escape code for clearing the whole screen."}}
+
+  []
+
+  (term.style "\033[H\033[2J"))
+
+
+;;;;;;;;;;
+
+
+(defn term.demo
+
+  ^{:doc {:description "Prints a string to `$.stream/*out*` producing colored output as demo."
+          :examples    [{:code "($.stream/!.outln ($.term/demo))"}]
+          :signature   [{:params []}]}}
+  []
+
+  (stream.txt.outln
+    (str sys.eol
+         (term.bg.black)
+         "BG black"
+         (term.reset)
+         sys.eol
+         (term.bg.blue)
+         "BG blue"
+         (term.reset)
+         sys.eol
+         (term.bg.cyan)
+         "BG cyan"
+         (term.reset)
+         sys.eol
+         (term.bg.green)
+         "BG green"
+         (term.reset)
+         sys.eol
+         (term.bg.magenta)
+         "BG magenta"
+         (term.reset)
+         sys.eol
+         (term.bg.red)
+         "BG red"
+         (term.reset)
+         sys.eol
+         (term.bg.white)
+         (term.fg.black)
+         "BG white"
+         (term.reset)
+         sys.eol
+         (term.bg.yellow)
+         "BG yellow"
+         (term.reset)
+         sys.eol
+         (term.bg.rgb 100 200 150)
+         "BG RGB 100 200 150"
+         (term.reset)
+         sys.eol
+         (term.fg.black)
+         "FG black"
+         (term.reset)
+         sys.eol
+         (term.fg.blue)
+         "FG blue"
+         (term.reset)
+         sys.eol
+         (term.fg.cyan)
+         "FG cyan"
+         (term.reset)
+         sys.eol
+         (term.fg.green)
+         "FG green"
+         (term.reset)
+         sys.eol
+         (term.fg.magenta)
+         "FG magenta"
+         (term.reset)
+         sys.eol
+         (term.fg.red)
+         "FG red"
+         (term.reset)
+         sys.eol
+         (term.fg.white)
+         (term.fg.black)
+         "FG white"
+         (term.reset)
+         sys.eol
+         (term.fg.yellow)
+         "FG yellow"
+         (term.reset)
+         sys.eol
+         (term.fg.rgb 100 200 150)
+         "FG RGB 100 200 150"
+         (term.reset)
+         sys.eol
+         (term.bold)
+         "Bold text"
+         sys.eol
+         (term.fg.blue)
+         "Bold makes also colors brighter"
+         (term.reset)))
+  nil)
+
+
+
+
+
+  
+
+
+
 
 (defn time.advance
 
