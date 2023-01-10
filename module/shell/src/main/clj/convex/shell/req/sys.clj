@@ -1,7 +1,9 @@
 (ns convex.shell.req.sys
 
-  (:require [convex.cell :as $.cell]
-            [convex.cvm  :as $.cvm]))
+  (:require [convex.clj  :as $.clj]
+            [convex.cell :as $.cell]
+            [convex.cvm  :as $.cvm]
+            [convex.std  :as $.std]))
 
 
 ;;;;;;;;;;
@@ -39,6 +41,18 @@
       ($.cvm/result-set ctx
                         (some-> (System/getenv (str env-var))
                                 ($.cell/string)))))
+
+
+
+(defn exit
+
+  [ctx [code]]
+
+  (or (when-not ($.std/long? code)
+        ($.cvm/exception-set ctx
+                             ($.cell/* :ARGUMENT)
+                             ($.cell/* "Exit code must be a long between 0 and 255")))
+      (System/exit ($.clj/long code))))
 
 
 

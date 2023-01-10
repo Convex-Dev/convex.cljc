@@ -15,13 +15,15 @@
   [ctx arg+]
 
   (let [src (first arg+)]
-    (if ($.std/string? src)
-      ($.cvm/result-set
-        ctx
+    (or (when-not ($.std/string? src)
+          ($.cvm/exception-set ctx
+                               ($.cell/code-std* :ARGUMENT)
+                               ($.cell/string "Source to read is not a string")))
         (try
-          (-> (first arg+)
-              (str)
-              ($.read/string))
+          ($.cvm/result-set ctx
+                            (-> (first arg+)
+                                (str)
+                                ($.read/string)))
           ;;
           (catch ParseException ex
             ($.cvm/exception-set ctx
@@ -31,7 +33,4 @@
           (catch Throwable _ex
             ($.cvm/exception-set ctx
                                  ($.cell/* :READER)
-                                 ($.cell/string "Unable to read string as Convex data")))))
-      ($.cvm/exception-set ctx
-                           ($.cell/code-std* :ARGUMENT)
-                           ($.cell/string "Source to read is not a string")))))
+                                 ($.cell/string "Unable to read string as Convex data")))))))

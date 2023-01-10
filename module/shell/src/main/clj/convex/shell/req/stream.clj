@@ -28,8 +28,9 @@
 
   (cond->
     ctx
-    (not ($.cvm/result ctx))
-    (close handle)))
+    (and (not ($.cvm/exception? ctx))
+         (not ($.cvm/result ctx)))
+    (close [handle])))
 
 
 
@@ -128,8 +129,8 @@
       ;;
       (catch ParseException ex
         ($.cvm/exception-set ctx
-                             ($.cell/* :STREAM)
-                             ($.cell/* ($.cell/string (.getMessage ex)))))
+                             ($.cell/* :READER)
+                             ($.cell/string (.getMessage ex))))
       ;;
       (catch Throwable _ex
         (-fail ctx

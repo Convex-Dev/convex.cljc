@@ -640,6 +640,261 @@
 
 
 
+
+(defn repl.eval
+
+  [state form+]
+
+  (assoc state
+         :result
+         (eval (concat `(let [$ (quote ~(:result state))])
+               form+))))
+
+
+
+
+(defn repl.print.ex
+
+  ^{:doc {:description ["Turns given `exception` into a nice human-readable string." 
+                        "Used by the REPL when handling exceptions thrown during evaluation."]
+          :signature   [{:params [exception]}]}}
+
+  [state]
+
+  (let [ex         (:result state)
+        msg        (:message ex)
+        msg-2      (when (map? msg)
+                     (:message msg))
+        extra-data (when msg-2
+                     (dissoc msg
+                             :message))]
+    (stream.txt.outln
+      (str sys.eol
+           (term.bold)
+           (term.fg.red)
+           "Exception code:"
+           (term.reset)
+           sys.eol
+           "  "
+           (term.bold)
+           (:code ex)
+           sys.eol
+           (term.bold)
+           (term.fg.red)
+           "Message:"
+           (term.reset)
+           sys.eol
+           "  "
+           (or msg-2
+               msg)
+           sys.eol
+           (term.bold)
+           (term.fg.red)
+           "Trace:"
+           (term.reset)
+           (let [trace (:trace ex)]
+             (if (empty? trace)
+               (str sys.eol
+                    "  None.")
+               (apply str
+                      (reduce (fn [acc entry]
+                                (conj acc
+                                      sys.eol
+                                      "  "
+                                      entry))
+                              []
+                              trace))))
+           (if (and extra-data
+                    (not (empty? extra-data)))
+             (str sys.eol
+                  (term.bold)
+                  (term.fg.red)
+                  "Extra data:"
+                  (term.reset)
+                  sys.eol
+                  "  "
+                  extra-data)
+             "")
+           sys.eol)))
+  state)
+
+
+
+(defn repl.print.result
+
+  [state]
+
+  (stream.txt.out sys.eol)
+  (stream.out (:result state))
+  (stream.txt.out sys.eol)
+  (stream.txt.out sys.eol)
+  (stream.flush)
+  state)
+
+
+
+(defn repl.prompt
+
+  [_state]
+
+  (str (term.bold)
+       (term.fg.blue)
+       "> "
+       (term.reset)))
+
+
+
+(defn repl
+
+
+  ([]
+
+   (repl nil))
+
+
+  ([option+]
+
+   (loop [state (merge {:eval         repl.eval
+                        :print.ex     repl.print.ex
+                        :print.result repl.print.result
+                        :prompt       repl.prompt
+                        :result       nil
+                        :stream.in    stream.*in*
+                        :stream.out   stream.*out*}
+                       option+)]
+     (stream.txt.out ((:prompt state) state))
+     (stream.flush)
+     (let [[read?
+            x]    (state.safe (fn []
+                                (stream.line (:stream.in state))))]
+       (if read?
+         ;;
+         ;; Successful read.
+         ;;
+         (let [form+ x]
+           (cond
+             ;;
+             (nil? form+)
+             (:result state)
+             ;;
+             (empty? form+)
+             (recur state)
+             ;;
+             (contains-key? #{:exit
+                              :q
+                              :quit
+                              :stop}
+                            (first form+))
+             (:result state)
+             ;;
+             (recur
+               (let [[evaled?
+                      x]      (state.safe (fn []
+                                            ((:eval state) state
+                                                           form+)))]
+                 (if evaled?
+                   (let [state-2 x]
+                     ((:print.result state-2) state-2))
+                   (let [ex x]
+                     ((:print.ex state) (assoc state
+                                               :result
+                                               ex))))))))
+         ;;
+         ;; Reading input failed.
+         ;;
+         (let [ex x]
+           (if (= (:code ex)
+                  :READER)
+             (do
+               (stream.txt.outln (str sys.eol
+                                      (term.fg.red)
+                                      (term.bold)
+                                      "Input cannot be parsed as Convex Lisp:"
+                                      (term.reset)
+                                      sys.eol
+                                      "  "
+                                      (:message ex)
+                                      sys.eol))
+               (recur state))
+             (fail :SHELL.REPL
+                   ex))))))))
+
+
+
+
+
+
+
+
+
+
+
+
+(def shell.env
+
+  nil)
+
+
+
+(def shell.invoke
+
+  nil)
+
+
+
+(defn shell.main
+
+  [src]
+
+  (let [[ok?
+         x]  (state.safe (fn []
+                           (code.read+ src)))]
+    (cond
+      ;;
+      ok?
+      (let [form+ x]
+        (if (empty? form+)
+          (do
+            (stream.txt.outln
+              (str (term.fg.blue)
+                   (term.bold)
+                   "Convex Shell (REPL mode)"
+                   (term.reset)
+                   sys.eol
+                   "Enter transactions and build a new world."
+                   sys.eol
+                   sys.eol
+                   "Powered by Protosens SRL and collaborators."
+                   sys.eol
+                   "To learn more: "
+                   (term.bold)
+                   "(#0/?)"
+                   (term.reset)
+                   sys.eol))
+            (repl))
+          (eval (cons 'do
+                      form+))))
+      ;;
+      (= (:code x)
+         :READER)
+      (do
+        (stream.txt.outln
+           (str sys.eol
+                (term.fg.red)
+                (term.bold)
+                "Input cannot be parsed as Convex Lisp:"
+                (term.reset)
+                sys.eol
+                "  "
+                (:message x)
+                sys.eol))
+        (sys.exit 4))
+      ;;
+      (fail :SHELL.FATAL
+            {:message "Initialization problem while reading input"}))))
+
+
+
 (def shell.root
 
   "~/.convex-shell")
@@ -1097,6 +1352,15 @@
   ;; Set from Clojure.
 
   nil)
+
+
+
+(defn sys.exit
+
+  [code]
+
+  (shell.invoke 'sys.exit
+                code))
 
 
 

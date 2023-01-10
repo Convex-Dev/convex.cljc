@@ -81,37 +81,37 @@
 
   (let [ctx (-> (init)
                 (transact ($.cell/*
-                            (eval (cons 'do
-                                        ((lookup ~($.cell/address 0)
-                                                 code.read+)
-                                         ~($.cell/string (string/join " "
-                                                                      trx+))))))))
+                            ((lookup ~($.cell/address 0)
+                                     shell.main)
+                              ~($.cell/string (string/join " "
+                                                           trx+))))))
         ex  ($.cvm/exception ctx)]
     (if ex
-      (let [exit-code (if (= ($.cvm/exception-code ex)
-                             ($.cell/* :SHELL.FATAL))
-                        (do
-                          (binding [*out* *err*]
-                            (println)
-                            (println "==================")
-                            (println)
-                            (println "  FATAL ERROR  :'(  ")
-                            (println)
-                            (println "==================")
-                            (println)
-                            (println "Please open an issue if necessary:")
-                            (println "    https://github.com/Convex-Dev/convex.cljc")
-                            (println)
-                            (println "Report printed to:")
-                            (println "   "
-                                     (-> ex
-                                         ($.cvm/exception-message)
-                                         (get ($.cell/* :report))))
-                            (flush))
-                          1)
-                        2)]
+      (if (= ($.cvm/exception-code ex)
+             ($.cell/* :SHELL.FATAL))
+        (do
+          (when-some [path-report (-> ex
+                                      ($.cvm/exception-message)
+                                      (get ($.cell/* :report)))]
+            (binding [*out* *err*]
+              (println)
+              (println "==================")
+              (println)
+              (println "  FATAL ERROR  :'(  ")
+              (println)
+              (println "==================")
+              (println)
+              (println "Please open an issue if necessary:")
+              (println "    https://github.com/Convex-Dev/convex.cljc")
+              (println)
+              (println "Report printed to:")
+              (println "   "
+                       (str path-report))
+              (flush)))
+          (System/exit 1))
+        (do
           (println (str ($.shell.fail/mappify-cvm-ex ex)))
-          (System/exit exit-code))
+          (System/exit 2)))
       (do
         (println (str ($.cvm/result ctx)))
         (System/exit 0)))))
