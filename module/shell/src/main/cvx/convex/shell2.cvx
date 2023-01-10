@@ -60,7 +60,7 @@
   ([prefix]
 
    (if (= *address*
-          #0)
+          #8)
      (do
        (let [id code.*gensym*]
          (def code.*gensym*
@@ -68,7 +68,7 @@
          (symbol (str (or prefix
                           "G_")
                       id))))
-     (call #0
+     (call #8
            (code.gensym prefix)))))
 
 
@@ -153,14 +153,14 @@
   [dir]
 
   (if (= *address*
-         #0)
+         #8)
     (do
       (when-not (fs.exists? dir)
         (fail :FS
               "Given project directory does not exist"))
       (def dep.root
            dir))
-    (call #0
+    (call #8
           (dep.root.set dir))))
 
 
@@ -590,12 +590,12 @@
 
   `(let [[j-1
           r
-          j-2] [(#0/juice.get)
+          j-2] [(#8/juice.get)
                 ~form
-                (#0/juice.get)]]
+                (#8/juice.get)]]
      [(- j-1
          j-2
-         #0/juice.get.overhead)
+         #8/juice.get.overhead)
       r]))
 
 
@@ -868,7 +868,7 @@
                    sys.eol
                    "To learn more: "
                    (term.bold)
-                   "(#0/?)"
+                   "(?)"
                    (term.reset)
                    sys.eol))
             (repl))
@@ -916,7 +916,7 @@
 
   [& form+]
 
-  `(#0/state.safe (fn []
+  `(#8/state.safe (fn []
                     ~(cons 'do
                            form+))))
 
@@ -1012,10 +1012,10 @@
   [handle]
 
   (if (= *address*
-         #0)
+         #8)
     (def stream.*err*
          handle)
-    (call #0
+    (call #8
           (stream.set.err handle))))
 
 
@@ -1029,10 +1029,10 @@
   [handle]
 
   (if (= *address*
-         #0)
+         #8)
     (def stream.*in*
          handle)
-    (call #0
+    (call #8
           (stream.set.in handle))))
 
 
@@ -1046,10 +1046,10 @@
   [handle]
 
   (if (= *address*
-         #0)
+         #8)
     (def stream.*out*
          handle)
-    (call #0
+    (call #8
           (stream.set.out handle))))
 
 

@@ -15,7 +15,7 @@
   [ctx]
 
    ($.cvm/look-up ctx
-                  ($.cell/address 0)
+                  ($.cell/address 8)
                   ($.cell/* shell.env)))
 
 
@@ -37,7 +37,7 @@
 
   (let [v (-get ctx)]
     ($.cvm/def ctx
-               ($.cell/address 0)
+               ($.cell/address 8)
                ($.cell/* {shell.env [(-> v
                                          ($.std/nth 0)
                                          ($.std/true?)

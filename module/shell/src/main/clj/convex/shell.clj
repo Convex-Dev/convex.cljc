@@ -81,7 +81,7 @@
 
   (let [ctx (-> (init)
                 (transact ($.cell/*
-                            ((lookup ~($.cell/address 0)
+                            ((lookup ~($.cell/address 8)
                                      shell.main)
                               ~($.cell/string (string/join " "
                                                            trx+))))))

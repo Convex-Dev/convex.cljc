@@ -78,11 +78,11 @@
 
   (-> ($.cvm/ctx)
       ($.cvm/juice-refill)
-      ($.cvm/fork-to ($.cell/address 0))
+      ($.cvm/fork-to ($.cell/address 8))
       ($.cvm/eval ($.std/cons ($.cell/* do)
                               (-resource-cvx "convex/shell2.cvx")))
 
-      ($.cvm/def ($.cell/address 0)
+      ($.cvm/def ($.cell/address 8)
                  ($.std/merge ($.cell/* {shell.env    [true
                                                        ~($.cell/fake {:convex.shell/req+            convex.shell.req/impl
                                                                       :convex.shell/handle->stream  {($.cell/* :stderr) $.shell.io/stderr-txt

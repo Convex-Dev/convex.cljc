@@ -125,7 +125,7 @@
                         :convex.shell.dep/dep->project  {$.shell.kw/root (project ctx
                                                                                   $.shell.kw/root
                                                                                   (str ($.cvm/look-up ctx
-                                                                                                      ($.cell/address 0)
+                                                                                                      ($.cell/address 8)
                                                                                                       ($.cell/* dep.root))))}
                         :convex.shell.dep/fetch         fetch
                         :convex.shell.dep/foreign?      false

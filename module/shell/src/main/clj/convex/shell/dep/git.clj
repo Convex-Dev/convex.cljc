@@ -98,7 +98,7 @@
                                       url)
         path         (-> (format "%s/dep/git/%s"
                                  ($.cvm/look-up (env :convex.shell/ctx)
-                                                ($.cell/address 0)
+                                                ($.cell/address 8)
                                                 ($.cell/* shell.root))
                                  path-rel)
                          (bb.fs/expand-home))

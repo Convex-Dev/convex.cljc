@@ -55,7 +55,7 @@
                      state)
       (-> ctx
           ($.cvm/state-set (.putAccount state
-                                        ($.cell/address 0)
+                                        ($.cell/address 8)
                                         ($.cvm/account ctx
-                                                       ($.cell/address 0))))
+                                                       ($.cell/address 8))))
           ($.cvm/result-set result))))
