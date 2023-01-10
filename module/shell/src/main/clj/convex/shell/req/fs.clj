@@ -6,7 +6,9 @@
                           Path
                           StandardCopyOption)
            (java.nio.file.attribute FileAttribute))
-  (:require [convex.cell :as $.cell]
+  (:refer-clojure :exclude [resolve])
+  (:require [babashka.fs :as bb.fs]
+            [convex.cell :as $.cell]
             [convex.cvm  :as $.cvm]
             [convex.std  :as $.std]))
 
@@ -119,6 +121,23 @@
           ($.cvm/exception-set ctx
                                ($.cell/* :FS)
                                ($.cell/string (.getMessage ex)))))))
+
+
+
+(defn resolve
+
+  [ctx [path]]
+
+  (or (when-not ($.std/string? path)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Path to resolve must be a string")))
+      ($.cvm/result-set ctx
+                        (-> path
+                            (str)
+                            (bb.fs/canonicalize)
+                            (str)
+                            ($.cell/string)))))
 
 
 

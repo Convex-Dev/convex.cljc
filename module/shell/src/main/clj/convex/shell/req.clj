@@ -70,6 +70,7 @@
    ($.cell/* fs.copy)          $.shell.req.fs/copy
    ($.cell/* fs.delete)        $.shell.req.fs/delete
    ($.cell/* fs.exists?)       $.shell.req.fs/exists?
+   ($.cell/* fs.resolve)       $.shell.req.fs/resolve
    ($.cell/* fs.tmp)           $.shell.req.fs/tmp
    ($.cell/* fs.tmp.dir)       $.shell.req.fs/tmp-dir
    ($.cell/* juice.get)        $.shell.req.juice/get

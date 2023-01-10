@@ -425,6 +425,15 @@
 
 
 
+(defn .fs.resolve
+
+  [path]
+
+  (.shell.invoke 'fs.resolve
+                 path))
+
+
+
 (defn .fs.tmp
 
   ^{:doc {:description ["Returns a request for creating a temporary file."
