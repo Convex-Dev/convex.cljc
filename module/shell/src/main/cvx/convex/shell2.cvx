@@ -140,7 +140,7 @@
 
 
 
-(def .dep.root
+(def .dep.*root*
 
   "./")
 
@@ -158,7 +158,7 @@
       (when-not (.fs.exists? dir)
         (fail :FS
               "Given project directory does not exist"))
-      (def .dep.root
+      (def .dep.*root*
            dir))
     (call $CORE$
           (.dep.root.set dir))))
@@ -848,7 +848,7 @@
                    .sys.eol
                    "Powered by Protosens SRL and collaborators."
                    .sys.eol
-                   "To learn more: "
+                   "For help, type: "
                    (.term.bold)
                    "(?)"
                    (.term.reset)

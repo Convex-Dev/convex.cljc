@@ -127,7 +127,7 @@
                                                                                   $.shell.kw/root
                                                                                   (str ($.cvm/look-up ctx
                                                                                                       $.shell.ctx.core/address
-                                                                                                      ($.cell/* .dep.root))))}
+                                                                                                      ($.cell/* .dep.*root*))))}
                         :convex.shell.dep/fetch         fetch
                         :convex.shell.dep/foreign?      false
                         :convex.shell.dep/hash          $.shell.kw/root
