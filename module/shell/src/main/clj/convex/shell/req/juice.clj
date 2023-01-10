@@ -30,8 +30,13 @@
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
                              ($.cell/* "Setting juice requires a long")))
-      ($.cvm/juice-set ctx
-                       ($.clj/long n-unit))))
+      (let [n-unit-2 ($.clj/long n-unit)]
+        (or (when (neg? n-unit-2)
+              ($.cvm/exception-set ctx
+                                   ($.cell/code-std* :ARGUMENT)
+                                   ($.cell/* "Juice units cannot be < 1")))
+            ($.cvm/juice-set ctx
+                             ($.clj/long n-unit))))))
 
 
 
