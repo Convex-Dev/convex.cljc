@@ -18,12 +18,17 @@
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
                              ($.cell/* "Interval must be a long representing milliseconds")))
-      (let [millis-2 (min ($.clj/long millis)
-                          (- Long/MAX_VALUE
-                             ($.clj/long ($.cvm/time ctx))))]
-        (-> ctx
-            ($.cvm/time-advance millis-2)
-            ($.cvm/result-set ($.cell/long millis-2))))))
+      (let [millis-2 ($.clj/long millis)]
+        (or (when (neg? millis-2)
+              ($.cvm/exception-set ctx
+                                   ($.cell/code-std* :ARGUMENT)
+                                   ($.cell/* "Interval must be >= 0")))
+            (let [millis-3 (min millis-2
+                                (- Long/MAX_VALUE
+                                   ($.clj/long ($.cvm/time ctx))))]
+              (-> ctx
+                  ($.cvm/time-advance millis-3)
+                  ($.cvm/result-set ($.cell/long millis-3))))))))
 
 
 ;;;;;;;;;; Current time

@@ -65,8 +65,6 @@
                                  ($.cell/code-std* :ARGUMENT)
                                  ($.cell/string (format "Unknown Convex Shell request: %s"
                                                         sym))))
-
-          
           ($.cvm/exception-set ctx
                                ($.cell/code-std* :ARGUMENT)
                                ($.cell/string "Convex Shell invocation require a symbol")))))))
