@@ -3,6 +3,7 @@
   (:refer-clojure :exclude [read])
   (:require [convex.cell               :as $.cell]
             [convex.cvm                :as $.cvm]
+            [convex.shell.ctx.core     :as $.shell.ctx.core]
             [convex.shell.dep.git      :as $.shell.dep.git]
             [convex.shell.dep.local    :as $.shell.dep.local]
             [convex.shell.dep.relative :as $.shell.dep.relative]
@@ -125,7 +126,7 @@
                         :convex.shell.dep/dep->project  {$.shell.kw/root (project ctx
                                                                                   $.shell.kw/root
                                                                                   (str ($.cvm/look-up ctx
-                                                                                                      ($.cell/address 8)
+                                                                                                      $.shell.ctx.core/address
                                                                                                       ($.cell/* .dep.root))))}
                         :convex.shell.dep/fetch         fetch
                         :convex.shell.dep/foreign?      false

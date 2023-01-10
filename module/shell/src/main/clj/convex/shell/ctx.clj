@@ -5,14 +5,15 @@
                                   ErrorValue)
            (java.io InputStreamReader)
            (java.nio.charset StandardCharsets))
-  (:require [clojure.java.io  :as java.io]
-            [convex.cell      :as $.cell]
-            [convex.cvm       :as $.cvm]
-            [convex.read      :as $.read]
-            [convex.shell.env :as $.shell.env]
-            [convex.shell.io  :as $.shell.io]
-            [convex.shell.req :as $.shell.req]
-            [convex.std       :as $.std]))
+  (:require [clojure.java.io       :as java.io]
+            [convex.cell           :as $.cell]
+            [convex.cvm            :as $.cvm]
+            [convex.read           :as $.read]
+            [convex.shell.ctx.core :as $.shell.ctx.core]
+            [convex.shell.env      :as $.shell.env]
+            [convex.shell.io       :as $.shell.io]
+            [convex.shell.req      :as $.shell.req]
+            [convex.std            :as $.std]))
 
 
 ;;;;;;;;;; Private
@@ -78,11 +79,11 @@
 
   (-> ($.cvm/ctx)
       ($.cvm/juice-refill)
-      ($.cvm/fork-to ($.cell/address 8))
-      ($.cvm/eval ($.std/cons ($.cell/* do)
-                              (-resource-cvx "convex/shell2.cvx")))
+      ($.cvm/fork-to $.shell.ctx.core/address)
+      ($.cvm/eval ($.std/concat ($.cell/* (let [$CORE$ ~$.shell.ctx.core/address]))
+                                (-resource-cvx "convex/shell2.cvx")))
 
-      ($.cvm/def ($.cell/address 8)
+      ($.cvm/def $.shell.ctx.core/address
                  ($.std/merge ($.cell/* {.shell.env    [true
                                                         ~($.cell/fake {:convex.shell/req+            convex.shell.req/impl
                                                                        :convex.shell/handle->stream  {($.cell/* :stderr) $.shell.io/stderr-txt

@@ -1,14 +1,15 @@
 (ns convex.shell.dep.git
 
-  (:require [babashka.fs       :as bb.fs]
-            [clojure.string    :as string]
-            [convex.cell       :as $.cell]
-            [convex.cvm        :as $.cvm]
-            [convex.shell.flow :as $.shell.flow]
-            [convex.shell.kw   :as $.shell.kw]
-            [convex.std        :as $.std]
-            [protosens.git     :as P.git]
-            [protosens.process :as P.process]))
+  (:require [babashka.fs           :as bb.fs]
+            [clojure.string        :as string]
+            [convex.cell           :as $.cell]
+            [convex.cvm            :as $.cvm]
+            [convex.shell.ctx.core :as $.shell.ctx.core]
+            [convex.shell.flow     :as $.shell.flow]
+            [convex.shell.kw       :as $.shell.kw]
+            [convex.std            :as $.std]
+            [protosens.git         :as P.git]
+            [protosens.process     :as P.process]))
 
 
 ;;;;;;;;;; Regular expressions
@@ -98,7 +99,7 @@
                                       url)
         path         (-> (format "%s/dep/git/%s"
                                  ($.cvm/look-up (env :convex.shell/ctx)
-                                                ($.cell/address 8)
+                                                $.shell.ctx.core/address
                                                 ($.cell/* .shell.root))
                                  path-rel)
                          (bb.fs/expand-home))

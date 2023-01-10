@@ -2,9 +2,10 @@
 
   (:refer-clojure :exclude [get
                             update])
-  (:require [convex.cell  :as $.cell]
-            [convex.cvm   :as $.cvm]
-            [convex.std   :as $.std]))
+  (:require [convex.cell           :as $.cell]
+            [convex.cvm            :as $.cvm]
+            [convex.shell.ctx.core :as $.shell.ctx.core]
+            [convex.std            :as $.std]))
 
 
 ;;;;;;;
@@ -15,7 +16,7 @@
   [ctx]
 
    ($.cvm/look-up ctx
-                  ($.cell/address 8)
+                  $.shell.ctx.core/address
                   ($.cell/* .shell.env)))
 
 
@@ -37,7 +38,7 @@
 
   (let [v (-get ctx)]
     ($.cvm/def ctx
-               ($.cell/address 8)
+               $.shell.ctx.core/address
                ($.cell/* {.shell.env [~(-> v
                                            ($.std/nth 0)
                                            ($.std/true?)

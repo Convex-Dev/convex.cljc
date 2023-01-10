@@ -60,7 +60,7 @@
   ([prefix]
 
    (if (= *address*
-          #8)
+          $CORE$)
      (do
        (let [id .code.*gensym*]
          (def .code.*gensym*
@@ -68,7 +68,7 @@
          (symbol (str (or prefix
                           "G_")
                       id))))
-     (call #8
+     (call $CORE$
            (.code.gensym prefix)))))
 
 
@@ -153,14 +153,14 @@
   [dir]
 
   (if (= *address*
-         #8)
+         $CORE$)
     (do
       (when-not (.fs.exists? dir)
         (fail :FS
               "Given project directory does not exist"))
       (def .dep.root
            dir))
-    (call #8
+    (call $CORE$
           (.dep.root.set dir))))
 
 
@@ -572,12 +572,12 @@
 
   `(let [[j-1
           r
-          j-2] [(#8/.juice.get)
+          j-2] [($CORE$/.juice.get)
                 ~form
-                (#8/.juice.get)]]
+                ($CORE$/.juice.get)]]
      [(- j-1
          j-2
-         #8/.juice.get.overhead)
+         $CORE$/.juice.get.overhead)
       r]))
 
 
@@ -898,9 +898,9 @@
 
   [& form+]
 
-  `(#8/.state.safe (fn []
-                     ~(cons 'do
-                            form+))))
+  `($CORE$/.state.safe (fn []
+                         ~(cons 'do
+                                form+))))
  
 
 
@@ -994,10 +994,10 @@
   [handle]
 
   (if (= *address*
-         #8)
+         $CORE$)
     (def .stream.*err*
          handle)
-    (call #8
+    (call $CORE$
           (.stream.set.err handle))))
 
 
@@ -1011,10 +1011,10 @@
   [handle]
 
   (if (= *address*
-         #8)
+         $CORE$)
     (def .stream.*in*
          handle)
-    (call #8
+    (call $CORE$
           (.stream.set.in handle))))
 
 
@@ -1028,10 +1028,10 @@
   [handle]
 
   (if (= *address*
-         #8)
+         $CORE$)
     (def .stream.*out*
          handle)
-    (call #8
+    (call $CORE$
           (.stream.set.out handle))))
 
 
