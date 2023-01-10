@@ -1,8 +1,10 @@
 (ns convex.shell.req
 
+  (:import (convex.core.exceptions ParseException))
   (:require [convex.cell             :as $.cell]
+            [convex.cvm              :as $.cvm]
+            [convex.read             :as $.read]
             [convex.shell.req.bench  :as $.shell.req.bench]
-            [convex.shell.req.code   :as $.shell.req.code]
             [convex.shell.req.db     :as $.shell.req.db]
             [convex.shell.req.dep    :as $.shell.req.dep]
             [convex.shell.req.dev    :as $.shell.req.dev]
@@ -13,7 +15,37 @@
             [convex.shell.req.state  :as $.shell.req.state]
             [convex.shell.req.stream :as $.shell.req.stream]
             [convex.shell.req.sys    :as $.shell.req.sys]
-            [convex.shell.req.time   :as $.shell.req.time]))
+            [convex.shell.req.time   :as $.shell.req.time]
+            [convex.std              :as $.std]))
+
+
+;;;;;;;;;;
+
+
+(defn read+
+
+  [ctx arg+]
+
+  (let [src (first arg+)]
+    (or (when-not ($.std/string? src)
+          ($.cvm/exception-set ctx
+                               ($.cell/code-std* :ARGUMENT)
+                               ($.cell/string "Source to read is not a string")))
+        (try
+          ($.cvm/result-set ctx
+                            (-> (first arg+)
+                                (str)
+                                ($.read/string)))
+          ;;
+          (catch ParseException ex
+            ($.cvm/exception-set ctx
+                                 ($.cell/* :READER)
+                                 ($.cell/string (.getMessage ex))))
+          ;;
+          (catch Throwable _ex
+            ($.cvm/exception-set ctx
+                                 ($.cell/* :READER)
+                                 ($.cell/string "Unable to read string as Convex data")))))))
 
 
 ;;;;;;;;;;
@@ -22,7 +54,6 @@
 (def impl
 
   {($.cell/* bench.trx)        $.shell.req.bench/trx
-   ($.cell/* code.read+)       $.shell.req.code/read+
    ($.cell/* db.flush)         $.shell.req.db/flush
    ($.cell/* db.open)          $.shell.req.db/open
    ($.cell/* db.path)          $.shell.req.db/path
@@ -46,6 +77,7 @@
    ($.cell/* juice.track.trx)  $.shell.req.juice/track-trx
    ($.cell/* log.clear)        $.shell.req.log/clear
    ($.cell/* log.get)          $.shell.req.log/get
+   ($.cell/* read+)            read+
    ($.cell/* state.safe)       $.shell.req.state/safe
    ($.cell/* state.switch)     $.shell.req.state/switch
    ($.cell/* stream.close)     $.shell.req.stream/close

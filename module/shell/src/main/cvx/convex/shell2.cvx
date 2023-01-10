@@ -32,12 +32,7 @@
 
 
 
-(defn .code.read+
 
-  [string]
-
-  (.shell.invoke 'code.read+
-                 string))
 
 
 
@@ -629,6 +624,15 @@
 
 
 
+(defn .read+
+
+  [string]
+
+  (.shell.invoke 'read+
+                 string))
+
+
+
 (defn .repl.eval
 
   [state form+]
@@ -836,7 +840,7 @@
 
   (let [[ok?
          x]  (.state.safe (fn []
-                            (.code.read+ src)))]
+                            (.read+ src)))]
     (cond
       ;;
       ok?
