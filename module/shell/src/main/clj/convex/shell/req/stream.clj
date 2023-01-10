@@ -163,19 +163,19 @@
 
   ([ctx [handle] result]
 
-   (if (= handle
-          ($.cell/* :stderr))
-     ($.cvm/exception-set ctx
-                          ($.cell/code-std* :ARGUMENT)
-                          ($.cell/* "Cannot close STDERR"))
-     (-> ctx
-         (operation handle
-                    #{:close}
-                    (fn [ctx-2 ^AutoCloseable stream]
-                      (.close stream)
-                      ($.cvm/result-set ctx-2
-                                        result)))
-         (-dissoc handle)))))
+   (or (when (= handle
+                ($.cell/* :stderr))
+         ($.cvm/exception-set ctx
+                              ($.cell/code-std* :ARGUMENT)
+                              ($.cell/* "Cannot close STDERR")))
+       (-> ctx
+           (operation handle
+                      #{:close}
+                      (fn [ctx-2 ^AutoCloseable stream]
+                        (.close stream)
+                        ($.cvm/result-set ctx-2
+                                          result)))
+           (-dissoc handle)))))
 
 
 

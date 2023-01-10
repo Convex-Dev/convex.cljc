@@ -238,6 +238,16 @@
 
 
 
+(defn .file.-handle
+
+  [x path]
+
+  (if (nil? x)
+    [(.gensym "file-")
+     (.fs.resolve path)]
+    x))
+
+
 
 (defn .file.exec
 
@@ -253,6 +263,7 @@
 
 
 
+
 (defn .file.read
 
   ^{:doc {:description ["Returns a request for reading the Convex Lisp file located under `path` in one go."
@@ -264,9 +275,7 @@
 
   [path]
 
-  (.stream.in+ (.file.stream.in [(.gensym)
-                                 path]
-                                path)))
+  (.stream.in+ (.file.stream.in path)))
  
 
 
@@ -296,7 +305,8 @@
   ([handle path]
 
    (.shell.invoke 'file.stream.in
-                  handle
+                  (.file.-handle handle
+                                 path)
                   path)))
 
 
@@ -340,7 +350,8 @@
   ([handle path option+]
 
    (.shell.invoke 'file.stream.out
-                  handle
+                  (.file.-handle handle
+                                 path)
                   path
                   (:append? option+))))
 
@@ -365,10 +376,9 @@
 
   ([path cell option+]
 
-   (let [handle   (.file.stream.out [(.gensym)
-                                     path]
-                                     path
-                                     option+)
+   (let [handle   (.file.stream.out nil
+                                    path
+                                    option+)
          [ok?
           result] (.state.safe (fn []
                                  (.stream.outln handle
@@ -378,6 +388,9 @@
        result
        (fail :RETHROW
              result)))))
+
+
+
 
 
 
