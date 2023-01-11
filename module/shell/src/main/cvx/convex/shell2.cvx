@@ -968,6 +968,22 @@
 
 
 
+(defn .state.genesis
+
+
+  ([]
+
+   (.state.genesis nil))
+
+
+  ([key+]
+
+   (.shell.invoke 'state.genesis
+                  (or key+
+                      [.account.0-key]))))
+
+
+
 (defn .state.safe
 
   [f]

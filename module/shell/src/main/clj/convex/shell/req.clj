@@ -81,6 +81,7 @@
    ($.cell/* log.clear)        $.shell.req.log/clear
    ($.cell/* log.get)          $.shell.req.log/get
    ($.cell/* read+)            read+
+   ($.cell/* state.genesis)    $.shell.req.state/genesis
    ($.cell/* state.safe)       $.shell.req.state/safe
    ($.cell/* state.switch)     $.shell.req.state/switch
    ($.cell/* state.tmp)        $.shell.req.state/tmp

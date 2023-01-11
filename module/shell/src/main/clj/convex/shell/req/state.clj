@@ -37,6 +37,40 @@
 ;;;;;;;;;;
 
 
+(defn genesis
+
+  [ctx [key+]]
+
+  (or (when-not ($.std/vector? key+)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Genesis keys must be provided in a vector")))
+      (let [n-key ($.std/count key+)]
+        (or (when-not (>= n-key
+                          1)
+              ($.cvm/exception-set ctx
+                                   ($.cell/code-std* :ARGUMENT)
+                                   ($.cell/* "At least 1 genesis key must be provided")))
+            (when-not (= n-key
+                         (count (set key+)))
+              ($.cvm/exception-set ctx
+                                   ($.cell/code-std* :ARGUMENT)
+                                   ($.cell/* "There cannot be any duplicate genesis keys")))))
+      (when (some (fn [key]
+                    (or (not ($.std/blob? key))
+                        (not (= ($.std/count key)
+                                32))))
+                  key+)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "All genesis keys must be 32-byte blobs")))
+      ($.cvm/result-set ctx
+                        (-> ($.cvm/ctx {:convex.cvm/genesis-key+ (map $.cell/key
+                                                                      key+)})
+                            ($.cvm/state)))))
+
+
+
 (defn safe
 
   [ctx [f]]
