@@ -30,12 +30,14 @@
   {:author "Adam Helinski"}
 
   (:gen-class)
-  (:require [clojure.string      :as string]
-            [convex.cell         :as $.cell]
-            [convex.cvm          :as $.cvm]
-            [convex.shell.ctx    :as $.shell.ctx]
-            [convex.shell.fail   :as $.shell.fail]
-            [convex.shell.log]))
+  (:require [clojure.string        :as string]
+            [convex.cell           :as $.cell]
+            [convex.cvm            :as $.cvm]
+            [convex.shell.ctx      :as $.shell.ctx]
+            [convex.shell.ctx.core :as $.shell.ctx.core]
+            [convex.shell.fail     :as $.shell.fail]
+            [convex.shell.log]
+            [convex.shell.req      :as $.shell.req]))
 
 
 ;;;;;;;;;; Main
@@ -43,9 +45,19 @@
 
 (defn init
 
-  []
 
-  ($.cvm/fork $.shell.ctx/genesis))
+  ([]
+
+   (init nil))
+
+
+  ([option+]
+
+   (-> $.shell.ctx/genesis
+       ($.cvm/fork)
+       ($.cvm/def $.shell.ctx.core/address
+                  ($.cell/* {.shell.invoke ~(or (:convex.shell/invoker option+)
+                                                ($.shell.req/invoker))})))))
 
 
 
@@ -67,25 +79,17 @@
 
 
 
-(defn -main
+(defn transact-main
 
-  "Reads and executes transactions.
-  
-   If no transaction is provided, starts the REPL.
-  
-   ```clojure
-   (-main \"(+ 2 2)\")
-   ```"
+  [ctx trx+]
 
-  [& trx+]
-
-  (let [ctx (-> (init)
-                (transact ($.cell/*
-                            ((lookup ~($.cell/address 8)
-                                     .shell.main)
-                              ~($.cell/string (string/join " "
-                                                           trx+))))))
-        ex  ($.cvm/exception ctx)]
+  (let [ctx-2 (transact ctx
+                        ($.cell/*
+                          ((lookup ~($.cell/address 8)
+                                   .shell.main)
+                            ~($.cell/string (string/join " "
+                                                         trx+)))))
+        ex  ($.cvm/exception ctx-2)]
     (if ex
       (if (= ($.cvm/exception-code ex)
              ($.cell/* :SHELL.FATAL))
@@ -113,5 +117,24 @@
           (println (str ($.shell.fail/mappify-cvm-ex ex)))
           (System/exit 2)))
       (do
-        (println (str ($.cvm/result ctx)))
+        (println (str ($.cvm/result ctx-2)))
         (System/exit 0)))))
+
+
+;;;
+
+
+(defn -main
+
+  "Reads and executes transactions.
+  
+   If no transaction is provided, starts the REPL.
+  
+   ```clojure
+   (-main \"(+ 2 2)\")
+   ```"
+
+  [& trx+]
+
+  (transact-main (init)
+                 trx+))
