@@ -1,22 +1,23 @@
 (ns convex.shell.req
 
   (:import (convex.core.exceptions ParseException))
-  (:require [convex.cell             :as $.cell]
-            [convex.cvm              :as $.cvm]
-            [convex.read             :as $.read]
-            [convex.shell.req.bench  :as $.shell.req.bench]
-            [convex.shell.req.db     :as $.shell.req.db]
-            [convex.shell.req.dep    :as $.shell.req.dep]
-            [convex.shell.req.dev    :as $.shell.req.dev]
-            [convex.shell.req.file   :as $.shell.req.file]
-            [convex.shell.req.fs     :as $.shell.req.fs]
-            [convex.shell.req.juice  :as $.shell.req.juice]
-            [convex.shell.req.log    :as $.shell.req.log]
-            [convex.shell.req.state  :as $.shell.req.state]
-            [convex.shell.req.stream :as $.shell.req.stream]
-            [convex.shell.req.sys    :as $.shell.req.sys]
-            [convex.shell.req.time   :as $.shell.req.time]
-            [convex.std              :as $.std]))
+  (:require [convex.cell              :as $.cell]
+            [convex.cvm               :as $.cvm]
+            [convex.read              :as $.read]
+            [convex.shell.req.account :as $.shell.req.account]
+            [convex.shell.req.bench   :as $.shell.req.bench]
+            [convex.shell.req.db      :as $.shell.req.db]
+            [convex.shell.req.dep     :as $.shell.req.dep]
+            [convex.shell.req.dev     :as $.shell.req.dev]
+            [convex.shell.req.file    :as $.shell.req.file]
+            [convex.shell.req.fs      :as $.shell.req.fs]
+            [convex.shell.req.juice   :as $.shell.req.juice]
+            [convex.shell.req.log     :as $.shell.req.log]
+            [convex.shell.req.state   :as $.shell.req.state]
+            [convex.shell.req.stream  :as $.shell.req.stream]
+            [convex.shell.req.sys     :as $.shell.req.sys]
+            [convex.shell.req.time    :as $.shell.req.time]
+            [convex.std               :as $.std]))
 
 
 ;;;;;;;;;;
@@ -53,7 +54,8 @@
 
 (def impl
 
-  {($.cell/* bench.trx)        $.shell.req.bench/trx
+  {($.cell/* account.switch)   $.shell.req.account/switch
+   ($.cell/* bench.trx)        $.shell.req.bench/trx
    ($.cell/* db.flush)         $.shell.req.db/flush
    ($.cell/* db.open)          $.shell.req.db/open
    ($.cell/* db.path)          $.shell.req.db/path

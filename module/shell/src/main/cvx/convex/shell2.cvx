@@ -1,5 +1,52 @@
 
 
+
+(def .account.0-key
+
+  ^{:doc {:description "Fake key for turning an actor into a user account with standard `set-key`."
+          :examples    [{:code "(deploy '(do (set-key $.account/fake-key) ...))"}]}}
+
+  0x0000000000000000000000000000000000000000000000000000000000000000)
+
+
+
+(defn .account.key?
+
+  ^{:doc {:description "Returns true if `x` is a 32-byte blob that can act as a key."
+          :examples    [{:code "($.account/key? $.account/fake-key)"}
+                        {:code "($.account/key? 42)"}]
+          :signature   [{:params [x]}]}}
+
+  [x]
+
+  (and (blob? x)
+       (= (count x)
+          32)))
+
+
+
+(defn .account.switch
+
+  [address]
+
+  (.shell.invoke 'account.switch
+                 address))
+
+
+
+
+                 
+
+
+
+
+
+
+
+
+
+
+
 (defn .bench.trx
 
   ^{:doc {:description ["Returns a request for measuring the mean execution time of the given transaction."
