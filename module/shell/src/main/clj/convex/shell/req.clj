@@ -81,6 +81,7 @@
    ($.cell/* read+)            read+
    ($.cell/* state.safe)       $.shell.req.state/safe
    ($.cell/* state.switch)     $.shell.req.state/switch
+   ($.cell/* state.tmp)        $.shell.req.state/tmp
    ($.cell/* stream.close)     $.shell.req.stream/close
    ($.cell/* stream.flush)     $.shell.req.stream/flush
    ($.cell/* stream.in+)       $.shell.req.stream/in+

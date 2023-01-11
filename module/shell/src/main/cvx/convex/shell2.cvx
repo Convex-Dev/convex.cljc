@@ -957,6 +957,25 @@
 
 
 
+(defn .state.tmp
+
+  [f]
+
+  (.shell.invoke 'state.tmp
+                 f))
+
+
+
+(defmacro .state.tmp*
+
+  [& form+]
+
+  `(~$CORE$/.state.tmp (fn []
+                         ~(cons 'do
+                                form+))))
+ 
+
+
 
 
 

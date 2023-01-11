@@ -11,23 +11,9 @@
 ;;;;;;;;;;
 
 
-(defn- -ensure-state
+(defn- -safe
 
-  [ctx state]
-
-  (when-not (instance? State
-                       state)
-    ($.cvm/exception-set ctx
-                         ($.cell/code-std* :ARGUMENT)
-                         ($.cell/string "Can only load a state"))))
-
-
-;;;;;;;;;;
-
-
-(defn safe
-
-  [ctx [f]]
+  [ctx f select-ctx-ok]
 
   (or (when-not ($.std/fn? f)
         ($.cvm/exception-set ctx
@@ -42,21 +28,49 @@
           ($.cvm/result-set ctx
                             ($.cell/* [false
                                        ~($.shell.fail/mappify-cvm-ex ex)]))
-          ($.cvm/result-set ctx-2
+          ($.cvm/result-set (select-ctx-ok ctx
+                                           ctx-2)
                             ($.cell/* [true
                                        ~($.cvm/result ctx-2)]))))))
+
+
+;;;;;;;;;;
+
+
+(defn safe
+
+  [ctx [f]]
+
+  (-safe ctx
+         f
+         (fn [_ctx-old ctx-new]
+           ctx-new)))
 
 
 
 (defn switch
 
-  [ctx [^State state result ]]
+  [ctx [^State state result]]
 
-  (or (-ensure-state ctx
-                     state)
+  (or (when-not (instance? State
+                           state)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/string "Can only load a state")))
       (-> ctx
           ($.cvm/state-set (.putAccount state
                                         $.shell.ctx.core/address
                                         ($.cvm/account ctx
                                                        $.shell.ctx.core/address)))
           ($.cvm/result-set result))))
+
+
+
+(defn tmp
+
+  [ctx [f]]
+
+  (-safe ctx
+         f
+         (fn [ctx-old _ctx-new]
+           ctx-old)))
