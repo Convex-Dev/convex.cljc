@@ -79,22 +79,23 @@
       ($.cvm/juice-refill)
       ($.cvm/fork-to $.shell.ctx.core/address)
       ($.cvm/def $.shell.ctx.core/address
-                 ($.std/merge ($.cell/* {.shell.env     [true
-                                                         ~($.cell/fake {:convex.shell/req+ convex.shell.req/impl})]
-                                         .shell.invoke  ~invoker
-                                         .stream.stderr [:stream
-                                                         ~$.shell.req.stream/stderr
-                                                         -3
-                                                         :stderr]
-                                         .stream.stdin  [:stream
-                                                         ~$.shell.req.stream/stdin
-                                                         -2
-                                                         :stdin]
-                                         .stream.stdout [:stream
-                                                         ~$.shell.req.stream/stdout
-                                                         -1
-                                                         :stdout]
-                                         .sys.eol       ~($.cell/string (System/lineSeparator))})
+                 ($.std/merge ($.cell/* {.account.genesis ~$.cvm/genesis-user
+                                         .shell.env       [true
+                                                           ~($.cell/fake {:convex.shell/req+ convex.shell.req/impl})]
+                                         .shell.invoke    ~invoker
+                                         .stream.stderr   [:stream
+                                                           ~$.shell.req.stream/stderr
+                                                           -3
+                                                           :stderr]
+                                         .stream.stdin    [:stream
+                                                           ~$.shell.req.stream/stdin
+                                                           -2
+                                                           :stdin]
+                                         .stream.stdout   [:stream
+                                                           ~$.shell.req.stream/stdout
+                                                           -1
+                                                           :stdout]
+                                         .sys.eol         ~($.cell/string (System/lineSeparator))})
                               (first (-resource-cvx "convex/shell/version.cvx"))))
       ($.cvm/eval ($.std/concat ($.cell/* (let [$CORE$ ~$.shell.ctx.core/address]))
                                 (-resource-cvx "convex/shell2.cvx")))

@@ -21,5 +21,6 @@
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :NOBODY)
                              ($.cell/* "Cannot switch to an inexistent account")))
-      ($.cvm/fork-to ctx
-                     address)))
+      (-> ctx
+          ($.cvm/fork-to address)
+          ($.cvm/result-set address))))

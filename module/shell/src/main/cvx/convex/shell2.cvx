@@ -25,6 +25,12 @@
 
 
 
+(def .account.genesis
+
+  .account.genesis)
+
+
+
 (defn .account.switch
 
   [address]
