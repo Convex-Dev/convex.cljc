@@ -202,10 +202,18 @@
           :examples    [{:code "($.db/!.open \"path/to/file.etch\")"}]
           :signature   [{:params [path]}]}}
 
-  [path]
 
-  (.shell.invoke 'db.open
-                 path))
+  ([]
+
+   (.db.open nil))
+
+
+  ([path]
+
+   (.shell.invoke 'db.open
+                  (or path
+                      (.fs.tmp "convex-shell-"
+                               ".etch")))))
 
 
 
