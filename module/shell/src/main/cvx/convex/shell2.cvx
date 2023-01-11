@@ -652,7 +652,13 @@
                      (:message msg))
         extra-data (when msg-2
                      (dissoc msg
-                             :message))]
+                             :message))
+        trace      (:trace ex)
+        trace-2    (slice trace
+                          0
+                          ;; Removing lines relating to the REPL, not interesting.
+                          (- (count trace)
+                             3))]
     (.stream.txt.outln
       (str .sys.eol
            (.term.bold)
@@ -677,18 +683,17 @@
            (.term.fg.red)
            "Trace:"
            (.term.reset)
-           (let [trace (:trace ex)]
-             (if (empty? trace)
-               (str .sys.eol
-                    "  None.")
-               (apply str
-                      (reduce (fn [acc entry]
-                                (conj acc
-                                      .sys.eol
-                                      "  "
-                                      entry))
-                              []
-                              trace))))
+           (if (empty? trace-2)
+             (str .sys.eol
+                  "  None.")
+             (apply str
+                    (reduce (fn [acc entry]
+                              (conj acc
+                                    .sys.eol
+                                    "  "
+                                    entry))
+                            []
+                            trace-2)))
            (if (and extra-data
                     (not (empty? extra-data)))
              (str .sys.eol

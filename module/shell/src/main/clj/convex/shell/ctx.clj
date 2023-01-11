@@ -11,7 +11,6 @@
             [convex.read             :as $.read]
             [convex.shell.ctx.core   :as $.shell.ctx.core]
             [convex.shell.env        :as $.shell.env]
-            [convex.shell.io         :as $.shell.io]
             [convex.shell.req        :as $.shell.req]
             [convex.shell.req.stream :as $.shell.req.stream]
             [convex.std              :as $.std]))
