@@ -8,7 +8,6 @@
   (:require [convex.cell      :as $.cell]
             [convex.cvm       :as $.cvm]
             [convex.read      :as $.read]
-            [convex.shell.env :as $.shell.env]
             [convex.shell.io  :as $.shell.io]
             [convex.std       :as $.std]
             [convex.write     :as $.write]))
@@ -51,22 +50,6 @@
     (and (not ($.cvm/exception? ctx))
          (not ($.cvm/result ctx)))
     (close [handle])))
-
-
-
-(defn- -dissoc
-
-  ;; Dissociates the requested stream from env.
-
-  [ctx handle]
-
-  ($.shell.env/update ctx
-                      (fn [env]
-                        (update env
-                                :convex.shell/handle->stream
-                                dissoc
-                                handle))))
-
 
 
 
@@ -196,14 +179,13 @@
          ($.cvm/exception-set ctx
                               ($.cell/code-std* :ARGUMENT)
                               ($.cell/* "Cannot close STDERR")))
-       (-> ctx
-           (operation handle
-                      #{:close}
-                      (fn [ctx-2 ^AutoCloseable stream]
-                        (.close stream)
-                        ($.cvm/result-set ctx-2
-                                          result)))
-           (-dissoc handle)))))
+       (operation ctx
+                  handle
+                  #{:close}
+                  (fn [ctx-2 ^AutoCloseable stream]
+                    (.close stream)
+                    ($.cvm/result-set ctx-2
+                                      result))))))
 
 
 
@@ -229,13 +211,12 @@
 
   [ctx [handle]]
 
-  (-> ctx
-      (operation handle
-                 #{:read}
-                 (fn [ctx-2 stream]
-                   ($.cvm/result-set ctx-2
-                                     ($.read/stream stream))))
-      (-dissoc handle)))
+  (operation ctx
+             handle
+             #{:read}
+             (fn [ctx-2 stream]
+               ($.cvm/result-set ctx-2
+                                 ($.read/stream stream)))))
 
 
 
