@@ -77,7 +77,7 @@
    ($.cell/* fs.tmp.dir)       $.shell.req.fs/tmp-dir
    ($.cell/* juice.get)        $.shell.req.juice/get
    ($.cell/* juice.set)        $.shell.req.juice/set
-   ($.cell/* juice.track.trx)  $.shell.req.juice/track-trx
+   ($.cell/* juice.track)      $.shell.req.juice/track
    ($.cell/* log.clear)        $.shell.req.log/clear
    ($.cell/* log.get)          $.shell.req.log/get
    ($.cell/* read+)            read+

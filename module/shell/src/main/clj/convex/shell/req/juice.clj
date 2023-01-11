@@ -40,7 +40,7 @@
 
 
 
-(defn track-trx
+(defn track
 
   [ctx [trx]]
 

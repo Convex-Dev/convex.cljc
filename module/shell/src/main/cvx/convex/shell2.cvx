@@ -623,20 +623,11 @@
 
   [trx]
 
-  (.shell.invoke 'juice.track.trx
-                 trx))
-
-
-
-(defn .juice.track
-
-  [trx]
-
-  (conj (.shell.invoke 'juice.track.trx
+  (conj (.shell.invoke 'juice.track
                        trx)
-        (second (.shell.invoke 'juice.track.trx
+        (second (.shell.invoke 'juice.track
                                (compile trx)))
-        (second (.shell.invoke 'juice.track.trx
+        (second (.shell.invoke 'juice.track
                                (expand trx)))))
 
 
