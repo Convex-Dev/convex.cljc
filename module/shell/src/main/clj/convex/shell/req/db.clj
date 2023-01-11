@@ -99,13 +99,14 @@
                      "File lock failed")))))))
 
 
+
 (defn path
 
   [ctx _arg+]
 
-  (-db ctx
-       (fn []
-         ($.cell/string ($.db/path)))))
+  ($.cvm/result-set ctx
+                    (when ($.db/current)
+                      ($.cell/string ($.db/path)))))
 
 
 
