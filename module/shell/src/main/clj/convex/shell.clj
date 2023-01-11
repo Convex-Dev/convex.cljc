@@ -31,6 +31,7 @@
 
   (:gen-class)
   (:require [clojure.string        :as string]
+            [convex.db             :as $.db]
             [convex.cell           :as $.cell]
             [convex.cvm            :as $.cvm]
             [convex.shell.ctx      :as $.shell.ctx]
@@ -45,6 +46,7 @@
 
 (defn init
 
+  ;; Each ctx must have its own thread.
 
   ([]
 
@@ -53,6 +55,7 @@
 
   ([option+]
 
+   ($.db/current-set nil)
    (-> $.shell.ctx/genesis
        ($.cvm/fork)
        ($.cvm/def $.shell.ctx.core/address

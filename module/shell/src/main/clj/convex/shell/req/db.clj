@@ -1,16 +1,26 @@
 (ns convex.shell.req.db
 
   (:import (java.io IOException)
-           (java.nio.channels OverlappingFileLockException)
-           (java.nio.file Files)
-           (java.nio.file.attribute FileAttribute))
+           (java.nio.channels OverlappingFileLockException))
   (:refer-clojure :exclude [flush
                             read])
-  (:require [convex.cell      :as $.cell]
-            [convex.cvm       :as $.cvm]
-            [convex.db        :as $.db]
-            [convex.shell.env :as $.shell.env]
-            [convex.std       :as $.std]))
+  (:require [babashka.fs :as bb.fs]
+            [convex.cell :as $.cell]
+            [convex.cvm  :as $.cvm]
+            [convex.db   :as $.db]
+            [convex.std  :as $.std]))
+
+
+;;;;;;;;;;
+
+
+(defn- -fail
+
+  [ctx message]
+
+  ($.cvm/exception-set ctx
+                       ($.cell/* :DB)
+                       ($.cell/string message)))
 
 
 ;;;;;;;;;;
@@ -23,33 +33,15 @@
 
   [ctx f]
 
-  (let [ctx-2 ($.shell.env/update ctx
-                                  (fn [env]
-                                    (update env
-                                            :convex.shell.db/instance
-                                            (fn [instance]
-                                              (or instance
-                                                  ($.db/current-set ($.db/open (str (Files/createTempFile "convex-shell-"
-                                                                                                          ".etch"
-                                                                                                          (make-array FileAttribute
-                                                                                                                      0))))))))))]
+  (if ($.db/current)
     (try
-      ($.cvm/result-set ctx-2
+      ($.cvm/result-set ctx
                         (f))
       (catch IOException ex
-        ($.cvm/exception-set ctx-2
-                             ($.cell/* :DB)
-                             ($.cell/string (.getMessage ex)))))))
-
-
-
-(defn- -fail-open
-
-  [ctx message]
-
-  ($.cvm/exception-set ctx
-                       ($.cell/* :DB)
-                       ($.cell/string message)))
+        (-fail ctx
+               (.getMessage ex))))
+    (-fail ctx
+           "No Etch instance has been opened")))
 
 
 ;;;;;;;;;;
@@ -76,35 +68,35 @@
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
                              ($.cell/* "Path for opening Etch must be a string")))
-      (let [path-new (str path)
-            path-old (-> ctx
-                         ($.shell.env/get)
-                         (:convex.shell.db/instance))]
+      (let [path-new (-> path
+                         (str)
+                         (bb.fs/expand-home)
+                         (bb.fs/canonicalize)
+                         (str))
+            path-old (when ($.db/current)
+                       (str ($.db/path)))]
         (if (and path-old
                  (not= path-new
                        path-old))
           ($.cvm/exception-set ctx
                                ($.cell/* :DB)
-                               ($.cell/string "Cannot open another database instance, one is already in use"))
+                               ($.cell/string "Cannot open another Etch instance, one is already in use"))
           (try
+            ;;
             (when-not path-old
               (-> path-new
                   ($.db/open)
                   ($.db/current-set)))
-            (-> ctx
-                ($.shell.env/update (fn [env]
-                                      (assoc env
-                                             :convex.shell.db/instance
-                                             path-new)))
-                ($.cvm/result-set path))
+            ($.cvm/result-set ctx
+                              ($.cell/string path-new))
             ;;
             (catch IOException ex
-              (-fail-open ctx
-                          (.getMessage ex)))
+              (-fail ctx
+                     (.getMessage ex)))
             ;;
-            (catch OverlappingFileLockException ex
-              (-fail-open ctx
-                          "File lock failed")))))))
+            (catch OverlappingFileLockException _ex
+              (-fail ctx
+                     "File lock failed")))))))
 
 
 (defn path

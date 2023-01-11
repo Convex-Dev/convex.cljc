@@ -135,6 +135,7 @@
       ($.cvm/result-set ctx
                         (-> path
                             (str)
+                            (bb.fs/expand-home)
                             (bb.fs/canonicalize)
                             (str)
                             ($.cell/string)))))
