@@ -17,6 +17,26 @@
 (declare close)
 
 
+;;;;;;;;;;
+
+
+(def stderr
+
+  ($.cell/fake $.shell.io/stderr-txt))
+
+
+
+(def stdin
+
+  ($.cell/fake $.shell.io/stdin-txt))
+
+
+
+(def stdout
+
+  ($.cell/fake $.shell.io/stdout-txt))
+
+
 ;;;;;;;;;
 
 
@@ -59,8 +79,9 @@
 
   [ctx handle op+ message]
 
-  (if (and (= handle
-              ($.cell/* :stderr))
+  (if (and (= @($.std/nth handle
+                          1)
+              stderr)
            (or (op+ :flush)
                (op+ :write)))
     ($.cvm/exception-set ctx
@@ -96,7 +117,6 @@
       s)))
 
 
-
 ;;;;;;;;;;
 
 
@@ -110,39 +130,47 @@
 
   [ctx handle op+ f]
 
-  (if-some [stream (-> ctx
-                       ($.shell.env/get)
-                       (get-in [:convex.shell/handle->stream
-                                handle]))]
-    ;; Stream exists.
-    (try
-      ;;
-      (f ctx
-         stream)
-      ;;
-      (catch ClassCastException _ex
-        (-fail ctx
-               handle
-               op+
-               ($.cell/string (format "Stream is missing capability: %s"
-                                      op+))))
-      ;;
-      (catch ParseException ex
+  (or (when-not ($.std/vector? handle)
         ($.cvm/exception-set ctx
-                             ($.cell/* :READER)
-                             ($.cell/string (.getMessage ex))))
-      ;;
-      (catch Throwable _ex
-        (-fail ctx
-               handle
-               op+
-               ($.cell/string (format "Stream failed while performing: %s"
-                                      op+)))))
-    ;; Stream does not exist
-    (-fail ctx
-           handle
-           op+
-           ($.cell/string "Stream closed or does not exist"))))
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Stream handle must be a vector")))
+      (when-not (and (= ($.std/count handle)
+                        4)
+                     (= ($.std/nth handle
+                                   0)
+                        ($.cell/* :stream)))
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Argument is not a stream handle")))
+      (let [f*stream ($.std/nth handle
+                                1)]
+        (or (when-not ($.cell/fake? f*stream)
+              ($.cvm/exception-set ctx
+                                   ($.cell/code-std* :ARGUMENT)
+                                   ($.cell/* "Stream is stale")))
+            (try
+              ;;
+              (f ctx
+                 @f*stream)
+              ;;
+              (catch ClassCastException _ex
+                (-fail ctx
+                       handle
+                       op+
+                       ($.cell/string (format "Stream is missing capability: %s"
+                                              op+))))
+              ;;
+              (catch ParseException ex
+                ($.cvm/exception-set ctx
+                                     ($.cell/* :READER)
+                                     ($.cell/string (.getMessage ex))))
+              ;;
+              (catch Throwable _ex
+                (-fail ctx
+                       handle
+                       op+
+                       ($.cell/string (format "Stream failed while performing: %s"
+                                              op+)))))))))
 
 
 ;;;;;;;;;;

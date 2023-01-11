@@ -5,15 +5,16 @@
                                   ErrorValue)
            (java.io InputStreamReader)
            (java.nio.charset StandardCharsets))
-  (:require [clojure.java.io       :as java.io]
-            [convex.cell           :as $.cell]
-            [convex.cvm            :as $.cvm]
-            [convex.read           :as $.read]
-            [convex.shell.ctx.core :as $.shell.ctx.core]
-            [convex.shell.env      :as $.shell.env]
-            [convex.shell.io       :as $.shell.io]
-            [convex.shell.req      :as $.shell.req]
-            [convex.std            :as $.std]))
+  (:require [clojure.java.io         :as java.io]
+            [convex.cell             :as $.cell]
+            [convex.cvm              :as $.cvm]
+            [convex.read             :as $.read]
+            [convex.shell.ctx.core   :as $.shell.ctx.core]
+            [convex.shell.env        :as $.shell.env]
+            [convex.shell.io         :as $.shell.io]
+            [convex.shell.req        :as $.shell.req]
+            [convex.shell.req.stream :as $.shell.req.stream]
+            [convex.std              :as $.std]))
 
 
 ;;;;;;;;;; Private
@@ -78,18 +79,26 @@
   (-> ($.cvm/ctx)
       ($.cvm/juice-refill)
       ($.cvm/fork-to $.shell.ctx.core/address)
+      ($.cvm/def $.shell.ctx.core/address
+                 ($.std/merge ($.cell/* {.shell.env     [true
+                                                         ~($.cell/fake {:convex.shell/req+            convex.shell.req/impl
+                                                                        :convex.shell.etch/read-only? false})]
+                                         .shell.invoke  ~invoker
+                                         .stream.stderr [:stream
+                                                         ~$.shell.req.stream/stderr
+                                                         -3
+                                                         :stderr]
+                                         .stream.stdin  [:stream
+                                                         ~$.shell.req.stream/stdin
+                                                         -2
+                                                         :stdin]
+                                         .stream.stdout [:stream
+                                                         ~$.shell.req.stream/stdout
+                                                         -1
+                                                         :stdout]
+                                         .sys.eol       ~($.cell/string (System/lineSeparator))})
+                              (first (-resource-cvx "convex/shell/version.cvx"))))
       ($.cvm/eval ($.std/concat ($.cell/* (let [$CORE$ ~$.shell.ctx.core/address]))
                                 (-resource-cvx "convex/shell2.cvx")))
-
-      ($.cvm/def $.shell.ctx.core/address
-                 ($.std/merge ($.cell/* {.shell.env    [true
-                                                        ~($.cell/fake {:convex.shell/req+            convex.shell.req/impl
-                                                                       :convex.shell/handle->stream  {($.cell/* :stderr) $.shell.io/stderr-txt
-                                                                                                      ($.cell/* :stdin)  $.shell.io/stdin-txt
-                                                                                                      ($.cell/* :stdout) $.shell.io/stdout-txt}
-                                                                       :convex.shell.etch/read-only? false})]
-                                         .shell.invoke ~invoker
-                                         .sys.eol      ~($.cell/string (System/lineSeparator))})
-                              (first (-resource-cvx "convex/shell/version.cvx"))))
       ($.cvm/fork-to $.cvm/genesis-user)
       ($.cvm/juice-refill)))

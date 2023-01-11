@@ -1,10 +1,9 @@
 (ns convex.shell.req.file
 
-  (:require [convex.cell      :as $.cell]
-            [convex.cvm       :as $.cvm]
-            [convex.shell.env :as $.shell.env]
-            [convex.shell.io  :as $.shell.io]
-            [convex.std       :as $.std]))
+  (:require [convex.cell     :as $.cell]
+            [convex.cvm      :as $.cvm]
+            [convex.shell.io :as $.shell.io]
+            [convex.std      :as $.std]))
 
 
 ;;;;;;;;;;
@@ -14,16 +13,9 @@
 
   ;; Used by [[stream-in]] and [[stream-out]].
 
-  [ctx handle path open str-op]
+  [ctx id path open str-op]
 
-  (or (when (-> ctx
-                ($.shell.env/get)
-                (get-in [:convex.shell/handle->stream
-                         handle]))
-        ($.cvm/exception-set ctx
-                             ($.cell/* :STREAM)
-                             ($.cell/* "Handle already exists")))
-      (when-not ($.std/string? path)
+  (or (when-not ($.std/string? path)
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
                              ($.cell/* "Path to file must be a string")))
@@ -39,13 +31,11 @@
                                                                        path
                                                                        str-op)))]))]
         (or ctx-err
-            (-> ctx
-                ($.shell.env/update (fn [env]
-                                      (assoc-in env
-                                                [:convex.shell/handle->stream
-                                                 handle]
-                                                stream)))
-                ($.cvm/result-set handle))))))
+            ($.cvm/result-set ctx
+                              ($.cell/* [:stream
+                                         ~($.cell/fake stream)
+                                         ~id
+                                         ~path]))))))
 
 
 
@@ -53,10 +43,10 @@
 
   "Opens an input stream for file under `path`."
 
-  [ctx [handle path]]
+  [ctx [id path]]
 
   (-stream ctx
-           handle
+           id
            path
            $.shell.io/file-in
            #{:read}))
@@ -67,10 +57,10 @@
 
   "Opens an output stream for file under `path`."
 
-  [ctx [handle path append?]]
+  [ctx [id path append?]]
 
   (-stream ctx
-           handle
+           id
            path
            (fn [path]
              ($.shell.io/file-out path

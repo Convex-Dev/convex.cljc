@@ -296,18 +296,12 @@
                         {:params [handle path]}]}}
 
 
-  ([path]
+  [path]
 
-   (.file.stream.in nil
-                    path))
-
-
-  ([handle path]
-
-   (.shell.invoke 'file.stream.in
-                  (.file.-handle handle
-                                 path)
-                  path)))
+  (.shell.invoke 'file.stream.in
+                 (.resrc.next)
+                 (.fs.resolve path)
+                 path))
 
 
 
@@ -336,22 +330,14 @@
 
   ([path]
 
-   (.file.stream.out nil
-                     path))
-
-
-  ([handle path]
-
-   (.file.stream.out handle
-                     path
+   (.file.stream.out path
                      nil))
 
 
-  ([handle path option+]
+  ([path option+]
 
    (.shell.invoke 'file.stream.out
-                  (.file.-handle handle
-                                 path)
+                  (.resrc.next)
                   path
                   (:append? option+))))
 
@@ -823,6 +809,26 @@
 
 
 
+(def .resrc.*count*
+
+  0)
+
+
+
+(defn .resrc.next
+
+  ^{:callable? true}
+
+  []
+
+  (if (= *address*
+         $CORE$)
+    (def .resrc.*count*
+         (inc .resrc.*count*))
+    (call $CORE$
+          (.resrc.next))))
+
+
 
 
 
@@ -831,13 +837,13 @@
 
 (def .shell.env
 
-  nil)
+  .shell.env)
 
 
 
 (def .shell.invoke
 
-  nil)
+  .shell.invoke)
 
 
 
@@ -943,15 +949,14 @@
 
 
 
-
-;;;;;;;;;; STDIO handles
+;;;;;;;;;; STDIO handles (defined in Clojure)
 
 
 (def .stream.stderr
 
   ^{:doc {:description "Stream for STDERR"}}
 
-  :stderr)
+  .stream.stderr)
 
 
 
@@ -959,7 +964,7 @@
 
   ^{:doc {:description "Stream for STDIN."}}
 
-  :stdin)
+  .stream.stdin)
 
 
 
@@ -967,7 +972,7 @@
 
   ^{:doc {:description "Stream for STDOUT"}}
 
-  :stdout)
+  .stream.stdout)
 
 
 ;;;;;;;;;; Default handles
@@ -1358,7 +1363,7 @@
 
   ;; Set from Clojure.
 
-  nil)
+  .sys.eol)
 
 
 
