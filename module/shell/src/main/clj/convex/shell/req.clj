@@ -1,6 +1,9 @@
 (ns convex.shell.req
 
-  (:import (convex.core.exceptions ParseException))
+  (:import (convex.core.exceptions ParseException)
+           (convex.core.lang Context)
+           (convex.core.lang.impl CoreFn
+                                  ErrorValue))
   (:require [convex.cell              :as $.cell]
             [convex.cvm               :as $.cvm]
             [convex.read              :as $.read]
@@ -52,7 +55,7 @@
 ;;;;;;;;;;
 
 
-(def impl
+(def core
 
   {($.cell/* account.switch)   $.shell.req.account/switch
    ($.cell/* bench.trx)        $.shell.req.bench/trx
@@ -106,5 +109,48 @@
    ($.cell/* time.iso->unix)   $.shell.req.time/iso->unix
    ($.cell/* time.nano)        $.shell.req.time/nano
    ($.cell/* time.unix)        $.shell.req.time/unix
-   ($.cell/* time.unix->iso)   $.shell.req.time/unix->iso
-   })
+   ($.cell/* time.unix->iso)   $.shell.req.time/unix->iso})
+
+
+;;;;;;;;;;
+
+
+(defn invoker
+
+  ([]
+
+   (invoker nil))
+
+
+
+  ([dispatch-table]
+
+   (let [dispatch-table-2 (or dispatch-table
+                              core)]
+     (proxy
+
+       [CoreFn]
+
+       [($.cell/* log)]
+
+       (invoke [ctx arg+]
+         (let [sym (first arg+)]
+           (if ($.std/symbol? sym)
+             (if-some [f (dispatch-table-2 sym)]
+               (let [^Context    ctx-2 (f ctx
+                                          (rest arg+))
+                     ^ErrorValue ex    ($.cvm/exception ctx-2)]
+                 (if ex
+                   (.withException ctx-2
+                                   (doto ex
+                                     (.addTrace (format "In Convex Shell request: %s"
+                                                        sym))))
+                   ctx-2))
+
+               ($.cvm/exception-set ctx
+                                    ($.cell/code-std* :ARGUMENT)
+                                    ($.cell/string (format "Unknown Convex Shell request: %s"
+                                                           sym))))
+             ($.cvm/exception-set ctx
+                                  ($.cell/code-std* :ARGUMENT)
+                                  ($.cell/string "Convex Shell invocation require a symbol")))))))))

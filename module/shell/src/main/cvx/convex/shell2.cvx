@@ -892,15 +892,9 @@
 
 
 
-(def .shell.env
-
-  .shell.env)
-
-
-
 (def .shell.invoke
 
-  .shell.invoke)
+  nil)
 
 
 
