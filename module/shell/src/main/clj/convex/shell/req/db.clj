@@ -1,6 +1,7 @@
 (ns convex.shell.req.db
 
   (:import (java.io IOException)
+           (java.nio.channels OverlappingFileLockException)
            (java.nio.file Files)
            (java.nio.file.attribute FileAttribute))
   (:refer-clojure :exclude [flush
@@ -39,6 +40,16 @@
         ($.cvm/exception-set ctx-2
                              ($.cell/* :DB)
                              ($.cell/string (.getMessage ex)))))))
+
+
+
+(defn- -fail-open
+
+  [ctx message]
+
+  ($.cvm/exception-set ctx
+                       ($.cell/* :DB)
+                       ($.cell/string message)))
 
 
 ;;;;;;;;;;
@@ -88,9 +99,12 @@
                 ($.cvm/result-set path))
             ;;
             (catch IOException ex
-              ($.cvm/exception-set ctx
-                                   ($.cell/* :DB)
-                                   ($.cell/string (.getMessage ex)))))))))
+              (-fail-open ctx
+                          (.getMessage ex)))
+            ;;
+            (catch OverlappingFileLockException ex
+              (-fail-open ctx
+                          "File lock failed")))))))
 
 
 (defn path

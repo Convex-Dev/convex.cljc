@@ -81,8 +81,7 @@
       ($.cvm/fork-to $.shell.ctx.core/address)
       ($.cvm/def $.shell.ctx.core/address
                  ($.std/merge ($.cell/* {.shell.env     [true
-                                                         ~($.cell/fake {:convex.shell/req+            convex.shell.req/impl
-                                                                        :convex.shell.etch/read-only? false})]
+                                                         ~($.cell/fake {:convex.shell/req+ convex.shell.req/impl})]
                                          .shell.invoke  ~invoker
                                          .stream.stderr [:stream
                                                          ~$.shell.req.stream/stderr
