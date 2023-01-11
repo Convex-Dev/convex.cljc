@@ -290,6 +290,18 @@
 
 
 
+(defn exception-trace
+
+  "Returns the trace associated with the given [[exception]] (CVX list of strings)."
+
+  ^ACell
+
+  [^ErrorValue exception]
+
+  (.getTrace exception))
+
+
+
 (defn juice
 
   "Returns the remaining amount of juice available for the executing account.

@@ -1,13 +1,14 @@
 (ns convex.shell.dep        
 
+  (:import (convex.core.lang.impl ErrorValue))
   (:refer-clojure :exclude [read])
-  (:require [convex.cell               :as $.cell]
+  (:require [clojure.string            :as string]
+            [convex.cell               :as $.cell]
             [convex.cvm                :as $.cvm]
             [convex.shell.ctx.core     :as $.shell.ctx.core]
             [convex.shell.dep.git      :as $.shell.dep.git]
             [convex.shell.dep.local    :as $.shell.dep.local]
             [convex.shell.dep.relative :as $.shell.dep.relative]
-            [convex.shell.fail         :as $.shell.fail]
             [convex.shell.flow         :as $.shell.flow]
             [convex.shell.kw           :as $.shell.kw]
             [convex.shell.project      :as $.shell.project]
@@ -148,13 +149,14 @@
                               code)
         ex      ($.cvm/exception ctx)
         _       (when ex
-                  (throw (ex-info ""
-                         {:convex.shell/exception (-> ex
-                                                      ($.shell.fail/mappify-cvm-ex)
-                                                      ($.std/assoc $.shell.kw/ancestry
-                                                                   (get-in env
-                                                                           [:convex.shell.dep/hash->ancestry
-                                                                            hash])))})))
+                  ($.shell.flow/fail ctx
+                                     (doto ^ErrorValue ex
+                                       (.addTrace (str "Deploying: "
+                                                       (string/join " <- "
+                                                                    (-> env
+                                                                        (get-in [:convex.shell.dep/hash->ancestry
+                                                                                hash])
+                                                                        (reverse))))))))
         address ($.cvm/result ctx)]
     (-> env
         (assoc :convex.shell/ctx         ctx

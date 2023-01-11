@@ -921,9 +921,9 @@
 
   [& form+]
 
-  `($CORE$/.state.safe (fn []
-                         ~(cons 'do
-                                form+))))
+  `(~$CORE$/.state.safe (fn []
+                          ~(cons 'do
+                                 form+))))
  
 
 
