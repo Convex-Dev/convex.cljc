@@ -49,6 +49,6 @@
                   ($.cvm/fork)
                   ($.cvm/eval trx))]
     ($.cvm/result-set ctx
-                      ($.cell/* [~($.cell/long (- j-1
-                                                  ($.cvm/juice ctx-2)))
-                                 ~($.cvm/result ctx-2)]))))
+                      ($.cell/* [~($.cvm/result ctx-2)
+                                 ~($.cell/long (- j-1
+                                                  ($.cvm/juice ctx-2)))]))))

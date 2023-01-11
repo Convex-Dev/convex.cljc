@@ -563,12 +563,6 @@
 
 
 
-(def .juice.get.overhead
-
-  95)
-
-
-
 (defn .juice.refill
 
   []
@@ -586,34 +580,25 @@
 
 
 
-(defmacro .juice.track*
-
-  ;; Overhead of measurment seems to be 95 units of juice.
-  ;; `form` is effectively compiled <!>
-
-  [form]
-
-  `(let [[j-1
-          r
-          j-2] [($CORE$/.juice.get)
-                ~form
-                ($CORE$/.juice.get)]]
-     [(- j-1
-         j-2
-         $CORE$/.juice.get.overhead)
-      r]))
-
-
-
-(defn .juice.track.trx
+(defn .juice.track
 
   [trx]
 
   (.shell.invoke 'juice.track.trx
                  trx))
 
-     
 
+
+(defn .juice.track
+
+  [trx]
+
+  (conj (.shell.invoke 'juice.track.trx
+                       trx)
+        (second (.shell.invoke 'juice.track.trx
+                               (compile trx)))
+        (second (.shell.invoke 'juice.track.trx
+                               (expand trx)))))
 
 
 
@@ -1360,7 +1345,7 @@
 
 
 
-(defn sys.env.var
+(defn .sys.env.var
 
   [var]
 
