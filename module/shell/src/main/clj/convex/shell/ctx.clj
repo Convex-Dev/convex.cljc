@@ -42,7 +42,7 @@
 
     [CoreFn]
 
-    [($.cell/* .shell.invoke)]
+    [($.cell/* log)]
 
     (invoke [ctx arg+]
       (let [sym (first arg+)]
