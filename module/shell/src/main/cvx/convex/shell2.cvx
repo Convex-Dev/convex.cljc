@@ -1008,15 +1008,16 @@
 
   ([state]
 
-   (.state.switch state
-                  nil))
+   (.state.switch nil
+                  state))
 
 
-  ([state result]
+  ([address state]
 
    (.shell.invoke 'state.switch
-                  state
-                  result)))
+                  (or address
+                      *address*)
+                  state)))
 
 
 

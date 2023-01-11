@@ -84,19 +84,32 @@
 
 (defn switch
 
-  [ctx [^State state result]]
+  [ctx [address ^State state]]
 
-  (or (when-not (instance? State
-                           state)
+  (or (when-not ($.std/state? state)
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
                              ($.cell/string "Can only load a state")))
-      (-> ctx
-          ($.cvm/state-set (.putAccount state
-                                        $.shell.ctx.core/address
-                                        ($.cvm/account ctx
-                                                       $.shell.ctx.core/address)))
-          ($.cvm/result-set result))))
+      (when-not ($.std/address? address)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/string "Must provide a valid address")))
+      (when-not (.getAccount state
+                             address)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :NOBODY)
+                             ($.cell/* "Account for the request address does not exist in the given state")))
+      (let [state-old ($.cvm/state ctx)]
+        (-> ctx
+            ($.cvm/state-set (.putAccount state
+                                          $.shell.ctx.core/address
+                                          ($.cvm/account ctx
+                                                         $.shell.ctx.core/address)))
+            (cond->
+              (not= address
+                    ($.cvm/address ctx))
+              ($.cvm/fork-to address))
+            ($.cvm/result-set state-old)))))
 
 
 

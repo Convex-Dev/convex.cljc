@@ -6,12 +6,14 @@ repository.
 
 ---
 
+
 ## {{ next-release }}
 
 - Add
     - `$.cell/fake`
     - `$.cvm/exception-set`
     - `$.cvm/exception-trace`
+    - `$.std/state?`
 
 
 ---

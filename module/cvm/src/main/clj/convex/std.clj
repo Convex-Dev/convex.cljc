@@ -15,7 +15,8 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.data AccountKey
+  (:import (convex.core State)
+           (convex.core.data AccountKey
                              Address
                              ABlob
                              ABlobMap
@@ -1307,6 +1308,17 @@
   [x]
 
   (instance? ASet
+             x))
+
+
+
+(defn state?
+
+  "Is `x` a state cell?"
+
+  [x]
+
+  (instance? State
              x))
 
 
