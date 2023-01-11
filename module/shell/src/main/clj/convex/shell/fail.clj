@@ -6,7 +6,8 @@
   (:require [clojure.java.io :as java.io]
             [clojure.pprint  :as pprint]
             [convex.cell     :as $.cell]
-            [convex.cvm      :as $.cvm]))
+            [convex.cvm      :as $.cvm]
+            [convex.std      :as $.std]))
 
 
 ;;;;;;;;;;
@@ -21,9 +22,11 @@
 
   [^ErrorValue ex]
 
-  ($.cell/error (.getCode ex)
-                (.getMessage ex)
-                ($.cell/vector (.getTrace ex))))
+  (-> ($.cell/error (.getCode ex)
+                    (.getMessage ex)
+                    ($.cell/vector (.getTrace ex)))
+      ($.std/assoc ($.cell/* :address)
+                   (.getAddress ex))))
 
 
 

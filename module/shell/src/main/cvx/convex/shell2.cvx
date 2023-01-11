@@ -669,6 +669,14 @@
            "  "
            (.term.bold)
            (:code ex)
+           (.term.bold)
+           (.term.fg.red)
+           .sys.eol
+           "Executing address:"
+           (.term.reset)
+           .sys.eol
+           "  "
+           (:address ex)
            .sys.eol
            (.term.bold)
            (.term.fg.red)
