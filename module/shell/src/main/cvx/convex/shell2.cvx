@@ -10,6 +10,12 @@
 
 
 
+(def .account.core
+
+  $CORE$)
+
+
+
 (defn .account.key?
 
   ^{:doc {:description "Returns true if `x` is a 32-byte blob that can act as a key."
