@@ -60,7 +60,8 @@
       true)
 
 
-(declare juice-set
+(declare juice
+         juice-set
          state-set)
 
 
@@ -135,14 +136,16 @@
 
   "Duplicates the given `ctx` and switches the executing account.
 
-   Like [[fork]] but the CVM log is lost."
+   Like [[fork]] but only [[state]] and [[juice]] are preservered.
+   Everything else is lost: local bindings, CVM log. CVM depth, etc."
 
   ^Context
 
   [^Context ctx address]
 
-  (.forkWithAddress ctx
-                    address))
+  (-> ctx
+      (.forkWithAddress address)
+      (juice-set (juice ctx))))
 
 
 ;;;;;;;;;; Querying context properties
