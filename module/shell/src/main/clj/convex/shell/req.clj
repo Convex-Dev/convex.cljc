@@ -61,7 +61,8 @@
 
 (def core
 
-  {($.cell/* .account.switch)   $.shell.req.account/switch
+  {($.cell/* .account.control)  $.shell.req.account/control
+   ($.cell/* .account.switch)   $.shell.req.account/switch
    ($.cell/* .bench.trx)        $.shell.req.bench/trx
    ($.cell/* .db.flush)         $.shell.req.db/flush
    ($.cell/* .db.open)          $.shell.req.db/open
@@ -80,6 +81,7 @@
    ($.cell/* .fs.delete)        $.shell.req.fs/delete
    ($.cell/* .fs.exists?)       $.shell.req.fs/exists?
    ($.cell/* .fs.resolve)       $.shell.req.fs/resolve
+   ($.cell/* .fs.size)          $.shell.req.fs/size
    ($.cell/* .fs.tmp)           $.shell.req.fs/tmp
    ($.cell/* .fs.tmp.dir)       $.shell.req.fs/tmp-dir
    ($.cell/* .juice.get)        $.shell.req.juice/get

@@ -3,6 +3,7 @@
   (:import (java.io File)
            (java.nio.file DirectoryNotEmptyException
                           Files
+                          NoSuchFileException
                           Path
                           StandardCopyOption)
            (java.nio.file.attribute FileAttribute))
@@ -139,6 +140,33 @@
                             (bb.fs/canonicalize)
                             (str)
                             ($.cell/string)))))
+
+
+
+(defn size
+
+  [ctx [path]]
+
+  (or (when-not ($.std/string? path)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Path must be a string")))
+      (try
+        ;;
+        ($.cvm/result-set ctx
+                          (-> path
+                              (str)
+                              (bb.fs/size)
+                              ($.cell/long)))
+        ;;
+        (catch NoSuchFileException _ex
+          ($.cvm/result-set ctx
+                            nil))
+        ;;
+        (catch Throwable _ex
+          ($.cvm/exception-set ctx
+                               ($.cell/* :FS)
+                               ($.cell/* "Unable to get file size"))))))
 
 
 

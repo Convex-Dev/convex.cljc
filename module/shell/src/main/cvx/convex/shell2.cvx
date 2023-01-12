@@ -10,6 +10,22 @@
 
 
 
+(defn .account.control
+
+
+  ([address-target]
+
+   (.account.control nil
+                     address-target))
+
+  ([address-controller address-target]
+
+   (.shell.invoke '.account.control
+                  address-controller
+                  address-target)))
+
+
+
 (def .account.core
 
   $CORE$)
@@ -496,6 +512,15 @@
   [path]
 
   (.shell.invoke '.fs.resolve
+                 path))
+
+
+
+(defn .fs.size
+
+  [path]
+
+  (.shell.invoke '.fs.size
                  path))
 
 
