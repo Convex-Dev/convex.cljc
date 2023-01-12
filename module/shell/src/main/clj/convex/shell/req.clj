@@ -1,13 +1,13 @@
 (ns convex.shell.req
 
   (:import (convex.core.exceptions ParseException)
+           (convex.core.init Init)
            (convex.core.lang Context)
            (convex.core.lang.impl CoreFn
                                   ErrorValue))
   (:require [convex.cell              :as $.cell]
             [convex.cvm               :as $.cvm]
             [convex.read              :as $.read]
-            [convex.shell.ctx.core    :as $.shell.ctx.core]
             [convex.shell.req.account :as $.shell.req.account]
             [convex.shell.req.bench   :as $.shell.req.bench]
             [convex.shell.req.db      :as $.shell.req.db]
@@ -140,9 +140,9 @@
                              ($.cell/* "Given feature set is not a set")))
       ;; Must dissoc first due to how fake cells compare.
       (-> ctx
-          ($.cvm/undef $.shell.ctx.core/address
+          ($.cvm/undef Init/CORE_ADDRESS
                        [($.cell/* .shell.invoke)])
-          ($.cvm/def $.shell.ctx.core/address
+          ($.cvm/def Init/CORE_ADDRESS
                      ($.cell/* {.shell.invoke ~(invoker (into {}
                                                               (filter (comp (partial $.std/contains?
                                                                                      feature-set)

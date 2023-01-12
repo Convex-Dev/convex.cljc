@@ -1,12 +1,12 @@
 (ns convex.shell.ctx
 
-  (:import (java.io InputStreamReader)
+  (:import (convex.core.init Init)
+           (java.io InputStreamReader)
            (java.nio.charset StandardCharsets))
   (:require [clojure.java.io         :as java.io]
             [convex.cell             :as $.cell]
             [convex.cvm              :as $.cvm]
             [convex.read             :as $.read]
-            [convex.shell.ctx.core   :as $.shell.ctx.core]
             [convex.shell.req.stream :as $.shell.req.stream]
             [convex.std              :as $.std]))
 
@@ -34,8 +34,8 @@
 
   (let [ctx (-> ($.cvm/ctx)
                 ($.cvm/juice-refill)
-                ($.cvm/fork-to $.shell.ctx.core/address)
-                ($.cvm/def $.shell.ctx.core/address
+                ($.cvm/fork-to Init/CORE_ADDRESS)
+                ($.cvm/def Init/CORE_ADDRESS
                            ($.std/merge ($.cell/* {.account.genesis ~$.cvm/genesis-user
                                                    .stream.stderr   [:stream
                                                                      ~$.shell.req.stream/stderr
@@ -51,7 +51,7 @@
                                                                      :stdout]
                                                    .sys.eol         ~($.cell/string (System/lineSeparator))})
                                         (first (-resource-cvx "convex/shell/version.cvx"))))
-                ($.cvm/eval ($.std/concat ($.cell/* (let [$CORE$ ~$.shell.ctx.core/address]))
+                ($.cvm/eval ($.std/concat ($.cell/* (let [$CORE$ ~Init/CORE_ADDRESS]))
                                           (-resource-cvx "convex/shell2.cvx"))))]
     (when ($.cvm/exception ctx)
       ;; Throw on purpose.

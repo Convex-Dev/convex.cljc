@@ -1,9 +1,9 @@
 (ns convex.shell.req.state
 
-  (:import (convex.core State))
+  (:import (convex.core State)
+           (convex.core.init Init))
   (:require [convex.cell           :as $.cell]
             [convex.cvm            :as $.cvm]
-            [convex.shell.ctx.core :as $.shell.ctx.core]
             [convex.shell.fail     :as $.shell.fail]
             [convex.std            :as $.std]))
 
@@ -102,9 +102,9 @@
       (let [state-old ($.cvm/state ctx)]
         (-> ctx
             ($.cvm/state-set (.putAccount state
-                                          $.shell.ctx.core/address
+                                          Init/CORE_ADDRESS
                                           ($.cvm/account ctx
-                                                         $.shell.ctx.core/address)))
+                                                         Init/CORE_ADDRESS)))
             (cond->
               (not= address
                     ($.cvm/address ctx))

@@ -30,12 +30,12 @@
   {:author "Adam Helinski"}
 
   (:gen-class)
+  (:import (convex.core.init Init))
   (:require [clojure.string        :as string]
             [convex.db             :as $.db]
             [convex.cell           :as $.cell]
             [convex.cvm            :as $.cvm]
             [convex.shell.ctx      :as $.shell.ctx]
-            [convex.shell.ctx.core :as $.shell.ctx.core]
             [convex.shell.fail     :as $.shell.fail]
             [convex.shell.log]
             [convex.shell.req      :as $.shell.req]))
@@ -58,7 +58,7 @@
    ($.db/current-set nil)
    (-> $.shell.ctx/genesis
        ($.cvm/fork)
-       ($.cvm/def $.shell.ctx.core/address
+       ($.cvm/def Init/CORE_ADDRESS
                   ($.cell/* {.shell.invoke ~(or (:convex.shell/invoker option+)
                                                 ($.shell.req/invoker))})))))
 
