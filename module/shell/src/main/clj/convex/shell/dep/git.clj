@@ -1,15 +1,15 @@
 (ns convex.shell.dep.git
 
   (:import (convex.core.init Init))
-  (:require [babashka.fs       :as bb.fs]
-            [clojure.string    :as string]
-            [convex.cell       :as $.cell]
-            [convex.cvm        :as $.cvm]
-            [convex.shell.flow :as $.shell.flow]
-            [convex.shell.kw   :as $.shell.kw]
-            [convex.std        :as $.std]
-            [protosens.git     :as P.git]
-            [protosens.process :as P.process]))
+  (:require [babashka.fs           :as bb.fs]
+            [clojure.string        :as string]
+            [convex.cell           :as $.cell]
+            [convex.cvm            :as $.cvm]
+            [convex.shell.dep.fail :as $.shell.dep.fail]
+            [convex.shell.kw       :as $.shell.kw]
+            [convex.std            :as $.std]
+            [protosens.git         :as P.git]
+            [protosens.process     :as P.process]))
 
 
 ;;;;;;;;;; Regular expressions
@@ -109,12 +109,12 @@
                              path
                              sha)
         fail         (fn [message]
-                       ($.shell.flow/fail (env :convex.shell/ctx)
-                                          ($.cell/* :SHELL.DEP.GIT)
-                                          ($.cell/* {:ancestry ~(env :convex.shell.dep/ancestry)
-                                                     :message  ~($.cell/string message)
-                                                     :sha      ~($.cell/string sha)
-                                                     :url      ~($.cell/string url)})))
+                       ($.shell.dep.fail/with-ancestry (env :convex.shell/ctx)
+                                                       ($.cell/* :SHELL.DEP.GIT)
+                                                       ($.cell/* {:message  ~($.cell/string message)
+                                                                  :sha      ~($.cell/string sha)
+                                                                  :url      ~($.cell/string url)})
+                                                       (env :convex.shell.dep/ancestry)))
         scheme-file? (string/starts-with? path-rel
                                           "file")]
     (when (and (env :convex.shell.dep/foreign?)

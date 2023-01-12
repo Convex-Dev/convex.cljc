@@ -6,6 +6,7 @@
   (:require [clojure.string            :as string]
             [convex.cell               :as $.cell]
             [convex.cvm                :as $.cvm]
+            [convex.shell.dep.fail     :as $.shell.dep.fail]
             [convex.shell.dep.git      :as $.shell.dep.git]
             [convex.shell.dep.local    :as $.shell.dep.local]
             [convex.shell.dep.relative :as $.shell.dep.relative]
@@ -80,11 +81,12 @@
                                     [$.shell.kw/deps
                                      project-sym])
              _              (when-not dep-parent
-                              ($.shell.flow/fail (env :convex.shell/ctx)
-                                                 ($.cell/code-std* :ARGUMENT)
-                                                 ($.cell/* {:ancestry ~(env :convex.shell.dep/ancestry)
-                                                            :message  ~($.cell/string (format "Dependency alias not found: %s"
-                                                                                              project-sym))})))
+                              ($.shell.dep.fail/with-ancestry (env :convex.shell/ctx)
+                                                              ($.cell/code-std* :ARGUMENT)
+                                                              ($.cell/string (format "Dependency alias not found: %s"
+                                                                                     project-sym))
+                                                              (env :convex.shell.dep/ancestry)))
+
              fetch-parent  (get-in env
                                    [:convex.shell.dep/resolver+
                                     (first dep-parent)])]
