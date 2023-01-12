@@ -7,6 +7,7 @@
   (:require [convex.cell              :as $.cell]
             [convex.cvm               :as $.cvm]
             [convex.read              :as $.read]
+            [convex.shell.ctx.core    :as $.shell.ctx.core]
             [convex.shell.req.account :as $.shell.req.account]
             [convex.shell.req.bench   :as $.shell.req.bench]
             [convex.shell.req.db      :as $.shell.req.db]
@@ -21,6 +22,9 @@
             [convex.shell.req.sys     :as $.shell.req.sys]
             [convex.shell.req.time    :as $.shell.req.time]
             [convex.std               :as $.std]))
+
+
+(declare invoker)
 
 
 ;;;;;;;;;;
@@ -115,18 +119,56 @@
 ;;;;;;;;;;
 
 
+(defn- -inspect
+
+  [dispatch-table ctx _arg+]
+
+  ($.cvm/result-set ctx
+                    ($.cell/set (keys dispatch-table))))
+
+
+
+(defn- -limit
+
+  [dispatch-table ctx [feature-set]]
+
+  (or (when-not ($.std/set? feature-set)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Given feature set is not a set")))
+      ;; Must dissoc first due to how fake cells compare.
+      (-> ctx
+          ($.cvm/undef $.shell.ctx.core/address
+                       [($.cell/* .shell.invoke)])
+          ($.cvm/def $.shell.ctx.core/address
+                     ($.cell/* {.shell.invoke ~(invoker (into {}
+                                                              (filter (comp (partial $.std/contains?
+                                                                                     feature-set)
+                                                                            first))
+                                                              dispatch-table))}))
+          ($.cvm/result-set nil))))
+
+
+;;;;;;;;;;
+
+
 (defn invoker
+
 
   ([]
 
    (invoker nil))
 
 
-
   ([dispatch-table]
 
    (let [dispatch-table-2 (or dispatch-table
-                              core)]
+                              core)
+         dispatch-table-3 (assoc dispatch-table-2
+                                 ($.cell/* shell.inspect) (partial -inspect
+                                                                   dispatch-table-2)
+                                 ($.cell/* shell.limit)   (partial -limit
+                                                                   dispatch-table-2))]
      (proxy
 
        [CoreFn]
@@ -136,7 +178,7 @@
        (invoke [ctx arg+]
          (let [sym (first arg+)]
            (if ($.std/symbol? sym)
-             (if-some [f (dispatch-table-2 sym)]
+             (if-some [f (dispatch-table-3 sym)]
                (let [^Context    ctx-2 (f ctx
                                           (rest arg+))
                      ^ErrorValue ex    ($.cvm/exception ctx-2)]
@@ -146,7 +188,6 @@
                                      (.addTrace (format "In Convex Shell request: %s"
                                                         sym))))
                    ctx-2))
-
                ($.cvm/exception-set ctx
                                     ($.cell/code-std* :ARGUMENT)
                                     ($.cell/string (format "Unknown Convex Shell request: %s"

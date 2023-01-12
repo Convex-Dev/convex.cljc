@@ -899,6 +899,22 @@
 
 
 
+(defn .shell.inspect
+
+  []
+
+  (.shell.invoke 'shell.inspect))
+
+
+
+(defn .shell.limit
+
+  [feature-set]
+
+  (.shell.invoke 'shell.limit
+                 feature-set))
+
+
 
 (def .shell.invoke
 
