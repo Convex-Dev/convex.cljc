@@ -35,7 +35,7 @@
 
   [address]
 
-  (.shell.invoke 'account.switch
+  (.shell.invoke '.account.switch
                  address))
 
 
@@ -74,7 +74,7 @@
 
   [trx]
 
-  (.shell.invoke 'bench.trx
+  (.shell.invoke '.bench.trx
                  trx))
 
 
@@ -98,7 +98,7 @@
 
   [required]
 
-  (.shell.invoke 'dep.fetch
+  (.shell.invoke '.dep.fetch
                   (if (list? required)
                     ['_ required]
                     required)))
@@ -109,7 +109,7 @@
 
   [required]
 
-  (.shell.invoke 'dep.deploy
+  (.shell.invoke '.dep.deploy
                  required))
 
 
@@ -137,10 +137,10 @@
   [required]
 
   (if (list? required)
-    (get (.shell.invoke 'dep.read
+    (get (.shell.invoke '.dep.read
                         ['x required])
          'x)
-    (.shell.invoke 'dep.read
+    (.shell.invoke '.dep.read
                    required)))
 
 
@@ -191,7 +191,7 @@
 
   []
 
-  (.shell.invoke 'db.flush))
+  (.shell.invoke '.db.flush))
 
 
 
@@ -210,7 +210,7 @@
 
   ([path]
 
-   (.shell.invoke 'db.open
+   (.shell.invoke '.db.open
                   (or path
                       (.fs.tmp "convex-shell-"
                                ".etch")))))
@@ -226,7 +226,7 @@
 
   []
 
-  (.shell.invoke 'db.path))
+  (.shell.invoke '.db.path))
 
 
 
@@ -240,7 +240,7 @@
 
   [hash]
 
-  (.shell.invoke 'db.read
+  (.shell.invoke '.db.read
                  hash))
 
 
@@ -256,7 +256,7 @@
 
   []
 
-  (.shell.invoke 'db.root.read))
+  (.shell.invoke '.db.root.read))
 
 
 
@@ -269,7 +269,7 @@
 
   [cell]
 
-  (.shell.invoke 'db.root.write
+  (.shell.invoke '.db.root.write
                  cell))
 
 
@@ -291,7 +291,7 @@
 
   [cell]
 
-  (.shell.invoke 'db.write
+  (.shell.invoke '.db.write
                  cell))
 
 
@@ -359,7 +359,7 @@
 
   [path]
 
-  (.shell.invoke 'file.stream.in
+  (.shell.invoke '.file.stream.in
                  (.resrc.next)
                  (.fs.resolve path)
                  path))
@@ -397,7 +397,7 @@
 
   ([path option+]
 
-   (.shell.invoke 'file.stream.out
+   (.shell.invoke '.file.stream.out
                   (.resrc.next)
                   path
                   (:append? option+))))
@@ -452,7 +452,7 @@
 
   [path-source path-destination]
 
-  (.shell.invoke 'fs.copy
+  (.shell.invoke '.fs.copy
                  path-source
                  path-destination))
 
@@ -466,7 +466,7 @@
 
   [path]
 
-  (.shell.invoke 'fs.delete
+  (.shell.invoke '.fs.delete
                  path))
 
 
@@ -480,7 +480,7 @@
 
   [path]
 
-  (.shell.invoke 'fs.exists?
+  (.shell.invoke '.fs.exists?
                  path))
 
 
@@ -489,7 +489,7 @@
 
   [path]
 
-  (.shell.invoke 'fs.resolve
+  (.shell.invoke '.fs.resolve
                  path))
 
 
@@ -520,7 +520,7 @@
 
   ([prefix suffix]
 
-   (.shell.invoke 'fs.tmp
+   (.shell.invoke '.fs.tmp
                   (or prefix
                       "")
                   (or suffix
@@ -545,7 +545,7 @@
 
   ([prefix]
 
-   (.shell.invoke 'fs.tmp.dir
+   (.shell.invoke '.fs.tmp.dir
                   (or prefix
                       ""))))
 
@@ -606,7 +606,7 @@
 
   []
 
-  (.shell.invoke 'juice.get))
+  (.shell.invoke '.juice.get))
 
 
 
@@ -622,7 +622,7 @@
 
   [n-unit]
 
-  (.shell.invoke 'juice.set
+  (.shell.invoke '.juice.set
                  n-unit))
 
 
@@ -631,11 +631,11 @@
 
   [trx]
 
-  (conj (.shell.invoke 'juice.track
+  (conj (.shell.invoke '.juice.track
                        trx)
-        (second (.shell.invoke 'juice.track
+        (second (.shell.invoke '.juice.track
                                (compile trx)))
-        (second (.shell.invoke 'juice.track
+        (second (.shell.invoke '.juice.track
                                (expand trx)))))
 
 
@@ -650,7 +650,7 @@
 
   []
 
-  (.shell.invoke 'log.clear))
+  (.shell.invoke '.log.clear))
 
 
 
@@ -662,7 +662,7 @@
 
   []
 
-  (.shell.invoke 'log.get))
+  (.shell.invoke '.log.get))
 
 
 
@@ -673,7 +673,7 @@
 
   [string]
 
-  (.shell.invoke 'read+
+  (.shell.invoke '.read+
                  string))
 
 
@@ -903,7 +903,7 @@
 
   []
 
-  (.shell.invoke 'shell.inspect))
+  (.shell.invoke '.shell.inspect))
 
 
 
@@ -911,7 +911,7 @@
 
   [feature-set]
 
-  (.shell.invoke 'shell.limit
+  (.shell.invoke '.shell.limit
                  feature-set))
 
 
@@ -993,7 +993,7 @@
 
   ([key+]
 
-   (.shell.invoke 'state.genesis
+   (.shell.invoke '.state.genesis
                   (or key+
                       [.account.0-key]))))
 
@@ -1003,7 +1003,7 @@
 
   [f]
 
-  (.shell.invoke 'state.safe
+  (.shell.invoke '.state.safe
                  f))
 
 
@@ -1029,7 +1029,7 @@
 
   ([address state]
 
-   (.shell.invoke 'state.switch
+   (.shell.invoke '.state.switch
                   (or address
                       *address*)
                   state)))
@@ -1040,7 +1040,7 @@
 
   [f]
 
-  (.shell.invoke 'state.tmp
+  (.shell.invoke '.state.tmp
                  f))
 
 
@@ -1182,7 +1182,7 @@
 
   ;(assert (not (= handle
   ;                stderr)))
-  (.shell.invoke 'stream.close
+  (.shell.invoke '.stream.close
                  handle))
 
 
@@ -1229,7 +1229,7 @@
 
   ([handle]
 
-   (.shell.invoke 'stream.flush
+   (.shell.invoke '.stream.flush
                   handle)))
 
 
@@ -1252,7 +1252,7 @@
 
   ([handle]
 
-   (.shell.invoke 'stream.in+
+   (.shell.invoke '.stream.in+
                   handle)))
 
 
@@ -1277,7 +1277,7 @@
 
   ([handle]
 
-   (.shell.invoke 'stream.line
+   (.shell.invoke '.stream.line
                   handle)))
 
 
@@ -1291,7 +1291,7 @@
 
   [handle]
 
-  (.shell.invoke 'stream.open?
+  (.shell.invoke '.stream.open?
                  handle))
 
 
@@ -1313,7 +1313,7 @@
 
   ([handle x]
 
-   (.shell.invoke 'stream.out
+   (.shell.invoke '.stream.out
                   handle
                   x)))
 
@@ -1335,7 +1335,7 @@
 
   ([handle x]
    
-   (.shell.invoke 'stream.outln
+   (.shell.invoke '.stream.outln
                   handle
                   x)))
 
@@ -1359,7 +1359,7 @@
 
   ([handle]
 
-   (.shell.invoke 'stream.txt.in
+   (.shell.invoke '.stream.txt.in
                   handle)))
 
 
@@ -1383,7 +1383,7 @@
 
   ([handle]
 
-   (.shell.invoke 'stream.txt.line
+   (.shell.invoke '.stream.txt.line
                   handle)))
 
 
@@ -1405,7 +1405,7 @@
 
   ([handle x]
 
-   (.shell.invoke 'stream.txt.out
+   (.shell.invoke '.stream.txt.out
                   handle
                   x)))
 
@@ -1428,7 +1428,7 @@
 
   ([handle x]
 
-   (.shell.invoke 'stream.txt.outln
+   (.shell.invoke '.stream.txt.outln
                   handle
                   x)))
 
@@ -1441,7 +1441,7 @@
 
   []
 
-  (.shell.invoke 'sys.arch))
+  (.shell.invoke '.sys.arch))
 
 
 
@@ -1449,7 +1449,7 @@
 
   []
 
-  (.shell.invoke 'sys.cwd))
+  (.shell.invoke '.sys.cwd))
 
 
 
@@ -1457,7 +1457,7 @@
 
   []
 
-  (.shell.invoke 'sys.env))
+  (.shell.invoke '.sys.env))
 
 
 
@@ -1465,7 +1465,7 @@
 
   [var]
 
-  (.shell.invoke 'sys.env.var
+  (.shell.invoke '.sys.env.var
                  var))
 
 
@@ -1482,7 +1482,7 @@
 
   [code]
 
-  (.shell.invoke 'sys.exit
+  (.shell.invoke '.sys.exit
                  code))
 
 
@@ -1491,7 +1491,7 @@
 
   []
 
-  (.shell.invoke 'sys.home))
+  (.shell.invoke '.sys.home))
 
 
 
@@ -1499,7 +1499,7 @@
 
   []
 
-  (.shell.invoke 'sys.os))
+  (.shell.invoke '.sys.os))
 
 
 
@@ -2055,7 +2055,7 @@
 
   [millis]
 
-  (.shell.invoke 'time.advance
+  (.shell.invoke '.time.advance
                  millis))
 
 
@@ -2078,7 +2078,7 @@
 
   [iso-string]
 
-  (.shell.invoke 'time.iso->unix
+  (.shell.invoke '.time.iso->unix
                  iso-string))
 
 
@@ -2102,7 +2102,7 @@
 
   []
 
-  (.shell.invoke 'time.nano))
+  (.shell.invoke '.time.nano))
 
 
 
@@ -2120,7 +2120,7 @@
 
   []
 
-  (.shell.invoke 'time.unix))
+  (.shell.invoke '.time.unix))
 
 
 
@@ -2134,7 +2134,7 @@
 
   [time-unix]
 
-  (.shell.invoke 'time.unix->iso
+  (.shell.invoke '.time.unix->iso
                  time-unix))
 
 
