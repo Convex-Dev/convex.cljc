@@ -148,6 +148,7 @@
    ($.cell/* .state.safe)        $.shell.req.state/safe
    ($.cell/* .state.switch)      $.shell.req.state/switch
    ($.cell/* .state.tmp)         $.shell.req.state/tmp
+   ($.cell/* .str.stream.in)     $.shell.req.str/stream-in
    ($.cell/* .str.stream.out)    $.shell.req.str/stream-out
    ($.cell/* .str.stream.unwrap) $.shell.req.str/stream-unwrap
    ($.cell/* .stream.close)      $.shell.req.stream/close

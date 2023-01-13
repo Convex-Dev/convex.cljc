@@ -1156,6 +1156,13 @@
 
 
 
+(defn .str.stream.in
+
+  [string]
+
+  (.shell.invoke '.str.stream.in
+                 (.resrc.next)
+                 string))
 
 
 
