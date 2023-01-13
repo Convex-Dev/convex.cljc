@@ -1,6 +1,7 @@
 (ns convex.shell.req
 
-  (:import (convex.core.exceptions ParseException)
+  (:import (convex.core.data ACell)
+           (convex.core.exceptions ParseException)
            (convex.core.init Init)
            (convex.core.lang Context)
            (convex.core.lang.impl CoreFn
@@ -22,6 +23,10 @@
             [convex.shell.req.sys     :as $.shell.req.sys]
             [convex.shell.req.time    :as $.shell.req.time]
             [convex.std               :as $.std]))
+
+
+(set! *warn-on-reflection*
+      true)
 
 
 (declare invoker)
@@ -54,6 +59,53 @@
             ($.cvm/exception-set ctx
                                  ($.cell/* :READER)
                                  ($.cell/string "Unable to read string as Convex data")))))))
+
+
+
+(defn rethrow
+
+  [ctx [ex-map]]
+
+  (or (when-not ($.std/map? ex-map)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Given exception must be a map")))
+      (let [^ACell code ($.std/get ex-map
+                                   ($.cell/* :code))]
+        (or (when (nil? code)
+              ($.cvm/exception-set ctx
+                                   ($.cell/code-std* :ARGUMENT)
+                                   ($.cell/* "Exception `:code` cannot be nil")))
+            (let [address ($.std/get ex-map
+                                     ($.cell/* :address))]
+              (or (when-not (or (nil? address)
+                                ($.std/address? address))
+                    ($.cvm/exception-set ctx
+                                         ($.cell/code-std* :ARGUMENT)
+                                         ($.cell/* "Exception `:address` must be a valid address")))
+                  (let [trace ($.std/get ex-map
+                                         ($.cell/* :trace))]
+                    (or (when-not (or (nil? trace)
+                                      ($.std/vector? trace))
+                          ($.cvm/exception-set ctx
+                                               ($.cell/code-std* :ARGUMENT)
+                                               ($.cell/* "Exception `:trace` must be a vector of strings")))
+                        (let [ex (ErrorValue/createRaw code
+                                                       ^ACell ($.std/get ex-map
+                                                                         ($.cell/* :message)))]
+                          (when address
+                            (.setAddress ex
+                                         address))
+                          (.addLog ex
+                                   ($.cvm/log ctx))
+                          (doseq [cell trace]
+                            (.addTrace ex
+                                       (str cell)))
+                          (.addTrace ex
+                                     (format "Rethrowing exception in %s"
+                                             ($.cvm/address ctx)))
+                          ($.cvm/exception-set ctx
+                                               ex))))))))))
 
 
 ;;;;;;;;;;
@@ -90,6 +142,7 @@
    ($.cell/* .log.clear)        $.shell.req.log/clear
    ($.cell/* .log.get)          $.shell.req.log/get
    ($.cell/* .read+)            read+
+   ($.cell/* .rethrow)          rethrow
    ($.cell/* .state.genesis)    $.shell.req.state/genesis
    ($.cell/* .state.safe)       $.shell.req.state/safe
    ($.cell/* .state.switch)     $.shell.req.state/switch

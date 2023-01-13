@@ -513,10 +513,10 @@
    See [[exception]]."
 
 
-  (^Context [^Context ctx ^ErrorValue exception]
+  (^Context [^Context ctx ^AExceptional exception]
 
-   (.withError ctx
-               exception))
+   (.withException ctx
+                   exception))
 
 
   (^Context [^Context ctx ^ACell code ^ACell message]
