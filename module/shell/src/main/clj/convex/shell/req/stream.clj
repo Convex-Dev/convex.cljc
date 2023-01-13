@@ -311,13 +311,15 @@
                          handle
                          #{:read}
                          (fn [ctx-2 ^BufferedReader stream]
-                           ($.cvm/result-set ctx-2
-                                             (-> stream
-                                                 (.lines)
-                                                 (.collect (Collectors/joining (System/lineSeparator)))
-                                                 ($.cell/string)))))]
+                           (let [result (-> stream
+                                            (.lines)
+                                            (.collect (Collectors/joining (System/lineSeparator)))
+                                            ($.cell/string))]
+                             (close ctx-2
+                                    [handle]
+                                    result))))]
     (close ctx-2
-           handle
+           [handle]
            ($.cvm/result ctx-2))))
 
 

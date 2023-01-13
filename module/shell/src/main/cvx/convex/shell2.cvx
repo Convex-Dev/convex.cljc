@@ -346,6 +346,22 @@
 
 
 
+(defn .file.-read
+
+  ^:private?
+
+  [f-in path]
+
+  (let [handle (.file.stream.in path)
+        [ok?
+         x]    (.state.safe (fn []
+                              (f-in handle)))]
+    (.stream.close handle)
+    (if ok?
+      x
+      (.rethrow x))))
+
+
 
 (defn .file.read
 
@@ -358,8 +374,18 @@
 
   [path]
 
-  (.stream.in+ (.file.stream.in path)))
- 
+  (.file.-read .stream.in+
+               path))
+
+
+
+(defn .file.txt.read
+
+  [path]
+
+  (.file.-read .stream.txt.in
+               path))
+
 
 
 (defn .file.stream.in
@@ -426,6 +452,25 @@
 
 
 
+(defn .file.-write
+
+  ^:private?
+
+  [f-out path cell option+]
+
+  (let [handle (.file.stream.out path
+                                  option+)
+        [ok?
+         x]    (.state.safe (fn []
+                              (f-out handle
+                                     cell)))]
+    (.stream.close handle)
+    (if ok?
+      x
+      (.rethrow x))))
+
+
+
 (defn .file.write
 
   ^{:doc {:description ["Returns a request for writing `cell` to the file located under `path`, in one go."
@@ -445,19 +490,29 @@
 
   ([path cell option+]
 
-   (let [handle (.file.stream.out path
-                                  option+)
-         [ok?
-          x]    (.state.safe (fn []
-                               (.stream.outln handle
-                                              cell)))]
-     (.stream.close handle)
-     (if ok?
-       x
-       (.rethrow x)))))
+   (.file.-write .stream.outln
+                 path
+                 cell
+                 option+)))
 
 
 
+(defn .file.txt.write
+
+
+  ([path cell]
+
+   (.file.txt.write path
+                    cell
+                    nil))
+
+
+  ([path cell option+]
+
+   (.file.-write .stream.txt.outln
+                 path
+                 cell
+                 option+)))
 
 
 
