@@ -175,8 +175,6 @@
 
 
 
-
-
 (defn .db.flush
 
   ^{:doc {:description ["Returns a request for flushing the current Etch instance."
@@ -959,6 +957,12 @@
 
 
 
+  
+
+
+
+
+
 
 (def .resrc.*count*
 
@@ -980,6 +984,15 @@
           (.resrc.next))))
 
 
+
+
+
+(defn .rethrow
+
+  [exception]
+
+  (.shell.invoke '.rethrow
+                 exception))
 
 
 
@@ -1141,6 +1154,26 @@
  
 
 
+
+
+
+
+
+(defn .str.stream.out
+
+  []
+
+  (.shell.invoke '.str.stream.out
+                 (.resrc.next)))
+
+
+
+(defn .str.stream.unwrap
+
+  [handle]
+
+  (.shell.invoke '.str.stream.unwrap
+                 handle))
 
 
 
@@ -2123,17 +2156,6 @@
   nil)
 
 
-
-
-
-  
-
-(defn .rethrow
-
-  [exception]
-
-  (.shell.invoke '.rethrow
-                 exception))
 
 
 
