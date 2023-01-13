@@ -167,31 +167,6 @@
 
 
 
-(def .dep.*root*
-
-  "./")
-
-
-
-(defn .dep.root.set
-
-  ^{:callable? true}
-
-  [dir]
-
-  (if (= *address*
-         $CORE$)
-    (do
-      (when-not (.fs.exists? dir)
-        (fail :FS
-              "Given project directory does not exist"))
-      (def .dep.*root*
-           dir))
-    (call $CORE$
-          (.dep.root.set dir))))
-
-
-
 
 
 
@@ -748,6 +723,33 @@
 
   (.shell.invoke '.log.get))
 
+
+
+
+
+
+(def .project.*dir*
+
+  "./")
+
+
+
+(defn .project.dir.set
+
+  ^{:callable? true}
+
+  [dir]
+
+  (if (= *address*
+         $CORE$)
+    (do
+      (when-not (.fs.exists? dir)
+        (fail :FS
+              "Given project directory does not exist"))
+      (def .project.*dir*
+           dir))
+    (call $CORE$
+          (.project.dir.set dir))))
 
 
 
