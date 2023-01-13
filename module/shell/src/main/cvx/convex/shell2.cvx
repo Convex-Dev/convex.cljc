@@ -2179,7 +2179,18 @@
 
 
 
+
+(defmacro .try*
+
+  [do-good do-bad]
+
+  `(let [[ok?
+          x]  (.state.safe (fn [] ~do-good))]
+     (if ok?
+       x
+       ~do-bad)))
           
+
 
 (defmacro .try.resrc*
 
