@@ -762,19 +762,23 @@
 
 
 
+
+
+
+
 (defn .repl.eval
 
-  [state form+]
+  [state]
 
   (assoc state
          :result
          (eval (concat `(let [$ (quote ~(:result state))])
-               form+))))
+               (:form+ state)))))
 
 
 
 
-(defn .repl.print.ex
+(defn .repl.on.ex
 
   ^{:doc {:description ["Turns given `exception` into a nice human-readable string." 
                         "Used by the REPL when handling exceptions thrown during evaluation."]
@@ -854,7 +858,39 @@
 
 
 
-(defn .repl.print.result
+(defn .repl.on.ex.reader
+
+  [state message]
+
+  (.stream.txt.outln (str .sys.eol
+                          (.term.fg.red)
+                          (.term.bold)
+                          "Input cannot be parsed as Convex Lisp:"
+                          (.term.reset)
+                          .sys.eol
+                          "  "
+                          message
+                          .sys.eol))
+  state)
+
+
+
+(defn .repl.on.prompt
+
+  [state]
+
+  (let [out (:stream.out state)]
+    (.stream.txt.out out
+                     (str (.term.bold)
+                          (.term.fg.blue)
+                          "> "
+                          (.term.reset)))
+    (.stream.flush out))
+  state)
+
+
+
+(defn .repl.on.result
 
   [state]
 
@@ -867,14 +903,15 @@
 
 
 
-(defn .repl.prompt
+(defn .repl.stop?
 
-  [_state]
+  [state]
 
-  (str (.term.bold)
-       (.term.fg.blue)
-       "> "
-       (.term.reset)))
+  (contains-key? #{:exit
+                   :q
+                   :quit
+                   :stop}
+                 (first (:form+ state))))
 
 
 
@@ -889,15 +926,15 @@
   ([option+]
 
    (loop [state (merge {:eval         .repl.eval
-                        :print.ex     .repl.print.ex
-                        :print.result .repl.print.result
-                        :prompt       .repl.prompt
-                        :result       nil
+                        :on.ex        .repl.on.ex
+                        :on.ex.reader .repl.on.ex.reader
+                        :on.prompt    .repl.on.prompt
+                        :on.result    .repl.on.result
+                        :stop?        .repl.stop?
                         :stream.in    .stream.*in*
                         :stream.out   .stream.*out*}
                        option+)]
-     (.stream.txt.out ((:prompt state) state))
-     (.stream.flush)
+     ((:on.prompt state) state)
      (let [[read?
             x]    (.state.safe (fn []
                                  (.stream.line (:stream.in state))))]
@@ -905,53 +942,50 @@
          ;;
          ;; Successful read.
          ;;
-         (let [form+ x]
+         (let [form+   x
+               state-2 (assoc state
+                              :form+
+                              form+)]
            (cond
              ;;
              (nil? form+)
-             (:result state)
+             state-2
              ;;
              (empty? form+)
-             (recur state)
+             (recur state-2)
              ;;
-             (contains-key? #{:exit
-                              :q
-                              :quit
-                              :stop}
-                            (first form+))
-             (:result state)
+             ((:stop? state-2) state-2)
+             state-2
              ;;
-             (recur
-               (let [[evaled?
-                      x]      (.state.safe (fn []
-                                             ((:eval state) state
-                                                            form+)))]
-                 (if evaled?
-                   (let [state-2 x]
-                     ((:print.result state-2) state-2))
-                   (let [ex x]
-                     ((:print.ex state) (assoc state
-                                               :result
-                                               ex))))))))
+             (let [[ok?
+                    x]     (.state.safe (fn []
+                                          ((:eval state-2) (assoc state-2
+                                                                  :form+
+                                                                  form+))))
+                   state-3 (if ok?
+                             (let [state-3 x]
+                               ((:on.result state-3) state-3))
+                             (let [ex x]
+                               ((:on.ex state) (assoc state-2
+                                                      :result
+                                                      ex))))]
+               (if (contains-key? state-3
+                                  :result)
+                 (recur state-3)
+                 state-3))))
          ;;
          ;; Reading input failed.
          ;;
          (let [ex x]
            (if (= (:code ex)
                   :READER)
-             (do
-               (.stream.txt.outln (str .sys.eol
-                                       (.term.fg.red)
-                                       (.term.bold)
-                                       "Input cannot be parsed as Convex Lisp:"
-                                       (.term.reset)
-                                       .sys.eol
-                                       "  "
-                                       (:message ex)
-                                       .sys.eol))
-               (recur state))
-             (fail :SHELL.REPL
-                   ex))))))))
+             (let [state-2 ((:on.ex.reader state) state
+                                                  (:message ex))]
+               (if (contains-key? state-2
+                                  :result)
+                 (recur state-2)
+                 state-2))
+             (.rethrow ex))))))))
 
 
 
@@ -1050,7 +1084,8 @@
                    "(?)"
                    (.term.reset)
                    .sys.eol))
-            (.repl))
+            (.repl)
+            nil)
           (eval (cons 'do
                       form+))))
       ;;
