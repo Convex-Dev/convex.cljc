@@ -445,18 +445,16 @@
 
   ([path cell option+]
 
-   (let [handle   (.file.stream.out nil
-                                    path
-                                    option+)
+   (let [handle (.file.stream.out path
+                                  option+)
          [ok?
-          result] (.state.safe (fn []
-                                 (.stream.outln handle
-                                                cell)))]
+          x]    (.state.safe (fn []
+                               (.stream.outln handle
+                                              cell)))]
      (.stream.close handle)
      (if ok?
-       result
-       (fail :RETHROW
-             result)))))
+       x
+       (.rethrow x)))))
 
 
 
@@ -2176,6 +2174,50 @@
 
   (.shell.invoke '.time.unix->iso
                  time-unix))
+
+
+
+
+
+          
+
+(defmacro .try.resrc*
+
+  [binding+ & body]
+
+  (when-not (and (vector? binding+)
+                 (zero? (mod (count binding+)
+                             3)))
+    (fail :ARGUMENT
+          "Bindings must be in a vector consisting of triples"))
+  (loop [code (cons 'do
+                    body)
+         i    (- (count binding+)
+                 3)]
+    (if (< i
+           0)
+      code
+      (recur
+        (let [sym   (get binding+
+                         i)
+              open  (get binding+
+                         (inc i))
+              close (get binding+
+                         (+ i
+                            2))]
+          `(let [~sym ~open
+                 [ok?
+                  x]  (.state.safe* ~code)]
+             ~(if (symbol? close)
+                (list close
+                      sym)
+                close)
+             (if ok?
+               x
+               (.rethrow x))))
+        (- i
+           3)))))
+
 
 
 
