@@ -11,7 +11,6 @@
             [convex.shell.dep.local    :as $.shell.dep.local]
             [convex.shell.dep.relative :as $.shell.dep.relative]
             [convex.shell.flow         :as $.shell.flow]
-            [convex.shell.kw           :as $.shell.kw]
             [convex.shell.project      :as $.shell.project]
             [convex.shell.sym          :as $.shell.sym]
             [convex.std                :as $.std]))
@@ -78,7 +77,7 @@
                                      dep-child])
              project-sym    (first actor-path)
              dep-parent     (get-in project-child
-                                    [$.shell.kw/deps
+                                    [($.cell/* :deps)
                                      project-sym])
              _              (when-not dep-parent
                               ($.shell.dep.fail/with-ancestry (env :convex.shell/ctx)
@@ -119,21 +118,21 @@
                 (update :convex.shell.dep/resolver+
                         (fn [resolver+]
                           (-> resolver+
-                              (assoc $.shell.kw/git   $.shell.dep.git/fetch
-                                     $.shell.kw/local $.shell.dep.local/fetch)
-                              (update $.shell.kw/relative
+                              (assoc ($.cell/* :git)   $.shell.dep.git/fetch
+                                     ($.cell/* :local) $.shell.dep.local/fetch)
+                              (update ($.cell/* :relative)
                                       #(or %
                                            $.shell.dep.relative/fetch)))))
-                (merge {:convex.shell/dep               $.shell.kw/root
+                (merge {:convex.shell/dep               ($.cell/* :root)
                         :convex.shell.dep/ancestry      ancestry
-                        :convex.shell.dep/dep->project  {$.shell.kw/root (project ctx
-                                                                                  $.shell.kw/root
-                                                                                  (str ($.cvm/look-up ctx
-                                                                                                      Init/CORE_ADDRESS
-                                                                                                      ($.cell/* .project.*dir*))))}
+                        :convex.shell.dep/dep->project  {($.cell/* :root) (project ctx
+                                                                                   ($.cell/* :root)
+                                                                                   (str ($.cvm/look-up ctx
+                                                                                                       Init/CORE_ADDRESS
+                                                                                                       ($.cell/* .project.*dir*))))}
                         :convex.shell.dep/fetch         fetch
                         :convex.shell.dep/foreign?      false
-                        :convex.shell.dep/hash          $.shell.kw/root
+                        :convex.shell.dep/hash          ($.cell/* :root)
                         :convex.shell.dep/jump          -jump
                         :convex.shell.dep/read-project  project
                         :convex.shell.dep/required      required

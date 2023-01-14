@@ -7,7 +7,6 @@
             [clojure.string   :as string]
             [convex.cell      :as $.cell]
             [convex.read      :as $.read]
-            [convex.shell.kw  :as $.shell.kw]
             [convex.std       :as $.std]))
 
 
@@ -106,7 +105,7 @@
                   (fail-2 (format "Relative dependency `%s` in `project.cvx` must specify a path as a string"
                                   sym)))
                 (let [dir (str ($.std/get project
-                                          $.shell.kw/dir))]
+                                          ($.cell/* :dir)))]
                   (when-not (string/starts-with? (str (bb.fs/canonicalize (format "%s/%s"
                                                                                   dir
                                                                                   path)))
@@ -115,7 +114,7 @@
                                     sym))))))
             ;;
             (= resolution
-               $.shell.kw/local)
+               ($.cell/* :local))
             (do
               (when (< ($.std/count dep)
                        2)

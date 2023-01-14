@@ -7,7 +7,6 @@
             [convex.cell           :as $.cell]
             [convex.read           :as $.read]
             [convex.shell.dep.fail :as $.shell.dep.fail]
-            [convex.shell.kw       :as $.shell.kw]
             [convex.std            :as $.std]))
 
 
@@ -20,7 +19,7 @@
 
   (format "%s/%s/%s.cvx"
           (get project-child
-               $.shell.kw/dir)
+               ($.cell/* :dir))
           (second dep-parent)
           (string/join "/"
                        (rest actor-path))))
@@ -44,11 +43,11 @@
             first-form (first src)]
         (-> (if ($.std/map? first-form)
               ($.std/assoc first-form
-                           $.shell.kw/src
+                           ($.cell/* :src)
                            (or ($.std/next src)
                                ($.cell/* ())))
               ($.cell/* {:src ~src}))
-            ($.std/assoc $.shell.kw/path
+            ($.std/assoc ($.cell/* :path)
                          ($.cell/string path))))
       ;;
       (catch NoSuchFileException _ex
@@ -125,7 +124,7 @@
         hash            ($.cell/hash content)
         ancestry        (env :convex.shell.dep/ancestry)
         required-parent ($.std/get content
-                                   $.shell.kw/deploy)
+                                   ($.cell/* :deploy))
         _               (when required-parent
                           (validate-required (env :convex.shell/ctx)
                                              required-parent

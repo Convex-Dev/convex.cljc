@@ -6,7 +6,6 @@
             [convex.cell           :as $.cell]
             [convex.cvm            :as $.cvm]
             [convex.shell.dep.fail :as $.shell.dep.fail]
-            [convex.shell.kw       :as $.shell.kw]
             [convex.std            :as $.std]
             [protosens.git         :as P.git]
             [protosens.process     :as P.process]))
@@ -184,7 +183,7 @@
         [foreign-parent?
          git-worktree]   (worktree env
                                    (str ($.std/get project-child
-                                                   $.shell.kw/dir))
+                                                   ($.cell/* :dir)))
                                    (str git-url)
                                    (str git-sha))]
     (-> env

@@ -35,14 +35,6 @@
 
 
 
-(def ^FileOutputStream stderr-bin
-
-  "Binary stream for STDERR."
-
-  (FileOutputStream. stderr))
-
-
-
 (def ^FileWriter stderr-txt
 
   "Text stream for STDERR."
@@ -59,14 +51,6 @@
 
 
 
-(def ^FileInputStream stdin-bin
-
-  "Binary stream for STDIN."
-
-  (FileInputStream. stdin))
-
-
-
 (def ^FileReader stdin-txt
 
   "Text stream for STDIN."
@@ -80,14 +64,6 @@
   "File descriptor for STDOUT."
 
   FileDescriptor/out)
-
-
-
-(def ^FileOutputStream stdout-bin
-
-  "Binary stream for STDOUT."
-
-  (FileOutputStream. stdout))
 
 
 

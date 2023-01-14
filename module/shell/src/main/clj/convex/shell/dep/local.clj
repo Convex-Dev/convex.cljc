@@ -4,7 +4,6 @@
             [clojure.string        :as string]
             [convex.cell           :as $.cell]
             [convex.shell.dep.fail :as $.shell.dep.fail]
-            [convex.shell.kw       :as $.shell.kw]
             [convex.std            :as $.std]))
 
 
@@ -26,7 +25,7 @@
                                                               (if (bb.fs/absolute? dir)
                                                                 dir
                                                                 (let [dir-child (str ($.std/get project-child
-                                                                                                $.shell.kw/dir))
+                                                                                                ($.cell/* :dir)))
                                                                       dir-2     (-> (format "%s/%s"
                                                                                             dir-child
                                                                                             dir)
