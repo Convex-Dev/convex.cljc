@@ -1,0 +1,1 @@
+{:deps {test [:relative "module/shell/src/test/cvx"]}}

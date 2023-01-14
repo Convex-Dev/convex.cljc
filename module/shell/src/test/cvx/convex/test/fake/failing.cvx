@@ -1,0 +1,58 @@
+{}
+
+
+;;;;;;;;;
+
+
+(.t.def test-empty)
+
+
+
+(.t.def test-throw
+
+  (.t.is (= 42
+            (+ 2 2))
+         "Some message")
+
+  (fail :TEST-THROW
+        "Thrown on purpose")
+
+  (.t.is (= :a
+            (first [:a]))
+         "Another message"))
+
+
+
+(.t.def test-ok
+
+  (.t.is (= 4
+            (+ 2 2))
+         "Some message")
+
+  (.t.is (= :a
+            (first [:a]))
+         "Another message"))
+
+
+
+
+(.t.def test-fail
+
+
+  (.t.is (= 4
+            (+ 2 2))
+         "Some message")
+
+  (.t.is (= 1000
+            (+ 2 2))
+         "With message")
+
+  (.t.is (< 1
+            1000)))
+
+
+
+(.t.def test-assert-throw
+
+  (.t.is (fail :ASSERT-THROW
+               "Thrown on purpose")))

@@ -293,6 +293,94 @@
 
 
 
+(defn .docoll
+
+  [f coll]
+
+  (let [n (count coll)]
+    (loop [i 0]
+      (if (< i
+             n)
+        (do
+          (f (nth coll
+                  i))
+          (recur (inc i)))
+        nil))))
+
+
+
+
+
+(defn .ex.print
+
+  [ex]
+
+  (let [msg        (:message ex)
+        msg-2      (when (map? msg)
+                     (:message msg))
+        extra-data (when msg-2
+                     (dissoc msg
+                             :message))
+        trace      (:trace ex)
+        trace-2    trace]
+    (.stream.txt.outln
+      (str .sys.eol
+           (.term.bold)
+           (.term.fg.red)
+           "Exception code:"
+           (.term.reset)
+           .sys.eol
+           "  "
+           (.term.bold)
+           (:code ex)
+           (.term.bold)
+           (.term.fg.red)
+           .sys.eol
+           "Executing address:"
+           (.term.reset)
+           .sys.eol
+           "  "
+           (:address ex)
+           .sys.eol
+           (.term.bold)
+           (.term.fg.red)
+           "Message:"
+           (.term.reset)
+           .sys.eol
+           "  "
+           (or msg-2
+               msg)
+           .sys.eol
+           (.term.bold)
+           (.term.fg.red)
+           "Trace:"
+           (.term.reset)
+           (if (empty? trace-2)
+             (str .sys.eol
+                  "  None.")
+             (apply str
+                    (reduce (fn [acc entry]
+                              (conj acc
+                                    .sys.eol
+                                    "  "
+                                    entry))
+                            []
+                            trace-2)))
+           (if (and extra-data
+                    (not (empty? extra-data)))
+             (str .sys.eol
+                  (.term.bold)
+                  (.term.fg.red)
+                  "Extra data:"
+                  (.term.reset)
+                  .sys.eol
+                  "  "
+                  extra-data)
+             "")))))
+
+
+
+
 
 (defn .file.-handle
 
@@ -778,6 +866,12 @@
 
 
 
+
+
+
+  
+
+
 (defn .repl.on.ex
 
   ^{:doc {:description ["Turns given `exception` into a nice human-readable string." 
@@ -786,75 +880,20 @@
 
   [state]
 
-  (let [ex         (:result state)
-        msg        (:message ex)
-        msg-2      (when (map? msg)
-                     (:message msg))
-        extra-data (when msg-2
-                     (dissoc msg
-                             :message))
-        trace      (:trace ex)
-        trace-2    (slice trace
-                          0
-                          ;; Removing lines relating to the REPL, not interesting.
-                          (- (count trace)
-                             3))]
-    (.stream.txt.outln
-      (str .sys.eol
-           (.term.bold)
-           (.term.fg.red)
-           "Exception code:"
-           (.term.reset)
-           .sys.eol
-           "  "
-           (.term.bold)
-           (:code ex)
-           (.term.bold)
-           (.term.fg.red)
-           .sys.eol
-           "Executing address:"
-           (.term.reset)
-           .sys.eol
-           "  "
-           (:address ex)
-           .sys.eol
-           (.term.bold)
-           (.term.fg.red)
-           "Message:"
-           (.term.reset)
-           .sys.eol
-           "  "
-           (or msg-2
-               msg)
-           .sys.eol
-           (.term.bold)
-           (.term.fg.red)
-           "Trace:"
-           (.term.reset)
-           (if (empty? trace-2)
-             (str .sys.eol
-                  "  None.")
-             (apply str
-                    (reduce (fn [acc entry]
-                              (conj acc
-                                    .sys.eol
-                                    "  "
-                                    entry))
-                            []
-                            trace-2)))
-           (if (and extra-data
-                    (not (empty? extra-data)))
-             (str .sys.eol
-                  (.term.bold)
-                  (.term.fg.red)
-                  "Extra data:"
-                  (.term.reset)
-                  .sys.eol
-                  "  "
-                  extra-data)
-             "")
-           .sys.eol)))
-  state)
+  (let [ex    (:result state)
+        trace (:trace ex)
+        ex-2  (assoc ex
+                     :trace
+                     (slice trace
+                            0
+                            ;; Removing lines relating to the REPL, not interesting.
+                            (- (count trace)
+                               3)))]
+    (.ex.print ex-2)
+    (.stream.txt.outln "")
+    (assoc state
+           :result
+           ex-2)))
 
 
 
@@ -1661,6 +1700,498 @@
   []
 
   (.shell.invoke '.sys.os))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+(def .t.*assert+*
+
+  [])
+
+
+
+(defn .t.assert.add
+
+  ^:callable?
+
+  [assertion]
+
+  (if (= *address*
+         ~*address*)
+    (def .t.*assert+*
+         (conj .t.*assert+*
+               assertion))
+    (call ~*address*
+          (.t.assert.add assertion))))
+
+
+
+(defn .t.assert.failed+
+
+  [assertion+]
+
+  (reduce (fn [acc assertion]
+            (let [[ok?
+                   x]         (:result assertion)
+                  assertion-2 (if ok?
+                                (when-not (= x
+                                             true)
+                                  {:fail   x
+                                   :status :fail})
+                                {:fail   x
+                                 :status :exception})]
+              (if assertion-2
+                (conj acc
+                      (assoc assertion-2
+                             :form    (:form assertion)
+                             :message (:message assertion)))
+                acc)))
+          []
+          assertion+))
+
+
+
+(defmacro .t.is
+
+
+  ([form]
+
+   `(.t.is ~form
+           nil))
+
+
+  ([form message]
+
+   `(.t.assert.add {:form    (quote ~form)
+                    :message ~message
+                    :result  (.state.safe* ~form)})))
+
+
+
+(defmacro .t.def
+
+  [name & assertion+]
+
+  `(defn ~name
+
+     ^:test?
+
+     []
+
+     ~(cons 'do
+            assertion+)))
+
+
+
+(defn .t.dev
+
+
+  ([required]
+
+   (.t.dev required
+           nil))
+
+
+  ([required state]
+
+   (= (:status (.t.run required
+                       state))
+      :pass)))
+
+
+
+(defn .t.find
+
+  [address]
+
+  (let [account (account address)
+        meta    (:metadata account)
+        env     (:environment account)]
+    (reduce (fn [acc [sym x]]
+              (if (and (fn? x)
+                       (get-in meta
+                               [sym
+                                :test?]))
+                (conj acc
+                      [sym
+                       x])
+                acc))
+            []
+            env)))
+
+
+
+(defn .t.main
+
+
+  ([required]
+
+   (.t.main required
+            nil))
+
+
+  ([required state]
+
+   (.sys.exit (if (.t.dev required
+                          state)
+                0
+                128))))
+
+
+
+(defn .t.on.run.begin
+
+  [state]
+
+  (let [s (:stream.out state)]
+    (.stream.txt.out s
+                     (str .sys.eol
+                          "=========="
+                          .sys.eol
+                          .sys.eol
+                          (.term.bold)
+                          "["
+                          (.term.reset)))
+    (.stream.flush s))
+  state)
+
+
+
+(defn .t.on.run.end
+
+  [state]
+
+  (let [s (:stream.out state)]
+    (.stream.txt.outln s
+                       (str (.term.bold)
+                            "]"
+                            (.term.reset)
+                            .sys.eol
+                            .sys.eol
+                            "=========="
+                            .sys.eol))
+    (.docoll (fn [test]
+               (if-let [f (get {:empty     .t.on.test.empty
+                                :exception .t.on.test.ex
+                                :fail      .t.on.test.fail}
+                               (:status test))]
+                 (do
+                   (f test)
+                   (.stream.txt.outln s
+                                      "")
+                   (.stream.txt.outln s
+                                      "-----")
+                   (.stream.txt.outln s
+                                      ""))
+                 nil))
+             (:run state))
+    (let [status (:status state)]
+      (.stream.txt.outln (str (.term.bold)
+                              (cond
+                                (= status
+                                   :empty)
+                                (str (.term.fg.red)
+                                     "NO TESTS FOUND")
+                                ;;
+                                (= status
+                                   :fail)
+                                (str (.term.fg.red)
+                                     "FAIL")
+                                ;;
+                                (= status
+                                   :pass)
+                                (str (.term.fg.green)
+                                     "OK"))
+                              (.term.bold)
+                              .sys.eol)))
+    (let [empty-actor+ (:empty-actor+ state)
+          n-actor      (:n-actor state)
+          n-test       (:n-test state)
+          n-test-fail  (:n-test-fail state)]
+      (.stream.txt.outln s
+                         (str (.term.bold)
+                              (.term.fg.cyan)
+                              n-test
+                              " test"
+                              (if (> n-test
+                                     1)
+                                "s"
+                                "")
+                              (.term.reset)
+                              " run over "
+                              (.term.bold)
+                              (.term.fg.cyan)
+                              n-actor
+                              " actor"
+                              (if (> n-actor
+                                     1)
+                                "s"
+                               "")
+                              (.term.reset)
+                              ", "
+                              (.term.bold)
+                              (if (zero? n-test-fail)
+                                (.term.fg.green)
+                                (.term.fg.red))
+                              n-test-fail
+                              " failed"
+                              (.term.reset)))
+      (when-not (empty? empty-actor+)
+        (.stream.txt.outln (str .sys.eol
+                                .sys.eol
+                                (.term.bold)
+                                (.term.fg.red)
+                                "Actors without tests:"
+                                (.term.reset)
+                                .sys.eol))
+        (.docoll (fn [sym-actor]
+                   (.stream.txt.outln (str "  "
+                                           sym-actor)))
+                 empty-actor+))))
+  state)
+
+
+
+(defn .t.on.test.empty
+
+  [test]
+
+  (.t.print.test.name test)
+  (.stream.txt.outln "No assertions."))
+
+
+
+(defn .t.on.test.ex
+
+  [test]
+
+  (.t.print.test.name test)
+  (.stream.txt.outln "Exception thrown unexpectedly")
+  (.ex.print (:exception test)))
+
+
+
+(defn .t.on.test.fail
+
+  [test]
+
+  (.docoll (fn [failed]
+             (.t.print.test.name test)
+             (when-let [message (:message failed)]
+               (.stream.txt.outln (str message
+                                       .sys.eol)))
+             (.stream.txt.outln (str (.term.bold)
+                                     (.term.fg.cyan)
+                                     "Form:   "
+                                     (.term.reset)
+                                     (:form failed)))
+             (let [status (:status failed)]
+               (cond
+                 ;;
+                 (= status
+                    :fail)
+                 (.stream.txt.outln (str .sys.eol
+                                         (.term.bold)
+                                         (.term.fg.cyan)
+                                         "Result: "
+                                         (.term.reset)
+                                         (:fail failed)))
+                 ;;
+                 (= status
+                    :exception)
+                 (.ex.print (:fail failed)))))
+           (:failed+ test)))
+
+
+
+(defn .t.on.test.result
+
+  [state result]
+
+  (let [s (:stream.out state)]
+    (.stream.txt.out s
+                     (if (= (:status result)
+                            :pass)
+                       (str (.term.bold)
+                            (.term.fg.green)
+                            "."
+                            (.term.reset))
+                       (str (.term.bold)
+                            (.term.fg.red)
+                            "X"
+                            (.term.reset))))
+    (.stream.flush s))
+  state)
+
+
+
+(defn .t.print.test.name
+
+  [test]
+
+  (.stream.txt.outln (str (.term.bold)
+                          (:name test)
+                          (.term.reset)
+                          .sys.eol)))
+
+
+
+(defn .t.run
+
+  [required state]
+
+  (.state.tmp
+    (fn []
+      (let [state          (merge {:on.run.begin   .t.on.run.begin
+                                   :on.run.end     .t.on.run.end
+                                   :on.test.result .t.on.test.result
+                                   :stream.out     .stream.stdout}
+                                  state)
+            on.run.begin   (:on.run.begin state)
+            on.run.end     (:on.run.end state)
+            state          (if on.run.begin
+                             (on.run.begin state)
+                             state)
+            state-2        (reduce (fn [state-2 [actor-sym actor-address]]
+                                     (.t.run.actor state-2
+                                                   actor-sym
+                                                   actor-address))
+                                   (assoc state
+                                          :empty-actor+ []
+                                          :n-actor      0
+                                          :n-test       0
+                                          :n-test-fail  0)
+                                   (.dep.deploy required))
+           state-3         (.t.run.finalize state-2)]
+       (if on.run.end
+         (on.run.end state-3)
+         state-3)))))
+
+
+
+(defn .t.run.actor
+
+  [state actor-sym actor-address]
+
+  (let [found (.t.find actor-address)]
+    (if (empty? found)
+      (assoc state
+             :empty-actor+
+             (conj (:empty-actor+ state)
+                   actor-sym))
+      (reduce (fn [state-2 [test-sym test-f]]
+                (.t.run.test state-2
+                             actor-sym
+                             test-sym
+                             test-f))
+              (assoc state
+                     :n-actor
+                     (inc (:n-actor state)))
+              found))))
+
+
+
+(defn .t.run.finalize
+
+  [state]
+
+  (assoc state
+         :status
+         (cond
+           ;;
+           (zero? (:n-test state))
+           :empty
+           ;;
+           (zero? (:n-test-fail state))
+           :pass
+           ;;
+           :else
+           :fail)))
+
+
+
+(defn .t.run.test
+
+  [state actor-sym test-sym test-f]
+
+  (let [on.test.result (:on.test.result state)
+        [ok?
+         x]            (.state.tmp (fn []
+                                     (test-f)
+                                     .t.*assert+*))
+        test-result    (if ok?
+                         (.t.run.test.finalize x)
+                         {:exception x
+                          :status    :exception})
+        test-result-2  (assoc test-result
+                              :name
+                              (str actor-sym
+                                   "/"
+                                   test-sym))
+        state-2        (assoc state
+                              :run
+                              (conj (:run state)
+                                    test-result-2))
+        state-3        (assoc state-2
+                              :n-test
+                              (inc (:n-test state-2)))
+        state-4        (if on.test.result
+                         (on.test.result state-3
+                                         test-result-2)
+                         state-3)]
+    (if (= (:status test-result-2)
+           :pass)
+      state-4
+      (assoc state-4
+             :n-test-fail
+             (inc (:n-test-fail state-4))))))
+
+
+
+(defn .t.run.test.finalize
+
+  ^:private
+
+  [assertion+]
+
+  (let [n (count assertion+)]
+    (if (zero? n)
+      {:status :empty}
+      (let [failed+ (.t.assert.failed+ assertion+)
+            result  {:n n}]
+        (if (empty? failed+)
+          (assoc result
+                 :status
+                 :pass)
+          (assoc result
+                 :failed+ failed+
+                 :status  :fail))))))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
