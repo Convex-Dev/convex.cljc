@@ -60,8 +60,15 @@
   (or (when-not ($.std/long? code)
         ($.cvm/exception-set ctx
                              ($.cell/* :ARGUMENT)
-                             ($.cell/* "Exit code must be a long between 0 and 255")))
-      (System/exit ($.clj/long code))))
+                             ($.cell/* "Exit code must be a Long")))
+      (let [code-2 ($.clj/long code)]
+        (or (when-not (<= 128
+                          code-2
+                          255)
+              ($.cvm/exception-set ctx
+                                   ($.cell/* :ARGUMENT)
+                                   ($.cell/* "Exit code must be >= 128 and <= 255")))
+            (System/exit code-2)))))
 
 
 
