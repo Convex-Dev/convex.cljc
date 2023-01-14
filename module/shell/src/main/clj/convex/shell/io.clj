@@ -10,8 +10,6 @@
   (:import (java.io BufferedReader
                     File
                     FileDescriptor
-                    FileInputStream
-                    FileOutputStream
                     FileReader
                     FileWriter
                     Flushable
@@ -55,7 +53,7 @@
 
   "Text stream for STDIN."
 
-  (BufferedReader. (FileReader. FileDescriptor/in)))
+  (BufferedReader. (FileReader. stdin)))
 
 
 
@@ -103,9 +101,8 @@
   ([^String path append?]
 
    (let [file (File. path)]
-     (-> file
-         (.getParentFile)
-         (.mkdirs))
+     (some-> (.getParentFile file)
+             (.mkdirs))
      (FileWriter. file
                   (boolean append?)))))
   
