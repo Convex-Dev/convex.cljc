@@ -62,12 +62,13 @@
                              ($.cell/* :ARGUMENT)
                              ($.cell/* "Exit code must be a Long")))
       (let [code-2 ($.clj/long code)]
-        (or (when-not (<= 128
-                          code-2
-                          255)
+        (or (when-not (or (zero? code-2)
+                          (<= 128
+                              code-2
+                              255))
               ($.cvm/exception-set ctx
                                    ($.cell/* :ARGUMENT)
-                                   ($.cell/* "Exit code must be >= 128 and <= 255")))
+                                   ($.cell/* "Exit code must be 0 or >= 128 and <= 255")))
             (System/exit code-2)))))
 
 
