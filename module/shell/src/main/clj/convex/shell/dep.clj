@@ -12,7 +12,6 @@
             [convex.shell.dep.relative :as $.shell.dep.relative]
             [convex.shell.flow         :as $.shell.flow]
             [convex.shell.project      :as $.shell.project]
-            [convex.shell.sym          :as $.shell.sym]
             [convex.std                :as $.std]))
 
 
@@ -196,7 +195,7 @@
                                          (cond->
                                            (env-2 :convex.shell.dep/let)
                                            (not= actor-sym
-                                                 $.shell.sym/_)
+                                                 ($.cell/* _))
                                            (conj actor-sym
                                                  (env-3 :convex.shell.dep/address))))))
                                (assoc env
@@ -222,6 +221,6 @@
                                ($.cell/* :src)])]
           (deploy-actor env
                         hash
-                        ($.std/cons $.shell.sym/do
+                        ($.std/cons ($.cell/* do)
                                     src))
           env)))))
