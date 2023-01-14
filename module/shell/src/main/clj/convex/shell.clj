@@ -31,14 +31,14 @@
 
   (:gen-class)
   (:import (convex.core.init Init))
-  (:require [clojure.string        :as string]
-            [convex.db             :as $.db]
-            [convex.cell           :as $.cell]
-            [convex.cvm            :as $.cvm]
-            [convex.shell.ctx      :as $.shell.ctx]
-            [convex.shell.fail     :as $.shell.fail]
+  (:require [clojure.string    :as string]
+            [convex.db         :as $.db]
+            [convex.cell       :as $.cell]
+            [convex.cvm        :as $.cvm]
+            [convex.shell.ctx  :as $.shell.ctx]
+            [convex.shell.fail :as $.shell.fail]
             [convex.shell.log]
-            [convex.shell.req      :as $.shell.req]))
+            [convex.shell.req  :as $.shell.req]))
 
 
 ;;;;;;;;;; Main
@@ -97,28 +97,28 @@
       (if (= ($.cvm/exception-code ex)
              ($.cell/* :SHELL.FATAL))
         (do
-          (when-some [path-report (-> ex
-                                      ($.cvm/exception-message)
-                                      (get ($.cell/* :report)))]
-            (binding [*out* *err*]
-              (println)
-              (println "==================")
-              (println)
-              (println "  FATAL ERROR  :'(  ")
-              (println)
-              (println "==================")
-              (println)
-              (println "Please open an issue if necessary:")
-              (println "    https://github.com/Convex-Dev/convex.cljc")
-              (println)
-              (println "Report printed to:")
-              (println "   "
-                       (str path-report))
-              (flush)))
-          (System/exit 1))
+          (binding [*out* *err*]
+            (println)
+            (println "==================")
+            (println)
+            (println "  FATAL ERROR  :'(  ")
+            (println)
+            (println "==================")
+            (println)
+            (println "Please open an issue if necessary:")
+            (println "    https://github.com/Convex-Dev/convex.cljc")
+            (println)
+            (println "Report printed to:")
+            (println "   "
+                     (-> ex
+                         ($.cvm/exception-message)
+                         (get ($.cell/* :report))
+                         (str)))
+            (flush))
+          (System/exit 2))
         (do
           (println (str ($.shell.fail/mappify-cvm-ex ex)))
-          (System/exit 2)))
+          (System/exit 1)))
       (do
         (println (str ($.cvm/result ctx-2)))
         (System/exit 0)))))

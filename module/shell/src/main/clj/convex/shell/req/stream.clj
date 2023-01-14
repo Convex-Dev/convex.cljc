@@ -60,19 +60,11 @@
   ;; Reports error using [[convex.shell.exec.fail/err]], as expected, unless operation involved STDERR.
   ;; If using STDERR, there is no way to print errors, hence the process should terminate with a special exit code.
 
-  [ctx handle op+ message]
+  [ctx message]
 
-  (if (and (= @($.std/nth handle
-                          1)
-              stderr)
-           (or (op+ :flush)
-               (op+ :write)))
-    ($.cvm/exception-set ctx
-                         ($.cell/* :EXIT)
-                         ($.cell/* 3))
-    ($.cvm/exception-set ctx
-                         ($.cell/* :STREAM)
-                         message)))
+  ($.cvm/exception-set ctx
+                       ($.cell/* :STREAM)
+                       message))
 
 
 
@@ -138,8 +130,6 @@
               ;;
               (catch ClassCastException _ex
                 (-fail ctx
-                       handle
-                       op+
                        ($.cell/string (format "Stream is missing capability: %s"
                                               op+))))
               ;;
@@ -150,8 +140,6 @@
               ;;
               (catch Throwable _ex
                 (-fail ctx
-                       handle
-                       op+
                        ($.cell/string (format "Stream failed while performing: %s"
                                               op+)))))))))
 
@@ -174,18 +162,13 @@
 
   ([ctx [handle] result]
 
-   (or (when (= handle
-                ($.cell/* :stderr))
-         ($.cvm/exception-set ctx
-                              ($.cell/code-std* :ARGUMENT)
-                              ($.cell/* "Cannot close STDERR")))
-       (operation ctx
-                  handle
-                  #{:close}
-                  (fn [ctx-2 ^AutoCloseable stream]
-                    (.close stream)
-                    ($.cvm/result-set ctx-2
-                                      result))))))
+   (operation ctx
+              handle
+              #{:close}
+              (fn [ctx-2 ^AutoCloseable stream]
+                (.close stream)
+                ($.cvm/result-set ctx-2
+                                  result)))))
 
 
 
