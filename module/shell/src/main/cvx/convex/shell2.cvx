@@ -940,8 +940,7 @@
   (.shell.invoke '.log.get))
 
 
-
-
+;;;;;;;;;; Project files
 
 
 (def .project.*dir*
@@ -959,9 +958,9 @@
   (if (= *address*
          $CORE$)
     (do
-      (when-not (.fs.exists? dir)
-        (fail :FS
-              "Given project directory does not exist"))
+      (when-not (.fs.dir? dir)
+        (fail :ARGUMENT
+              "Given path is not a directory"))
       (def .project.*dir*
            dir))
     (call $CORE$

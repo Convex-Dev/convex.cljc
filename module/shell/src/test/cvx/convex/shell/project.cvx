@@ -1,0 +1,31 @@
+{}
+
+
+;;;;;;;;;;
+
+
+(.t.def ..project.*dir*
+
+  (.t.is (.fs.dir? .project.*dir*)))
+
+
+
+(.t.def ..project.dir.set
+
+  (def dir
+       (.fs.tmp.dir))
+
+  (.t.is (= dir
+            (.project.dir.set dir)))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.project.dir.set (.fs.tmp)))
+         "Against file")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.project.dir.set "fake/path/1234567890"))
+         "Inexistent path")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.project.dir.set 42))
+         "Random argument"))
