@@ -1,0 +1,8 @@
+{:deploy [b (test convex shell dep exec-b)]}
+
+
+;;;;;;;;;;
+
+
+(def result
+     [b/b])

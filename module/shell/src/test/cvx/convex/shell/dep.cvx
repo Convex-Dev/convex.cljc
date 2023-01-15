@@ -1,0 +1,150 @@
+{}
+
+
+;;;;;;;;;;
+
+
+(.t.def ..dep.deploy
+
+  (let [result (.dep.deploy '[a (test convex shell dep exec-a)])]
+
+    (.t.is (map? result))
+
+    (.t.is (address? (get result
+                          'a)))
+
+    (.t.is (= [:b]
+              (lookup (get result
+                           'a)
+                      result))))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.dep.deploy 42))
+         "Random argument")
+
+  (.t.is (.t.ex :READER
+                (.dep.deploy '[x (test convex shell dep malformed)]))
+         "Malformed CVX file")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.dep.deploy '(test convex shell dep exec-a)))
+         "Need proper dependency vector")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.dep.deploy '[x]))
+         "Missing actor path")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.dep.deploy '[x ()]))
+         "Empty actor path in dependency vector")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.dep.deploy '[phony (a b c)]))
+         "Inexistent dependency")
+
+  (.t.is (.t.ex :FS
+                (.dep.deploy '[phony (test b c)]))
+         "Inexistent path")
+
+  (.t.is (.t.ex :READER
+                (.dep.deploy '[x (test convex shell dep malformed)]))
+         "Malformed CVX file"))
+
+
+
+(.t.def ..dep.exec
+
+  (.dep.exec '(test convex shell dep exec-a))
+
+  (.t.is (= [:b]
+            result))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.dep.exec 42))
+         "Random argument")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.dep.exec '()))
+         "Empty path")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.dep.exec '[x (test convex shell dep exec-a)]))
+         "Accepts only an actor path")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.dep.exec '(a b c)))
+         "Inexistent dependency")
+
+  (.t.is (.t.ex :READER
+                (.dep.exec '(test convex shell dep malformed)))
+         "Malformed CVX file"))
+
+
+
+(.t.def ..dep.fetch
+
+  (let [result (.dep.fetch '(test convex shell))]
+
+    (.t.is (= #{:hash->file
+                :tree}
+              (set (keys result)))
+           "With actor path")
+
+    (.t.is (= result
+              (.dep.fetch '[_ (test convex shell)]))
+           "With dependency vector"))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.dep.fetch 42))
+         "Random argument")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.dep.fetch '()))
+         "Empty actor path")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.dep.fetch '[x]))
+         "Missing actor path")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.dep.fetch '[x ()]))
+         "Empty actor path in dependency vector"))
+
+
+
+(.t.def ..dep.read
+
+  (let [content (.dep.read '(test convex shell))
+        src     (:src content)]
+
+    (.t.is (vector? (:deploy content)))
+
+    (.t.is (str? (:filename content)))
+
+    (.t.is (list? src))
+
+    (.t.is (empty? src))
+
+    (.t.is (= {'x content}
+              (.dep.read '[x (test convex shell)]))
+           "With dependency vector"))
+
+  (.t.is (= {}
+            (.dep.read '[]))
+         "Empty dependency vector")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.dep.read 42))
+         "Random argument")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.dep.read '()))
+         "Empty actor path")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.dep.read '[x]))
+         "Missing actor path")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.dep.read '[x ()]))
+         "Empty actor path in dependency vector"))

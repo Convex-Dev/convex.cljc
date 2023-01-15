@@ -75,31 +75,7 @@
                  trx))
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-(defn .dep.fetch
-
-  [required]
-
-  (.shell.invoke '.dep.fetch
-                  (if (list? required)
-                    ['_ required]
-                    required)))
-
+;;;;;;;;;; Dependency management
 
 
 (defn .dep.deploy
@@ -113,19 +89,33 @@
 
 (defn .dep.exec
 
-  [required]
+  [actor-path]
 
-  (let [file       (.dep.read required)
-        required-2 (:deploy file)]
-    (when required-2
+  (when-not (list? actor-path)
+    (fail :ARGUMENT
+          "Requires an actor path"))
+  (let [file     (.dep.read actor-path)
+        required (:deploy file)]
+    (when required
       (reduce (fn [_ [sym addr]]
                 (eval `(def ~sym
                             ~addr))
                 nil)
               nil
-              (.dep.deploy required-2)))
+              (.dep.deploy required)))
     (eval (cons 'do
                 (:src file)))))
+
+
+
+(defn .dep.fetch
+
+  [required]
+
+  (.shell.invoke '.dep.fetch
+                  (if (list? required)
+                    ['_ required]
+                    required)))
 
 
 
@@ -146,11 +136,9 @@
 
 
 
-
-
-
-
 (defn .dep.require.filter
+
+  ^:private?
 
   [f required]
 
@@ -173,9 +161,6 @@
                   2))
         acc))))
                       
-           
-
-
 
 
 (defn .dep.test

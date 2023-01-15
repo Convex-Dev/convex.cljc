@@ -107,7 +107,8 @@
 
   ([env required]
 
-   (if ($.std/empty? required)
+   (if (and ($.std/vector? required) 
+            ($.std/empty? required))
      env
      (let [ancestry ($.cell/* [])
            ctx      (env :convex.shell/ctx)]

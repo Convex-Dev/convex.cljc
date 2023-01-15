@@ -30,9 +30,9 @@
 
   [env path]
 
-  (let [fail (fn [message]
+  (let [fail (fn [code message]
                ($.shell.dep.fail/with-ancestry (env :convex.shell/ctx)
-                                               ($.cell/* :READER)
+                                               code
                                                ($.cell/* {:filename ~($.cell/string path)
                                                           :message  ~(some-> message
                                                                              ($.cell/string))})
@@ -47,17 +47,20 @@
                            (or ($.std/next src)
                                ($.cell/* ())))
               ($.cell/* {:src ~src}))
-            ($.std/assoc ($.cell/* :path)
+            ($.std/assoc ($.cell/* :filename)
                          ($.cell/string path))))
       ;;
       (catch NoSuchFileException _ex
-        (fail "File not found"))
+        (fail ($.cell/* :FS)
+              "File not found"))
       ;;
       (catch ParseException ex
-        (fail (.getMessage ex)))
+        (fail ($.cell/* :READER)
+              (.getMessage ex)))
       ;;
       (catch Throwable _ex
-        (fail nil)))))
+        (fail ($.cell/* :UNKNOWN)
+              nil)))))
 
 
 
