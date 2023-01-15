@@ -1,0 +1,13 @@
+{}
+
+
+;;;;;;;;;;
+
+
+(.t.def ..bench.trx
+
+  ^:slow?
+
+  (let [result (.bench.trx '(+ 2 2))]
+    (.t.is (double? (:mean result)))
+    (.t.is (double? (:stddev result)))))

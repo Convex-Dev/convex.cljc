@@ -1,2 +1,3 @@
 {:deploy [$.shell.account (test convex shell account)
+          $.shell.bench   (test convex shell bench)
          ]}
