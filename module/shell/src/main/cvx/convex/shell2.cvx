@@ -171,18 +171,67 @@
 
 
 
+
+
+
+
+(defn .dep.require.filter
+
+  [f required]
+
+  (let [n (count required)]
+    (loop [acc []
+           i   0]
+      (if (< i
+             n)
+        (recur (let [sym  (get required
+                               i)
+                     path (get required
+                               (inc i))]
+                 (if (f sym
+                        path)
+                   (conj acc
+                         sym
+                         path)
+                   acc))
+               (+ i
+                  2))
+        acc))))
+                      
+           
+
+
+
+
 (defn .dep.test
 
-  [required]
 
-  (let [test            (if .*dev?*
-                          .t.dev
-                          .t.main)
-        actor-sym->addr (.dep.deploy
-                          (if (list? required)
-                            (:deploy (.dep.read required))
-                            required))]
-    (test actor-sym->addr)))
+  ([required]
+
+   (.dep.test required
+              nil))
+
+
+  ([required option+]
+
+   (let [test            (if .*dev?*
+                           .t.dev
+                           .t.main)
+         required-2      (if (list? required)
+                           (:deploy (.dep.read required))
+                           required)
+
+         focus           (:focus option+)
+         focus-actor+    (set (filter symbol?
+                                      focus))
+         required-3      (if (empty? focus-actor+)
+                           required-2
+                           (.dep.require.filter (fn [sym _path]
+                                                  (contains-key? focus-actor+
+                                                                 sym))
+                                                required-2))
+                         ]
+     (test (.dep.deploy required-3)))))
 
 
 
@@ -1831,11 +1880,12 @@
                         (meta name)]
                        [name
                         nil])
-        first-assert (first assertion+)
+        first-assert (when-not (empty? assertion+)
+                       (first assertion+))
         meta-2       (if (syntax? first-assert)
                        (merge meta-
                               (meta first-assert))
-                       meta-2)]
+                       meta-)]
     `(defn ~(syntax name-2
                     (assoc meta-2
                            :test?
