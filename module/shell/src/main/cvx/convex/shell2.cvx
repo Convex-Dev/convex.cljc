@@ -1156,19 +1156,7 @@
                  (first (:form+ state))))
 
 
-
-
-
-
-
-
-
-
-  
-
-
-
-
+;;;;;;;;;; Used by resources external to the CVM
 
 
 (def .resrc.*count*
@@ -1286,6 +1274,8 @@
 
 
 
+
+
 (defn .state.genesis
 
 
@@ -1356,6 +1346,8 @@
                          ~(cons 'do
                                 form+))))
  
+
+
 
 
 

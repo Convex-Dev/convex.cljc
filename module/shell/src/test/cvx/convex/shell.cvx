@@ -12,5 +12,6 @@
           $.shell.project (test convex shell project)
           $.shell.reader  (test convex shell reader)
           $.shell.repl    (test convex shell repl)
+          $.shell.resrc   (test convex shell resrc)
          ]}
 

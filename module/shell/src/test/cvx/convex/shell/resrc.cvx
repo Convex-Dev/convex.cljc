@@ -1,0 +1,19 @@
+{}
+
+
+;;;;;;;;;;
+
+
+(.t.def ..resrc.*count*
+
+  (.t.is (long? .resrc.*count*)))
+
+
+
+(.t.def ..resrc.next
+
+  (def before
+       .resrc.*count*)
+
+  (.t.is (= (inc before)
+            (.resrc.next))))
