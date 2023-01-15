@@ -132,7 +132,9 @@
    ($.cell/* .file.stream.out)   $.shell.req.file/stream-out
    ($.cell/* .fs.copy)           $.shell.req.fs/copy
    ($.cell/* .fs.delete)         $.shell.req.fs/delete
+   ($.cell/* .fs.dir?)           $.shell.req.fs/dir?
    ($.cell/* .fs.exists?)        $.shell.req.fs/exists?
+   ($.cell/* .fs.file?)          $.shell.req.fs/file?
    ($.cell/* .fs.resolve)        $.shell.req.fs/resolve
    ($.cell/* .fs.size)           $.shell.req.fs/size
    ($.cell/* .fs.tmp)            $.shell.req.fs/tmp

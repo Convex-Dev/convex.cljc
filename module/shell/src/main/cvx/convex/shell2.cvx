@@ -697,14 +697,7 @@
                  option+)))
 
 
-
-
-
-
-
-
-
-
+;;;;;;;;;; Filesystem operations
 
 
 (defn .fs.copy
@@ -736,6 +729,15 @@
 
 
 
+(defn .fs.dir?
+
+  [path]
+
+  (.shell.invoke '.fs.dir?
+                 path))
+
+
+
 (defn .fs.exists?
 
   ^{:doc {:description ["Returns a request for testing if a file exists."
@@ -746,6 +748,15 @@
   [path]
 
   (.shell.invoke '.fs.exists?
+                 path))
+
+
+
+(defn .fs.file?
+
+  [path]
+
+  (.shell.invoke '.fs.file?
                  path))
 
 
@@ -822,6 +833,9 @@
    (.shell.invoke '.fs.tmp.dir
                   (or prefix
                       ""))))
+
+
+
 
 
 

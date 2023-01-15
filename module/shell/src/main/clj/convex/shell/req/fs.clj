@@ -101,6 +101,19 @@
 
 
 
+(defn dir?
+
+  [ctx [path]]
+
+  (or (when-not ($.std/string? path)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Path to test for directory must be a string")))
+      ($.cvm/result-set ctx
+                        ($.cell/boolean (bb.fs/directory? (str path))))))
+
+
+
 (defn exists?
 
   ;; Testing if a file exists.
@@ -122,6 +135,19 @@
           ($.cvm/exception-set ctx
                                ($.cell/* :FS)
                                ($.cell/string (.getMessage ex)))))))
+
+
+
+(defn file?
+
+  [ctx [path]]
+
+  (or (when-not ($.std/string? path)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Path to test for file must be a string")))
+      ($.cvm/result-set ctx
+                        ($.cell/boolean (bb.fs/regular-file? (str path))))))
 
 
 
