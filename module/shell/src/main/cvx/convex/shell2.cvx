@@ -1030,7 +1030,8 @@
 
   [state]
 
-  (let [ex    (:result state)
+  (let [out   (:stream.out state)
+        ex    (:result state)
         trace (:trace ex)
         ex-2  (assoc ex
                      :trace
@@ -1039,8 +1040,10 @@
                             ;; Removing lines relating to the REPL, not interesting.
                             (- (count trace)
                                3)))]
-    (.ex.print ex-2)
-    (.stream.txt.outln "")
+    (.ex.print out
+               ex-2)
+    (.stream.txt.outln out
+                       "")
     (assoc state
            :result
            ex-2)))
@@ -1051,7 +1054,8 @@
 
   [state message]
 
-  (.stream.txt.outln (str .sys.eol
+  (.stream.txt.outln (:stream.out state)
+                     (str .sys.eol
                           (.term.fg.red)
                           (.term.bold)
                           "Input cannot be parsed as Convex Lisp:"
@@ -1083,11 +1087,16 @@
 
   [state]
 
-  (.stream.txt.out .sys.eol)
-  (.stream.out (:result state))
-  (.stream.txt.out .sys.eol)
-  (.stream.txt.out .sys.eol)
-  (.stream.flush)
+  (let [out (:stream.out state)]
+    (.stream.txt.out out
+                     .sys.eol)
+    (.stream.out out
+                 (:result state))
+    (.stream.txt.out out
+                     .sys.eol)
+    (.stream.txt.out out
+                     .sys.eol)
+    (.stream.flush out))
   state)
 
 
