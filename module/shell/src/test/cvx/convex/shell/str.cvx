@@ -1,0 +1,102 @@
+{}
+
+
+;;;;;;;;;;
+
+
+(.t.def ..stream.in
+
+  (def s
+       (str ":a :b"
+            .sys.eol
+            ":c"))
+
+  (.t.is (nil? (.stream.close (.str.stream.in s))))
+
+
+  (def stream
+       (.str.stream.in s))
+      
+  (.t.is (= '(:a :b :c))
+             (.stream.in+ stream))
+
+  (.t.is (.t.ex :STREAM
+                (.stream.line stream))
+         "Cells consumed at once")
+
+  (.t.is (nil? (.stream.close stream)))
+
+  (def stream-2
+       (.str.stream.in s))
+
+  (.t.is (= '(:a :b)
+            (.stream.line stream-2)))
+
+  (.t.is (= '(:c)
+            (.stream.line stream-2)))
+
+  (.t.is (nil? (.stream.line stream-2))
+         "End of cell stream")
+
+  (.t.is (.t.ex :STREAM
+                (.stream.line stream-2))
+         "Cells consumed line by line")
+
+  (.t.is (nil? (.stream.close stream-2)))
+  
+  (.t.is (= s
+            (.stream.txt.in (.str.stream.in s))))
+
+  (def stream-3
+       (.str.stream.in s))
+
+  (.t.is (= ":a :b"
+            (.stream.txt.line stream-3)))
+
+  (.t.is (= ":c"
+            (.stream.txt.line stream-3)))
+
+  (.t.is (nil? (.stream.txt.line stream-3))
+         "End of txt stream")
+
+  (.t.is (.t.ex :STREAM
+                (.stream.txt.line stream-3))
+         "Cells consumed line by line")
+
+  (.t.is (nil? (.stream.close stream-3))))
+
+
+
+(.t.def ..str.stream.out
+
+  (def stream
+       (.str.stream.out))
+
+  (.t.is (= :a
+             (.stream.out stream
+                          :a)))
+
+  (.t.is (= .sys.eol
+            (.stream.txt.out stream
+                             .sys.eol)))
+
+  (.t.is (= :b
+            (.stream.outln stream
+                           :b)))
+
+  (.t.is (= ":c"
+            (.stream.txt.outln stream
+                               ":c")))
+
+  (.t.is (= stream
+            (.stream.flush stream)))
+
+  (.t.is (nil? (.stream.close stream)))
+
+  (.t.is (= :d
+            (.stream.outln stream
+                          :d))
+         "Closing has no effect")
+
+  (.t.is (= '(:a :b :c :d)
+            (.reader.form+ (.str.stream.unwrap stream)))))

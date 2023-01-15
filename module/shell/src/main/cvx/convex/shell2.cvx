@@ -1356,12 +1356,9 @@
   `(~$CORE$/.state.tmp (fn []
                          ~(cons 'do
                                 form+))))
- 
 
 
-
-
-
+;;;;;;;;;; Strings
 
 
 (defn .str.stream.in
@@ -1376,6 +1373,8 @@
 
 (defn .str.stream.out
 
+  ;; Closing has no effect.
+
   []
 
   (.shell.invoke '.str.stream.out
@@ -1389,6 +1388,8 @@
 
   (.shell.invoke '.str.stream.unwrap
                  handle))
+
+
 
 
 
