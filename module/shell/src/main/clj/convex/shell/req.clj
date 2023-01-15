@@ -114,8 +114,7 @@
 
 (def core
 
-  {($.cell/* .account.control)   $.shell.req.account/control
-   ($.cell/* .account.switch)    $.shell.req.account/switch
+  {($.cell/* .account.switch)    $.shell.req.account/switch
    ($.cell/* .bench.trx)         $.shell.req.bench/trx
    ($.cell/* .db.flush)          $.shell.req.db/flush
    ($.cell/* .db.open)           $.shell.req.db/open
