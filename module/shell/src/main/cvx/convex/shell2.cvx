@@ -280,7 +280,11 @@
                                         skip))
                          ]
      (test (.dep.deploy required-4)
-           option-3+))))
+           (assoc option-3+
+                  :focus.meta
+                  (set (filter keyword?
+                               focus))
+           )))))
 
 
 
@@ -1971,6 +1975,8 @@
   (let [account    (account actor-address)
         meta       (:metadata account)
         env        (:environment account)
+        focus.meta (get state
+                        :focus.meta)
         focus.test (get-in state
                            [:focus.test
                              actor-sym])
@@ -1978,20 +1984,29 @@
                            [:skip.test
                             actor-sym])]
     (reduce (fn [acc [sym x]]
-              (if (and (fn? x)
-                       (get-in meta
-                               [sym
-                                :test?])
-                       (or (not focus.test)
-                           (contains-key? focus.test
-                                          sym))
-                       (or (not skip.test)
-                           (not (contains-key? skip.test
-                                               sym))))
-                (conj acc
-                      [sym
-                       x])
-                acc))
+              (let [sym-meta (get meta
+                                  sym)]
+                (if (and (fn? x)
+                         (get-in meta
+                                 [sym
+                                  :test?])
+                         (or (not focus.test)
+                             (contains-key? focus.test
+                                            sym))
+                         (or (not skip.test)
+                             (not (contains-key? skip.test
+                                                 sym)))
+                         (reduce (fn [_focus? k-focus]
+                                   (if (get sym-meta
+                                            k-focus)
+                                     (reduced true)
+                                     false))
+                                 true
+                                 focus.meta))
+                  (conj acc
+                        [sym
+                         x])
+                  acc)))
             []
             env)))
 
