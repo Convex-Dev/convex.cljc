@@ -1,0 +1,72 @@
+{}
+
+
+;;;;;;;;;;
+
+
+(.t.def ..repl
+
+  (def stream.in
+       (.str.stream.in (str "(+ 2 2)"
+                            .sys.eol
+                            "(inc $)"
+                            .sys.eol
+                            "(+ 4 4"
+                            .sys.eol
+                            "(fail :FROM-TEST 42)"
+                            .sys.eol)))
+
+  (def stream.out
+       (.str.stream.out))
+
+  (def state
+       (.repl {:on.ex            (fn [state]
+                                   (let [state-2 (assoc state
+                                                        :test.ex
+                                                        (:result state))]
+                                     (assoc state-2
+                                            :test.n.ex
+                                            (inc (:test.n.ex state-2)))))
+               :on.ex.reader     (fn [state _message]
+                                   (assoc state
+                                          :test.n.ex.reader
+                                          (inc (:test.n.ex.reader state))))
+               :on.prompt        (fn [state]
+                                   (assoc state
+                                          :test.n.prompt
+                                          (inc (:test.n.prompt state))))
+               :on.result        .repl.on.result
+               :stream.in        stream.in
+               :stream.out       stream.out
+               :test.ex          nil
+               :test.n.prompt    0
+               :test.n.ex        0
+               :test.n.ex.reader 0}))
+
+  (def result+
+       (.reader.form+ (.str.stream.unwrap stream.out)))
+
+  (.t.is (= 2
+            (count result+))
+         "Only 2 valid results were produced")
+
+  (.t.is (= 4
+            (nth result+
+                 0))
+         "First good result")
+
+  (.t.is (= 5
+            (nth result+
+                 1))
+         "Second good result with reference to previous one")
+
+  (.t.is (= 1
+            (:test.n.ex.reader state))
+         "One reader error occured")
+
+  (.t.is (= :FROM-TEST
+            (:code (:test.ex state)))
+         "One exception thrown")
+
+  (.t.is (= 4
+            (:test.n.prompt state))))

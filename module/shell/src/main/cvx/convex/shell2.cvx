@@ -978,8 +978,80 @@
                  string))
 
 
+;;;;;;;;;; REPL
 
 
+(defn .repl
+
+
+  ([]
+
+   (.repl nil))
+
+
+  ([option+]
+
+   (loop [state (merge {:eval         .repl.eval
+                        :on.ex        .repl.on.ex
+                        :on.ex.reader .repl.on.ex.reader
+                        :on.prompt    .repl.on.prompt
+                        :on.result    .repl.on.result
+                        :stop?        .repl.stop?
+                        :stream.in    .stream.*in*
+                        :stream.out   .stream.*out*}
+                       option+)]
+     (let [state-2 ((:on.prompt state) state)
+           [read?
+            x]     (.state.safe (fn []
+                                  (.stream.line (:stream.in state-2))))]
+       (if read?
+         ;;
+         ;; Successful read.
+         ;;
+         (let [form+   x
+               state-3 (assoc state-2
+                              :form+
+                              form+)]
+           (cond
+             ;;
+             (nil? form+)
+             state-3
+             ;;
+             (empty? form+)
+             (recur state-3)
+             ;;
+             ((:stop? state-3) state-3)
+             state-3
+             ;;
+             (let [[ok?
+                    x]     (.state.safe (fn []
+                                          ((:eval state-3) (assoc state-3
+                                                                  :form+
+                                                                  form+))))
+                   state-4 (if ok?
+                             (let [state-4 x]
+                               ((:on.result state-4) state-4))
+                             (let [ex x]
+                               ((:on.ex state) (assoc state-3
+                                                      :result
+                                                      ex))))]
+               (if (contains-key? state-4
+                                  :result)
+                 (recur state-4)
+                 state-4))))
+         ;;
+         ;; Reading input failed.
+         ;;
+         (let [ex x]
+           (if (= (:code ex)
+                  :READER)
+             (let [state-3 ((:on.ex.reader state) state
+                                                  (:message ex))]
+               (if (contains-key? state-3
+                                  :result)
+                 (recur state-3)
+                 state-3))
+             (.ex.rethrow ex))))))))
 
 
 
@@ -992,13 +1064,6 @@
          (eval (concat `(let [$ (quote ~(:result state))])
                (:form+ state)))))
 
-
-
-
-
-
-
-  
 
 
 (defn .repl.on.ex
@@ -1092,77 +1157,8 @@
 
 
 
-(defn .repl
 
 
-  ([]
-
-   (.repl nil))
-
-
-  ([option+]
-
-   (loop [state (merge {:eval         .repl.eval
-                        :on.ex        .repl.on.ex
-                        :on.ex.reader .repl.on.ex.reader
-                        :on.prompt    .repl.on.prompt
-                        :on.result    .repl.on.result
-                        :stop?        .repl.stop?
-                        :stream.in    .stream.*in*
-                        :stream.out   .stream.*out*}
-                       option+)]
-     ((:on.prompt state) state)
-     (let [[read?
-            x]    (.state.safe (fn []
-                                 (.stream.line (:stream.in state))))]
-       (if read?
-         ;;
-         ;; Successful read.
-         ;;
-         (let [form+   x
-               state-2 (assoc state
-                              :form+
-                              form+)]
-           (cond
-             ;;
-             (nil? form+)
-             state-2
-             ;;
-             (empty? form+)
-             (recur state-2)
-             ;;
-             ((:stop? state-2) state-2)
-             state-2
-             ;;
-             (let [[ok?
-                    x]     (.state.safe (fn []
-                                          ((:eval state-2) (assoc state-2
-                                                                  :form+
-                                                                  form+))))
-                   state-3 (if ok?
-                             (let [state-3 x]
-                               ((:on.result state-3) state-3))
-                             (let [ex x]
-                               ((:on.ex state) (assoc state-2
-                                                      :result
-                                                      ex))))]
-               (if (contains-key? state-3
-                                  :result)
-                 (recur state-3)
-                 state-3))))
-         ;;
-         ;; Reading input failed.
-         ;;
-         (let [ex x]
-           (if (= (:code ex)
-                  :READER)
-             (let [state-2 ((:on.ex.reader state) state
-                                                  (:message ex))]
-               (if (contains-key? state-2
-                                  :result)
-                 (recur state-2)
-                 state-2))
-             (.ex.rethrow ex))))))))
 
 
 
