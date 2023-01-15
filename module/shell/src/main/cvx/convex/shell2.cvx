@@ -1,5 +1,25 @@
 
 
+;;;;;;;;;; Private miscellaneous helpers
+
+
+(defn .docoll
+
+  ^:private?
+
+  [f coll]
+
+  (let [n (count coll)]
+    (loop [i 0]
+      (if (< i
+             n)
+        (do
+          (f (nth coll
+                  i))
+          (recur (inc i)))
+        nil))))
+
+
 ;;;;;;;;;; Account
 
 
@@ -388,25 +408,7 @@
                  cell))
 
 
-
-
-
-(defn .docoll
-
-  [f coll]
-
-  (let [n (count coll)]
-    (loop [i 0]
-      (if (< i
-             n)
-        (do
-          (f (nth coll
-                  i))
-          (recur (inc i)))
-        nil))))
-
-
-
+;;;;;;;;;; Exceptions
 
 
 (defn .ex.print
@@ -486,6 +488,21 @@
 
 
 
+(defn .ex.rethrow
+
+  [exception]
+
+  (.shell.invoke '.ex.rethrow
+                 exception))
+
+
+
+
+
+
+
+
+
 
 
 (defn .file.-handle
@@ -526,7 +543,7 @@
     (.stream.close handle)
     (if ok?
       x
-      (.rethrow x))))
+      (.ex.rethrow x))))
 
 
 
@@ -634,7 +651,7 @@
     (.stream.close handle)
     (if ok?
       x
-      (.rethrow x))))
+      (.ex.rethrow x))))
 
 
 
@@ -1139,7 +1156,7 @@
                                   :result)
                  (recur state-2)
                  state-2))
-             (.rethrow ex))))))))
+             (.ex.rethrow ex))))))))
 
 
 
@@ -1175,12 +1192,7 @@
 
 
 
-(defn .rethrow
 
-  [exception]
-
-  (.shell.invoke '.rethrow
-                 exception))
 
 
 
@@ -2304,7 +2316,7 @@
                state-3))))]
     (if ok?
       x
-      (.rethrow x))))
+      (.ex.rethrow x))))
 
 
 
@@ -3115,7 +3127,7 @@
                 close)
              (if ok?
                x
-               (.rethrow x))))
+               (.ex.rethrow x))))
         (- i
            3)))))
 

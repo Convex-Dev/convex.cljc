@@ -36,34 +36,7 @@
 ;;;;;;;;;;
 
 
-(defn read+
-
-  [ctx arg+]
-
-  (let [src (first arg+)]
-    (or (when-not ($.std/string? src)
-          ($.cvm/exception-set ctx
-                               ($.cell/code-std* :ARGUMENT)
-                               ($.cell/string "Source to read is not a string")))
-        (try
-          ($.cvm/result-set ctx
-                            (-> (first arg+)
-                                (str)
-                                ($.read/string)))
-          ;;
-          (catch ParseException ex
-            ($.cvm/exception-set ctx
-                                 ($.cell/* :READER)
-                                 ($.cell/string (.getMessage ex))))
-          ;;
-          (catch Throwable _ex
-            ($.cvm/exception-set ctx
-                                 ($.cell/* :READER)
-                                 ($.cell/string "Unable to read string as Convex data")))))))
-
-
-
-(defn rethrow
+(defn ex-rethrow
 
   [ctx [ex-map]]
 
@@ -109,6 +82,33 @@
                                                ex))))))))))
 
 
+
+(defn read+
+
+  [ctx arg+]
+
+  (let [src (first arg+)]
+    (or (when-not ($.std/string? src)
+          ($.cvm/exception-set ctx
+                               ($.cell/code-std* :ARGUMENT)
+                               ($.cell/string "Source to read is not a string")))
+        (try
+          ($.cvm/result-set ctx
+                            (-> (first arg+)
+                                (str)
+                                ($.read/string)))
+          ;;
+          (catch ParseException ex
+            ($.cvm/exception-set ctx
+                                 ($.cell/* :READER)
+                                 ($.cell/string (.getMessage ex))))
+          ;;
+          (catch Throwable _ex
+            ($.cvm/exception-set ctx
+                                 ($.cell/* :READER)
+                                 ($.cell/string "Unable to read string as Convex data")))))))
+
+
 ;;;;;;;;;;
 
 
@@ -127,6 +127,7 @@
    ($.cell/* .dep.fetch)         $.shell.req.dep/fetch
    ($.cell/* .dep.read)          $.shell.req.dep/read
    ($.cell/* .dev.fatal)         $.shell.req.dev/fatal
+   ($.cell/* .ex.rethrow)        ex-rethrow
    ($.cell/* .file.stream.in)    $.shell.req.file/stream-in
    ($.cell/* .file.stream.out)   $.shell.req.file/stream-out
    ($.cell/* .fs.copy)           $.shell.req.fs/copy
@@ -142,7 +143,6 @@
    ($.cell/* .log.clear)         $.shell.req.log/clear
    ($.cell/* .log.get)           $.shell.req.log/get
    ($.cell/* .read+)             read+
-   ($.cell/* .rethrow)           rethrow
    ($.cell/* .state.genesis)     $.shell.req.state/genesis
    ($.cell/* .state.safe)        $.shell.req.state/safe
    ($.cell/* .state.switch)      $.shell.req.state/switch
