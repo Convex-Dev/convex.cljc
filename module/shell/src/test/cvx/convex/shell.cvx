@@ -2,5 +2,6 @@
           $.shell.bench   (test convex shell bench)
           $.shell.dep     (test convex shell dep)
           $.shell.dev     (test convex shell dev)
+          $.shell.db      (test convex shell db)
          ]}
 

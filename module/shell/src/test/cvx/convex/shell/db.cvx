@@ -1,0 +1,86 @@
+{}
+
+
+(def cell-1
+     [:a :b 1])
+
+(def cell-2
+     [:a :b 2])
+
+(def hash-1
+     (hash (encoding cell-1)))
+
+(def hash-2
+     (hash (encoding cell-2)))
+
+
+;;;;;;;;;;
+
+
+(.t.def main
+
+  (.t.is (nil? (.db.path))
+         "No instance opened yet")
+
+  (.t.is (.t.ex :DB
+                (.db.flush))
+         "Flushing fails without an instance")
+
+  (.t.is (.t.ex :DB
+                (.db.read hash-1))
+         "Read fails without an instance")
+
+  (.t.is (.t.ex :DB
+                (.db.root.read))
+         "Root read fails without an instance")
+
+  (.t.is (.t.ex :DB
+                (.db.root.write cell-1))
+         "Root write fails without an instance")
+
+  (.t.is (.t.ex :DB
+                (.db.write cell-1))
+         "Write fails without an instance")
+
+  (let [path (.db.open)]
+
+    (.t.is (str? path)
+           "Opening an instance returns the path")
+
+    (.t.is (= path
+              (.db.path))
+           "Can retrieve path")
+
+    (.t.is (= path
+              (.db.open path))
+           "Re-opening the current path is a no-op"))
+
+  (.t.is (.t.ex :DB
+                (.db.open "/tmp/etch"))
+         "Cannot open another path")
+
+  (.t.is (nil? (.db.read hash-1))
+         "Nothing written yet")
+
+  (.t.is (= hash-1
+            (.db.write cell-1))
+         "Write returns the hash")
+
+  (.t.is (= cell-1
+            (.db.read hash-1))
+         "Can read written cell")
+
+  (.t.is (= hash-2
+            (.db.root.write cell-2))
+         "Root write returns hash")
+
+  (.t.is (= cell-2
+            (.db.root.read))
+         "Root read returns the right cell")
+
+  (.t.is (= cell-2
+            (.db.read hash-2))
+         "Can retrieve root by hash")
+
+  (.t.is (nil? (.db.flush))
+         "Can flush an open instance"))
