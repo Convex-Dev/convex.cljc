@@ -1,0 +1,69 @@
+{}
+
+
+;;;;;;;;;;
+
+
+(.t.def ..shell.inspect
+
+  (def x
+       (.shell.inspect))
+
+  (.t.is (set? x))
+
+  (.t.is (contains-key? x
+                        '.time.unix))
+
+  (.t.is (reduce (fn [_ y]
+                   (if (symbol? y)
+                     true
+                     (reduced false)))
+                 false
+                 x)))
+                
+
+
+(.t.def ..shell.limit
+
+  (.t.is (nil? (.shell.limit (disj (.shell.inspect)
+                                   '.time.unix))))
+
+  (.t.is (not (contains-key? (.shell.inspect)
+                             '.time.unix)))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.time.unix)))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.ex.rethrow (second (.state.tmp*
+                                       (.shell.limit #{})
+                                       (.time.nano))))))
+
+  (.t.is (long? (.time.nano)))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.shell.limit []))
+         "Accepts only sets"))
+
+
+
+(.t.def ..shell.*root*
+
+  (.t.is (str? .shell.*root*)))
+
+
+
+(.t.def ..shell.root.set
+
+  (def path
+       "foo/bar")
+
+  (.t.is (= path
+            (.shell.root.set path)))
+
+  (.t.is (= path
+            .shell.*root*))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.shell.root.set 42))
+         "Must be a string"))

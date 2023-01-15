@@ -1179,13 +1179,7 @@
           (.resrc.next))))
 
 
-
-
-
-
-
-
-
+;;;;;;;;;; Shell
 
 
 (defn .shell.inspect
@@ -1196,18 +1190,18 @@
 
 
 
+(def .shell.invoke
+
+  nil)
+
+
+
 (defn .shell.limit
 
   [feature-set]
 
   (.shell.invoke '.shell.limit
                  feature-set))
-
-
-
-(def .shell.invoke
-
-  nil)
 
 
 
@@ -1266,9 +1260,28 @@
 
 
 
-(def .shell.root
+(def .shell.*root*
 
   "~/.convex-shell")
+
+
+
+(defn .shell.root.set
+
+  ^{:callable? true}
+
+  [dir]
+
+  (if (= *address*
+         $CORE$)
+    (do
+      (when-not (str? dir)
+        (fail :ARGUMENT
+              "Given path is not a string"))
+      (def .shell.*root*
+           dir))
+    (call $CORE$
+          (.shell.root.set dir))))
 
 
 
