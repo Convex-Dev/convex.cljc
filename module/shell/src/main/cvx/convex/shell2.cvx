@@ -281,10 +281,10 @@
                          ]
      (test (.dep.deploy required-4)
            (assoc option-3+
-                  :focus.meta
-                  (set (filter keyword?
-                               focus))
-           )))))
+                  :focus.meta (set (filter keyword?
+                                           focus))
+                  :skip.meta  (set (filter keyword?
+                                           skip)))))))
 
 
 
@@ -1975,8 +1975,6 @@
   (let [account    (account actor-address)
         meta       (:metadata account)
         env        (:environment account)
-        focus.meta (get state
-                        :focus.meta)
         focus.test (get-in state
                            [:focus.test
                              actor-sym])
@@ -2002,7 +2000,16 @@
                                      (reduced true)
                                      false))
                                  true
-                                 focus.meta))
+                                 (get state
+                                      :focus.meta))
+                         (reduce (fn [_skip? k-skip]
+                                   (if (get sym-meta
+                                            k-skip)
+                                     (reduced false)
+                                     true))
+                                 true
+                                 (get state
+                                      :skip.meta)))
                   (conj acc
                         [sym
                          x])
