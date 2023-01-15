@@ -2319,6 +2319,7 @@
       (reduce (fn [state-2 [test-sym test-f]]
                 (.t.run.test state-2
                              actor-sym
+                             actor-address
                              test-sym
                              test-f))
               (assoc state
@@ -2349,11 +2350,12 @@
 
 (defn .t.run.test
 
-  [state actor-sym test-sym test-f]
+  [state actor-sym actor-address test-sym test-f]
 
   (let [on.test.result (:on.test.result state)
         [ok?
          x]            (.state.tmp (fn []
+                                     (.account.switch actor-address)
                                      (test-f)
                                      .t.*assert+*))
         test-result    (if ok?
