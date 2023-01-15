@@ -1,0 +1,14 @@
+{}
+
+
+;;;;;;;;;;
+
+
+(.t.def ..ex.rethrow
+
+  (let [[_ok?
+         ex]  (.state.tmp* (fail :RETHROW
+                                 ""))]
+    (.t.is (.t.ex :RETHROW
+                  (.ex.rethrow ex)))))
+              
