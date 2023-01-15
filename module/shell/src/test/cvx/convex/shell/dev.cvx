@@ -1,0 +1,23 @@
+{}
+
+
+;;;;;;;;;;
+
+
+(.t.def ..*dev?*
+
+  (.t.is (boolean? .*dev?*)))
+
+
+
+(.t.def ..dev.set
+
+  (.dev.set 42)
+
+  (.t.is (= true
+            .*dev?*))
+
+  (.dev.set nil)
+
+  (.t.is (= false
+            .*dev?*)))
