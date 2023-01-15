@@ -455,70 +455,78 @@
 
 (defn .ex.print
 
-  [ex]
 
-  (let [msg        (:message ex)
-        msg-2      (when (map? msg)
-                     (:message msg))
-        extra-data (when msg-2
-                     (dissoc msg
-                             :message))
-        trace      (:trace ex)
-        trace-2    trace]
-    (.stream.txt.outln
-      (str .sys.eol
-           (.term.bold)
-           (.term.fg.red)
-           "Exception code:"
-           (.term.reset)
-           .sys.eol
-           "  "
-           (.term.bold)
-           (:code ex)
-           (.term.bold)
-           (.term.fg.red)
-           .sys.eol
-           "Executing address:"
-           (.term.reset)
-           .sys.eol
-           "  "
-           (:address ex)
-           .sys.eol
-           (.term.bold)
-           (.term.fg.red)
-           "Message:"
-           (.term.reset)
-           .sys.eol
-           "  "
-           (or msg-2
-               msg)
-           .sys.eol
-           (.term.bold)
-           (.term.fg.red)
-           "Trace:"
-           (.term.reset)
-           (if (empty? trace-2)
-             (str .sys.eol
-                  "  None.")
-             (apply str
-                    (reduce (fn [acc entry]
-                              (conj acc
-                                    .sys.eol
-                                    "  "
-                                    entry))
-                            []
-                            trace-2)))
-           (if (and extra-data
-                    (not (empty? extra-data)))
-             (str .sys.eol
-                  (.term.bold)
-                  (.term.fg.red)
-                  "Extra data:"
-                  (.term.reset)
-                  .sys.eol
-                  "  "
-                  extra-data)
-             "")))))
+  ([ex]
+
+   (.ex.print nil
+              ex))
+
+
+  ([stream ex]
+
+   (let [msg        (:message ex)
+         msg-2      (when (map? msg)
+                      (:message msg))
+         extra-data (when msg-2
+                      (dissoc msg
+                              :message))
+         trace      (:trace ex)
+         trace-2    trace]
+     (.stream.txt.outln
+       stream
+       (str .sys.eol
+            (.term.bold)
+            (.term.fg.red)
+            "Exception code:"
+            (.term.reset)
+            .sys.eol
+            "  "
+            (.term.bold)
+            (:code ex)
+            (.term.bold)
+            (.term.fg.red)
+            .sys.eol
+            "Executing address:"
+            (.term.reset)
+            .sys.eol
+            "  "
+            (:address ex)
+            .sys.eol
+            (.term.bold)
+            (.term.fg.red)
+            "Message:"
+            (.term.reset)
+            .sys.eol
+            "  "
+            (or msg-2
+                msg)
+            .sys.eol
+            (.term.bold)
+            (.term.fg.red)
+            "Trace:"
+            (.term.reset)
+            (if (empty? trace-2)
+              (str .sys.eol
+                   "  None.")
+              (apply str
+                     (reduce (fn [acc entry]
+                               (conj acc
+                                     .sys.eol
+                                     "  "
+                                     entry))
+                             []
+                             trace-2)))
+            (if (and extra-data
+                     (not (empty? extra-data)))
+              (str .sys.eol
+                   (.term.bold)
+                   (.term.fg.red)
+                   "Extra data:"
+                   (.term.reset)
+                   .sys.eol
+                   "  "
+                   extra-data)
+              ""))))))
 
 
 
@@ -2105,18 +2113,13 @@
                                 :exception .t.on.test.ex
                                 :fail      .t.on.test.fail}
                                (:status test))]
-                 (do
-                   (f test)
-                   (.stream.txt.outln s
-                                      "")
-                   (.stream.txt.outln s
-                                      "-----")
-                   (.stream.txt.outln s
-                                      ""))
+                 (f state
+                    test)
                  nil))
              (:run state))
     (let [status (:status state)]
-      (.stream.txt.outln (str (.term.bold)
+      (.stream.txt.outln s
+                         (str (.term.bold)
                               (cond
                                 (= status
                                    :empty)
@@ -2167,7 +2170,8 @@
                               " failed"
                               (.term.reset)))
       (when-not (empty? empty-actor+)
-        (.stream.txt.outln (str .sys.eol
+        (.stream.txt.outln s
+                           (str .sys.eol
                                 .sys.eol
                                 (.term.bold)
                                 (.term.fg.red)
@@ -2175,7 +2179,8 @@
                                 (.term.reset)
                                 .sys.eol))
         (.docoll (fn [sym-actor]
-                   (.stream.txt.outln (str "  "
+                   (.stream.txt.outln s
+                                      (str "  "
                                            sym-actor)))
                  empty-actor+))))
   state)
@@ -2184,53 +2189,70 @@
 
 (defn .t.on.test.empty
 
-  [test]
+  [state test]
 
-  (.t.print.test.name test)
-  (.stream.txt.outln "No assertions."))
+  (.t.print.test.name state
+                      test)
+  (.stream.txt.outln (:stream.out state)
+                     "No assertions.")
+  (.t.print.test.separator state))
 
 
 
 (defn .t.on.test.ex
 
-  [test]
+  [state test]
 
-  (.t.print.test.name test)
-  (.stream.txt.outln "Exception thrown unexpectedly")
-  (.ex.print (:exception test)))
+  (.t.print.test.name state
+                      test)
+  (let [s (:stream.out state)]
+    (.stream.txt.outln s
+                       "Exception thrown unexpectedly")
+    (.ex.print s
+               (:exception test)))
+  (.t.print.test.separator state))
 
 
 
 (defn .t.on.test.fail
 
-  [test]
+  [state test]
 
-  (.docoll (fn [failed]
-             (.t.print.test.name test)
-             (when-let [message (:message failed)]
-               (.stream.txt.outln (str message
-                                       .sys.eol)))
-             (.stream.txt.outln (str (.term.bold)
-                                     (.term.fg.cyan)
-                                     "Form:   "
-                                     (.term.reset)
-                                     (:form failed)))
-             (let [status (:status failed)]
-               (cond
-                 ;;
-                 (= status
-                    :fail)
-                 (.stream.txt.outln (str .sys.eol
-                                         (.term.bold)
-                                         (.term.fg.cyan)
-                                         "Result: "
-                                         (.term.reset)
-                                         (:fail failed)))
-                 ;;
-                 (= status
-                    :exception)
-                 (.ex.print (:fail failed)))))
-           (:failed+ test)))
+  (let [s (:stream.out state)]
+    (.docoll (fn [failed]
+               (.t.print.test.name state
+                                   test)
+               (when-let [message (:message failed)]
+                 (.stream.txt.outln s
+                                    (str message
+                                         .sys.eol)))
+               (.stream.txt.outln s
+                                  (str (.term.bold)
+                                       (.term.fg.cyan)
+                                       "Form:   "
+                                       (.term.reset)
+                                       (:form failed)))
+               (let [status (:status failed)]
+                 (when-not (= status
+                              :pass)
+                   (cond
+                     ;;
+                     (= status
+                        :fail)
+                     (.stream.txt.outln s
+                                        (str .sys.eol
+                                             (.term.bold)
+                                             (.term.fg.cyan)
+                                             "Result: "
+                                             (.term.reset)
+                                             (:fail failed)))
+                     ;;
+                     (= status
+                        :exception)
+                     (.ex.print s
+                                (:fail failed)))
+                   (.t.print.test.separator state))))
+             (:failed+ test))))
 
 
 
@@ -2257,12 +2279,29 @@
 
 (defn .t.print.test.name
 
-  [test]
+  [state test]
 
-  (.stream.txt.outln (str (.term.bold)
+  (.stream.txt.outln (:stream.out state)
+                     (str (.term.bold)
                           (:name test)
                           (.term.reset)
-                          .sys.eol)))
+                          .sys.eol))
+  nil)
+
+
+
+(defn .t.print.test.separator
+
+  [state]
+
+  (let [s (:stream.out state)]
+    (.stream.txt.outln s
+                       "")
+    (.stream.txt.outln s
+                       "-----")
+    (.stream.txt.outln s
+                       ""))
+  nil)
 
 
 
