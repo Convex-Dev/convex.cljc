@@ -5,5 +5,6 @@
           $.shell.db      (test convex shell db)
           $.shell.ex      (test convex shell ex)
           $.shell.file    (test convex shell file)
+          $.shell.fs      (test convex shell fs)
          ]}
 

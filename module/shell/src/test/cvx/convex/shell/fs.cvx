@@ -1,0 +1,228 @@
+{}
+
+
+;;;;;;;;;;
+
+
+(.t.def ..fs.copy
+
+  (def data
+       [:a :b :c])
+
+  (def path-dir
+       (.fs.tmp.dir))
+
+  (def path-file-a
+       (str path-dir
+            "/a"))
+
+  (def path-file-b
+       (str path-dir
+            "/b"))
+
+  (.file.write path-file-a
+               data)
+
+  (.t.is (nil? (.fs.copy path-file-a
+                         path-file-b))
+         "File to file")
+
+  (.t.is (= (list data)
+            (.file.read path-file-b))
+         "Data copied")
+ 
+  (def path-dir-2
+       (.fs.tmp.dir))
+
+  (.t.is (nil? (.fs.copy path-file-a
+                         path-dir-2))
+         "File to directory")
+
+  (.t.is (= (list data)
+            (.file.read (str path-dir-2
+                             "/a")))
+         "File copied to inside another directory")
+
+  ; (.t.is (nil? (.fs.copy path-file-a
+  ;                        (str path-dir-2
+  ;                             "/foo/bar")))
+  ;        "Creates parent dirs if necessary")
+
+  ; (.t.is (= (list data)
+  ;            (.file.read (str path-dir-2
+  ;                             "/foo/bar")))
+  ;        "Copied inside a new directory")
+
+  ;;
+
+  (.t.is (.t.ex :FS
+                (.fs.copy "fake/path/1234567890"
+                          "dest"))
+         "Inexistent src")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.fs.copy 42
+                          "dest"))
+         "Random argument for src")
+  (.t.is (.t.ex :ARGUMENT
+                (.fs.copy "src"
+                          42))
+         "Random argument for dest"))
+
+
+
+(.t.def ..fs.delete
+
+  (def path-file
+       (.fs.tmp))
+
+  (.t.is (= true
+            (.fs.delete path-file))
+         "File deleted")
+
+  (.t.is (= false
+            (.fs.exists? path-file))
+         "Confirmation")
+
+  (.t.is (= false
+            (.fs.delete path-file))
+         "File already deleted")
+
+  (def path-dir
+       (.fs.tmp.dir))
+
+  (.t.is (= true
+            (.fs.delete path-dir))
+         "Empty dir deleted")
+
+  (.t.is (= false
+            (.fs.exists? path-dir))
+         "Confirmation")
+
+  (def path-dir-2
+       (.fs.tmp.dir))
+
+  (.file.write (str path-dir-2
+                    "/file")
+               :test)
+
+  (.t.is (.t.ex :FS
+                (.fs.delete path-dir-2))
+         "Cannot delete directory with files")
+
+  (.t.is (= false
+            (.fs.delete "fake/path/1234567890"))
+         "Inexistent file")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.fs.delete 42))
+         "Random argument"))
+
+
+
+(.t.def ..fs.dir?
+
+  (.t.is (= true
+            (.fs.dir? (.fs.tmp.dir))))
+
+  (.t.is (= false
+            (.fs.dir? (.fs.tmp))))
+
+  (.t.is (= false
+            (.fs.dir? "fake/path/1234567890")))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.fs.dir? 42))
+         "Random argument"))
+
+
+
+(.t.def ..fs.exists?
+
+  (.t.is (= true
+            (.fs.exists? (.fs.tmp))))
+
+  (.t.is (= true
+            (.fs.exists? (.fs.tmp.dir))))
+
+  (.t.is (= false
+            (.fs.exists? "fake/path/1234567890")))
+  (.t.is (.t.ex :ARGUMENT
+                (.fs.exists? 42))
+         "Random argument"))
+
+
+
+(.t.def ..fs.file?
+
+  (.t.is (= true
+            (.fs.file? (.fs.tmp))))
+
+  (.t.is (= false
+            (.fs.file? (.fs.tmp.dir))))
+
+  (.t.is (= false
+            (.fs.file? "fake/path/1234567890")))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.fs.file? 42))
+         "Random argument"))
+
+
+
+(.t.def ..fs.resolve
+
+  (.t.is (= "/a/b"
+            (.fs.resolve "/a/b")))
+
+  (.t.is (= (str (.sys.cwd)
+                 "/c/d")
+            (.fs.resolve "c/d")))
+
+  (.t.is (= (str (.sys.cwd)
+                 "/c/d")
+            (.fs.resolve "c/e/f/./../.././d")))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.fs.resolve 42))
+         "Random argument"))
+
+
+
+(.t.def ..fs.size
+
+  (.t.is (zero? (.fs.size (.fs.tmp))))
+
+  (def file
+       (.fs.tmp))
+
+  (.file.write file
+               :data)
+
+  (.t.is (< 0
+            (.fs.size file)))
+
+  (.t.is (< 0
+            (.fs.size (.fs.tmp.dir))))
+
+  (.t.is (nil? (.fs.size "fake/path/1234567890")))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.fs.size 42))
+         "Random argument"))
+
+
+
+(.t.def ..fs.tmp
+
+  (.t.is (.fs.exists? (.fs.tmp)))
+
+  (.t.is (.fs.file? (.fs.tmp))))
+
+
+
+(.t.def ..fs.tmp.dir
+
+  (.t.is (.fs.exists? (.fs.tmp.dir)))
+
+  (.t.is (.fs.dir? (.fs.tmp.dir))))
