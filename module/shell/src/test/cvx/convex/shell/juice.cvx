@@ -1,0 +1,88 @@
+{}
+
+
+;;;;;;;;;;
+
+
+(.t.def ..juice.refill
+
+  (.juice.set 100000)
+
+  (.t.is (long? (.juice.refill)))
+
+  (.t.is (< 100000
+            *juice*)))
+
+
+
+(.t.def ..juice.set
+
+  (.t.is (= 100000
+            (second (.state.tmp*
+                      (.juice.set 100000)
+                      *juice*))))
+
+  (.t.is (.t.ex :JUICE
+                (.ex.rethrow
+                  (second (.state.tmp*
+                            (.juice.set 0)
+                            (+ 2 2)))))
+         "Zero juice")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.juice.set -1))
+         "Cannot be negative")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.juice.set "foo"))
+         "Random argument"))
+
+
+
+(.t.def ..juice.track
+
+  (def form
+       '(if true :a :b))
+
+  (let [[raw-result
+         raw-eval
+         raw-after-compile
+         raw-after-expand] (.juice.track form)]
+  
+    (.t.is (= :a
+              raw-result))
+
+    (.t.is (> raw-eval
+              raw-after-compile))
+
+    (.t.is (> raw-eval
+              raw-after-expand))
+
+    (.t.is (> raw-after-expand
+              raw-after-compile)))
+              
+  (let [[expand-result
+         expand-eval
+         expand-after-compile
+         expand-after-expand] (.juice.track (expand form))]
+  
+    (.t.is (= :a
+              expand-result))
+
+    (.t.is (> expand-eval
+              expand-after-compile))
+
+    (.t.is (= expand-eval
+              expand-after-expand)))
+
+  (let [[compile-result
+         compile-eval
+         compile-after-compile
+         compile-after-expand] (.juice.track (compile form))]
+  
+    (.t.is (= :a
+              compile-result))
+
+    (.t.is (= compile-eval
+              compile-after-compile
+              compile-after-expand))))

@@ -883,13 +883,7 @@
            (.gensym prefix)))))
 
 
-
-
-
-
-
-
-
+;;;;;;;;;; Juice operations
 
 
 (defn .juice.refill
@@ -919,6 +913,7 @@
                                (compile trx)))
         (second (.shell.invoke '.juice.track
                                (expand trx)))))
+
 
 
 
