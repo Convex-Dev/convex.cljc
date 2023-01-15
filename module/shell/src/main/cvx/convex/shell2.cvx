@@ -835,11 +835,7 @@
                       ""))))
 
 
-
-
-
-
-
+;;;;;;;;;; Gensym
 
 
 (def .*gensym*
@@ -880,7 +876,9 @@
               (inc id))
          (symbol (str (or prefix
                           "G_")
-                      id))))
+                      id
+                      "_"
+                      (.time.nano)))))
      (call $CORE$
            (.gensym prefix)))))
 
