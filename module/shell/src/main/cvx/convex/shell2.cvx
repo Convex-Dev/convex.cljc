@@ -230,8 +230,18 @@
                                                   (contains-key? focus-actor+
                                                                  sym))
                                                 required-2))
+         skip            (:skip option+)
+         skip-actor+     (set (filter symbol?
+                                      skip))
+         required-4      (if (empty? skip-actor+)
+                           required-3
+                           (.dep.require.filter (fn [sym _path]
+                                                  (not (contains-key? skip-actor+
+                                                                      sym)))
+                                                required-3))
                          ]
-     (test (.dep.deploy required-3)))))
+        (.prn [:deploy required-4])
+     (test (.dep.deploy required-4)))))
 
 
 
