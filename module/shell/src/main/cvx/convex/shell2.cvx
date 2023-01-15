@@ -167,6 +167,42 @@
 
 
 
+(defn .dep.test
+
+  [required]
+
+  (let [test            (if .*dev?*
+                          .t.dev
+                          .t.main)
+        actor-sym->addr (.dep.deploy
+                          (if (list? required)
+                            (:deploy (.dep.read required))
+                            required))]
+    (test actor-sym->addr)))
+
+
+
+
+
+(def .*dev?*
+
+  false)
+
+
+
+(defn .dev.set
+
+  ^:callable?
+
+  [enable?]
+
+  (if (= *address*
+         $CORE$)
+    (def .*dev?*
+         (boolean enable?))
+    (call $CORE$
+          (.dev.set enable?))))
+
 
 
 
@@ -1107,6 +1143,7 @@
       (let [form+ x]
         (if (empty? form+)
           (do
+            (.dev.set true)
             (.stream.txt.outln
               (str (.term.fg.blue)
                    (.term.bold)
@@ -2050,7 +2087,7 @@
 
 (defn .t.run
 
-  [required state]
+  [actor-sym->addr state]
 
   (.state.tmp
     (fn []
@@ -2073,7 +2110,7 @@
                                           :n-actor      0
                                           :n-test       0
                                           :n-test-fail  0)
-                                   (.dep.deploy required))
+                                   actor-sym->addr)
            state-3         (.t.run.finalize state-2)]
        (if on.run.end
          (on.run.end state-3)
