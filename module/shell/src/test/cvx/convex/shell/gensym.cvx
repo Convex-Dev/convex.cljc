@@ -1,0 +1,20 @@
+{}
+
+
+;;;;;;;;;;
+
+
+(.t.def ..*gensym*
+
+  (.t.is (long? .*gensym*)))
+
+
+
+(.t.def ..gensym
+
+  (.t.is (symbol? (.gensym)))
+
+  (.t.is (not (= (.gensym)
+                 (.gensym)))))
+
+  
