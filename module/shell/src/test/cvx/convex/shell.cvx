@@ -14,5 +14,6 @@
           $.shell.repl    (test convex shell repl)
           $.shell.resrc   (test convex shell resrc)
           $.shell.shell   (test convex shell shell)
+          $.shell.state   (test convex shell state)
          ]}
 

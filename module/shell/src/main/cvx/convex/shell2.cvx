@@ -1284,9 +1284,7 @@
           (.shell.root.set dir))))
 
 
-
-
-
+;;;;;;;;;; Creating and handling states
 
 
 (defn .state.genesis
@@ -1359,6 +1357,7 @@
                          ~(cons 'do
                                 form+))))
  
+
 
 
 

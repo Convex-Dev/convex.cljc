@@ -1,0 +1,176 @@
+{}
+
+
+;;;;;;;;;;
+
+
+(.t.def ..state.genesis
+
+  (.t.is (= (.state.genesis)
+            (.state.genesis [.account.0-key])))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.state.genesis []))
+         "Missing keys")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.state.genesis [.account.0-key
+                                 .account.0-key]))
+         "Duplicate keys")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.state.genesis [.account.0-key
+                                 0x12]))
+         "Bad key")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.state.genesis 42))
+         "Random argument"))
+
+
+
+(.t.def ..state.safe
+
+
+  (.t.is (= [true
+             :a]
+            (.state.safe (fn []
+                           (def a
+                                :a)))))
+
+  (.t.is (= :a
+            a)
+         "State preserved on success")
+
+
+  (def failure
+       (.state.safe (fn []
+                      (def a
+                           :b)
+                      (fail :FROM-TEST
+                            42))))
+       
+  (.t.is (= false
+            (first failure)))
+
+  (.t.is (= :a
+            a)
+         "State reverted on failure")
+
+  (.t.is (.t.ex :FROM-TEST
+                (.ex.rethrow (second failure)))
+         "Exception was properly captured")
+
+  (.t.is (.t.ex :ARITY
+                (.ex.rethrow (second (.state.safe (fn [_x])))))
+         "Must be no-arg function")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.state.safe 42))
+         "Random argument"))
+
+
+
+(.t.def ..state.safe*
+
+
+  (.t.is (= [true
+             :a]
+            (.state.safe*
+              (def a
+                   :a))))
+
+  (.t.is (= :a
+            a)
+         "State preserved on success")
+
+
+  (def failure
+       (.state.safe*
+         (def a
+              :b)
+         (fail :FROM-TEST
+               42)))
+       
+  (.t.is (= false
+            (first failure)))
+
+  (.t.is (= :a
+            a)
+         "State reverted on failure")
+
+  (.t.is (.t.ex :FROM-TEST
+                (.ex.rethrow (second failure)))
+         "Exception was properly captured"))
+
+
+
+(.t.def ..state.tmp
+
+
+  (.t.is (= [true
+             :a]
+            (.state.tmp (fn []
+                          (def a
+                               :a)))))
+
+
+  (.t.is (not (defined? a))
+         "State reverted on success")
+
+  (def failure
+       (.state.tmp (fn []
+                     (def a
+                          :b)
+                     (fail :FROM-TEST
+                           42))))
+       
+  (.t.is (= false
+            (first failure)))
+
+  (.t.is (not (defined? a))
+         "State reverted on failure")
+
+  (.t.is (.t.ex :FROM-TEST
+                (.ex.rethrow (second failure)))
+         "Exception was properly captured")
+
+  (.t.is (.t.ex :ARITY
+                (.ex.rethrow (second (.state.tmp (fn [_x])))))
+         "Must be no-arg function")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.state.tmp 42))
+         "Random argument"))
+
+
+
+(.t.def ..state.tmp*
+
+
+  (.t.is (= [true
+             :a]
+            (.state.tmp*
+              (def a
+                   :a))))
+
+
+  (.t.is (not (defined? a))
+         "State reverted on success")
+
+  (def failure
+       (.state.tmp*
+         (def a
+              :b)
+         (fail :FROM-TEST
+               42)))
+       
+  (.t.is (= false
+            (first failure)))
+
+  (.t.is (not (defined? a))
+         "State reverted on failure")
+
+  (.t.is (.t.ex :FROM-TEST
+                (.ex.rethrow (second failure)))
+         "Exception was properly captured"))
