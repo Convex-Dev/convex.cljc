@@ -8,5 +8,6 @@
           $.shell.fs      (test convex shell fs)
           $.shell.gensym  (test convex shell gensym)
           $.shell.juice   (test convex shell juice)
+          $.shell.log     (test convex shell log)
          ]}
 

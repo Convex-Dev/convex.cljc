@@ -1,0 +1,39 @@
+{}
+
+
+;;;;;;;;;;
+
+(.t.def ..log.clear
+
+  (.log.clear)
+
+  (log :a)
+  (log :b)
+
+  (def l
+       (.log.get))
+
+  (.t.is (not (empty? l)))
+
+  (.t.is (= l
+            (.log.clear))))
+
+
+
+(.t.def ..log.get
+
+  (.log.clear)
+
+  (.t.is (= []
+            (.log.get)))
+
+  (log :a)
+
+  (.t.is (= [[*address* [:a]]]
+            (.log.get)))
+
+  (log :b)
+
+  (.t.is (= [[*address* [:a]]
+             [*address* [:b]]]
+            (.log.get))))

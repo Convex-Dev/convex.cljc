@@ -1,8 +1,7 @@
 (ns convex.shell.req.log
 
   (:refer-clojure :exclude [get])
-  (:require [convex.cvm :as $.cvm]
-            [convex.std :as $.std]))
+  (:require [convex.cvm :as $.cvm]))
 
 
 ;;;;;;;;;;

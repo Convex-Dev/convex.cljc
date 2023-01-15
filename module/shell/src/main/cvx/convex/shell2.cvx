@@ -915,9 +915,7 @@
                                (expand trx)))))
 
 
-
-
-
+;;;;;;;;;; CVM log operations
 
 
 (defn .log.clear
