@@ -107,35 +107,36 @@
 
   ([env required]
 
-
-   (let [ancestry ($.cell/* [])
-         ctx      (env :convex.shell/ctx)]
-     ($.shell.dep.relative/validate-required ctx
-                                             required
-                                             ancestry)
-     (fetch (-> env
-                (update :convex.shell.dep/resolver+
-                        (fn [resolver+]
-                          (-> resolver+
-                              (assoc ($.cell/* :git)   $.shell.dep.git/fetch
-                                     ($.cell/* :local) $.shell.dep.local/fetch)
-                              (update ($.cell/* :relative)
-                                      #(or %
-                                           $.shell.dep.relative/fetch)))))
-                (merge {:convex.shell/dep               ($.cell/* :root)
-                        :convex.shell.dep/ancestry      ancestry
-                        :convex.shell.dep/dep->project  {($.cell/* :root) (project ctx
-                                                                                   ($.cell/* :root)
-                                                                                   (str ($.cvm/look-up ctx
-                                                                                                       Init/CORE_ADDRESS
-                                                                                                       ($.cell/* .project.*dir*))))}
-                        :convex.shell.dep/fetch         fetch
-                        :convex.shell.dep/foreign?      false
-                        :convex.shell.dep/hash          ($.cell/* :root)
-                        :convex.shell.dep/jump          -jump
-                        :convex.shell.dep/read-project  project
-                        :convex.shell.dep/required      required
-                        :convex.shell.dep.hash/pending+ #{}}))))))
+   (if ($.std/empty? required)
+     env
+     (let [ancestry ($.cell/* [])
+           ctx      (env :convex.shell/ctx)]
+       ($.shell.dep.relative/validate-required ctx
+                                               required
+                                               ancestry)
+       (fetch (-> env
+                  (update :convex.shell.dep/resolver+
+                          (fn [resolver+]
+                            (-> resolver+
+                                (assoc ($.cell/* :git)   $.shell.dep.git/fetch
+                                       ($.cell/* :local) $.shell.dep.local/fetch)
+                                (update ($.cell/* :relative)
+                                        #(or %
+                                             $.shell.dep.relative/fetch)))))
+                  (merge {:convex.shell/dep               ($.cell/* :root)
+                          :convex.shell.dep/ancestry      ancestry
+                          :convex.shell.dep/dep->project  {($.cell/* :root) (project ctx
+                                                                                     ($.cell/* :root)
+                                                                                     (str ($.cvm/look-up ctx
+                                                                                                         Init/CORE_ADDRESS
+                                                                                                         ($.cell/* .project.*dir*))))}
+                          :convex.shell.dep/fetch         fetch
+                          :convex.shell.dep/foreign?      false
+                          :convex.shell.dep/hash          ($.cell/* :root)
+                          :convex.shell.dep/jump          -jump
+                          :convex.shell.dep/read-project  project
+                          :convex.shell.dep/required      required
+                          :convex.shell.dep.hash/pending+ #{}})))))))
 
 
 ;;;;;;;;;; Deploying actors
