@@ -222,8 +222,29 @@
                            required)
 
          focus           (:focus option+)
-         focus-actor+    (set (filter symbol?
-                                      focus))
+         focus.test      (reduce (fn [actor-sym->test+ x]
+                                   (if (and (list? x)
+                                            (not (empty? x))
+                                            (= (first x)
+                                               'lookup))
+                                     (let [actor-sym (second x)]
+                                       (assoc actor-sym->test+
+                                              actor-sym
+                                              (conj (or (get actor-sym->test+
+                                                             actor-sym)
+                                                        #{})
+                                                    (nth x
+                                                         2))))
+                                     actor-sym->test+))
+                                 {}
+                                 focus)
+         option-2+       (assoc option+
+                                :focus.test
+                                focus.test)
+         focus-actor+    (union (set (filter symbol?
+                                             focus))
+                                (set (keys focus.test)))
+
          required-3      (if (empty? focus-actor+)
                            required-2
                            (.dep.require.filter (fn [sym _path]
@@ -240,8 +261,8 @@
                                                                       sym)))
                                                 required-3))
                          ]
-        (.prn [:deploy required-4])
-     (test (.dep.deploy required-4)))))
+     (test (.dep.deploy required-4)
+           option-2+))))
 
 
 
@@ -1927,16 +1948,22 @@
 
 (defn .t.find
 
-  [address]
+  [state actor-sym actor-address]
 
-  (let [account (account address)
+  (let [account (account actor-address)
         meta    (:metadata account)
-        env     (:environment account)]
+        env     (:environment account)
+        focus   (get-in state
+                        [:focus.test
+                          actor-sym])]
     (reduce (fn [acc [sym x]]
               (if (and (fn? x)
                        (get-in meta
                                [sym
-                                :test?]))
+                                :test?])
+                       (or (not focus)
+                           (contains-key? focus
+                                          sym)))
                 (conj acc
                       [sym
                        x])
@@ -2198,7 +2225,9 @@
 
   [state actor-sym actor-address]
 
-  (let [found (.t.find actor-address)]
+  (let [found (.t.find state
+                       actor-sym
+                       actor-address)]
     (if (empty? found)
       (assoc state
              :empty-actor+
