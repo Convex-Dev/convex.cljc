@@ -1,5 +1,7 @@
 
 
+;;;;;;;;;; Account
+
 
 (def .account.0-key
 
@@ -7,22 +9,6 @@
           :examples    [{:code "(deploy '(do (set-key $.account/fake-key) ...))"}]}}
 
   0x0000000000000000000000000000000000000000000000000000000000000000)
-
-
-
-(defn .account.control
-
-
-  ([address-target]
-
-   (.account.control nil
-                     address-target))
-
-  ([address-controller address-target]
-
-   (.shell.invoke '.account.control
-                  address-controller
-                  address-target)))
 
 
 

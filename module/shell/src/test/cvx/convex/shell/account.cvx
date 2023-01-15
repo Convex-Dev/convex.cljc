@@ -1,0 +1,56 @@
+{}
+
+
+;;;;;;;;;;
+
+
+(.t.def ..account.0-key
+
+  (.t.is (and (blob? .account.0-key)
+              (= (count .account.0-key)
+                 32))
+         "Can behave like a key"))
+
+
+
+(.t.def ..account.core
+
+  (.t.is (= #8
+            .account.core)))
+
+  
+
+(.t.def ..account.key?
+
+  (.t.is (.account.key? 0x1122334455667788990011223344556677889900112233445566778899001122)))
+
+
+
+(.t.def ..account.genesis
+
+  (.t.is (= #11
+            .account.genesis)))
+
+
+
+(.t.def ..account.switch
+
+  (let [addr.initial *address*
+        addr.target  #0]
+
+    (.t.is (not (= addr.target
+                   addr.initial)))
+
+    (.account.switch addr.target)
+
+    (.t.is (= addr.target
+              *address*)
+           "Able to switch to another account"))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.account.switch 8))
+         "Must provide an address")
+
+  (.t.is (.t.ex :NOBODY
+                (.account.switch #1234567890))
+         "Cannot switch to an inexistent account"))

@@ -1,0 +1,2 @@
+{:deploy [$.shell.account (test convex shell account)
+         ]}
