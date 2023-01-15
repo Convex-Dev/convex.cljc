@@ -1,0 +1,208 @@
+{}
+
+
+;;;;;;;;;;
+
+
+(.t.def ..file.exec
+
+  (.t.is (= (inc 42)
+            (.file.exec "module/shell/src/test/cvx/convex/shell/dep/exec-b.cvx")))
+
+  (.t.is (= :b
+            b))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.file.exec 42))
+         "Random argument")
+
+  (.t.is (.t.ex :STREAM
+                (.file.exec "fake/path/1234567890"))
+         "Inexistent file")
+
+  (.t.is (.t.ex :READER
+                (.file.exec "module/shell/src/test/cvx/convex/shell/dep/malformed.cvx"))
+         "Malformed file"))
+
+
+
+(.t.def ..file.read
+
+  (.t.is (= '(:a :b :c)
+            (.file.read "module/shell/src/test/cvx/convex/shell/file/read.cvx")))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.file.read 42))
+         "Random argument")
+
+  (.t.is (.t.ex :STREAM
+                (.file.read "path/fake/1234567890"))
+         "Inexistent file")
+
+  (.t.is (.t.ex :READER
+                (.file.read "module/shell/src/test/cvx/convex/shell/dep/malformed.cvx"))
+         "Malformed file"))
+
+
+
+(.t.def ..file.stream
+
+  (def path
+       (.fs.tmp))
+
+  ;; Output
+
+  (def out
+       (.file.stream.out path))
+
+  (.t.is (= :a
+            (.stream.outln out
+                           :a)))
+
+  (.t.is (= :b
+            (.stream.out out
+                         :b)))
+
+  (.t.is (= .sys.eol
+            (.stream.txt.out out
+                             .sys.eol)))
+
+  (.t.is (= ":c"
+            (.stream.txt.outln out
+                               ":c")))
+
+  (.t.is (= out
+            (.stream.flush out)))
+
+  (.t.is (nil? (.stream.close out)))
+
+  (.t.is (.t.ex :STREAM
+                (.stream.outln out
+                               :fail))
+         "Already closed")
+
+  (def out-2
+       (.file.stream.out path
+                         {:append? true}))
+
+  (.t.is (= :d
+            (.stream.outln out-2
+                           :d)))
+
+  (.t.is (nil? (.stream.close out-2)))
+
+  ;; Input
+
+  (def in
+       (.file.stream.in path))
+
+  (.t.is (= '(:a :b :c :d)
+            (.stream.in+ in)))
+
+  (.t.is (.t.ex :STREAM
+                (.stream.line in))
+         "Already consumed")
+
+  (.t.is (nil? (.stream.close in)))
+
+  (def in-2
+       (.file.stream.in path))
+
+  (.t.is (= '(:a)
+            (.stream.line in-2)))
+
+  (.t.is (= '(:b)
+            (.stream.line in-2)))
+
+  (.t.is (= ":c"
+            (.stream.txt.line in-2)))
+
+  (.t.is (= ":d"
+            (.stream.txt.line in-2)))
+
+  (.t.is (nil? (.stream.txt.line in-2))
+         "End of stream")
+
+  (.t.is (.t.ex :STREAM
+                (.stream.line in-2))
+         "Already consumed")
+
+  (.t.is (nil? (.stream.close in-2))))
+
+
+
+(.t.def ..file.stream.in
+
+  (.t.is (.t.ex :STREAM
+                (.file.stream.in "fake/path/1234567890"))
+         "Inexistent path"))
+
+
+
+(.t.def ..file.stream.out
+
+  (.t.is (not (nil? (.file.stream.out (str (.fs.tmp)
+                                           "_missing"))))
+         "Can open stream to new file"))
+
+
+
+(.t.def ..file.txt.read
+
+  (.t.is (= "Some text"
+            (.file.txt.read "module/shell/src/test/cvx/convex/shell/file/read.txt")))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.file.txt.read 42))
+         "Random argument")
+
+  (.t.is (.t.ex :STREAM
+                (.file.txt.read "path/fake/1234567890"))
+         "Inexistent file"))
+
+
+
+(.t.def ..file.txt.write
+
+  (def path
+       (.fs.tmp))
+
+  (.t.is (= "test"
+            (.file.txt.write path
+                             "test")))
+
+  (.t.is (= "test"
+            (.file.txt.read path)))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.file.txt.write 42
+                                 "test"))
+         "Random argument"))
+
+
+
+(.t.def ..file.write
+
+  (def path
+       (.fs.tmp))
+
+  (.t.is (= "test"
+            (.file.write path
+                         "test")))
+
+  (.t.is (= '("test")
+            (.file.read path)))
+
+  (.t.is (= :test
+            (.file.write path
+                         :test
+                         {:append? true}))
+         "Appending")
+
+  (.t.is (= '("test" :test)
+            (.file.read path)))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.file.write 42
+                             :test))
+         "Random argument"))

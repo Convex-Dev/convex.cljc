@@ -496,16 +496,12 @@
                  exception))
 
 
-
-
-
-
-
-
-
+;;;;;;;;;; File operations
 
 
 (defn .file.-handle
+
+  ^:private?
 
   [x path]
 
@@ -513,20 +509,6 @@
     [(.gensym "file-")
      (.fs.resolve path)]
     x))
-
-
-
-(defn .file.exec
-
-  ^{:doc {:description ["Like `$.file/!.read` but the read cells are executed atomically as transactions."
-                        "See `$.state/!.atomic`."]
-          :examples    [{:code "($.file/!.exec \"./my/file.cvx\")"}]
-          :signature   [{:params [path]}]}}
-
-  [path]
-
-  (eval (cons 'do
-              (.file.read path))))
 
 
 
@@ -547,6 +529,41 @@
 
 
 
+(defn .file.-write
+
+  ^:private?
+
+  [f-out path cell option+]
+
+  (let [handle (.file.stream.out path
+                                  option+)
+        [ok?
+         x]    (.state.safe (fn []
+                              (f-out handle
+                                     cell)))]
+    (.stream.close handle)
+    (if ok?
+      x
+      (.ex.rethrow x))))
+
+
+;;;
+
+
+(defn .file.exec
+
+  ^{:doc {:description ["Like `$.file/!.read` but the read cells are executed atomically as transactions."
+                        "See `$.state/!.atomic`."]
+          :examples    [{:code "($.file/!.exec \"./my/file.cvx\")"}]
+          :signature   [{:params [path]}]}}
+
+  [path]
+
+  (eval (cons 'do
+              (.file.read path))))
+
+
+
 (defn .file.read
 
   ^{:doc {:description ["Returns a request for reading the Convex Lisp file located under `path` in one go."
@@ -559,15 +576,6 @@
   [path]
 
   (.file.-read .stream.in+
-               path))
-
-
-
-(defn .file.txt.read
-
-  [path]
-
-  (.file.-read .stream.txt.in
                path))
 
 
@@ -636,22 +644,31 @@
 
 
 
-(defn .file.-write
+(defn .file.txt.read
 
-  ^:private?
+  [path]
 
-  [f-out path cell option+]
+  (.file.-read .stream.txt.in
+               path))
 
-  (let [handle (.file.stream.out path
-                                  option+)
-        [ok?
-         x]    (.state.safe (fn []
-                              (f-out handle
-                                     cell)))]
-    (.stream.close handle)
-    (if ok?
-      x
-      (.ex.rethrow x))))
+
+
+(defn .file.txt.write
+
+
+  ([path cell]
+
+   (.file.txt.write path
+                    cell
+                    nil))
+
+
+  ([path cell option+]
+
+   (.file.-write .stream.txt.outln
+                 path
+                 cell
+                 option+)))
 
 
 
@@ -681,22 +698,11 @@
 
 
 
-(defn .file.txt.write
 
 
-  ([path cell]
-
-   (.file.txt.write path
-                    cell
-                    nil))
 
 
-  ([path cell option+]
 
-   (.file.-write .stream.txt.outln
-                 path
-                 cell
-                 option+)))
 
 
 
@@ -1607,20 +1613,6 @@
 
    (.shell.invoke '.stream.line
                   handle)))
-
-
-
-(defn .stream.open?
-
-  ^{:doc {:description ["Returns a request for inspecting if the given `handle` is open."
-                        "Boolean response will be available during the next transaction under `$/*result*`."]
-          :examples    [{:code "($.stream/!.open? 42)"}]
-          :signature   [{:params [handle]}]}}
-
-  [handle]
-
-  (.shell.invoke '.stream.open?
-                 handle))
 
 
 

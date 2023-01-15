@@ -3,5 +3,7 @@
           $.shell.dep     (test convex shell dep)
           $.shell.dev     (test convex shell dev)
           $.shell.db      (test convex shell db)
+          $.shell.ex      (test convex shell ex)
+          $.shell.file    (test convex shell file)
          ]}
 
