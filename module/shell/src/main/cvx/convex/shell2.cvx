@@ -888,11 +888,7 @@
 
 
 
-(defn .juice.get
 
-  []
-
-  (.shell.invoke '.juice.get))
 
 
 

@@ -139,7 +139,6 @@
    ($.cell/* .fs.size)           $.shell.req.fs/size
    ($.cell/* .fs.tmp)            $.shell.req.fs/tmp
    ($.cell/* .fs.tmp.dir)        $.shell.req.fs/tmp-dir
-   ($.cell/* .juice.get)         $.shell.req.juice/get
    ($.cell/* .juice.set)         $.shell.req.juice/set
    ($.cell/* .juice.track)       $.shell.req.juice/track
    ($.cell/* .log.clear)         $.shell.req.log/clear
