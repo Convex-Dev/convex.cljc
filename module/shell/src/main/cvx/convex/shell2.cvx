@@ -260,9 +260,27 @@
                                                   (not (contains-key? skip-actor+
                                                                       sym)))
                                                 required-3))
+         option-3+       (assoc option-2+
+                                :skip.test
+                                (reduce (fn [skip.test x]
+                                          (if (and (list? x)
+                                                   (not (empty? x))
+                                                   (= (first x)
+                                                      'lookup))
+                                            (let [actor-sym (second x)]
+                                              (assoc skip.test
+                                                     actor-sym
+                                                     (conj (or (get skip.test
+                                                                    actor-sym)
+                                                               #{})
+                                                           (nth x
+                                                                2))))
+                                            skip.test))
+                                        {}
+                                        skip))
                          ]
      (test (.dep.deploy required-4)
-           option-2+))))
+           option-3+))))
 
 
 
@@ -1950,20 +1968,26 @@
 
   [state actor-sym actor-address]
 
-  (let [account (account actor-address)
-        meta    (:metadata account)
-        env     (:environment account)
-        focus   (get-in state
-                        [:focus.test
-                          actor-sym])]
+  (let [account    (account actor-address)
+        meta       (:metadata account)
+        env        (:environment account)
+        focus.test (get-in state
+                           [:focus.test
+                             actor-sym])
+        skip.test  (get-in state
+                           [:skip.test
+                            actor-sym])]
     (reduce (fn [acc [sym x]]
               (if (and (fn? x)
                        (get-in meta
                                [sym
                                 :test?])
-                       (or (not focus)
-                           (contains-key? focus
-                                          sym)))
+                       (or (not focus.test)
+                           (contains-key? focus.test
+                                          sym))
+                       (or (not skip.test)
+                           (not (contains-key? skip.test
+                                               sym))))
                 (conj acc
                       [sym
                        x])
@@ -2192,32 +2216,37 @@
 
   [actor-sym->addr state]
 
-  (.state.tmp
-    (fn []
-      (let [state          (merge {:on.run.begin   .t.on.run.begin
-                                   :on.run.end     .t.on.run.end
-                                   :on.test.result .t.on.test.result
-                                   :stream.out     .stream.stdout}
-                                  state)
-            on.run.begin   (:on.run.begin state)
-            on.run.end     (:on.run.end state)
-            state          (if on.run.begin
-                             (on.run.begin state)
-                             state)
-            state-2        (reduce (fn [state-2 [actor-sym actor-address]]
-                                     (.t.run.actor state-2
-                                                   actor-sym
-                                                   actor-address))
-                                   (assoc state
-                                          :empty-actor+ []
-                                          :n-actor      0
-                                          :n-test       0
-                                          :n-test-fail  0)
-                                   actor-sym->addr)
-           state-3         (.t.run.finalize state-2)]
-       (if on.run.end
-         (on.run.end state-3)
-         state-3)))))
+  (let [[ok?
+         x]
+        (.state.tmp
+          (fn []
+            (let [state          (merge {:on.run.begin   .t.on.run.begin
+                                         :on.run.end     .t.on.run.end
+                                         :on.test.result .t.on.test.result
+                                         :stream.out     .stream.stdout}
+                                        state)
+                  on.run.begin   (:on.run.begin state)
+                  on.run.end     (:on.run.end state)
+                  state          (if on.run.begin
+                                   (on.run.begin state)
+                                   state)
+                  state-2        (reduce (fn [state-2 [actor-sym actor-address]]
+                                           (.t.run.actor state-2
+                                                         actor-sym
+                                                         actor-address))
+                                         (assoc state
+                                                :empty-actor+ []
+                                                :n-actor      0
+                                                :n-test       0
+                                                :n-test-fail  0)
+                                         actor-sym->addr)
+                 state-3         (.t.run.finalize state-2)]
+             (if on.run.end
+               (on.run.end state-3)
+               state-3))))]
+    (if ok?
+      x
+      (.rethrow x))))
 
 
 
