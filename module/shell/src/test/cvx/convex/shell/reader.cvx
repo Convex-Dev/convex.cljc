@@ -1,0 +1,18 @@
+{}
+
+
+;;;;;;;;;;
+
+
+(.t.def ..form+
+
+  (.t.is (= '(:a :b :c)
+             (.reader.form+ ":a :b :c")))
+
+  (.t.is (.t.ex :READER
+                (.reader.form+ "(foo"))
+         "Malformed CVX")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.reader.form+ 42))
+         "Random argument"))

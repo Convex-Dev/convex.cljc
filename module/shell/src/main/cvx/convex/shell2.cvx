@@ -967,14 +967,14 @@
           (.project.dir.set dir))))
 
 
+;;;;;;;;;; Reader
 
 
-
-(defn .read+
+(defn .reader.form+
 
   [string]
 
-  (.shell.invoke '.read+
+  (.shell.invoke '.reader.form+
                  string))
 
 
@@ -1233,7 +1233,7 @@
 
   (let [[ok?
          x]  (.state.safe (fn []
-                            (.read+ src)))]
+                            (.reader.form+ src)))]
     (cond
       ;;
       ok?

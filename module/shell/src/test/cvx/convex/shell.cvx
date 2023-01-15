@@ -10,5 +10,6 @@
           $.shell.juice   (test convex shell juice)
           $.shell.log     (test convex shell log)
           $.shell.project (test convex shell project)
+          $.shell.reader  (test convex shell reader)
          ]}
 

@@ -1,14 +1,12 @@
 (ns convex.shell.req
 
   (:import (convex.core.data ACell)
-           (convex.core.exceptions ParseException)
            (convex.core.init Init)
            (convex.core.lang Context)
            (convex.core.lang.impl CoreFn
                                   ErrorValue))
   (:require [convex.cell              :as $.cell]
             [convex.cvm               :as $.cvm]
-            [convex.read              :as $.read]
             [convex.shell.req.account :as $.shell.req.account]
             [convex.shell.req.bench   :as $.shell.req.bench]
             [convex.shell.req.db      :as $.shell.req.db]
@@ -18,6 +16,7 @@
             [convex.shell.req.fs      :as $.shell.req.fs]
             [convex.shell.req.juice   :as $.shell.req.juice]
             [convex.shell.req.log     :as $.shell.req.log]
+            [convex.shell.req.reader  :as $.shell.req.reader]
             [convex.shell.req.state   :as $.shell.req.state]
             [convex.shell.req.str     :as $.shell.req.str]
             [convex.shell.req.stream  :as $.shell.req.stream]
@@ -82,33 +81,6 @@
                                                ex))))))))))
 
 
-
-(defn read+
-
-  [ctx arg+]
-
-  (let [src (first arg+)]
-    (or (when-not ($.std/string? src)
-          ($.cvm/exception-set ctx
-                               ($.cell/code-std* :ARGUMENT)
-                               ($.cell/string "Source to read is not a string")))
-        (try
-          ($.cvm/result-set ctx
-                            (-> (first arg+)
-                                (str)
-                                ($.read/string)))
-          ;;
-          (catch ParseException ex
-            ($.cvm/exception-set ctx
-                                 ($.cell/* :READER)
-                                 ($.cell/string (.getMessage ex))))
-          ;;
-          (catch Throwable _ex
-            ($.cvm/exception-set ctx
-                                 ($.cell/* :READER)
-                                 ($.cell/string "Unable to read string as Convex data")))))))
-
-
 ;;;;;;;;;;
 
 
@@ -143,7 +115,7 @@
    ($.cell/* .juice.track)       $.shell.req.juice/track
    ($.cell/* .log.clear)         $.shell.req.log/clear
    ($.cell/* .log.get)           $.shell.req.log/get
-   ($.cell/* .read+)             read+
+   ($.cell/* .reader.form+)      $.shell.req.reader/form+
    ($.cell/* .state.genesis)     $.shell.req.state/genesis
    ($.cell/* .state.safe)        $.shell.req.state/safe
    ($.cell/* .state.switch)      $.shell.req.state/switch
