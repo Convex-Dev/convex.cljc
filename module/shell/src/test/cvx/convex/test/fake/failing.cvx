@@ -53,6 +53,17 @@
 
 
 
+(.t.def test-t.ex
+
+  (.t.is (.t.ex true)
+         "Not an exception")
+
+  (.t.is (.t.ex :CODE
+                (assert false))
+         "Wrong code"))
+
+
+
 (.t.def test-throw
 
   (.t.is (= 42

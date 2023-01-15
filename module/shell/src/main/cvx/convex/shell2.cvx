@@ -1889,10 +1889,16 @@
             (let [[ok?
                    x]         (:result assertion)
                   assertion-2 (if ok?
-                                (when-not (= x
-                                             true)
-                                  {:fail   x
-                                   :status :fail})
+                                (if (syntax? x)
+                                  (if-let [status (:test.status (meta x))]
+                                    {:fail   (unsyntax x)
+                                     :status status}
+                                    {:fail   x
+                                     :status :fail})
+                                  (when-not (= x
+                                               true)
+                                    {:fail   x
+                                     :status :fail}))
                                 {:fail   x
                                  :status :exception})]
               (if assertion-2
@@ -1903,6 +1909,32 @@
                 acc)))
           []
           assertion+))
+
+
+
+(defmacro .t.ex
+
+
+  ([form]
+
+   `(.t.ex nil
+           ~form))
+
+
+  ([ex-code form]
+
+   `(let [ex-code ~ex-code
+          [ok?
+           x]    (.state.safe* ~form)]
+      (if ok?
+        (syntax x
+                {:test.status :fail})
+        (if (nil? ex-code)
+          true
+          (or (= ex-code
+                 (:code x))
+              (syntax x
+                      {:test.status :exception})))))))
 
 
 
