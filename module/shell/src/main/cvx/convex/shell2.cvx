@@ -159,9 +159,13 @@
   [required]
 
   (if (list? required)
-    (get (.shell.invoke '.dep.read
-                        ['x required])
-         'x)
+    (do
+      (when (empty? required)
+        (fail :ARGUMENT
+              "Actor path is empty"))
+      (get (.shell.invoke '.dep.read
+                          ['x required])
+           'x))
     (.shell.invoke '.dep.read
                    required)))
 
@@ -1821,14 +1825,26 @@
 
   [name & assertion+]
 
-  `(defn ~name
+  (let [[name-2
+         meta-]      (if (syntax? name)
+                       [(unsyntax name)
+                        (meta name)]
+                       [name
+                        nil])
+        first-assert (first assertion+)
+        meta-2       (if (syntax? first-assert)
+                       (merge meta-
+                              (meta first-assert))
+                       meta-2)]
+    `(defn ~(syntax name-2
+                    (assoc meta-2
+                           :test?
+                           true))
 
-     ^:test?
+       []
 
-     []
-
-     ~(cons 'do
-            assertion+)))
+       ~(cons 'do
+               assertion+))))
 
 
 
