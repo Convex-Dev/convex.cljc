@@ -7,7 +7,7 @@
 (.t.def test-assert-throw
 
   (.t.is (fail :ASSERT-THROW
-               "Thrown on purpose")))
+               "Thrown on purpose from assertion")))
 
 
 
@@ -70,8 +70,10 @@
             (+ 2 2))
          "Some message")
 
-  (fail :TEST-THROW
-        "Thrown on purpose")
+  (defn -fail [] (fail :TEST-THROW
+                       "Thrown on purpose"))
+
+  (-fail)
 
   (.t.is (= :a
             (first [:a]))

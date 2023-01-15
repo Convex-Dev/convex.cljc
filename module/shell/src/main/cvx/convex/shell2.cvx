@@ -1938,23 +1938,6 @@
 
 
 
-(defmacro .t.is
-
-
-  ([form]
-
-   `(.t.is ~form
-           nil))
-
-
-  ([form message]
-
-   `(.t.assert.add {:form    (quote ~form)
-                    :message ~message
-                    :result  (.state.safe* ~form)})))
-
-
-
 (defmacro .t.def
 
   [name & assertion+]
@@ -2048,6 +2031,23 @@
                   acc)))
             []
             env)))
+
+
+
+(defmacro .t.is
+
+
+  ([form]
+
+   `(.t.is ~form
+           nil))
+
+
+  ([form message]
+
+   `(.t.assert.add {:form    (quote ~form)
+                    :message ~message
+                    :result  (.state.safe* ~form)})))
 
 
 
@@ -2358,8 +2358,15 @@
                                      .t.*assert+*))
         test-result    (if ok?
                          (.t.run.test.finalize x)
-                         {:exception x
-                          :status    :exception})
+                         (let [trace (:trace x)]
+                           {:exception (assoc x
+                                              :trace
+                                              ;; Removing lines relating to calling the test.
+                                              (slice trace
+                                                     0
+                                                     (- (count trace)
+                                                        2)))
+                            :status    :exception}))
         test-result-2  (assoc test-result
                               :name
                               (str actor-sym
