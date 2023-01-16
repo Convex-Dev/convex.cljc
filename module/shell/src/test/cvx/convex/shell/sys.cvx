@@ -1,0 +1,74 @@
+{}
+
+
+;;;;;;;;;;
+
+
+(.t.def ..sys.arch
+
+  (.t.is (str? (.sys.arch)))
+
+  (.t.is (not (empty? (.sys.arch)))))
+
+
+
+(.t.def ..sys.cwd
+
+  (.t.is (.fs.dir? (.sys.cwd))))
+
+
+
+(.t.def ..sys.env
+
+  (def env
+       (.sys.env))
+
+  (.t.is (map? env))
+
+  (.t.is (reduce (fn [_ [k v]]
+                  (if (and (str? k)
+                           (str? v))
+                    true
+                    (reduced false)))
+                 true
+                 env)))
+
+
+
+(.t.def ..sys.env.var
+
+  (def var+value
+       (first (.sys.env)))
+
+  (.t.is (= (second var+value)
+            (.sys.env.var (first var+value)))))
+
+
+
+(.t.def ..sys.eol
+
+  (.t.is (contains-key? #{"\n"
+                          "\r\n"}
+                        .sys.eol)))
+
+
+
+(.t.def ..sys.home
+
+  (.t.is (.fs.dir? (.sys.home))))
+
+
+
+(.t.def ..sys.os
+
+  (def os
+       (.sys.os))
+
+  (.t.is (vector? os))
+
+  (.t.is (= 2
+            (count os)))
+
+  (.t.is (str? (first os)))
+
+  (.t.is (str? (second os))))

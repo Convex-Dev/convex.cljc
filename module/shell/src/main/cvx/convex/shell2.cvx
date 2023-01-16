@@ -1769,10 +1769,7 @@
                   x)))
 
 
-
-
-
-
+;;;;;;;;;; System utilities
 
 
 (defn .sys.arch
