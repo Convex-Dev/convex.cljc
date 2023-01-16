@@ -1369,6 +1369,20 @@
 ;;;;;;;;;; Strings
 
 
+(defn .str.pluralize
+
+  ^:private?
+
+  [n s]
+
+  (if (> n
+         1)
+    (str s
+         "s")
+    s))
+
+
+
 (defn .str.stream.in
 
   [string]
@@ -3171,3 +3185,236 @@
 (def .version.shell
 
   .version.shell)
+
+
+;;;;;;;;;; Help
+
+
+(defn ?
+
+
+  ([]
+
+   (.stream.txt.outln "")
+   (?.title "Query an account")
+   (?.txt "(? address)         ->  (? #8)")
+   (?.title "Query a symbol")
+   (?.txt "(? symbol)          ->  (? 'inc)")
+   (?.txt "(? address symbol)  ->  (? #8 'inc)")
+   (.stream.txt.outln "")
+   nil)
+
+
+  ([query]
+
+   (.stream.txt.outln "")
+   (cond
+     ;;
+     (address? query)
+     (?.account query)
+     ;;
+     (symbol? query)
+     (?.sym query)
+     ;;
+     (.stream.txt.outln "Ask for an address or a symbol."))
+   nil)
+
+
+  ([addr sym]
+
+    (.stream.txt.outln "")
+    (?.sym addr
+           sym)
+    nil))
+
+
+
+(defn ?.account
+
+  [addr]
+
+  (if-let [-account (account addr)]
+    (?.print.account (assoc -account
+                            :help.addr
+                            addr))
+    (.stream.txt.outln (str "Account not found for address "
+                            addr))))
+
+
+
+(defn ?.color
+
+  [s]
+
+  (str (.term.bold)
+       (.term.fg.blue)
+       s
+       (.term.reset)))
+
+
+
+(defn ?.color-2
+
+  [s]
+
+  (str (.term.bold)
+       (.term.fg.green)
+       s
+       (.term.reset)))
+
+
+
+(defn ?.print.account
+
+  [-account]
+
+  (.stream.txt.outln "")
+  (let [addr   (:help.addr -account)
+        lookup (call *registry*
+                     (lookup addr))]
+    (.docoll (fn [[title txt]]
+               (?.title title)
+               (?.txt txt))
+             [["Address"     addr]
+              ["Name"        (:name lookup)]
+              ["Description" (:description lookup)]
+              ["Allowance"   (:allowance -account)]
+              ["Balance"     (:balance -account)]
+              ["Controller"  (:controller -account)]
+              ["Key"         (when-let [key (:key -account)]
+                               (str "0x"
+                                    key))]])
+  
+    (?.title "Overview")
+    (let [env   (:environment -account)
+          meta- (:metadata -account)]
+      (if (empty? env)
+        (?.txt "Empty environment.")
+        (.docoll (fn [[sym _value]]
+                   (let [meta-sym (get meta-
+                                       sym)]
+                     (when (and (not (get-in meta-
+                                             [sym
+                                              :private?]))
+                                (let [first-char (first (str sym))]
+                                  (and (not (= first-char
+                                               \.))
+                                       (not (= first-char
+                                               \?)))))
+                       (?.txt (?.color-2 sym))
+                       (?.txt-2 (when-let [desc (:description (:doc meta-sym))]
+                                  (let [desc-2 (if (str? desc)
+                                                 desc
+                                                 (first desc))]
+                                    (if (> (count desc-2)
+                                           80)
+                                      (str (slice desc-2
+                                                  0
+                                                  77)
+                                           "...")
+                                    desc-2)))))))
+                 env)))))
+
+
+
+(defn ?.print.sym
+
+  [sym-meta]
+
+  (?.title "Defined in")
+  (?.txt (:help.addr sym-meta))
+  (let [doc          (:doc sym-meta)
+        code->reason (:errors doc)
+        example+     (:examples doc)
+        signature+   (:signaature doc)]
+    (?.title "Description")
+    (?.txt (:description doc))
+    (when-not (empty? signature+)
+      (?.title (.str.pluralize (count signature+)
+                               "Signature"))
+      (.docoll (fn [signature]
+                 (?.txt (:params signature)))
+               signature+))
+    (when-not (empty? code->reason)
+      (?.title "Throws")
+      (.docoll (fn [[code reason]]
+                 (?.txt (str code
+                             (?.color " <- ")
+                             reason)))
+               code->reason))
+    (when-not (empty? example+))
+      (?.title (.str.pluralize (count example+)
+                               "Example"))
+      (.docoll (fn [example]
+                 (?.txt (:code example)))
+               example+)))
+
+
+
+(defn ?.sym
+
+
+  ([sym]
+
+   (if-let [sym-meta (or (?.sym.meta *address*
+                                     sym)
+                         (?.sym.meta .account.core
+                                     sym))]
+     (?.print.sym sym-meta)
+     (.stream.txt.outln "Symbol not found in current account nor in core account.")))
+
+
+  ([addr sym]
+
+   (if-let [sym-meta (?.sym.meta addr
+                                 sym)]
+     (?.print.sym sym-meta)
+     (.stream.txt.outln (str "Symbol not found in account "
+                             addr)))))
+
+
+
+(defn ?.sym.meta
+
+  [addr sym]
+
+  (when-let [sym-meta (get-in (account addr)
+                              [:metadata
+                               sym])]
+    (assoc sym-meta
+           :help.addr addr
+           :help.sym  sym)))
+
+
+
+(defn ?.title
+
+  [s]
+
+  (.stream.txt.outln (?.color (str s
+                                   ":"))))
+
+
+
+(defn ?.txt
+
+  [s]
+
+  (if s
+    (if (vector? s)
+      (.docoll (fn [s]
+                 (.stream.txt.outln (str "  "
+                                         s)))
+               s)
+      (.stream.txt.outln (str "  "
+                              s)))
+    (.stream.txt.outln "  None.")))
+
+
+
+(defn ?.txt-2
+
+  [s]
+
+  (.stream.txt.out "  ")
+  (?.txt s))
