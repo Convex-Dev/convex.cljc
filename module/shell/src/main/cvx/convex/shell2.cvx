@@ -1837,18 +1837,7 @@
   (.shell.invoke '.sys.os))
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+;;;;;;;;;; Unit testing
 
 
 (def .t.*assert+*
@@ -1860,6 +1849,7 @@
 (defn .t.assert.add
 
   ^:callable?
+  ^:private?
 
   [assertion]
 
@@ -1874,6 +1864,8 @@
 
 
 (defn .t.assert.failed+
+
+  ^:private?
 
   [assertion+]
 
@@ -1960,6 +1952,7 @@
 
 (defn .t.dev
 
+  ^:private?
 
   ([required]
 
@@ -1976,6 +1969,8 @@
 
 
 (defn .t.find
+
+  ^:private?
 
   [state actor-sym actor-address]
 
@@ -2044,6 +2039,8 @@
 
 
 (defn .t.main
+
+  ^:private?
 
 
   ([required]
@@ -2173,6 +2170,8 @@
 
 (defn .t.on.test.empty
 
+  ^:private?
+
   [state test]
 
   (.t.print.test.name state
@@ -2184,6 +2183,8 @@
 
 
 (defn .t.on.test.ex
+
+  ^:private?
 
   [state test]
 
@@ -2199,6 +2200,8 @@
 
 
 (defn .t.on.test.fail
+
+  ^:private?
 
   [state test]
 
@@ -2263,6 +2266,8 @@
 
 (defn .t.print.test.name
 
+  ^:private?
+
   [state test]
 
   (.stream.txt.outln (:stream.out state)
@@ -2275,6 +2280,8 @@
 
 
 (defn .t.print.test.separator
+
+  ^:private?
 
   [state]
 
@@ -2290,6 +2297,8 @@
 
 
 (defn .t.run
+
+  ^:private?
 
   [actor-sym->addr state]
 
@@ -2329,6 +2338,8 @@
 
 (defn .t.run.actor
 
+  ^:private?
+
   [state actor-sym actor-address]
 
   (let [found (.t.find state
@@ -2354,6 +2365,8 @@
 
 (defn .t.run.finalize
 
+  ^:private?
+
   [state]
 
   (assoc state
@@ -2372,6 +2385,8 @@
 
 
 (defn .t.run.test
+
+  ^:private?
 
   [state actor-sym actor-address test-sym test-f]
 
