@@ -1,0 +1,64 @@
+{}
+
+
+;;;;;;;;;;
+
+
+(.t.def ..try*
+
+  (.t.is (= :a
+            (.try* :a
+                   :b)))
+
+  (.t.is (= :b
+            (.try* (assert false)
+                   :b))))
+
+
+
+(.t.def ..try.resrc*
+
+  (def a-target
+       nil)
+
+  (def b-target
+       nil)
+
+  (.t.is (= [:a :b]
+            (.try.resrc* [a :a
+                            (def a-target
+                                 a)
+                          b :b
+                            (def b-target
+                                 b)]
+              [a b])))
+
+  (.t.is (= :a
+            a-target))
+
+  (.t.is (= :b
+            b-target))
+
+  (def c-target
+       nil)
+
+  (.t.is (.t.ex :FROM-TEST
+                (.try.resrc* [a :a-2
+                                (def a-target
+                                     a)
+                              b :b-2
+                                (def b-target
+                                     b)]
+                  (def c-target
+                       :c)
+                  (fail :FROM-TEST
+                        "Thrown on purpose"))))
+
+  (.t.is (= :a
+            a-target))
+
+  (.t.is (= :b
+            b-target))
+
+  (.t.is (nil? c-target)
+         "State has been reverted"))

@@ -20,5 +20,6 @@
           $.shell.sys     (test convex shell sys)
           $.shell.term    (test convex shell term)
           $.shell.time    (test convex shell time)
+          $.shell.try     (test convex shell try)
          ]}
 
