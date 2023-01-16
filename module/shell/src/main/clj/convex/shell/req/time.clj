@@ -7,6 +7,28 @@
             [convex.std        :as $.std]))
 
 
+;;;;;;;;;; Private
+
+
+(defn -millis
+
+  [ctx millis]
+
+  (or (when-not ($.std/long? millis)
+        [false
+         ($.cvm/exception-set ctx
+                              ($.cell/code-std* :ARGUMENT)
+                              ($.cell/* "Interval must be a long representing milliseconds"))])
+      (let [millis-2 ($.clj/long millis)]
+        (or (when (neg? millis-2)
+              [false
+               ($.cvm/exception-set ctx
+                                    ($.cell/code-std* :ARGUMENT)
+                                    ($.cell/* "Interval must be >= 0"))])
+            [true
+             millis-2]))))
+
+
 ;;;;;;;;;; CVM time
 
 
@@ -14,21 +36,17 @@
 
   [ctx [millis]]
   
-  (or (when-not ($.std/long? millis)
-        ($.cvm/exception-set ctx
-                             ($.cell/code-std* :ARGUMENT)
-                             ($.cell/* "Interval must be a long representing milliseconds")))
-      (let [millis-2 ($.clj/long millis)]
-        (or (when (neg? millis-2)
-              ($.cvm/exception-set ctx
-                                   ($.cell/code-std* :ARGUMENT)
-                                   ($.cell/* "Interval must be >= 0")))
-            (let [millis-3 (min millis-2
-                                (- Long/MAX_VALUE
-                                   ($.clj/long ($.cvm/time ctx))))]
-              (-> ctx
-                  ($.cvm/time-advance millis-3)
-                  ($.cvm/result-set ($.cell/long millis-3))))))))
+  (let [[ok?
+         x]  (-millis ctx
+                      millis)]
+    (or (when-not ok?
+          x)
+        (let [millis-2 (min x
+                            (- Long/MAX_VALUE
+                               ($.clj/long ($.cvm/time ctx))))]
+          (-> ctx
+              ($.cvm/time-advance millis-2)
+              ($.cvm/result-set ($.cell/long millis-2)))))))
 
 
 ;;;;;;;;;; Current time
@@ -90,3 +108,20 @@
                             ($.clj/long)
                             ($.shell.time/unix->iso)
                             ($.cell/string)))))
+
+
+;;;;;;;;;; Miscellaneous
+
+
+(defn sleep
+
+  [ctx [millis]]
+
+  (let [[ok?
+         x]  (-millis ctx
+                      millis)]
+    (or (when-not ok?
+          x)
+        (do
+          (Thread/sleep x)
+          ctx))))

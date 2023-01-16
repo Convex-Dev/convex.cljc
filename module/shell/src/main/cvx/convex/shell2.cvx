@@ -2987,10 +2987,7 @@
   nil)
 
 
-
-
-
-
+;;;;;;;;;; Time utilities
 
 
 (defn .time.advance
@@ -3051,6 +3048,15 @@
   []
 
   (.shell.invoke '.time.nano))
+
+
+
+(defn .time.sleep
+
+  [millis]
+
+  (.shell.invoke '.time.sleep
+                 millis))
 
 
 

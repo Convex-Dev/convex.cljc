@@ -143,6 +143,7 @@
    ($.cell/* .time.advance)      $.shell.req.time/advance
    ($.cell/* .time.iso->unix)    $.shell.req.time/iso->unix
    ($.cell/* .time.nano)         $.shell.req.time/nano
+   ($.cell/* .time.sleep)        $.shell.req.time/sleep
    ($.cell/* .time.unix)         $.shell.req.time/unix
    ($.cell/* .time.unix->iso)    $.shell.req.time/unix->iso})
 
