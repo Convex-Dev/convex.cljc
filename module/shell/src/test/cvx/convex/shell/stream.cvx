@@ -1,0 +1,336 @@
+{}
+
+;;;;;;;;;;
+
+
+(.t.def ..stream.stderr
+
+  (.t.is (not (nil? .stream.stderr))))
+
+
+
+(.t.def ..stream.stdout
+
+  (.t.is (not (nil? .stream.stdout))))
+
+
+
+(.t.def ..stream.stdin
+
+  (.t.is (not (nil? .stream.stdin))))
+
+
+
+(.t.def ..stream.*err*
+
+  (.t.is (not (nil? .stream.*err*))))
+
+
+
+(.t.def ..stream.*out*
+
+  (.t.is (not (nil? .stream.*out*))))
+
+
+
+(.t.def ..stream.*in*
+
+  (.t.is (not (nil? .stream.*in*))))
+
+
+
+(.t.def ..stream.close
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.close 42)))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.close [])))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.close [:stream])))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.close [:stream
+                                :deref-me
+                                12
+                                "/tmp/foo"]))))
+
+
+
+(.t.def ..stream.flush
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.flush 42)))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.flush [])))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.flush [:stream])))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.flush [:stream
+                                :deref-me
+                                12
+                                "/tmp/foo"]))))
+
+
+
+(.t.def ..stream.in+
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.in+ 42)))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.in+ [])))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.in+ [:stream])))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.in+ [:stream
+                              :deref-me
+                              12
+                              "/tmp/foo"]))))
+
+
+
+(.t.def ..stream.line
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.line 42)))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.line [])))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.line [:stream])))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.line [:stream
+                               :deref-me
+                               12
+                               "/tmp/foo"]))))
+
+
+
+(.t.def ..stream.out
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.out 42
+                             :test)))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.out []
+                             :test)))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.out [:stream]
+                             :test)))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.out [:stream
+                              :deref-me
+                              12
+                              "/tmp/foo"]
+                             :test))))
+
+
+
+(.t.def ..stream.outln
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.outln 42
+                               :test)))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.outln []
+                               :test)))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.outln [:stream]
+                               :test)))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.outln [:stream
+                                :deref-me
+                                12
+                                "/tmp/foo"]
+                               :test))))
+
+
+(.t.def ..stream.set.err
+
+  (def err
+       (.str.stream.out))
+
+  (.t.is (= err
+            (.stream.set.err err)))
+
+  (.t.is (= err
+            .stream.*err*))
+
+  (.t.is (= :a
+            (.stream.errln :a)))
+
+  (.t.is (= :b
+            (.stream.txt.err :b)))
+
+  (.t.is (= ""
+            (.stream.txt.errln "")))
+
+  (.t.is (= :c
+            (.stream.err :c)))
+
+  (.t.is (= '(:a :b :c)
+            (.reader.form+ (.str.stream.unwrap err)))))
+
+
+
+(.t.def ..stream.set.in
+
+  (def string
+       (str ":a"
+            .sys.eol
+            ":b"
+            .sys.eol
+            ":c"
+            .sys.eol
+            ":d"))
+
+  (def in
+       (.str.stream.in string))
+
+  (.t.is (= in
+            (.stream.set.in in)))
+
+  (.t.is (= in
+            .stream.*in*))
+
+  (.t.is (= '(:a)
+            (.stream.line)))
+
+  (.t.is (= ":b"
+            (.stream.txt.line)))
+
+  (.t.is (= '(:c :d)
+            (.stream.in+)))
+
+  (.t.is (= string
+            (.stream.txt.in (.str.stream.in string)))))
+
+
+
+(.t.def ..stream.set.out
+
+  (def out
+       (.str.stream.out))
+
+  (.t.is (= out
+            (.stream.set.out out)))
+
+  (.t.is (= out
+            .stream.*out*))
+
+  (.t.is (= :a
+            (.stream.outln :a)))
+
+  (.t.is (= :b
+            (.stream.out :b)))
+
+  (.t.is (= ""
+            (.stream.txt.outln "")))
+
+  (.t.is (= :c
+            (.stream.txt.out :c)))
+
+  (.t.is (= out
+            (.stream.flush)))
+
+  (.t.is (= '(:a :b :c)
+            (.reader.form+ (.str.stream.unwrap out)))))
+
+
+
+(.t.def ..stream.txt.in
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.txt.in 42)))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.txt.in [])))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.txt.in [:stream])))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.txt.in [:stream
+                                 :deref-me
+                                 12
+                                 "/tmp/foo"]))))
+
+
+
+(.t.def ..stream.txt.line
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.txt.line 42)))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.txt.line [])))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.txt.line [:stream])))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.txt.line [:stream
+                                   :deref-me
+                                   12
+                                   "/tmp/foo"]))))
+
+
+
+(.t.def ..stream.txt.out
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.txt.out 42
+                                 :test)))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.txt.out []
+                                 :test)))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.txt.out [:stream]
+                                 :test)))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.txt.out [:stream
+                                  :deref-me
+                                  12
+                                  "/tmp/foo"]
+                                 :test))))
+
+
+
+(.t.def ..stream.txt.outln
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.txt.outln 42
+                                   :test)))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.txt.outln []
+                                   :test)))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.txt.outln [:stream]
+                                   :test)))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.stream.txt.outln [:stream
+                                    :deref-me
+                                    12
+                                    "/tmp/foo"]
+                                   :test))))

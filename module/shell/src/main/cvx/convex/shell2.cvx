@@ -1390,12 +1390,7 @@
                  handle))
 
 
-
-
-
-
-
-;;;;;;;;;; STDIO handles (defined in Clojure)
+;;;;;;;;;; Streams
 
 
 (def .stream.stderr
@@ -1421,7 +1416,7 @@
   .stream.stdout)
 
 
-;;;;;;;;;; Default handles
+;;;
 
 
 (def .stream.*err*
@@ -1450,61 +1445,6 @@
   .stream.stdout)
 
 
-;;;;;;;;;; Setting dynamic values
-
-
-(defn .stream.set.err
-
-  ^{:callable? true
-    :doc       {:description "Sets `*err*` to the given `handle`."
-                :signature   [{:params [handle]}]}}
-
-  [handle]
-
-  (if (= *address*
-         $CORE$)
-    (def .stream.*err*
-         handle)
-    (call $CORE$
-          (.stream.set.err handle))))
-
-
-
-(defn .stream.set.in
-
-  ^{:callable? true
-    :doc       {:description "Sets `*in*` to the given `handle`."
-                :signature   [{:params [handle]}]}}
-
-  [handle]
-
-  (if (= *address*
-         $CORE$)
-    (def .stream.*in*
-         handle)
-    (call $CORE$
-          (.stream.set.in handle))))
-
-
-
-(defn .stream.set.out
-
-  ^{:callable? true
-    :doc       {:description "Sets `*out* to the given `handle`."
-                :signature   [{:params [handle]}]}}
-
-  [handle]
-
-  (if (= *address*
-         $CORE$)
-    (def .stream.*out*
-         handle)
-    (call $CORE$
-          (.stream.set.out handle))))
-
-
-;;;;;;;;;; Requests for handling streams
-
 
 (defn .stream.close
 
@@ -1515,8 +1455,6 @@
 
   [handle]
 
-  ;(assert (not (= handle
-  ;                stderr)))
   (.shell.invoke '.stream.close
                  handle))
 
@@ -1662,6 +1600,83 @@
 
 
 
+(defn .stream.set.err
+
+  ^{:callable? true
+    :doc       {:description "Sets `*err*` to the given `handle`."
+                :signature   [{:params [handle]}]}}
+
+  [handle]
+
+  (if (= *address*
+         $CORE$)
+    (def .stream.*err*
+         handle)
+    (call $CORE$
+          (.stream.set.err handle))))
+
+
+
+(defn .stream.set.in
+
+  ^{:callable? true
+    :doc       {:description "Sets `*in*` to the given `handle`."
+                :signature   [{:params [handle]}]}}
+
+  [handle]
+
+  (if (= *address*
+         $CORE$)
+    (def .stream.*in*
+         handle)
+    (call $CORE$
+          (.stream.set.in handle))))
+
+
+
+(defn .stream.set.out
+
+  ^{:callable? true
+    :doc       {:description "Sets `*out* to the given `handle`."
+                :signature   [{:params [handle]}]}}
+
+  [handle]
+
+  (if (= *address*
+         $CORE$)
+    (def .stream.*out*
+         handle)
+    (call $CORE$
+          (.stream.set.out handle))))
+
+
+
+(defn .stream.txt.err
+
+  ^{:doc {:description "Uses `$.stream/!.out` ont `*err*` for printing `x` to the default error stream."
+          :examples    [{:code "($.stream/!.err {:some :error})"}]
+          :signature   [{:params [x]}]}}
+
+  [x]
+
+  (.stream.txt.out .stream.*err*
+                   x))
+
+
+
+(defn .stream.txt.errln
+
+  ^{:doc {:description "Uses `$.stream/!.outln` ont `*err*` for printing `x` to the default error stream."
+          :examples    [{:code "($.stream/!.errln {:some :error})"}]
+          :signature   [{:params [x]}]}}
+
+  [x]
+
+  (.stream.txt.outln .stream.*err*
+                     x))
+
+
+
 (defn .stream.txt.in
 
   ^{:doc {:description ["Returns a request for reading the rest of the given input `handle` as text."
@@ -1752,6 +1767,8 @@
    (.shell.invoke '.stream.txt.outln
                   handle
                   x)))
+
+
 
 
 

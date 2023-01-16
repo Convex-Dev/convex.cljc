@@ -48,7 +48,7 @@
   (cond->
     ctx
     (and (not ($.cvm/exception? ctx))
-         (not ($.cvm/result ctx)))
+         (nil? ($.cvm/result ctx)))
     (close [handle])))
 
 
@@ -290,20 +290,17 @@
 
   [ctx [handle]]
 
-  (let [ctx-2 (operation ctx
-                         handle
-                         #{:read}
-                         (fn [ctx-2 ^BufferedReader stream]
-                           (let [result (-> stream
-                                            (.lines)
-                                            (.collect (Collectors/joining (System/lineSeparator)))
-                                            ($.cell/string))]
-                             (close ctx-2
-                                    [handle]
-                                    result))))]
-    (close ctx-2
-           [handle]
-           ($.cvm/result ctx-2))))
+  (operation ctx
+             handle
+             #{:read}
+             (fn [ctx-2 ^BufferedReader stream]
+               (let [result (-> stream
+                                (.lines)
+                                (.collect (Collectors/joining (System/lineSeparator)))
+                                ($.cell/string))]
+                 (close ctx-2
+                        [handle]
+                        result)))))
 
 
 

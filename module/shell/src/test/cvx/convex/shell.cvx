@@ -16,5 +16,6 @@
           $.shell.shell   (test convex shell shell)
           $.shell.state   (test convex shell state)
           $.shell.str     (test convex shell str)
+          $.shell.stream  (test convex shell stream)
          ]}
 
