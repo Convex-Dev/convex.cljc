@@ -1,0 +1,53 @@
+{}
+
+
+;;;;;;;;;;
+
+
+(.t.def ..time.advance
+
+  (def ts
+       *timestamp*)
+
+  (.t.is (= 1
+            (.time.advance 1)))
+
+  (.t.is (= (inc ts)
+            *timestamp*))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.time.advance "42"))
+         "Must be a long")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.time.advance -1))
+         "Cannot go back in time"))
+
+
+(.t.def ..time.nano
+
+  (.t.is (long? (.time.nano)))
+
+  (.t.is (< (.time.nano)
+            (.time.nano))))
+
+
+
+(.t.def ..time.unix
+
+  (.t.is (long? (.time.unix)))
+
+  (.t.is (< (.time.unix)
+            (do
+              (.time.sleep 1)
+              (.time.unix)))))
+
+
+
+(.t.def ..time.iso<->unix
+
+  (def iso
+       (.time.iso))
+
+  (.t.is (= iso
+            (.time.unix->iso (.time.iso->unix iso)))))
