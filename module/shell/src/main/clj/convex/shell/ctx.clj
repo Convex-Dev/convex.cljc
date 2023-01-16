@@ -49,7 +49,9 @@
                                                                      ~$.shell.req.stream/stdout
                                                                      -1
                                                                      :stdout]
-                                                   .sys.eol         ~($.cell/string (System/lineSeparator))})
+                                                   .sys.eol         ~($.cell/string (System/lineSeparator))
+                                                   .version.java    [~($.cell/string (System/getProperty "java.vendor"))
+                                                                     ~($.cell/string (System/getProperty "java.version"))]})
                                         (first (-resource-cvx "convex/shell/version.cvx"))))
                 ($.cvm/eval ($.std/concat ($.cell/* (let [$CORE$ ~Init/CORE_ADDRESS]))
                                           (-resource-cvx "convex/shell2.cvx"))))]

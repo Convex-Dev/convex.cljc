@@ -3153,24 +3153,21 @@
            3)))))
 
 
+;;;;;;;;;; Versions
+
+
+(def .version.convex
+
+  .version.convex)
 
 
 
+(def .version.java
 
-
-
-
-
-
+  .version.java)
 
 
 
 (def .version.shell
 
-  nil)
-
-
-
-(def .version.convex
-
-  nil)
+  .version.shell)

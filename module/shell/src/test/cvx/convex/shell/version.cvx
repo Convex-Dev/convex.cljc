@@ -1,0 +1,28 @@
+{}
+
+
+;;;;;;;;;;
+
+
+(.t.def ..version.convex
+
+  (.t.is (str? .version.convex)))
+
+
+
+(.t.def ..version.java
+
+  (.t.is (vector? .version.java))
+
+  (.t.is (= 2
+            (count .version.java)))
+
+  (.t.is (str? (first .version.java)))
+
+  (.t.is (str? (second .version.java))))
+
+
+
+(.t.def ..version.shell
+
+  (.t.is (str? .version.shell)))
