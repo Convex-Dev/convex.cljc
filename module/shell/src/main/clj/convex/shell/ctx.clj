@@ -54,7 +54,7 @@
                                                                      ~($.cell/string (System/getProperty "java.version"))]})
                                         (first (-resource-cvx "convex/shell/version.cvx"))))
                 ($.cvm/eval ($.std/concat ($.cell/* (let [$CORE$ ~Init/CORE_ADDRESS]))
-                                          (-resource-cvx "convex/shell2.cvx"))))]
+                                          (-resource-cvx "convex/shell.cvx"))))]
     (when ($.cvm/exception ctx)
       ;; Throw on purpose.
       ($.cvm/result ctx))
