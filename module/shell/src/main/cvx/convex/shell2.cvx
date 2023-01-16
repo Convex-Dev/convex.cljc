@@ -1,6 +1,6 @@
 
 
-;;;;;;;;;; Private miscellaneous helpers
+;;;;;;;;;; Miscellaneous helpers, private and public
 
 
 (defn .docoll
@@ -18,6 +18,14 @@
                   i))
           (recur (inc i)))
         nil))))
+
+
+
+(defn .prn
+
+  [& arg+]
+
+  (.stream.outln arg+))
 
 
 ;;;;;;;;;; Account
@@ -3151,8 +3159,7 @@
 
 
 
-(def .prn
-     .stream.outln)
+
 
 
 
