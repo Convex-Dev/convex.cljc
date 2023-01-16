@@ -1323,13 +1323,20 @@
 
 (def .resrc.*count*
 
+  ^:private?
+
   0)
 
 
 
 (defn .resrc.next
 
-  ^{:callable? true}
+  ^{:callable? true
+    :doc       {:description ["Returns an ever incrementing Long."
+                              "Some utilities use this function for identifying resources external"
+                               "to the Convex Virtual Machine (e.g. stream handles)."]
+                :examples    [{:code (.resrc.next)}]
+                :signature   [{:params []}]}}
 
   []
 
@@ -1346,6 +1353,13 @@
 
 (defn .shell.inspect
 
+  ^{:doc {:description ["Returns a set of symbols expressing features offered by the Shell."
+                        "Those symbols often relates directly to functions and are not native"
+                        "to the regular Convex Virtual Machine."
+                        ""
+                        "See also `.shell.limit`."]
+          :examples    [{:code (.shell.inspect)}]
+          :signature   [{:params []}]}}
   []
 
   (.shell.invoke '.shell.inspect))
@@ -1354,8 +1368,16 @@
 
 (def .shell.invoke
 
-  ;; Entry point to all Shell features.
-  ;; Aka the "invoker".
+  ^{:doc {:description ["Main entry point for accessing features offered by the Shell."
+                        "Aka the \"invoker\"."
+                        "Shell functions often delegates to it."
+                        ""
+                        "The regular user should never have to call this function directly."
+                        "For experts only."]
+          :examples    [{:code (.shell.invoke '.time.unix)}]
+          :signature   [{:params [feature & arg+]}]}}
+
+  ;; Injected from Clojure.
 
   ^:private?
 
@@ -1365,6 +1387,19 @@
 
 (defn .shell.limit
 
+  ^{:doc {:description ["Limits the features offered by the Shell."
+                        ""
+                        "See `.shell.inspect` about getting the set of currently available features."
+                        "This function takes a similar set and will limit `.shell.invoke` to those only."
+                        ""
+                        "Thus, an empty set removes all Shell features, resulting in a pure Convex Virtual Machine."
+                        ""
+                        "A common pattern is to call `.shell.limit` inside `.state.tmp*`, so that the Shell"
+                        "is limited only temporarily."]
+          :examples    [{:code (.shell.limit #{})}
+                        {:code (.shell.limit (disj (.shell.inspect) '.time.unix))}]
+          :signature   [{:params [feature-set]}]}}
+
   [feature-set]
 
   (.shell.invoke '.shell.limit
@@ -1373,6 +1408,8 @@
 
 
 (defn .shell.main
+
+  ^:private?
 
   [src]
 
@@ -1429,13 +1466,22 @@
 
 (def .shell.*root*
 
+  ^{:doc {:description ["Root directory used by the Shell."
+                        "E.g. This is where `.dep.fetch` caches foreign dependencies."
+                        ""
+                        "Also see `.shell.root.set`."]}}
+
   "~/.convex-shell")
 
 
 
 (defn .shell.root.set
 
-  ^{:callable? true}
+  ^{:callable? true
+    :doc       {:description ["Points `.shell.*root*` to another directory."
+                              "Given path must point to an existing one."]
+                :examples    [{:code (.shell.root.set "./some/dir")}]
+                :signature   [{:params [dir]}]}}
 
   [dir]
 
@@ -1456,6 +1502,18 @@
 
 (defn .state.genesis
 
+  ^{:doc {:description ["Generates and return a genesis state."
+                        ""
+                        "The genesis state is the original state used by the Convex network"
+                        "to bootstrap. Such a state does not have any of the features offered"
+                        "by the Shell."
+                        ""
+                        "A vector of distinct keys may be provided for creating initial user accounts."
+                        "If not, one account is created with `.account.0-key`."]
+          :examples    [{:code (.state.genesis)}
+                        {:code (.state.genesis [0x1122334455667788990011223344556677889900112233445566778899001122])}]
+          :signature   [{:params []}
+                        {:params [key+]}]}}
 
   ([]
 
@@ -1472,6 +1530,18 @@
 
 (defn .state.safe
 
+  ^{:doc {:description ["Executes the given function in a safe, atomic way."
+                        "Returns a vector of 2 elements."
+                        ""
+                        "First item is a boolean indicating if the function ran without throwing"
+                        "an exception."
+                        ""
+                        "If `true`, second item is the returned result."
+                        "If `false`, second item is the thrown exception and `*state*` is reverted."
+                        ""
+                        "Usually, prefer the `.state.safe*` macro for convenience."]
+          :examples    [{:code (.state.safe (fn [] (assert false)))}]
+          :signature   [{:params [f]}]}}
   [f]
 
   (.shell.invoke '.state.safe
@@ -1480,6 +1550,11 @@
 
 
 (defmacro .state.safe*
+
+  ^{:doc {:description ["Executes the given code exactly like `.state.safe`."
+                        "More convenient to use."]
+          :examples    [{:code (.state.safe* (def x []) (inc x))}]
+          :signature   [{:params [& form+]}]}}
 
   [& form+]
 
@@ -1490,6 +1565,19 @@
 
 
 (defn .state.switch
+
+  ^{:doc {:description ["Switches `*state*` to the given one."
+                        "For instance, a state produced with `.state.genesis` or a state"
+                        "retrieved from Etch."
+                        ""
+                        "Provided address must point to an account in the target state."
+                        "By default, current `*address*` is used."
+                        ""
+                        "Attention, beware of consequences."
+                        "E.g. Switching in a middle of an actor call who was working under"
+                        "     assumptions relating to the old `*state*`."]
+          :examples    [{:code (.state.switch (.state.genesis))}]
+          :signature   [{:params [state]}]}}
 
 
   ([state]
@@ -1509,6 +1597,13 @@
 
 (defn .state.tmp
 
+  ^{:doc {:description ["Exactly like `.state.safe` but the state is always reverted."
+                        "Even if an exception is not thrown."
+                        ""
+                        "Also see the `.state.tmp*` macro for convenience."]
+          :examples    [{:code (.state.tmp (fn [] (def x 42) (inc x)))}]
+          :signature   [{:params [f]}]}}
+
   [f]
 
   (.shell.invoke '.state.tmp
@@ -1517,6 +1612,11 @@
 
 
 (defmacro .state.tmp*
+
+  ^{:doc {:description ["Convenience macro over `.state.tmp`."
+                        "Wraps given code into a function."]
+          :examples    [{:code (state.tmp* (def x 42) (inc x))}]
+          :signature   [{:params [& form+]}]}}
 
   [& form+]
 
