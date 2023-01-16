@@ -1,1 +1,2 @@
-{:deps {test [:relative "module/shell/src/test/cvx"]}}
+{:deps {main [:relative "module/shell/src/main/cvx"]
+        test [:relative "module/shell/src/test/cvx"]}}

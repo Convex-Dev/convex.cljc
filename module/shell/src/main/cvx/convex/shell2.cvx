@@ -1383,6 +1383,17 @@
 
 
 
+(defn .str.sort
+
+  ^:private?
+
+  [str+]
+
+  (.shell.invoke '.str.sort
+                 str+))
+
+
+
 (defn .str.stream.in
 
   [string]
@@ -3290,8 +3301,9 @@
           meta- (:metadata -account)]
       (if (empty? env)
         (?.txt "Empty environment.")
-        (.docoll (fn [[sym _value]]
-                   (let [meta-sym (get meta-
+        (.docoll (fn [sym-str]
+                   (let [sym      (symbol sym-str)
+                         meta-sym (get meta-
                                        sym)]
                      (when (and (not (get-in meta-
                                              [sym
@@ -3313,7 +3325,7 @@
                                                   77)
                                            "...")
                                     desc-2)))))))
-                 env)))))
+                 (.str.sort (keys env)))))))
 
 
 

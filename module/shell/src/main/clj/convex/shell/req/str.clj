@@ -3,6 +3,7 @@
   (:import (java.io BufferedReader
                     StringReader
                     StringWriter))
+  (:refer-clojure :exclude [sort])
   (:require [convex.cell             :as $.cell]
             [convex.cvm              :as $.cvm]
             [convex.shell.req.stream :as $.shell.req.stream]
@@ -10,6 +11,22 @@
 
 
 ;;;;;;;;;;
+
+
+(defn sort
+
+  [ctx [str+]]
+
+  (or (when-not ($.std/vector? str+)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Can only sort a vector")))
+      ($.cvm/result-set ctx
+                        ($.cell/vector
+                          (map $.cell/string
+                               (clojure.core/sort (map str
+                                                       str+)))))))
+
 
 
 (defn stream-in

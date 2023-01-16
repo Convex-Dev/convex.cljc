@@ -21,6 +21,5 @@
           $.shell.term    (test convex shell term)
           $.shell.time    (test convex shell time)
           $.shell.try     (test convex shell try)
-          $.shell.version (test convex shell version)
-         ]}
+          $.shell.version (test convex shell version)]}
 
