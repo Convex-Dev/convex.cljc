@@ -1,0 +1,47 @@
+{}
+
+
+;;;;;;;;;;
+
+
+(.t.def main
+
+  (.t.is (boolean? .term.*style?*))
+
+  (.t.is (= true
+            (.term.style.enable? 42)))
+
+  (.t.is (= "test"
+            (.term.style "test")))
+
+  (.t.is (= false
+            (.term.style.enable? nil)))
+
+  (.t.is (= ""
+            (.term.style "test")))
+
+  (.docoll (fn [color]
+             (let [sym.bg (symbol (str ".term.bg."
+                                       color))]
+               (.t.is (= ""
+                         (eval (list sym.bg)))
+                      sym.bg))
+             (let [sym.fg (symbol (str ".term.fg."
+                                       color))]
+               (.t.is (= ""
+                         (eval (list sym.fg)))
+                      sym.fg)))
+           ["black"
+            "blue"
+            "cyan"
+            "green"
+            "magenta"
+            "red"
+            "white"
+            "yellow"])
+
+  (.t.is (= ""
+            (.term.bg.rgb 0 0 0)))
+
+  (.t.is (= ""
+            (.term.fg.rgb 0 0 0))))

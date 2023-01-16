@@ -18,5 +18,6 @@
           $.shell.str     (test convex shell str)
           $.shell.stream  (test convex shell stream)
           $.shell.sys     (test convex shell sys)
+          $.shell.term    (test convex shell term)
          ]}
 

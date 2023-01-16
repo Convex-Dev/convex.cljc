@@ -2452,24 +2452,10 @@
                  :status  :fail))))))
 
 
+;;;;;;;;;; Basic ANSI terminal commands
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-(def .term.style?
+(def .term.*style?*
 
   ^{:doc {:description ["True if text styling with functions from this account is enabled."
                         "False means that functions returning a color will instead return an empty string."]}}
@@ -2484,7 +2470,7 @@
 
  [x]
 
- (if .term.style?
+ (if .term.*style?*
    x
    ""))
 
@@ -2498,13 +2484,13 @@
 
   (if (= *address*
          ~*address*)
-    (def .term.style?
+    (def .term.*style?*
          (boolean enable?))
     (call ~*address*
           (.term.style.enable? enable?))))
 
 
-;;;;;;;;;; Background colors
+;; ANSI background colors
 
 
 (defn .term.bg.black
@@ -2596,12 +2582,12 @@
 
   [r g b]
 
-  (if .term.style?
+  (if .term.*style?*
     (str "\033[48;2;" r ";" g ";" b "m")
     ""))
 
 
-;;;;;;;;;; Foreground colors
+;; ANSI foreground colors
 
 
 (defn .term.fg.black
@@ -2695,12 +2681,12 @@
 
   [r g b]
 
-  (if .term.style?
+  (if .term.*style?*
     (str "\033[38;2;" r ";" g ";" b "m")
     ""))
 
 
-;;;;;;;;;; Effects
+;; Terminal effects
 
 
 (defn .term.bold
@@ -2894,7 +2880,7 @@
    (str "\033[" n "F")))
 
 
-;;;;;;;;;; Clearing
+;; Screen clearing
 
 
 (defn .term.clear
@@ -2906,7 +2892,7 @@
   (.term.style "\033[H\033[2J"))
 
 
-;;;;;;;;;;
+;;
 
 
 (defn .term.demo
