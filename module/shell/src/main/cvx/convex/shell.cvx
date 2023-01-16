@@ -23,6 +23,10 @@
 
 (defn .prn
 
+  ^{:doc {:description "Prints arguments in a vector using `.stream.outln`."
+          :examples    [{:code (.prn :a :b :c)}]
+          :signature   [{:params [& arg+]}]}}
+
   [& arg+]
 
   (.stream.outln arg+))
@@ -33,14 +37,15 @@
 
 (def .account.0-key
 
-  ^{:doc {:description "Fake key for turning an actor into a user account with standard `set-key`."
-          :examples    [{:code "(deploy '(do (set-key $.account/fake-key) ...))"}]}}
+  ^{:doc {:description "Fake key, useful for turning an actor into a user account with `set-key`."}}
 
   0x0000000000000000000000000000000000000000000000000000000000000000)
 
 
 
 (def .account.core
+
+  ^{:doc {:description "Address of the core account where all core functions are defined."}}
 
   $CORE$)
 
@@ -49,8 +54,8 @@
 (defn .account.key?
 
   ^{:doc {:description "Returns true if `x` is a 32-byte blob that can act as a key."
-          :examples    [{:code "($.account/key? $.account/fake-key)"}
-                        {:code "($.account/key? 42)"}]
+          :examples    [{:code (.account.key? $.account/fake-key)}
+                        {:code (.account.key? 42)}]
           :signature   [{:params [x]}]}}
 
   [x]
@@ -63,11 +68,17 @@
 
 (def .account.genesis
 
+  ^{:doc {:description "Address of the account used when starting the Shell."}}
+
   .account.genesis)
 
 
 
 (defn .account.switch
+
+  ^{:doc {:description ["Switches the execution context to the given address."]
+          :examples    [{:code (.account.switch #3)}]
+          :signature   [{:params [address]}]}}
 
   [address]
 
@@ -80,20 +91,21 @@
 
 (defn .bench.trx
 
-  ^{:doc {:description ["Returns a request for measuring the mean execution time of the given transaction."
+  ^{:doc {:description ["Benchmarks the mean execution time of the given transaction."
+                        "Any state change is reverted each time."
+                        ""
+                        "Returns a map with:"
+                        ""
+                        "  :mean"
+                        "    Mean execution time (nanoseconds)"
+                        "  :stddev"
+                        "    Standard deviation (nanoseconds)"
                         "Executed in a query a high number of times."
                         ""
                         "Highly experimental and subject to change, probably useful for CVM developers only."
-                        "Depending on the given transaction, takes between one and several minutes to complete."
-                        ""
-                        "Uses the Criterium library:"
-                        "  https://github.com/hugoduncan/criterium"
-                        ""
-                        "Report map will be available during next transaction under `$/*result*`."
-                        "Values are duration estimates in nanoseconds with an overhead due to forking the CVM"
-                        "context which should be in the few nanoseconds. A nil transaction might provide a base."]
-          :examples    [{:code "($.time/!.bench '(+ 2 2))"}
-                        {:code "($.time/!.bench (compile '(+ 2 2)))"}]
+                        "Depending on the given transaction, takes between one and several minutes to complete."]
+          :examples    [{:code (.bench.trx '(+ 2 2))}
+                        {:code (.bench.trx (compile '(+ 2 2)))}]
           :signature   [{:params [trx]}]}}
 
 
@@ -108,10 +120,14 @@
 
 (defn .dep.deploy
 
-  [required]
+  ^{:doc {:description ["Deploys requested dependencies from `project.cvx`."]
+          :examples    [{:code (.dep.deploy '[some-alias (path to actor)])}]
+          :signature   [{:params [dep]}]}}
+
+  [dep]
 
   (.shell.invoke '.dep.deploy
-                 required))
+                 dep))
 
 
 
@@ -280,13 +296,21 @@
 
 (def .*dev?*
 
+  ^{:doc {:description ["Boolean indicating if the Shell is in dev mode."
+                        "Some utilities uses this value to change behavior."
+                        ""
+                        "E.g. `.dep.test` will not terminate the process if this value is `false`."]}}
+
   false)
 
 
 
 (defn .dev.set
 
-  ^:callable?
+  ^{:callable? true
+    :doc       {:description ["Sets `.*dev*`."]
+                :examples    [{:code (.dev.set true)}]
+                :signature   [{:params [enable?]}]}}
 
   [enable?]
 
@@ -303,11 +327,12 @@
 
 (defn .db.flush
 
-  ^{:doc {:description ["Returns a request for flushing the current Etch instance."
-                        "Instances are flushed when the CVX Shell terminates but it is still a"
-                        "good idea flushing once in a while explicitly to ensure everything is"
-                        "persisted on disk."]
-          :examples    [{:code "($.db/!.flush)"}]
+  ^{:doc {:description ["Flushes the current Etch instance."
+                        ""
+                        "Happens automatically when the process terminates gracefully."
+                        "Good idea to flush manually once in a while to ensure data"
+                        "is persisted on disk."]
+          :examples    [{:code (.db.flush)}]
           :signature   [{:params []}]}}
 
   []
@@ -318,9 +343,14 @@
 
 (defn .db.open
 
-  ^{:doc {:description ["Returns a request for explicitly opening the Etch instance located at the given `path`."
-                        "File is created if it does not exist."]
-          :examples    [{:code "($.db/!.open \"path/to/file.etch\")"}]
+  ^{:doc {:description ["Opens an Etch instance."
+                        ""
+                        "Must be called before calling any other DB function."
+                        "Not providing a path will create an instance in a temporary file."
+                        "File is created if it does not exist."
+                        ""
+                        "Attention, only one instance can be open per Shell."]
+          :examples    [{:code (.db.open \"path/to/file.etch\")}]
           :signature   [{:params [path]}]}}
 
 
@@ -340,9 +370,9 @@
 
 (defn .db.path
 
-  ^{:doc {:description ["Returns a request for retrieving the path of the current Etch instance."
-                        "Filename will be available during the next transaction under `$/*result*`."]
-          :examples    [{:code "($.db/!.flush)"}]
+  ^{:doc {:description ["Returns the path of the current Etch instance (or nil if"
+                        "no instance has been open)."]
+          :examples    [{:code (.db.flush)}]
           :signature   [{:params []}]}}
 
   []
@@ -353,10 +383,11 @@
 
 (defn .db.read
   
-  ^{:doc {:description ["Returns a request for retrieving a cell from the current Etch instance by `hash`."
+  ^{:doc {:description ["Reads a cell by hash from the current Etch instance."
+                        "Returns `nil` if no cell is found for that hash."
                         ""
-                        "Result will be available during the next transaction under `$/*result*` (nil when not found)."]
-          :examples    [{:code "($.db/!.read 0x1fa0dd51b167d4cca60177d13d731c461eae9cdb4ecd75e1e8f2158251968c66)"}]
+                        "Also see `.db.write`."]
+          :examples    [{:code (.db.read 0x1fa0dd51b167d4cca60177d13d731c461eae9cdb4ecd75e1e8f2158251968c66)}]
           :signature   [{:params [hash]}]}}
 
   [hash]
@@ -368,11 +399,11 @@
 
 (defn .db.root.read
 
-  ^{:doc {:description ["Returns a request for reading the root cell of the current Etch instance."
-                        "The root is simply a unique place that does not require providing a hash."
-                        "Any cell can be written there using `!.root.write`."
-                        "Otherwise, behaves exactly like `!.read`."]
-          :examples    [{:code "($.db/!.root.read)"}]
+  ^{:doc {:description ["Reads the root cell from the current Etch instance."
+                        "Returns `nil` if no cell has been persisted to the root."
+                        ""
+                        "Also see `.db.root.write`."]
+          :examples    [{:code (.db.root.read)}]
           :signature   [{:params []}]}}
 
   []
@@ -383,9 +414,11 @@
 
 (defn .db.root.write
 
-  ^{:doc {:description ["Behaves exactly like `!.write` but the given `cell` will be written at the root."
-                        "See `!.root.read`."]
-          :examples    [{:code "($.db/!.root.write [:my 'cell 42])"}]
+  ^{:doc {:description ["Writes the given `cell` to the root of the current Etch instance."
+                        "Otherwise, behaves exactly like `.db.write`."
+                        ""
+                        "Also see `.db.root.read`."]
+          :examples    [{:code (.db/.root.write [:my 'cell 42])}]
           :signature   [{:params [cell]}]}}
 
   [cell]
@@ -397,17 +430,20 @@
 
 (defn .db.write
 
-  ^{:doc {:description ["Returns a request for writing the given `cell` to the current Etch instance."
-                        "The hash of that cell will be available during the next transaction under `$/*result*`."
+  ^{:doc {:description ["Writes the given `cell` to the current Etch instance."
+                        "Returns the hash of that cell."
                         ""
-                        "If the hash is nil, it means the cell what not persisted."
+                        "If the returned value is `nil`, it means the cell was not persisted."
                         "This happens only with a few basic cells for optimization reasons."
                         "Precisely, those that are so simple they are usually embedded in more complex values:"
+                        ""
                         "  - Addresses"
                         "  - Empty collections"
                         "  - Primitives (booleans, bytes, doubles, longs)"
-                        "  - Symbolic (keywords and symbols)"]
-          :examples    [{:code "($.db/!.write [:my 'cell 42])"}]
+                        "  - Symbolic (keywords and symbols)"
+                        ""
+                        "Also see `.db.read`."]
+          :examples    [{:code (.db.write [:my 'cell 42])}]
           :signature   [{:params [cell]}]}}
 
   [cell]
@@ -421,6 +457,11 @@
 
 (defn .ex.print
 
+  ^{:doc {:description ["Pretty prints the given exception (by default to `.stream.*out*`."
+                        "For catching exceptions, see `.state.safe` and `.state.tmp`."]
+          :examples    [{:code (.ex.print {:code :ARGUMENT, :message "Some message"})}]
+          :signature   [{:params [ex]}
+                        {:params [stream ex]}]}}
 
   ([ex]
 
@@ -497,11 +538,15 @@
 
 
 (defn .ex.rethrow
+  ^{:doc {:description ["Rethrow the given exception."
+                        "For catching exceptions, see `.state.safe` and `.state.tmp`."]
+          :examples    [{:code (.ex.rethrow {:code :ARGUMENT, :message "Some message"})}]
+          :signature   [{:params [ex]}]}}
 
-  [exception]
+  [ex]
 
   (.shell.invoke '.ex.rethrow
-                 exception))
+                 ex))
 
 
 ;;;;;;;;;; File operations
@@ -560,9 +605,8 @@
 
 (defn .file.exec
 
-  ^{:doc {:description ["Like `$.file/!.read` but the read cells are executed atomically as transactions."
-                        "See `$.state/!.atomic`."]
-          :examples    [{:code "($.file/!.exec \"./my/file.cvx\")"}]
+  ^{:doc {:description ["Like `.file.read` but also applies `eval`."]
+          :examples    [{:code (.file.exec "./my/file.cvx")}]
           :signature   [{:params [path]}]}}
 
   [path]
@@ -574,9 +618,9 @@
 
 (defn .file.read
 
-  ^{:doc {:description ["Returns a request for reading the Convex Lisp file located under `path` in one go."
-                        "List of read cells is available during next transaction under `$/*result*`."]
-          :examples    [{:code "($.file/!.read \"./my/file.cvx\")"}]
+  ^{:doc {:description ["Returns a list of cells resulting from reading the given file."
+                        "Also see `.file.txt.read`."]
+          :examples    [{:code (.file.read "./my/file.cvx")}]
           :signature   [{:params [path]}]}}
 
   ;; Stream is closed automatically in the Clojure code.
@@ -590,19 +634,10 @@
 
 (defn .file.stream.in
 
-  ^{:doc {:description ["Returns a request for opening an input stream for the file located under `path`."
-                        ""
-                        "Handle for that stream will available during the next transaction under `$/*result*`."
-                        "See the `$.stream` library."
-                        ""
-                        "Any cell can be provided as a handle for identifying the stream."
-                        "If not provided, one will be generated."
-                        ""
-                        "See the `$.stream` library."]
-          :examples    [{:code "($.file/!.stream.in \"./my/file.cvx\")"}
-                        {:code "($.file/!.stream.in :my-handle \"./my/file.cvx\")"}]
-          :signature   [{:params [path]}
-                        {:params [handle path]}]}}
+  ^{:doc {:description ["Returns a handle to an input stream for the given file."
+                        "See stream utils such as `.stream.line`."]
+          :examples    [{:code (.file.stream.in "./my/file.cvx")}]
+          :signature   [{:params [path]}]}}
 
 
   [path]
@@ -616,25 +651,18 @@
 
 (defn .file.stream.out
 
-  ^{:doc {:description ["Returns a request for opening an output stream for the file located under `path`."
-                        ""
-                        "Handle will be available during the next transaction under `$/*result*`."
-                        "See the `$.stream` library."
-                        ""
-                        "Any cell can be provided as a handle for identifying the stream."
-                        "If not provided, one will be generated."
+  ^{:doc {:description ["Returns a handle to an output stream for the given file."
+                        "See stream utils such as `.stream.outln`."
                         ""
                         "A map of options may be provided:"
                         ""
                         "  :append?"
                         "    Writes will be appended to the end if true, otherwise file will be overwritten if it exists."
                         "    False by default."]
-          :examples    [{:code "($.file/!.stream.out \"./my/file.cvx\")"}
-                        {:code "($.file/!.stream.out :my-handle \"./my/file.cvx\")"}
-                        {:code "($.file/!.stream.out :my-handle \"./my/file.cvx\" {:append? true})"}]
+          :examples    [{:code (.file.stream.out "./my/file.cvx")}
+                        {:code (.file.stream.out "./my/file.cvx" {:append? true})}]
           :signature   [{:params [path]}
-                        {:params [handle path]}
-                        {:params [handle path option+]}]}}
+                        {:params [path option+]}]}}
 
 
   ([path]
@@ -654,6 +682,11 @@
 
 (defn .file.txt.read
 
+  ^{:doc {:description ["Returns the content of the given file as a string."
+                        "Also see `.file.read`."]
+          :examples    [{:code (.file.txt.read "some/file.txt")}]
+          :signature   [{:params [path]}]}}
+
   [path]
 
   (.file.-read .stream.txt.in
@@ -662,6 +695,14 @@
 
 
 (defn .file.txt.write
+
+  ^{:doc {:description ["Writes the given cell to the given file as a string."
+                        "Same options as `.file.stream.out`."
+                        ""
+                        "Also see `.file.write`."]
+          :examples    [{:code (.file.txt.write "some/file.txt" "Some text")}
+                        {:code (.file.txt.write "some/file.txt" "Some text" {:append? true})}]
+          :signature   [{:params []}]}}
 
 
   ([path cell]
@@ -682,12 +723,14 @@
 
 (defn .file.write
 
-  ^{:doc {:description ["Returns a request for writing `cell` to the file located under `path`, in one go."
-                        "See `$.file/!.stream.out` for options."]
-          :examples    [{:code "($.file/!.write \"./my/file.cvx\") {:foo :bar})"}
-                        {:code "($.file/!.write \"./my/file.cvx\") {:foo :bar} {:append? true})"}]
-          :signature   [{:params [path cell]}
-                        {:params [path cell option+]}]}}
+  ^{:doc {:description ["Writes the given cell to the given file."
+                        "Same options as `.file.stream.out`."
+                        "Can be read back with `.file.read`."
+                        ""
+                        "Also see `.file.txt.write`."]
+          :examples    [{:code (.file.write "some/file.cvx" [:a :b])}
+                        {:code (.file.write "some/file.cvx" [:a :b] {:append? true})}]
+          :signature   [{:params []}]}}
 
 
   ([path cell]
@@ -710,10 +753,10 @@
 
 (defn .fs.copy
 
-  ^{:doc {:description ["Returns a requrest for copying the file at `path-source` to `path-destination`."
+  ^{:doc {:description ["Copies the file at `path-source` to `path-destination`."
                         "If `path-destination` is a directory, `path-source` will be copied inside it."
                         "Behaves like Unix's `cp`."]
-          :examples    [{:code "($.file/!.copy \"some_dir/foo.txt\" \"another_dir\")"}]
+          :examples    [{:code (.file.copy "some_dir/foo.txt" "another_dir")}]
           :signature   [{:params [path-source path-destination]}]}}
 
   [path-source path-destination]
@@ -726,8 +769,8 @@
 
 (defn .fs.delete
 
-  ^{:doc {:description "Returns a request for deleting the file or the empty folder at the given `path`."
-          :examples    [{:code "($.file/!.delete \"some-file.cvx\")"}]
+  ^{:doc {:description "Deletes the file or the empty folder at the given `path`."
+          :examples    [{:code (.file.delete "some-file.cvx")}]
           :signature   [{:params [path]}]}}
 
   [path]
@@ -739,6 +782,10 @@
 
 (defn .fs.dir?
 
+  ^{:doc {:description ["Returns `true` if the given path refers to an existing directory."]
+          :examples    [{:code (.fs.dir? "some/path")}]
+          :signature   [{:params [path]}]}}
+
   [path]
 
   (.shell.invoke '.fs.dir?
@@ -748,9 +795,8 @@
 
 (defn .fs.exists?
 
-  ^{:doc {:description ["Returns a request for testing if a file exists."
-                        "Boolean result will be available during the next transaction under `$/*result*`."]
-          :examples    [{:code "($.file/!.exists? \"some_dir/some_file.txt\")"}]
+  ^{:doc {:description ["Returns `true` if a file or directory exists at the given path."]
+          :examples    [{:code (.file.exists? "some_dir/some_file.txt")}]
           :signatures  [{:params [path]}]}}
 
   [path]
@@ -762,6 +808,9 @@
 
 (defn .fs.file?
 
+  ^{:doc {:description ["Returns `true` if the given path refers to an existing regular file."]
+          :examples    [{:code (.fs.file? "some/path")}]
+          :signature   [{:params [path]}]}}
   [path]
 
   (.shell.invoke '.fs.file?
@@ -770,6 +819,11 @@
 
 
 (defn .fs.resolve
+
+  ^{:doc {:description ["Returns the given path fully resolved as an absolute path."
+                        "Follows symlinks."]
+          :examples    [{:code (.fs.resolve "some/../../path")}]
+          :signature   [{:params [path]}]}}
 
   [path]
 
@@ -780,6 +834,11 @@
 
 (defn .fs.size
 
+  ^{:doc {:description ["Returns the size of the file at the given path (in bytes)."
+                        "Returns `nil` if the file does not exist."]
+          :examples    [{:code (.fs.size "some/path")}]
+          :signature   [{:params [path]}]}}
+
   [path]
 
   (.shell.invoke '.fs.size
@@ -789,11 +848,11 @@
 
 (defn .fs.tmp
 
-  ^{:doc {:description ["Returns a request for creating a temporary file."
-                        "`prefix` and `suffix` are both optional."]
-          :examples    [{:code "($.file/!.tmp)"}
-                        {:code "($.file/!.tmp \".cvx\")"}
-                        {:code "($.file/!.tmp \"some-project\" \".cvx\")"}]
+  ^{:doc {:description ["Creates a temporary file."
+                        "`prefix` and `suffix` for the filename are both optional."]
+          :examples    [{:code (.file.tmp)}
+                        {:code (.file.tmp ".cvx")}
+                        {:code (.file.tmp "some-project_" ".cvx")}]
           :signature   [{:params []}
                         {:params [suffix]}
                         {:params [prefix suffix]}]}}
@@ -823,10 +882,10 @@
 
 (defn .fs.tmp.dir
 
-  ^{:doc {:description ["Returns a request for creating a temporary directory."
+  ^{:doc {:description ["Creates a temporary directory."
                         "`prefix` is optional."]
-          :examples    [{:code "($.file/!.tmp-dir)"}
-                        {:code "($.file/!.tmp-dir \"some-prefix\")"}]
+          :examples    [{:code (.file.tmp.dir)}
+                        {:code (.file.tmp-dir "some-prefix")}]
           :signature   [{:params []}
                         {:params [prefix]}]}}
 
@@ -848,7 +907,7 @@
 
 (def .*gensym*
 
-  ^{:private? true}
+  ^:private?
 
   0)
 
@@ -863,8 +922,8 @@
                               "A prefix string may be provided (default to \"G_\")."
                               ""
                               "Useful for metaprogramming."]
-                :examples    [{:code "($.gensym)"}
-                              {:code "($.gensym \"some-prefix-b\")"}]
+                :examples    [{:code (.gensym)}
+                              {:code ($.gensym "some-prefix-")}]
                 :signature   [{:params []}
                               {:params [prefix]}]}}
 
@@ -896,6 +955,11 @@
 
 (defn .juice.refill
 
+  ^{:doc {:description ["Refills `*juice*` to the maximum value."
+                        "Useful to call once in a while when running long operations."]
+          :examples    [{:code (.juice.refill)}]
+          :signature   [{:params []}]}}
+
   []
 
   (.juice.set 9223372036854775807))
@@ -903,6 +967,11 @@
 
 
 (defn .juice.set
+
+  ^{:doc {:description ["Sets `*juice*` to an exact amount."
+                        "Useful when there is a need for limiting an operation."]
+          :examples    [{:code (.juice.set 10000000)}]
+          :signature   [{:params [n-unit]}]}}
 
   [n-unit]
 
@@ -912,6 +981,19 @@
 
 
 (defn .juice.track
+
+  ^{:doc {:description ["Tracks the juice consumption of the given transaction."
+                        "Any state change is reverted."
+                        ""
+                        "Returns a vector of 4 elements:"
+                        ""
+                        "  0: Transaction result"
+                        "  1: Juice cost when running as is"
+                        "  2: Juice cost after `compile`"
+                        "  3: Juice cost after `expand`"]
+          :examples    [{:code (.juice.track '(if :a :b :c))}
+                        {:code (.juice.track (compile '(if :a :b :c)))}]
+          :signature   [{:params [trx]}]}}
 
   [trx]
 
@@ -928,7 +1010,9 @@
 
 (defn .log.clear
 
-  ^{:doc {:description "Returns a request for clearing the state of the CVM log."
+  ^{:doc {:description ["Clears the CVM log."
+                        "Also see `.log.get`."]
+          :examples    [{:code (.log.clear)}]
           :signature   [{:params []}]}}
 
   []
@@ -939,8 +1023,11 @@
 
 (defn .log.get
 
-  ^{:doc {:description ["Returns a request for retrieving the current state of the CVM log."
-                        "Result is available during next transaction under `$/*result*`."]
+  ^{:doc {:description ["Returns the current CVM log."
+                        "Values can be logged using the core `log` function."
+                        ""
+                        "Also see `.log.clear`."]
+          :examples    [{:code (.log.get)}]
           :signature   [{:params []}]}}
 
   []
@@ -953,13 +1040,19 @@
 
 (def .project.*dir*
 
+  ^{:doc {:description ["Path to the directory containing `project.cvx`."
+                        "Also see `.project.dir.set`."]}}
+
   "./")
 
 
 
 (defn .project.dir.set
 
-  ^{:callable? true}
+  ^{:callable? true
+    :doc       {:description ["Points `.project.*dir*` to another directory."]
+                :examples    [{:code (.project.dir.set "some/dir")}]
+                :signature   [{:params [dir]}]}}
 
   [dir]
 
@@ -980,6 +1073,9 @@
 
 (defn .reader.form+
 
+  ^{:doc {:description ["Returns a list of cells read from the given string."]
+          :examples    [{:code (.reader.form+ ":a :b :c")}]
+          :signature   [{:params [string]}]}}
   [string]
 
   (.shell.invoke '.reader.form+
@@ -990,6 +1086,56 @@
 
 
 (defn .repl
+
+  ^{:doc {:description ["Starts a Read-Eval-Print-Loop for working interactively."
+                        ""
+                        "By default, a prompt is printed and the user can introduce a lines of cells to evaluate."
+                        "Results and exceptions are printed."
+                        "Stops when the user enter `:q` or `:quit`."
+                        ""
+                        "A map of options may be provided to alter the behavior of the REPL."
+                        "Functions in this map takes a state map and must returns it, altered or not."
+                        "The state map starts with those options. Users may want to attach additional
+                         information."
+                        ""
+                        "Options may be:"
+                        ""
+                        "  :eval"
+                        "    Function for producing a result given cells attached under `:result`."
+                        "    Defaults to `.repl.eval`."
+                        ""
+                        "  :on.ex"
+                        "    Function for acting when `:eval` throws an exception."
+                        "    Exception is attached under `:result`."
+                        "    Defaults to `.repl.on.ex`."
+                        ""
+                        "  :on.ex.reader"
+                        "    Function for acting on reader errors, when an input line is not valid Convex data."
+                        "    Besides the state map, also takes the message of the reader exception."
+                        "    Defaults to `.repl.on.ex.reader`."
+                        ""
+                        "  :on.prompt"
+                        "    Function for acting prior to asking for input (e.g. print a prompt)."
+                        "    Defaults to `.repl.on.prompt`."
+                        ""
+                        "  :on.result"
+                        "     Function for acting when a result is produced."
+                        "     Defaults to `.repl.on.result`."
+                        ""
+                        "  :stop?"
+                        "    Function for deciding if the REPL should stop after reading a line but before evaluating it."
+                        "    Defaults to `.repl.stop?`."
+                        ""
+                        "  :stream.in"
+                        "    Input stream for reading lines of cells."
+                        "    Defaults to `.stream.*in*`."
+                        ""
+                        "  :stream.out"
+                        "    Output stream for printing results."
+                        "    Defaults to `.stream.*out*`."]
+          :examples    [{:code (.repl)}]
+          :signature   [{:params []}
+                        {:params [option+]}]}}
 
 
   ([]
@@ -1065,6 +1211,8 @@
 
 (defn .repl.eval
 
+  ^{:doc {:description "See `.repl`."}}
+
   [state]
 
   (assoc state
@@ -1076,9 +1224,7 @@
 
 (defn .repl.on.ex
 
-  ^{:doc {:description ["Turns given `exception` into a nice human-readable string." 
-                        "Used by the REPL when handling exceptions thrown during evaluation."]
-          :signature   [{:params [exception]}]}}
+  ^{:doc {:description "See `.repl`."}}
 
   [state]
 
@@ -1104,6 +1250,8 @@
 
 (defn .repl.on.ex.reader
 
+  ^{:doc {:description "See `.repl`."}}
+
   [state message]
 
   (.stream.txt.outln (:stream.out state)
@@ -1122,6 +1270,8 @@
 
 (defn .repl.on.prompt
 
+  ^{:doc {:description "See `.repl`."}}
+
   [state]
 
   (let [out (:stream.out state)]
@@ -1136,6 +1286,8 @@
 
 
 (defn .repl.on.result
+
+  ^{:doc {:description "See `.repl`."}}
 
   [state]
 
@@ -1154,6 +1306,8 @@
 
 
 (defn .repl.stop?
+
+  ^{:doc {:description "See `.repl`."}}
 
   [state]
 
@@ -1199,6 +1353,11 @@
 
 
 (def .shell.invoke
+
+  ;; Entry point to all Shell features.
+  ;; Aka the "invoker".
+
+  ^:private?
 
   nil)
 
