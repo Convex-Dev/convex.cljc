@@ -1655,6 +1655,12 @@
 
 (defn .str.stream.in
 
+  ^{:doc {:description ["Wraps the given string in an input stream."
+                        "The returned handle can be used with stream utilities such"
+                        "as `.stream.line`."]
+          :examples    [{:code (.str.stream.in ":a :b :c")}]
+          :signature   [{:params [string]}]}}
+
   [string]
 
   (.shell.invoke '.str.stream.in
@@ -1665,7 +1671,15 @@
 
 (defn .str.stream.out
 
-  ;; Closing has no effect.
+  ^{:doc {:description ["Wraps the given string in an output stream."
+                        "The returned handle can be used with stream utilities such"
+                        "as `.stream.outln`."
+                        ""
+                        "Note that `.stream.close` has no effect."
+                        ""
+                        "See `.str.stream.unwrap` for unwrapping the string inside."]
+          :examples    [{:code (.str.stream.out)}]
+          :signature   [{:params [string]}]}}
 
   []
 
@@ -1675,6 +1689,11 @@
 
 
 (defn .str.stream.unwrap
+
+  ^{:doc {:description ["Returns the string wrapped inside the given string output stream."
+                        "See `.str.stream.out`."]
+          :examples    [{:code (.str.stream.unwrap (.str.stream.out))}]
+          :signature   [{:params [handle]}]}}
 
   [handle]
 
@@ -1687,7 +1706,7 @@
 
 (def .stream.stderr
 
-  ^{:doc {:description "Stream for STDERR"}}
+  ^{:doc {:description "Stream for STDERR."}}
 
   .stream.stderr)
 
@@ -1703,7 +1722,7 @@
 
 (def .stream.stdout
 
-  ^{:doc {:description "Stream for STDOUT"}}
+  ^{:doc {:description "Stream for STDOUT."}}
 
   .stream.stdout)
 
@@ -1713,8 +1732,8 @@
 
 (def .stream.*err*
 
-  ^{:doc {:description ["Default error stream, originally set to `stderr`."
-                        "See `set.err`."]}}
+  ^{:doc {:description ["Default error stream, originally set to `.stream.stderr`."
+                        "See `.stream.set.err`."]}}
 
   .stream.stderr)
 
@@ -1722,8 +1741,8 @@
 
 (def .stream.*in*
 
-  ^{:doc {:description ["Default input stream, originally set to `stdin`."
-                        "See `set.in`."]}}
+  ^{:doc {:description ["Default input stream, originally set to `.stream.stdin`."
+                        "See `.stream.set.in`."]}}
 
   .stream.stdin)
 
@@ -1731,8 +1750,8 @@
 
 (def .stream.*out*
 
-  ^{:doc {:description ["Default output stream, originally set to `stdout`."
-                        "See `set.out`."]}}
+  ^{:doc {:description ["Default output stream, originally set to `.stream.stdout`."
+                        "See `.stream.set.out`."]}}
 
   .stream.stdout)
 
@@ -1740,9 +1759,9 @@
 
 (defn .stream.close
 
-  ^{:doc {:description ["Returns a request for closing the given `handle`."
-                        "`$.stream/stderr` cannot be closed."]
-          :examples    [{:code "($.stream/!.close $.stream/stdout)"}]
+  ^{:doc {:description ["Closes the given stream."
+                        "Returns `nil`."]
+          :examples    [{:code (.stream.close (.str.stream.in ":test"))}]
           :signature   [{:params [handle]}]}}
 
   [handle]
@@ -1754,8 +1773,8 @@
 
 (defn .stream.err
 
-  ^{:doc {:description "Uses `$.stream/!.out` ont `*err*` for printing `x` to the default error stream."
-          :examples    [{:code "($.stream/!.err {:some :error})"}]
+  ^{:doc {:description ["Like `.stream.out` but prints the given value to `.stream.*err*`."]
+          :examples    [{:code (.stream.err {:some :error})}]
           :signature   [{:params [x]}]}}
 
   [x]
@@ -1767,8 +1786,8 @@
 
 (defn .stream.errln
 
-  ^{:doc {:description "Uses `$.stream/!.outln` ont `*err*` for printing `x` to the default error stream."
-          :examples    [{:code "($.stream/!.errln {:some :error})"}]
+  ^{:doc {:description ["Like `.stream.outln` but prints the given value to `.stream.*err*`."]
+          :examples    [{:code (.stream.errln {:some :error})}]
           :signature   [{:params [x]}]}}
 
   [x]
@@ -1780,9 +1799,10 @@
 
 (defn .stream.flush
 
-  ^{:doc {:description ["Returns a request for flushing the given output `handle` and ensuring all outputs are processed."
-                        "Flushes `*out*` by default."]
-          :examples    [{:code "($.stream/!.flush)"}]
+  ^{:doc {:description ["Flushes the given output stream, ensuring all current content is printed."
+                        "Defaults to `.stream.*out*`."
+                        "Returns the stream handle."]
+          :examples    [{:code (.stream.flush)}]
           :signature   [{:params []}
                         {:params [handle]}]}}
 
@@ -1801,11 +1821,12 @@
 
 (defn .stream.in+
 
-  ^{:doc {:description ["Returns a request for reading the given input `handle`."
-                        "Reads from `*in*` by default."
-                        "Whole input is read and `handle` is automatically closed."
-                        "List of read cells becomes available during next transaction under `$/*result*`."]
-          :examples    [{:code "($.stream/!.in+ $.stream/stdin)"}]
+  ^{:doc {:description ["Reads as cells all content available from the given stream."
+                        "Returns a list."
+                        "Closes the stream automatically."
+                        ""
+                        "Reads from `.stream.*in*` by default."]
+          :examples    [{:code (.stream.in+ (.str.stream.in ":a :b :c"))}]
           :signature   [{:params []}
                         {:params [handle]}]}}
 
@@ -1824,13 +1845,13 @@
 
 (defn .stream.line
 
-  ^{:doc {:description ["Returns a request for reading a line from the given input `handle`."
-                        "Reads from `*in*` by default."
-                        "Stops when a new line is encountered."
-                        "List of read cells becomes available during next the transaction under `$/*result*`."
-                        "Result is `nil` when the end of the stream is reached. The stream is then closed"
-                        "automatically."]
-          :examples    [{:code "($.stream/!.line)"}]
+  ^{:doc {:description ["Reads a single lines of cells from the given stream."
+                        "Returns a list or `nil` if the stream is empty."
+                        ""
+                        "Once empty, the next read will throw an exception."
+                        ""
+                        "Reads from `.stream.*in*` by default."]
+          :examples    [{:code (.stream.line (.str.stream.in ":a :b \n :c"))}]
           :signature   [{:params []}
                         {:params [handle]}]}}
 
@@ -1849,9 +1870,11 @@
 
 (defn .stream.out
 
-  ^{:doc {:description ["Returns a request for writing `x` to the given output `handle`."
-                        "Writes to `*out*` by default."]
-          :examples    [{:code "($.stream/!.out :foo)"}]
+  ^{:doc {:description ["Writes the value as a cell to the given output stream."
+                        "Prints in such a way that those cells can be read back."
+                        ""
+                        "Defaults to `.stream.*out*`."]
+          :examples    [{:code (.stream.out :test)}]
           :signature   [{:params [x]}
                         {:params [handle x]}]}}
 
@@ -1872,8 +1895,8 @@
 
 (defn .stream.outln
 
-  ^{:doc {:description "Likes `$.stream/!.out` but also outputs a new line and flushes the `handle`."
-          :examples    [{:code "($.stream/!.outln :foo)"}]
+  ^{:doc {:description "Exactly like `.stream.out` but also prints a new line and flushes the stream."
+          :examples    [{:code (.stream.outln :test)}]
           :signature   [{:params [x]}
                         {:params [handle x]}]}}
 
@@ -1895,7 +1918,8 @@
 (defn .stream.set.err
 
   ^{:callable? true
-    :doc       {:description "Sets `*err*` to the given `handle`."
+    :doc       {:description "Sets `.stream.*err*` to the given stream."
+                :examples    [{:code (.stream.set.err (.str.stream.out))}]
                 :signature   [{:params [handle]}]}}
 
   [handle]
@@ -1912,7 +1936,8 @@
 (defn .stream.set.in
 
   ^{:callable? true
-    :doc       {:description "Sets `*in*` to the given `handle`."
+    :doc       {:description "Sets `.stream.*in*` to the given stream."
+                :examples    [{:code (.stream.set.in (.str.stream.in ":a :b :c"))}]
                 :signature   [{:params [handle]}]}}
 
   [handle]
@@ -1929,7 +1954,8 @@
 (defn .stream.set.out
 
   ^{:callable? true
-    :doc       {:description "Sets `*out* to the given `handle`."
+    :doc       {:description "Sets `.stream.*out* to the given stream."
+                :examples    [{:code (.stream.set.out (.str.stream.out))}]
                 :signature   [{:params [handle]}]}}
 
   [handle]
@@ -1945,8 +1971,8 @@
 
 (defn .stream.txt.err
 
-  ^{:doc {:description "Uses `$.stream/!.out` ont `*err*` for printing `x` to the default error stream."
-          :examples    [{:code "($.stream/!.err {:some :error})"}]
+  ^{:doc {:description ["Like `.stream.txt.out` but prints to `.stream.*err*`."]
+          :examples    [{:code (.stream.err {:some :error})}]
           :signature   [{:params [x]}]}}
 
   [x]
@@ -1958,8 +1984,8 @@
 
 (defn .stream.txt.errln
 
-  ^{:doc {:description "Uses `$.stream/!.outln` ont `*err*` for printing `x` to the default error stream."
-          :examples    [{:code "($.stream/!.errln {:some :error})"}]
+  ^{:doc {:description ["Like `.stream.txt.outln but prints to `.stream.*err*`."]
+          :examples    [{:code (.stream.errln {:some :error})}]
           :signature   [{:params [x]}]}}
 
   [x]
@@ -1971,11 +1997,10 @@
 
 (defn .stream.txt.in
 
-  ^{:doc {:description ["Returns a request for reading the rest of the given input `handle` as text."
-                        "Reads from `*in*` by default."
-                        "String will be available during the next transaction under `$/*result*`."
+  ^{:doc {:description ["Reads the full content of the given input stream as a string."
+                        "Defaults to `.stream.*in*`."
                         "Stream is closed automatically."]
-          :examples    [{:code "($.stream/!.txt.in 42)"}]
+          :examples    [{:code (.stream.txt.in (.str.stream.in "test"))}]
           :signature   [{:params []}
                         {:params [handle]}]}}
 
@@ -1994,12 +2019,12 @@
 
 (defn .stream.txt.line
 
-  ^{:doc {:description ["Returns a request for reading a line from the given input `handle` as text."
-                        "Reads from `*in*` by default."
-                        "String will be available during the next transaction under `$/*result*`."
-                        "Result is `nil` when the end of the stream is reached. The stream is then closed"
-                        "automatically."]
-          :examples    [{:code "($.stream/!.txt.line)"}]
+  ^{:doc {:description ["Reads a single line from the given input stream as a string."
+                        "Defaults to `.stream.*in*`."
+                        ""
+                        "Like `.stream.in`, returns `nil` when the end of the stream is reached."
+                        "Any subsequent read will then throw an exception."]
+          :examples    [{:code (.stream.txt.line (.str.stream.in "foo\nbar"))}]
           :signature   [{:params []}
                         {:params [handle]}]}}
 
@@ -2018,9 +2043,9 @@
 
 (defn .stream.txt.out
 
-  ^{:doc {:description ["Like `$.stream/!.out` but if `cell` is a string, it will not be double-quoted."
-                        "Hence, the output might not be readable as Convex Lisp."]
-          :examples    [{:code "($.stream/!.txt.out \"This is some text\")"}]
+  ^{:doc {:description ["Like `.stream.out` but strings are not double-quoted."
+                        "Hence, the output might not be readable as Convex data."]
+          :examples    [{:code (.stream.txt.out "Some text")}]
           :signature   [{:params [x]}
                         {:params [handle x]}]}}
 
@@ -2041,9 +2066,9 @@
 
 (defn .stream.txt.outln
 
-  ^{:doc {:description ["Like `$.stream/!.outln` but if `cell` is a string, it will not be double-quoted."
-                        "Hence, the output might not be readable as Convex Lisp."]
-          :examples    [{:code "($.stream/!.txt.outln \"This is some text\")"}]
+  ^{:doc {:description ["Like `.stream.outln` but strings are not double-quoted."
+                        "Hence, the output might not be readable as Convex data."]
+          :examples    [{:code (.stream.txt.outln "Some text")}]
           :signature   [{:params [x]}
                         {:params [handle x]}]}}
 
@@ -2066,6 +2091,10 @@
 
 (defn .sys.arch
 
+  ^{:doc {:description ["Returns the machine architecture as a string."]
+          :examples    [{:code (.sys.arch)}]
+          :signature   [{:params []}]}}
+
   []
 
   (.shell.invoke '.sys.arch))
@@ -2074,6 +2103,11 @@
 
 (defn .sys.cwd
 
+  ^{:doc {:description ["Returns the current working directory."
+                        "In other words, the directory the Shall was started in."
+                        "Will not change throught the course of a process."]
+          :examples    [{:code (.sys.cwd)}]
+          :signature   [{:params []}]}}
   []
 
   (.shell.invoke '.sys.cwd))
@@ -2081,6 +2115,11 @@
 
 
 (defn .sys.env
+
+  ^{:doc {:description ["Returns a map of process environment variables."
+                        "Also see `.sys.env.var`."]
+          :examples    [{:code (.sys.env)}]
+          :signature   [{:params []}]}}
 
   []
 
@@ -2090,6 +2129,10 @@
 
 (defn .sys.env.var
 
+  ^{:doc {:description ["Returns the value for a single process environment variable."
+                        "Also see `.sys.env.var."]
+          :examples    [{:code (.sys.env.var "SOME_VAR")}]
+          :signature   [{:params [var]}]}}
   [var]
 
   (.shell.invoke '.sys.env.var
@@ -2099,13 +2142,19 @@
 
 (def .sys.eol
 
-  ;; Set from Clojure.
+  ^{:doc {:description "Platform-dependend new line."}}
 
   .sys.eol)
 
 
 
 (defn .sys.exit
+
+  ^{:doc {:description ["Exists the Shell with the given exit code."
+                        "Exit code must be 0 or >= 128 and <= 255."
+                        "Values below 128 are reserved for the Shell."]
+          :examples    [{:code (.sys.exit 128)}]
+          :signature   [{:params [code]}]}}
 
   [code]
 
@@ -2116,6 +2165,10 @@
 
 (defn .sys.home
 
+  ^{:doc {:description ["Returns the user's home directory."]
+          :examples    [{:code (.sys.home)}]
+          :signature   [{:params []}]}}
+
   []
 
   (.shell.invoke '.sys.home))
@@ -2123,6 +2176,11 @@
 
 
 (defn .sys.os
+
+  ^{:doc {:description ["Returns a vector where the first element is the operating"
+                        "system and the second is the version."]
+          :examples    [{:code (.sys.os)}]
+          :signature   [{:params []}]}}
 
   []
 
@@ -2133,6 +2191,8 @@
 
 
 (def .t.*assert+*
+
+  ^:private?
 
   [])
 
@@ -2190,6 +2250,16 @@
 
 (defmacro .t.ex
 
+  ^{:doc {:description ["Used as a form for `.t.is` for testing if an exception was thrown."
+                        "Exception code is optional. Without it, the assertion will pass for"
+                        "any exception."
+                        ""
+                        "A good test suite not only proves that things succeed but also that they"
+                        "fail when they should."]
+          :examples    [{:code (.t.is (.t.ex (assert false)))}
+                        {:code (.t.is (.t.ex :ASSERT (assert false)))}]
+          :signature   [{:params [form]}
+                        {:params [ex-code form]}]}}
 
   ([form]
 
@@ -2215,6 +2285,10 @@
 
 
 (defmacro .t.def
+
+  ^{:doc {:description ["Defines a function that can run as a test."]
+          :examples    [{:code (.t.def some-test (.t.is (< 1 2)))}]
+          :signature   [{:params [name & assertion+]}]}}
 
   [name & assertion+]
 
@@ -2315,6 +2389,16 @@
 
 (defmacro .t.is
 
+  ^{:doc {:description ["Creates a test assertion."
+                        "Meant to be used in tests defined with `.t.def`."
+                        ""
+                        "In order for a test assertion to pass, `form` must return `true`."
+                        "An optional message can be provided, making it easier to locate the"
+                        "assertion in the test report in case of failure."]
+          :examples    [{:code (.t.is (= a b) "A and B must be equal")}]
+          :signature   [{:params [form]}
+                        {:params [form message]}]}}
+
 
   ([form]
 
@@ -2352,6 +2436,10 @@
 
 (defn .t.on.run.begin
 
+  ;; Ultimately meant to be public for custom test reporting.
+
+  ^:private?
+
   [state]
 
   (let [s (:stream.out state)]
@@ -2369,6 +2457,10 @@
 
 
 (defn .t.on.run.end
+
+  ;; Ultimately meant to be public for custom test reporting.
+
+  ^:private?
 
   [state]
 
@@ -2536,6 +2628,10 @@
 
 
 (defn .t.on.test.result
+
+  ;; Ultimately meant to be public for custom test reporting.
+
+  ^:private?
 
   [state result]
 
