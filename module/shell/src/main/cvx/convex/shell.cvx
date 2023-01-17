@@ -350,7 +350,7 @@
                         "File is created if it does not exist."
                         ""
                         "Attention, only one instance can be open per Shell."]
-          :examples    [{:code (.db.open \"path/to/file.etch\")}]
+          :examples    [{:code (.db.open "path/to/file.etch")}]
           :signature   [{:params [path]}]}}
 
 
@@ -1514,7 +1514,7 @@
 
 (defn .state.genesis
 
-  ^{:doc {:description ["Generates and return a genesis state."
+  ^{:doc {:description ["Generates and returns a genesis state."
                         ""
                         "The genesis state is the original state used by the Convex network"
                         "to bootstrap. Such a state does not have any of the features offered"
@@ -2834,7 +2834,7 @@
 
 (defn .t.run.test.finalize
 
-  ^:private
+  ^:private?
 
   [assertion+]
 
@@ -3668,6 +3668,8 @@
    (?.title "Information about a symbol")
    (?.txt "(? symbol)          ->  (? 'inc)")
    (?.txt "(? address symbol)  ->  (? #8 'inc)")
+   (?.title "Information about the Convex Shell")
+   (?.txt "(?.shell)")
    (.stream.txt.outln "")
    nil)
 
@@ -3737,6 +3739,46 @@
 
 
 
+(defn ?.print.env
+
+  ^:private?
+
+  [env metadata filt]
+
+  (reduce (fn [n sym-str]
+            (let [sym      (symbol sym-str)
+                  meta-sym (get metadata
+                                sym)]
+              (if (and (not (get meta-sym
+                                   :private?))
+                         (filt sym
+                               meta-sym))
+                (do
+                  (?.txt (?.color-2 sym))
+                  (?.txt-2 (when-let [desc (:description (:doc meta-sym))]
+                             (let [desc-2 (if (str? desc)
+                                            desc
+                                            (let [first-line (first desc)]
+                                              (if (> (count desc)
+                                                     1)
+                                                (str first-line
+                                                     "..")
+                                                first-line)))]
+                               (if (> (count desc-2)
+                                      80)
+                                 (str (slice desc-2
+                                             0
+                                             77)
+                                      "...")
+                               desc-2))))
+                  (inc n))
+                n)))
+
+           0
+           (.str.sort (keys env))))
+
+
+
 (defn ?.print.account
 
   ^:private?
@@ -3761,35 +3803,18 @@
                                     key))]])
   
     (?.title "Overview")
-    (let [env   (:environment -account)
-          meta- (:metadata -account)]
+    (let [env      (:environment -account)
+          metadata (:metadata -account)]
       (if (empty? env)
         (?.txt "Empty environment.")
-        (.docoll (fn [sym-str]
-                   (let [sym      (symbol sym-str)
-                         meta-sym (get meta-
-                                       sym)]
-                     (when (and (not (get-in meta-
-                                             [sym
-                                              :private?]))
-                                (let [first-char (first (str sym))]
-                                  (and (not (= first-char
-                                               \.))
-                                       (not (= first-char
-                                               \?)))))
-                       (?.txt (?.color-2 sym))
-                       (?.txt-2 (when-let [desc (:description (:doc meta-sym))]
-                                  (let [desc-2 (if (str? desc)
-                                                 desc
-                                                 (first desc))]
-                                    (if (> (count desc-2)
-                                           80)
-                                      (str (slice desc-2
-                                                  0
-                                                  77)
-                                           "...")
-                                    desc-2)))))))
-                 (.str.sort (keys env)))))))
+        (?.print.env env
+                     metadata
+                     (fn [sym _sym-meta]
+                       (let [first-char (first (str sym))]
+                         (and (not (= first-char
+                                      \.))
+                              (not (= first-char
+                                      \?))))))))))
 
 
 
@@ -3827,6 +3852,132 @@
       (.docoll (fn [example]
                  (?.txt (:code example)))
                example+)))
+
+
+
+(defn ?.shell
+
+
+  ([]
+ 
+   (let [feature (fn [feature description]
+                   (str "  "
+                        (.term.bold)
+                        feature
+                        (.term.reset)
+                        "  "
+                        description))]
+     (.docoll .stream.txt.outln
+              [""
+               "Convex Shell augments the Convex Virtual Machine with additional features"
+               "useful for developing smart contracts in Convex Lisp."
+               ""
+               "These functions and values are prefixed with `.` to be easily recognizable."
+               "None of this is available on-chain with the regular Convex Virtual Machine."
+               ""
+               "Key sets of features are:"
+               ""
+               (feature ".account"
+                        "Account management")
+               (feature ".bench"
+                        "Benchmarking")
+               (feature ".db     "
+                        "Using Etch, the fast immutable database for cells")
+               (feature ".dep    "
+                        "Dependency management and file reloading")
+               (feature ".file   "
+                        "Reading and writing files")
+               (feature ".fs     "
+                        "Filesystem utilities")
+               (feature ".juice  "
+                        "Juice operations")
+               (feature ".log    "
+                        "CVM log management")
+               (feature ".repl   "
+                        "Read-Eval-Print-Loop for interactive work")
+               (feature ".shell  "
+                        "Shell configuration")
+               (feature ".state  "
+                        "Convex state management, such as time travel")
+               (feature ".str    "
+                        "String utilities")
+               (feature ".stream "
+                        "Generic utilities for reading and writing streams (files and beyond)")
+               (feature ".sys    "
+                        "System utilities")
+               (feature ".t      "
+                        "Unit testing library")
+               (feature ".term   "
+                        "Terminal ANSI escape codes (e.g. colored output)")
+               (feature ".time   "
+                        "Time utilities")
+               (feature ".version"
+                        "CVM and Shell versions")
+               ""]))
+   (?.title "List everything available in a feature set")
+   (?.txt "(?.shell feature-set)  ->  (?.shell '.account)")
+   (?.title "List all Shell features")
+   (?.txt "(?.shell.list)")
+   (?.title "Help about a function or a value")
+   (?.txt "(? symbol)             ->  (? '.time.unix)")
+   nil)
+
+
+ ([sym]
+
+   (.stream.txt.outln "")
+   (?.title (str "Shell features matching `" sym "`"))
+   (let [;; `.t` is a special case, we don't want to print everything that starts with `.t`
+         sym-2     (if (= sym
+                          '.t)
+                     '.t.
+                     sym)
+         core      (account .account.core)
+         prefix    (str sym-2)
+         n-slice   (count prefix)
+         n-printed (?.print.env (:environment core)
+                                (:metadata core)
+                                (fn [sym sym-meta]
+                                  (and (?.shell.list.filter sym
+                                                            sym-meta)
+                                       (let [target (str sym)]
+                                         (and (>= (count target)
+                                                  n-slice)
+                                              (= (slice (str sym)
+                                                        0
+                                                        n-slice)
+                                                 prefix))))))]
+     (when (zero? n-printed)
+       (?.txt "No matching symbols found.")))
+   nil))
+
+
+
+(defn ?.shell.list
+
+  []
+
+  (.stream.txt.outln "")
+  (?.title "All Shell functions and values")
+  (let [core (account .account.core)]
+    (?.print.env (:environment core)
+                 (:metadata core)
+                 ?.shell.list.filter))
+  nil)
+
+
+
+(defn ?.shell.list.filter
+
+  ^:private?
+
+  [sym _sym-meta]
+
+  (let [first-char (first (str sym))]
+    (or (= first-char
+           \.)
+        (= first-char
+           \?))))
 
 
 
