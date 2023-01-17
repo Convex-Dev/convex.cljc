@@ -1211,7 +1211,10 @@
 
 (defn .repl.eval
 
-  ^{:doc {:description "See `.repl`."}}
+  ^{:doc {:description ["See `.repl`."
+                        "Relative to the REPL state, applies `:form+` to `eval` and attaches the result"
+                        "under `:result`."]
+          :signature   [{:params [repl-state]}]}}
 
   [state]
 
@@ -1224,7 +1227,9 @@
 
 (defn .repl.on.ex
 
-  ^{:doc {:description "See `.repl`."}}
+  ^{:doc {:description ["See `.repl`."
+                        "Pretty-prints the exception found under `:result` in the REPL state."]
+          :signature   [{:params [repl-state]}]}}
 
   [state]
 
@@ -1250,7 +1255,9 @@
 
 (defn .repl.on.ex.reader
 
-  ^{:doc {:description "See `.repl`."}}
+  ^{:doc {:description ["See `.repl`."
+                        "Prints the reader error that occured when the REPL was parsing input."]
+          :signature   [{:params [repl-state error-message]}]}}
 
   [state message]
 
@@ -1270,7 +1277,9 @@
 
 (defn .repl.on.prompt
 
-  ^{:doc {:description "See `.repl`."}}
+  ^{:doc {:description ["See `.repl`."
+                        "Prints a simple prompt."]
+          :signature   [{:params [repl-state]}]}}
 
   [state]
 
@@ -1287,7 +1296,9 @@
 
 (defn .repl.on.result
 
-  ^{:doc {:description "See `.repl`."}}
+  ^{:doc {:description ["See `.repl`."
+                        "Relative to the REPL state, prints `:result` to `:stream.out`."]
+          :signature   [{:params [repl-state]}]}}
 
   [state]
 
@@ -1307,14 +1318,15 @@
 
 (defn .repl.stop?
 
-  ^{:doc {:description "See `.repl`."}}
+  ^{:doc {:description ["See `.repl`."
+                        "Relative to the REPL state, returns `true` if the first cell in"
+                        "`:form+` is `:q` or `:quit`."]
+          :signature   [{:params [repl-state]}]}}
 
   [state]
 
-  (contains-key? #{:exit
-                   :q
-                   :quit
-                   :stop}
+  (contains-key? #{:q
+                   :quit}
                  (first (:form+ state))))
 
 
@@ -2845,8 +2857,9 @@
 
 (def .term.*style?*
 
-  ^{:doc {:description ["True if text styling with functions from this account is enabled."
-                        "False means that functions returning a color will instead return an empty string."]}}
+  ^{:doc {:description ["Boolean indicating if text styling functions like `.term.fg.red` can use ANSI escape codes."
+                        "If set to `false`, those functions will return empty strings."
+                        "See `.term.style.enable?`."]}}
 
   true)
 
@@ -2854,19 +2867,25 @@
 
 (defn .term.style
 
- ^{:private? true}
+  ^:private?
 
- [x]
+  [x]
 
- (if .term.*style?*
-   x
-   ""))
+  (if .term.*style?*
+    x
+    ""))
 
 
 
 (defn .term.style.enable?
 
-  ^{:callable? true}
+  ^{:callable? true
+    :doc       {:description ["Sets the value of `.term.*style?*`."
+                              "Disabling colors is useful when working in a terminal that does not support ANSI"
+                              "escape codes or when printing to files."
+                              "See `.term.style.enable?`."]
+                :examples    [{:code (.term.style.enable? false)}]
+                :signature   [{:params [enable?]}]}}
 
   [enable?]
 
@@ -2883,7 +2902,9 @@
 
 (defn .term.bg.black
 
-  ^{:doc {:description "Background color black."}}
+  ^{:doc {:description ["Returns the ANSI escape code for coloring text in black (background)."]
+          :examples    [{:code (.term.bg.black)}]
+          :signature   [{:params []}]}}
 
   []
 
@@ -2893,7 +2914,9 @@
 
 (defn .term.bg.blue
 
-  ^{:doc {:description "Background color blue."}}
+  ^{:doc {:description ["Returns the ANSI escape code for coloring text in blue (background)."]
+          :examples    [{:code (.term.bg.blue)}]
+          :signature   [{:params []}]}}
 
   []
 
@@ -2903,7 +2926,9 @@
 
 (defn .term.bg.cyan
 
-  ^{:doc {:description "Background color cyan."}}
+  ^{:doc {:description ["Returns the ANSI escape code for coloring text in cyan (background)."]
+          :examples    [{:code (.term.bg.cyan)}]
+          :signature   [{:params []}]}}
 
   []
 
@@ -2913,7 +2938,9 @@
 
 (defn .term.bg.green
 
-  ^{:doc {:description "Background color green."}}
+  ^{:doc {:description ["Returns the ANSI escape code for coloring text in green (background)."]
+          :examples    [{:code (.term.bg.green)}]
+          :signature   [{:params []}]}}
 
   []
 
@@ -2923,7 +2950,9 @@
 
 (defn .term.bg.magenta
 
-  ^{:doc {:description "Background color magenta."}}
+  ^{:doc {:description ["Returns the ANSI escape code for coloring text in magenta (background)."]
+          :examples    [{:code (.term.bg.magenta)}]
+          :signature   [{:params []}]}}
 
   []
 
@@ -2932,7 +2961,9 @@
 
 (defn .term.bg.red
 
-  ^{:doc {:description "Background color red."}}
+  ^{:doc {:description ["Returns the ANSI escape code for coloring text in red (background)."]
+          :examples    [{:code (.term.bg.red)}]
+          :signature   [{:params []}]}}
 
   []
 
@@ -2942,7 +2973,9 @@
 
 (defn .term.bg.white
 
-  ^{:doc {:description "Background color white."}}
+  ^{:doc {:description ["Returns the ANSI escape code for coloring text in white (background)."]
+          :examples    [{:code (.term.bg.white)}]
+          :signature   [{:params []}]}}
 
   []
 
@@ -2952,7 +2985,9 @@
 
 (defn .term.bg.yellow
 
-  ^{:doc {:description "Background color yellow."}}
+  ^{:doc {:description ["Returns the ANSI escape code for coloring text in (background)."]
+          :examples    [{:code (.term.bg.)}]
+          :signature   [{:params []}]}}
 
   []
 
@@ -2964,8 +2999,8 @@
 
 (defn .term.bg.rgb
 
-  ^{:doc {:description "Computes RGB color escape code for background color."
-          :examples    [{:code "($.term/bg.rgb 156 120 201)"}]
+  ^{:doc {:description ["Returns the ANSI escape code for coloring text in RGB (background)."]
+          :examples    [{:code (.term.bg.rgb 156 120 201)}]
           :signature   [{:params [r g b]}]}}
 
   [r g b]
@@ -2980,7 +3015,9 @@
 
 (defn .term.fg.black
 
-  ^{:doc {:description "Foreground color black."}}
+  ^{:doc {:description ["Returns the ANSI escape code for coloring text in black (foreground)."]
+          :examples    [{:code (.term.fg.black)}]
+          :signature   [{:params []}]}}
 
   []
 
@@ -2990,7 +3027,9 @@
 
 (defn .term.fg.blue
 
-  ^{:doc {:description "Foreground color blue."}}
+  ^{:doc {:description ["Returns the ANSI escape code for coloring text in blue (foreground)."]
+          :examples    [{:code (.term.fg.blue)}]
+          :signature   [{:params []}]}}
 
   []
 
@@ -3000,7 +3039,9 @@
 
 (defn .term.fg.cyan
 
-  ^{:doc {:description "Foreground color cyan."}}
+  ^{:doc {:description ["Returns the ANSI escape code for coloring text in cyan (foreground)."]
+          :examples    [{:code (.term.cyan)}]
+          :signature   [{:params []}]}}
 
   []
 
@@ -3010,7 +3051,9 @@
 
 (defn .term.fg.green
 
-  ^{:doc {:description "Foreground color green."}}
+  ^{:doc {:description ["Returns the ANSI escape code for coloring text in green (foreground)."]
+          :examples    [{:code (.term.fg.green)}]
+          :signature   [{:params []}]}}
 
   []
 
@@ -3020,7 +3063,9 @@
 
 (defn .term.fg.magenta
 
-  ^{:doc {:description "Foreground color magenta."}}
+  ^{:doc {:description ["Returns the ANSI escape code for coloring text in magenta (foreground)."]
+          :examples    [{:code (.term.fg.magenta)}]
+          :signature   [{:params []}]}}
 
   []
 
@@ -3030,7 +3075,9 @@
 
 (defn .term.fg.white
 
-  ^{:doc {:description "Foreground color white."}}
+  ^{:doc {:description ["Returns the ANSI escape code for coloring text in white (foreground)."]
+          :examples    [{:code (.term.fg.white)}]
+          :signature   [{:params []}]}}
 
   []
 
@@ -3040,7 +3087,9 @@
 
 (defn .term.fg.red
 
-  ^{:doc {:description "Foreground color red."}}
+  ^{:doc {:description ["Returns the ANSI escape code for coloring text in red (foreground)."]
+          :examples    [{:code (.term.fg.red)}]
+          :signature   [{:params []}]}}
 
   []
 
@@ -3050,7 +3099,9 @@
 
 (defn .term.fg.yellow
 
-  ^{:doc {:description "Foreground color yellow."}}
+  ^{:doc {:description ["Returns the ANSI escape code for coloring text in yellow (foreground)."]
+          :examples    [{:code (.term.fg.yellow)}]
+          :signature   [{:params []}]}}
 
   []
 
@@ -3062,8 +3113,8 @@
 
 (defn .term.fg.rgb
 
-  ^{:doc {:description "Computes RGB color escape code for foreground color."
-          :examples    [{:code "($.term/fg.rgb 156 120 201)"}]
+  ^{:doc {:description ["Returns the ANSI escape code for coloring text in RGB (foreground)."]
+          :examples    [{:code (.term.fg.rgb 156 120 201)}]
           :signature   [{:params [r g b]}]}}
 
 
@@ -3079,7 +3130,9 @@
 
 (defn .term.bold
 
-  ^{:doc {:description "Bold effect."}}
+  ^{:doc {:description ["Returns the ANSI escape code for bold text."]
+          :examples    [{:code (.term.bold)}]
+          :signature   [{:params []}]}}
 
   []
 
@@ -3089,7 +3142,9 @@
 
 (defn .term.reset
 
-  ^{:doc {:description "Resets all colors and effects."}}
+  ^{:doc {:description ["Returns the ANSI escape code for resetting all colors and effects."]
+          :examples    [{:code (.term.reset)}]
+          :signature   [{:params []}]}}
 
   []
 
@@ -3099,7 +3154,10 @@
 
 (defn .term.reversed
 
-  ^{:doc {:description "Reverses background and foreground colors."}}
+  ^{:doc {:description ["Returns the ANSI escape code for reversing background and"
+                        "foreground colors."]
+          :examples    [{:code (.term.reversed)}]
+          :signature   [{:params []}]}}
 
   []
 
@@ -3109,7 +3167,9 @@
 
 (defn .term.underline
 
-  ^{:doc {:description "Underlines text."}}
+  ^{:doc {:description ["Returns the ANSI escape code for underlining text."]
+          :examples    [{:code (.term.underline)}]
+          :signature   [{:params []}]}}
 
   []
 
@@ -3121,8 +3181,8 @@
 
 (defn .term.col
 
-  ^{:doc {:description "Moves to column `n`."
-          :examples    [{:code "($.term/col 42)"}]
+  ^{:doc {:description ["Returns the ANSI escape code for moving the cursor to column `n`."]
+          :examples    [{:code (.term.col 42)}]
           :signature   [{:params [n]}]}}
 
   [n]
@@ -3133,7 +3193,7 @@
 
 (def .term.cursor.save
 
-  ^{:doc {:description ["Escape code for saving current cursor position."
+  ^{:doc {:description ["ANSI code for saving current cursor position."
                         "See `cursor.restore`."]}}
 
   "\033[s")
@@ -3142,7 +3202,7 @@
 
 (def .term.cursor.restore
 
-  ^{:doc {:description ["Escape code for restoring last saved cursor position."
+  ^{:doc {:description ["ANSI escape code for restoring last saved cursor position."
                         "See `cursor.save`."]}}
 
   "\033[u")
@@ -3151,9 +3211,9 @@
 
 (defn .term.down
 
-  ^{:doc {:description ["Comptes escape code for moving the cursor `n` lines down."
+  ^{:doc {:description ["Returns the ANSI escape code for moving the cursor `n` lines down."
                         "Defaults to one line."]
-          :examples    [{:code "($.term/down 4)"}]
+          :examples    [{:code (.term.down 4)}]
           :signature   [{:params []}
                         {:params [n]}]}}
 
@@ -3171,9 +3231,10 @@
 
 (defn .term.down.begin
 
-  ^{:doc {:description ["Comptes escape code for moving the cursor to the beginning of the line and then `n` lines down."
+  ^{:doc {:description ["Returns the ANSI escape code for moving the cursor to the beginning"
+                        "of the line and then `n` lines down."
                         "Defaults to one line."]
-          :examples    [{:code "($.term/down-begin 4)"}]
+          :examples    [{:code ($.term.down.begin 4)}]
           :signature   [{:params []}
                         {:params [n]}]}}
 
@@ -3191,9 +3252,9 @@
 
 (defn .term.left
 
-  ^{:doc {:description ["Comptes escape code for moving the cursor `n` columns left."
+  ^{:doc {:description ["Returns the ANSI escape code for moving the cursor `n` columns left."
                         "Defaults to one column."]
-          :examples    [{:code "($.term/left 4)"}]
+          :examples    [{:code (.term.left 4)}]
           :signature   [{:params []}
                         {:params [n]}]}}
 
@@ -3211,9 +3272,9 @@
 
 (defn .term.right
 
-  ^{:doc {:description ["Comptes escape code for moving the cursor `n` columns right."
+  ^{:doc {:description ["Returns the ANSI escape code for moving the cursor `n` columns right."
                         "Defaults to one column."]
-          :examples    [{:code "($.term/right 4)"}]
+          :examples    [{:code (.term.right 4)}]
           :signature   [{:params []}
                         {:params [n]}]}}
 
@@ -3231,9 +3292,9 @@
 
 (defn .term.up
 
-  ^{:doc {:description ["Comptes escape code for moving the cursor `n` lines up."
+  ^{:doc {:description ["Returns the ANSI escape code for moving the cursor `n` lines up."
                         "Defaults to one line."]
-          :examples    [{:code "($.term/up 4)"}]
+          :examples    [{:code (.term.up 4)}]
           :signature   [{:params []}
                         {:params [n]}]}}
 
@@ -3251,9 +3312,10 @@
 
 (defn .term.up.begin
 
-  ^{:doc {:description ["Comptes escape code for moving the cursor to the beginning of the line and then `n` lines up."
+  ^{:doc {:description ["Returns the ANSI escapecode for moving the cursor to the beginning of the line"
+                        "and then `n` lines up."
                         "Defaults to one line."]
-          :examples    [{:code "($.term/up-begin 4)"}]
+          :examples    [{:code (.term.up.begin 4)}]
           :signature   [{:params []}
                         {:params [n]}]}}
 
@@ -3273,7 +3335,9 @@
 
 (defn .term.clear
 
-  ^{:doc {:description "Escape code for clearing the whole screen."}}
+  ^{:doc {:description "Returns the ANSI code for clearing the whole screen."
+          :examples    [{:code (.term.clear)}]
+          :signature   [{:params []}]}}
 
   []
 
@@ -3285,8 +3349,9 @@
 
 (defn .term.demo
 
-  ^{:doc {:description "Prints a string to `$.stream/*out*` producing colored output as demo."
-          :examples    [{:code "($.stream/!.outln ($.term/demo))"}]
+  ^{:doc {:description ["Prints a string to `.stream.*out*` producing colored output as demo"
+                        "of the different `.term...` functions."]
+          :examples    [{:code ($.term/demo)}]
           :signature   [{:params []}]}}
   []
 
@@ -3380,10 +3445,13 @@
 
 (defn .time.advance
 
-  ^{:doc {:description ["Returns a request for advancing `*timestamp*` (state timestamp) by `millis` milliseconds."
-                        "Argument must be > 0."
-                        "Great match for the standard `schedule` macro."]
-          :examples    [{:code "($.time/!.advance (* 60 60 1000))"}]
+  ^{:doc {:description ["Advances `*timestamp*`, the timestamp of the Convex Virtual Machine."
+                        "Unless calling this function, this timestamp never changes."
+                        "Canot go back in time."
+                        ""
+                        "Useful for triggering transactions that have been scheduled at a"
+                        "future time with `schedule`."]
+          :examples    [{:code (.time.advance 1000)}]
           :signature   [{:params [millis]}]}}
 
   [millis]
@@ -3395,6 +3463,11 @@
 
 (defn .time.iso
 
+  ^{:doc {:description ["Returns the current time as an ISO 8601 UTC string."
+                        "This refers to clock time, the actual time of the machine the Shell"
+                        "is running on, not `*timestamp*`."]
+          :examples    [{:code (.time.iso)}]
+          :signature   [{:params []}]}}
   []
 
   (.time.unix->iso (.time.unix)))
@@ -3403,10 +3476,9 @@
 
 (defn .time.iso->unix
 
-  ^{:doc {:description ["Returns a request for converting an ISO 8601 UTC date-time string into a Unix timestamp."
-                        ""
-                        "Result will be available under `$/*result*` during the next transaction."]
-          :examples    [{:code "($.time/!.iso->unix \"2022-09-14T11:43:34.633\")"}]
+  ^{:doc {:description ["Converts time as an ISO 8601 UTC string into a Unix timestamp."
+                        "Also see `.time.iso`, `.time.unix`."]
+          :examples    [{:code (.time.iso->unix "2022-09-14T11:43:34.633")}]
           :signature   [{:params [iso-string]}]}}
 
   [iso-string]
@@ -3418,19 +3490,19 @@
 
 (defn .time.nano
 
-  ^{:doc {:description ["Returns a request for retrieving the current value of a high-resolution timer."
-                        "Result in nanoseconds will be available under `$/*result*` during the next transaction."
+  ^{:doc {:description ["Returns the current value of a high-resolution timer in nanoseconds."
                         ""
                         "Guarantees:"
                         ""
                         "  - Timer is monotonic if the OS supports it"
-                        "  - Resolution is at least as good as that of `$.time/!.unix`"
+                        "  - Resolution is at least as good as that of `.time.unix`"
                         ""
-                        "Useful for timing things as it is usually more reliable than `$.time/!.unix`."
+                        "Useful for timing things as usually more accurate than `.time.unix`."
+                        ""
                         "This timer has no particular, predictable origin. Hence the first value is meaningless."
                         "However, the difference between 2 values from the same process offers a precise interval."
-                        "It follows that values from different process are not comparable."]
-          :examples    [{:code "($.time/!.nano)"}]
+                        "It follows that values from different processes are not comparable."]
+          :examples    [{:code (.time.nano)}]
           :signature   [{:params []}]}}
 
   []
@@ -3441,6 +3513,11 @@
 
 (defn .time.sleep
 
+  ^{:doc {:description ["Blocks execution for the given interval in milliseconds."
+                        "subject to the precision and accuracy of system timers and scheduler."]
+          :examples    [{:code (.time.sleep 1000)}]
+          :signature   [{:params [millis]}]}}
+
   [millis]
 
   (.shell.invoke '.time.sleep
@@ -3450,14 +3527,10 @@
 
 (defn .time.unix
 
-  ^{:doc {:description ["Returns a request for retrieving the current Unix timestamp in milliseconds."
-                        "This reflects the machine's clock, not `*timestamp*` (state timestamp)."
-                        "Resolution depends on the OS."
-                        ""
-                        "Result will be available under `$/*result*` during the next transaction."
-                        ""
-                        "For timing things, prefer `$.time/!.nano`."]
-          :examples    [{:code "($.time/!.unix)"}]
+  ^{:doc {:description ["Returns the current Unix time as a Long."
+                        "This refers to clock time, the actual time of the machine the Shell"
+                        "is running on, not `*timestamp*`."]
+          :examples    [{:code (.time.unix)}]
           :signature   [{:params []}]}}
 
   []
@@ -3468,16 +3541,15 @@
 
 (defn .time.unix->iso
 
-  ^{:doc {:description ["Returns a request for converting a Unix timestamp into an ISO 8601 UTC date-time string."
-                        ""
-                        "Result will be available under `$/*result*` during the next transaction."]
-          :examples    [{:code "($.time/!.unix->iso 1663155814633)"}]
+  ^{:doc {:description ["Converts a Unix timestamp to an ISO 8601 UTC string."
+                        "Also see `.time.iso`, `.time.unix`."]
+          :examples    [{:code (.time.unix->iso 1663155814633)}]
           :signature   [{:params [unix-timestamp]}]}}
 
-  [time-unix]
+  [unix-timestamp]
 
   (.shell.invoke '.time.unix->iso
-                 time-unix))
+                 unix-timestamp))
 
 
 ;;;;;;;;;; Try-catch like helpers
@@ -3485,17 +3557,33 @@
 
 (defmacro .try*
 
-  [do-good do-bad]
+  ^{:doc {:description ["If `do-good` fails with an exception, state is reverted and `do-fail` is run."]
+          :examples    [{:code (.try* (+ 2 2) :fail)}
+                        {:code (.try* (assert false) :fail)}]
+          :signature   [{:params [do-good do-fail]}]}}
+
+  [do-good do-fail]
 
   `(let [[ok?
           x]  (.state.safe (fn [] ~do-good))]
      (if ok?
        x
-       ~do-bad)))
+       ~do-fail)))
           
 
 
 (defmacro .try.resrc*
+
+  ^{:doc {:description ["Safe way of running code with resources such as streams."
+                        "Bindings are in a vector, akin to `let`, where each symbol is followed"
+                        "by 2 forms."
+                        ""
+                        "Result of the first form is bound to the symbol, just like in `let`."
+                        "Second form is executed when leaving this macro, usually to close the resource."
+                        ""
+                        "This ensure that resources closed even in case of an exception."]
+          :examples    [{:code (.try.resrc* [s (.file.stream.in "foo.cvx") (.stream.close s)] (assert false)) }]
+          :signature   [{:params [binding+ & body]}]}}
 
   [binding+ & body]
 
@@ -3538,17 +3626,23 @@
 
 (def .version.convex
 
+  ^{:doc {:description "Convex version used by the Shell."}}
+
   .version.convex)
 
 
 
 (def .version.java
 
+  ^:private?
+
   .version.java)
 
 
 
 (def .version.shell
+
+  ^{:doc {:description "Version of this Shell."}}
 
   .version.shell)
 
@@ -3558,6 +3652,13 @@
 
 (defn ?
 
+  ^{:doc {:description ["Get help."]
+          :examples    [{:code (?)}
+                        {:code (? #8)}
+                        {:code (? #8 'inc)}
+                        {:code (? 'inc)}]
+          :signature   [{:params [query]}
+                        {:params [address symbol]}]}}
 
   ([]
 
@@ -3597,6 +3698,8 @@
 
 (defn ?.account
 
+  ^:private?
+
   [addr]
 
   (if-let [-account (account addr)]
@@ -3610,6 +3713,8 @@
 
 (defn ?.color
 
+  ^:private?
+
   [s]
 
   (str (.term.bold)
@@ -3621,6 +3726,8 @@
 
 (defn ?.color-2
 
+  ^:private?
+
   [s]
 
   (str (.term.bold)
@@ -3631,6 +3738,8 @@
 
 
 (defn ?.print.account
+
+  ^:private?
 
   [-account]
 
@@ -3686,6 +3795,8 @@
 
 (defn ?.print.sym
 
+  ^:private?
+
   [sym-meta]
 
   (?.title "Defined in")
@@ -3721,6 +3832,7 @@
 
 (defn ?.sym
 
+  ^:private?
 
   ([sym]
 
@@ -3744,6 +3856,8 @@
 
 (defn ?.sym.meta
 
+  ^:private?
+
   [addr sym]
 
   (when-let [sym-meta (get-in (account addr)
@@ -3757,6 +3871,8 @@
 
 (defn ?.title
 
+  ^:private?
+
   [s]
 
   (.stream.txt.outln (?.color (str s
@@ -3765,6 +3881,8 @@
 
 
 (defn ?.txt
+
+  ^:private?
 
   [s]
 
@@ -3781,6 +3899,8 @@
 
 
 (defn ?.txt-2
+
+  ^:private?
 
   [s]
 
