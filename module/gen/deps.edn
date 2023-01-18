@@ -10,6 +10,6 @@
   world.convex/convex-core {:mvn/version "0.7.9"},
   world.convex/cvm
   {:deps/root "module/cvm",
-   :git/sha "c343aa394b009957a5ba9e7b31fa5d8b20c5589c",
+   :git/sha "6ebc893227cfac301fcc39a66cdf41ccf2264e20",
    :git/url "https://github.com/convex-dev/convex.cljc"}},
  :paths ["src/main/clj"]}
