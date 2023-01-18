@@ -11,7 +11,7 @@ from those accounts but only owners and programmatically authorized users can tr
 cryptographic keys. A consensus algorithm between peers guarantees that the network is tamperproof.
 
 Using such a network, it is possible to write decentralized applications (dApps) that do not need a centralized database or server,
-are censorship-resistant, and highly-available. Such characterics provide a robust framework for managing any kind of
+are censorship-resistant, and highly-available. Such characteristics provide a robust framework for managing any kind of
 state, even digital assets.
 
 Instead of relying on a query language like SQL or datalog, querying or transacting data on the network is done via
@@ -44,7 +44,7 @@ This repository is discussed on the [Clojurians Slack community at `#convex`](ht
 Our [Discord channel](https://discord.gg/5j2mPsk) is the best for discussing the
 overall project, beyond the Clojure tooling.
 
-More more information about the Convex network on the [official website](https://convex.world).
+More information about the Convex network on the [official website](https://convex.world).
 
 
 ---
