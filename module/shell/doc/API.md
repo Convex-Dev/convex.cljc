@@ -1,174 +1,138 @@
 # Table of contents
--  [`convex.shell`](#convex.shell)  - CONVEX SHELL This is a whole application.
-    -  [`-main`](#convex.shell/-main) - Reads and executes transactions.
-    -  [`eval`](#convex.shell/eval) - Uses [[init]], reads the given <code>string</code> of transactions and starts executing them.
-    -  [`init`](#convex.shell/init) - Used by [[eval]] to initiate <code>env</code>.
--  [`convex.shell.ctx`](#convex.shell.ctx)  - Altering and quering informations about the CVM context attached to an env.
-    -  [`active-repl?`](#convex.shell.ctx/active-repl?) - Is the REPL currently running?.
-    -  [`compiled-lib+`](#convex.shell.ctx/compiled-lib+) - Pre-compiled CVX Shell libraries.
-    -  [`ctx-base`](#convex.shell.ctx/ctx-base) - Base CVM context for the CVX shell.
-    -  [`ctx-genesis`](#convex.shell.ctx/ctx-genesis) - Genesis state with default Convex libraries.
-    -  [`current-trx+`](#convex.shell.ctx/current-trx+) - Returns the current list of transactions under <code>$.trx/*list*</code>.
-    -  [`def-current`](#convex.shell.ctx/def-current) - Defines symbols in the current, default account.
-    -  [`def-result`](#convex.shell.ctx/def-result) - Defines <code>$/*result*</code> with the given CVX <code>result</code>.
-    -  [`def-trx+`](#convex.shell.ctx/def-trx+) - Defines the given CVX list of transactions under <code>$.trx/*list*</code>.
-    -  [`deploy-lib+`](#convex.shell.ctx/deploy-lib+) - Deploys [[compiled-lib+]] on the given CVM <code>ctx</code>.
-    -  [`drop-trx`](#convex.shell.ctx/drop-trx) - Drops the next transaction under <code>$.trx/*list*</code>.
-    -  [`exit`](#convex.shell.ctx/exit) - Prepares for a clean process exit.
-    -  [`lib-address`](#convex.shell.ctx/lib-address) - Retrieves the address of a shell library by symbol.
-    -  [`precat-trx+`](#convex.shell.ctx/precat-trx+) - Prepends the given CVX list of transactions to the current list under <code>$.trx/*list*</code>.
-    -  [`prepend-trx`](#convex.shell.ctx/prepend-trx) - Prepends a single transaction to the current list under <code>$.trx/*list*</code>.
-    -  [`result`](#convex.shell.ctx/result) - Retrieves the last result available to users.
--  [`convex.shell.err`](#convex.shell.err)  - Errors are CVX maps, either mappified CVM exceptions or built from scratch.
-    -  [`arg`](#convex.shell.err/arg) - Error map for a bad argument.
-    -  [`assoc-trx`](#convex.shell.err/assoc-trx) - Associates a transaction to the given <code>err</code> map.
-    -  [`db`](#convex.shell.err/db) - Error map for a generic Etch error.
-    -  [`filesystem`](#convex.shell.err/filesystem) - Error map for a generic filesystem error.
-    -  [`mappify`](#convex.shell.err/mappify) - Transforms the given CVM exception into a map.
-    -  [`reader-stream`](#convex.shell.err/reader-stream) - Creates a <code>:READER</code> error map, for when the CVX reader fails on a stream.
-    -  [`reader-string`](#convex.shell.err/reader-string) - Creates a <code>:READER</code> error map, for when the CVX reader fails on a string.
-    -  [`sreq`](#convex.shell.err/sreq) - Error map describing an error that occured when performing an operation for a request.
-    -  [`state`](#convex.shell.err/state) - Error map for a state exception.
-    -  [`state-load`](#convex.shell.err/state-load) - Error map for when library deployment fails when loading a new state.
-    -  [`stream`](#convex.shell.err/stream) - Error map for a generic stream error.
--  [`convex.shell.exec`](#convex.shell.exec)  - All aspects of actually executing transactions.
-    -  [`eval`](#convex.shell.exec/eval) - Evaluates <code>trx</code> after refilling juice.
-    -  [`juice`](#convex.shell.exec/juice) - Computes consumed juice based on the current limit.
-    -  [`max-juice`](#convex.shell.exec/max-juice) - Maximum juice value set on context prior to handling code.
-    -  [`result`](#convex.shell.exec/result) - Extracts a result from the current context attached to <code>env</code>.
-    -  [`sreq`](#convex.shell.exec/sreq) - After evaluating a transaction, the shell must check if the result is a special request.
-    -  [`sreq-dispatch`](#convex.shell.exec/sreq-dispatch) - Dispatch function used by the [[sreq]] multimethod.
-    -  [`trx`](#convex.shell.exec/trx) - Evaluates <code>trx</code> and forwards result to [[sreq]] unless an error occured.
-    -  [`trx+`](#convex.shell.exec/trx+) - Executes transactions located in <code>$.trx/*list*</code> in the context until that list becomes empty.
-    -  [`trx-track-juice`](#convex.shell.exec/trx-track-juice) - Similar to [[trx]] but requests are not performed, new state is discarded, and <code>$/*result*</code> is <code>[consumed-juice trx-result]</code>.
--  [`convex.shell.exec.fail`](#convex.shell.exec.fail)  - About handling different failure scenarios.
-    -  [`err`](#convex.shell.exec.fail/err) - Must be called in case of failure related to executing CVX Lisp, <code>err</code> being an error map (see the [[convex.shell.err]] namespace).
-    -  [`rethrow`](#convex.shell.exec.fail/rethrow) - Like [[err]] but assumes the error has already been prepared as an exception result to return and the exception on the CVM context has already been cleared.
-    -  [`top-exception`](#convex.shell.exec.fail/top-exception) - Called when a JVM exception is caught at the very top level of the shell.
+-  [`convex.shell`](#convex.shell)  - CONVEX SHELL Convex Virtual Machine extended with side-effects.
+    -  [`-main`](#convex.shell/-main) - Main entry point for using Convex Shell as a terminal application.
+    -  [`init`](#convex.shell/init) - Initializes a genesis context, forking [[convex.shell.ctx/genesis]].
+    -  [`transact`](#convex.shell/transact) - Applies the given transaction (a cell) to the given context.
+    -  [`transact-main`](#convex.shell/transact-main) - Core implementation of [[-main]].
+-  [`convex.shell.ctx`](#convex.shell.ctx)  - Preparing the genesis context used by the Shell.
+    -  [`genesis`](#convex.shell.ctx/genesis)
+-  [`convex.shell.dep`](#convex.shell.dep)  - Experimental dependency management framework for Convex Lisp.
+    -  [`deploy-actor`](#convex.shell.dep/deploy-actor) - Used in [[deploy-fetched]] for deploying a single actor in the Shell.
+    -  [`deploy-fetched`](#convex.shell.dep/deploy-fetched) - Deploys actors that have prefetched with [[fetched]].
+    -  [`fetch`](#convex.shell.dep/fetch) - Main function for fetching dependencies (Convex Lisp files), which may or may not be deployed as actors in a latter step.
+    -  [`project`](#convex.shell.dep/project) - Returns a <code>project.cvx</code> file where dependencies reside.
+-  [`convex.shell.dep.fail`](#convex.shell.dep.fail)  - Builds on [[convex.shell.flow]] for returning CVM exceptions relating to [[convex.shell.dep]].
+    -  [`rethrow-with-ancestry`](#convex.shell.dep.fail/rethrow-with-ancestry)
+    -  [`with-ancestry`](#convex.shell.dep.fail/with-ancestry)
+-  [`convex.shell.dep.git`](#convex.shell.dep.git)  - Git dependencies are a convenient way of exposing Convex Lisp project over the Internet.
+    -  [`fetch`](#convex.shell.dep.git/fetch) - Used in [[convex.shell.dep/fetch]] for fetching Git dependencies.
+    -  [`path-cache-repo`](#convex.shell.dep.git/path-cache-repo)
+    -  [`re-scp`](#convex.shell.dep.git/re-scp)
+    -  [`re-url`](#convex.shell.dep.git/re-url)
+    -  [`worktree`](#convex.shell.dep.git/worktree) - Clones a repo and creates a worktree for the desired SHA (if none of this hasn't been done already.
+-  [`convex.shell.dep.local`](#convex.shell.dep.local)  - A local dependency points to another local directory which contains its own <code>project.cvx</code>.
+    -  [`fetch`](#convex.shell.dep.local/fetch) - Used in [[convex.shell.dep/fetch]] for fetching local dependencies.
+-  [`convex.shell.dep.relative`](#convex.shell.dep.relative)  - "Relative" dependency resolution mechanism.
+    -  [`content`](#convex.shell.dep.relative/content) - Retrieves the content of a relative actor.
+    -  [`fetch`](#convex.shell.dep.relative/fetch) - Used in [[convex.shell.dep/fetch]] for fetching relative dependencies.
+    -  [`path`](#convex.shell.dep.relative/path) - Produces an actual file path form an actor path.
+    -  [`read`](#convex.shell.dep.relative/read) - Reads a Convex Lisp file.
+    -  [`validate-required`](#convex.shell.dep.relative/validate-required) - Validates a deploy vector.
+-  [`convex.shell.fail`](#convex.shell.fail)  - Helpers for handling Shell failures.
+    -  [`mappify-cvm-ex`](#convex.shell.fail/mappify-cvm-ex) - Transforms the given CVM exception into a CVX map.
+    -  [`top-exception`](#convex.shell.fail/top-exception) - Called when an unforeseen JVM exception is caught.
+-  [`convex.shell.flow`](#convex.shell.flow)  - Sometimes, when failing to execute a request for any reason, it is easier throwing the context in an exception caught and returned to the user at a strategic point.
+    -  [`fail`](#convex.shell.flow/fail) - Attaches a CVM exception to the context and forwards it to [[return]].
+    -  [`return`](#convex.shell.flow/return) - Throws the context in an exception that can be catched using [[safe]].
+    -  [`safe`](#convex.shell.flow/safe)
 -  [`convex.shell.io`](#convex.shell.io)  - Basic IO utilities and STDIO.
     -  [`file-in`](#convex.shell.io/file-in) - Opens an input text stream for the file located under <code>path</code>.
     -  [`file-out`](#convex.shell.io/file-out) - Opens an output text stream for the file located under <code>path</code>.
     -  [`flush`](#convex.shell.io/flush) - Flushes the given <code>out</code>.
     -  [`newline`](#convex.shell.io/newline) - Writes a new line to the given text output stream.
     -  [`stderr`](#convex.shell.io/stderr) - File descriptor for STDERR.
-    -  [`stderr-bin`](#convex.shell.io/stderr-bin) - Binary stream for STDERR.
     -  [`stderr-txt`](#convex.shell.io/stderr-txt) - Text stream for STDERR.
     -  [`stdin`](#convex.shell.io/stdin) - File descriptor for STDIN.
-    -  [`stdin-bin`](#convex.shell.io/stdin-bin) - Binary stream for STDIN.
     -  [`stdin-txt`](#convex.shell.io/stdin-txt) - Text stream for STDIN.
     -  [`stdout`](#convex.shell.io/stdout) - File descriptor for STDOUT.
-    -  [`stdout-bin`](#convex.shell.io/stdout-bin) - Binary stream for STDOUT.
     -  [`stdout-txt`](#convex.shell.io/stdout-txt) - Text stream for STDOUT.
--  [`convex.shell.kw`](#convex.shell.kw)  - CVX keywords used by the shell.
-    -  [`arg`](#convex.shell.kw/arg)
-    -  [`catch-rethrow`](#convex.shell.kw/catch-rethrow)
-    -  [`cause`](#convex.shell.kw/cause)
-    -  [`code-read+`](#convex.shell.kw/code-read+)
-    -  [`cvm-sreq`](#convex.shell.kw/cvm-sreq)
-    -  [`dev-fatal`](#convex.shell.kw/dev-fatal)
-    -  [`err-db`](#convex.shell.kw/err-db)
-    -  [`err-filesystem`](#convex.shell.kw/err-filesystem)
-    -  [`err-reader`](#convex.shell.kw/err-reader)
-    -  [`err-stream`](#convex.shell.kw/err-stream)
-    -  [`etch-flush`](#convex.shell.kw/etch-flush)
-    -  [`etch-open`](#convex.shell.kw/etch-open)
-    -  [`etch-path`](#convex.shell.kw/etch-path)
-    -  [`etch-read`](#convex.shell.kw/etch-read)
-    -  [`etch-read-only`](#convex.shell.kw/etch-read-only)
-    -  [`etch-read-only?`](#convex.shell.kw/etch-read-only?)
-    -  [`etch-root-read`](#convex.shell.kw/etch-root-read)
-    -  [`etch-root-write`](#convex.shell.kw/etch-root-write)
-    -  [`etch-write`](#convex.shell.kw/etch-write)
-    -  [`exception?`](#convex.shell.kw/exception?)
-    -  [`exec`](#convex.shell.kw/exec)
-    -  [`file-copy`](#convex.shell.kw/file-copy)
-    -  [`file-delete`](#convex.shell.kw/file-delete)
-    -  [`file-exists`](#convex.shell.kw/file-exists)
-    -  [`file-stream-in`](#convex.shell.kw/file-stream-in)
-    -  [`file-stream-out`](#convex.shell.kw/file-stream-out)
-    -  [`file-tmp`](#convex.shell.kw/file-tmp)
-    -  [`file-tmp-dir`](#convex.shell.kw/file-tmp-dir)
-    -  [`form`](#convex.shell.kw/form)
-    -  [`juice-limit`](#convex.shell.kw/juice-limit)
-    -  [`juice-limit-set`](#convex.shell.kw/juice-limit-set)
-    -  [`juice-track`](#convex.shell.kw/juice-track)
-    -  [`library-path`](#convex.shell.kw/library-path)
-    -  [`log-clear`](#convex.shell.kw/log-clear)
-    -  [`log-get`](#convex.shell.kw/log-get)
-    -  [`path`](#convex.shell.kw/path)
-    -  [`process-env`](#convex.shell.kw/process-env)
-    -  [`process-exit`](#convex.shell.kw/process-exit)
-    -  [`report`](#convex.shell.kw/report)
-    -  [`result`](#convex.shell.kw/result)
-    -  [`splice`](#convex.shell.kw/splice)
-    -  [`src`](#convex.shell.kw/src)
-    -  [`state-genesis`](#convex.shell.kw/state-genesis)
-    -  [`state-load`](#convex.shell.kw/state-load)
-    -  [`state-safe`](#convex.shell.kw/state-safe)
-    -  [`stderr`](#convex.shell.kw/stderr)
-    -  [`stdin`](#convex.shell.kw/stdin)
-    -  [`stdout`](#convex.shell.kw/stdout)
-    -  [`stream`](#convex.shell.kw/stream)
-    -  [`stream-close`](#convex.shell.kw/stream-close)
-    -  [`stream-flush`](#convex.shell.kw/stream-flush)
-    -  [`stream-in+`](#convex.shell.kw/stream-in+)
-    -  [`stream-line`](#convex.shell.kw/stream-line)
-    -  [`stream-open?`](#convex.shell.kw/stream-open?)
-    -  [`stream-out`](#convex.shell.kw/stream-out)
-    -  [`stream-outln`](#convex.shell.kw/stream-outln)
-    -  [`stream-txt-in`](#convex.shell.kw/stream-txt-in)
-    -  [`stream-txt-line`](#convex.shell.kw/stream-txt-line)
-    -  [`stream-txt-out`](#convex.shell.kw/stream-txt-out)
-    -  [`stream-txt-outln`](#convex.shell.kw/stream-txt-outln)
-    -  [`time-advance`](#convex.shell.kw/time-advance)
-    -  [`time-bench`](#convex.shell.kw/time-bench)
-    -  [`time-iso->unix`](#convex.shell.kw/time-iso->unix)
-    -  [`time-nano`](#convex.shell.kw/time-nano)
-    -  [`time-unix`](#convex.shell.kw/time-unix)
-    -  [`time-unix->iso`](#convex.shell.kw/time-unix->iso)
-    -  [`trx`](#convex.shell.kw/trx)
--  [`convex.shell.sreq`](#convex.shell.sreq)  - Implementation of requests interpreted by the shell between transactions.
--  [`convex.shell.stream`](#convex.shell.stream)  - Handling files and STDIO streams.
-    -  [`close`](#convex.shell.stream/close) - Closes the requested stream.
-    -  [`file-in`](#convex.shell.stream/file-in) - Opens an input stream for file under <code>path</code>.
-    -  [`file-out`](#convex.shell.stream/file-out) - Opens an output stream for file under <code>path</code>.
-    -  [`flush`](#convex.shell.stream/flush) - Flushes the requested stream.
-    -  [`in+`](#convex.shell.stream/in+) - Reads all available cells from the requested stream and closes it.
-    -  [`line`](#convex.shell.stream/line) - Reads a line from the requested stream and parses it into a list of cells.
-    -  [`operation`](#convex.shell.stream/operation) - Generic function for carrying out an operation.
-    -  [`out`](#convex.shell.stream/out) - Writes <code>cell</code> to the requested stream.
-    -  [`outln`](#convex.shell.stream/outln) - Like [[out]] but appends a new line and flushes the stream.
-    -  [`txt-in`](#convex.shell.stream/txt-in) - Reads everything from the requested stream as text.
-    -  [`txt-line`](#convex.shell.stream/txt-line) - Reads a line from the requested stream as text.
-    -  [`txt-out`](#convex.shell.stream/txt-out) - Like [[out]] but if <code>cell</code> is a string, then it is not quoted.
-    -  [`txt-outln`](#convex.shell.stream/txt-outln) - Is to [[outln]] what [[out-txt]] is to [[out]].
--  [`convex.shell.sym`](#convex.shell.sym)  - CVX symbols used by the shell.
-    -  [`$`](#convex.shell.sym/$)
-    -  [`$-account`](#convex.shell.sym/$-account)
-    -  [`$-catch`](#convex.shell.sym/$-catch)
-    -  [`$-code`](#convex.shell.sym/$-code)
-    -  [`$-db`](#convex.shell.sym/$-db)
-    -  [`$-file`](#convex.shell.sym/$-file)
-    -  [`$-fs`](#convex.shell.sym/$-fs)
-    -  [`$-help`](#convex.shell.sym/$-help)
-    -  [`$-juice`](#convex.shell.sym/$-juice)
-    -  [`$-log`](#convex.shell.sym/$-log)
-    -  [`$-process`](#convex.shell.sym/$-process)
-    -  [`$-repl`](#convex.shell.sym/$-repl)
-    -  [`$-state`](#convex.shell.sym/$-state)
-    -  [`$-stream`](#convex.shell.sym/$-stream)
-    -  [`$-term`](#convex.shell.sym/$-term)
-    -  [`$-test`](#convex.shell.sym/$-test)
-    -  [`$-time`](#convex.shell.sym/$-time)
-    -  [`$-trx`](#convex.shell.sym/$-trx)
-    -  [`active?*`](#convex.shell.sym/active?*)
-    -  [`genesis`](#convex.shell.sym/genesis)
-    -  [`line`](#convex.shell.sym/line)
-    -  [`list*`](#convex.shell.sym/list*)
-    -  [`out*`](#convex.shell.sym/out*)
-    -  [`result*`](#convex.shell.sym/result*)
-    -  [`version`](#convex.shell.sym/version)
-    -  [`version-convex`](#convex.shell.sym/version-convex)
+-  [`convex.shell.project`](#convex.shell.project)  - Convex Lisp projects may have a <code>project.cvx</code> file which contains useful data for the Shell.
+    -  [`dep+`](#convex.shell.project/dep+) - Validates and returns <code>:deps</code> found in a <code>project.cvx</code>.
+    -  [`read`](#convex.shell.project/read) - Reads the <code>project.cvx</code> file found in <code>dir</code>.
+-  [`convex.shell.req`](#convex.shell.req)  - All extra features offered by the Shell, over the Convex Virtual Machine, have a single entry point: the <code>.shell.invoke</code> function injected in the core account.
+    -  [`core`](#convex.shell.req/core) - All core requests.
+    -  [`ex-rethrow`](#convex.shell.req/ex-rethrow) - Request for rethrowing an exception captured in the Shell.
+    -  [`invoker`](#convex.shell.req/invoker) - Returns an [[invoker]].
+-  [`convex.shell.req.account`](#convex.shell.req.account)  - Requests relating to accounts.
+    -  [`switch`](#convex.shell.req.account/switch) - Requests for switching the context to another address.
+-  [`convex.shell.req.bench`](#convex.shell.req.bench)  - Requests related to benchmarking.
+    -  [`trx`](#convex.shell.req.bench/trx) - Request for benchmarking a single transaction using Criterium.
+-  [`convex.shell.req.db`](#convex.shell.req.db)  - Requests relating to Etch.
+    -  [`flush`](#convex.shell.req.db/flush) - Request for flushing Etch.
+    -  [`open`](#convex.shell.req.db/open) - Request for opening an Etch instance.
+    -  [`path`](#convex.shell.req.db/path) - Request for getting the path of the currently open instance (or nil).
+    -  [`read`](#convex.shell.req.db/read) - Request for reading a cell by hash.
+    -  [`root-read`](#convex.shell.req.db/root-read) - Request for reading from the root.
+    -  [`root-write`](#convex.shell.req.db/root-write) - Request for writing to the root.
+    -  [`write`](#convex.shell.req.db/write) - Request for writing a cell.
+-  [`convex.shell.req.dep`](#convex.shell.req.dep)  - Requests for the experimental dependency management framework.
+    -  [`deploy`](#convex.shell.req.dep/deploy) - Request for deploying a deploy vector.
+    -  [`fetch`](#convex.shell.req.dep/fetch) - Request for fetching required dependencies given a deploy vector.
+    -  [`read`](#convex.shell.req.dep/read) - Request for reading CVX files resolved from a deploy vector.
+-  [`convex.shell.req.dev`](#convex.shell.req.dev)  - Requests only used for dev purposes.
+    -  [`fatal`](#convex.shell.req.dev/fatal) - Request for throwing a JVM exception, which should result in a fatal error in the Shell.
+-  [`convex.shell.req.file`](#convex.shell.req.file)  - Requests relating to file utils.
+    -  [`stream-in`](#convex.shell.req.file/stream-in) - Request for opening an input stream for file under <code>path</code>.
+    -  [`stream-out`](#convex.shell.req.file/stream-out) - Request for opening an output stream for file under <code>path</code>.
+-  [`convex.shell.req.fs`](#convex.shell.req.fs)  - Requests relating to filesystem utilities.
+    -  [`copy`](#convex.shell.req.fs/copy) - Request for copying files and directories like Unix's <code>cp</code>.
+    -  [`delete`](#convex.shell.req.fs/delete) - Request for deleting a file or an empty directory.
+    -  [`dir?`](#convex.shell.req.fs/dir?) - Request returning <code>true</code> if <code>path</code> is an actual directory.
+    -  [`exists?`](#convex.shell.req.fs/exists?) - Request returning <code>true</code> if <code>path</code> exists.
+    -  [`file?`](#convex.shell.req.fs/file?) - Request returning <code>true</code> if <code>file</code> is an actual, regular file.
+    -  [`resolve`](#convex.shell.req.fs/resolve) - Request for resolving a filename to a canonical form.
+    -  [`size`](#convex.shell.req.fs/size) - Request for returning a filesize in bytes.
+    -  [`tmp`](#convex.shell.req.fs/tmp) - Request for creating a temporary file.
+    -  [`tmp-dir`](#convex.shell.req.fs/tmp-dir) - Request for creating a temporary directory.
+-  [`convex.shell.req.juice`](#convex.shell.req.juice)  - Requests relating to juice.
+    -  [`set`](#convex.shell.req.juice/set) - Request for setting the current juice value.
+    -  [`track`](#convex.shell.req.juice/track) - Request for tracking juice cost of a transaction.
+-  [`convex.shell.req.log`](#convex.shell.req.log)  - Requests relating to the CVM log.
+    -  [`clear`](#convex.shell.req.log/clear) - Request for clearing the CVM log.
+    -  [`get`](#convex.shell.req.log/get) - Request for retrieving the CVM log.
+-  [`convex.shell.req.reader`](#convex.shell.req.reader)  - Requests relating to the CVX reader.
+    -  [`form+`](#convex.shell.req.reader/form+) - Request for reading cells from a string.
+-  [`convex.shell.req.state`](#convex.shell.req.state)  - Requests relating to the global state.
+    -  [`genesis`](#convex.shell.req.state/genesis) - Request for generating a genesis state.
+    -  [`safe`](#convex.shell.req.state/safe) - Request for executing code in a safe way.
+    -  [`switch`](#convex.shell.req.state/switch) - Request for switching a context to the given state.
+    -  [`tmp`](#convex.shell.req.state/tmp) - Exactly like [[safe]] but the state is always reverted, even in case of success.
+-  [`convex.shell.req.str`](#convex.shell.req.str)  - Requests relating to strings.
+    -  [`sort`](#convex.shell.req.str/sort) - Secret request for sorting a vector of strings.
+    -  [`stream-in`](#convex.shell.req.str/stream-in) - Request for turning a string into an input stream.
+    -  [`stream-out`](#convex.shell.req.str/stream-out) - Request for creating an output stream backed by a string.
+    -  [`stream-unwrap`](#convex.shell.req.str/stream-unwrap) - Request for extracting the string inside a [[stream-out]].
+-  [`convex.shell.req.stream`](#convex.shell.req.stream)  - Requests relating to IO streams.
+    -  [`close`](#convex.shell.req.stream/close) - Request for closing the given stream.
+    -  [`flush`](#convex.shell.req.stream/flush) - Request for flushing the requested stream.
+    -  [`in+`](#convex.shell.req.stream/in+) - Request for reading all available cells from the given stream and closing it.
+    -  [`line`](#convex.shell.req.stream/line) - Request for reading a line from the given stream and parsing it into a list of cells.
+    -  [`operation`](#convex.shell.req.stream/operation) - Generic function for carrying out an operation.
+    -  [`out`](#convex.shell.req.stream/out) - Request for writing a <code>cell</code> to the given stream.
+    -  [`outln`](#convex.shell.req.stream/outln) - Like [[out]] but appends a new line and flushes the stream.
+    -  [`stderr`](#convex.shell.req.stream/stderr) - Wraps STDERR to make it accessible to the CVM.
+    -  [`stdin`](#convex.shell.req.stream/stdin) - Wraps STDIN to make it accessible to the CVM.
+    -  [`stdout`](#convex.shell.req.stream/stdout) - Wraps STDOUT to make it accessible to the CVM.
+    -  [`txt-in`](#convex.shell.req.stream/txt-in) - Request for reading everything from the given stream as text.
+    -  [`txt-line`](#convex.shell.req.stream/txt-line) - Request for reading a line from the given stream as text.
+    -  [`txt-out`](#convex.shell.req.stream/txt-out) - Like [[out]] but if <code>cell</code> is a string, then it is not double-quoted.
+    -  [`txt-outln`](#convex.shell.req.stream/txt-outln) - Is to [[outln]] what [[out-txt]] is to [[out]].
+-  [`convex.shell.req.sys`](#convex.shell.req.sys)  - Requests relating to basic system utilities.
+    -  [`arch`](#convex.shell.req.sys/arch) - Request for returning the chip architecture as a string.
+    -  [`cwd`](#convex.shell.req.sys/cwd) - Request for returning the current working directory (where the Shell started).
+    -  [`env`](#convex.shell.req.sys/env) - Request for returning the map of process environment variables.
+    -  [`env-var`](#convex.shell.req.sys/env-var) - Request for returning the value for a single process environment variable.
+    -  [`exit`](#convex.shell.req.sys/exit) - Request for terminating the process.
+    -  [`home`](#convex.shell.req.sys/home) - Request for returning the home directory.
+    -  [`os`](#convex.shell.req.sys/os) - Request for returning a tuple <code>[OS Version]</code>.
+-  [`convex.shell.req.time`](#convex.shell.req.time)  - Requests relating to time.
+    -  [`-millis`](#convex.shell.req.time/-millis)
+    -  [`advance`](#convex.shell.req.time/advance) - Request for moving forward the CVM timestamp.
+    -  [`iso->unix`](#convex.shell.req.time/iso->unix) - Request for converting an ISO 8601 UTC string into a Unix timestamp.
+    -  [`nano`](#convex.shell.req.time/nano) - Request for returning the current time according to the JVM high-resolution timer.
+    -  [`sleep`](#convex.shell.req.time/sleep) - Request for temporarily blocking execution.
+    -  [`unix`](#convex.shell.req.time/unix) - Request for returning the current Unix timestamp of the machine.
+    -  [`unix->iso`](#convex.shell.req.time/unix->iso) - Opposite of [[iso->unix]].
 -  [`convex.shell.time`](#convex.shell.time)  - Miscellaneous time utilities and conversions.
     -  [`instant->iso`](#convex.shell.time/instant->iso) - Converts an <code>Instant</code> to an ISO 8601 string (UTC).
     -  [`instant->unix`](#convex.shell.time/instant->unix) - Converts an <code>Instant</code> into a Unix timestamp.
@@ -185,480 +149,359 @@
 
 CONVEX SHELL
 
-   This is a whole application. It is available as a library in case it needs to be embedded. Then, only [`-main`](#convex.shell/-main) is really
-   useful. It must be called only one at a time per thread otherwise Etch utilities may greatly misbehave.
+   Convex Virtual Machine extended with side-effects.
 
-   Executes each form as a transaction, moving from transaction to transaction.
+   For using as a terminal application, see [`-main`](#convex.shell/-main).
 
-   A transaction can return a request to perform operations beyond the scope of the CVM, such as file IO or
-   advancing time. Those requests turn Convex Lisp, a somewhat limited and fully deterministic language, into
-   a scripting facility.
-
-   Requests are vectors following expected conventions and implementations can be found in the [`convex.shell.sreq`](#convex.shell.sreq)
-   namespace.
-
-   A series of CVX libraries is embedded, building on those requests and the way the shell generally operates,
-   providing features such as reading CVX files, unit testing, a REPL, or time-travel. All features are self
-   documented in the grand tradition of Lisp languages.
+   For using as a library, see [`transact`](#convex.shell/transact).
   
-   Functions throughout these namespaces often refer to `env`. It is an environment map passed around containing
-   everything that is need by an instance: current CVM context, opened streams, current error if any, etc.
-  
-   In case of error, [`convex.shell.exec.fail/err`](#convex.shell.exec.fail/err) must be used so that the error is reported to the CVX executing environment.
-  
-   List of transactions pending for execution is accessible in the CVX execution environment under `$.trx/*list*`. This list
-   can be modified by the user, allowing for powerful metaprogramming. Besides above-mentioned requests, this feature is used
-   to implement another series of useful utilities such as exception catching.
+   Assumes knowledge of `:module/cvm`.
 
 
 
 
-## <a name="convex.shell/-main">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell.clj#L97-L118) `-main`</a>
+## <a name="convex.shell/-main">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell.clj#L138-L152) `-main`</a>
 ``` clojure
 
-(-main & trx+)
+(-main & txt-cell+)
 ```
 
 
-Reads and executes transactions.
+Main entry point for using Convex Shell as a terminal application.
   
-   If no transaction is provided, starts the REPL.
+   Expects cells as text to wrap and execute in a `(do)`.
+   See [`transact-main`](#convex.shell/transact-main) for a reusable implementation.
   
    ```clojure
    (-main "(+ 2 2)")
    ```
 
-## <a name="convex.shell/eval">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell.clj#L72-L91) `eval`</a>
+## <a name="convex.shell/init">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell.clj#L30-L56) `init`</a>
 ``` clojure
 
-(eval string)
-(eval env string)
+(init)
+(init option+)
 ```
 
 
-Uses [`init`](#convex.shell/init), reads the given `string` of transactions and starts executing them.
+Initializes a genesis context, forking [`convex.shell.ctx/genesis`](#convex.shell.ctx/genesis).
+   It is important that each such context is initialized and used in a dedicated
+   thread.
   
-   Used by [`-main`](#convex.shell/-main).
+   Options may be:
 
-## <a name="convex.shell/init">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell.clj#L48-L66) `init`</a>
+   | Key                     | Value                            |
+   |-------------------------|----------------------------------|
+   | `:convex.shell/invoker` | See [`convex.shell.req/invoker`](#convex.shell.req/invoker) |
+
+## <a name="convex.shell/transact">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell.clj#L60-L80) `transact`</a>
 ``` clojure
 
-(init env)
+(transact ctx trx)
 ```
 
 
-Used by [`eval`](#convex.shell/eval) to initiate `env`.
+Applies the given transaction (a cell) to the given context.
+  
+   Context should come from [`init`](#convex.shell/init).
+  
+   Returns a context with a result or an exception attached.
 
-   Notably, prepares:
+## <a name="convex.shell/transact-main">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell.clj#L84-L132) `transact-main`</a>
+``` clojure
 
-   - STDIO streams
-   - Initial CVM context
+(transact-main ctx txt-cell+)
+```
+
+
+Core implementation of [`-main`](#convex.shell/-main).
+  
+   Passes the text cells to the `.shell.main` CVX function defined in the core account.
+  
+   `ctx` should come from [`init`](#convex.shell/init) and will be passed to [`transact`](#convex.shell/transact).
+
+   In case of a result, prints its to STDOUT and terminates with a 0 code.
+   In case of an exception, prints it to STDERR and terminates with a non-0 code.
 
 -----
 # <a name="convex.shell.ctx">convex.shell.ctx</a>
 
 
-Altering and quering informations about the CVM context attached to an env.
+Preparing the genesis context used by the Shell.
   
-   All CVX Shell libraries are pre-compiled in advance and a base context is defined in a top-level
-   form as well. This significantly improves the start-up time of native images since all of those
-   are precomputed at build time instead of run time (~4x improvement).
+   The Shell CVX library is executed in the core account so that all those functions
+   are accessible from any account.
 
 
 
 
-## <a name="convex.shell.ctx/active-repl?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/ctx.clj#L309-L320) `active-repl?`</a>
-``` clojure
-
-(active-repl? env)
-```
-
-
-Is the REPL currently running?
-
-## <a name="convex.shell.ctx/compiled-lib+">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/ctx.clj#L58-L150) `compiled-lib+`</a>
-
-Pre-compiled CVX Shell libraries.
-
-## <a name="convex.shell.ctx/ctx-base">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/ctx.clj#L188-L198) `ctx-base`</a>
-
-Base CVM context for the CVX shell.
-
-## <a name="convex.shell.ctx/ctx-genesis">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/ctx.clj#L50-L54) `ctx-genesis`</a>
-
-Genesis state with default Convex libraries.
-
-## <a name="convex.shell.ctx/current-trx+">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/ctx.clj#L254-L265) `current-trx+`</a>
-``` clojure
-
-(current-trx+ env)
-```
-
-
-Returns the current list of transactions under `$.trx/*list*`.
-
-## <a name="convex.shell.ctx/def-current">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/ctx.clj#L204-L216) `def-current`</a>
-``` clojure
-
-(def-current env sym->value)
-```
-
-
-Defines symbols in the current, default account.
-  
-   Uses [[convex.cvm/def]].
-
-## <a name="convex.shell.ctx/def-result">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/ctx.clj#L220-L232) `def-result`</a>
-``` clojure
-
-(def-result env result)
-```
-
-
-Defines `$/*result*` with the given CVX `result`.
-
-## <a name="convex.shell.ctx/def-trx+">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/ctx.clj#L236-L248) `def-trx+`</a>
-``` clojure
-
-(def-trx+ env trx+)
-```
-
-
-Defines the given CVX list of transactions under `$.trx/*list*`.
-
-## <a name="convex.shell.ctx/deploy-lib+">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/ctx.clj#L154-L184) `deploy-lib+`</a>
-``` clojure
-
-(deploy-lib+ ctx)
-```
-
-
-Deploys [`compiled-lib+`](#convex.shell.ctx/compiled-lib+) on the given CVM `ctx`.
-
-## <a name="convex.shell.ctx/drop-trx">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/ctx.clj#L269-L277) `drop-trx`</a>
-``` clojure
-
-(drop-trx env)
-```
-
-
-Drops the next transaction under `$.trx/*list*`.
-
-## <a name="convex.shell.ctx/exit">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/ctx.clj#L351-L361) `exit`</a>
-``` clojure
-
-(exit env exit-code)
-```
-
-
-Prepares for a clean process exit.
-
-## <a name="convex.shell.ctx/lib-address">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/ctx.clj#L324-L331) `lib-address`</a>
-``` clojure
-
-(lib-address env sym-lib)
-```
-
-
-Retrieves the address of a shell library by symbol.
-
-## <a name="convex.shell.ctx/precat-trx+">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/ctx.clj#L281-L291) `precat-trx+`</a>
-``` clojure
-
-(precat-trx+ env trx+)
-```
-
-
-Prepends the given CVX list of transactions to the current list under `$.trx/*list*`.
-
-## <a name="convex.shell.ctx/prepend-trx">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/ctx.clj#L295-L303) `prepend-trx`</a>
-``` clojure
-
-(prepend-trx env trx)
-```
-
-
-Prepends a single transaction to the current list under `$.trx/*list*`.
-
-## <a name="convex.shell.ctx/result">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/ctx.clj#L335-L345) `result`</a>
-``` clojure
-
-(result env)
-```
-
-
-Retrieves the last result available to users.
+## <a name="convex.shell.ctx/genesis">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/ctx.clj#L40-L70) `genesis`</a>
 
 -----
-# <a name="convex.shell.err">convex.shell.err</a>
+# <a name="convex.shell.dep">convex.shell.dep</a>
 
 
-Errors are CVX maps, either mappified CVM exceptions or built from scratch.
-
-   Using [`convex.shell.exec.fail/err`](#convex.shell.exec.fail/err), they are reported back to the CVX executing environment
-   and can be handled from CVX.
-
-   This namespace provides functions for building recurrent error maps.
-
-
-
-
-## <a name="convex.shell.err/arg">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/err.clj#L39-L48) `arg`</a>
-``` clojure
-
-(arg message arg-symbol)
-```
-
-
-Error map for a bad argument.
-
-## <a name="convex.shell.err/assoc-trx">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/err.clj#L25-L33) `assoc-trx`</a>
-``` clojure
-
-(assoc-trx err trx)
-```
-
-
-Associates a transaction to the given `err` map. under `:trx`.
-
-## <a name="convex.shell.err/db">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/err.clj#L52-L59) `db`</a>
-``` clojure
-
-(db message)
-```
-
-
-Error map for a generic Etch error.
-
-## <a name="convex.shell.err/filesystem">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/err.clj#L63-L70) `filesystem`</a>
-``` clojure
-
-(filesystem message)
-```
-
-
-Error map for a generic filesystem error.
-
-## <a name="convex.shell.err/mappify">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/err.clj#L74-L85) `mappify`</a>
-``` clojure
-
-(mappify ex)
-```
-
-
-Transforms the given CVM exception into a map.
+Experimental dependency management framework for Convex Lisp.
   
-   If prodived, associates to the resulting error map a [[phase]] and the current transaction that caused this error.
+   In the Shell, see `(?.shell '.dep)`.
 
-## <a name="convex.shell.err/reader-stream">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/err.clj#L109-L126) `reader-stream`</a>
+
+
+
+## <a name="convex.shell.dep/deploy-actor">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/dep.clj#L162-L186) `deploy-actor`</a>
 ``` clojure
 
-(reader-stream id-stream)
-(reader-stream id-stream reason)
+(deploy-actor env hash code)
 ```
 
 
-Creates a `:READER` error map, for when the CVX reader fails on a stream.
+Used in [`deploy-fetched`](#convex.shell.dep/deploy-fetched) for deploying a single actor in the Shell.
 
-## <a name="convex.shell.err/reader-string">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/err.clj#L89-L105) `reader-string`</a>
+## <a name="convex.shell.dep/deploy-fetched">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/dep.clj#L190-L248) `deploy-fetched`</a>
 ``` clojure
 
-(reader-string src)
-(reader-string src reason)
+(deploy-fetched env)
 ```
 
 
-Creates a `:READER` error map, for when the CVX reader fails on a string.
+Deploys actors that have prefetched with [[fetched]].
 
-## <a name="convex.shell.err/sreq">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/err.clj#L155-L163) `sreq`</a>
+## <a name="convex.shell.dep/fetch">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/dep.clj#L73-L156) `fetch`</a>
 ``` clojure
 
-(sreq code message trx)
+(fetch env)
+(fetch env required)
 ```
 
 
-Error map describing an error that occured when performing an operation for a request.
+Main function for fetching dependencies (Convex Lisp files), which may or may not be
+   deployed as actors in a latter step.
 
-## <a name="convex.shell.err/state">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/err.clj#L130-L137) `state`</a>
+## <a name="convex.shell.dep/project">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/dep.clj#L49-L67) `project`</a>
 ``` clojure
 
-(state message)
+(project ctx dep dir)
 ```
 
 
-Error map for a state exception.
-
-## <a name="convex.shell.err/state-load">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/err.clj#L141-L151) `state-load`</a>
-``` clojure
-
-(state-load library-path message ex)
-```
-
-
-Error map for when library deployment fails when loading a new state.
-
-## <a name="convex.shell.err/stream">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/err.clj#L167-L176) `stream`</a>
-``` clojure
-
-(stream id-stream message)
-```
-
-
-Error map for a generic stream error.
+Returns a `project.cvx` file where dependencies reside.
+  
+   Also validates it.
 
 -----
-# <a name="convex.shell.exec">convex.shell.exec</a>
+# <a name="convex.shell.dep.fail">convex.shell.dep.fail</a>
 
 
-All aspects of actually executing transactions.
-  
-   When an error is detected, [`convex.shell.exec.fail/err`](#convex.shell.exec.fail/err) is called.
+Builds on [`convex.shell.flow`](#convex.shell.flow) for returning CVM exceptions relating
+   to [`convex.shell.dep`](#convex.shell.dep).
 
 
 
 
-## <a name="convex.shell.exec/eval">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/exec.clj#L101-L124) `eval`</a>
+## <a name="convex.shell.dep.fail/rethrow-with-ancestry">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/dep/fail.clj#L34-L40) `rethrow-with-ancestry`</a>
 ``` clojure
 
-(eval env)
-(eval env trx)
+(rethrow-with-ancestry ctx ex ancestry)
 ```
 
 
-Evaluates `trx` after refilling juice.
-
-## <a name="convex.shell.exec/juice">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/exec.clj#L35-L42) `juice`</a>
+## <a name="convex.shell.dep.fail/with-ancestry">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/dep/fail.clj#L44-L52) `with-ancestry`</a>
 ``` clojure
 
-(juice env)
+(with-ancestry ctx code message ancestry)
 ```
 
-
-Computes consumed juice based on the current limit.
-
-## <a name="convex.shell.exec/max-juice">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/exec.clj#L25-L29) `max-juice`</a>
-
-Maximum juice value set on context prior to handling code.
-
-## <a name="convex.shell.exec/result">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/exec.clj#L46-L53) `result`</a>
-``` clojure
-
-(result env)
-```
-
-
-Extracts a result from the current context attached to `env`.
-
-## <a name="convex.shell.exec/sreq">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/exec.clj#L83-L95) `sreq`</a>
-
-After evaluating a transaction, the shell must check if the result is a special request.
-  
-   It uses [`sreq-dispatch`](#convex.shell.exec/sreq-dispatch) to forward the result to the appropriate special request implementation, an "unknown"
-   implementation if it looks like a special request but is not implemented, or the "nil" implementation if it is not
-   a special request.
-
-   Implentations of special requests are in the [`convex.shell.sreq`](#convex.shell.sreq) namespace.
-
-## <a name="convex.shell.exec/sreq-dispatch">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/exec.clj#L59-L79) `sreq-dispatch`</a>
-``` clojure
-
-(sreq-dispatch result)
-(sreq-dispatch _env result)
-```
-
-
-Dispatch function used by the [`sreq`](#convex.shell.exec/sreq) multimethod.
-  
-   Returns nil if the given result is not a special request.
-
-## <a name="convex.shell.exec/trx">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/exec.clj#L128-L140) `trx`</a>
-``` clojure
-
-(trx env trx)
-```
-
-
-Evaluates `trx` and forwards result to [`sreq`](#convex.shell.exec/sreq) unless an error occured.
-
-## <a name="convex.shell.exec/trx+">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/exec.clj#L160-L190) `trx+`</a>
-``` clojure
-
-(trx+ env)
-```
-
-
-Executes transactions located in `$.trx/*list*` in the context until that list becomes empty.
-
-## <a name="convex.shell.exec/trx-track-juice">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/exec.clj#L144-L156) `trx-track-juice`</a>
-``` clojure
-
-(trx-track-juice env trx)
-```
-
-
-Similar to [`trx`](#convex.shell.exec/trx) but requests are not performed, new state is discarded, and `$/*result*` is `[consumed-juice trx-result]`.
 
 -----
-# <a name="convex.shell.exec.fail">convex.shell.exec.fail</a>
+# <a name="convex.shell.dep.git">convex.shell.dep.git</a>
 
 
-About handling different failure scenarios.
+Git dependencies are a convenient way of exposing Convex Lisp project
+   over the Internet.
 
 
 
 
-## <a name="convex.shell.exec.fail/err">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/exec/fail.clj#L22-L43) `err`</a>
+## <a name="convex.shell.dep.git/fetch">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/dep/git.clj#L183-L212) `fetch`</a>
 ``` clojure
 
-(err env err)
+(fetch env project-child dep-parent actor-sym actor-path)
 ```
 
 
-Must be called in case of failure related to executing CVX Lisp, `err` being an error map (see the [`convex.shell.err`](#convex.shell.err)
-   namespace).
-  
-   Under CVX `$.catch/*stack*` in the context is a stack of error handling transactions. This functions pops
-   the next error handling transaction and prepends it to CVX `$.trx/*list*`, the list of transactions pending
-   for execution.
+Used in [`convex.shell.dep/fetch`](#convex.shell.dep/fetch) for fetching Git dependencies.
 
-   Also, error becomes available under `$/*result*`.
-
-   This simple scheme allows sophisticated exception handling to be implemented from CVX Lisp, as seen in the
-   `$.catch` acccount.
-
-## <a name="convex.shell.exec.fail/rethrow">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/exec/fail.clj#L49-L60) `rethrow`</a>
+## <a name="convex.shell.dep.git/path-cache-repo">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/dep/git.clj#L35-L94) `path-cache-repo`</a>
 ``` clojure
 
-(rethrow env ex)
+(path-cache-repo dir-project-parent url)
 ```
 
 
-Like [`err`](#convex.shell.exec.fail/err) but assumes the error has already been prepared as an exception result to return and the exception
-     on the CVM context has already been cleared.
+## <a name="convex.shell.dep.git/re-scp">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/dep/git.clj#L22-L23) `re-scp`</a>
 
-## <a name="convex.shell.exec.fail/top-exception">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/exec/fail.clj#L64-L93) `top-exception`</a>
+## <a name="convex.shell.dep.git/re-url">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/dep/git.clj#L27-L29) `re-url`</a>
+
+## <a name="convex.shell.dep.git/worktree">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/dep/git.clj#L98-L177) `worktree`</a>
 ``` clojure
 
-(top-exception ex)
+(worktree env dir-project-parent url sha)
 ```
 
 
-Called when a JVM exception is caught at the very top level of the shell.
-   No `env` is available at that point. This is last resort.
+Clones a repo and creates a worktree for the desired SHA (if none of this hasn't been
+   done already.
+
+-----
+# <a name="convex.shell.dep.local">convex.shell.dep.local</a>
+
+
+A local dependency points to another local directory which contains
+   its own `project.cvx`.
+
+
+
+
+## <a name="convex.shell.dep.local/fetch">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/dep/local.clj#L18-L52) `fetch`</a>
+``` clojure
+
+(fetch env project-child dep-parent actor-sym actor-path)
+```
+
+
+Used in [`convex.shell.dep/fetch`](#convex.shell.dep/fetch) for fetching local dependencies.
+
+-----
+# <a name="convex.shell.dep.relative">convex.shell.dep.relative</a>
+
+
+"Relative" dependency resolution mechanism.
+
+
+
+
+## <a name="convex.shell.dep.relative/content">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/dep/relative.clj#L109-L126) `content`</a>
+``` clojure
+
+(content env project-child dep-parent actor-sym actor-path)
+```
+
+
+Retrieves the content of a relative actor.
+
+## <a name="convex.shell.dep.relative/fetch">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/dep/relative.clj#L130-L180) `fetch`</a>
+``` clojure
+
+(fetch env project-child dep-parent actor-sym actor-path)
+```
+
+
+Used in [`convex.shell.dep/fetch`](#convex.shell.dep/fetch) for fetching relative dependencies.
+
+## <a name="convex.shell.dep.relative/path">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/dep/relative.clj#L20-L31) `path`</a>
+``` clojure
+
+(path project-child dep-parent actor-path)
+```
+
+
+Produces an actual file path form an actor path.
+
+## <a name="convex.shell.dep.relative/read">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/dep/relative.clj#L35-L71) `read`</a>
+``` clojure
+
+(read env path)
+```
+
+
+Reads a Convex Lisp file.
+
+## <a name="convex.shell.dep.relative/validate-required">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/dep/relative.clj#L75-L103) `validate-required`</a>
+``` clojure
+
+(validate-required ctx required ancestry)
+```
+
+
+Validates a deploy vector.
+
+-----
+# <a name="convex.shell.fail">convex.shell.fail</a>
+
+
+Helpers for handling Shell failures.
+
+
+
+
+## <a name="convex.shell.fail/mappify-cvm-ex">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/fail.clj#L18-L28) `mappify-cvm-ex`</a>
+``` clojure
+
+(mappify-cvm-ex ex)
+```
+
+
+Transforms the given CVM exception into a CVX map.
+
+## <a name="convex.shell.fail/top-exception">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/fail.clj#L32-L50) `top-exception`</a>
+``` clojure
+
+(top-exception ctx ex)
+```
+
+
+Called when an unforeseen JVM exception is caught.
+   Prints the exception to a tmp EDN file the user can inspect and
+   report as this would be almost certainly about an actual bug in
+   the Shell.
+
+-----
+# <a name="convex.shell.flow">convex.shell.flow</a>
+
+
+Sometimes, when failing to execute a request for any reason, it is easier
+   throwing the context in an exception caught and returned to the user at
+   a strategic point.
+
+
+
+
+## <a name="convex.shell.flow/fail">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/flow.clj#L21-L36) `fail`</a>
+``` clojure
+
+(fail ctx cvm-ex)
+(fail ctx code message)
+```
+
+
+Attaches a CVM exception to the context and forwards it to [`return`](#convex.shell.flow/return).
+
+## <a name="convex.shell.flow/return">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/flow.clj#L40-L47) `return`</a>
+``` clojure
+
+(return ctx)
+```
+
+
+Throws the context in an exception that can be catched using [`safe`](#convex.shell.flow/safe).
+
+## <a name="convex.shell.flow/safe">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/flow.clj#L51-L59) `safe`</a>
+``` clojure
+
+(safe *d)
+```
+
 
 -----
 # <a name="convex.shell.io">convex.shell.io</a>
 
 
 Basic IO utilities and STDIO.
-  
-   Text streams are meant for reading characters (`Reader` and `Writer`) while binary streams are meant to handle
-   raw bytes (`InputStream` and `OutputStream`).
 
 
 
 
-## <a name="convex.shell.io/file-in">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/io.clj#L104-L110) `file-in`</a>
+## <a name="convex.shell.io/file-in">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/io.clj#L75-L81) `file-in`</a>
 ``` clojure
 
 (file-in path)
@@ -667,7 +510,7 @@ Basic IO utilities and STDIO.
 
 Opens an input text stream for the file located under `path`.
 
-## <a name="convex.shell.io/file-out">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/io.clj#L114-L134) `file-out`</a>
+## <a name="convex.shell.io/file-out">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/io.clj#L85-L104) `file-out`</a>
 ``` clojure
 
 (file-out path)
@@ -679,7 +522,7 @@ Opens an output text stream for the file located under `path`.
    By default, overwrites any existing file. Writes will be appended to the end
    if `append?` is true.
 
-## <a name="convex.shell.io/flush">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/io.clj#L140-L147) `flush`</a>
+## <a name="convex.shell.io/flush">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/io.clj#L110-L117) `flush`</a>
 ``` clojure
 
 (flush out)
@@ -688,7 +531,7 @@ Opens an output text stream for the file located under `path`.
 
 Flushes the given `out`.
 
-## <a name="convex.shell.io/newline">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/io.clj#L151-L158) `newline`</a>
+## <a name="convex.shell.io/newline">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/io.clj#L121-L128) `newline`</a>
 ``` clojure
 
 (newline out)
@@ -697,385 +540,840 @@ Flushes the given `out`.
 
 Writes a new line to the given text output stream.
 
-## <a name="convex.shell.io/stderr">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/io.clj#L30-L34) `stderr`</a>
+## <a name="convex.shell.io/stderr">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/io.clj#L25-L29) `stderr`</a>
 
 File descriptor for STDERR.
 
-## <a name="convex.shell.io/stderr-bin">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/io.clj#L38-L42) `stderr-bin`</a>
-
-Binary stream for STDERR.
-
-## <a name="convex.shell.io/stderr-txt">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/io.clj#L46-L50) `stderr-txt`</a>
+## <a name="convex.shell.io/stderr-txt">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/io.clj#L33-L37) `stderr-txt`</a>
 
 Text stream for STDERR.
 
-## <a name="convex.shell.io/stdin">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/io.clj#L54-L58) `stdin`</a>
+## <a name="convex.shell.io/stdin">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/io.clj#L41-L45) `stdin`</a>
 
 File descriptor for STDIN.
 
-## <a name="convex.shell.io/stdin-bin">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/io.clj#L62-L66) `stdin-bin`</a>
-
-Binary stream for STDIN.
-
-## <a name="convex.shell.io/stdin-txt">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/io.clj#L70-L74) `stdin-txt`</a>
+## <a name="convex.shell.io/stdin-txt">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/io.clj#L49-L53) `stdin-txt`</a>
 
 Text stream for STDIN.
 
-## <a name="convex.shell.io/stdout">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/io.clj#L78-L82) `stdout`</a>
+## <a name="convex.shell.io/stdout">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/io.clj#L57-L61) `stdout`</a>
 
 File descriptor for STDOUT.
 
-## <a name="convex.shell.io/stdout-bin">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/io.clj#L86-L90) `stdout-bin`</a>
-
-Binary stream for STDOUT.
-
-## <a name="convex.shell.io/stdout-txt">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/io.clj#L94-L98) `stdout-txt`</a>
+## <a name="convex.shell.io/stdout-txt">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/io.clj#L65-L69) `stdout-txt`</a>
 
 Text stream for STDOUT.
 
 -----
-# <a name="convex.shell.kw">convex.shell.kw</a>
+# <a name="convex.shell.project">convex.shell.project</a>
 
 
-CVX keywords used by the shell.
+Convex Lisp projects may have a `project.cvx` file which contains useful
+   data for the Shell.
+  
+   For the time being, this is only used for dependencies (see [`convex.shell.req`](#convex.shell.req)).
 
 
 
 
-## <a name="convex.shell.kw/arg">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L16-L17) `arg`</a>
-
-## <a name="convex.shell.kw/catch-rethrow">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L19-L20) `catch-rethrow`</a>
-
-## <a name="convex.shell.kw/cause">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L22-L23) `cause`</a>
-
-## <a name="convex.shell.kw/code-read+">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L25-L26) `code-read+`</a>
-
-## <a name="convex.shell.kw/cvm-sreq">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L28-L29) `cvm-sreq`</a>
-
-## <a name="convex.shell.kw/dev-fatal">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L31-L32) `dev-fatal`</a>
-
-## <a name="convex.shell.kw/err-db">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L34-L35) `err-db`</a>
-
-## <a name="convex.shell.kw/err-filesystem">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L37-L38) `err-filesystem`</a>
-
-## <a name="convex.shell.kw/err-reader">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L40-L41) `err-reader`</a>
-
-## <a name="convex.shell.kw/err-stream">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L43-L44) `err-stream`</a>
-
-## <a name="convex.shell.kw/etch-flush">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L46-L47) `etch-flush`</a>
-
-## <a name="convex.shell.kw/etch-open">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L49-L50) `etch-open`</a>
-
-## <a name="convex.shell.kw/etch-path">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L52-L53) `etch-path`</a>
-
-## <a name="convex.shell.kw/etch-read">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L55-L56) `etch-read`</a>
-
-## <a name="convex.shell.kw/etch-read-only">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L58-L59) `etch-read-only`</a>
-
-## <a name="convex.shell.kw/etch-read-only?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L61-L62) `etch-read-only?`</a>
-
-## <a name="convex.shell.kw/etch-root-read">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L67-L68) `etch-root-read`</a>
-
-## <a name="convex.shell.kw/etch-root-write">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L70-L71) `etch-root-write`</a>
-
-## <a name="convex.shell.kw/etch-write">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L64-L65) `etch-write`</a>
-
-## <a name="convex.shell.kw/exception?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L73-L74) `exception?`</a>
-
-## <a name="convex.shell.kw/exec">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L76-L77) `exec`</a>
-
-## <a name="convex.shell.kw/file-copy">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L79-L80) `file-copy`</a>
-
-## <a name="convex.shell.kw/file-delete">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L82-L83) `file-delete`</a>
-
-## <a name="convex.shell.kw/file-exists">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L85-L86) `file-exists`</a>
-
-## <a name="convex.shell.kw/file-stream-in">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L88-L89) `file-stream-in`</a>
-
-## <a name="convex.shell.kw/file-stream-out">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L91-L92) `file-stream-out`</a>
-
-## <a name="convex.shell.kw/file-tmp">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L94-L95) `file-tmp`</a>
-
-## <a name="convex.shell.kw/file-tmp-dir">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L97-L98) `file-tmp-dir`</a>
-
-## <a name="convex.shell.kw/form">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L100-L101) `form`</a>
-
-## <a name="convex.shell.kw/juice-limit">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L103-L104) `juice-limit`</a>
-
-## <a name="convex.shell.kw/juice-limit-set">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L106-L107) `juice-limit-set`</a>
-
-## <a name="convex.shell.kw/juice-track">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L109-L110) `juice-track`</a>
-
-## <a name="convex.shell.kw/library-path">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L112-L113) `library-path`</a>
-
-## <a name="convex.shell.kw/log-clear">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L115-L116) `log-clear`</a>
-
-## <a name="convex.shell.kw/log-get">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L118-L119) `log-get`</a>
-
-## <a name="convex.shell.kw/path">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L121-L122) `path`</a>
-
-## <a name="convex.shell.kw/process-env">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L124-L125) `process-env`</a>
-
-## <a name="convex.shell.kw/process-exit">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L127-L128) `process-exit`</a>
-
-## <a name="convex.shell.kw/report">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L130-L131) `report`</a>
-
-## <a name="convex.shell.kw/result">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L133-L134) `result`</a>
-
-## <a name="convex.shell.kw/splice">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L136-L137) `splice`</a>
-
-## <a name="convex.shell.kw/src">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L139-L140) `src`</a>
-
-## <a name="convex.shell.kw/state-genesis">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L142-L143) `state-genesis`</a>
-
-## <a name="convex.shell.kw/state-load">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L145-L146) `state-load`</a>
-
-## <a name="convex.shell.kw/state-safe">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L148-L149) `state-safe`</a>
-
-## <a name="convex.shell.kw/stderr">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L151-L152) `stderr`</a>
-
-## <a name="convex.shell.kw/stdin">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L154-L155) `stdin`</a>
-
-## <a name="convex.shell.kw/stdout">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L157-L158) `stdout`</a>
-
-## <a name="convex.shell.kw/stream">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L160-L161) `stream`</a>
-
-## <a name="convex.shell.kw/stream-close">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L163-L164) `stream-close`</a>
-
-## <a name="convex.shell.kw/stream-flush">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L166-L167) `stream-flush`</a>
-
-## <a name="convex.shell.kw/stream-in+">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L169-L170) `stream-in+`</a>
-
-## <a name="convex.shell.kw/stream-line">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L172-L173) `stream-line`</a>
-
-## <a name="convex.shell.kw/stream-open?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L175-L176) `stream-open?`</a>
-
-## <a name="convex.shell.kw/stream-out">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L178-L179) `stream-out`</a>
-
-## <a name="convex.shell.kw/stream-outln">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L181-L182) `stream-outln`</a>
-
-## <a name="convex.shell.kw/stream-txt-in">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L184-L185) `stream-txt-in`</a>
-
-## <a name="convex.shell.kw/stream-txt-line">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L187-L188) `stream-txt-line`</a>
-
-## <a name="convex.shell.kw/stream-txt-out">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L190-L191) `stream-txt-out`</a>
-
-## <a name="convex.shell.kw/stream-txt-outln">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L193-L194) `stream-txt-outln`</a>
-
-## <a name="convex.shell.kw/time-advance">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L196-L197) `time-advance`</a>
-
-## <a name="convex.shell.kw/time-bench">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L199-L200) `time-bench`</a>
-
-## <a name="convex.shell.kw/time-iso->unix">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L202-L203) `time-iso->unix`</a>
-
-## <a name="convex.shell.kw/time-nano">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L205-L206) `time-nano`</a>
-
-## <a name="convex.shell.kw/time-unix">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L208-L209) `time-unix`</a>
-
-## <a name="convex.shell.kw/time-unix->iso">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L211-L212) `time-unix->iso`</a>
-
-## <a name="convex.shell.kw/trx">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/kw.clj#L214-L215) `trx`</a>
-
------
-
------
-# <a name="convex.shell.stream">convex.shell.stream</a>
-
-
-Handling files and STDIO streams.
-
-   A stream is an id that represents an opened file or a STDIO streams. Those ids are kept in env.
-
-   All operations, such as closing a stream or reading one, rely on [`operation`](#convex.shell.stream/operation).
-
-   Used for implementing IO requests.
-
-
-
-
-## <a name="convex.shell.stream/close">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/stream.clj#L160-L181) `close`</a>
+## <a name="convex.shell.project/dep+">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/project.clj#L64-L143) `dep+`</a>
 ``` clojure
 
-(close env handle)
-(close env handle result)
+(dep+ project fail)
 ```
 
 
-Closes the requested stream.
+Validates and returns `:deps` found in a `project.cvx`.
+
+## <a name="convex.shell.project/read">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/project.clj#L23-L58) `read`</a>
+``` clojure
+
+(read dir fail)
+```
+
+
+Reads the `project.cvx` file found in `dir`.
+
+-----
+# <a name="convex.shell.req">convex.shell.req</a>
+
+
+All extra features offered by the Shell, over the Convex Virtual Machine, have
+   a single entry point: the `.shell.invoke` function injected in the core account.
+
+   AKA the [`invoker`](#convex.shell.req/invoker).
+
+   The various side effects, implemented in Clojure and made available through the
+   [`invoker`](#convex.shell.req/invoker), are known as "requests".
+
+
+
+
+## <a name="convex.shell.req/core">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req.clj#L99-L165) `core`</a>
+
+All core requests.
+  
+   A map of CVX symbols pointing to a Clojure implementations.
+
+## <a name="convex.shell.req/ex-rethrow">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req.clj#L48-L93) `ex-rethrow`</a>
+``` clojure
+
+(ex-rethrow ctx [ex-map])
+```
+
+
+Request for rethrowing an exception captured in the Shell.
+
+## <a name="convex.shell.req/invoker">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req.clj#L212-L267) `invoker`</a>
+``` clojure
+
+(invoker)
+(invoker dispatch-table)
+```
+
+
+Returns an [`invoker`](#convex.shell.req/invoker).
+
+   Disguised as a CVM core function, the [`invoker`](#convex.shell.req/invoker) is a variadic CVM function where
+   the first argument is a CVX symbol resolving to a Clojure implementation that will
+   produce the desired request, such as opening a file output stream.
+
+   The symbol is resolved using a "dispatch table".
+   Defaults to [`core`](#convex.shell.req/core) but one may want to extend it in order to provide additional
+   features.
+  
+   It will be injected in the core account of the context used by the Shell, under
+   `.shell.invoke`.
+
+-----
+# <a name="convex.shell.req.account">convex.shell.req.account</a>
+
+
+Requests relating to accounts.
+
+
+
+
+## <a name="convex.shell.req.account/switch">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/account.clj#L19-L42) `switch`</a>
+``` clojure
+
+(switch ctx [address])
+```
+
+
+Requests for switching the context to another address.
+  
+   Returns a context which has lost local bindings and such useful information.
+   However, this is fine when this request is called via `.account.switch`, a real
+   CVX function which will automatically restore all that. Things do go wrong if the
+   user calls `(.shell.invoke 'account.switch ...)` directly (but shouldn't have to do
+   that.
+
+-----
+# <a name="convex.shell.req.bench">convex.shell.req.bench</a>
+
+
+Requests related to benchmarking.
+
+
+
+
+## <a name="convex.shell.req.bench/trx">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/bench.clj#L15-L28) `trx`</a>
+``` clojure
+
+(trx ctx [trx])
+```
+
+
+Request for benchmarking a single transaction using Criterium.
+
+-----
+# <a name="convex.shell.req.db">convex.shell.req.db</a>
+
+
+Requests relating to Etch.
+
+
+
+
+## <a name="convex.shell.req.db/flush">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/db.clj#L57-L66) `flush`</a>
+``` clojure
+
+(flush ctx _arg+)
+```
+
+
+Request for flushing Etch.
+
+## <a name="convex.shell.req.db/open">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/db.clj#L70-L112) `open`</a>
+``` clojure
+
+(open ctx [path])
+```
+
+
+Request for opening an Etch instance.
+  
+   Only one instance can be open per Shell, so that the user cannot possible
+   mingle cells coming from different instances.
+   Idempotent nonetheless if the user provides the same path.
+
+## <a name="convex.shell.req.db/path">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/db.clj#L116-L124) `path`</a>
+``` clojure
+
+(path ctx _arg+)
+```
+
+
+Request for getting the path of the currently open instance (or nil).
+
+## <a name="convex.shell.req.db/read">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/db.clj#L128-L142) `read`</a>
+``` clojure
+
+(read ctx [hash])
+```
+
+
+Request for reading a cell by hash.
+
+## <a name="convex.shell.req.db/root-read">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/db.clj#L146-L154) `root-read`</a>
+``` clojure
+
+(root-read ctx _arg+)
+```
+
+
+Request for reading from the root.
+
+## <a name="convex.shell.req.db/root-write">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/db.clj#L158-L166) `root-write`</a>
+``` clojure
+
+(root-write ctx [cell])
+```
+
+
+Request for writing to the root.
+
+## <a name="convex.shell.req.db/write">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/db.clj#L170-L178) `write`</a>
+``` clojure
+
+(write ctx [cell])
+```
+
+
+Request for writing a cell.
+
+-----
+# <a name="convex.shell.req.dep">convex.shell.req.dep</a>
+
+
+Requests for the experimental dependency management framework.
+  
+   See [`convex.shell.dep`](#convex.shell.dep).
+
+
+
+
+## <a name="convex.shell.req.dep/deploy">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/dep.clj#L18-L31) `deploy`</a>
+``` clojure
+
+(deploy ctx [required])
+```
+
+
+Request for deploying a deploy vector.
+
+## <a name="convex.shell.req.dep/fetch">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/dep.clj#L35-L52) `fetch`</a>
+``` clojure
+
+(fetch ctx [required])
+```
+
+
+Request for fetching required dependencies given a deploy vector.
+   Does not execute nor deploy anything in the Shell.
+
+## <a name="convex.shell.req.dep/read">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/dep.clj#L56-L70) `read`</a>
+``` clojure
+
+(read ctx [required])
+```
+
+
+Request for reading CVX files resolved from a deploy vector.
+
+-----
+# <a name="convex.shell.req.dev">convex.shell.req.dev</a>
+
+
+Requests only used for dev purposes.
+
+
+
+
+## <a name="convex.shell.req.dev/fatal">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/dev.clj#L11-L18) `fatal`</a>
+``` clojure
+
+(fatal _ctx [message])
+```
+
+
+Request for throwing a JVM exception, which should result in a fatal
+   error in the Shell.
+
+-----
+# <a name="convex.shell.req.file">convex.shell.req.file</a>
+
+
+Requests relating to file utils.
+  
+   For the time being, only about opening streams. All other utilities are
+   written in Convex Lisp.
+
+
+
+
+## <a name="convex.shell.req.file/stream-in">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/file.clj#L49-L59) `stream-in`</a>
+``` clojure
+
+(stream-in ctx [id path])
+```
+
+
+Request for opening an input stream for file under `path`.
+
+## <a name="convex.shell.req.file/stream-out">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/file.clj#L63-L75) `stream-out`</a>
+``` clojure
+
+(stream-out ctx [id path append?])
+```
+
+
+Request for opening an output stream for file under `path`.
+
+-----
+# <a name="convex.shell.req.fs">convex.shell.req.fs</a>
+
+
+Requests relating to filesystem utilities.
+
+
+
+
+## <a name="convex.shell.req.fs/copy">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/fs.clj#L24-L69) `copy`</a>
+``` clojure
+
+(copy ctx [source destination])
+```
+
+
+Request for copying files and directories like Unix's `cp`.
+
+## <a name="convex.shell.req.fs/delete">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/fs.clj#L73-L104) `delete`</a>
+``` clojure
+
+(delete ctx [path])
+```
+
+
+Request for deleting a file or an empty directory.
+
+## <a name="convex.shell.req.fs/dir?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/fs.clj#L108-L119) `dir?`</a>
+``` clojure
+
+(dir? ctx [path])
+```
+
+
+Request returning `true` if `path` is an actual directory.
+
+## <a name="convex.shell.req.fs/exists?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/fs.clj#L123-L143) `exists?`</a>
+``` clojure
+
+(exists? ctx [path])
+```
+
+
+Request returning `true` if `path` exists.
+
+## <a name="convex.shell.req.fs/file?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/fs.clj#L147-L158) `file?`</a>
+``` clojure
+
+(file? ctx [path])
+```
+
+
+Request returning `true` if `file` is an actual, regular file.
+
+## <a name="convex.shell.req.fs/resolve">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/fs.clj#L162-L178) `resolve`</a>
+``` clojure
+
+(resolve ctx [path])
+```
+
+
+Request for resolving a filename to a canonical form.
+
+## <a name="convex.shell.req.fs/size">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/fs.clj#L182-L207) `size`</a>
+``` clojure
+
+(size ctx [path])
+```
+
+
+Request for returning a filesize in bytes.
+
+## <a name="convex.shell.req.fs/tmp">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/fs.clj#L211-L236) `tmp`</a>
+``` clojure
+
+(tmp ctx [prefix suffix])
+```
+
+
+Request for creating a temporary file.
+
+## <a name="convex.shell.req.fs/tmp-dir">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/fs.clj#L240-L260) `tmp-dir`</a>
+``` clojure
+
+(tmp-dir ctx [prefix])
+```
+
+
+Request for creating a temporary directory.
+
+-----
+# <a name="convex.shell.req.juice">convex.shell.req.juice</a>
+
+
+Requests relating to juice.
+
+
+
+
+## <a name="convex.shell.req.juice/set">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/juice.clj#L17-L33) `set`</a>
+``` clojure
+
+(set ctx [n-unit])
+```
+
+
+Request for setting the current juice value.
+
+## <a name="convex.shell.req.juice/track">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/juice.clj#L37-L52) `track`</a>
+``` clojure
+
+(track ctx [trx])
+```
+
+
+Request for tracking juice cost of a transaction.
+  
+   See `.juice.track`.
+
+-----
+# <a name="convex.shell.req.log">convex.shell.req.log</a>
+
+
+Requests relating to the CVM log.
+
+
+
+
+## <a name="convex.shell.req.log/clear">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/log.clj#L14-L22) `clear`</a>
+``` clojure
+
+(clear ctx _arg+)
+```
+
+
+Request for clearing the CVM log.
+
+## <a name="convex.shell.req.log/get">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/log.clj#L26-L33) `get`</a>
+``` clojure
+
+(get ctx _arg+)
+```
+
+
+Request for retrieving the CVM log.
+
+-----
+# <a name="convex.shell.req.reader">convex.shell.req.reader</a>
+
+
+Requests relating to the CVX reader.
+
+
+
+
+## <a name="convex.shell.req.reader/form+">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/reader.clj#L17-L41) `form+`</a>
+``` clojure
+
+(form+ ctx [src])
+```
+
+
+Request for reading cells from a string.
+
+-----
+# <a name="convex.shell.req.state">convex.shell.req.state</a>
+
+
+Requests relating to the global state.
+
+
+
+
+## <a name="convex.shell.req.state/genesis">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/state.clj#L46-L78) `genesis`</a>
+``` clojure
+
+(genesis ctx [key+])
+```
+
+
+Request for generating a genesis state.
+
+## <a name="convex.shell.req.state/safe">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/state.clj#L82-L93) `safe`</a>
+``` clojure
+
+(safe ctx [f])
+```
+
+
+Request for executing code in a safe way.
+  
+   In case of an exception, state is reverted.
+
+## <a name="convex.shell.req.state/switch">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/state.clj#L97-L126) `switch`</a>
+``` clojure
+
+(switch ctx [address state])
+```
+
+
+Request for switching a context to the given state.
+
+## <a name="convex.shell.req.state/tmp">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/state.clj#L130-L139) `tmp`</a>
+``` clojure
+
+(tmp ctx [f])
+```
+
+
+Exactly like [`safe`](#convex.shell.req.state/safe) but the state is always reverted, even in case of success.
+
+-----
+# <a name="convex.shell.req.str">convex.shell.req.str</a>
+
+
+Requests relating to strings.
+
+
+
+
+## <a name="convex.shell.req.str/sort">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/str.clj#L20-L34) `sort`</a>
+``` clojure
+
+(sort ctx [str+])
+```
+
+
+Secret request for sorting a vector of strings.
+
+## <a name="convex.shell.req.str/stream-in">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/str.clj#L38-L56) `stream-in`</a>
+``` clojure
+
+(stream-in ctx [id string])
+```
+
+
+Request for turning a string into an input stream.
+
+## <a name="convex.shell.req.str/stream-out">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/str.clj#L60-L70) `stream-out`</a>
+``` clojure
+
+(stream-out ctx [id])
+```
+
+
+Request for creating an output stream backed by a string.
+
+## <a name="convex.shell.req.str/stream-unwrap">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/str.clj#L73-L84) `stream-unwrap`</a>
+``` clojure
+
+(stream-unwrap ctx [handle])
+```
+
+
+Request for extracting the string inside a [`stream-out`](#convex.shell.req.str/stream-out).
+
+-----
+# <a name="convex.shell.req.stream">convex.shell.req.stream</a>
+
+
+Requests relating to IO streams.
+
+
+
+
+## <a name="convex.shell.req.stream/close">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/stream.clj#L155-L177) `close`</a>
+``` clojure
+
+(close ctx arg+)
+(close ctx [handle] result)
+```
+
+
+Request for closing the given stream.
+
    A result to propagate may be provided.
 
-## <a name="convex.shell.stream/file-in">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/stream.clj#L382-L392) `file-in`</a>
+## <a name="convex.shell.req.stream/flush">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/stream.clj#L181-L193) `flush`</a>
 ``` clojure
 
-(file-in env handle path)
+(flush ctx [handle])
 ```
 
 
-Opens an input stream for file under `path`.
+Request for flushing the requested stream.
 
-## <a name="convex.shell.stream/file-out">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/stream.clj#L396-L408) `file-out`</a>
+## <a name="convex.shell.req.stream/in+">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/stream.clj#L197-L208) `in+`</a>
 ``` clojure
 
-(file-out env handle path append?)
+(in+ ctx [handle])
 ```
 
 
-Opens an output stream for file under `path`.
+Request for reading all available cells from the given stream and closing it.
 
-## <a name="convex.shell.stream/flush">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/stream.clj#L185-L196) `flush`</a>
+## <a name="convex.shell.req.stream/line">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/stream.clj#L212-L224) `line`</a>
 ``` clojure
 
-(flush env handle)
+(line ctx [handle])
 ```
 
 
-Flushes the requested stream.
+Request for reading a line from the given stream and parsing it into a list of cells.
 
-## <a name="convex.shell.stream/in+">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/stream.clj#L200-L210) `in+`</a>
+## <a name="convex.shell.req.stream/operation">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/stream.clj#L105-L149) `operation`</a>
 ``` clojure
 
-(in+ env handle)
-```
-
-
-Reads all available cells from the requested stream and closes it.
-
-## <a name="convex.shell.stream/line">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/stream.clj#L214-L224) `line`</a>
-``` clojure
-
-(line env handle)
-```
-
-
-Reads a line from the requested stream and parses it into a list of cells.
-
-## <a name="convex.shell.stream/operation">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/stream.clj#L110-L154) `operation`</a>
-``` clojure
-
-(operation env handle op+ f)
+(operation ctx handle op+ f)
 ```
 
 
 Generic function for carrying out an operation.
-  
-   Retrieves the stream associated with `handle` and executes `(f env stream`).
-  
-   Takes care of failure.
 
-## <a name="convex.shell.stream/out">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/stream.clj#L245-L254) `out`</a>
+   Handles failure.
+
+## <a name="convex.shell.req.stream/out">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/stream.clj#L246-L255) `out`</a>
 ``` clojure
 
-(out env handle cell)
+(out ctx [handle cell])
 ```
 
 
-Writes `cell` to the requested stream.
+Request for writing a `cell` to the given stream.
 
-## <a name="convex.shell.stream/outln">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/stream.clj#L278-L287) `outln`</a>
+## <a name="convex.shell.req.stream/outln">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/stream.clj#L280-L289) `outln`</a>
 ``` clojure
 
-(outln env handle cell)
+(outln env [handle cell])
 ```
 
 
-Like [`out`](#convex.shell.stream/out) but appends a new line and flushes the stream.
+Like [`out`](#convex.shell.req.stream/out) but appends a new line and flushes the stream.
 
-## <a name="convex.shell.stream/txt-in">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/stream.clj#L291-L307) `txt-in`</a>
+## <a name="convex.shell.req.stream/stderr">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/stream.clj#L26-L30) `stderr`</a>
+
+Wraps STDERR to make it accessible to the CVM.
+
+## <a name="convex.shell.req.stream/stdin">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/stream.clj#L34-L38) `stdin`</a>
+
+Wraps STDIN to make it accessible to the CVM.
+
+## <a name="convex.shell.req.stream/stdout">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/stream.clj#L42-L46) `stdout`</a>
+
+Wraps STDOUT to make it accessible to the CVM.
+
+## <a name="convex.shell.req.stream/txt-in">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/stream.clj#L293-L309) `txt-in`</a>
 ``` clojure
 
-(txt-in env handle)
+(txt-in ctx [handle])
 ```
 
 
-Reads everything from the requested stream as text.
+Request for reading everything from the given stream as text.
 
-## <a name="convex.shell.stream/txt-line">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/stream.clj#L311-L323) `txt-line`</a>
+## <a name="convex.shell.req.stream/txt-line">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/stream.clj#L313-L326) `txt-line`</a>
 ``` clojure
 
-(txt-line env handle)
+(txt-line ctx [handle])
 ```
 
 
-Reads a line from the requested stream as text.
+Request for reading a line from the given stream as text.
 
-## <a name="convex.shell.stream/txt-out">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/stream.clj#L327-L336) `txt-out`</a>
+## <a name="convex.shell.req.stream/txt-out">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/stream.clj#L330-L339) `txt-out`</a>
 ``` clojure
 
-(txt-out env handle cell)
+(txt-out ctx [handle cell])
 ```
 
 
-Like [`out`](#convex.shell.stream/out) but if `cell` is a string, then it is not quoted.
+Like [`out`](#convex.shell.req.stream/out) but if `cell` is a string, then it is not double-quoted.
 
-## <a name="convex.shell.stream/txt-outln">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/stream.clj#L340-L349) `txt-outln`</a>
+## <a name="convex.shell.req.stream/txt-outln">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/stream.clj#L343-L352) `txt-outln`</a>
 ``` clojure
 
-(txt-outln env handle cell)
+(txt-outln ctx [handle cell])
 ```
 
 
-Is to [`outln`](#convex.shell.stream/outln) what [[out-txt]] is to [`out`](#convex.shell.stream/out).
+Is to [`outln`](#convex.shell.req.stream/outln) what [[out-txt]] is to [`out`](#convex.shell.req.stream/out).
 
 -----
-# <a name="convex.shell.sym">convex.shell.sym</a>
+# <a name="convex.shell.req.sys">convex.shell.req.sys</a>
 
 
-CVX symbols used by the shell.
+Requests relating to basic system utilities.
 
 
 
 
-## <a name="convex.shell.sym/$">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/sym.clj#L31-L32) `$`</a>
+## <a name="convex.shell.req.sys/arch">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/sys.clj#L16-L23) `arch`</a>
+``` clojure
 
-## <a name="convex.shell.sym/$-account">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/sym.clj#L34-L35) `$-account`</a>
+(arch ctx _arg+)
+```
 
-## <a name="convex.shell.sym/$-catch">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/sym.clj#L37-L38) `$-catch`</a>
 
-## <a name="convex.shell.sym/$-code">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/sym.clj#L40-L41) `$-code`</a>
+Request for returning the chip architecture as a string.
 
-## <a name="convex.shell.sym/$-db">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/sym.clj#L43-L44) `$-db`</a>
+## <a name="convex.shell.req.sys/cwd">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/sys.clj#L27-L34) `cwd`</a>
+``` clojure
 
-## <a name="convex.shell.sym/$-file">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/sym.clj#L46-L47) `$-file`</a>
+(cwd ctx _arg+)
+```
 
-## <a name="convex.shell.sym/$-fs">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/sym.clj#L49-L50) `$-fs`</a>
 
-## <a name="convex.shell.sym/$-help">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/sym.clj#L52-L53) `$-help`</a>
+Request for returning the current working directory (where the Shell started).
 
-## <a name="convex.shell.sym/$-juice">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/sym.clj#L55-L56) `$-juice`</a>
+## <a name="convex.shell.req.sys/env">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/sys.clj#L38-L48) `env`</a>
+``` clojure
 
-## <a name="convex.shell.sym/$-log">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/sym.clj#L58-L59) `$-log`</a>
+(env ctx _arg+)
+```
 
-## <a name="convex.shell.sym/$-process">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/sym.clj#L61-L62) `$-process`</a>
 
-## <a name="convex.shell.sym/$-repl">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/sym.clj#L64-L65) `$-repl`</a>
+Request for returning the map of process environment variables.
 
-## <a name="convex.shell.sym/$-state">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/sym.clj#L67-L68) `$-state`</a>
+## <a name="convex.shell.req.sys/env-var">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/sys.clj#L52-L64) `env-var`</a>
+``` clojure
 
-## <a name="convex.shell.sym/$-stream">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/sym.clj#L70-L71) `$-stream`</a>
+(env-var ctx [env-var])
+```
 
-## <a name="convex.shell.sym/$-term">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/sym.clj#L76-L77) `$-term`</a>
 
-## <a name="convex.shell.sym/$-test">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/sym.clj#L79-L80) `$-test`</a>
+Request for returning the value for a single process environment variable.
 
-## <a name="convex.shell.sym/$-time">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/sym.clj#L73-L74) `$-time`</a>
+## <a name="convex.shell.req.sys/exit">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/sys.clj#L68-L86) `exit`</a>
+``` clojure
 
-## <a name="convex.shell.sym/$-trx">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/sym.clj#L82-L83) `$-trx`</a>
+(exit ctx [code])
+```
 
-## <a name="convex.shell.sym/active?*">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/sym.clj#L15-L16) `active?*`</a>
 
-## <a name="convex.shell.sym/genesis">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/sym.clj#L85-L86) `genesis`</a>
+Request for terminating the process.
 
-## <a name="convex.shell.sym/line">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/sym.clj#L88-L89) `line`</a>
+## <a name="convex.shell.req.sys/home">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/sys.clj#L90-L97) `home`</a>
+``` clojure
 
-## <a name="convex.shell.sym/list*">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/sym.clj#L18-L19) `list*`</a>
+(home ctx _arg+)
+```
 
-## <a name="convex.shell.sym/out*">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/sym.clj#L21-L22) `out*`</a>
 
-## <a name="convex.shell.sym/result*">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/sym.clj#L24-L25) `result*`</a>
+Request for returning the home directory.
 
-## <a name="convex.shell.sym/version">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/sym.clj#L91-L92) `version`</a>
+## <a name="convex.shell.req.sys/os">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/sys.clj#L101-L109) `os`</a>
+``` clojure
 
-## <a name="convex.shell.sym/version-convex">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/sym.clj#L94-L95) `version-convex`</a>
+(os ctx _arg+)
+```
+
+
+Request for returning a tuple `[OS Version]`.
+
+-----
+# <a name="convex.shell.req.time">convex.shell.req.time</a>
+
+
+Requests relating to time.
+
+
+
+
+## <a name="convex.shell.req.time/-millis">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/time.clj#L17-L35) `-millis`</a>
+``` clojure
+
+(-millis ctx millis)
+```
+
+
+## <a name="convex.shell.req.time/advance">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/time.clj#L41-L57) `advance`</a>
+``` clojure
+
+(advance ctx [millis])
+```
+
+
+Request for moving forward the CVM timestamp.
+
+## <a name="convex.shell.req.time/iso->unix">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/time.clj#L88-L102) `iso->unix`</a>
+``` clojure
+
+(iso->unix ctx [iso-string])
+```
+
+
+Request for converting an ISO 8601 UTC string into a Unix timestamp.
+
+## <a name="convex.shell.req.time/nano">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/time.clj#L63-L71) `nano`</a>
+``` clojure
+
+(nano ctx _arg+)
+```
+
+
+Request for returning the current time according to the JVM high-resolution
+   timer.
+
+## <a name="convex.shell.req.time/sleep">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/time.clj#L125-L138) `sleep`</a>
+``` clojure
+
+(sleep ctx [millis])
+```
+
+
+Request for temporarily blocking execution.
+
+## <a name="convex.shell.req.time/unix">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/time.clj#L75-L82) `unix`</a>
+``` clojure
+
+(unix ctx _arg+)
+```
+
+
+Request for returning the current Unix timestamp of the machine.
+
+## <a name="convex.shell.req.time/unix->iso">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/shell/src/main/clj/convex/shell/req/time.clj#L105-L119) `unix->iso`</a>
+``` clojure
+
+(unix->iso ctx [time-unix])
+```
+
+
+Opposite of [`iso->unix`](#convex.shell.req.time/iso->unix).
 
 -----
 # <a name="convex.shell.time">convex.shell.time</a>

@@ -14,6 +14,7 @@ provided.
 
 - Impacted
     - [`module/cvm`]
+    - [`module/shell`] (major rewrite)
 
 
 ---

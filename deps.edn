@@ -408,7 +408,7 @@
   :module/shell
 
   {:convex/type                           #{:app}
-   :convex.shell/version                  "0.0.0-alpha4"
+   :convex.shell/version                  "2023-01-18"
    :extra-paths                           ["module/shell/resource/main"
                                            "module/shell/src/main/clj"
                                            "module/shell/src/main/cvx"]
@@ -424,6 +424,9 @@
                                            :module/cvm
                                            {dev :dev/shell}]
    :maestro/root                          "module/shell"
+   :maestro.module.expose/name            world.convex/shell
+   :maestro.module.requirer/namespace     convex.shell.-requirer
+   :maestro.module.requirer/path          "module/shell/src/main/clj"
    :maestro.plugin.build/type             :uberjar
    :maestro.plugin.build.path/output      "private/target/shell.uber.jar"
    :maestro.plugin.build.uberjar/compiler {:direct-linking true

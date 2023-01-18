@@ -15,6 +15,8 @@
     -  [`double`](#convex.cell/double) - Creates a double cell.
     -  [`encoding`](#convex.cell/encoding) - Returns a blob representing the encoding of the given <code>cell</code>.
     -  [`error`](#convex.cell/error) - An error value as Convex data.
+    -  [`fake`](#convex.cell/fake) - Returns a proxy class which looks like a cell, wrapping <code>x</code> which can be any JVM value.
+    -  [`fake?`](#convex.cell/fake?) - Returns true if <code>cell</code> has been produced by [[fake]].
     -  [`hash`](#convex.cell/hash) - Returns the hash of the given <code>cell</code>.
     -  [`hash<-blob`](#convex.cell/hash<-blob) - Converts a 32-byte blob to a hash.
     -  [`hash<-hex`](#convex.cell/hash<-hex) - Creates a hash from a hex string.
@@ -66,6 +68,8 @@
     -  [`exception-clear`](#convex.cvm/exception-clear) - Removes the currently attached exception from the given <code>ctx</code>.
     -  [`exception-code`](#convex.cvm/exception-code) - Returns the code associated with the given [[exception]].
     -  [`exception-message`](#convex.cvm/exception-message) - Returns the message associated with the given [[exception]].
+    -  [`exception-set`](#convex.cvm/exception-set) - Returns a <code>ctx</code> set in an exceptional state.
+    -  [`exception-trace`](#convex.cvm/exception-trace) - Returns the trace associated with the given [[exception]] (CVX list of strings).
     -  [`exception?`](#convex.cvm/exception?) - Returns true if the given <code>ctx</code> is in an exceptional state.
     -  [`exec`](#convex.cvm/exec) - Executes compiled code.
     -  [`expand`](#convex.cvm/expand) - Expands <code>cell</code> into a <code>canonical cell</code> by applying macros.
@@ -158,6 +162,7 @@
     -  [`false?`](#convex.std/false?) - Is <code>x</code> a <code>false</code> cell?.
     -  [`find`](#convex.std/find) - Like classic <code>find</code>` but for map cells.
     -  [`floor`](#convex.std/floor) - Returns a double cell flooring the value of <code>x</code>.
+    -  [`fn?`](#convex.std/fn?) - Is <code>x</code> a CVM function?.
     -  [`get`](#convex.std/get) - Like classic <code>get</code> but for collection cells.
     -  [`hash-map`](#convex.std/hash-map) - Builds a map from key-values.
     -  [`hash-map?`](#convex.std/hash-map?) - Is <code>x</code> a hash map cell?.
@@ -187,6 +192,7 @@
     -  [`set?`](#convex.std/set?) - Is <code>x</code> a set cell? Currently at least, hast sets are the only kind of available sets.
     -  [`signum`](#convex.std/signum) - Returns the sign of the number.
     -  [`sqrt`](#convex.std/sqrt) - Returns a double cell, the square root of the given <code>number</code> cell.
+    -  [`state?`](#convex.std/state?) - Is <code>x</code> a state cell?.
     -  [`str`](#convex.std/str) - Stringifies the given cell(s).
     -  [`string?`](#convex.std/string?) - Is <code>x</code> a string cell?.
     -  [`subset?`](#convex.std/subset?) - Like <code>clojure.set/subset?</code> but for set cells.
@@ -214,7 +220,7 @@ Constructors for CVM cells.
 
 
 
-## <a name="convex.cell/*">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L770-L789) `*`</a>
+## <a name="convex.cell/*">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L775-L794) `*`</a>
 ``` clojure
 
 (* x)
@@ -239,7 +245,7 @@ Macro for translating Clojure types to Convex types.
                 500000))
    ```
 
-## <a name="convex.cell/IEquivalent">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L610-L620) `IEquivalent`</a>
+## <a name="convex.cell/IEquivalent">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L615-L625) `IEquivalent`</a>
 
 Translates Clojure types to equivalent Convex types. Other objects remain as they are.
 
@@ -249,7 +255,7 @@ Translates Clojure types to equivalent Convex types. Other objects remain as the
    (any {:a ['b]})
    ```
 
-## <a name="convex.cell/address">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L114-L122) `address`</a>
+## <a name="convex.cell/address">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L119-L127) `address`</a>
 ``` clojure
 
 (address long)
@@ -258,14 +264,14 @@ Translates Clojure types to equivalent Convex types. Other objects remain as the
 
 Creates an address from a long.
 
-## <a name="convex.cell/any">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L610-L620) `any`</a>
+## <a name="convex.cell/any">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L615-L625) `any`</a>
 ``` clojure
 
 (any data)
 ```
 
 
-## <a name="convex.cell/blob">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L126-L134) `blob`</a>
+## <a name="convex.cell/blob">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L131-L139) `blob`</a>
 ``` clojure
 
 (blob byte-array)
@@ -274,7 +280,7 @@ Creates an address from a long.
 
 Creates a blob from a byte array.
 
-## <a name="convex.cell/blob-map">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L150-L169) `blob-map`</a>
+## <a name="convex.cell/blob-map">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L155-L174) `blob-map`</a>
 ``` clojure
 
 (blob-map)
@@ -284,7 +290,7 @@ Creates a blob from a byte array.
 
 Creates a blob map from a collection of `[blob value]`.
 
-## <a name="convex.cell/blob<-hex">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L138-L146) `blob<-hex`</a>
+## <a name="convex.cell/blob<-hex">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L143-L151) `blob<-hex`</a>
 ``` clojure
 
 (blob<-hex hex-string)
@@ -293,7 +299,7 @@ Creates a blob map from a collection of `[blob value]`.
 
 Creates a blob from a hex string.
 
-## <a name="convex.cell/boolean">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L173-L181) `boolean`</a>
+## <a name="convex.cell/boolean">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L178-L186) `boolean`</a>
 ``` clojure
 
 (boolean x)
@@ -302,7 +308,7 @@ Creates a blob from a hex string.
 
 Creates a boolean cell given a falsy or truthy value.
 
-## <a name="convex.cell/byte">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L185-L193) `byte`</a>
+## <a name="convex.cell/byte">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L190-L198) `byte`</a>
 ``` clojure
 
 (byte b)
@@ -311,7 +317,7 @@ Creates a boolean cell given a falsy or truthy value.
 
 Creates a byte cell from a value between 0 and 255 (inclusive).
 
-## <a name="convex.cell/call">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L197-L218) `call`</a>
+## <a name="convex.cell/call">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L202-L223) `call`</a>
 ``` clojure
 
 (call address sequence address-callable function-name args)
@@ -321,7 +327,7 @@ Creates a byte cell from a value between 0 and 255 (inclusive).
 
 Creates a transaction for invoking a callable function.
 
-## <a name="convex.cell/char">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L296-L304) `char`</a>
+## <a name="convex.cell/char">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L301-L309) `char`</a>
 ``` clojure
 
 (char ch)
@@ -330,7 +336,7 @@ Creates a transaction for invoking a callable function.
 
 Creates a character cell from a regular character.
 
-## <a name="convex.cell/code-std*">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L222-L292) `code-std*`</a>
+## <a name="convex.cell/code-std*">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L227-L297) `code-std*`</a>
 ``` clojure
 
 (code-std* kw)
@@ -376,7 +382,7 @@ Given a Clojure keyword, returns the corresponding standard error code.
   
    Note that in user functions, codes can be anything, any type, using those codes is not at all mandatory.
 
-## <a name="convex.cell/double">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L308-L316) `double`</a>
+## <a name="convex.cell/double">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L313-L321) `double`</a>
 ``` clojure
 
 (double x)
@@ -385,7 +391,7 @@ Given a Clojure keyword, returns the corresponding standard error code.
 
 Creates a double cell.
 
-## <a name="convex.cell/encoding">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L320-L330) `encoding`</a>
+## <a name="convex.cell/encoding">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L325-L335) `encoding`</a>
 ``` clojure
 
 (encoding cell)
@@ -396,7 +402,7 @@ Returns a blob representing the encoding of the given `cell`.
 
    This encoding is meant for incremental updates.
 
-## <a name="convex.cell/error">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L430-L454) `error`</a>
+## <a name="convex.cell/error">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L435-L459) `error`</a>
 ``` clojure
 
 (error message)
@@ -410,7 +416,36 @@ An error value as Convex data.
      `code` is often a keyword cell (`:ASSERT` by default), `message` could be any cell (albeit often a human-readable
      string), and `trace` is an optional stacktrace (vector cell of string cells).
 
-## <a name="convex.cell/hash">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L334-L344) `hash`</a>
+## <a name="convex.cell/fake">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L808-L866) `fake`</a>
+``` clojure
+
+(fake x)
+```
+
+
+Returns a proxy class which looks like a cell, wrapping `x` which can be
+   any JVM value.
+  
+   For expert users only!
+   Primarily useful for allowing actual cells to store any arbitrary JVM values.
+
+   `deref` will return `x`.
+  
+   Prints as the symbol cell `DEREF-ME` but is not an actual symbol cell.
+   Similarly, writing this fake cell to Etch writes the symbol cell `DEREF-ME`.
+   Obviously, reading from Etch will return that actual symbol cell since only
+   real cells can be serialized and deserialized (see [`convex.db`](#convex.db)).
+
+## <a name="convex.cell/fake?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L870-L879) `fake?`</a>
+``` clojure
+
+(fake? cell)
+```
+
+
+Returns true if `cell` has been produced by [`fake`](#convex.cell/fake).
+
+## <a name="convex.cell/hash">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L339-L349) `hash`</a>
 ``` clojure
 
 (hash cell)
@@ -421,7 +456,7 @@ Returns the hash of the given `cell`.
   
    A hash is a specialized 32-byte [`blob`](#convex.cell/blob).
 
-## <a name="convex.cell/hash<-blob">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L348-L358) `hash<-blob`</a>
+## <a name="convex.cell/hash<-blob">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L353-L363) `hash<-blob`</a>
 ``` clojure
 
 (hash<-blob blob)
@@ -432,7 +467,7 @@ Converts a 32-byte blob to a hash.
   
    See [`hash`](#convex.cell/hash).
 
-## <a name="convex.cell/hash<-hex">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L362-L374) `hash<-hex`</a>
+## <a name="convex.cell/hash<-hex">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L367-L379) `hash<-hex`</a>
 ``` clojure
 
 (hash<-hex hex-string)
@@ -445,7 +480,7 @@ Creates a hash from a hex string.
   
    Returns nil if hex string is of wrong format.
 
-## <a name="convex.cell/invoke">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L378-L388) `invoke`</a>
+## <a name="convex.cell/invoke">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L383-L393) `invoke`</a>
 ``` clojure
 
 (invoke address sequence-id cell)
@@ -454,7 +489,7 @@ Creates a hash from a hex string.
 
 Creates a transaction for invoking code (a cell).
 
-## <a name="convex.cell/key">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L392-L402) `key`</a>
+## <a name="convex.cell/key">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L397-L407) `key`</a>
 ``` clojure
 
 (key blob)
@@ -465,13 +500,13 @@ Creates an account key from a 32-byte blob.
 
    Returns nil if the given [`blob`](#convex.cell/blob) is of wrong size.
 
-## <a name="convex.cell/key-fake">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L406-L412) `key-fake`</a>
+## <a name="convex.cell/key-fake">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L411-L417) `key-fake`</a>
 
 Zeroed account key for testing purposes.
 
    See [`key`](#convex.cell/key).
 
-## <a name="convex.cell/keyword">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L416-L424) `keyword`</a>
+## <a name="convex.cell/keyword">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L421-L429) `keyword`</a>
 ``` clojure
 
 (keyword string)
@@ -480,7 +515,7 @@ Zeroed account key for testing purposes.
 
 Creates a keyword cell from a string.
 
-## <a name="convex.cell/list">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L458-L470) `list`</a>
+## <a name="convex.cell/list">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L463-L475) `list`</a>
 ``` clojure
 
 (list)
@@ -490,7 +525,7 @@ Creates a keyword cell from a string.
 
 Creates a list cell from a collection of cells.
 
-## <a name="convex.cell/long">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L474-L482) `long`</a>
+## <a name="convex.cell/long">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L479-L487) `long`</a>
 ``` clojure
 
 (long x)
@@ -499,7 +534,7 @@ Creates a list cell from a collection of cells.
 
 Creates a long cell.
 
-## <a name="convex.cell/map">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L486-L501) `map`</a>
+## <a name="convex.cell/map">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L491-L506) `map`</a>
 ``` clojure
 
 (map)
@@ -509,7 +544,7 @@ Creates a long cell.
 
 Creates a map cell from a collection of `[key value]`.
 
-## <a name="convex.cell/quoted">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L597-L604) `quoted`</a>
+## <a name="convex.cell/quoted">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L602-L609) `quoted`</a>
 ``` clojure
 
 (quoted x)
@@ -518,7 +553,7 @@ Creates a map cell from a collection of `[key value]`.
 
 Wraps `x` in `quote`.
 
-## <a name="convex.cell/set">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L505-L517) `set`</a>
+## <a name="convex.cell/set">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L510-L522) `set`</a>
 ``` clojure
 
 (set)
@@ -528,7 +563,7 @@ Wraps `x` in `quote`.
 
 Creates a set cell from a collection of items cell.
 
-## <a name="convex.cell/string">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L521-L529) `string`</a>
+## <a name="convex.cell/string">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L526-L534) `string`</a>
 ``` clojure
 
 (string string)
@@ -537,7 +572,7 @@ Creates a set cell from a collection of items cell.
 
 Creates a string cell from a regular string.
 
-## <a name="convex.cell/symbol">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L533-L541) `symbol`</a>
+## <a name="convex.cell/symbol">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L538-L546) `symbol`</a>
 ``` clojure
 
 (symbol string)
@@ -546,7 +581,7 @@ Creates a string cell from a regular string.
 
 Creates a symbol cell from a string.
 
-## <a name="convex.cell/syntax">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L545-L560) `syntax`</a>
+## <a name="convex.cell/syntax">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L550-L565) `syntax`</a>
 ``` clojure
 
 (syntax cell)
@@ -558,7 +593,7 @@ Creates a syntax cell.
 
    It wraps the given `cell` and allow attaching a metadata [`map`](#convex.cell/map).
 
-## <a name="convex.cell/transfer">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L564-L575) `transfer`</a>
+## <a name="convex.cell/transfer">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L569-L580) `transfer`</a>
 ``` clojure
 
 (transfer address sequence address-receiver amount)
@@ -567,7 +602,7 @@ Creates a syntax cell.
 
 Creates a transaction for transferring Convex Coins.
 
-## <a name="convex.cell/vector">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L579-L591) `vector`</a>
+## <a name="convex.cell/vector">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cell.clj#L584-L596) `vector`</a>
 ``` clojure
 
 (vector)
@@ -808,7 +843,7 @@ Code execution in the Convex Virtual Machine
 
 
 
-## <a name="convex.cvm/account">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L166-L179) `account`</a>
+## <a name="convex.cvm/account">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L169-L182) `account`</a>
 ``` clojure
 
 (account ctx)
@@ -818,7 +853,7 @@ Code execution in the Convex Virtual Machine
 
 Returns the account for the given `address` (or the address associated with `ctx`).
 
-## <a name="convex.cvm/account-create">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L409-L427) `account-create`</a>
+## <a name="convex.cvm/account-create">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L424-L442) `account-create`</a>
 ``` clojure
 
 (account-create ctx)
@@ -832,7 +867,7 @@ Creates an new account, with a `key` (user) or without (actor).
   
    Address is attached as a result in the returned context.
 
-## <a name="convex.cvm/address">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L183-L191) `address`</a>
+## <a name="convex.cvm/address">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L186-L194) `address`</a>
 ``` clojure
 
 (address ctx)
@@ -841,7 +876,7 @@ Creates an new account, with a `key` (user) or without (actor).
 
 Returns the executing address of the given `ctx`.
 
-## <a name="convex.cvm/arg+*">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L759-L776) `arg+*`</a>
+## <a name="convex.cvm/arg+*">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L795-L812) `arg+*`</a>
 ``` clojure
 
 (arg+* & arg+)
@@ -855,7 +890,7 @@ Prepares arguments for invokation.
   
    See [`invoke`](#convex.cvm/invoke).
 
-## <a name="convex.cvm/compile">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L662-L681) `compile`</a>
+## <a name="convex.cvm/compile">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L698-L717) `compile`</a>
 ``` clojure
 
 (compile ctx)
@@ -870,7 +905,7 @@ Compiles the `canonical-cell` into executable code.
    Returns a new `ctx` with a [`result`](#convex.cvm/result) ready for [`exec`](#convex.cvm/exec) or an [`exception`](#convex.cvm/exception) in case of
    failure.
 
-## <a name="convex.cvm/ctx">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L85-L114) `ctx`</a>
+## <a name="convex.cvm/ctx">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L86-L115) `ctx`</a>
 ``` clojure
 
 (ctx)
@@ -893,7 +928,7 @@ Creates an execution context.
 
    See [`convex.cell/key`](#convex.cell/key) about creating public keys.
 
-## <a name="convex.cvm/def">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L431-L461) `def`</a>
+## <a name="convex.cvm/def">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L446-L476) `def`</a>
 ``` clojure
 
 (def ctx sym->value)
@@ -905,7 +940,7 @@ Like calling `(def sym value)` in Convex Lisp, either in the current address of 
 
    Argument is a map of `symbol cell` -> `cell`.
 
-## <a name="convex.cvm/deploy">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L465-L477) `deploy`</a>
+## <a name="convex.cvm/deploy">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L480-L492) `deploy`</a>
 ``` clojure
 
 (deploy ctx code)
@@ -917,7 +952,7 @@ Deploys the given `code` as an actor.
    Returns a context that is either [`exception`](#convex.cvm/exception)al or has the address of the successfully created actor
    attached as a [`result`](#convex.cvm/result).
 
-## <a name="convex.cvm/env">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L195-L208) `env`</a>
+## <a name="convex.cvm/env">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L198-L211) `env`</a>
 ``` clojure
 
 (env ctx)
@@ -927,7 +962,7 @@ Deploys the given `code` as an actor.
 
 Returns the environment of the executing account attached to `ctx`.
 
-## <a name="convex.cvm/eval">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L731-L753) `eval`</a>
+## <a name="convex.cvm/eval">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L767-L789) `eval`</a>
 ``` clojure
 
 (eval ctx)
@@ -946,7 +981,7 @@ Evaluates the given `cell` after forking the `ctx`.
 
    Returns the forked `ctx` with a [`result`](#convex.cvm/result) or an [`exception`](#convex.cvm/exception) in case of failure.
 
-## <a name="convex.cvm/exception">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L212-L240) `exception`</a>
+## <a name="convex.cvm/exception">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L215-L243) `exception`</a>
 ``` clojure
 
 (exception ctx)
@@ -967,7 +1002,7 @@ Returns the exception attached to the CVM (or nil).
    Also see [`convex.cell/code-std*`](#convex.cell/code-std*) for easily retrieving an official error code. Note that in practice, unlike the CVM
    itself or any of the core function, a user Convex function can return anything as a code.
 
-## <a name="convex.cvm/exception-clear">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L481-L490) `exception-clear`</a>
+## <a name="convex.cvm/exception-clear">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L496-L505) `exception-clear`</a>
 ``` clojure
 
 (exception-clear ctx)
@@ -976,7 +1011,7 @@ Returns the exception attached to the CVM (or nil).
 
 Removes the currently attached exception from the given `ctx`.
 
-## <a name="convex.cvm/exception-code">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L265-L275) `exception-code`</a>
+## <a name="convex.cvm/exception-code">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L268-L278) `exception-code`</a>
 ``` clojure
 
 (exception-code exception)
@@ -987,7 +1022,7 @@ Returns the code associated with the given [`exception`](#convex.cvm/exception).
   
    Often a CVX keyword but could be any CVX value.
 
-## <a name="convex.cvm/exception-message">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L279-L289) `exception-message`</a>
+## <a name="convex.cvm/exception-message">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L282-L292) `exception-message`</a>
 ``` clojure
 
 (exception-message exception)
@@ -998,7 +1033,28 @@ Returns the message associated with the given [`exception`](#convex.cvm/exceptio
 
    Often a CVX string but could be any CVX value.
 
-## <a name="convex.cvm/exception?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L244-L261) `exception?`</a>
+## <a name="convex.cvm/exception-set">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L509-L526) `exception-set`</a>
+``` clojure
+
+(exception-set ctx exception)
+(exception-set ctx code message)
+```
+
+
+Returns a `ctx` set in an exceptional state.
+  
+   See [`exception`](#convex.cvm/exception).
+
+## <a name="convex.cvm/exception-trace">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L296-L304) `exception-trace`</a>
+``` clojure
+
+(exception-trace exception)
+```
+
+
+Returns the trace associated with the given [`exception`](#convex.cvm/exception) (CVX list of strings).
+
+## <a name="convex.cvm/exception?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L247-L264) `exception?`</a>
 ``` clojure
 
 (exception? ctx)
@@ -1010,7 +1066,7 @@ Returns true if the given `ctx` is in an exceptional state.
 
    See [`exception`](#convex.cvm/exception).
 
-## <a name="convex.cvm/exec">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L707-L725) `exec`</a>
+## <a name="convex.cvm/exec">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L743-L761) `exec`</a>
 ``` clojure
 
 (exec ctx)
@@ -1024,7 +1080,7 @@ Executes compiled code.
   
    Returns a new `ctx` with a [`result`](#convex.cvm/result) or an [`exception`](#convex.cvm/exception) in case of failure.
 
-## <a name="convex.cvm/expand">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L639-L658) `expand`</a>
+## <a name="convex.cvm/expand">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L675-L694) `expand`</a>
 ``` clojure
 
 (expand ctx)
@@ -1039,7 +1095,7 @@ Expands `cell` into a `canonical cell` by applying macros.
    Returns a new `ctx` with a [`result`](#convex.cvm/result) ready for [`compile`](#convex.cvm/compile) or an [`exception`](#convex.cvm/exception) in case
    of failure.
 
-## <a name="convex.cvm/expand-compile">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L685-L701) `expand-compile`</a>
+## <a name="convex.cvm/expand-compile">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L721-L737) `expand-compile`</a>
 ``` clojure
 
 (expand-compile ctx)
@@ -1051,7 +1107,7 @@ Expands and compiles in one go.
 
    More efficient than chaining [`expand`](#convex.cvm/expand) and [`compile`](#convex.cvm/compile) yourself.
 
-## <a name="convex.cvm/fork">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L118-L130) `fork`</a>
+## <a name="convex.cvm/fork">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L119-L131) `fork`</a>
 ``` clojure
 
 (fork ctx)
@@ -1064,7 +1120,7 @@ Duplicates the given `ctx` (very cheap).
   
    Attention, forking a [`ctx`](#convex.cvm/ctx) looses any attached [`result`](#convex.cvm/result) or [`exception`](#convex.cvm/exception).
 
-## <a name="convex.cvm/fork-to">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L134-L145) `fork-to`</a>
+## <a name="convex.cvm/fork-to">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L135-L148) `fork-to`</a>
 ``` clojure
 
 (fork-to ctx address)
@@ -1073,9 +1129,10 @@ Duplicates the given `ctx` (very cheap).
 
 Duplicates the given `ctx` and switches the executing account.
 
-   Like [`fork`](#convex.cvm/fork) but the CVM log is lost.
+   Like [`fork`](#convex.cvm/fork) but only [`state`](#convex.cvm/state) and [`juice`](#convex.cvm/juice) are preservered.
+   Everything else is lost: local bindings, CVM log. CVM depth, etc.
 
-## <a name="convex.cvm/genesis-user">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L70-L79) `genesis-user`</a>
+## <a name="convex.cvm/genesis-user">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L71-L80) `genesis-user`</a>
 
 Address of the first genesis user.
   
@@ -1084,7 +1141,7 @@ Address of the first genesis user.
 
    It receives half of the funds reserved for all users in the state.
 
-## <a name="convex.cvm/invoke">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L780-L801) `invoke`</a>
+## <a name="convex.cvm/invoke">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L816-L837) `invoke`</a>
 ``` clojure
 
 (invoke ctx f arg+)
@@ -1097,7 +1154,7 @@ Invokes the given CVM `f`unction using the given `ctx`.
   
    Returns a new `ctx` with a [`result`](#convex.cvm/result) or an [`exception`](#convex.cvm/exception) in case of failure.
 
-## <a name="convex.cvm/juice">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L293-L301) `juice`</a>
+## <a name="convex.cvm/juice">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L308-L316) `juice`</a>
 ``` clojure
 
 (juice ctx)
@@ -1108,7 +1165,7 @@ Returns the remaining amount of juice available for the executing account.
   
    Also see [`juice-set`](#convex.cvm/juice-set).
 
-## <a name="convex.cvm/juice-preserve">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L494-L506) `juice-preserve`</a>
+## <a name="convex.cvm/juice-preserve">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L530-L542) `juice-preserve`</a>
 ``` clojure
 
 (juice-preserve ctx f)
@@ -1119,7 +1176,7 @@ Executes `(f ctx)`, `f` being a function `ctx` -> `ctx`.
   
    The returned `ctx` will have the same amount of juice as the original.
 
-## <a name="convex.cvm/juice-refill">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L510-L521) `juice-refill`</a>
+## <a name="convex.cvm/juice-refill">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L546-L557) `juice-refill`</a>
 ``` clojure
 
 (juice-refill ctx)
@@ -1130,7 +1187,7 @@ Refills juice to maximum.
 
    Also see [`juice-set`](#convex.cvm/juice-set).
 
-## <a name="convex.cvm/juice-set">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L525-L536) `juice-set`</a>
+## <a name="convex.cvm/juice-set">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L561-L572) `juice-set`</a>
 ``` clojure
 
 (juice-set ctx amount)
@@ -1141,7 +1198,7 @@ Sets the juice of the given `ctx` to the requested `amount`.
   
    Also see [`juice`](#convex.cvm/juice), [`juice-refill`](#convex.cvm/juice-refill).
 
-## <a name="convex.cvm/key">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L305-L319) `key`</a>
+## <a name="convex.cvm/key">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L320-L334) `key`</a>
 ``` clojure
 
 (key ctx)
@@ -1153,7 +1210,7 @@ Returns the key of the given `address`.
   
    Or the address associated with `ctx`.
 
-## <a name="convex.cvm/key-set">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L540-L549) `key-set`</a>
+## <a name="convex.cvm/key-set">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L576-L585) `key-set`</a>
 ``` clojure
 
 (key-set ctx key)
@@ -1162,7 +1219,7 @@ Returns the key of the given `address`.
 
 Sets `key` on the address curently associated with `ctx`.
 
-## <a name="convex.cvm/log">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L324-L334) `log`</a>
+## <a name="convex.cvm/log">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L339-L349) `log`</a>
 ``` clojure
 
 (log ctx)
@@ -1173,7 +1230,7 @@ Returns the log of `ctx`.
   
    A vector cell of size 2 vectors containing a logging address and a logged value.
 
-## <a name="convex.cvm/look-up">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L338-L356) `look-up`</a>
+## <a name="convex.cvm/look-up">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L353-L371) `look-up`</a>
 ``` clojure
 
 (look-up ctx sym)
@@ -1185,7 +1242,7 @@ Returns the cell associated with the given `sym`.
   
    From the environment of the given `address` (or the currently used one).
 
-## <a name="convex.cvm/result">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L360-L368) `result`</a>
+## <a name="convex.cvm/result">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L375-L383) `result`</a>
 ``` clojure
 
 (result ctx)
@@ -1196,7 +1253,7 @@ Extracts the result (eg. after expansion, compilation, execution, ...) wrapped i
   
    Throws if the `ctx` is in an exceptional state. See [`exception`](#convex.cvm/exception).
 
-## <a name="convex.cvm/result-set">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L553-L562) `result-set`</a>
+## <a name="convex.cvm/result-set">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L589-L598) `result-set`</a>
 ``` clojure
 
 (result-set ctx result)
@@ -1205,7 +1262,7 @@ Extracts the result (eg. after expansion, compilation, execution, ...) wrapped i
 
 Attaches the given `result` to `ctx`, as if it was the result of a transaction.
 
-## <a name="convex.cvm/state">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L372-L385) `state`</a>
+## <a name="convex.cvm/state">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L387-L400) `state`</a>
 ``` clojure
 
 (state ctx)
@@ -1219,7 +1276,7 @@ Returns the whole CVM state associated with `ctx`.
   
    Also see [`state-set`](#convex.cvm/state-set).
 
-## <a name="convex.cvm/state-set">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L566-L577) `state-set`</a>
+## <a name="convex.cvm/state-set">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L602-L613) `state-set`</a>
 ``` clojure
 
 (state-set ctx state)
@@ -1230,7 +1287,7 @@ Replaces the CVM state in the `ctx` with the given one.
   
    See [`state`](#convex.cvm/state).
 
-## <a name="convex.cvm/time">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L389-L403) `time`</a>
+## <a name="convex.cvm/time">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L404-L418) `time`</a>
 ``` clojure
 
 (time ctx)
@@ -1243,7 +1300,7 @@ Returns the current timestamp assigned to the state in the given `ctx`.
   
    Also see [[time-set]].
 
-## <a name="convex.cvm/time-advance">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L581-L600) `time-advance`</a>
+## <a name="convex.cvm/time-advance">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L617-L636) `time-advance`</a>
 ``` clojure
 
 (time-advance ctx millis)
@@ -1257,7 +1314,7 @@ Advances the timestamp in the state of `ctx` by `millis` milliseconds.
   
    See [`time`](#convex.cvm/time).
 
-## <a name="convex.cvm/undef">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L604-L633) `undef`</a>
+## <a name="convex.cvm/undef">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/cvm.clj#L640-L669) `undef`</a>
 ``` clojure
 
 (undef ctx sym+)
@@ -1319,7 +1376,7 @@ Etch is a fast, immutable, embedded database tailored for cells.
 
 
 
-## <a name="convex.db/close">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/db.clj#L107-L118) `close`</a>
+## <a name="convex.db/close">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/db.clj#L111-L122) `close`</a>
 ``` clojure
 
 (close)
@@ -1352,7 +1409,7 @@ Binds the given `instance` to the current thread.
    Returns the `instance`.
    See [`current`](#convex.db/current).
 
-## <a name="convex.db/flush">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/db.clj#L122-L131) `flush`</a>
+## <a name="convex.db/flush">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/db.clj#L126-L135) `flush`</a>
 ``` clojure
 
 (flush)
@@ -1361,7 +1418,7 @@ Binds the given `instance` to the current thread.
 
 Flushes the thread-local instance, ensuring all changes are persisted to disk.
 
-## <a name="convex.db/global-set">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/db.clj#L90-L101) `global-set`</a>
+## <a name="convex.db/global-set">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/db.clj#L90-L105) `global-set`</a>
 ``` clojure
 
 (global-set instance)
@@ -1369,10 +1426,14 @@ Flushes the thread-local instance, ensuring all changes are persisted to disk.
 
 
 When an instance is used in more than one thread, it is a good idea using this function.
-   Convex tooling will then use the given `instance` in all thread automatically unless it is
-   overwritten with [`current-set`](#convex.db/current-set) on a thread per thread basis.
+   Convex tooling will then use the given `instance` in all thread automatically where no store
+   has been initialized yet.
+  
+   Setting a store global will **not** impact threads which already started handling an instance.
+   Hence, this function is best used when one needs only one store throught the lifetime of the
+   process, preferably setting it at the beginning.
 
-## <a name="convex.db/open">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/db.clj#L135-L148) `open`</a>
+## <a name="convex.db/open">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/db.clj#L139-L152) `open`</a>
 ``` clojure
 
 (open path)
@@ -1382,7 +1443,7 @@ When an instance is used in more than one thread, it is a good idea using this f
 Opens an instance at the given `path`.
    File is created if needed.
 
-## <a name="convex.db/open-tmp">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/db.clj#L152-L166) `open-tmp`</a>
+## <a name="convex.db/open-tmp">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/db.clj#L156-L170) `open-tmp`</a>
 ``` clojure
 
 (open-tmp)
@@ -1394,7 +1455,7 @@ Opens an instance under a temporary file.
 
    A prefix string may be provided for the filename.
 
-## <a name="convex.db/path">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/db.clj#L170-L176) `path`</a>
+## <a name="convex.db/path">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/db.clj#L174-L180) `path`</a>
 ``` clojure
 
 (path)
@@ -1403,7 +1464,7 @@ Opens an instance under a temporary file.
 
 Returns the path of thread-local instance.
 
-## <a name="convex.db/read">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/db.clj#L182-L193) `read`</a>
+## <a name="convex.db/read">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/db.clj#L186-L197) `read`</a>
 ``` clojure
 
 (read hash)
@@ -1413,7 +1474,7 @@ Returns the path of thread-local instance.
 Reads from the thread-local instance and returns the cell for the given `hash` (or nil
    if not found).
 
-## <a name="convex.db/root-read">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/db.clj#L220-L235) `root-read`</a>
+## <a name="convex.db/root-read">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/db.clj#L224-L239) `root-read`</a>
 ``` clojure
 
 (root-read)
@@ -1429,7 +1490,7 @@ Returns the cell stored at the root of the thread-local instance.
 
    See [[write-root]].
 
-## <a name="convex.db/root-write">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/db.clj#L239-L253) `root-write`</a>
+## <a name="convex.db/root-write">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/db.clj#L243-L257) `root-write`</a>
 ``` clojure
 
 (root-write cell)
@@ -1441,7 +1502,7 @@ Writes the given `cell` to the root of the thread-local instance and returns its
 
    See [[read-root]].
 
-## <a name="convex.db/write">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/db.clj#L197-L214) `write`</a>
+## <a name="convex.db/write">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/db.clj#L201-L218) `write`</a>
 ``` clojure
 
 (write cell)
@@ -1602,7 +1663,7 @@ Provides an API for cells with classic `convex.core`-like functions.
 
 
 
-## <a name="convex.std/*">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L783-L794) `*`</a>
+## <a name="convex.std/*">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L786-L797) `*`</a>
 ``` clojure
 
 (* & xs)
@@ -1611,7 +1672,7 @@ Provides an API for cells with classic `convex.core`-like functions.
 
 Like classic `*` but for numeric cells.
 
-## <a name="convex.std/+">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L753-L764) `+`</a>
+## <a name="convex.std/+">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L756-L767) `+`</a>
 ``` clojure
 
 (+ & xs)
@@ -1620,7 +1681,7 @@ Like classic `*` but for numeric cells.
 
 Like classic `+` but for numeric cells.
 
-## <a name="convex.std/-">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L768-L779) `-`</a>
+## <a name="convex.std/-">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L771-L782) `-`</a>
 ``` clojure
 
 (- & xs)
@@ -1629,7 +1690,7 @@ Like classic `+` but for numeric cells.
 
 Like classic `-` but for numeric cells.
 
-## <a name="convex.std/<">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L416-L426) `<`</a>
+## <a name="convex.std/<">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L419-L429) `<`</a>
 ``` clojure
 
 (< & xs)
@@ -1638,7 +1699,7 @@ Like classic `-` but for numeric cells.
 
 Like classic `<` but with numeric cells.
 
-## <a name="convex.std/<=">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L430-L440) `<=`</a>
+## <a name="convex.std/<=">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L433-L443) `<=`</a>
 ``` clojure
 
 (<= & xs)
@@ -1647,7 +1708,7 @@ Like classic `<` but with numeric cells.
 
 Like classic `<=` but with numeric cells.
 
-## <a name="convex.std/==">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L444-L454) `==`</a>
+## <a name="convex.std/==">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L447-L457) `==`</a>
 ``` clojure
 
 (== & xs)
@@ -1656,7 +1717,7 @@ Like classic `<=` but with numeric cells.
 
 Like classic `==` but with numeric cells.
 
-## <a name="convex.std/>">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L472-L482) `>`</a>
+## <a name="convex.std/>">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L475-L485) `>`</a>
 ``` clojure
 
 (> & xs)
@@ -1665,7 +1726,7 @@ Like classic `==` but with numeric cells.
 
 Like classic `>` but with numeric cells.
 
-## <a name="convex.std/>=">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L458-L468) `>=`</a>
+## <a name="convex.std/>=">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L461-L471) `>=`</a>
 ``` clojure
 
 (>= & xs)
@@ -1674,7 +1735,7 @@ Like classic `>` but with numeric cells.
 
 Like classic `>=` but with numeric cells.
 
-## <a name="convex.std/abs">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L798-L808) `abs`</a>
+## <a name="convex.std/abs">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L801-L811) `abs`</a>
 ``` clojure
 
 (abs number)
@@ -1685,7 +1746,7 @@ Returns the absolute value of `x`.
   
    Same type as `x`.
 
-## <a name="convex.std/account-key">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L134-L147) `account-key`</a>
+## <a name="convex.std/account-key">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L137-L150) `account-key`</a>
 ``` clojure
 
 (account-key cell)
@@ -1699,7 +1760,7 @@ Coerces the given `cell` to an account key or return nil.
    - 64-char hex-string cell
    - 32-byte blob
 
-## <a name="convex.std/address">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L151-L165) `address`</a>
+## <a name="convex.std/address">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L154-L168) `address`</a>
 ``` clojure
 
 (address cell)
@@ -1714,7 +1775,7 @@ Coerces the given `cell` to an address or return nil.
    - 16-char hex-string cell
    - 8-byte blob
 
-## <a name="convex.std/address?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1088-L1095) `address?`</a>
+## <a name="convex.std/address?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1091-L1098) `address?`</a>
 ``` clojure
 
 (address? x)
@@ -1723,7 +1784,7 @@ Coerces the given `cell` to an address or return nil.
 
 Is `x` an address?
 
-## <a name="convex.std/assoc">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L541-L551) `assoc`</a>
+## <a name="convex.std/assoc">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L544-L554) `assoc`</a>
 ``` clojure
 
 (assoc coll k v)
@@ -1732,7 +1793,7 @@ Is `x` an address?
 
 Like classic `assoc` but for collection cells.
 
-## <a name="convex.std/blob">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L169-L183) `blob`</a>
+## <a name="convex.std/blob">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L172-L186) `blob`</a>
 ``` clojure
 
 (blob cell)
@@ -1747,7 +1808,7 @@ Coerces the given `cell` to a blob or return nil.
    - Long cell
    - Hex-string cell
 
-## <a name="convex.std/blob-map">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L313-L327) `blob-map`</a>
+## <a name="convex.std/blob-map">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L316-L330) `blob-map`</a>
 ``` clojure
 
 (blob-map & kvs)
@@ -1756,7 +1817,7 @@ Coerces the given `cell` to a blob or return nil.
 
 Builds a blob map from key-values (keys must be blobs).
 
-## <a name="convex.std/blob-map?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1110-L1117) `blob-map?`</a>
+## <a name="convex.std/blob-map?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1113-L1120) `blob-map?`</a>
 ``` clojure
 
 (blob-map? x)
@@ -1765,7 +1826,7 @@ Builds a blob map from key-values (keys must be blobs).
 
 Is `x` a blob map?
 
-## <a name="convex.std/blob?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1099-L1106) `blob?`</a>
+## <a name="convex.std/blob?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1102-L1109) `blob?`</a>
 ``` clojure
 
 (blob? x)
@@ -1774,7 +1835,7 @@ Is `x` a blob map?
 
 Is `x` a blob?
 
-## <a name="convex.std/boolean?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1121-L1128) `boolean?`</a>
+## <a name="convex.std/boolean?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1124-L1131) `boolean?`</a>
 ``` clojure
 
 (boolean? x)
@@ -1783,7 +1844,7 @@ Is `x` a blob?
 
 Is `x` a CVM boolean?
 
-## <a name="convex.std/byte">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L187-L195) `byte`</a>
+## <a name="convex.std/byte">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L190-L198) `byte`</a>
 ``` clojure
 
 (byte cell)
@@ -1792,7 +1853,7 @@ Is `x` a CVM boolean?
 
 Coerces the given `cell` to a byte or return nil.
 
-## <a name="convex.std/byte?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1132-L1139) `byte?`</a>
+## <a name="convex.std/byte?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1135-L1142) `byte?`</a>
 ``` clojure
 
 (byte? x)
@@ -1801,7 +1862,7 @@ Coerces the given `cell` to a byte or return nil.
 
 Is `x` a byte cell?
 
-## <a name="convex.std/ceil">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L812-L820) `ceil`</a>
+## <a name="convex.std/ceil">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L815-L823) `ceil`</a>
 ``` clojure
 
 (ceil number)
@@ -1810,7 +1871,7 @@ Is `x` a byte cell?
 
 Returns a double cell ceiling the value of `number`.
 
-## <a name="convex.std/cell?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1154-L1161) `cell?`</a>
+## <a name="convex.std/cell?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1157-L1164) `cell?`</a>
 ``` clojure
 
 (cell? x)
@@ -1819,7 +1880,7 @@ Returns a double cell ceiling the value of `number`.
 
 Is `x` a cell?
 
-## <a name="convex.std/char">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L199-L207) `char`</a>
+## <a name="convex.std/char">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L202-L210) `char`</a>
 ``` clojure
 
 (char cell)
@@ -1828,7 +1889,7 @@ Is `x` a cell?
 
 Coerces the given `cell` to a char or return nil.
 
-## <a name="convex.std/char?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1143-L1150) `char?`</a>
+## <a name="convex.std/char?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1146-L1153) `char?`</a>
 ``` clojure
 
 (char? x)
@@ -1837,7 +1898,7 @@ Coerces the given `cell` to a char or return nil.
 
 Is `x` a char cell?
 
-## <a name="convex.std/coll?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1165-L1172) `coll?`</a>
+## <a name="convex.std/coll?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1168-L1175) `coll?`</a>
 ``` clojure
 
 (coll? x)
@@ -1846,7 +1907,7 @@ Is `x` a char cell?
 
 Is `x` a collection cell?
 
-## <a name="convex.std/concat">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L956-L971) `concat`</a>
+## <a name="convex.std/concat">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L959-L974) `concat`</a>
 ``` clojure
 
 (concat x y)
@@ -1857,7 +1918,7 @@ Like classic `concat` but for collection cells.
 
    Return type is the same as `x`.
 
-## <a name="convex.std/conj">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L555-L573) `conj`</a>
+## <a name="convex.std/conj">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L558-L576) `conj`</a>
 ``` clojure
 
 (conj)
@@ -1868,7 +1929,7 @@ Like classic `concat` but for collection cells.
 
 Akin to classic `conj` but for collection cells.
 
-## <a name="convex.std/cons">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L939-L952) `cons`</a>
+## <a name="convex.std/cons">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L942-L955) `cons`</a>
 ``` clojure
 
 (cons x coll)
@@ -1879,7 +1940,7 @@ Like classic `cons` but for collection cells.
   
    Returns a list cell.
 
-## <a name="convex.std/contains?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L577-L584) `contains?`</a>
+## <a name="convex.std/contains?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L580-L587) `contains?`</a>
 ``` clojure
 
 (contains? coll k)
@@ -1888,7 +1949,7 @@ Like classic `cons` but for collection cells.
 
 Like classic `contains?` but for collection cells.
 
-## <a name="convex.std/count">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L488-L504) `count`</a>
+## <a name="convex.std/count">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L491-L507) `count`</a>
 ``` clojure
 
 (count countable)
@@ -1907,7 +1968,7 @@ Returns a JVM long representing the number of itms in the given cell.
    - String
    - Vector
 
-## <a name="convex.std/cvm-value?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1175-L1183) `cvm-value?`</a>
+## <a name="convex.std/cvm-value?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1178-L1186) `cvm-value?`</a>
 ``` clojure
 
 (cvm-value? x)
@@ -1918,7 +1979,7 @@ Is `x` a CVM value?
 
    Returns false if `x` is not accessible to the CVM and meant to be used outside (eg. networking).
 
-## <a name="convex.std/dec">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L635-L643) `dec`</a>
+## <a name="convex.std/dec">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L638-L646) `dec`</a>
 ``` clojure
 
 (dec long)
@@ -1927,7 +1988,7 @@ Is `x` a CVM value?
 
 Like classic `dec` but for long cells.
 
-## <a name="convex.std/difference">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1006-L1018) `difference`</a>
+## <a name="convex.std/difference">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1009-L1021) `difference`</a>
 ``` clojure
 
 (difference set-1 set-2)
@@ -1936,7 +1997,7 @@ Like classic `dec` but for long cells.
 
 Like `clojure.set/difference` but for set cells.
 
-## <a name="convex.std/dissoc">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L676-L687) `dissoc`</a>
+## <a name="convex.std/dissoc">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L679-L690) `dissoc`</a>
 ``` clojure
 
 (dissoc map k)
@@ -1945,7 +2006,7 @@ Like `clojure.set/difference` but for set cells.
 
 Like classic `dissoc` but for map cells.
 
-## <a name="convex.std/div">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L824-L835) `div`</a>
+## <a name="convex.std/div">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L827-L838) `div`</a>
 ``` clojure
 
 (div & xs)
@@ -1954,7 +2015,7 @@ Like classic `dissoc` but for map cells.
 
 Like classic `/` but for numeric cells.
 
-## <a name="convex.std/double">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L211-L219) `double`</a>
+## <a name="convex.std/double">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L214-L222) `double`</a>
 ``` clojure
 
 (double cell)
@@ -1963,7 +2024,7 @@ Like classic `/` but for numeric cells.
 
 Coerces the given `cell` to a double or return nil.
 
-## <a name="convex.std/double?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1187-L1194) `double?`</a>
+## <a name="convex.std/double?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1190-L1197) `double?`</a>
 ``` clojure
 
 (double? x)
@@ -1972,7 +2033,7 @@ Coerces the given `cell` to a double or return nil.
 
 Is `x` a double cell?
 
-## <a name="convex.std/empty">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L588-L596) `empty`</a>
+## <a name="convex.std/empty">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L591-L599) `empty`</a>
 ``` clojure
 
 (empty coll)
@@ -1981,7 +2042,7 @@ Is `x` a double cell?
 
 Like classic `empty` but for collection cells.
 
-## <a name="convex.std/empty?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L508-L518) `empty?`</a>
+## <a name="convex.std/empty?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L511-L521) `empty?`</a>
 ``` clojure
 
 (empty? countable)
@@ -1992,7 +2053,7 @@ Is the given `countable` empty?
   
    See [`count`](#convex.std/count).
 
-## <a name="convex.std/exp">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L839-L847) `exp`</a>
+## <a name="convex.std/exp">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L842-L850) `exp`</a>
 ``` clojure
 
 (exp number)
@@ -2001,7 +2062,7 @@ Is the given `countable` empty?
 
 Returns `e` raised to the power of the given numeric cell.
 
-## <a name="convex.std/false?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1198-L1205) `false?`</a>
+## <a name="convex.std/false?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1201-L1208) `false?`</a>
 ``` clojure
 
 (false? x)
@@ -2010,7 +2071,7 @@ Returns `e` raised to the power of the given numeric cell.
 
 Is `x` a `false` cell?
 
-## <a name="convex.std/find">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L691-L701) `find`</a>
+## <a name="convex.std/find">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L694-L704) `find`</a>
 ``` clojure
 
 (find map k)
@@ -2019,7 +2080,7 @@ Is `x` a `false` cell?
 
 Like classic `find`` but for map cells.
 
-## <a name="convex.std/floor">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L851-L859) `floor`</a>
+## <a name="convex.std/floor">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L854-L862) `floor`</a>
 ``` clojure
 
 (floor x)
@@ -2028,7 +2089,16 @@ Like classic `find`` but for map cells.
 
 Returns a double cell flooring the value of `x`.
 
-## <a name="convex.std/get">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L600-L614) `get`</a>
+## <a name="convex.std/fn?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1212-L1219) `fn?`</a>
+``` clojure
+
+(fn? x)
+```
+
+
+Is `x` a CVM function?
+
+## <a name="convex.std/get">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L603-L617) `get`</a>
 ``` clojure
 
 (get coll k)
@@ -2038,7 +2108,7 @@ Returns a double cell flooring the value of `x`.
 
 Like classic `get` but for collection cells.
 
-## <a name="convex.std/hash-map">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L331-L345) `hash-map`</a>
+## <a name="convex.std/hash-map">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L334-L348) `hash-map`</a>
 ``` clojure
 
 (hash-map & kvs)
@@ -2047,7 +2117,7 @@ Like classic `get` but for collection cells.
 
 Builds a map from key-values.
 
-## <a name="convex.std/hash-map?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1208-L1215) `hash-map?`</a>
+## <a name="convex.std/hash-map?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1223-L1230) `hash-map?`</a>
 ``` clojure
 
 (hash-map? x)
@@ -2056,7 +2126,7 @@ Builds a map from key-values.
 
 Is `x` a hash map cell?
 
-## <a name="convex.std/hash-set">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L349-L359) `hash-set`</a>
+## <a name="convex.std/hash-set">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L352-L362) `hash-set`</a>
 ``` clojure
 
 (hash-set & cell+)
@@ -2065,7 +2135,7 @@ Is `x` a hash map cell?
 
 Builds a set from the given cells.
 
-## <a name="convex.std/hash-set?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1219-L1228) `hash-set?`</a>
+## <a name="convex.std/hash-set?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1234-L1243) `hash-set?`</a>
 ``` clojure
 
 (hash-set? x)
@@ -2076,7 +2146,7 @@ Is `x` a hash set cell?
   
    Currently at least, hast sets are the only kind of available sets.
 
-## <a name="convex.std/inc">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L662-L670) `inc`</a>
+## <a name="convex.std/inc">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L665-L673) `inc`</a>
 ``` clojure
 
 (inc long)
@@ -2085,7 +2155,7 @@ Is `x` a hash set cell?
 
 Like classic `inc` but for long cells.
 
-## <a name="convex.std/intersection">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1022-L1034) `intersection`</a>
+## <a name="convex.std/intersection">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1025-L1037) `intersection`</a>
 ``` clojure
 
 (intersection set-1 set-2)
@@ -2094,7 +2164,7 @@ Like classic `inc` but for long cells.
 
 Like `clojure.set/intersection` but for set cells.
 
-## <a name="convex.std/into">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L393-L410) `into`</a>
+## <a name="convex.std/into">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L396-L413) `into`</a>
 ``` clojure
 
 (into to from)
@@ -2104,7 +2174,7 @@ Like `clojure.set/intersection` but for set cells.
 
 Like classic `into` but `to` is a collection cell.
 
-## <a name="convex.std/keys">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L705-L716) `keys`</a>
+## <a name="convex.std/keys">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L708-L719) `keys`</a>
 ``` clojure
 
 (keys map)
@@ -2115,7 +2185,7 @@ Like classic `keys` but for map cells.
 
    Returns an eager vector cell.
 
-## <a name="convex.std/keyword">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L223-L236) `keyword`</a>
+## <a name="convex.std/keyword">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L226-L239) `keyword`</a>
 ``` clojure
 
 (keyword cell)
@@ -2129,7 +2199,7 @@ Coerces the given `cell` to a keyword or return nil.
    - Max 64-char string cell
    - Symbol
 
-## <a name="convex.std/keyword?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1231-L1238) `keyword?`</a>
+## <a name="convex.std/keyword?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1246-L1253) `keyword?`</a>
 ``` clojure
 
 (keyword? x)
@@ -2138,7 +2208,7 @@ Coerces the given `cell` to a keyword or return nil.
 
 Is `x` a keyword cell?
 
-## <a name="convex.std/list">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L363-L373) `list`</a>
+## <a name="convex.std/list">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L366-L376) `list`</a>
 ``` clojure
 
 (list & cell+)
@@ -2147,7 +2217,7 @@ Is `x` a keyword cell?
 
 Buildsa list from the given cells.
 
-## <a name="convex.std/list?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1242-L1249) `list?`</a>
+## <a name="convex.std/list?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1257-L1264) `list?`</a>
 ``` clojure
 
 (list? x)
@@ -2156,7 +2226,7 @@ Buildsa list from the given cells.
 
 Is `x` a list cell?
 
-## <a name="convex.std/long">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L240-L248) `long`</a>
+## <a name="convex.std/long">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L243-L251) `long`</a>
 ``` clojure
 
 (long cell)
@@ -2165,7 +2235,7 @@ Is `x` a list cell?
 
 Coerces the given `cell` to a long or return nil.
 
-## <a name="convex.std/long?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1253-L1260) `long?`</a>
+## <a name="convex.std/long?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1268-L1275) `long?`</a>
 ``` clojure
 
 (long? x)
@@ -2174,7 +2244,7 @@ Coerces the given `cell` to a long or return nil.
 
 Is `x` a long cell?
 
-## <a name="convex.std/map?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1264-L1271) `map?`</a>
+## <a name="convex.std/map?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1279-L1286) `map?`</a>
 ``` clojure
 
 (map? x)
@@ -2183,7 +2253,7 @@ Is `x` a long cell?
 
 Is `x` a map cell?
 
-## <a name="convex.std/merge">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L720-L733) `merge`</a>
+## <a name="convex.std/merge">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L723-L736) `merge`</a>
 ``` clojure
 
 (merge map-1 map-2)
@@ -2192,7 +2262,7 @@ Is `x` a map cell?
 
 Like classic `merge` but for hash map cells (not blob maps).
 
-## <a name="convex.std/mod">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L647-L658) `mod`</a>
+## <a name="convex.std/mod">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L650-L661) `mod`</a>
 ``` clojure
 
 (mod a b)
@@ -2203,7 +2273,7 @@ Returns the integer modulus of a numerator divided by a divisor.
   
    Result will always be positive and consistent with Euclidean Divsion.
 
-## <a name="convex.std/name">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1071-L1082) `name`</a>
+## <a name="convex.std/name">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1074-L1085) `name`</a>
 ``` clojure
 
 (name symbolic)
@@ -2214,7 +2284,7 @@ Like classic `name` but for keyword and symbol cells.
   
    Returns a string cell.
 
-## <a name="convex.std/nan?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L863-L869) `nan?`</a>
+## <a name="convex.std/nan?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L866-L872) `nan?`</a>
 ``` clojure
 
 (nan? cell)
@@ -2223,7 +2293,7 @@ Like classic `name` but for keyword and symbol cells.
 
 Is the given `cell` NaN?
 
-## <a name="convex.std/next">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L975-L987) `next`</a>
+## <a name="convex.std/next">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L978-L990) `next`</a>
 ``` clojure
 
 (next coll)
@@ -2234,7 +2304,7 @@ Like classic `next` but for collection cells.
   
    Return type is a list cell if `coll` is a list, a vector cell otherwise.
 
-## <a name="convex.std/nth">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L522-L535) `nth`</a>
+## <a name="convex.std/nth">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L525-L538) `nth`</a>
 ``` clojure
 
 (nth countable index)
@@ -2247,7 +2317,7 @@ Like classic `nth` but for countables.
 
    See [`count`](#convex.std/count).
 
-## <a name="convex.std/number?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1275-L1283) `number?`</a>
+## <a name="convex.std/number?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1290-L1298) `number?`</a>
 ``` clojure
 
 (number? x)
@@ -2258,7 +2328,7 @@ Is `x` a numeric cell?
   
    Either a long or a double.
 
-## <a name="convex.std/pow">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L873-L887) `pow`</a>
+## <a name="convex.std/pow">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L876-L890) `pow`</a>
 ``` clojure
 
 (pow x y)
@@ -2267,7 +2337,7 @@ Is `x` a numeric cell?
 
 Returns a CVM double, `x` raised to the power of `y`.
 
-## <a name="convex.std/reverse">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L991-L1000) `reverse`</a>
+## <a name="convex.std/reverse">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L994-L1003) `reverse`</a>
 ``` clojure
 
 (reverse sq)
@@ -2276,7 +2346,7 @@ Returns a CVM double, `x` raised to the power of `y`.
 
 Like classic `reverse` but for sequential cells (list or vector cells).
 
-## <a name="convex.std/set">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L252-L262) `set`</a>
+## <a name="convex.std/set">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L255-L265) `set`</a>
 ``` clojure
 
 (set cell)
@@ -2287,7 +2357,7 @@ Coerces the given `cell` to a set or return nil.
   
    Works with any collection.
 
-## <a name="convex.std/set?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1287-L1296) `set?`</a>
+## <a name="convex.std/set?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1302-L1311) `set?`</a>
 ``` clojure
 
 (set? x)
@@ -2298,7 +2368,7 @@ Is `x` a set cell?
 
    Currently at least, hast sets are the only kind of available sets.
 
-## <a name="convex.std/signum">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L891-L907) `signum`</a>
+## <a name="convex.std/signum">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L894-L910) `signum`</a>
 ``` clojure
 
 (signum number)
@@ -2315,7 +2385,7 @@ Returns the sign of the number.
   
    As a long cell if input is a long, double cell if it is a double.
 
-## <a name="convex.std/sqrt">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L912-L920) `sqrt`</a>
+## <a name="convex.std/sqrt">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L915-L923) `sqrt`</a>
 ``` clojure
 
 (sqrt number)
@@ -2324,7 +2394,16 @@ Returns the sign of the number.
 
 Returns a double cell, the square root of the given `number` cell.
 
-## <a name="convex.std/str">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L266-L275) `str`</a>
+## <a name="convex.std/state?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1315-L1322) `state?`</a>
+``` clojure
+
+(state? x)
+```
+
+
+Is `x` a state cell?
+
+## <a name="convex.std/str">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L269-L278) `str`</a>
 ``` clojure
 
 (str & cell+)
@@ -2333,7 +2412,7 @@ Returns a double cell, the square root of the given `number` cell.
 
 Stringifies the given cell(s).
 
-## <a name="convex.std/string?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1300-L1307) `string?`</a>
+## <a name="convex.std/string?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1326-L1333) `string?`</a>
 ``` clojure
 
 (string? x)
@@ -2342,7 +2421,7 @@ Stringifies the given cell(s).
 
 Is `x` a string cell?
 
-## <a name="convex.std/subset?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1038-L1048) `subset?`</a>
+## <a name="convex.std/subset?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1041-L1051) `subset?`</a>
 ``` clojure
 
 (subset? set-1 set-2)
@@ -2351,7 +2430,7 @@ Is `x` a string cell?
 
 Like `clojure.set/subset?` but for set cells.
 
-## <a name="convex.std/symbol">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L279-L293) `symbol`</a>
+## <a name="convex.std/symbol">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L282-L296) `symbol`</a>
 ``` clojure
 
 (symbol cell)
@@ -2365,7 +2444,7 @@ Coerces the given `cell` to a symbol or return nil.
    - Max 64-char string cell
    - Symbol
 
-## <a name="convex.std/symbol?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1311-L1318) `symbol?`</a>
+## <a name="convex.std/symbol?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1337-L1344) `symbol?`</a>
 ``` clojure
 
 (symbol? x)
@@ -2374,7 +2453,7 @@ Coerces the given `cell` to a symbol or return nil.
 
 Is `x` a symbol cell?
 
-## <a name="convex.std/syntax?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1322-L1329) `syntax?`</a>
+## <a name="convex.std/syntax?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1348-L1355) `syntax?`</a>
 ``` clojure
 
 (syntax? x)
@@ -2383,7 +2462,7 @@ Is `x` a symbol cell?
 
 Is `x` a syntax cell?
 
-## <a name="convex.std/true?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1333-L1340) `true?`</a>
+## <a name="convex.std/true?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1359-L1366) `true?`</a>
 ``` clojure
 
 (true? x)
@@ -2392,7 +2471,7 @@ Is `x` a syntax cell?
 
 Is `x` a `true` cell?
 
-## <a name="convex.std/union">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1052-L1065) `union`</a>
+## <a name="convex.std/union">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1055-L1068) `union`</a>
 ``` clojure
 
 (union set-1 set-2)
@@ -2401,7 +2480,7 @@ Is `x` a `true` cell?
 
 Like `clojure.set/union` but for set cells.
 
-## <a name="convex.std/update">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L618-L629) `update`</a>
+## <a name="convex.std/update">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L621-L632) `update`</a>
 ``` clojure
 
 (update coll k f)
@@ -2410,7 +2489,7 @@ Like `clojure.set/union` but for set cells.
 
 Akin to classic `update` but for collection cell.
 
-## <a name="convex.std/vals">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L737-L747) `vals`</a>
+## <a name="convex.std/vals">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L740-L750) `vals`</a>
 ``` clojure
 
 (vals map)
@@ -2421,7 +2500,7 @@ Like classic `vals` but for map cells.
 
    Returns an eager vector cell.
 
-## <a name="convex.std/vec">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L297-L307) `vec`</a>
+## <a name="convex.std/vec">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L300-L310) `vec`</a>
 ``` clojure
 
 (vec cell)
@@ -2432,7 +2511,7 @@ Coerces the given `cell` to a vector or return nil.
   
    Works with any countable (see [`count`](#convex.std/count)).
 
-## <a name="convex.std/vector">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L377-L387) `vector`</a>
+## <a name="convex.std/vector">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L380-L390) `vector`</a>
 ``` clojure
 
 (vector & cell+)
@@ -2441,7 +2520,7 @@ Coerces the given `cell` to a vector or return nil.
 
 Builds a vector from the given cells.
 
-## <a name="convex.std/vector?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1344-L1351) `vector?`</a>
+## <a name="convex.std/vector?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L1370-L1377) `vector?`</a>
 ``` clojure
 
 (vector? x)
@@ -2450,7 +2529,7 @@ Builds a vector from the given cells.
 
 Is `x` a vector cell?
 
-## <a name="convex.std/zero?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L924-L933) `zero?`</a>
+## <a name="convex.std/zero?">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/cvm/src/main/clj/convex/std.clj#L927-L936) `zero?`</a>
 ``` clojure
 
 (zero? x)
