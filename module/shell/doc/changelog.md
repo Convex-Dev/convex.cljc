@@ -7,6 +7,26 @@ repository.
 ---
 
 
+{{ next-release }}
+
+Significant rewrite simplify using by a magnitude. All Shell features are now
+regular function or macro calls, just as expected. They are defined in the core
+account, meaning they are available from anywhere, any account.
+
+Significant changes and additions include:
+
+- Brand new, much simpler unit testing library
+- Creation of string-based streams
+- Easier exception handling
+- Experimental dependency management for Convex Lisp projects
+    - With support for cloning sources from foreign Git repositories 
+- Ability to selectively remove Shell features for safer execution
+- General improvements and minor additions in many already existing features
+
+
+---
+
+
 ## Swich to [calver](https://calver.org)
 
 Initially, the repository used semantic versioning. Below are the remainders of
