@@ -1,5 +1,9 @@
 (ns convex.shell.req.db
 
+  "Requests relating to Etch."
+
+  {:author "Adam Helinski"}
+
   (:import (java.io IOException)
            (java.nio.channels OverlappingFileLockException))
   (:refer-clojure :exclude [flush
@@ -16,6 +20,9 @@
 
 (defn- -fail
 
+  ;; Returns the CVM in an exceptional state when an Etch related
+  ;; request cannot be performed.
+
   [ctx message]
 
   ($.cvm/exception-set ctx
@@ -28,8 +35,8 @@
 
 (defn- -db
 
-  ;; Must be used to wrap Etch operations.
-  ;; Ensures there is an instance and handles exceptions.
+  ;; Used for carrying out Etch requests.
+  ;; Ensures there is an instance and handles failures.
 
   [ctx f]
 
@@ -49,6 +56,8 @@
 
 (defn flush
 
+  "Request for flushing Etch."
+
   [ctx _arg+]
 
   (-db ctx
@@ -60,7 +69,11 @@
 
 (defn open
 
-  ;; Can be used only once so that users never mix cells from different stores.
+  "Request for opening an Etch instance.
+  
+   Only one instance can be open per Shell, so that the user cannot possible
+   mingle cells coming from different instances.
+   Idempotent nonetheless if the user provides the same path."
 
   [ctx [path]]
 
@@ -102,6 +115,8 @@
 
 (defn path
 
+  "Request for getting the path of the currently open instance (or nil)."
+
   [ctx _arg+]
 
   ($.cvm/result-set ctx
@@ -111,6 +126,8 @@
 
 
 (defn read
+
+  "Request for reading a cell by hash."
 
   [ctx [hash]]
 
@@ -128,6 +145,8 @@
 
 (defn root-read
 
+  "Request for reading from the root."
+
   [ctx _arg+]
 
   (-db ctx
@@ -138,6 +157,8 @@
 
 (defn root-write
 
+  "Request for writing to the root."
+
   [ctx [cell]]
 
   (-db ctx
@@ -147,6 +168,8 @@
 
 
 (defn write
+
+  "Request for writing a cell."
 
   [ctx [cell]]
 

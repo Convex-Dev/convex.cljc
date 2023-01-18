@@ -1,5 +1,12 @@
 (ns convex.shell.project
 
+  "Convex Lisp projects may have a `project.cvx` file which contains useful
+   data for the Shell.
+  
+   For the time being, this is only used for dependencies (see [[convex.shell.req]])."
+
+  {:author "Adam Helinski"}
+
   (:import (convex.core.exceptions ParseException)
            (java.nio.file NoSuchFileException))
   (:refer-clojure :exclude [read])
@@ -14,6 +21,8 @@
 
 
 (defn read
+
+  "Reads the `project.cvx` file found in `dir`."
 
   [dir fail]
 
@@ -53,6 +62,8 @@
 
 
 (defn dep+
+
+  "Validates and returns `:deps` found in a `project.cvx`."
 
   [project fail]
 

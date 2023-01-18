@@ -1,5 +1,10 @@
 (ns convex.shell.dep.local
 
+  "A local dependency points to another local directory which contains
+   its own `project.cvx`."
+
+  {:autjor "Adam Helinski"}
+
   (:require [babashka.fs           :as bb.fs]
             [clojure.string        :as string]
             [convex.cell           :as $.cell]
@@ -11,6 +16,8 @@
 
 
 (defn fetch
+
+  "Used in [[convex.shell.dep/fetch]] for fetching local dependencies."
 
   [env project-child dep-parent actor-sym actor-path]
 

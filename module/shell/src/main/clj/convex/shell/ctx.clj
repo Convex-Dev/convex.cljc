@@ -1,5 +1,12 @@
 (ns convex.shell.ctx
 
+  "Preparing the genesis context used by the Shell.
+  
+   The Shell CVX library is executed in the core account so that all those functions
+   are accessible from any account."
+
+  {:author "Adam Helinski"}
+
   (:import (convex.core.init Init)
            (java.io InputStreamReader)
            (java.nio.charset StandardCharsets))

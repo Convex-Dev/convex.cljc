@@ -1,9 +1,6 @@
 (ns convex.shell.io
 
-  "Basic IO utilities and STDIO.
-  
-   Text streams are meant for reading characters (`Reader` and `Writer`) while binary streams are meant to handle
-   raw bytes (`InputStream` and `OutputStream`)."
+  "Basic IO utilities and STDIO."
 
   {:author "Adam Helinski"}
 

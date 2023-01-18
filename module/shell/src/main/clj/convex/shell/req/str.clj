@@ -1,5 +1,9 @@
 (ns convex.shell.req.str
 
+  "Requests relating to strings."
+
+  {:author "Adam Helinski"}
+
   (:import (java.io BufferedReader
                     StringReader
                     StringWriter))
@@ -14,6 +18,8 @@
 
 
 (defn sort
+
+  "Secret request for sorting a vector of strings."
 
   [ctx [str+]]
 
@@ -30,6 +36,8 @@
 
 
 (defn stream-in
+
+  "Request for turning a string into an input stream."
 
   [ctx [id string]]
 
@@ -51,6 +59,8 @@
 
 (defn stream-out
 
+  "Request for creating an output stream backed by a string."
+
   [ctx [id]]
 
   ($.cvm/result-set ctx
@@ -61,6 +71,8 @@
 
 
 (defn stream-unwrap
+
+  "Request for extracting the string inside a [[stream-out]]."
 
   [ctx [handle]]
 

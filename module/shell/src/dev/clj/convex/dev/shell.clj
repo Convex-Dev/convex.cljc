@@ -1,5 +1,7 @@
 (ns convex.dev.shell
 
+  "Executed automatically when working on the Shell in dev mode."
+
   {:author "Adam Helinski"}
 
   (:import (java.io PushbackReader))
@@ -12,6 +14,9 @@
 
 
 (defn version+
+
+  "Forwards the Convex and the Shell versions to a CVX file
+   available on the classpath of the Shell."
 
   []
 

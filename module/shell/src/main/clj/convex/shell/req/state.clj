@@ -1,5 +1,9 @@
 (ns convex.shell.req.state
 
+  "Requests relating to the global state."
+
+  {:author "Adam Helinski"}
+
   (:import (convex.core State)
            (convex.core.init Init))
   (:require [convex.cell           :as $.cell]
@@ -12,6 +16,8 @@
 
 
 (defn- -safe
+
+  ;; Root implementation for [[safe]] and [[tmp]].
 
   [ctx f select-ctx-ok]
 
@@ -38,6 +44,8 @@
 
 
 (defn genesis
+
+  "Request for generating a genesis state."
 
   [ctx [key+]]
 
@@ -73,6 +81,10 @@
 
 (defn safe
 
+  "Request for executing code in a safe way.
+  
+   In case of an exception, state is reverted."
+
   [ctx [f]]
 
   (-safe ctx
@@ -83,6 +95,8 @@
 
 
 (defn switch
+
+  "Request for switching a context to the given state."
 
   [ctx [address ^State state]]
 
@@ -114,6 +128,8 @@
 
 
 (defn tmp
+
+  "Exactly like [[safe]] but the state is always reverted, even in case of success."
 
   [ctx [f]]
 

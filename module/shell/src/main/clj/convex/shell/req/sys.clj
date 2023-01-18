@@ -1,5 +1,9 @@
 (ns convex.shell.req.sys
 
+  "Requests relating to basic system utilities."
+
+  {:author "Adam Helinski"}
+
   (:require [convex.clj  :as $.clj]
             [convex.cell :as $.cell]
             [convex.cvm  :as $.cvm]
@@ -11,6 +15,8 @@
 
 (defn arch
 
+  "Request for returning the chip architecture as a string."
+
   [ctx _arg+]
 
   ($.cvm/result-set ctx
@@ -20,6 +26,8 @@
 
 (defn cwd
 
+  "Request for returning the current working directory (where the Shell started)."
+
   [ctx _arg+]
 
   ($.cvm/result-set ctx
@@ -28,6 +36,8 @@
 
 
 (defn env
+
+  "Request for returning the map of process environment variables."
 
   [ctx _arg+]
 
@@ -40,6 +50,8 @@
 
 
 (defn env-var
+
+  "Request for returning the value for a single process environment variable."
 
   [ctx [env-var]]
 
@@ -54,6 +66,8 @@
 
 
 (defn exit
+
+  "Request for terminating the process."
 
   [ctx [code]]
 
@@ -75,6 +89,8 @@
 
 (defn home
 
+  "Request for returning the home directory."
+
   [ctx _arg+]
 
   ($.cvm/result-set ctx
@@ -83,6 +99,8 @@
 
 
 (defn os
+
+  "Request for returning a tuple `[OS Version]`."
 
   [ctx _arg+]
 

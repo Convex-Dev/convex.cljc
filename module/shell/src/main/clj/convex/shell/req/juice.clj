@@ -1,5 +1,9 @@
 (ns convex.shell.req.juice
 
+  "Requests relating to juice."
+
+  {:author "Adam Helinski"}
+
   (:refer-clojure :exclude [set])
   (:require [convex.clj  :as $.clj]
             [convex.cell :as $.cell]
@@ -11,6 +15,8 @@
 
 
 (defn set
+
+  "Request for setting the current juice value."
 
   [ctx [n-unit]]
 
@@ -29,6 +35,10 @@
 
 
 (defn track
+
+  "Request for tracking juice cost of a transaction.
+  
+   See `.juice.track`."
 
   [ctx [trx]]
 

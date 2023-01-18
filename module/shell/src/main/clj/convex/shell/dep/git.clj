@@ -1,5 +1,10 @@
 (ns convex.shell.dep.git
 
+  "Git dependencies are a convenient way of exposing Convex Lisp project
+   over the Internet."
+
+  {:author "Adam Helinski"}
+
   (:import (convex.core.init Init))
   (:require [babashka.fs           :as bb.fs]
             [clojure.string        :as string]
@@ -92,6 +97,9 @@
 
 (defn worktree
 
+  "Clones a repo and creates a worktree for the desired SHA (if none of this hasn't been
+   done already."
+
   [env dir-project-parent url sha]
 
   (let [path-rel     (path-cache-repo dir-project-parent
@@ -173,6 +181,8 @@
 
 
 (defn fetch
+
+  "Used in [[convex.shell.dep/fetch]] for fetching Git dependencies."
 
   [env project-child dep-parent actor-sym actor-path]
 

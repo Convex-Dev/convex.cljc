@@ -1,5 +1,9 @@
 (ns convex.shell.req.fs
 
+  "Requests relating to filesystem utilities."
+
+  {:author "Adam Helinski"}
+
   (:import (java.io File)
            (java.nio.file DirectoryNotEmptyException
                           Files
@@ -19,7 +23,7 @@
 
 (defn copy
 
-  ;; Behaves like Unix `cp`.
+  "Request for copying files and directories like Unix's `cp`."
 
   [ctx [source destination]]
 
@@ -68,7 +72,7 @@
 
 (defn delete 
 
-  ;; Deletes file or empty directory.
+  "Request for deleting a file or an empty directory."
 
   ;; TODO. Prints absolute path in errors.
   ;;       Make recursive over populated directories? Or too dangerous?
@@ -103,6 +107,8 @@
 
 (defn dir?
 
+  "Request returning `true` if `path` is an actual directory."
+
   [ctx [path]]
 
   (or (when-not ($.std/string? path)
@@ -116,7 +122,7 @@
 
 (defn exists?
 
-  ;; Testing if a file exists.
+  "Request returning `true` if `path` exists."
 
   [ctx [path]]
 
@@ -140,6 +146,8 @@
 
 (defn file?
 
+  "Request returning `true` if `file` is an actual, regular file."
+
   [ctx [path]]
 
   (or (when-not ($.std/string? path)
@@ -152,6 +160,8 @@
 
 
 (defn resolve
+
+  "Request for resolving a filename to a canonical form."
 
   [ctx [path]]
 
@@ -170,6 +180,8 @@
 
 
 (defn size
+
+  "Request for returning a filesize in bytes."
 
   [ctx [path]]
 
@@ -198,7 +210,7 @@
 
 (defn tmp
 
-  ;; Creates a temporary file.
+  "Request for creating a temporary file."
 
   [ctx [prefix suffix]]
 
@@ -227,7 +239,7 @@
 
 (defn tmp-dir
 
-  ;; Creates a temporary directory.
+  "Request for creating a temporary directory."
 
   [ctx [prefix]]
 

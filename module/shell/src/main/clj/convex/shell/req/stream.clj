@@ -1,5 +1,9 @@
 (ns convex.shell.req.stream
 
+  "Requests relating to IO streams."
+
+  {:author "Adam Helinski"}
+
   (:import (convex.core.exceptions ParseException)
            (java.io BufferedReader)
            (java.lang AutoCloseable)
@@ -21,17 +25,23 @@
 
 (def stderr
 
+  "Wraps STDERR to make it accessible to the CVM."
+
   ($.cell/fake $.shell.io/stderr-txt))
 
 
 
 (def stdin
 
+  "Wraps STDIN to make it accessible to the CVM."
+
   ($.cell/fake $.shell.io/stdin-txt))
 
 
 
 (def stdout
+
+  "Wraps STDOUT to make it accessible to the CVM."
 
   ($.cell/fake $.shell.io/stdout-txt))
 
@@ -55,10 +65,7 @@
 
 (defn- -fail
 
-  ;; Used in case of failure.
-  ;;
-  ;; Reports error using [[convex.shell.exec.fail/err]], as expected, unless operation involved STDERR.
-  ;; If using STDERR, there is no way to print errors, hence the process should terminate with a special exit code.
+  ;; Used in case of a stream failure.
 
   [ctx message]
 
@@ -81,7 +88,7 @@
 
 (defn- -str-txt
 
-  ;; Stringifies the given `cell` but do not double quote if it is a string.
+  ;; Stringifies the given `cell` but does not double quote if it is a string.
 
   [cell]
 
@@ -98,10 +105,8 @@
 (defn operation
 
   "Generic function for carrying out an operation.
-  
-   Retrieves the stream associated with `handle` and executes `(f env stream`).
-  
-   Takes care of failure."
+
+   Handles failure."
 
   [ctx handle op+ f]
 
@@ -149,7 +154,8 @@
 
 (defn close
 
-  "Closes the requested stream.
+  "Request for closing the given stream.
+
    A result to propagate may be provided."
 
 
@@ -174,7 +180,7 @@
 
 (defn flush
 
-  "Flushes the requested stream."
+  "Request for flushing the requested stream."
 
   [ctx [handle]]
 
@@ -190,7 +196,7 @@
 
 (defn in+
 
-  "Reads all available cells from the requested stream and closes it."
+  "Request for reading all available cells from the given stream and closing it."
 
   [ctx [handle]]
 
@@ -205,7 +211,7 @@
 
 (defn line
 
-  "Reads a line from the requested stream and parses it into a list of cells."
+  "Request for reading a line from the given stream and parsing it into a list of cells."
 
   [ctx [handle]]
 
@@ -239,7 +245,7 @@
 
 (defn out
 
-  "Writes `cell` to the requested stream."
+  "Request for writing a `cell` to the given stream."
 
   [ctx [handle cell]]
 
@@ -286,7 +292,7 @@
 
 (defn txt-in
 
-  "Reads everything from the requested stream as text."
+  "Request for reading everything from the given stream as text."
 
   [ctx [handle]]
 
@@ -306,7 +312,7 @@
 
 (defn txt-line
 
-  "Reads a line from the requested stream as text."
+  "Request for reading a line from the given stream as text."
 
   [ctx [handle]]
 
@@ -323,7 +329,7 @@
 
 (defn txt-out
 
-  "Like [[out]] but if `cell` is a string, then it is not quoted."
+  "Like [[out]] but if `cell` is a string, then it is not double-quoted."
 
   [ctx [handle cell]]
 

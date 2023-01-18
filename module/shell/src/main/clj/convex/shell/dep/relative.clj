@@ -1,5 +1,9 @@
 (ns convex.shell.dep.relative
 
+  "\"Relative\" dependency resolution mechanism."
+
+  {:author "Adam Helinski"}
+
   (:import (convex.core.exceptions ParseException)
            (java.nio.file NoSuchFileException))
   (:refer-clojure :exclude [read])
@@ -15,6 +19,8 @@
 
 (defn path
 
+  "Produces an actual file path form an actor path."
+
   [project-child dep-parent actor-path]
 
   (format "%s/%s/%s.cvx"
@@ -27,6 +33,8 @@
 
 
 (defn read
+
+  "Reads a Convex Lisp file."
 
   [env path]
 
@@ -66,6 +74,8 @@
 
 (defn validate-required
 
+  "Validates a deploy vector."
+
   [ctx required ancestry]
 
   (let [fail (fn [message]
@@ -98,6 +108,8 @@
 
 (defn content
 
+  "Retrieves the content of a relative actor."
+
   [env project-child dep-parent actor-sym actor-path]
 
   (let [content (read env
@@ -116,6 +128,8 @@
 
 
 (defn fetch
+
+  "Used in [[convex.shell.dep/fetch]] for fetching relative dependencies."
 
   [env project-child dep-parent actor-sym actor-path]
 

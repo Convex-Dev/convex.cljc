@@ -1,5 +1,15 @@
 (ns convex.shell.req
 
+  "All extra features offered by the Shell, over the Convex Virtual Machine, have
+   a single entry point: the `.shell.invoke` function injected in the core account.
+
+   AKA the [[invoker]].
+
+   The various side effects, implemented in Clojure and made available through the
+   [[invoker]], are known as \"requests\"."
+
+  {:author "Adam Helinski"}
+
   (:import (convex.core.data ACell)
            (convex.core.init Init)
            (convex.core.lang Context)
@@ -36,6 +46,8 @@
 
 
 (defn ex-rethrow
+
+  "Request for rethrowing an exception captured in the Shell."
 
   [ctx [ex-map]]
 
@@ -85,6 +97,10 @@
 
 
 (def core
+
+  "All core requests.
+  
+   A map of CVX symbols pointing to a Clojure implementations."
 
   {($.cell/* .account.switch)    $.shell.req.account/switch
    ($.cell/* .bench.trx)         $.shell.req.bench/trx
@@ -154,6 +170,10 @@
 
 (defn- -inspect
 
+  "Request for returning all the requests current available in the Shell.
+  
+   See [[invoker]]."
+
   [dispatch-table ctx _arg+]
 
   ($.cvm/result-set ctx
@@ -162,6 +182,10 @@
 
 
 (defn- -limit
+
+  "Request for rebuilding the [[invoker]], limiting the available requests.
+  
+   Akin to how Linux users can selectively forbid some syscalls."
 
   [dispatch-table ctx [feature-set]]
 
@@ -186,6 +210,19 @@
 
 
 (defn invoker
+
+  "Returns an [[invoker]].
+
+   Disguised as a CVM core function, the [[invoker]] is a variadic CVM function where
+   the first argument is a CVX symbol resolving to a Clojure implementation that will
+   produce the desired request, such as opening a file output stream.
+
+   The symbol is resolved using a \"dispatch table\".
+   Defaults to [[core]] but one may want to extend it in order to provide additional
+   features.
+  
+   It will be injected in the core account of the context used by the Shell, under
+   `.shell.invoke`."
 
 
   ([]

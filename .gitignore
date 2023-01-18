@@ -23,7 +23,6 @@
 /**/.clj-kondo
 /**/.lsp
 !/bb/script/dev.clj
-/**/dev.clj
 /.clj-kondo/*
 /cvm
 /private

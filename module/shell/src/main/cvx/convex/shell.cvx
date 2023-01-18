@@ -1,3 +1,8 @@
+;;
+;; CONVEX SHELL LIBRARY
+;;
+;; Unlocks all the extra features offered by the Shell through `.shell.invoke`.
+;;
 
 
 ;;;;;;;;;; Miscellaneous helpers, private and public

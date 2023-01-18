@@ -1,5 +1,9 @@
 (ns convex.shell.req.log
 
+  "Requests relating to the CVM log."
+
+  {:author "Adam Helinski"}
+
   (:refer-clojure :exclude [get])
   (:require [convex.cvm :as $.cvm]))
 
@@ -8,6 +12,8 @@
 
 
 (defn clear
+
+  "Request for clearing the CVM log."
 
   [ctx _arg+]
 
@@ -18,6 +24,8 @@
 
 
 (defn get
+
+  "Request for retrieving the CVM log."
 
   [ctx _arg+]
 

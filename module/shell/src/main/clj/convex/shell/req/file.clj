@@ -1,5 +1,12 @@
 (ns convex.shell.req.file
 
+  "Requests relating to file utils.
+  
+   For the time being, only about opening streams. All other utilities are
+   written in Convex Lisp."
+
+  {:author "Adam Helinski"}
+
   (:require [convex.cell     :as $.cell]
             [convex.cvm      :as $.cvm]
             [convex.shell.io :as $.shell.io]
@@ -41,7 +48,7 @@
 
 (defn stream-in
 
-  "Opens an input stream for file under `path`."
+  "Request for opening an input stream for file under `path`."
 
   [ctx [id path]]
 
@@ -55,7 +62,7 @@
 
 (defn stream-out
 
-  "Opens an output stream for file under `path`."
+  "Request for opening an output stream for file under `path`."
 
   [ctx [id path append?]]
 

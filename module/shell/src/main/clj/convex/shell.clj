@@ -2,30 +2,13 @@
 
   "CONVEX SHELL
 
-   This is a whole application. It is available as a library in case it needs to be embedded. Then, only [[-main]] is really
-   useful. It must be called only one at a time per thread otherwise Etch utilities may greatly misbehave.
+   Convex Virtual Machine extended with side-effects.
 
-   Executes each form as a transaction, moving from transaction to transaction.
+   For using as a terminal application, see [[-main]].
 
-   A transaction can return a request to perform operations beyond the scope of the CVM, such as file IO or
-   advancing time. Those requests turn Convex Lisp, a somewhat limited and fully deterministic language, into
-   a scripting facility.
-
-   Requests are vectors following expected conventions and implementations can be found in the [[convex.shell.sreq]]
-   namespace.
-
-   A series of CVX libraries is embedded, building on those requests and the way the shell generally operates,
-   providing features such as reading CVX files, unit testing, a REPL, or time-travel. All features are self
-   documented in the grand tradition of Lisp languages.
+   For using as a library, see [[transact]].
   
-   Functions throughout these namespaces often refer to `env`. It is an environment map passed around containing
-   everything that is need by an instance: current CVM context, opened streams, current error if any, etc.
-  
-   In case of error, [[convex.shell.exec.fail/err]] must be used so that the error is reported to the CVX executing environment.
-  
-   List of transactions pending for execution is accessible in the CVX execution environment under `$.trx/*list*`. This list
-   can be modified by the user, allowing for powerful metaprogramming. Besides above-mentioned requests, this feature is used
-   to implement another series of useful utilities such as exception catching."
+   Assumes knowledge of `:module/cvm`."
 
   {:author "Adam Helinski"}
 
@@ -45,6 +28,16 @@
 
 
 (defn init
+
+  "Initializes a genesis context, forking [[convex.shell.ctx/genesis]].
+   It is important that each such context is initialized and used in a dedicated
+   thread.
+  
+   Options may be:
+
+   | Key                     | Value                            |
+   |-------------------------|----------------------------------|
+   | `:convex.shell/invoker` | See [[convex.shell.req/invoker]] |"
 
   ;; Each ctx must have its own thread.
 
@@ -66,6 +59,12 @@
 
 (defn transact
 
+  "Applies the given transaction (a cell) to the given context.
+  
+   Context should come from [[init]].
+  
+   Returns a context with a result or an exception attached."
+
   [ctx trx]
 
   (try
@@ -84,14 +83,23 @@
 
 (defn transact-main
 
-  [ctx trx+]
+  "Core implementation of [[-main]].
+  
+   Passes the text cells to the `.shell.main` CVX function defined in the core account.
+  
+   `ctx` should come from [[init]] and will be passed to [[transact]].
+
+   In case of a result, prints its to STDOUT and terminates with a 0 code.
+   In case of an exception, prints it to STDERR and terminates with a non-0 code."
+
+  [ctx txt-cell+]
 
   (let [ctx-2 (transact ctx
                         ($.cell/*
                           ((lookup ~($.cell/address 8)
                                    .shell.main)
                             ~($.cell/string (string/join " "
-                                                         trx+)))))
+                                                         txt-cell+)))))
         ex  ($.cvm/exception ctx-2)]
     (if ex
       (if (= ($.cvm/exception-code ex)
@@ -116,7 +124,7 @@
                          (str)))
             (flush))
           (System/exit 2))
-        (do
+        (binding [*out* *err*]
           (println (str ($.shell.fail/mappify-cvm-ex ex)))
           (System/exit 1)))
       (do
@@ -129,15 +137,16 @@
 
 (defn -main
 
-  "Reads and executes transactions.
+  "Main entry point for using Convex Shell as a terminal application.
   
-   If no transaction is provided, starts the REPL.
+   Expects cells as text to wrap and execute in a `(do)`.
+   See [[transact-main]] for a reusable implementation.
   
    ```clojure
    (-main \"(+ 2 2)\")
    ```"
 
-  [& trx+]
+  [& txt-cell+]
 
   (transact-main (init)
-                 trx+))
+                 txt-cell+))

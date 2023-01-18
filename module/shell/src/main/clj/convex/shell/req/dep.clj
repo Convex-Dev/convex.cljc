@@ -1,5 +1,9 @@
 (ns convex.shell.req.dep
 
+  "Requests for the experimental dependency management framework.
+  
+   See [[convex.shell.dep]]."
+
   (:refer-clojure :exclude [read])
   (:require [convex.cell               :as $.cell]
             [convex.cvm                :as $.cvm]
@@ -12,6 +16,8 @@
 
 
 (defn deploy
+
+  "Request for deploying a deploy vector."
 
   [ctx [required]]
 
@@ -27,6 +33,9 @@
 
 
 (defn fetch
+
+  "Request for fetching required dependencies given a deploy vector.
+   Does not execute nor deploy anything in the Shell."
 
   [ctx [required]]
   
@@ -45,6 +54,8 @@
 
 
 (defn read
+
+  "Request for reading CVX files resolved from a deploy vector."
 
   [ctx [required]]
 

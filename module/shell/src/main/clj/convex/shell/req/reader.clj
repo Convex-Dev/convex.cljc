@@ -1,4 +1,8 @@
 (ns convex.shell.req.reader
+  
+  "Requests relating to the CVX reader."
+
+  {:author "Adam Helinski"}
 
   (:import (convex.core.exceptions ParseException))
   (:require [convex.cell :as $.cell]
@@ -11,6 +15,8 @@
 
 
 (defn form+
+
+  "Request for reading cells from a string."
 
   [ctx [src]]
 

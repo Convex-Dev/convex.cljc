@@ -1,5 +1,10 @@
 (ns convex.shell.dep.fail
 
+  "Builds on [[convex.shell.flow]] for returning CVM exceptions relating
+   to [[convex.shell.dep]]."
+
+  {:author "Adam Helinski"}
+
   (:import (convex.core.lang.impl ErrorValue))
   (:require [clojure.string    :as string]
             [convex.cvm        :as $.cvm]
@@ -10,6 +15,9 @@
 
 
 (defn- -trace-ancestry
+
+  ;; When failing to fetch or deploy a dependency, adds its ancestry to the
+  ;; exception trace (who we got there).
 
   [^ErrorValue ex ancestry]
 

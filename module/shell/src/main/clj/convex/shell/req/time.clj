@@ -1,5 +1,9 @@
 (ns convex.shell.req.time
 
+  "Requests relating to time."
+
+  {:author "Adam Helinski"}
+
   (:require [convex.cell       :as $.cell]
             [convex.clj        :as $.clj]
             [convex.cvm        :as $.cvm]
@@ -11,6 +15,8 @@
 
 
 (defn -millis
+
+  ;; Ensures `millis` is a positive CVX Long.
 
   [ctx millis]
 
@@ -34,6 +40,8 @@
 
 (defn advance
 
+  "Request for moving forward the CVM timestamp."
+
   [ctx [millis]]
   
   (let [[ok?
@@ -54,7 +62,8 @@
 
 (defn nano
 
-  ;; High-resolution timer.
+  "Request for returning the current time according to the JVM high-resolution
+   timer."
 
   [ctx _arg+]
 
@@ -65,7 +74,7 @@
 
 (defn unix
 
-  ;; Returns UNIX timestamp.
+  "Request for returning the current Unix timestamp of the machine."
 
   [ctx _arg+]
 
@@ -78,7 +87,7 @@
 
 (defn iso->unix
 
-  ;; Convers ISO string to Unix timestamp.
+  "Request for converting an ISO 8601 UTC string into a Unix timestamp."
 
   [ctx [iso-string]]
 
@@ -95,7 +104,7 @@
 
 (defn unix->iso
 
-  ;; Convers Unix timestamp to ISO string.
+  "Opposite of [[iso->unix]]."
 
   [ctx [time-unix]]
 
@@ -114,6 +123,8 @@
 
 
 (defn sleep
+
+  "Request for temporarily blocking execution."
 
   [ctx [millis]]
 

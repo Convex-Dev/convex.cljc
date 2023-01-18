@@ -1,5 +1,9 @@
 (ns convex.shell.req.bench
 
+  "Requests related to benchmarking."
+
+  {:author "Adam Helinski"}
+
   (:require [convex.cell    :as $.cell]
             [convex.cvm     :as $.cvm]
             [criterium.core :as criterium]))
@@ -10,7 +14,7 @@
 
 (defn trx
 
-  ;; Benchmarks a transaction using Criterium.
+  "Request for benchmarking a single transaction using Criterium."
 
   [ctx [trx]]
 

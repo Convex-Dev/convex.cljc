@@ -1,5 +1,11 @@
 (ns convex.shell.dep        
 
+  "Experimental dependency management framework for Convex Lisp.
+  
+   In the Shell, see `(?.shell '.dep)`."
+
+  {:author "Adam Helinski"}
+
   (:import (convex.core.init Init)
            (convex.core.lang.impl ErrorValue))
   (:refer-clojure :exclude [read])
@@ -23,6 +29,9 @@
 
 (defn- -jump
 
+  ;; Used and forwarded by [[fetch]].
+  ;; This is how a dependency can jump and pass resolution to another dependency.
+
   [env dep-parent actor-sym actor-path]
 
   (-> env
@@ -38,6 +47,10 @@
 
 
 (defn project
+
+  "Returns a `project.cvx` file where dependencies reside.
+  
+   Also validates it."
 
   [ctx dep dir]
 
@@ -58,6 +71,9 @@
 
 
 (defn fetch
+
+  "Main function for fetching dependencies (Convex Lisp files), which may or may not be
+   deployed as actors in a latter step."
 
 
   ([env]
@@ -145,6 +161,8 @@
 
 (defn deploy-actor
 
+  "Used in [[deploy-fetched]] for deploying a single actor in the Shell."
+
   [env hash code]
 
   (let [ctx     ($.cvm/deploy (env :convex.shell/ctx)
@@ -170,6 +188,8 @@
 
 
 (defn deploy-fetched
+
+  "Deploys actors that have prefetched with [[fetched]]."
 
   [env]
 

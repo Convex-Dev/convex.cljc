@@ -1,5 +1,7 @@
 (ns convex.shell.fail
 
+  "Helpers for handling Shell failures."
+
   (:import (convex.core.lang.impl ErrorValue)
            (java.nio.file Files)
            (java.nio.file.attribute FileAttribute))
@@ -15,10 +17,7 @@
 
 (defn mappify-cvm-ex
 
-  "Transforms the given CVM exception into a map.
-  
-   If prodived, associates to the resulting error map a [[phase]] and the current transaction that caused this error."
-
+  "Transforms the given CVM exception into a CVX map."
 
   [^ErrorValue ex]
 
@@ -32,8 +31,10 @@
 
 (defn top-exception
 
-  "Called when a JVM exception is caught at the very top level of the shell.
-   No `env` is available at that point. This is last resort."
+  "Called when an unforeseen JVM exception is caught.
+   Prints the exception to a tmp EDN file the user can inspect and
+   report as this would be almost certainly about an actual bug in
+   the Shell."
 
   [ctx ex]
 
