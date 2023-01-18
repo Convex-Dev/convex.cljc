@@ -1,23 +1,24 @@
 One-size fits all tool for sophisticated development, testing, and analysis of
-Convex Lisp in a fun and highly productive environment. Meant for more advanced
-users already familiar with [Convex Lisp and the Convex Virtual
-Machine](https://convex.world/cvm), wanting to prototype and build actual smart
-contracts.
+Convex Lisp in a fun and highly productive environment. Meant users with notions
+about [Convex Lisp and the Convex Virtual Machine](https://convex.world/cvm),
+wanting to prototype and build actual smart contracts.
 
-Executes transactions provided as command-line arguments. If none is given,
-starts the Convex Lisp REPL where user can work interactively.
+Convex Shell extends the original Convex Virtual Machine with many features,
+such as:
 
-Transactions are executed successively and deterministically by the CVM.
-However, a given transaction can return a *request* for performing operations
-beyond the scope of the CVM. A plethora of CVX libraries is embedded in the
-shell, building on those supported requests for providing features like file IO,
-time-travel, exception handling, etc.
+- File IO
+- Unit testing
+- System utils
+- Time travel, various manipulations on the Global State
+- Using Etch, the fast database for Convex data 
+- Dependency management for Convex Lisp projects
+- Miscellaneous helpers, such as switching accounts
+- And much more
 
-As a result, Convex Lisp becomes more like a scripting language with advanced
-metaprogramming and pushes the boundaries of smart contract development to
-unforeseen heights with very fast feedback.
+Executes Convex Lisp code provided as command-line arguments. If none is given,
+starts the Convex Lisp REPL where users can work interactively.
 
-In the future, the Convex Shell will also integrate client capabilities,
+In the future, Convex Shell will also integrate client capabilities,
 allowing for scripted or dynamic interactions with networks of peers.
 
 
@@ -30,32 +31,29 @@ Install the [latest
 release](https://github.com/Convex-Dev/convex.cljc/releases/tag/release/shell/0.0.0-alpha4)
 on your system.
 
-The native version is highly recommended, but a jar file is provided in case
+The native version is highly recommended, but an uberjar file is provided in case
 your operating system is not supported.
 
 Ensure the binary is executable on your system. Let us suppose it is aliased in
 your terminal as `cvx`.
 
-No arguments starts a basic REPL and Convex Lisp transactions can be entered
+Either provide Convex Lisp code as an argument:
+
+    cvx '(def x 42)  (inc x)'
+
+Or do not provide any argument, which will start a REPL where you can type code
 interactively:
 
     cvx
 
-Transactions can be provided directly as command-line arguments:
+If your environment does not support ANSI colors, they can be disabled as such:
 
-    cvx '(def foo :hello)  [foo "world"]'
+    cvx '(.term.style.enable? false)  (.repl)'
 
-Note: On Windows, Powershell requires double-quotes to be escaped.
+In the grand tradition of Lisp languages, Convex Shell is self-documented.
+Whenever in doubt, call the `?` function which should guide you and help you:
 
-If your environment does not support terminal colors, they can be disabled as
-such:
-
-    cvx '($.term/style.disable)  ($.repl/!.start)'
-
-In the grand tradition of Lisp languages, the Convex Shell is self-documented.
-The REPL invites the user to query help by running `($/help)` which takes the lead
-from there, informs about available features and how to query more help for
-those features and everything else.
+    cvx '(?)  (.repl)'
 
 
 ## Improved REPL experience
@@ -69,12 +67,15 @@ For instance, on Ubuntu:
 
     sudo apt install rlwrap
 
+Or MacOs:
+
+    brew install rlwrap
+
 Start a comfortable REPL:
 
     rlwrap -c cvx
 
-Note: `-c` argument provides filename completion on tab. Ultimately, prepare the
-alias that suits your need.
+Note: `-c` argument provides filename completion on tab.
 
 
 ---
@@ -82,7 +83,7 @@ alias that suits your need.
 
 ## Build
 
-For building the Convex Shell locally, commands must be issued from the root of
+For building Convex Shell locally, commands must be issued from the root of
 this repository and it is assumed tools mentioned in the [general
 README](../../README.md) are available. 
 
