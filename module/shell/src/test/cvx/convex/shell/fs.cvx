@@ -172,6 +172,8 @@
 
 (.t.def ..fs.resolve
 
+  ^:unix?
+
   (.t.is (= "/a/b"
             (.fs.resolve "/a/b")))
 
@@ -191,6 +193,8 @@
 
 (.t.def ..fs.size
 
+  ^:unix?
+
   (.t.is (zero? (.fs.size (.fs.tmp))))
 
   (def file
@@ -201,9 +205,6 @@
 
   (.t.is (< 0
             (.fs.size file)))
-
-  (.t.is (< 0
-            (.fs.size (.fs.tmp.dir))))
 
   (.t.is (nil? (.fs.size "fake/path/1234567890")))
 

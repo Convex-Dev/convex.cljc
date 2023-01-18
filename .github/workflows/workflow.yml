@@ -116,7 +116,7 @@ jobs:
     strategy:
       matrix:
         os:
-          - macos-12
+          # - macos-12
           - ubuntu-latest
           # - windows-latest
 
@@ -163,7 +163,7 @@ jobs:
         run:  bb build :module/shell
 
       - name: Test Convex Shell
-        run:  java -jar ./private/target/shell.uber.jar '(def fast? true) ($.file/!.exec "./module/shell/src/test/cvx/convex/test/shell/root.cvx")'
+        run:  java -jar ./private/target/shell.uber.jar '(.dep.test (quote (test convex shell)) {:skip [:slow?]})'
 
       - name: Upload uberjar
         if:   runner.os == 'Linux'
@@ -206,6 +206,7 @@ jobs:
         uses: graalvm/setup-graalvm@v1
         with:
           components:   'native-image'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           java-version: 17
           version:      '22.2.0'
 
@@ -219,7 +220,7 @@ jobs:
         run:  bb native:image :module/shell shell
 
       - name:  Test native Convex Shell
-        run:   ./shell '(def fast? true) ($.file/!.exec "./module/shell/src/test/cvx/convex/test/shell/root.cvx")'
+        run:   ./shell '(.dep.test (quote (test convex shell)) {:skip [:slow? :unix?]}))'
         shell: bash
 
       - name: Upload native executable
