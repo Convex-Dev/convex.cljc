@@ -35,6 +35,16 @@
 ;;;;;;;;;; Account
 
 
+(def .account
+
+  ^{:private?      true
+    :shell.section ["Utilities centered on Convex accounts."
+                    "Notably, see `.account.switch`."]}
+
+  nil)
+
+
+
 (def .account.0-key
 
   ^{:doc {:description "Fake key, useful for turning an actor into a user account with `set-key`."}}
@@ -87,6 +97,15 @@
 
 
 ;;;;;;;;;; Benchmarking
+
+
+(def .bench
+
+  ^{:private?      true
+    :shell.section ["Benchmarking utilities, more will be provided in the future."]}
+
+  nil)
+
 
 
 (defn .bench.trx
@@ -325,6 +344,21 @@
 ;;;;;;;;; Etch
 
 
+(def .db
+
+  ^{:private?      true
+    :shell.section ["Etch is a fast, immutable database for Convex data."
+                    ""
+                    "Writing a cell returns the hash of that cell whereas reading"
+                    "requiring a hash and returns the corresponding cell."
+                    ""
+                    "Only one instance can be open per Shell."
+                    "See `.db.open`."]}
+
+  nil)
+ 
+ 
+
 (defn .db.flush
 
   ^{:doc {:description ["Flushes the current Etch instance."
@@ -418,7 +452,7 @@
                         "Otherwise, behaves exactly like `.db.write`."
                         ""
                         "Also see `.db.root.read`."]
-          :examples    [{:code (.db/.root.write [:my 'cell 42])}]
+          :examples    [{:code (.db.root.write [:my 'cell 42])}]
           :signature   [{:params [cell]}]}}
 
   [cell]
@@ -552,6 +586,19 @@
 ;;;;;;;;;; File operations
 
 
+(def .file
+
+  ^{:private?      true
+    :shell.section ["High-level utilities for reading and writing files,"
+                    "either as text or as Convex data."
+                    ""
+                    "Builds on the stream utilities offered by the Shell."
+                    "See `(?.shell '.stream)`."]}
+
+  nil)
+
+
+
 (defn .file.-handle
 
   ^:private?
@@ -635,7 +682,7 @@
 (defn .file.stream.in
 
   ^{:doc {:description ["Returns a handle to an input stream for the given file."
-                        "See stream utils such as `.stream.line`."]
+                        "See `(?.shell '.stream)` about stream utilities."]
           :examples    [{:code (.file.stream.in "./my/file.cvx")}]
           :signature   [{:params [path]}]}}
 
@@ -652,7 +699,7 @@
 (defn .file.stream.out
 
   ^{:doc {:description ["Returns a handle to an output stream for the given file."
-                        "See stream utils such as `.stream.outln`."
+                        "See `(?.shell '.stream)` about stream utilities."
                         ""
                         "A map of options may be provided:"
                         ""
@@ -725,7 +772,7 @@
 
   ^{:doc {:description ["Writes the given cell to the given file."
                         "Same options as `.file.stream.out`."
-                        "Can be read back with `.file.read`."
+                        "Can be read back as cells with `.file.read`."
                         ""
                         "Also see `.file.txt.write`."]
           :examples    [{:code (.file.write "some/file.cvx" [:a :b])}
@@ -749,6 +796,15 @@
 
 
 ;;;;;;;;;; Filesystem operations
+
+
+(def .fs
+ 
+  ^{:private?      true
+    :shell.section ["Simple filesystem utilities."]}
+
+  nil)
+
 
 
 (defn .fs.copy
@@ -953,6 +1009,22 @@
 ;;;;;;;;;; Juice operations
 
 
+(def .juice
+
+  ^{:private?      true
+    :shell.section ["Juice is the computational unit of Convex."
+                    "All operations in a transaction, such as calling a function,"
+                    "are measured in this unit."
+                    ""
+                    "Currently available juice can be retrieved with `*juice*`."
+                    ""
+                    "For instance, try setting this value to 0 with `.juice.set`"
+                    "and do anything afterwards. A `:JUICE` exception will be thrown."]}
+
+  nil)
+
+
+
 (defn .juice.refill
 
   ^{:doc {:description ["Refills `*juice*` to the maximum value."
@@ -1006,6 +1078,20 @@
 
 
 ;;;;;;;;;; CVM log operations
+
+
+(def .log
+
+  ^{:private?      true
+    :shell.section ["The core `log` functions allows for saving Convex data"
+                    "for off-chain use. For instance, a peer might issue off-chain"
+                    "notifications based on what is being logged."
+                    ""
+                    "On-chain, logged data is inaccessible. These few functions"
+                    "allowing for inspecting it in the Shell."]}
+
+  nil)
+
 
 
 (defn .log.clear
@@ -1091,7 +1177,8 @@
                         ""
                         "By default, a prompt is printed and the user can introduce a lines of cells to evaluate."
                         "Results and exceptions are printed."
-                        "Stops when the user enter `:q` or `:quit`."
+                        "By default, stops when the user enter `:q` or `:quit`."
+                        "The result of the previous command is made available under `$`."
                         ""
                         "A map of options may be provided to alter the behavior of the REPL."
                         "Functions in this map takes a state map and must returns it, altered or not."
@@ -1135,7 +1222,10 @@
                         "    Defaults to `.stream.*out*`."]
           :examples    [{:code (.repl)}]
           :signature   [{:params []}
-                        {:params [option+]}]}}
+                        {:params [option+]}]}
+    :shell.section ["See `(? '.repl)` for driving an interactive workflow."
+                    "The REPL is started automatically when the Shell is started"
+                        "without instructions."]}
 
 
   ([]
@@ -1363,6 +1453,16 @@
 ;;;;;;;;;; Shell
 
 
+(def .shell
+
+  ^{:private?      true
+    :shell.section ["Shell configuration, such as selectively removing some of"
+                    "the extra features it offers."]}
+
+  nil)
+
+
+
 (defn .shell.inspect
 
   ^{:doc {:description ["Returns a set of symbols expressing features offered by the Shell."
@@ -1512,6 +1612,20 @@
 ;;;;;;;;;; Creating and handling states
 
 
+(def .state
+
+  ^{:private?      true
+    :shell.section ["Convex transactions alter the global state of the network."
+                    "In Convex Lisp, the current state is available under `*state*`."
+                    ""
+                    "The Shell offers extra features such as `.state.switch` which allows"
+                    "jumping to another state. For instance, one that has been loaded"
+                    "from the Etch database (see `(?.shell '.db)`)."]}
+
+  nil)
+
+
+
 (defn .state.genesis
 
   ^{:doc {:description ["Generates and returns a genesis state."
@@ -1640,6 +1754,15 @@
 ;;;;;;;;;; Strings
 
 
+(def .str
+
+  ^{:private?      true
+    :shell.section ["Extra string-related utilities not found natively in Convex."]}
+
+  nil)
+
+
+
 (defn .str.pluralize
 
   ^:private?
@@ -1668,8 +1791,8 @@
 (defn .str.stream.in
 
   ^{:doc {:description ["Wraps the given string in an input stream."
-                        "The returned handle can be used with stream utilities such"
-                        "as `.stream.line`."]
+                        "The returned handle can be used with stream utilities."
+                        "See `(?.shell '.stream)`."]
           :examples    [{:code (.str.stream.in ":a :b :c")}]
           :signature   [{:params [string]}]}}
 
@@ -1684,8 +1807,8 @@
 (defn .str.stream.out
 
   ^{:doc {:description ["Wraps the given string in an output stream."
-                        "The returned handle can be used with stream utilities such"
-                        "as `.stream.outln`."
+                        "The returned handle can be used with stream utilities."
+                        "See `(?.shell '.stream)`."
                         ""
                         "Note that `.stream.close` has no effect."
                         ""
@@ -1714,6 +1837,24 @@
 
 
 ;;;;;;;;;; Streams
+
+
+(def .stream
+
+  ^{:private?      true
+    :shell.section ["Streams are an abstraction for reading and writing text"
+                    "or Convex data."
+                    ""
+                    "For instance, see the following ways for creating streams"
+                    "which can then be used with the various stream utilities:"
+                    ""
+                    "  .file.stream.in"
+                    "  .file.stream.out"
+                    "  .str.stream.in"
+                    "  .str.stream.out"]}
+
+  nil)
+
 
 
 (def .stream.stderr
@@ -2101,6 +2242,15 @@
 ;;;;;;;;;; System utilities
 
 
+(def .sys
+
+  ^{:private?      true
+    :shell.section ["Basic system utilities."]}
+
+  nil)
+
+
+
 (defn .sys.arch
 
   ^{:doc {:description ["Returns the machine architecture as a string."]
@@ -2154,7 +2304,7 @@
 
 (def .sys.eol
 
-  ^{:doc {:description "Platform-dependend new line."}}
+  ^{:doc {:description "Platform-dependent new line."}}
 
   .sys.eol)
 
@@ -2162,9 +2312,9 @@
 
 (defn .sys.exit
 
-  ^{:doc {:description ["Exists the Shell with the given exit code."
+  ^{:doc {:description ["Exists the Shell process with the given exit code."
                         "Exit code must be 0 or >= 128 and <= 255."
-                        "Values below 128 are reserved for the Shell."]
+                        "Values below 128 are reserved for the Shell itself."]
           :examples    [{:code (.sys.exit 128)}]
           :signature   [{:params [code]}]}}
 
@@ -2200,6 +2350,18 @@
 
 
 ;;;;;;;;;; Unit testing
+
+
+(def .t
+
+  ^{:private?      true
+    :shell.section ["Unit testing framework."
+                    ""
+                    "Tests are functions defined with `.t.def` which should"
+                    "contain assertions written with `.t.is`."]}
+
+  nil)
+
 
 
 (def .t.*assert+*
@@ -2855,6 +3017,20 @@
 ;;;;;;;;;; Basic ANSI terminal commands
 
 
+(def .term
+
+  ^{:private?      true
+    :shell.section ["Simples utilities for producing terminal ANSI escape codes, such as"
+                    "for coloring strings."
+                    ""
+                    "Some environments, such as some Windows terminals, or some use cases,"
+                    "such as writing files, requires disabling these."
+                    "See `.term.style.enable?` which will work for all color-related functions."]}
+
+  nil)
+
+
+
 (def .term.*style?*
 
   ^{:doc {:description ["Boolean indicating if text styling functions like `.term.fg.red` can use ANSI escape codes."
@@ -3443,6 +3619,22 @@
 ;;;;;;;;;; Time utilities
 
 
+(def .time
+
+  ^{:private?      true
+    :shell.section ["Times related utilities."
+                    ""
+                    "Note that the Convex Virtual Machine keeps its own time available"
+                    "under `*timestamp*` which represents the network time. In the Shell,"
+                    "this timestamp can only move forwards via `.time.advance`."
+                    ""
+                    "Other utilities, such as `.time.unix`, refer to the actual clock"
+                    "time of the machine the Shell is running on."]}
+
+  nil)
+
+
+
 (defn .time.advance
 
   ^{:doc {:description ["Advances `*timestamp*`, the timestamp of the Convex Virtual Machine."
@@ -3555,6 +3747,20 @@
 ;;;;;;;;;; Try-catch like helpers
 
 
+(def .try
+
+  ^{:private?      true
+    :shell.section ["By design, the Convex Virtual Machine does not offer any \"try-catch\""
+                    "mechanism as commonly found in mainstream languages. A transaction either"
+                    "succeeds or fails when an exception is thrown."
+                    ""
+                    "However, catching exceptions is a common need for development. This section"
+                    "contains some helper macros that build over `.state.safe`."]}
+
+  nil)
+
+
+
 (defmacro .try*
 
   ^{:doc {:description ["If `do-good` fails with an exception, state is reverted and `do-fail` is run."]
@@ -3622,6 +3828,15 @@
 
 
 ;;;;;;;;;; Versions
+
+
+(def .version
+
+  ^{:private?      true
+    :shell.section ["In case of a bug, please report `.version.shell` as well as `.version.convex`."]}
+
+  nil)
+
 
 
 (def .version.convex
@@ -3879,7 +4094,7 @@
                ""
                (feature ".account"
                         "Account management")
-               (feature ".bench"
+               (feature ".bench  "
                         "Benchmarking")
                (feature ".db     "
                         "Using Etch, the fast immutable database for cells")
@@ -3909,6 +4124,8 @@
                         "Unit testing library")
                (feature ".term   "
                         "Terminal ANSI escape codes (e.g. colored output)")
+               (feature ".try    "
+                         "Error handling abstractions built over `.state.safe`.")
                (feature ".time   "
                         "Time utilities")
                (feature ".version"
@@ -3926,12 +4143,18 @@
  ([sym]
 
    (.stream.txt.outln "")
-   (?.title (str "Shell features matching `" sym "`"))
-   (let [;; `.t` is a special case, we don't want to print everything that starts with `.t`
-         sym-2     (if (= sym
-                          '.t)
-                     '.t.
-                     sym)
+   (when-let [txt (get-in (account $CORE$)
+                          [:metadata
+                           sym
+                           :shell.section])]
+     (?.title sym)
+     (?.txt txt)
+     (.stream.txt.outln ""))
+   (?.title (str "Overview of Shell features matching `" sym "`"))
+   (let [sym-2     (or (get {'.str '.str.  ;; avoids printing stream utils
+                             '.t   '.t.}
+                            sym)  ;; avoids printin anything that starts with `.t`
+                       sym)
          core      (account .account.core)
          prefix    (str sym-2)
          n-slice   (count prefix)
