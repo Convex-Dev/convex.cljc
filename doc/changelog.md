@@ -10,7 +10,7 @@ provided.
 ---
 
 
-## {{ next-release }}
+## 2023-01-18
 
 - Impacted
     - [`module/cvm`]

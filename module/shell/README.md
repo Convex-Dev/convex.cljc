@@ -3,6 +3,16 @@
 Convex Shell, execute Convex Lisp in the terminal
 
 ```clojure
+;; Add to dependencies in `deps.edn`:
+;;
+world.convex/shell
+{:deps/root "module/shell"
+ :git/sha   "06c7137"
+ :git/tag   "stable/2023-01-18"
+ :git/url   "https://github.com/convex-dev/convex.cljc"}
+```
+
+```clojure
 ;; Supported platforms:
 ;;
 [:jvm :native]

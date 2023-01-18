@@ -7,7 +7,7 @@ repository.
 ---
 
 
-## {{ next-release }}
+## 2023-01-18
 
 - Add
     - `$.cell/fake`

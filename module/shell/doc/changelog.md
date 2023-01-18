@@ -7,7 +7,7 @@ repository.
 ---
 
 
-{{ next-release }}
+2023-01-18
 
 Significant rewrite simplify using by a magnitude. All Shell features are now
 regular function or macro calls, just as expected. They are defined in the core
