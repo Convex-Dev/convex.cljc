@@ -6,14 +6,34 @@
 
 (.t.def ..time.advance
 
+  (def x
+       false)
+
+  (let [addr *address*]
+    (set-key .account.0-key)
+    (schedule (inc *timestamp*)
+              (def x
+                   true))
+    (.account.switch .account.genesis)
+    (transfer addr
+              1000000)
+    (.account.switch addr))
+
   (def ts
        *timestamp*)
+
+  (.t.is (= false
+            x))
 
   (.t.is (= 1
             (.time.advance 1)))
 
   (.t.is (= (inc ts)
             *timestamp*))
+
+  (.t.is (= true
+            x)
+         "Scheduled transaction ran")
 
   (.t.is (.t.ex :ARGUMENT
                 (.time.advance "42"))

@@ -137,20 +137,107 @@
 ;;;;;;;;;; Dependency management
 
 
+(def .dep
+  
+  ^{:private?      true
+    :shell.section ["Experimental dependency management framework."
+                    ""
+                    "Convex Lisp dependencies are expressed in a `project.cvx` file"
+                    "residing in the root directory of your project."
+                    ""
+                    "Currently, 3 types of dependencies are supported:"
+                    ""
+                    "  :relative"
+                    "    Project files relative to your `project.cvx` file."
+                    "    Expressed as a vector `[:relative \"./path/inside/project\"]`."
+                    ""
+                    "  :local"
+                    "    Local directory containing its own `project.cvx` file."
+                    "    Expressed as a vector `[:local \"/path/to/another-project\"]`."
+                    ""
+                    "  :git"
+                    "    Git repository containing its own `project.cvx` file."
+                    "    Those will be cloned in a local cached found in `.shell.*root*`."
+                    "    Expressed as a vector `[:git \"URL\" \"FULL_COMMIT_SHA\"]`."
+                    ""
+                    ""
+                    "Here is an example of a `project.cvx` file showcasing those 3 types:"
+                    ""
+                    "  {:deps {main            [:relative \"./src/main\"]"
+                    "          another-project [:local \"/home/foo/another-project\"]"
+                    "          some-lib        [:git \"https://github.com/foo/bar\""
+                    "                                \"38a44d086c95c7b190f47ea17712da130906495f\"]}}"
+                    ""
+                    "  `main`"
+                    "     indicates that the project files can be found under `./src/main`."
+                    ""
+                    "  `another-project`"
+                    "     points to a directory which should contain its own `project.cvx`,"
+                    "     typically defining its own relative dependencies."
+                    ""
+                    "  `some-lib`"
+                    "     points to a foreign Git repository that will be cloned locally if not"
+                    "     found in the local cache, and that specific commit will be used."
+                    ""
+                    ""
+                    "Inside a relative directory, files meant to be deployed in the Shell as"
+                    "actors can be referred to by following the directory hierarchy. This is known"
+                    "as the \"actor path\", expressed as a list."
+                    ""
+                    "E.g. Suppose the above example project defines a file at `./src/main/a/b.cvx`."
+                    "     Its actor path would be: (main a b)"
+                    "     Now, any other files in your project can require it by adding a similar map"
+                    "     as a header which specifies a \"deploy vector\":"
+                    ""
+                    "        {:deploy [a.b (main a b)]}"
+                    ""
+                    "     In the requiring file, this will instruct the Shell to deploy `(main a b)` as"
+                    "     an actor and its address will be bound to the chosen symbol, `a.b` in this case."
+                    "     Such a deploy vector can refer to any number of actor paths."
+                    ""
+                    "Actor paths are recursive. If `some-lib`, in its own `project.cvx`, defines a relative"
+                    "dependency called `lib` with a file `math.cvx`, you could require it similarly to:"
+                    ""
+                    "        {:deploy [a.b  (main a b)"
+                    "                  math (some-lib lib math)]}"
+                    ""]}
+
+  nil)
+
+
+
 (defn .dep.deploy
 
-  ^{:doc {:description ["Deploys requested dependencies from `project.cvx`."]
+  ^{:doc {:description ["Deploys requested actors in the Shell."
+                        "Expects a \"deploy vector\"."
+                        ""
+                        "See `(?.shell '.dep)`."
+                        ""
+                        "Returns a map where each symbol from the deploy vector points"
+                        "to the address of its corresponding deployed actor."]
           :examples    [{:code (.dep.deploy '[some-alias (path to actor)])}]
-          :signature   [{:params [dep]}]}}
+          :signature   [{:params [deploy-vector]}]}}
 
-  [dep]
+  [deploy-vector]
 
   (.shell.invoke '.dep.deploy
-                 dep))
+                 deploy-vector))
 
 
 
 (defn .dep.exec
+
+  ^{:doc {:description ["Given an actor path, deploys all dependencies in its deploy"
+                        "vector using `.dep.deploy` and defines in the current account"
+                        "all deployed addesses under their corresponding symbols."
+                        ""
+                        "The source of the actor then runs through `eval`, in the current"
+                        "account."
+                        "Very useful when used alongside `.repl` during development."
+
+                        "See `(?.shell '.dep)`."]
+          :examples    [{:code (.dep.exec '(main foo bar))}]
+          :signature   [{:params [actor-path]}]}}
 
   [actor-path]
 
@@ -173,6 +260,19 @@
 
 (defn .dep.fetch
 
+  ^{:doc {:description ["Fetches all dependencies required by the given actor path"
+                        "or deploy vector."
+                        "Does not deploy anything in the Shell but ensures everything"
+                        "is available locally."
+                        ""
+                        "See `(?.shell '.dep)`."
+                        ""
+                        "Returns some analysis data that is subject to change while"
+                        "this dependency management framework is stabilized."]
+          :examples    [{:code (.dep.fetch '(main foo bar))}
+                        {:code (.dep.fetch '[foo.bar (main foo bar)])}]
+          :signature   [{:params [required]}]}}
+
   [required]
 
   (.shell.invoke '.dep.fetch
@@ -184,18 +284,39 @@
 
 (defn .dep.read
 
-  [required]
+  ^{:doc {:description ["Reads the content of a file by actor path."
+                        ""
+                        "See `(?.shell '.dep)`."
+                        ""
+                        "Returns a map with"
+                        ""
+                        "  :deploy"
+                        "    Deploy vector of this actor if there is one."
+                        ""
+                        "  :filename"
+                        "    Filename to the file."
+                        ""
+                        "  :src"
+                        "    List of cells representing the source code of this actor."]
+          :examples    [{:code (.dep.read '(main foo bar))}]
+          :signature   [{:params [actor-path]}]}}
 
-  (if (list? required)
-    (do
-      (when (empty? required)
-        (fail :ARGUMENT
-              "Actor path is empty"))
-      (get (.shell.invoke '.dep.read
-                          ['x required])
-           'x))
-    (.shell.invoke '.dep.read
-                   required)))
+  ;; Also supports as deploy vector, not only an actor path.
+  ;; But not documented for now, for the sake of simplicity.
+
+  [actor-path]
+
+  (let [required actor-path]
+    (if (list? required)
+      (do
+        (when (empty? required)
+          (fail :ARGUMENT
+                "Actor path is empty"))
+        (get (.shell.invoke '.dep.read
+                            ['x required])
+             'x))
+      (.shell.invoke '.dep.read
+                     required))))
 
 
 
@@ -228,22 +349,55 @@
 
 (defn .dep.test
 
+  ^{:doc {:description ["Executes unit tests by actor path."
+                        "The actor is effectively a test suite which specifies all files"
+                        "to test in its deploy vector."
+                        ""
+                        "A map of options map be provided with:"
+                        ""
+                        "  :focus"
+                        "    Vector of metadata keywords, actors by alias, or individual tests to"
+                        "    focus. Meaning only corresponding tests will run while other ones will"
+                        "    be skipped."
+                        ""
+                        "  :skip"
+                        "    Just like `:focus` but behaves in the opposite way: everything else will run"
+                        "    but what is specified in this vector."
+                        ""
+                        "E.g. These options will run only actors A and B, as aliased in the deploy vector,"
+                        "     and skip all tests which have `{:slow? true}` in their metadata:"
+                        ""
+                        "        {:focus [A B]"
+                        "         :skip  [:slow?]}"
+                        ""
+                        ""
+                        "See:"
+                        "  (?.shell '.dep)"
+                        "  (?.shell '.t)"]
+          :examples    [{:code (.dep.test '(test foo bar))}
+                        {:code (.dep.test '(test foo bar) {:skip [:slow?]})}]
+          :signature   [{:params [actor-path]}
+                        {:params [actor-path option+]}]}}
 
-  ([required]
+  ;; Also supports as deploy vector, not only an actor path.
+  ;; But not documented for now, for the sake of simplicity.
 
-   (.dep.test required
+
+  ([actor-path]
+
+   (.dep.test actor-path
               nil))
 
 
-  ([required option+]
+  ([actor-path option+]
 
    (let [test            (if .*dev?*
                            .t.dev
                            .t.main)
+         required        actor-path
          required-2      (if (list? required)
                            (:deploy (.dep.read required))
                            required)
-
          focus           (:focus option+)
          focus.test      (reduce (fn [actor-sym->test+ x]
                                    (if (and (list? x)
@@ -1184,6 +1338,9 @@
                         "Functions in this map takes a state map and must returns it, altered or not."
                         "The state map starts with those options. Users may want to attach additional
                          information."
+                        ""
+                        "Tweaking these option may lead to interesting ways of doing inter-process communication"
+                        "through STDIO."
                         ""
                         "Options may be:"
                         ""
@@ -2358,7 +2515,9 @@
     :shell.section ["Unit testing framework."
                     ""
                     "Tests are functions defined with `.t.def` which should"
-                    "contain assertions written with `.t.is`."]}
+                    "contain assertions written with `.t.is`."
+                    ""
+                    "See `.dep.test` about how to run them."]}
 
   nil)
 
@@ -2460,8 +2619,12 @@
 
 (defmacro .t.def
 
-  ^{:doc {:description ["Defines a function that can run as a test."]
-          :examples    [{:code (.t.def some-test (.t.is (< 1 2)))}]
+  ^{:doc {:description ["Defines a function that can run as a test."
+                        ""
+                        "Just like when defining a regular function, metadata can be attached."
+                        "This metadata may be useful for focusing on the test or skipping it when"
+                        "running tests with `.dep.test`."]
+          :examples    [{:code (.t.def some-test ^:slow? (.t.is (< 1 2)))}]
           :signature   [{:params [name & assertion+]}]}}
 
   [name & assertion+]
