@@ -1130,6 +1130,17 @@
 
 
 
+(defn .gen.bind
+
+  [generator f]
+
+  (.shell.invoke '.gen.bind
+                 (.resrc.next)
+                 generator
+                 f))
+
+
+
 (defn .gen.blob
 
 
@@ -1198,6 +1209,17 @@
                              true)
                  (:NaN? option+
                         true)))
+
+
+
+(defn .gen.fmap
+
+  [f generator]
+
+  (.shell.invoke '.gen.fmap
+                 (.resrc.next)
+                 f
+                 generator))
 
 
 

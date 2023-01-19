@@ -129,6 +129,7 @@
    ($.cell/* .fs.tmp)                      $.shell.req.fs/tmp
    ($.cell/* .fs.tmp.dir)                  $.shell.req.fs/tmp-dir
    ($.cell/* .gen.always)                  $.shell.req.gen/always
+   ($.cell/* .gen.bind)                    $.shell.req.gen/bind
    ($.cell/* .gen.blob)                    $.shell.req.gen/blob
    ($.cell/* .gen.blob.bounded)            $.shell.req.gen/blob-bounded
    ($.cell/* .gen.blob.fixed)              $.shell.req.gen/blob-fixed
@@ -136,6 +137,7 @@
    ($.cell/* .gen.blob-map.bounded)        $.shell.req.gen/blob-map-bounded
    ($.cell/* .gen.blob-map.fixed)          $.shell.req.gen/blob-map-fixed
    ($.cell/* .gen.double.bounded)          $.shell.req.gen/double-bounded
+   ($.cell/* .gen.fmap)                    $.shell.req.gen/fmap
    ($.cell/* .gen.freq)                    $.shell.req.gen/freq
    ($.cell/* .gen.hex-string)              $.shell.req.gen/hex-string
    ($.cell/* .gen.hex-string.fixed)        $.shell.req.gen/hex-string-fixed

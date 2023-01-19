@@ -11,7 +11,16 @@
             [convex.clj                    :as $.clj]
             [convex.cvm                    :as $.cvm]
             [convex.gen                    :as $.gen]
+            [convex.shell.flow             :as $.shell.flow]
             [convex.std                    :as $.std]))
+
+
+;;;;;;;;;;
+
+
+(def ^:dynamic ^:private -*ctx*
+
+  nil)
 
 
 ;;;;;;;;;;
@@ -161,13 +170,16 @@
               (fn [ctx-2 gen-2]
                 (try
                   ;;
-                  ($.cvm/result-set ctx-2
-                                    (if seed
-                                      (TC.gen/generate gen-2
-                                                       ($.clj/long size)
-                                                       ($.clj/long seed))
-                                      (TC.gen/generate gen-2
-                                                       ($.clj/long size))))
+                  (binding [-*ctx* ctx-2]
+                    ($.shell.flow/safe
+                      (delay
+                        ($.cvm/result-set ctx-2
+                                          (if seed
+                                            (TC.gen/generate gen-2
+                                                             ($.clj/long size)
+                                                             ($.clj/long seed))
+                                            (TC.gen/generate gen-2
+                                                             ($.clj/long size)))))))
                   ;;
                   (catch Exception _ex
                     ($.cvm/exception-set ctx
@@ -184,6 +196,51 @@
   ($.cvm/result-set ctx
                     (create id
                             (TC.gen/return x))))
+
+
+
+(defn bind
+
+  [ctx [id gen f]]
+
+  (or (when-not ($.std/fn? f)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Requires a function for mapping generated values")))
+      (do-gen ctx
+              gen
+              (fn [ctx-2 gen-2]
+                ($.cvm/result-set ctx-2
+                                  (create id
+                                          (TC.gen/bind gen-2
+                                                       (fn [x]
+                                                         (let [ctx-3 (-> -*ctx*
+                                                                         ($.cvm/fork)
+                                                                         ($.cvm/invoke f
+                                                                                       ($.cvm/arg+* x)))]
+                                                           (if ($.cvm/exception? ctx-3)
+                                                             ($.shell.flow/return ctx-3)
+                                                             (let [gen-3 ($.cvm/result ctx-3)]
+                                                               (when-not (and ($.std/vector? gen-3)
+                                                                              (= ($.std/count gen-3)
+                                                                                 2))
+                                                                 ($.shell.flow/return
+                                                                   ($.cvm/exception-set ($.cvm/fork -*ctx*)
+                                                                                        ($.cell/code-std* :ARGUMENT)
+                                                                                        ($.cell/* "Does not seem to be a generator"))))
+                                                                (let [f*gen ($.std/nth gen-3
+                                                                                       0)]
+                                                                  (when-not ($.cell/fake? f*gen)
+                                                                    ($.shell.flow/return
+                                                                      ($.cvm/exception-set ($.cvm/fork -*ctx*)
+                                                                                           ($.cell/code-std* :ARGUMENT)
+                                                                                           ($.cell/* "Either not a generator or a stale generator"))))
+                                                                  (let [gen-4 @f*gen]
+                                                                    (when-not (TC.gen/generator? gen-4)
+                                                                      ($.cvm/exception-set ($.cvm/fork -*ctx*)
+                                                                                           ($.cell/code-std* :ARGUMENT)
+                                                                                           ($.cell/* "Not a generator")))
+                                                                    gen-4)))))))))))))
 
 
 
@@ -325,6 +382,31 @@
                                                              :max       max-2
                                                              :min       min-2
                                                              :Nan?      ($.std/true? nan?)})))))))
+
+
+
+(defn fmap
+
+  [ctx [id f gen]]
+
+  (or (when-not ($.std/fn? f)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Requires a function for mapping generated values")))
+      (do-gen ctx
+              gen
+              (fn [ctx-2 gen-2]
+                ($.cvm/result-set ctx-2
+                                  (create id
+                                          (TC.gen/fmap (fn [x]
+                                                         (let [ctx-3 (-> -*ctx*
+                                                                         ($.cvm/fork)
+                                                                         ($.cvm/invoke f
+                                                                                       ($.cvm/arg+* x)))]
+                                                           (if ($.cvm/exception? ctx-3)
+                                                             ($.shell.flow/return ctx-3)
+                                                             ($.cvm/result ctx-3))))
+                                                       gen-2)))))))
 
 
 
