@@ -1120,6 +1120,141 @@
 ;;;;;;;;;; Generators
 
 
+(defn .gen.blob
+
+
+  ([]
+
+   (.shell.invoke '.gen.blob
+                  (.resrc.next)))
+
+
+  ([n]
+
+   (.shell.invoke '.gen.blob.fixed
+                  (.resrc.next)
+                  n))
+
+
+  ([min max]
+
+   (.shell.invoke '.gen.blob.bounded
+                  (.resrc.next)
+                  min
+                  max)))
+
+
+
+(defn .gen.blob-map
+
+
+  ([generator-key generator-value]
+
+   (.shell.invoke '.gen.blob-map
+                  (.resrc.next)
+                  generator-key
+                  generator-value))
+
+
+  ([generator-key generator-value n]
+
+   (.shell.invoke '.gen.blob-map.fixed
+                  (.resrc.next)
+                  generator-key
+                  generator-value
+                  n))
+
+
+  ([generator-key generator-value min max]
+
+   (.shell.invoke '.gen.blob-map.bounded
+                  (.resrc.next)
+                  generator-key
+                  generator-value
+                  min
+                  max)))
+
+
+
+(defn .gen.double.bounded
+
+  [option+]
+
+  (.shell.invoke '.gen.double.bounded
+                 (.resrc.next)
+                 (:min option+)
+                 (:max option+)
+                 (:infinite? option+
+                             true)
+                 (:NaN? option+
+                        true)))
+
+
+
+(defn .gen.hex-string
+
+
+  ([]
+
+   (.shell.invoke '.gen.hex-string
+                  (.resrc.next)))
+
+
+  ([n]
+
+   (.shell.invoke '.gen.hex-string.fixed
+                  (.resrc.next)
+                  n))
+
+
+  ([min max]
+
+   (.shell.invoke '.gen.hex-string.bounded
+                  (.resrc.next)
+                  min
+                  max)))
+
+
+
+(defn .gen.list
+
+
+  ([generator]
+
+   (.shell.invoke '.gen.list
+                  (.resrc.next)
+                  generator))
+
+
+  ([generator n]
+
+   (.shell.invoke '.gen.list.fixed
+                  (.resrc.next)
+                  generator
+                  n))
+
+
+  ([generator min max]
+
+   (.shell.invoke '.gen.list.bounded
+                  (.resrc.next)
+                  generator
+                  min
+                  max)))
+
+
+
+(defn .gen.long.bounded
+
+  [option+]
+
+  (.shell.invoke '.gen.long.bounded
+                 (.resrc.next)
+                 (:min option+)
+                 (:max option+)))
+
+
+
 (defn .gen.make
 
 
@@ -1136,6 +1271,188 @@
                   (or (:size option+)
                       30)
                   (:seed option+))))
+
+
+
+(defn .gen.quoted
+
+  [generator]
+
+  (.shell.invoke '.gen.quoted
+                 (.resrc.next)
+                 generator))
+
+
+
+(defn .gen.map
+
+
+  ([generator-key generator-value]
+
+   (.shell.invoke '.gen.map
+                  (.resrc.next)
+                  generator-key
+                  generator-value))
+
+
+  ([generator-key generator-value n]
+
+   (.shell.invoke '.gen.map.fixed
+                  (.resrc.next)
+                  generator-key
+                  generator-value
+                  n))
+
+
+  ([generator-key generator-value min max]
+
+   (.shell.invoke '.gen.map.bounded
+                  (.resrc.next)
+                  generator-key
+                  generator-value
+                  min
+                  max)))
+
+
+
+(defn .gen.set
+
+
+  ([generator]
+
+   (.shell.invoke '.gen.vector
+                  (.resrc.next)
+                  generator))
+
+
+  ([generator n]
+
+   (.shell.invoke '.gen.set.fixed
+                  (.resrc.next)
+                  generator
+                  n))
+
+
+  ([generator min max]
+
+   (.shell.invoke '.gen.set.bounded
+                  (.resrc.next)
+                  generator
+                  min
+                  max)))
+
+
+
+(defn .gen.string
+
+
+  ([]
+
+   (.shell.invoke '.gen.string
+                  (.resrc.next)))
+
+
+  ([n]
+
+   (.shell.invoke '.gen.string.fixed
+                  (.resrc.next)
+                  n))
+
+
+  ([min max]
+
+   (.shell.invoke '.gen.string.bounded
+                  (.resrc.next)
+                  min
+                  max)))
+
+
+
+(defn .gen.string.alphanum
+
+
+  ([]
+
+   (.shell.invoke '.gen.string.alphanum
+                  (.resrc.next)))
+
+
+  ([n]
+
+   (.shell.invoke '.gen.string.alphanum.fixed
+                  (.resrc.next)
+                  n))
+
+
+  ([min max]
+
+   (.shell.invoke '.gen.string.alphanum.bounded
+                  (.resrc.next)
+                  min
+                  max)))
+
+
+
+(defn .gen.syntax
+
+
+  ([]
+
+   (.shell.invoke '.gen.syntax
+                  (.resrc.next)))
+
+
+  ([generator-value]
+
+   (.shell.invoke '.gen.syntax.with-value
+                  (.resrc.next)
+                  generator-value))
+
+
+  ([generator-value generator-meta]
+
+   (.shell.invoke '.gen.syntax.with-meta
+                  (.resrc.next)
+                  generator-value
+                  generator-meta)))
+
+
+
+(defn .gen.tuple
+
+  [generator+]
+
+  (.shell.invoke '.gen.tuple
+                 (.resrc.next)
+                 generator+))
+
+
+
+(defn .gen.vector
+
+
+  ([generator]
+
+   (.shell.invoke '.gen.vector
+                  (.resrc.next)
+                  generator))
+
+
+  ([generator n]
+
+   (.shell.invoke '.gen.vector.fixed
+                  (.resrc.next)
+                  generator
+                  n))
+
+
+  ([generator min max]
+
+   (.shell.invoke '.gen.vector.bounded
+                  (.resrc.next)
+                  generator
+                  min
+                  max)))
 
 
 ;;;;;;;;;; Gensym

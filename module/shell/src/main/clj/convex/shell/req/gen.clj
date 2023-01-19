@@ -1,11 +1,66 @@
 (ns convex.shell.req.gen
 
+  ;; Needs refactoring, lots of duplication.
+
+  (:refer-clojure :exclude [list
+                            map
+                            set
+                            vector])
   (:require [clojure.test.check.generators :as TC.gen]
             [convex.cell                   :as $.cell]
             [convex.clj                    :as $.clj]
             [convex.cvm                    :as $.cvm]
             [convex.gen                    :as $.gen]
             [convex.std                    :as $.std]))
+
+
+;;;;;;;;;;
+
+
+(defn -ensure-pos-num
+
+  [ctx i]
+
+  (if ($.std/long? i)
+    (let [i-2 ($.clj/long i)]
+      (if (>= i-2
+              0)
+        [true
+         i-2]
+        [false
+         ($.cvm/exception-set ctx
+                              ($.cell/code-std* :ARGUMENT)
+                              ($.cell/* "Long must be >= 0"))]))
+    [false
+     ($.cvm/exception-set ctx
+                          ($.cell/code-std* :ARGUMENT)
+                          ($.cell/* "Expected a Long"))]))
+
+
+
+(defn -ensure-bound
+
+  [ctx min max]
+
+  (let [[ok-min?
+         x]      (-ensure-pos-num ctx
+                                  min)]
+    (if ok-min?
+      (let [[ok-max?
+             x-2]    (-ensure-pos-num ctx
+                                      max)]
+        (if ok-max?
+          (if (<= x
+                  x-2)
+            [true
+             [x
+              x-2]]
+            [false
+             ($.cvm/exception-set ctx
+                                  ($.cell/code-std* :ARGUMENT)
+                                  ($.cell/* "Minimum must be <= Maximum"))])
+          x-2))
+      x)))
 
 
 ;;;;;;;;;;
@@ -37,6 +92,42 @@
 
 
 
+(defn do-gen+
+
+  [ctx gen+ f]
+
+  (let [x (reduce (fn [acc gen]
+                    (or (when-not (and ($.std/vector? gen)
+                                       (= ($.std/count gen)
+                                          2))
+                          (reduced
+                            ($.cvm/exception-set ctx
+                                                 ($.cell/code-std* :ARGUMENT)
+                                                 ($.cell/* "Does not seem to be a generator"))))
+                        (let [f*gen ($.std/nth gen
+                                               0)]
+                          (or (when-not ($.cell/fake? f*gen)
+                                (reduced
+                                  ($.cvm/exception-set ctx
+                                                       ($.cell/code-std* :ARGUMENT)
+                                                       ($.cell/* "Either not a generator or a stale generator"))))
+                              (let [gen-2 @f*gen]
+                                (or (when-not (TC.gen/generator? gen-2)
+                                      (reduced
+                                        ($.cvm/exception-set ctx
+                                                             ($.cell/code-std* :ARGUMENT)
+                                                             ($.cell/* "Not a generator"))))
+                                    (conj acc
+                                          gen-2)))))))
+                  []
+                  gen+)]
+    (if (vector? x)
+      (f ctx
+         x)
+      x)))
+
+
+
 (defn create
 
   [id gen]
@@ -44,8 +135,6 @@
   ($.cell/* [~($.cell/fake gen)
              ~id]))
 
-
-;;;;;;;;;;
 
 
 (defn make
@@ -66,10 +155,612 @@
       (do-gen ctx
               gen
               (fn [ctx-2 gen-2]
+                (try
+                  ;;
+                  ($.cvm/result-set ctx-2
+                                    (if seed
+                                      (TC.gen/generate gen-2
+                                                       ($.clj/long size)
+                                                       ($.clj/long seed))
+                                      (TC.gen/generate gen-2
+                                                       ($.clj/long size))))
+                  ;;
+                  (catch Exception _ex
+                    ($.cvm/exception-set ctx
+                                         ($.cell/* :SHELL.GEN)
+                                         ($.cell/string "Unable to generate value, generator might be faulty"))))))))
+
+;;;;;;;;;;
+
+
+(defn blob
+
+  [ctx [id]]
+
+  ($.cvm/result-set ctx
+                    (create id
+                            ($.gen/blob))))
+
+
+
+(defn blob-bounded
+
+  [ctx [id min max]]
+
+  (let [[ok?
+         x]  (-ensure-bound ctx
+                            min
+                            max)]
+    (if ok?
+      ($.cvm/result-set ctx
+                        (create id
+                                ($.gen/blob (first x)
+                                            (second x))))
+      x)))
+
+
+
+(defn blob-fixed
+
+  [ctx [id n]]
+
+  (let [[ok?
+         x]  (-ensure-pos-num ctx
+                             n)]
+    (if ok?
+      ($.cvm/result-set ctx
+                        (create id
+                                ($.gen/blob x)))
+      x)))
+
+
+
+(defn blob-map
+
+  [ctx [id gen-k gen-v]]
+
+  (do-gen ctx
+          gen-k
+          (fn [ctx-2 gen-k-2]
+            (do-gen ctx-2
+                    gen-v
+                    (fn [ctx-3 gen-v-2]
+                      ($.cvm/result-set ctx-3
+                                        (create id
+                                                ($.gen/blob-map gen-k-2
+                                                                gen-v-2))))))))
+
+
+
+(defn blob-map-bounded
+
+  [ctx [id gen-k gen-v min max]]
+
+  (let [[ok?
+         x]  (-ensure-bound ctx
+                            min
+                            max)]
+    (if ok?
+      (do-gen ctx
+              gen-k
+              (fn [ctx-2 gen-k-2]
+                (do-gen ctx-2
+                        gen-v
+                        (fn [ctx-3 gen-v-2]
+                          ($.cvm/result-set ctx-3
+                                            (create id
+                                                    ($.gen/blob-map gen-k-2
+                                                                    gen-v-2
+                                                                    (first x)
+                                                                    (second x))))))))
+      x)))
+
+
+
+(defn blob-map-fixed
+
+  [ctx [id gen-k gen-v n]]
+
+  (let [[ok?
+         x]  (-ensure-pos-num ctx
+                              n)]
+    (if ok?
+      (do-gen ctx
+              gen-k
+              (fn [ctx-2 gen-k-2]
+                (do-gen ctx-2
+                        gen-v
+                        (fn [ctx-3 gen-v-2]
+                          ($.cvm/result-set ctx-3
+                                            (create id
+                                                    ($.gen/blob-map gen-k-2
+                                                                    gen-v-2
+                                                                    x)))))))
+      x)))
+
+
+
+(defn double-bounded
+
+  [ctx [id min max infinite? nan?]]
+
+  (or (when-not (or (nil? min)
+                    ($.std/double? min))
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Minimum must be Nil or a Double")))
+      (when-not (or (nil? max)
+                    ($.std/double? max))
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Maximum must be Nil or a Double")))
+      (let [max-2 (when max
+                    ($.clj/double max))
+            min-2 (when min
+                    ($.clj/double min))]
+        (or (when-not (or (nil? min-2)
+                          (nil? max-2)
+                          (<= min-2
+                              max-2))
+              ($.cvm/exception-set ctx
+                                   ($.cell/code-std* :ARGUMENT)
+                                   ($.cell/* "Minimum must be <= Maximum")))
+            ($.cvm/result-set ctx
+                              (create id
+                                      ($.gen/double-bounded {:infinite? ($.std/true? infinite?)
+                                                             :max       max-2
+                                                             :min       min-2
+                                                             :Nan?      ($.std/true? nan?)})))))))
+
+
+
+(defn hex-string
+
+  [ctx [id]]
+
+  ($.cvm/result-set ctx
+                    (create id
+                            ($.gen/hex-string))))
+
+
+
+(defn hex-string-fixed
+
+  [ctx [id n]]
+
+  (let [[ok?
+         x]  (-ensure-pos-num ctx
+                              n)]
+    (if ok?
+      ($.cvm/result-set ctx
+                        (create id
+                                ($.gen/hex-string x)))
+      x)))
+
+
+
+(defn hex-string-bounded
+
+  [ctx [id min max]]
+
+  (let [[ok?
+         x]  (-ensure-bound ctx
+                            min
+                            max)]
+    (if ok?
+      ($.cvm/result-set ctx
+                        (create id
+                                ($.gen/hex-string (first x)
+                                                  (second x))))
+      x)))
+
+
+
+(defn list
+
+  [ctx [id gen]]
+
+  (do-gen ctx
+          gen
+          (fn [ctx-2 gen-2]
+            ($.cvm/result-set ctx-2
+                              (create id
+                                      ($.gen/list gen-2))))))
+
+
+
+(defn list-bounded
+
+  [ctx [id gen min max]]
+
+  (let [[ok?
+         x]  (-ensure-bound ctx
+                            min
+                            max)]
+    (if ok?
+      (do-gen ctx
+              gen
+              (fn [ctx-2 gen-2]
                 ($.cvm/result-set ctx-2
-                                  (if seed
-                                    (TC.gen/generate gen-2
-                                                     ($.clj/long size)
-                                                     ($.clj/long seed))
-                                    (TC.gen/generate gen-2
-                                                     ($.clj/long size))))))))
+                                  (create id
+                                          ($.gen/list gen-2
+                                                      (first x)
+                                                      (second x))))))
+      x)))
+
+
+
+(defn list-fixed
+
+  [ctx [id gen n]]
+
+  (let [[ok?
+         x]  (-ensure-pos-num ctx
+                              n)]
+    (if ok?
+      (do-gen ctx
+              gen
+              (fn [ctx-2 gen-2]
+                ($.cvm/result-set ctx-2
+                                  (create id
+                                          ($.gen/list gen-2
+                                                      x)))))
+      x)))
+
+
+
+(defn long-bounded
+
+  [ctx [id min max]]
+
+  (or (when-not (or (nil? min)
+                    ($.std/long? min))
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Minimum must be Nil or a Long")))
+      (when-not (or (nil? max)
+                    ($.std/long? max))
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Maximum must be Nil or a Long")))
+      (let [max-2 (when max
+                    ($.clj/long max))
+            min-2 (when min
+                    ($.clj/long min))]
+        (or (when-not (or (nil? min-2)
+                          (nil? max-2)
+                          (<= min-2
+                              max-2))
+              ($.cvm/exception-set ctx
+                                   ($.cell/code-std* :ARGUMENT)
+                                   ($.cell/* "Minimum must be <= Maximum")))
+            ($.cvm/result-set ctx
+                              (create id
+                                      ($.gen/long-bounded {:max max-2
+                                                           :min min-2})))))))
+
+
+
+(defn map
+
+  [ctx [id gen-k gen-v]]
+
+  (do-gen ctx
+          gen-k
+          (fn [ctx-2 gen-k-2]
+            (do-gen ctx-2
+                    gen-v
+                    (fn [ctx-3 gen-v-2]
+                      ($.cvm/result-set ctx-3
+                                        (create id
+                                                ($.gen/map gen-k-2
+                                                           gen-v-2))))))))
+
+
+
+(defn map-bounded
+
+  [ctx [id gen-k gen-v min max]]
+
+  (let [[ok?
+         x]  (-ensure-bound ctx
+                            min
+                            max)]
+    (if ok?
+      (do-gen ctx
+              gen-k
+              (fn [ctx-2 gen-k-2]
+                (do-gen ctx-2
+                        gen-v
+                        (fn [ctx-3 gen-v-2]
+                          ($.cvm/result-set ctx-3
+                                            (create id
+                                                    ($.gen/map gen-k-2
+                                                               gen-v-2
+                                                               (first x)
+                                                               (second x))))))))
+      x)))
+
+
+
+(defn map-fixed
+
+  [ctx [id gen-k gen-v n]]
+
+  (let [[ok?
+         x]  (-ensure-pos-num ctx
+                              n)]
+    (if ok?
+      (do-gen ctx
+              gen-k
+              (fn [ctx-2 gen-k-2]
+                (do-gen ctx-2
+                        gen-v
+                        (fn [ctx-3 gen-v-2]
+                          ($.cvm/result-set ctx-3
+                                            (create id
+                                                    ($.gen/map gen-k-2
+                                                               gen-v-2
+                                                               x)))))))
+      x)))
+
+
+
+(defn quoted
+
+  [ctx [id gen]]
+
+  (do-gen ctx
+          gen
+          (fn [ctx-2 gen-2]
+            ($.cvm/result-set ctx-2
+                              (create id
+                                      ($.gen/quoted gen-2))))))
+
+
+
+(defn set
+
+  [ctx [id gen]]
+
+  (do-gen ctx
+          gen
+          (fn [ctx-2 gen-2]
+            ($.cvm/result-set ctx-2
+                              (create id
+                                      ($.gen/set gen-2))))))
+
+
+
+(defn set-bounded
+
+  [ctx [id gen min max]]
+
+  (let [[ok?
+         x]  (-ensure-bound ctx
+                            min
+                            max)]
+    (if ok?
+      (do-gen ctx
+              gen
+              (fn [ctx-2 gen-2]
+                ($.cvm/result-set ctx-2
+                                  (create id
+                                          ($.gen/set gen-2
+                                                     (first x)
+                                                     (second x))))))
+      x)))
+
+
+
+(defn set-fixed
+
+  [ctx [id gen n]]
+
+  (let [[ok?
+         x]  (-ensure-pos-num ctx
+                              n)]
+    (if ok?
+      (do-gen ctx
+              gen
+              (fn [ctx-2 gen-2]
+                ($.cvm/result-set ctx-2
+                                  (create id
+                                          ($.gen/set gen-2
+                                                     x)))))
+      x)))
+
+
+
+(defn string
+
+  [ctx [id]]
+
+  ($.cvm/result-set ctx
+                    (create id
+                            ($.gen/string))))
+
+
+
+(defn string-bounded
+
+  [ctx [id min max]]
+
+  (let [[ok?
+         x]  (-ensure-bound ctx
+                            min
+                            max)]
+    (if ok?
+      ($.cvm/result-set ctx
+                        (create id
+                                ($.gen/string (first x)
+                                              (second x))))
+      x)))
+
+
+
+(defn string-fixed
+
+  [ctx [id n]]
+
+  (let [[ok?
+         x]  (-ensure-pos-num ctx
+                              n)]
+    (if ok?
+      ($.cvm/result-set ctx
+                        (create id
+                                ($.gen/string x)))
+      x)))
+
+
+
+(defn string-alphanum
+
+  [ctx [id]]
+
+  ($.cvm/result-set ctx
+                    (create id
+                            ($.gen/string-alphanum))))
+
+
+
+(defn string-alphanum-bounded
+
+  [ctx [id min max]]
+
+  (let [[ok?
+         x]  (-ensure-bound ctx
+                            min
+                            max)]
+    (if ok?
+      ($.cvm/result-set ctx
+                        (create id
+                                ($.gen/string-alphanum (first x)
+                                                       (second x))))
+      x)))
+
+
+
+(defn string-alphanum-fixed
+
+  [ctx [id n]]
+
+  (let [[ok?
+         x]  (-ensure-pos-num ctx
+                              n)]
+    (if ok?
+      ($.cvm/result-set ctx
+                        (create id
+                                ($.gen/string-alphanum x)))
+      x)))
+
+
+
+(defn syntax
+
+  [ctx [id]]
+
+  ($.cvm/result-set ctx
+                    (create id
+                            ($.gen/syntax))))
+
+
+
+(defn syntax-with-meta
+
+  [ctx [id gen-v gen-meta]]
+
+  (do-gen ctx
+          gen-v
+          (fn [ctx-2 gen-v-2]
+            (do-gen ctx-2
+                    gen-meta
+                    (fn [ctx-3 gen-meta-2]
+                      ($.cvm/result-set ctx-3
+                                        (create id
+                                                ($.gen/syntax gen-v-2
+                                                              gen-meta-2))))))))
+
+
+
+(defn syntax-with-value
+
+  [ctx [id gen-v]]
+
+  (do-gen ctx
+          gen-v
+          (fn [ctx-2 gen-v-2]
+            ($.cvm/result-set ctx-2
+                              (create id
+                                      ($.gen/syntax gen-v-2))))))
+
+
+
+(defn tuple
+
+  [ctx [id gen+]]
+
+  (or (when-not ($.std/vector? gen+)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Generators must be in a vector")))
+      (do-gen+ ctx
+               gen+
+               (fn [ctx-2 gen-2+]
+                 ($.cvm/result-set ctx-2
+                                   (create id
+                                           (apply $.gen/tuple
+                                                  gen-2+)))))))
+
+
+
+(defn vector
+
+  [ctx [id gen]]
+
+  (do-gen ctx
+          gen
+          (fn [ctx-2 gen-2]
+            ($.cvm/result-set ctx-2
+                              (create id
+                                      ($.gen/vector gen-2))))))
+
+
+
+(defn vector-bounded
+
+  [ctx [id gen min max]]
+
+  (let [[ok?
+         x]  (-ensure-bound ctx
+                            min
+                            max)]
+    (if ok?
+      (do-gen ctx
+              gen
+              (fn [ctx-2 gen-2]
+                ($.cvm/result-set ctx-2
+                                  (create id
+                                          ($.gen/vector gen-2
+                                                        (first x)
+                                                        (second x))))))
+      x)))
+
+
+
+(defn vector-fixed
+
+  [ctx [id gen n]]
+
+  (let [[ok?
+         x]  (-ensure-pos-num ctx
+                              n)]
+    (if ok?
+      (do-gen ctx
+              gen
+              (fn [ctx-2 gen-2]
+                ($.cvm/result-set ctx-2
+                                  (create id
+                                          ($.gen/vector gen-2
+                                                        x)))))
+      x)))
