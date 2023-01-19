@@ -25,6 +25,7 @@
             [convex.shell.req.file    :as $.shell.req.file]
             [convex.shell.req.fs      :as $.shell.req.fs]
             [convex.shell.req.juice   :as $.shell.req.juice]
+            [convex.shell.req.gen     :as $.shell.req.gen]
             [convex.shell.req.log     :as $.shell.req.log]
             [convex.shell.req.reader  :as $.shell.req.reader]
             [convex.shell.req.state   :as $.shell.req.state]
@@ -127,6 +128,7 @@
    ($.cell/* .fs.size)           $.shell.req.fs/size
    ($.cell/* .fs.tmp)            $.shell.req.fs/tmp
    ($.cell/* .fs.tmp.dir)        $.shell.req.fs/tmp-dir
+   ($.cell/* .gen.make)          $.shell.req.gen/make
    ($.cell/* .juice.set)         $.shell.req.juice/set
    ($.cell/* .juice.track)       $.shell.req.juice/track
    ($.cell/* .log.clear)         $.shell.req.log/clear
