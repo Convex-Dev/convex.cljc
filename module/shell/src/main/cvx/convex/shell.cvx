@@ -1120,6 +1120,16 @@
 ;;;;;;;;;; Generators
 
 
+(defn .gen.always
+
+  [x]
+
+  (.shell.invoke '.gen.always
+                 (.resrc.next)
+                 x))
+
+
+
 (defn .gen.blob
 
 
@@ -1191,6 +1201,17 @@
 
 
 
+(defn .gen.freq
+
+
+  [pair+]
+
+  (.shell.invoke '.gen.freq
+                 (.resrc.next)
+                 pair+))
+
+
+
 (defn .gen.hex-string
 
 
@@ -1255,6 +1276,17 @@
 
 
 
+(defn .gen.long.uniform
+
+  [min max]
+
+  (.shell.invoke '.gen.long.uniform
+                 (.resrc.next)
+                 min
+                 max))
+
+
+
 (defn .gen.make
 
 
@@ -1271,16 +1303,6 @@
                   (or (:size option+)
                       30)
                   (:seed option+))))
-
-
-
-(defn .gen.quoted
-
-  [generator]
-
-  (.shell.invoke '.gen.quoted
-                 (.resrc.next)
-                 generator))
 
 
 
@@ -1312,6 +1334,36 @@
                   generator-value
                   min
                   max)))
+
+
+
+(defn .gen.or
+
+  [generator+]
+
+  (.shell.invoke '.gen.or
+                 (.resrc.next)
+                 generator+))
+
+
+
+(defn .gen.quoted
+
+  [generator]
+
+  (.shell.invoke '.gen.quoted
+                 (.resrc.next)
+                 generator))
+
+
+
+(defn .gen.pick
+
+  [x+]
+
+  (.shell.invoke '.gen.pick
+                 (.resrc.next)
+                 x+))
 
 
 

@@ -7,6 +7,17 @@ repository.
 ---
 
 
+## {{ next-release }}
+
+- Add
+    - `long-uniform`
+- Change
+    - Remove `byte` (since removed from newer Convex version)
+
+
+---
+
+
 ## 2022-10-24
 
 

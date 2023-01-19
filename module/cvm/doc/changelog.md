@@ -7,6 +7,15 @@ repository.
 ---
 
 
+## {{ next-release }}
+
+- Change
+    - Remove anything related to `CVMByte` (since removed from newer Convex version)
+
+
+---
+
+
 ## 2023-01-18
 
 - Add

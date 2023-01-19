@@ -13,6 +13,10 @@ provided.
 ## {{ next-release }}
 
 - Update to Convex 0.7.10
+- Impacted
+    - [`module/cvm`]
+    - [`module/gen`]
+    - [`module/shell`]
 
 
 ---

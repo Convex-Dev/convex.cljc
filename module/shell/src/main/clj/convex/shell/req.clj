@@ -128,6 +128,7 @@
    ($.cell/* .fs.size)                     $.shell.req.fs/size
    ($.cell/* .fs.tmp)                      $.shell.req.fs/tmp
    ($.cell/* .fs.tmp.dir)                  $.shell.req.fs/tmp-dir
+   ($.cell/* .gen.always)                  $.shell.req.gen/always
    ($.cell/* .gen.blob)                    $.shell.req.gen/blob
    ($.cell/* .gen.blob.bounded)            $.shell.req.gen/blob-bounded
    ($.cell/* .gen.blob.fixed)              $.shell.req.gen/blob-fixed
@@ -135,6 +136,7 @@
    ($.cell/* .gen.blob-map.bounded)        $.shell.req.gen/blob-map-bounded
    ($.cell/* .gen.blob-map.fixed)          $.shell.req.gen/blob-map-fixed
    ($.cell/* .gen.double.bounded)          $.shell.req.gen/double-bounded
+   ($.cell/* .gen.freq)                    $.shell.req.gen/freq
    ($.cell/* .gen.hex-string)              $.shell.req.gen/hex-string
    ($.cell/* .gen.hex-string.fixed)        $.shell.req.gen/hex-string-fixed
    ($.cell/* .gen.hex-string.bounded)      $.shell.req.gen/hex-string-bounded
@@ -142,11 +144,14 @@
    ($.cell/* .gen.list.bounded)            $.shell.req.gen/list-bounded
    ($.cell/* .gen.list.fixed)              $.shell.req.gen/list-fixed
    ($.cell/* .gen.long.bounded)            $.shell.req.gen/long-bounded
+   ($.cell/* .gen.long.uniform)            $.shell.req.gen/long-uniform
    ($.cell/* .gen.make)                    $.shell.req.gen/make
    ($.cell/* .gen.map)                     $.shell.req.gen/map
    ($.cell/* .gen.map.bounded)             $.shell.req.gen/map-bounded
    ($.cell/* .gen.map.fixed)               $.shell.req.gen/map-fixed
+   ($.cell/* .gen.or)                      $.shell.req.gen/or-
    ($.cell/* .gen.quoted)                  $.shell.req.gen/quoted
+   ($.cell/* .gen.pick)                    $.shell.req.gen/pick
    ($.cell/* .gen.set)                     $.shell.req.gen/set
    ($.cell/* .gen.set.bounded)             $.shell.req.gen/set-bounded
    ($.cell/* .gen.set.fixed)               $.shell.req.gen/set-fixed

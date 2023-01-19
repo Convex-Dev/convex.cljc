@@ -314,6 +314,21 @@
                (TC.gen/large-integer* option+)))
 
 
+
+(defn long-uniform
+
+  "Akin to `long-bounded` but the produced value will be uniformly choosen
+   in the given inverval (inclusive) as opposed to being biased by the current
+   generator size."
+
+  [min max]
+
+  (TC.gen/fmap $.cell/long
+               (TC.gen/choose min
+                              max)))
+
+
+
 (def number
 
   "Numeric cell.

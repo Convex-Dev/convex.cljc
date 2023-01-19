@@ -96,35 +96,39 @@
 
   [ctx gen+ f]
 
-  (let [x (reduce (fn [acc gen]
-                    (or (when-not (and ($.std/vector? gen)
-                                       (= ($.std/count gen)
-                                          2))
-                          (reduced
-                            ($.cvm/exception-set ctx
-                                                 ($.cell/code-std* :ARGUMENT)
-                                                 ($.cell/* "Does not seem to be a generator"))))
-                        (let [f*gen ($.std/nth gen
-                                               0)]
-                          (or (when-not ($.cell/fake? f*gen)
-                                (reduced
-                                  ($.cvm/exception-set ctx
-                                                       ($.cell/code-std* :ARGUMENT)
-                                                       ($.cell/* "Either not a generator or a stale generator"))))
-                              (let [gen-2 @f*gen]
-                                (or (when-not (TC.gen/generator? gen-2)
-                                      (reduced
-                                        ($.cvm/exception-set ctx
-                                                             ($.cell/code-std* :ARGUMENT)
-                                                             ($.cell/* "Not a generator"))))
-                                    (conj acc
-                                          gen-2)))))))
-                  []
-                  gen+)]
-    (if (vector? x)
-      (f ctx
-         x)
-      x)))
+  (or (when-not ($.std/vector? gen+)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Generators must be in a vector")))
+      (let [x (reduce (fn [acc gen]
+                        (or (when-not (and ($.std/vector? gen)
+                                           (= ($.std/count gen)
+                                              2))
+                              (reduced
+                                ($.cvm/exception-set ctx
+                                                     ($.cell/code-std* :ARGUMENT)
+                                                     ($.cell/* "Does not seem to be a generator"))))
+                            (let [f*gen ($.std/nth gen
+                                                   0)]
+                              (or (when-not ($.cell/fake? f*gen)
+                                    (reduced
+                                      ($.cvm/exception-set ctx
+                                                           ($.cell/code-std* :ARGUMENT)
+                                                           ($.cell/* "Either not a generator or a stale generator"))))
+                                  (let [gen-2 @f*gen]
+                                    (or (when-not (TC.gen/generator? gen-2)
+                                          (reduced
+                                            ($.cvm/exception-set ctx
+                                                                 ($.cell/code-std* :ARGUMENT)
+                                                                 ($.cell/* "Not a generator"))))
+                                        (conj acc
+                                              gen-2)))))))
+                      []
+                      gen+)]
+        (if (vector? x)
+          (f ctx
+             x)
+          x))))
 
 
 
@@ -171,6 +175,16 @@
                                          ($.cell/string "Unable to generate value, generator might be faulty"))))))))
 
 ;;;;;;;;;;
+
+
+(defn always
+
+  [ctx [id x]]
+
+  ($.cvm/result-set ctx
+                    (create id
+                            (TC.gen/return x))))
+
 
 
 (defn blob
@@ -314,6 +328,66 @@
 
 
 
+(defn freq
+
+  ;; Should frequencies always be positive?
+
+  [ctx [id pair+]]
+
+  (or (when-not ($.std/vector? pair+)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Frequency pairs must be in a vector")))
+      (let [x (reduce (fn [acc pair]
+                        (if (and ($.std/vector? pair)
+                                 (= ($.std/count pair)
+                                    2))
+                          (let [i ($.std/nth pair
+                                             0)]
+                            (if ($.std/long? i)
+                              (let [gen ($.std/nth pair
+                                                   1)]
+                                (or (when-not (and ($.std/vector? gen)
+                                                   (= ($.std/count gen)
+                                                      2))
+                                      (reduced
+                                        ($.cvm/exception-set ctx
+                                                             ($.cell/code-std* :ARGUMENT)
+                                                             ($.cell/* "Does not seem to be a generator"))))
+                                    (let [f*gen ($.std/nth gen
+                                                           0)]
+                                      (or (when-not ($.cell/fake? f*gen)
+                                            (reduced
+                                              ($.cvm/exception-set ctx
+                                                                   ($.cell/code-std* :ARGUMENT)
+                                                                   ($.cell/* "Either not a generator or a stale generator"))))
+                                          (let [gen-2 @f*gen]
+                                            (or (when-not (TC.gen/generator? gen-2)
+                                                  (reduced
+                                                    ($.cvm/exception-set ctx
+                                                                         ($.cell/code-std* :ARGUMENT)
+                                                                         ($.cell/* "Not a generator"))))
+                                                (conj acc
+                                                      [($.clj/long i)
+                                                       gen-2])))))))
+
+                              (reduced ($.cvm/exception-set ctx
+                                                            ($.cell/code-std* :ARGUMENT)
+                                                            ($.cell/* "Frequency must be expressed as a Long")))))
+                          
+                          (reduced ($.cvm/exception-set ctx
+                                                        ($.cell/code-std* :ARGUMENT)
+                                                        ($.cell/* "Frequency pair must be a a vector of 2 items")))))
+                      []
+                      pair+)]
+        (if (vector? x)
+          ($.cvm/result-set ctx
+                            (create id
+                                    (TC.gen/frequency x)))
+          x))))
+
+
+
 (defn hex-string
 
   [ctx [id]]
@@ -390,25 +464,6 @@
 
 
 
-(defn list-fixed
-
-  [ctx [id gen n]]
-
-  (let [[ok?
-         x]  (-ensure-pos-num ctx
-                              n)]
-    (if ok?
-      (do-gen ctx
-              gen
-              (fn [ctx-2 gen-2]
-                ($.cvm/result-set ctx-2
-                                  (create id
-                                          ($.gen/list gen-2
-                                                      x)))))
-      x)))
-
-
-
 (defn long-bounded
 
   [ctx [id min max]]
@@ -438,6 +493,57 @@
                               (create id
                                       ($.gen/long-bounded {:max max-2
                                                            :min min-2})))))))
+
+
+
+(defn list-fixed
+
+  [ctx [id gen n]]
+
+  (let [[ok?
+         x]  (-ensure-pos-num ctx
+                              n)]
+    (if ok?
+      (do-gen ctx
+              gen
+              (fn [ctx-2 gen-2]
+                ($.cvm/result-set ctx-2
+                                  (create id
+                                          ($.gen/list gen-2
+                                                      x)))))
+      x)))
+
+
+
+(defn long-uniform
+
+  [ctx [id min max]]
+
+  (or (when-not (or (nil? min)
+                    ($.std/long? min))
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Minimum must be Nil or a Long")))
+      (when-not (or (nil? max)
+                    ($.std/long? max))
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Maximum must be Nil or a Long")))
+      (let [max-2 (when max
+                    ($.clj/long max))
+            min-2 (when min
+                    ($.clj/long min))]
+        (or (when-not (or (nil? min-2)
+                          (nil? max-2)
+                          (<= min-2
+                              max-2))
+              ($.cvm/exception-set ctx
+                                   ($.cell/code-std* :ARGUMENT)
+                                   ($.cell/* "Minimum must be <= Maximum")))
+            ($.cvm/result-set ctx
+                              (create id
+                                      ($.gen/long-uniform min-2
+                                                          max-2)))))))
 
 
 
@@ -503,6 +609,33 @@
                                                                gen-v-2
                                                                x)))))))
       x)))
+
+
+
+(defn or-
+
+  [ctx [id gen+]]
+
+  (do-gen+ ctx
+           gen+
+           (fn [ctx-2 gen-2+]
+             ($.cvm/result-set ctx-2
+                               (create id
+                                       (TC.gen/one-of gen-2+))))))
+
+
+
+(defn pick
+
+  [ctx [id x+]]
+
+  (or (when-not ($.std/vector? x+)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Elements to pick from must be in a vector")))
+      ($.cvm/result-set ctx
+                        (create id
+                                (TC.gen/elements x+)))))
 
 
 
@@ -700,17 +833,13 @@
 
   [ctx [id gen+]]
 
-  (or (when-not ($.std/vector? gen+)
-        ($.cvm/exception-set ctx
-                             ($.cell/code-std* :ARGUMENT)
-                             ($.cell/* "Generators must be in a vector")))
-      (do-gen+ ctx
-               gen+
-               (fn [ctx-2 gen-2+]
-                 ($.cvm/result-set ctx-2
-                                   (create id
-                                           (apply $.gen/tuple
-                                                  gen-2+)))))))
+  (do-gen+ ctx
+           gen+
+           (fn [ctx-2 gen-2+]
+             ($.cvm/result-set ctx-2
+                               (create id
+                                       (apply $.gen/tuple
+                                              gen-2+))))))
 
 
 
