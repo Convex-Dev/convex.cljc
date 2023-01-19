@@ -9,16 +9,14 @@
   {:author "Adam Helinski"}
 
   (:import (convex.core.crypto AKeyPair
-                               ASignature
-                               Ed25519KeyPair
-                               Ed25519Signature)
+                               ASignature)
            (convex.core.data AccountKey
                              ACell
                              Blob
-                             Hash
                              SignedData)
            (java.security PrivateKey
-                          PublicKey)))
+                          PublicKey))
+  (:require [convex.cell :as $.cell]))
 
 
 (set! *warn-on-reflection*
@@ -40,18 +38,18 @@
 
   (^AKeyPair []
 
-   (Ed25519KeyPair/generate))
+   (AKeyPair/generate))
 
 
   (^AKeyPair [^Blob seed]
 
-   (Ed25519KeyPair/create seed))
+   (AKeyPair/create seed))
 
 
   (^AKeyPair [^PublicKey key-public ^PrivateKey key-private]
 
-   (Ed25519KeyPair/create key-public
-                          key-private)))
+   (AKeyPair/create key-public
+                    key-private)))
 
 
 ;;;;;;;;;; Retrieving keys from key pairs
@@ -81,8 +79,8 @@
   [^AKeyPair key-pair]
 
   (-> key-pair
-      account-key
-      .toHexString))
+      (account-key)
+      (.toHexString)))
 
 
 
@@ -118,7 +116,7 @@
 
   ^Blob
 
-  [^Ed25519KeyPair key-pair]
+  [^AKeyPair key-pair]
 
   (.getSeed key-pair))
 
@@ -185,8 +183,9 @@
   [^SignedData signed]
 
   (-> signed
-      ^Ed25519Signature (.getSignature)
-      (.getSignatureBlob)))
+      (.getSignature)
+      (.getBytes)
+      ($.cell/blob)))
 
 
 
@@ -201,35 +200,3 @@
   (.checkSignature (SignedData/create account-key
                                       (ASignature/fromBlob signature)
                                       (.getRef cell))))
-
-
-;;;;;;;;;; Sign and verify hashes directly
-
-
-(defn sign-hash
-
-  "Signs the given `hash` with the given `key-pair`.
-   Returns the signature as a blob.
-
-   See `convex.cell/hash` from `:module/cvm`."
-
-  [^AKeyPair key-pair ^Hash hash]
-
-  (-> ^Ed25519Signature (.sign key-pair
-                               hash)
-      (.getSignatureBlob)))
-
-
-
-(defn verify-hash
-
-  "Verifies that the given `signature` is indeed the given `hash` signed by the given
-   account key.
-  
-   See [[account-key]], [[sign-hash]]."
-
-  [^AccountKey account-key ^Blob signature ^Hash hash]
-
-  (-> (ASignature/fromBlob signature)
-      (.verify hash
-               account-key)))

@@ -319,10 +319,6 @@
 
     (T/is (= ($.cell/* \a)
              ($.std/nth ($.cell/* "ab")
-                        0)))
-
-    (T/is (= ($.cell/byte 1)
-             ($.std/nth ($.cell/blob (byte-array [1 2]))
                         0)))))
 
 

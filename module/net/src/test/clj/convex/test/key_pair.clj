@@ -8,8 +8,7 @@
   (:refer-clojure :exclude [keys])
   (:require [clojure.test    :as T]
             [convex.cell     :as $.cell]
-            [convex.key-pair :as $.key-pair]
-            [convex.std      :as $.std]))
+            [convex.key-pair :as $.key-pair]))
 
 
 ;;;;;;;;;; Setup
@@ -68,12 +67,11 @@
 
 
 
-(T/deftest sign+verify-hash
+(T/deftest verify-hash
 
-  (let [hash      ($.cell/hash ($.cell/* [1 2 3]))
-        signature ($.key-pair/sign-hash kp
-                                        hash)]
-    (T/is ($.std/blob? signature))
-    (T/is ($.key-pair/verify-hash ($.key-pair/account-key kp)
-                                  signature
-                                  hash))))
+  (let [hash   ($.cell/hash ($.cell/* [1 2 3]))
+        signed ($.key-pair/sign kp
+                                hash)]
+    (T/is ($.key-pair/verify ($.key-pair/account-key kp)
+                             ($.key-pair/signed->signature signed)
+                             hash))))

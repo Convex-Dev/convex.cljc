@@ -32,7 +32,6 @@
                              Syntax
                              Vectors)
            (convex.core.data.prim CVMBool
-                                  CVMByte
                                   CVMChar
                                   CVMDouble
                                   CVMLong)
@@ -184,18 +183,6 @@
   [x]
 
   (CVMBool/create (clojure.core/boolean x)))
-
-
-
-(defn byte
-
-  "Creates a byte cell from a value between 0 and 255 (inclusive)."
-
-  ^CVMByte
-
-  [b]
-
-  (CVMByte/create b))
 
 
 

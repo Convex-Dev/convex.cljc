@@ -6,7 +6,6 @@
 
   (:import (convex.core.lang Symbols))
   (:refer-clojure :exclude [boolean
-                            byte
                             char
                             double
                             long
@@ -202,15 +201,6 @@
 
   (TC.gen/fmap $.cell/boolean
                TC.gen/boolean))
-
-
-
-(def byte
-
-  "Byte cell."
-
-  (TC.gen/fmap $.cell/byte
-               -byte))
 
 
 
@@ -445,7 +435,6 @@
    - [[address]]
    - [[blob]]
    - [[boolean]]
-   - [[byte]]
    - [[char-alphanum]]
    - [[double]]
    - [[keyword]]
@@ -459,7 +448,6 @@
   (TC.gen/one-of [address
                   (blob)
                   boolean
-                  byte
                   char-alphanum
                   double
                   keyword

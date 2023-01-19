@@ -36,7 +36,6 @@
                              Symbol
                              Syntax)
            (convex.core.data.prim CVMBool
-                                  CVMByte
                                   CVMChar
                                   CVMDouble
                                   CVMLong)
@@ -187,18 +186,6 @@
 
 
 
-(defn byte
-
-  "Coerces the given `cell` to a byte or return nil."
-
-  ^CVMByte
-
-  [^ACell cell]
-
-  (RT/castByte cell))
-
-
-
 (defn char
 
   "Coerces the given `cell` to a char or return nil."
@@ -207,7 +194,17 @@
 
   [^ACell cell]
 
-  (RT/toCharacter cell))
+  (cond
+    (instance? CVMChar
+               cell)
+    cell
+    ;;
+    (instance? CVMLong
+               cell)
+    (CVMChar/create (.longValue ^CVMLong cell))
+    ;;
+    :else
+    nil))
 
 
 
@@ -1128,17 +1125,6 @@
   [x]
 
   (instance? CVMBool
-             x))
-
-
-
-(defn byte?
-
-  "Is `x` a byte cell?"
-
-  [x]
-
-  (instance? CVMByte
              x))
 
 

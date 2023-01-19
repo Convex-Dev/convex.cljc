@@ -47,9 +47,6 @@
   (gen $.std/boolean?
        $.gen/boolean)
 
-  (gen $.std/byte?
-       $.gen/byte)
-
   (gen $.std/char?
        $.gen/char)
 

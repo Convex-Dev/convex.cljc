@@ -20,7 +20,6 @@
                              Symbol
                              Syntax)
            (convex.core.data.prim CVMBool
-                                  CVMByte
                                   CVMChar
                                   CVMDouble
                                   CVMLong))
@@ -80,16 +79,6 @@
   [^CVMBool boolean]
 
   (.booleanValue boolean))
-
-
-
-(defn byte
-
-  "Returns the given `byte` cell as a JVM long."
-
-  [^CVMByte cell]
-
-  (.longValue cell))
 
 
 
@@ -261,7 +250,6 @@
   AString   (any [cell]  (string cell))
   AVector   (any [cell]  (vector cell))
   CVMBool   (any [cell]  (boolean cell))
-  CVMByte   (any [cell]  (byte cell))
   CVMChar   (any [cell]  (char cell))
   CVMDouble (any [cell]  (double cell))
   CVMLong   (any [cell]  (long cell))

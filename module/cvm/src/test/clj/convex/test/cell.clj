@@ -25,9 +25,6 @@
   (T/is (= "#cvx true"
            (pr-str ($.cell/boolean true))))
 
-  (T/is (= "#cvx 42"
-           (pr-str ($.cell/byte 42))))
-
   (T/is (= "#cvx \\a"
            (pr-str ($.cell/char \a))))
   

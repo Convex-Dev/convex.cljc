@@ -81,20 +81,6 @@
 
 
 
-;; TODO. No `byte?` in CVX
-;
-; (mprop/deftest byte--
-; 
-;   {:ratio-num 100}
-; 
-;   (TC.prop/for-all [x ($.gen/number-bounded {:max 1e6
-;                                              :min 1e6})]
-;     ($.eval/true? $.break/ctx
-;                   ($.cell/* (byte? (byte ~x))))))
-
-
-
-
 ;; TODO. No `char?` in CVX
 ;
 ; (mprop/deftest char--
@@ -183,7 +169,6 @@
 
   (TC.prop/for-all [x (TC.gen/one-of [$.gen/address
                                       $.gen/boolean
-                                      $.gen/byte
                                       $.gen/char
                                       $.gen/double
                                       $.gen/long])]

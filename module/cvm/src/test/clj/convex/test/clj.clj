@@ -33,12 +33,6 @@
              ($.clj/any cell))
           "Boolean"))
 
-  (let [cell ($.cell/byte 42)]
-    (T/is (= 42
-             ($.clj/byte cell)
-             ($.clj/any cell))
-          "Byte"))
-
   (let [cell ($.cell/* \a)]
     (T/is (= \a
              ($.clj/char cell)

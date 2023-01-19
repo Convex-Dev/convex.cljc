@@ -7,6 +7,15 @@ repository.
 ---
 
 
+## {{ next-release }}
+
+- Remove
+    - `$.key-pair/sign-hash` and `$.key-pair/verify-hash` which where somewhat redundant
+
+
+---
+
+
 ## 2022-10-24
 
 - Add

@@ -174,8 +174,7 @@
 
   "Anything but a long, quoted."
 
-  (any-but #(or ($.std/byte? %)
-                ($.std/long? %))))
+  (any-but #($.std/long? %)))
 
 
 
