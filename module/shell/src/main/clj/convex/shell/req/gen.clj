@@ -68,8 +68,10 @@
              ($.cvm/exception-set ctx
                                   ($.cell/code-std* :ARGUMENT)
                                   ($.cell/* "Minimum must be <= Maximum"))])
-          x-2))
-      x)))
+          [false
+           x-2]))
+      [false
+       x])))
 
 
 ;;;;;;;;;;
@@ -109,6 +111,10 @@
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
                              ($.cell/* "Generators must be in a vector")))
+      (when ($.std/empty? gen+)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Vector of generators cannot be empty")))
       (let [x (reduce (fn [acc gen]
                         (or (when-not (and ($.std/vector? gen)
                                            (= ($.std/count gen)
@@ -149,8 +155,10 @@
              ~id]))
 
 
+;;;;;;;;;;
 
-(defn make
+
+(defn gen
 
   ;; size must be pos?
 
@@ -185,6 +193,7 @@
                     ($.cvm/exception-set ctx
                                          ($.cell/* :SHELL.GEN)
                                          ($.cell/string "Unable to generate value, generator might be faulty"))))))))
+
 
 ;;;;;;;;;;
 
@@ -420,6 +429,10 @@
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
                              ($.cell/* "Frequency pairs must be in a vector")))
+      (when ($.std/empty? pair+)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "There must be at least 1 frequency pair")))
       (let [x (reduce (fn [acc pair]
                         (if (and ($.std/vector? pair)
                                  (= ($.std/count pair)
@@ -715,6 +728,10 @@
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
                              ($.cell/* "Elements to pick from must be in a vector")))
+      (when ($.std/empty? x+)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Vector of elements to pick cannot be empty")))
       ($.cvm/result-set ctx
                         (create id
                                 (TC.gen/elements x+)))))

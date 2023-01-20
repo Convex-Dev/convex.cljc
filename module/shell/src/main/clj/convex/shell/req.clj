@@ -128,6 +128,7 @@
    ($.cell/* .fs.size)                     $.shell.req.fs/size
    ($.cell/* .fs.tmp)                      $.shell.req.fs/tmp
    ($.cell/* .fs.tmp.dir)                  $.shell.req.fs/tmp-dir
+   ($.cell/* .gen)                         $.shell.req.gen/gen
    ($.cell/* .gen.always)                  $.shell.req.gen/always
    ($.cell/* .gen.bind)                    $.shell.req.gen/bind
    ($.cell/* .gen.blob)                    $.shell.req.gen/blob
@@ -147,7 +148,6 @@
    ($.cell/* .gen.list.fixed)              $.shell.req.gen/list-fixed
    ($.cell/* .gen.long.bounded)            $.shell.req.gen/long-bounded
    ($.cell/* .gen.long.uniform)            $.shell.req.gen/long-uniform
-   ($.cell/* .gen.make)                    $.shell.req.gen/make
    ($.cell/* .gen.map)                     $.shell.req.gen/map
    ($.cell/* .gen.map.bounded)             $.shell.req.gen/map-bounded
    ($.cell/* .gen.map.fixed)               $.shell.req.gen/map-fixed

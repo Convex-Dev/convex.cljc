@@ -773,7 +773,7 @@
    Works with any kind of `cell` and is sufficient when there is no need for fine-grained control.
 
    An important difference with the aforementioned cycle is that the cell passes through `*lang*`, a function
-   possibly set by the user for intercepting a cell (eg. modifying the cell and evaluating explicitley).
+   possibly set by the user for intercepting a cell (eg. modifying the cell and evaluating in an alternative way).
 
    Returns the forked `ctx` with a [[result]] or an [[exception]] in case of failure."
 

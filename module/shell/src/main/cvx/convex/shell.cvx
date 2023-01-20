@@ -26,6 +26,20 @@
 
 
 
+(defn .every?
+
+  ^:private?
+
+  [f coll]
+
+  (reduce (fn [_ x]
+            (or (f x)
+                (reduced false)))
+          true
+          coll))
+
+
+
 (defn .prn
 
   ^{:doc {:description "Prints arguments in a vector using `.stream.outln`."
@@ -1120,6 +1134,25 @@
 ;;;;;;;;;; Generators
 
 
+(defn .gen
+
+
+  ([generator]
+
+   (.gen generator
+         nil))
+
+
+  ([generator option+]
+
+   (.shell.invoke '.gen
+                  generator
+                  (or (:size option+)
+                      30)
+                  (:seed option+))))
+
+
+
 (defn .gen.always
 
   [x]
@@ -1309,25 +1342,6 @@
 
 
 
-(defn .gen.make
-
-
-  ([generator]
-
-   (.gen.make generator
-              nil))
-
-
-  ([generator option+]
-
-   (.shell.invoke '.gen.make
-                  generator
-                  (or (:size option+)
-                      30)
-                  (:seed option+))))
-
-
-
 (defn .gen.map
 
 
@@ -1394,7 +1408,7 @@
 
   ([generator]
 
-   (.shell.invoke '.gen.vector
+   (.shell.invoke '.gen.set
                   (.resrc.next)
                   generator))
 
@@ -2336,6 +2350,26 @@
   nil)
 
 
+
+(defn .str.count
+
+  ^:private?
+
+  [s]
+
+  (let [n-byte (count s)]
+    (loop [i      0
+           n-char 0]
+      (if (< i
+             n-byte)
+        (recur (inc i)
+               (if (nil? (nth s
+                              i))
+                 n-char
+                 (inc n-char)))
+        n-char))))
+
+        
 
 (defn .str.pluralize
 

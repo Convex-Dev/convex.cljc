@@ -6,6 +6,7 @@
           $.shell.ex      (test convex shell ex)
           $.shell.file    (test convex shell file)
           $.shell.fs      (test convex shell fs)
+          $.shell.gen     (test convex shell gen)
           $.shell.gensym  (test convex shell gensym)
           $.shell.juice   (test convex shell juice)
           $.shell.log     (test convex shell log)
