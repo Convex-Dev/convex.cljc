@@ -817,17 +817,6 @@
 
 
 
-(.t.def ..gen.quoted
-
-  (.t.is (= '(quote test)
-            (.gen (.gen.quoted (.gen.always 'test)))))
-
-  (.t.is (.t.ex :ARGUMENT
-                (.gen.quoted 'test))
-         "Not a gen"))
-
-
-
 (.t.def ..gen.pick
 
   (.t.is (contains-key? #{:a :b}
@@ -840,6 +829,26 @@
   (.t.is (.t.ex :ARGUMENT
                 (.gen.pick []))
          "Empty vector"))
+
+
+
+(.t.def ..gen.quoted
+
+  (.t.is (= '(quote test)
+            (.gen (.gen.quoted (.gen.always 'test)))))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.gen.quoted 'test))
+         "Not a gen"))
+
+
+
+(.t.def ..gen.record
+
+  (.t.is (= {:a :A
+             :b :B}
+            (.gen (.gen.record {:a (.gen.always :A)
+                                :b (.gen.always :B)})))))
 
 
 

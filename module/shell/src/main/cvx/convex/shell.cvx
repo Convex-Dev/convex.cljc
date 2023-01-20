@@ -1383,16 +1383,6 @@
 
 
 
-(defn .gen.quoted
-
-  [generator]
-
-  (.shell.invoke '.gen.quoted
-                 (.resrc.next)
-                 generator))
-
-
-
 (defn .gen.pick
 
   [x+]
@@ -1400,6 +1390,38 @@
   (.shell.invoke '.gen.pick
                  (.resrc.next)
                  x+))
+
+
+
+(defn .gen.record
+
+  [k->gen]
+
+  (let [k+ (keys k->gen)
+        n  (count k+)]
+    (.gen.fmap (fn [v+]
+                 (loop [i      0
+                        record {}]
+                   (if (< i
+                          n)
+                     (recur (inc i)
+                            (assoc record
+                                   (get k+
+                                        i)
+                                   (get v+
+                                        i)))
+                     record)))
+               (.gen.tuple (values k->gen)))))
+
+
+
+(defn .gen.quoted
+
+  [generator]
+
+  (.shell.invoke '.gen.quoted
+                 (.resrc.next)
+                 generator))
 
 
 
