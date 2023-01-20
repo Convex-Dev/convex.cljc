@@ -1031,6 +1031,54 @@
 
 
 
+(.t.def ..gen.such-that
+
+
+  (.t.is (< 42
+            (.gen (.gen.such-that (fn [n]
+                                    (> n
+                                       42))
+                                  .gen.long)))
+         "Without max-try")
+
+  (.t.is (< 42
+            (.gen (.gen.such-that 10
+                                  (fn [n]
+                                    (> n
+                                       42))
+                                  .gen.long)))
+         "With max-try")
+
+  (.t.is (.t.ex :SHELL.GEN
+                (.gen (.gen.such-that (fn [_] false)
+                                      .gen.long)))
+         "Impossible")
+
+  (.t.is (.t.ex :FROM-TEST
+                (.gen (.gen.such-that (fn [_]
+                                        (fail :FROM-TEST
+                                              nil))
+                                      .gen.long)))
+         "Pred throws")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.gen.such-that :fail
+                                .gen.long))
+         "Not fn")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.gen.such-that (fn [_])
+                                :fail))
+         "Not a gen")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.gen.such-that 0
+                                (fn [_])
+                                .gen.long))
+         "0 trials"))
+
+
+
 (.t.def ..gen.symbol
 
   (.t.is (symbol? (.gen .gen.symbol))))

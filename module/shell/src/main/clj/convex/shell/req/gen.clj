@@ -888,6 +888,44 @@
 
 
 
+(defn such-that
+
+  [ctx [id max-try f gen]]
+
+  (or (when-not ($.std/fn? f)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Predicate must be a function")))
+      (when-not ($.std/long? max-try)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Max trials must be a Long")))
+      (let [max-try-2 ($.clj/long max-try)]
+        (or (when-not (> max-try-2
+                         1)
+              ($.cvm/exception-set ctx
+                                   ($.cell/code-std* :ARGUMENT)
+                                   ($.cell/* "Max trials must be > 1")))
+            (do-gen ctx
+                    gen
+                    (fn [ctx-2 gen-2]
+                      ($.cvm/result-set ctx-2
+                                        (create id
+                                                (TC.gen/such-that (fn [x]
+                                                                    (let [ctx-3 (-> -*ctx*
+                                                                                    ($.cvm/fork)
+                                                                                    ($.cvm/invoke f
+                                                                                                  ($.cvm/arg+* x)))]
+                                                                      (if ($.cvm/exception? ctx-3)
+                                                                        ($.shell.flow/return ctx-3)
+                                                                        (let [result ($.cvm/result ctx-3)]
+                                                                          (not (or (nil? result)
+                                                                                   ($.std/false? result)))))))
+                                                                  gen-2
+                                                                  max-try-2)))))))))
+
+
+
 (defn syntax
 
   [ctx [id]]

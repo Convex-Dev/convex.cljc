@@ -157,6 +157,7 @@
    ($.cell/* .gen.set)                     $.shell.req.gen/set
    ($.cell/* .gen.set.bounded)             $.shell.req.gen/set-bounded
    ($.cell/* .gen.set.fixed)               $.shell.req.gen/set-fixed
+   ($.cell/* .gen.such-that)               $.shell.req.gen/such-that
    ($.cell/* .gen.string)                  $.shell.req.gen/string
    ($.cell/* .gen.string.bounded)          $.shell.req.gen/string-bounded
    ($.cell/* .gen.string.fixed)            $.shell.req.gen/string-fixed

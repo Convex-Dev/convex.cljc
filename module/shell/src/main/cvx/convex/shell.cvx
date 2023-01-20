@@ -1503,6 +1503,27 @@
 
 
 
+(defn .gen.such-that
+
+
+  ([pred generator]
+
+   (.gen.such-that nil
+                   pred
+                   generator))
+
+
+  ([max-try pred generator]
+
+   (.shell.invoke '.gen.such-that
+                  (.resrc.next)
+                  (or max-try
+                      100)
+                  pred
+                  generator)))
+
+
+
 (defn .gen.syntax
 
 
