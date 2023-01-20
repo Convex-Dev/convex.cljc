@@ -12,6 +12,7 @@ repository.
 - Add
     - `long-uniform`
 - Change
+    - Raise maximum number of trials to 100 for some generators (e.g. sets)
     - Remove `byte` (since removed from newer Convex version)
 
 

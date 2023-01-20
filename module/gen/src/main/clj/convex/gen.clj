@@ -35,6 +35,14 @@
 
 
 
+(def ^:private -max-tries
+
+  ;; Default number of trials for some generators which might fail.
+
+  100)
+
+
+
 (defn- -map
 
   ;; Helper for [[blob-map]] and [[map]].
@@ -45,7 +53,8 @@
    (TC.gen/fmap f
                 (TC.gen/vector-distinct-by first
                                            (TC.gen/tuple gen-k
-                                                         gen-v))))
+                                                         gen-v)
+                                           {:max-tries -max-tries})))
 
 
   ([f gen-k gen-v n]
@@ -54,7 +63,8 @@
                 (TC.gen/vector-distinct-by first
                                            (TC.gen/tuple gen-k
                                                          gen-v)
-                                           {:num-elements n})))
+                                           {:max-tries    -max-tries
+                                            :num-elements n})))
 
 
   ([f gen-k gen-v n-min n-max]
@@ -64,7 +74,8 @@
                                            (TC.gen/tuple gen-k
                                                          gen-v)
                                            {:min-elements n-min
-                                            :max-elements n-max}))))
+                                            :max-elements n-max
+                                            :max-tries    -max-tries}))))
 
 
 
@@ -580,14 +591,16 @@
   ([gen]
 
    (TC.gen/fmap $.cell/set
-                (TC.gen/vector-distinct gen)))
+                (TC.gen/vector-distinct gen
+                                        {:max-tries -max-tries})))
 
 
   ([gen n]
 
    (TC.gen/fmap $.cell/set
                 (TC.gen/vector-distinct gen
-                                        {:num-elements n})))
+                                        {:max-tries    -max-tries
+                                         :num-elements n})))
 
 
   ([gen n-min n-max]
@@ -595,7 +608,8 @@
    (TC.gen/fmap $.cell/set
                 (TC.gen/vector-distinct gen
                                         {:min-elements n-min
-                                         :max-elements n-max}))))
+                                         :max-elements n-max
+                                         :max-tries    -max-tries}))))
 
 
 
