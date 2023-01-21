@@ -4,7 +4,18 @@
 
    More precisely, is signed the hash of the encoding of the cell, producing a signed data cell.
   
-   Uses [Ed25519](https://ed25519.cr.yp.to)."
+   Uses [Ed25519](https://ed25519.cr.yp.to).
+  
+   ---
+  
+   By default, Convex uses a pure Java implementation of Ed25519.
+
+   When running a peer, which requires intensive signature validation, it is advised switching to
+   the native LibSodium implementation.
+
+   Follow instruction to switch, best done when starting your application:
+  
+     https://github.com/Convex-Dev/convex/tree/main/convex-sodium"
 
   {:author "Adam Helinski"}
 
