@@ -4310,6 +4310,42 @@
 
 
 
+(defmacro .time.do*
+
+  ^{:doc {:description ["Macro for timing code execution."
+                        ""
+                        "Returns a vector where:"
+                        "  0: Elapsed time in nanoseconds"
+                        "  1: Result from executing forms"
+                        ""
+                        "Uses `.time.nano`."
+                        "Might not be accurate enough for tiny operations."]
+          :examples    [{:code (.time.do* (def x 42) (inc x))}]
+          :signature   [{:params [& form+]}]}}
+  [& form+]
+
+  (let [n-form     (count form+)
+        sym-result (.gensym)
+        sym-time   (.gensym)]
+    `(let [~sym-time   (.time.nano)
+           ~sym-result ~(cond
+                          ;;
+                          (= n-form
+                             0)
+                          nil
+                          ;;
+                          (= n-form
+                             1)
+                          (first form+)
+                          ;;
+                          (cons 'do
+                                form+))]
+       [(- (.time.nano)
+            ~sym-time)
+        ~sym-result])))
+
+
+
 (defn .time.iso
 
   ^{:doc {:description ["Returns the current time as an ISO 8601 UTC string."
@@ -4350,7 +4386,9 @@
                         ""
                         "This timer has no particular, predictable origin. Hence the first value is meaningless."
                         "However, the difference between 2 values from the same process offers a precise interval."
-                        "It follows that values from different processes are not comparable."]
+                        "It follows that values from different processes are not comparable."
+                        ""
+                        "See `.time.do*` for a convenience macro."]
           :examples    [{:code (.time.nano)}]
           :signature   [{:params []}]}}
 

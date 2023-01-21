@@ -44,6 +44,21 @@
          "Cannot go back in time"))
 
 
+
+(.t.def ..time.do*
+
+  (let [[nano+
+         result] (.time.do*
+                   (def x
+                        42)
+                   (inc x))]
+    (.t.is (< 0
+              nano+))
+    (.t.is (= 43
+              result))))
+
+
+
 (.t.def ..time.nano
 
   (.t.is (long? (.time.nano)))
