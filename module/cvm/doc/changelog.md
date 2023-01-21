@@ -13,6 +13,7 @@ repository.
     - `$.cell/fake`
     - `$.cvm/exception-set`
     - `$.cvm/exception-trace`
+    - `$.db/size`
     - `$.std/state?`
 
 

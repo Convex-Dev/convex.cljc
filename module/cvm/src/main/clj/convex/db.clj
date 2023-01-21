@@ -173,11 +173,24 @@
 
 (defn path
 
-  "Returns the path of thread-local instance."
+  "Returns the path of the thread-local instance."
 
   []
 
   (.getFileName (current)))
+
+
+
+(defn size
+
+  "Returns the size in bytes of the thread-local instance.
+  
+   Etch always reserves some extra space in its instance file.
+   The returned value is the size of the actual data, without any extra space."
+
+  []
+
+  (.getDataLength (.getEtch (current))))
 
 
 ;;;;;;;;;; R\W

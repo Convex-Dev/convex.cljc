@@ -71,6 +71,15 @@
 
 
 
+(T/deftest size
+
+  (T/is (< 0
+           (do
+             (-open)
+             ($.db/size)))))
+
+
+
 (T/deftest write-after-close
 
   (T/is (thrown? Exception
