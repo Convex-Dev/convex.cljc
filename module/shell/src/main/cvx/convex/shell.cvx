@@ -182,6 +182,25 @@
                  cell))
 
 
+
+(defn .cell.softness
+
+  ^{:doc {:description ["Returns a vector where, relative to `cell`:"
+                        ""
+                        "  0: Number of direct references"
+                        "  1: Number of soft references"
+                        ""
+                        "This is an advanced feature meant for CVM developers familiar"
+                        "with the notion of cell references."]
+          :examples    [{:code (.cell.softness *state*)}]
+          :signature   [{:params [cell]}]}}
+
+  [cell]
+
+  (.shell.invoke '.cell.softness
+                 cell))
+
+
 ;;;;;;;;;; Dependency management
 
 

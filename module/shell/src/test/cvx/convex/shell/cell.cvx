@@ -14,3 +14,19 @@
 
   (.t.is (.t.ex :ARGUMENT
                 (.cell.size nil))))
+
+
+
+(.t.def ..cell.softness
+
+  (.t.is (= [0 0]
+            (.cell.softness nil)))
+
+  (.t.is (= [1 0]
+            (.cell.softness 1)))
+
+  (.t.is (= [5 0]
+            (.cell.softness [1 2 [3]])))
+
+  (.t.is (< 0
+            (first (.cell.softness *state*)))))

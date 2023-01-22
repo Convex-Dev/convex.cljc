@@ -999,6 +999,12 @@
   (T/is (= [5 0]
            ($.std/softness ($.cell/* [:a :b [:c]]))))
 
+  (T/is (= [0 0]
+           ($.std/softness nil)))
+
+  (T/is (= [1 0]
+           ($.std/softness ($.cell/* [nil]))))
+
   (T/is (= [4 1]
            ($.std/softness ($.cell/* [:a :b [~(let [^ACell c ($.cell/* :c)]
                                                 (.attachRef c

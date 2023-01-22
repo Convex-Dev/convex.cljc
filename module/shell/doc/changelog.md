@@ -11,6 +11,7 @@ repository.
 
 - Add
     - `.cell.size`
+    - `.cell.softness`
     - `.time.do*` 
     - `.state.do`
 

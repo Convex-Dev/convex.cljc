@@ -1394,16 +1394,19 @@
 
   [^ACell cell]
 
-  (reduce (fn [[n-direct n-soft] ^Ref child]
-            (let [[n-direct-child
-                   n-soft-child]  (softness (.getValue child))]
-              [(clojure.core/+ n-direct
-                               n-direct-child)
-               (clojure.core/+ n-soft
-                               n-soft-child)]))
-          (if (.isDirect (.getRef cell))
-            [1
-             0]
-            [0
-             1])
-          (.getChildRefs cell)))
+  (if (nil? cell)
+    [0
+     0]
+    (reduce (fn [[n-direct n-soft] ^Ref child]
+              (let [[n-direct-child
+                     n-soft-child]  (softness (.getValue child))]
+                [(clojure.core/+ n-direct
+                                 n-direct-child)
+                 (clojure.core/+ n-soft
+                                 n-soft-child)]))
+            (if (.isDirect (.getRef cell))
+              [1
+               0]
+              [0
+               1])
+            (.getChildRefs cell))))

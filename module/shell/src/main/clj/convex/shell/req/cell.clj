@@ -22,3 +22,14 @@
                              ($.cell/* "Cell to measure cannot be `nil`")))
       ($.cvm/result-set ctx
                         ($.cell/long ($.std/memory-size cell)))))
+
+
+
+(defn softness
+
+  "Requests for counting direct and soft references of a cell."
+
+  [ctx [cell]]
+
+  ($.cvm/result-set ctx
+                    ($.cell/any ($.std/softness cell))))
