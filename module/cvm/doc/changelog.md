@@ -11,6 +11,7 @@ repository.
 
 - Add
     - `$.std/memory-size`
+    - `$.std/softness`
 - Change
     - Remove anything related to `CVMByte` (since removed from newer Convex version)
 

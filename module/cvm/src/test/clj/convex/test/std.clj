@@ -4,6 +4,8 @@
 
   {:author "Adam Helinski"}
 
+  (:import (convex.core.data ACell
+                             RefSoft))
   (:refer-clojure :exclude [+
                             -
                             *
@@ -986,3 +988,21 @@
 
   (T/is (clojure.core/< ($.std/memory-size ($.cell/* :a))
                         ($.std/memory-size ($.cell/* [:a])))))
+
+
+
+(T/deftest softness
+
+  (T/is (= [1 0]
+           ($.std/softness ($.cell/* :a))))
+
+  (T/is (= [5 0]
+           ($.std/softness ($.cell/* [:a :b [:c]]))))
+
+  (T/is (= [4 1]
+           ($.std/softness ($.cell/* [:a :b [~(let [^ACell c ($.cell/* :c)]
+                                                (.attachRef c
+                                                            (RefSoft/create nil
+                                                                            c
+                                                                            0))
+                                                c)]])))))

@@ -33,6 +33,7 @@
                              AVector
                              INumeric
                              Keyword
+                             Ref
                              Symbol
                              Syntax)
            (convex.core.data.prim CVMBool
@@ -1379,3 +1380,30 @@
     (if (clojure.core/zero? size)
       (.getEncodingLength cell)
       size)))
+
+
+
+(defn softness
+
+  "Returns a vector where, for `cell`:
+  
+    0: Number of direct references
+    1: Number of soft references
+  
+   This is for CVM developers familiar with the notion of cell references."
+
+  [^ACell cell]
+
+  (reduce (fn [[n-direct n-soft] ^Ref child]
+            (let [[n-direct-child
+                   n-soft-child]  (softness (.getValue child))]
+              [(clojure.core/+ n-direct
+                               n-direct-child)
+               (clojure.core/+ n-soft
+                               n-soft-child)]))
+          (if (.isDirect (.getRef cell))
+            [1
+             0]
+            [0
+             1])
+          (.getChildRefs cell)))
