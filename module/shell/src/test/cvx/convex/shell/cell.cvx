@@ -1,0 +1,16 @@
+{}
+
+
+;;;;;;;;;;
+
+
+(.t.def ..cell.size
+
+  (.t.is (= 2
+            (.cell.size 1)))
+
+  (.t.is (< (.cell.size 1)
+            (.cell.size [1])))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.cell.size nil))))

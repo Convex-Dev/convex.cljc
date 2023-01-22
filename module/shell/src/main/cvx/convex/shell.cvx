@@ -153,6 +153,35 @@
                  trx))
 
 
+;;;;;;;;;; Cell utilities
+
+
+(def .cell
+
+  ^{:private?      true
+    :shell.section ["Developer utilities centered on cells."
+                    "Meant for more advanced users."]}
+
+  nil)
+
+
+
+(defn .cell.size
+
+  ^{:doc {:description ["In bytes, returns the memory size of the given `cell`."
+                        "Accounts for the encoding of the `cell` as well as any of"
+                        "its children (if any)."
+                        ""
+                        "Cell cannot be `nil`."]
+          :examples    [{:code (.cell.size [:a :b])}]
+          :signature   [{:params [cell]}]}}
+
+  [cell]
+
+  (.shell.invoke '.cell.size
+                 cell))
+
+
 ;;;;;;;;;; Dependency management
 
 
@@ -4824,6 +4853,8 @@
                         "Account management")
                (feature ".bench  "
                         "Benchmarking")
+               (feature ".cell   "
+                        "Cell-related utilities")
                (feature ".db     "
                         "Using Etch, the fast immutable database for cells")
                (feature ".dep    "

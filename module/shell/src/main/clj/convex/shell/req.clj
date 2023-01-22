@@ -19,6 +19,7 @@
             [convex.cvm               :as $.cvm]
             [convex.shell.req.account :as $.shell.req.account]
             [convex.shell.req.bench   :as $.shell.req.bench]
+            [convex.shell.req.cell    :as $.shell.req.cell]
             [convex.shell.req.db      :as $.shell.req.db]
             [convex.shell.req.dep     :as $.shell.req.dep]
             [convex.shell.req.dev     :as $.shell.req.dev]
@@ -105,6 +106,7 @@
 
   {($.cell/* .account.switch)              $.shell.req.account/switch
    ($.cell/* .bench.trx)                   $.shell.req.bench/trx
+   ($.cell/* .cell.size)                   $.shell.req.cell/size
    ($.cell/* .db.flush)                    $.shell.req.db/flush
    ($.cell/* .db.open)                     $.shell.req.db/open
    ($.cell/* .db.path)                     $.shell.req.db/path

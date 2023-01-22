@@ -10,6 +10,7 @@ repository.
 ## {{ next-release }}
 
 - Add
+    - `.cell.size`
     - `.time.do*` 
     - `.state.do`
 
