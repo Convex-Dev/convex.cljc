@@ -2257,6 +2257,39 @@
 
 
 
+(defn .state.do
+
+  ^{:doc {:description ["Like `.state.safe` but returns only a boolean, where `false` indicates"
+                        "that an exception was thrown (and the state reverted)."
+                        ""
+                        "This is mostly used for particular situations such as benchmarking to avoid"
+                        "unnecessary work done by the Shell when forwarding exceptions to the user"
+                        "as in `.state.safe`."
+                        ""
+                        "See `.state.do*` for a convenience macro."]
+          :examples    [{:code (.state.do (fn [] (assert false)))}]
+          :signature   [{:params [f]}]}}
+
+  [f]
+
+  (.shell.invoke '.state.do
+                 f))
+
+
+
+(defmacro .state.do*
+
+  ^{:doc {:description ["Executes the given code exactly like `.state.do`."
+                        "More convenient to use."]
+          :examples    [{:code (.state.do* (def x []) (inc x))}]
+          :signature   [{:params [& form+]}]}}
+  [& form+]
+
+  `(.state.do ~(concat '(fn [])
+                       form+)))
+
+
+
 (defn .state.genesis
 
   ^{:doc {:description ["Generates and returns a genesis state."

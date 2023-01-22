@@ -4,6 +4,56 @@
 ;;;;;;;;;;
 
 
+(.t.def ..state.do
+
+
+  (.t.is (= true
+            (.state.do (fn []
+                         (def a
+                              :a)))))
+
+  (.t.is (= :a
+            a)
+         "State preserved on success")
+
+  (.t.is (= false
+            (.state.do (fn []
+                         (def a
+                              :b)
+                         (fail :FROM-TEST
+                               42)))))
+
+  (.t.is (= :a
+            a)
+         "State reverted on failure"))
+
+
+
+(.t.def ..state.do*
+
+
+  (.t.is (= true
+            (.state.do*
+              (def a
+                   :a))))
+
+  (.t.is (= :a
+            a)
+         "State preserved on success")
+
+  (.t.is (= false
+            (.state.do* 
+              (def a
+                   :b)
+              (fail :FROM-TEST
+                    42))))
+
+  (.t.is (= :a
+            a)
+         "State reverted on failure"))
+
+
+
 (.t.def ..state.genesis
 
   (.t.is (= (.state.genesis)

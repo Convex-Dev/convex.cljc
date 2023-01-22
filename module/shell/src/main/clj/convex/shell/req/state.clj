@@ -15,32 +15,61 @@
 ;;;;;;;;;;
 
 
+(defn- -invoke
+
+  [ctx f-cvx f-then]
+
+  (or (when-not ($.std/fn? f-cvx)
+        ($.cvm/exception-set ctx
+                             ($.cell/* :ARGUMENT)
+                             ($.cell/* "Can only execute a no-arg function")))
+      (f-then (-> ctx
+                  ($.cvm/fork)
+                  ($.cvm/invoke f-cvx
+                                ($.cvm/arg+*))))))
+
+
+
 (defn- -safe
 
   ;; Root implementation for [[safe]] and [[tmp]].
 
   [ctx f select-ctx-ok]
 
-  (or (when-not ($.std/fn? f)
-        ($.cvm/exception-set ctx
-                             ($.cell/* :ARGUMENT)
-                             ($.cell/* "Can only execute a no-arg function")))
-      (let [ctx-2 (-> ctx
-                      ($.cvm/fork)
-                      ($.cvm/invoke f
-                                    ($.cvm/arg+*)))
-            ex    ($.cvm/exception ctx-2)]
-        (if ex
-          ($.cvm/result-set ctx
-                            ($.cell/* [false
-                                       ~($.shell.fail/mappify-cvm-ex ex)]))
-          ($.cvm/result-set (select-ctx-ok ctx
-                                           ctx-2)
-                            ($.cell/* [true
-                                       ~($.cvm/result ctx-2)]))))))
+  (-invoke ctx
+           f
+           (fn [ctx-2]
+             (let [ex ($.cvm/exception ctx-2)]
+               (if ex
+                 ($.cvm/result-set ctx
+                                   ($.cell/* [false
+                                              ~($.shell.fail/mappify-cvm-ex ex)]))
+                 ($.cvm/result-set (select-ctx-ok ctx
+                                                  ctx-2)
+                                   ($.cell/* [true
+                                              ~($.cvm/result ctx-2)])))))))
 
 
 ;;;;;;;;;;
+
+
+(defn do-
+
+  "Requests similar to [[safe]] but returns only a boolean (`false` in case of an exception).
+  
+   Avoids some overhead when dealing with exceptions (undesirable for situations like benchmarking)."
+
+  [ctx [f]]
+
+  (-invoke ctx
+           f
+           (fn [ctx-2]
+             (if ($.cvm/exception? ctx-2)
+               ($.cvm/result-set ctx
+                                 ($.cell/* false))
+               ($.cvm/result-set ctx-2
+                                 ($.cell/* true))))))
+
 
 
 (defn genesis

@@ -11,6 +11,7 @@ repository.
 
 - Add
     - `.time.do*` 
+    - `.state.do`
 
 ---
 

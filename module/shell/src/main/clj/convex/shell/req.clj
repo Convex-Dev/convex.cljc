@@ -176,6 +176,7 @@
    ($.cell/* .log.clear)                   $.shell.req.log/clear
    ($.cell/* .log.get)                     $.shell.req.log/get
    ($.cell/* .reader.form+)                $.shell.req.reader/form+
+   ($.cell/* .state.do)                    $.shell.req.state/do-
    ($.cell/* .state.genesis)               $.shell.req.state/genesis
    ($.cell/* .state.safe)                  $.shell.req.state/safe
    ($.cell/* .state.switch)                $.shell.req.state/switch
