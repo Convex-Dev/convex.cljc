@@ -9,6 +9,8 @@ repository.
 
 ## {{ next-release }}
 
+- Add
+    - `$.std/memory-size`
 - Change
     - Remove anything related to `CVMByte` (since removed from newer Convex version)
 

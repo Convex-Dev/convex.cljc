@@ -1361,3 +1361,21 @@
 
   (instance? AVector
              x))
+
+
+;;;;;;;;;; Cell internals
+
+
+(defn memory-size
+
+  "Returns the total memory size of `cell` (cannot be `nil`).
+
+   In other words, the number of bytes accounting for the encoding of the cell
+   as well as all its children (if any)."
+
+  [^ACell cell]
+
+  (let [size (.getMemorySize cell)]
+    (if (clojure.core/zero? size)
+      (.getEncodingLength cell)
+      size)))

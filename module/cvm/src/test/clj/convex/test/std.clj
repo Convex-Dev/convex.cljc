@@ -974,3 +974,15 @@
 
     (T/is (= s
              ($.std/name ($.cell/* :test))))))
+
+
+;;;;;;;;;; Cell internals
+
+
+(T/deftest memory-size
+
+  (T/is (= 2
+           ($.std/memory-size ($.cell/* 1))))
+
+  (T/is (clojure.core/< ($.std/memory-size ($.cell/* :a))
+                        ($.std/memory-size ($.cell/* [:a])))))
