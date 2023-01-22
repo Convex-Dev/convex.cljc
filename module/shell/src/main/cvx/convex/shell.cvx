@@ -4818,12 +4818,12 @@
                              (?.color " <- ")
                              reason)))
                code->reason))
-    (when-not (empty? example+))
+    (when-not (empty? example+)
       (?.title (.str.pluralize (count example+)
                                "Example"))
       (.docoll (fn [example]
                  (?.txt (:code example)))
-               example+)))
+               example+))))
 
 
 
