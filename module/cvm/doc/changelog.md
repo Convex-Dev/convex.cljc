@@ -10,6 +10,7 @@ repository.
 ## {{ next-release }}
 
 - Add
+    - `$.cvm/transact`
     - `$.std/memory-size`
     - `$.std/softness`
 - Change

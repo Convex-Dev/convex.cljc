@@ -65,3 +65,29 @@
                 ($.cvm/exception-clear)
                 ($.cvm/exception)
                 (nil?))))))
+
+
+;;;;;;;;;;
+
+
+(T/deftest transact
+
+  (let [ctx (-> ($.cvm/ctx)
+                ($.cvm/fork-to ($.cell/address 0))
+                ($.cvm/transact ($.cell/invoke $.cvm/genesis-user
+                                               1
+                                               ($.cell/* (def x
+                                                              42)))))]
+
+    (T/is (= ($.cell/* 42)
+             ($.cvm/result ctx))
+          "Success")
+
+    (T/is (= ($.cell/address 0)
+             ($.cvm/address ctx))
+          "Restored input context after applying the transaction")
+
+    (T/is (= ($.cell/* {x 42})
+             ($.cvm/env ctx
+                        $.cvm/genesis-user))
+          "Transaction applied to target account")))

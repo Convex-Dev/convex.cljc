@@ -46,7 +46,8 @@
                              AOp
                              Context)
            (convex.core.lang.impl AExceptional
-                                  ErrorValue))
+                                  ErrorValue)
+           (convex.core.transactions ATransaction))
   (:refer-clojure :exclude [compile
                             def
                             eval
@@ -835,3 +836,41 @@
         ctx-2
         (exception-clear ctx-2))
       ctx-2)))
+
+
+;;;;;;;;;; Transactions
+
+
+(defn transact
+
+  "Executes the given transaction.
+
+   This is exactly what a peer does when executing a transation from a block, after
+   validating its signature.
+
+   Similar to [[eval]] but:
+
+   - Temporarily switches to the account of the transaction
+   - Executes the code in that account
+   - Takes care of all the juice and memory accounting for that account
+
+   For creating transactions, see:
+
+   - [[convex.cell/call]]
+   - [[convex.cell/invoke]]
+   - [[convex.cell/transfer]]
+
+   Returns a new `ctx` with the [[result]] or [[exception]] attached."
+
+  [^Context ctx ^ATransaction trx]
+
+  (let [ctx-2 (-> ctx
+                  (state)
+                  (.applyTransaction trx))
+        ctx-3 (state-set ctx
+                         (state ctx-2))]
+    (if (exception? ctx-2)
+      (exception-set ctx-3
+                     (exception ctx-2))
+      (result-set ctx-3
+                  (result ctx-2)))))
