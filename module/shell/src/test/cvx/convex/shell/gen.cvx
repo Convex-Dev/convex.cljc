@@ -254,8 +254,10 @@
          "Any length, not a value gen")
 
   (.t.is (.t.ex :SHELL.GEN
-                (.gen (.gen.blob-map .gen.long
-                                     .gen.boolean)))
+                (.gen (.gen.such-that (fn [x]
+                                        (not (empty? x)))
+                                      (.gen.blob-map .gen.long
+                                                     .gen.boolean))))
          "Any length, non-blob keys")
 
   (.t.is (countable? blob-map?

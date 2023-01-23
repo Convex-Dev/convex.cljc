@@ -4520,6 +4520,67 @@
                  unix-timestamp))
 
 
+;;;;;;;;;; Transactions
+
+
+(defn .trx
+
+  ^{:doc           {:description ["Creates a transaction that can be executed with `.trx.exec`."
+                                  ""
+                                  "Requires the address for which the transaction is meant, its sequence ID, as well"
+                                  "as the code to run."
+                                  ""
+                                  "Sequence ID is optional as it can be deduced from the account of that address."
+                                  "It is an ever incrementing number recorded on-chain and embedded in transactions"
+                                  "to avoid replay attacks."
+                                  ""
+                                  "See `(:sequence (account *address*))`."]
+                    :examples    [{:code (.trx #11 '(def cool? true))}
+                                  {:code (.trx #11 3 '(def cool? true))}]
+                    :signature   [{:params [address code]}
+                                  {:params [address sequence-id code]}]}
+    :shell.section ["Creating and executing transactions like a peer would."
+                    "Transactions a special kind of Convex data not directly available to the user"
+                    "on-chain."]}
+
+
+  ([address code]
+
+    (.trx address
+          nil
+          code))
+
+
+  ([address sequence-id code]
+
+   (.shell.invoke '.trx
+                  address
+                  (or sequence-id
+                      (inc (:sequence (account address))))
+                  code)))
+
+
+
+(defn .trx.exec
+
+  ^{:doc {:description ["Applies a transaction (see `.trx` for creating them)."
+                        ""
+                        "This is effectively what a peer does when executing a transaction from"
+                        "a consensus block, after validating its signature."
+                        ""
+                        "Will fail with an exception if:"
+                        ""
+                        "  - Target address is an actor (they cannot transact)"
+                        "  - Sequence ID is not the current sequence ID for that address + 1"]
+          :examples    [{:code (.trx.exec (.trx .account.genesis '(def cool? true)))}]
+          :signature   [{:params [trx]}]}}
+
+  [trx]
+
+  (.shell.invoke '.trx.exec
+                 trx))
+
+
 ;;;;;;;;;; Try-catch like helpers
 
 
@@ -4902,6 +4963,8 @@
                         "Unit testing library")
                (feature ".term   "
                         "Terminal ANSI escape codes (e.g. colored output)")
+               (feature ".trx    "
+                        "Executing transactions like a peer would")
                (feature ".try    "
                          "Error handling abstractions built over `.state.safe`.")
                (feature ".time   "

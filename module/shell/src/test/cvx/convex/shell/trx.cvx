@@ -1,0 +1,65 @@
+{}
+
+
+;;;;;;;;;;
+
+
+(.t.def ..trx
+
+  (.t.is (not (nil? (.trx #42
+                          100
+                          'some-code))))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.trx :fail
+                      100
+                      'some-code))
+         "Not an address")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.trx #42
+                      :fail
+                      'some-code))
+         "Not a sequence ID"))
+
+
+
+(.t.def ..trx.exec
+
+  (.t.is (= 0
+            (.trx.exec (.trx .account.genesis
+                             (inc (:sequence (account .account.genesis)))
+                             '(def from-test
+                                   0))))
+         "With sequence ID")
+
+  (.t.is (= 0
+            .account.genesis/from-test))
+
+  (.t.is (not (= .account.genesis
+                 *address*))
+         "Got the old execution context back")
+
+  (.t.is (= 1
+            (.trx.exec (.trx .account.genesis
+                             '(def from-test
+                                   1))))
+         "Without sequence ID")
+
+  (.t.is (= 1
+            .account.genesis/from-test))
+
+  (.t.is (.t.ex :SEQUENCE
+                (.trx.exec (.trx .account.genesis
+                                 123456789123456789
+                                 :fail)))
+         "Bad sequence ID")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.trx.exec (.trx .account.core
+                                 :fail)))
+         "Cannot transact over an actor")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.trx.exec 42))
+         "Not a transaction"))

@@ -34,6 +34,7 @@
             [convex.shell.req.stream  :as $.shell.req.stream]
             [convex.shell.req.sys     :as $.shell.req.sys]
             [convex.shell.req.time    :as $.shell.req.time]
+            [convex.shell.req.trx     :as $.shell.req.trx]
             [convex.std               :as $.std]))
 
 
@@ -210,7 +211,9 @@
    ($.cell/* .time.nano)                   $.shell.req.time/nano
    ($.cell/* .time.sleep)                  $.shell.req.time/sleep
    ($.cell/* .time.unix)                   $.shell.req.time/unix
-   ($.cell/* .time.unix->iso)              $.shell.req.time/unix->iso})
+   ($.cell/* .time.unix->iso)              $.shell.req.time/unix->iso
+   ($.cell/* .trx)                         $.shell.req.trx/trx
+   ($.cell/* .trx.exec)                    $.shell.req.trx/exec})
 
 
 ;;;;;;;;;;
