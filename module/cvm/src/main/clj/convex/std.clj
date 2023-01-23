@@ -41,7 +41,8 @@
                                   CVMDouble
                                   CVMLong)
            (convex.core.lang IFn
-                             RT))
+                             RT)
+           (convex.core.transactions ATransaction))
   (:refer-clojure :exclude [+
                             -
                             *
@@ -1339,6 +1340,17 @@
   [x]
 
   (instance? Syntax
+             x))
+
+
+
+(defn transaction?
+
+  "Is `x` a transaction?"
+
+  [x]
+
+  (instance? ATransaction
              x))
 
 
