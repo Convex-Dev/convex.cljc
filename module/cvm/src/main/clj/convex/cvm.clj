@@ -184,6 +184,19 @@
 
 
 
+(defn actor?
+
+  "Returns `true` if the given address point to an actor in `ctx`.
+  
+   An actor is an account without a public key."
+
+  [ctx address]
+
+  (.isActor (account ctx
+                     address)))
+
+
+
 (defn address
   
   "Returns the executing address of the given `ctx`."

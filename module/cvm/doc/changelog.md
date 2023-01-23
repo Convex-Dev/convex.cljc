@@ -10,6 +10,7 @@ repository.
 ## {{ next-release }}
 
 - Add
+    - `$.cvm/actor?`
     - `$.cvm/transact`
     - `$.std/memory-size`
     - `$.std/softness`

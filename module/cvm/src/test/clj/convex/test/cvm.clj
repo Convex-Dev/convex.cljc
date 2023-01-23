@@ -7,6 +7,18 @@
             [convex.cvm   :as $.cvm]))
 
 
+;;;;;;;;;;
+
+
+(T/deftest actor?
+
+  (T/is (true? ($.cvm/actor? ($.cvm/ctx)
+                             ($.cell/address 0))))
+
+  (T/is (false? ($.cvm/actor? ($.cvm/ctx)
+                              $.cvm/genesis-user))))
+
+
 ;;;;;;;;;; From expansion to execution
 
 
