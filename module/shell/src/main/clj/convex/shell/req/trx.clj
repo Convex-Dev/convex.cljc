@@ -3,6 +3,7 @@
   "Requests relating to creating and applying transactions."
 
   (:import (convex.core.transactions ATransaction))
+  (:refer-clojure :exclude [sequence])
   (:require [convex.clj  :as $.clj]
             [convex.cell :as $.cell]
             [convex.cvm  :as $.cvm]
@@ -173,3 +174,47 @@
                                                ($.clj/long sequence-id)
                                                addr-receiver
                                                amount-2))))))
+
+
+;;;;;;;;;; Transaction parameters
+
+
+(defn origin
+
+  "Request returning the origin of the given `trx`."
+
+  [ctx [^ATransaction trx]]
+
+  (or (-ensure-trx ctx
+                   trx)
+      ($.cvm/result-set ctx
+                        (.getOrigin trx))))
+
+
+
+(defn sequence
+
+  "Request returning the sequence ID of the given `trx`."
+
+  [ctx [^ATransaction trx]]
+
+  (or (-ensure-trx ctx
+                   trx)
+      ($.cvm/result-set ctx
+                        ($.cell/long (.getSequence trx)))))
+
+
+
+(defn with-sequence
+
+  "Request for returning `trx` as a new transaction with an updated sequence ID."
+
+  [ctx [^ATransaction trx sequence-id]]
+
+  (or (-ensure-trx ctx
+                   trx)
+      (-ensure-sequence-id ctx
+                           sequence-id)
+      ($.cvm/result-set ctx
+                        (.withSequence trx
+                                       ($.clj/long sequence-id)))))

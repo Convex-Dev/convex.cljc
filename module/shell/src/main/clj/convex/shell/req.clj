@@ -217,7 +217,9 @@
    ($.cell/* .trx.new.call)                $.shell.req.trx/new-call
    ($.cell/* .trx.new.invoke)              $.shell.req.trx/new-invoke
    ($.cell/* .trx.new.transfer)            $.shell.req.trx/new-transfer
-   })
+   ($.cell/* .trx.origin)                  $.shell.req.trx/origin
+   ($.cell/* .trx.sequence)                $.shell.req.trx/sequence
+   ($.cell/* .trx.with.sequence)           $.shell.req.trx/with-sequence})
 
 
 ;;;;;;;;;;

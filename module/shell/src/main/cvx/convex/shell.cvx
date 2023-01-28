@@ -4698,6 +4698,46 @@
 
 
 
+(defn .trx.origin
+
+  ^{:doc {:description ["Returns the origin of the given `trx` (address issuing this transaction)."]
+          :examples    [{:code (.trx.origin (.trx.new.invoke #11 '(def cool? true)))}]
+          :signature   [{:params [trx]}]}}
+
+  [trx]
+
+  (.shell.invoke '.trx.origin
+                 trx))
+
+
+
+(defn .trx.sequence
+
+  ^{:doc {:description ["Returns the sequence ID of the given `trx`."
+                        "See `.trx` about sequence IDs."]
+          :examples    [{:code (.trx.sequence (.trx.new.invoke #11 '(def cool? true)))}]
+          :signature   [{:params [trx]}]}}
+
+  [trx]
+
+  (.shell.invoke '.trx.sequence
+                 trx))
+
+
+
+(defn .trx.with.sequence
+
+  ^{:doc {:description ["Returns a new transaction which `trx` with the updated `sequence-id`."
+                        "See `.trx` about sequence IDs."]
+          :examples    [{:code (.trx.with.sequence (.trx.new.invoke #11 '(def cool? true)) 3)}]
+          :signature   [{:params [trx sequence-id]}]}}
+
+  [trx sequence-id]
+
+  (.shell.invoke '.trx.with.sequence
+                 trx
+                 sequence-id))
+
 
 ;;;;;;;;;; Try-catch like helpers
 

@@ -192,8 +192,9 @@
 
   [ctx address]
 
-  (.isActor (account ctx
-                     address)))
+  (some-> (account ctx
+                   address)
+          (.isActor)))
 
 
 
