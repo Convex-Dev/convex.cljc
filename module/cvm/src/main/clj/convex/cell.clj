@@ -191,23 +191,23 @@
   "Creates a transaction for invoking a callable function."
 
 
-  (^Call [address sequence address-callable function-name args]
+  (^Call [address sequence address-callable function-name arg+]
 
   (Call/create address
                sequence
                address-callable
                function-name
-               args))
+               arg+))
 
 
-  (^Call [address sequence address-callable offer function-name args]
+  (^Call [address sequence address-callable offer function-name arg+]
 
   (Call/create address
                sequence
                address-callable
                offer
                function-name
-               args)))
+               arg+)))
 
 
 

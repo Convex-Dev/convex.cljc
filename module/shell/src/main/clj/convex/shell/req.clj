@@ -213,7 +213,11 @@
    ($.cell/* .time.unix)                   $.shell.req.time/unix
    ($.cell/* .time.unix->iso)              $.shell.req.time/unix->iso
    ($.cell/* .trx)                         $.shell.req.trx/trx
-   ($.cell/* .trx.exec)                    $.shell.req.trx/exec})
+   ($.cell/* .trx.noop)                    $.shell.req.trx/trx-noop
+   ($.cell/* .trx.new.call)                $.shell.req.trx/new-call
+   ($.cell/* .trx.new.invoke)              $.shell.req.trx/new-invoke
+   ($.cell/* .trx.new.transfer)            $.shell.req.trx/new-transfer
+   })
 
 
 ;;;;;;;;;;

@@ -3704,8 +3704,9 @@
                                               ;; Removing lines relating to calling the test.
                                               (slice trace
                                                      0
-                                                     (- (count trace)
-                                                        2)))
+                                                     (max 0
+                                                          (- (count trace)
+                                                             2))))
                             :status    :exception}))
         test-result-2  (assoc test-result
                               :name
@@ -4525,60 +4526,177 @@
 
 (defn .trx
 
-  ^{:doc           {:description ["Creates a transaction that can be executed with `.trx.exec`."
+  ^{:doc           {:description ["Applies a transaction."
                                   ""
-                                  "Requires the address for which the transaction is meant, its sequence ID, as well"
-                                  "as the code to run."
+                                  "This is effectively what a peer does when executing a transaction from"
+                                  "a consensus block, after validating its signature."
                                   ""
-                                  "Sequence ID is optional as it can be deduced from the account of that address."
-                                  "It is an ever incrementing number recorded on-chain and embedded in transactions"
+                                  "Will fail with an exception if:"
+                                  ""
+                                  "  - Target address is an actor (they cannot transact)"
+                                  "  - Sequence ID is not the current sequence ID for that address + 1"
+                                  ""
+                                  "Sequence ID is an on-chain number attached to an account. It is incremented on"
+                                  "every transaction. A valid transaction must embedded the current sequence ID + 1"
                                   "to avoid replay attacks."
                                   ""
-                                  "See `(:sequence (account *address*))`."]
-                    :examples    [{:code (.trx #11 '(def cool? true))}
-                                  {:code (.trx #11 3 '(def cool? true))}]
-                    :signature   [{:params [address code]}
-                                  {:params [address sequence-id code]}]}
+                                  "If not provided when creating a new transaction, will be deduced from the current"
+                                  "state. Obviously, this only really works if the transaction is meant to be executed"
+                                  "against the current state as opposed to a network."
+                                  ""
+                                  "E.g.`(:sequence (account *address*))`."]
+                    :examples    [{:code (.trx (.trx.new.invoke .account.genesis '(def cool? true)))}]
+                    :signature   [{:params [trx]}]}
     :shell.section ["Creating and executing transactions like a peer would."
                     "Transactions a special kind of Convex data not directly available to the user"
                     "on-chain."]}
 
+  [trx]
 
-  ([address code]
-
-    (.trx address
-          nil
-          code))
+  (.shell.invoke '.trx
+                 trx))
 
 
-  ([address sequence-id code]
 
-   (.shell.invoke '.trx
-                  address
-                  (or sequence-id
-                      (inc (:sequence (account address))))
+(defn .trx.new.call
+
+  ^{:doc  {:description ["Creates a transaction for calling an actor that can be executed with `.trx`."
+                         ""
+                         "Requires:"
+                         ""
+                         "  - Address of the account issuing the transaction (origin)"
+                         "  - Address of the actor being called"
+                         "  - Symbol of the function being called"
+                         "  - A vector of arguments or `nil`"
+                         ""
+                         "A map of options may be provided:"
+                         ""
+                         "  :offer"
+                         "    Amount of Convex Coins for paying the actor (defaults to 0)"
+                         ""
+                         "  :sequence"
+                         "    See `.trx` about the sequence ID"]
+           :examples    [{:code (.trx.new.call #11 #42 'some-fn [1 2 3])}
+                         {:code (.trx.new.call #11 #42 'some-fn [1 2 3] {:offer 10000, :sequence 100})}]
+           :signature   [{:params [address-origin address-callable function-name arg+]}
+                         {:params [address-origin address-callable function-name arg+ option+]}]}}
+
+
+  ([address-origin address-callable function-name arg+]
+
+   (.trx.new.call address-origin
+                  address-callable
+                  function-name
+                  arg+
+                  nil))
+
+
+  ([address-origin address-callable function-name arg+ option+]
+
+   (.shell.invoke '.trx.new.call
+                  address-origin
+                  (or (:sequence option+)
+                      (inc (:sequence (account address-origin))))
+                  address-callable
+                  (or (:offer option+)
+                      0)
+                  function-name
+                  arg+)))
+
+
+
+(defn .trx.new.invoke
+
+  ^{:doc  {:description ["Creates a transaction for arbitrary code that can be executed with `.trx`."
+                         ""
+                         "Requires:"
+                         ""
+                         "  - Address issuing the transaction (origin)"
+                         ""
+                         "A map of options may be provided:"
+                         ""
+                         "  :sequence"
+                         "    See `.trx` about the sequence ID"]
+           :examples    [{:code (.trx.new.invoke #11 '(def cool? true))}
+                         {:code (.trx.new.invoke #11 '(def cool? true) {:sequence 3})}]
+           :signature   [{:params [address code]}
+                         {:params [address code option+]}]}}
+
+
+  ([address-origin code]
+
+    (.trx.new.invoke address-origin
+                     code
+                     nil))
+
+
+  ([address-origin code option+]
+
+   (.shell.invoke '.trx.new.invoke
+                  address-origin
+                  (or (:sequence option+)
+                      (inc (:sequence (account address-origin))))
                   code)))
 
 
 
-(defn .trx.exec
+(defn .trx.new.transfer
 
-  ^{:doc {:description ["Applies a transaction (see `.trx` for creating them)."
+  ^{:doc {:description ["Creates a transaction for a transfer of Convex Coins that can be executed"
+                        "with `.trx`."
                         ""
-                        "This is effectively what a peer does when executing a transaction from"
-                        "a consensus block, after validating its signature."
+                        "Requires:"
                         ""
-                        "Will fail with an exception if:"
+                        "  - Address of the sender (origin)"
+                        "  - Address of the receiver"
+                        "  - Amount of Convex Coins to transfer"
                         ""
-                        "  - Target address is an actor (they cannot transact)"
-                        "  - Sequence ID is not the current sequence ID for that address + 1"]
-          :examples    [{:code (.trx.exec (.trx .account.genesis '(def cool? true)))}]
+                        "A map of options may be provided:"
+                        ""
+                        "  :sequence"
+                        "    See `.trx` about the sequence ID"]
+          :examples    [{:code (.trx.new.transfer #11 #42 100000)}
+                        {:code (.trx.new.transfer #11 #42 100000 {:sequence 3})}]
+          :signature   [{:params [address-sender address-receiver amount]}
+                        {:params [address-sender address-receiver amount option+]}]}}
+
+
+  ([address-sender address-receiver amount]
+
+   (.trx.new.transfer address-sender
+                      address-receiver
+                      amount
+                      nil))
+
+
+  ([address-sender address-receiver amount option+]
+
+   (.shell.invoke '.trx.new.transfer
+                  address-sender
+                  (or (:sequence option+)
+                      (inc (:sequence (account address-sender))))
+                  address-receiver
+                  amount)))
+
+
+
+(defn .trx.noop
+
+  ^{:doc {:description ["Like `.trx` but eventually does not execute the given transaction."
+                        ""
+                        "Meant for particular situations such as benchmarking, to emulate the overhead"
+                        "associated with `.trx` without the cost of execution."
+                        ""
+                        "For advanced users only."]
+          :examples    [{:code (.trx.noop (.trx.new.invoke .account.genesis '(def cool? true)))}]
           :signature   [{:params [trx]}]}}
 
   [trx]
 
-  (.shell.invoke '.trx.exec
+  (.shell.invoke '.trx.noop
                  trx))
+
+
 
 
 ;;;;;;;;;; Try-catch like helpers

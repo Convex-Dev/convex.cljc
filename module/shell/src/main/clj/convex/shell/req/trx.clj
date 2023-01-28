@@ -9,14 +9,38 @@
             [convex.std  :as $.std]))
 
 
-;;;;;;;;;;
+(set! *warn-on-reflection*
+      true)
 
 
-(defn exec
+;;;;;;;;;; Private helpers
 
-  "Request for applying an unsigned transaction."
 
-  [ctx [^ATransaction trx]]
+(defn- -ensure-origin
+
+  [ctx origin]
+
+  (when-not ($.std/address? origin)
+    ($.cvm/exception-set ctx
+                         ($.cell/code-std* :ARGUMENT)
+                         ($.cell/* "Origin of a transaction must be an address"))))
+
+
+
+(defn- -ensure-sequence-id
+
+  [ctx sequence-id]
+
+  (when-not ($.std/long? sequence-id)
+    ($.cvm/exception-set ctx
+                         ($.cell/code-std* :ARGUMENT)
+                         ($.cell/* "Sequence ID must be an incrementing Long"))))
+
+
+
+(defn- -ensure-trx
+
+  [ctx ^ATransaction trx]
 
   (or (when-not ($.std/transaction? trx)
         ($.cvm/exception-set ctx
@@ -26,27 +50,126 @@
                           (.getOrigin trx))
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
-                             ($.cell/* "Cannot transact for an actor")))
+                             ($.cell/* "Cannot transact for an actor")))))
+
+
+;;;;;;;;;; Requests for applying transactions
+
+
+(defn trx
+
+  "Request for applying an unsigned transaction."
+
+  [ctx [trx]]
+
+  (or (-ensure-trx ctx
+                   trx)
       ($.cvm/transact ctx
                       trx)))
 
 
 
-(defn trx
+(defn trx-noop
 
-  "Request for creating a transaction."
+  "Request with the same overhead as [[trx]] but does not apply the transaction.
+   Probably only useful for benchmarking."
 
-  [ctx [address sequence-id code]]
+  [ctx [trx]]
 
-  (or (when-not ($.std/address? address)
-        ($.cvm/exception-set ctx
-                             ($.cell/code-std* :ARGUMENT)
-                             ($.cell/* "A transaction requires an address")))
-      (when-not ($.std/long? sequence-id)
-        ($.cvm/exception-set ctx
-                             ($.cell/code-std* :ARGUMENT)
-                             ($.cell/* "A transaction needs a sequence ID for the issuing account")))
+  (or (-ensure-trx ctx
+                   trx)
       ($.cvm/result-set ctx
-                        ($.cell/invoke address
+                        nil)))
+
+
+;;;;;;;;;; Requests for creating transactions
+
+
+(defn new-call
+
+  "Request for creating a new call transaction."
+
+  [ctx [address-origin sequence-id address-callable offer function arg+]]
+
+  (or (-ensure-origin ctx
+                      address-origin)
+      (-ensure-sequence-id ctx
+                           sequence-id)
+      (when-not ($.std/address? address-callable)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Callable target must be an address")))
+      (when-not ($.std/long? offer)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Offer must be a Long")))
+      (let [offer-2 ($.clj/long offer)]
+        (or (when (neg? offer-2)
+              ($.cvm/exception-set ctx
+                                   ($.cell/code-std* :ARGUMENT)
+                                   ($.cell/* "Offer must be >= 0")))
+            (when-not ($.std/symbol? function)
+              ($.cvm/exception-set ctx
+                                   ($.cell/code-std* :ARGUMENT)
+                                   ($.cell/* "Function to call must be a symbol")))
+            (when-not (or (nil? arg+)
+                          ($.std/vector? arg+))
+              ($.cvm/exception-set ctx
+                                   ($.cell/code-std* :ARGUMENT)
+                                   ($.cell/* "Arguments must be Nil or in a Vector")))
+            ($.cvm/result-set ctx
+                              ($.cell/call address-origin
+                                           ($.clj/long sequence-id)
+                                           address-callable
+                                           offer-2
+                                           function
+                                           arg+))))))
+
+
+
+(defn new-invoke
+
+  "Request for creating a new invoke transaction."
+
+  [ctx [address-origin sequence-id code]]
+
+  (or (-ensure-origin ctx
+                      address-origin)
+      (-ensure-sequence-id ctx
+                           sequence-id)
+      ($.cvm/result-set ctx
+                        ($.cell/invoke address-origin
                                        ($.clj/long sequence-id)
                                        code))))
+
+
+
+(defn new-transfer
+
+  "Request for creating a new transfer transaction."
+
+  [ctx [addr-sender sequence-id addr-receiver amount]]
+
+  (or (-ensure-origin ctx
+                      addr-sender)
+      (-ensure-sequence-id ctx
+                           sequence-id)
+      (when-not ($.std/address? addr-receiver)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Recipient must be an address")))
+      (when-not ($.std/long? amount)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Amount to send must be a Long")))
+      (let [amount-2 ($.clj/long amount)]
+        (or (when-not (>= amount-2
+                          0)
+              ($.cvm/exception-set ctx
+                                   ($.cell/code-std* :ARGUMENT)
+                                   ($.cell/* "Amount to transfer must be >= 0")))
+            ($.cvm/result-set ctx
+                              ($.cell/transfer addr-sender
+                                               ($.clj/long sequence-id)
+                                               addr-receiver
+                                               amount-2))))))

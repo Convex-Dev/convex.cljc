@@ -6,31 +6,130 @@
 
 (.t.def ..trx
 
-  (.t.is (not (nil? (.trx #42
-                          100
-                          'some-code))))
+  (.t.is (.t.ex :ARGUMENT
+                (.trx (.trx.new.invoke .account.core
+                                       :fail)))
+         "Cannot transact over an actor")
 
   (.t.is (.t.ex :ARGUMENT
-                (.trx :fail
-                      100
-                      'some-code))
+                (.trx 42))
+         "Not a transaction"))
+
+
+
+(.t.def ..trx.new.call
+
+  (.t.is (.t.ex :ARGUMENT
+                (.trx.new.call :fail
+                               #1
+                               'fn
+                               nil
+                               {:sequence 0}))
+         "Not an origin")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.trx.new.call #0
+                               :fail
+                               'fn
+                               nil))
+         "Not an callable address")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.trx.new.call #0
+                               #1
+                               :fail
+                               nil))
+         "Not a function name")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.trx.new.call #0
+                               #1
+                               'fn
+                               42))
+         "Not args")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.trx.new.call #0
+                               #1
+                               'fn
+                               nil
+                               {:offer :fail}))
+         "Not an offer")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.trx.new.call #0
+                               #1
+                               'fn
+                               nil
+                               {:offer -1}))
+         "Negative offer")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.trx.new.call #0
+                               #1
+                               'fn
+                               nil
+                               {:sequence :fail}))
+         "Not a sequence ID")
+
+  (def a
+       (deploy '(do
+                  (defn f
+                    ^:callable?
+                    [n]
+                    [*offer*
+                     (inc n)]))))
+
+  (.t.is (= [0
+             43]
+            (.trx (.trx.new.call .account.genesis
+                                 a
+                                 'f
+                                 [42])))
+         "Default offer")
+
+  (.t.is (= [1000
+             43]
+            (.trx (.trx.new.call .account.genesis
+                                 a
+                                 'f
+                                 [42]
+                                 {:offer 1000})))
+         "Given offer")
+
+  (.t.is (.t.ex :SEQUENCE
+                (.trx (.trx.new.call .account.genesis
+                                     a
+                                     'f
+                                     [42]
+                                     {:sequence -1})))
+                "Wrong sequence ID"))
+  
+
+
+(.t.def ..trx.new.invoke
+
+  (.t.is (not (nil? (.trx.new.invoke #42
+                                     'some-code
+                                     {:sequence 100}))))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.trx.new.invoke :fail
+                                 'some-code
+                                 {:sequence 100}))
          "Not an address")
 
   (.t.is (.t.ex :ARGUMENT
-                (.trx #42
-                      :fail
-                      'some-code))
-         "Not a sequence ID"))
-
-
-
-(.t.def ..trx.exec
+                (.trx.new.invoke #42
+                                 'some-code
+                                 {:sequence :fail}))
+         "Not a sequence ID")
 
   (.t.is (= 0
-            (.trx.exec (.trx .account.genesis
-                             (inc (:sequence (account .account.genesis)))
-                             '(def from-test
-                                   0))))
+            (.trx (.trx.new.invoke .account.genesis
+                                   '(def from-test
+                                         0)
+                                   {:sequence (inc (:sequence (account .account.genesis)))})))
          "With sequence ID")
 
   (.t.is (= 0
@@ -41,25 +140,93 @@
          "Got the old execution context back")
 
   (.t.is (= 1
-            (.trx.exec (.trx .account.genesis
-                             '(def from-test
-                                   1))))
+            (.trx (.trx.new.invoke .account.genesis
+                                   '(def from-test
+                                         1))))
          "Without sequence ID")
 
   (.t.is (= 1
             .account.genesis/from-test))
 
   (.t.is (.t.ex :SEQUENCE
-                (.trx.exec (.trx .account.genesis
-                                 123456789123456789
-                                 :fail)))
-         "Bad sequence ID")
+                (.trx (.trx.new.invoke .account.genesis
+                                       123456789123456789
+                                       {:sequence -1})))
+         "Bad sequence ID"))
+
+
+
+(.t.def ..trx.new.transfer
+
+  (.t.is (not (nil? (.trx.new.transfer #42
+                                       #100
+                                       4200
+                                       {:sequence 3}))))
 
   (.t.is (.t.ex :ARGUMENT
-                (.trx.exec (.trx .account.core
-                                 :fail)))
-         "Cannot transact over an actor")
+                (.trx.new.transfer :fail
+                                   #100
+                                   4200
+                                   {:sequence 3}))
+         "Not an sender")
 
   (.t.is (.t.ex :ARGUMENT
-                (.trx.exec 42))
+                (.trx.new.transfer #42
+                                   #100
+                                   4200
+                                   {:sequence :fail}))
+         "Not a sequence ID")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.trx.new.transfer #42
+                                   :fail
+                                   4200))
+         "Not an sender")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.trx.new.transfer #42
+                                   #100
+                                   :fail))
+         "Not an amount")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.trx.new.transfer #42
+                                   #100
+                                   -1))
+         "Negative amount")
+
+  (def a
+       (deploy `(set-key ~.account.0-key)))
+
+  (.t.is (= 42
+            (.trx (.trx.new.transfer .account.genesis
+                                     a
+                                     42)))
+         "Execute transferred")
+
+  (.t.is (= 42
+            (balance a))
+         "Funds properly transfered")
+
+  (.t.is (.t.ex :SEQUENCE
+                (.trx (.trx.new.transfer .account.genesis
+                                         .account.genesis
+                                         0
+                                         {:sequence -1})))
+         "Bad sequence ID"))
+
+
+
+(.t.def ..trx.noop
+
+  (.t.is (nil? (.trx.noop (.trx.new.invoke .account.genesis
+                                           '(def from-test
+                                                 false)))))
+
+  (.t.is (not (contains-key? (:environment (account .account.genesis))
+                             'from-test))
+         "Transaction was not executed")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.trx.noop 42))
          "Not a transaction"))
