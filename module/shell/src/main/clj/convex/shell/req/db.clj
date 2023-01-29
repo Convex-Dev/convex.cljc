@@ -167,6 +167,18 @@
 
 
 
+(defn size
+
+  "Request for returning the precise data size of the Etch instance."
+
+  [ctx _arg+]
+
+  (-db ctx
+       (fn []
+         ($.cell/long ($.db/size)))))
+
+
+
 (defn write
 
   "Request for writing a cell."

@@ -39,6 +39,10 @@
          "Root write fails without an instance")
 
   (.t.is (.t.ex :DB
+                (.db.size))
+         "Getting the instance size fails without an instance")
+
+  (.t.is (.t.ex :DB
                 (.db.write cell-1))
          "Write fails without an instance")
 
@@ -59,12 +63,23 @@
                 (.db.open "/tmp/etch"))
          "Cannot open another path")
 
+  (def size-init
+       (.db.size))
+
+  (.t.is (< 0
+            size-init)
+         "A bit of data already present in an \"empty\" instance")
+
   (.t.is (nil? (.db.read hash-1))
          "Nothing written yet")
 
   (.t.is (= hash-1
             (.db.write cell-1))
          "Write returns the hash")
+
+  (.t.is (< size-init
+            (.db.size))
+         "Size increase after writing a cell")
 
   (.t.is (= cell-1
             (.db.read hash-1))

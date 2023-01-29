@@ -115,6 +115,7 @@
    ($.cell/* .db.read)                     $.shell.req.db/read
    ($.cell/* .db.root.read)                $.shell.req.db/root-read
    ($.cell/* .db.root.write)               $.shell.req.db/root-write
+   ($.cell/* .db.size)                     $.shell.req.db/size
    ($.cell/* .db.write)                    $.shell.req.db/write
    ($.cell/* .dep.deploy)                  $.shell.req.dep/deploy
    ($.cell/* .dep.fetch)                   $.shell.req.dep/fetch

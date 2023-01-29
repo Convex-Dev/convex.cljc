@@ -683,6 +683,24 @@
 
 
 
+(defn .db.size
+
+  ^{:doc {:description ["Returns the full size of the current Etch instance in bytes."
+                        ""
+                        "Etch always allocates extra room in its instance file whereas"
+                        "this value reflects the actual size of the data persisted."
+                        ""
+                        "E.g. Writing data will increase the data size but not always the"
+                        "     filesize."]
+          :examples    [{:code (.db.size)}]
+          :signature   [{:params []}]}}
+
+  []
+
+  (.shell.invoke '.db.size))
+
+
+
 (defn .db.write
 
   ^{:doc {:description ["Writes the given `cell` to the current Etch instance."
