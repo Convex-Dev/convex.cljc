@@ -8,6 +8,27 @@
 
   ^:slow?
 
-  (let [result (.bench.eval '(+ 2 2))]
-    (.t.is (double? (:mean result)))
-    (.t.is (double? (:stddev result)))))
+  (def result
+       (.bench.eval '(+ 2 2)))
+
+  (.t.is (double? (:mean result)))
+
+  (.t.is (double? (:stddev result))))
+
+
+
+(.t.def ..bench.trx
+
+  ^:slow?
+
+  (def receiver
+       (create-account .account.0-key))
+
+  (def result
+       (.bench.eval (.trx.new.transfer *address*
+                                       receiver
+                                       1000)))
+
+  (.t.is (double? (:mean result)))
+
+  (.t.is (double? (:stddev result))))

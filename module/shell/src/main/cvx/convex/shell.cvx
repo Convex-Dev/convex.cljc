@@ -141,7 +141,7 @@
                         "Executed in a query a high number of times."
                         ""
                         "Highly experimental and subject to change, probably useful for CVM developers only."
-                        "Depending on the given transaction, takes between one and several minutes to complete."]
+                        "Depending on the given code, usually takes between one and several minutes to complete."]
           :examples    [{:code (.bench.eval '(+ 2 2))}
                         {:code (.bench.eval (compile '(+ 2 2)))}]
           :signature   [{:params [code]}]}}
@@ -151,6 +151,23 @@
 
   (.shell.invoke '.bench.eval
                  code))
+
+
+
+(defn .bench.trx
+
+  ^{:doc {:description ["Exactly like `.bench.eval` but executes a actual transaction,"
+                        "which also accounts for other concerns such as juice accounting."
+                        ""
+                        "See `(?.shell '.trx)` about transactions"]
+          :examples    [{:code (.bench.trx (.trx.new.transfer *address* #12345 1000))}]
+          :signature   [{:params [trx]}]}}
+
+
+  [trx]
+
+  (.shell.invoke '.bench.trx
+                 trx))
 
 
 ;;;;;;;;;; Cell utilities

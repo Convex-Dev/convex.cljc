@@ -39,7 +39,7 @@
 
 
 
-(defn- -ensure-trx
+(defn ^:no-doc -ensure-trx
 
   [ctx ^ATransaction trx]
 
