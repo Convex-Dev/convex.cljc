@@ -4,6 +4,7 @@
 
   {:author "Adam Helinski"}
 
+  (:refer-clojure :exclude [eval])
   (:require [convex.cell    :as $.cell]
             [convex.cvm     :as $.cvm]
             [criterium.core :as criterium]))
@@ -12,16 +13,16 @@
 ;;;;;;;;;;
 
 
-(defn trx
+(defn eval
 
-  "Request for benchmarking a single transaction using Criterium."
+  "Request for benchmarking some code using Criterium."
 
-  [ctx [trx]]
+  [ctx [code]]
 
   (let [stat+ (criterium/benchmark* (fn []
                                       (-> ctx
                                           ($.cvm/fork)
-                                          ($.cvm/eval trx)))
+                                          ($.cvm/eval code)))
                                     {})]
     ($.cvm/result-set ctx
                       ($.cell/* {:mean   ~($.cell/double (first (stat+ :mean)))

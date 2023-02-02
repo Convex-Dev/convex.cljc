@@ -121,15 +121,15 @@
 (def .bench
 
   ^{:private?      true
-    :shell.section ["Benchmarking utilities, more will be provided in the future."]}
+    :shell.section ["Micro-benchmarking utilities, more will be provided in the future."]}
 
   nil)
 
 
 
-(defn .bench.trx
+(defn .bench.eval
 
-  ^{:doc {:description ["Benchmarks the mean execution time of the given transaction."
+  ^{:doc {:description ["Benchmarks the mean execution time of evaluating the given code."
                         "Any state change is reverted each time."
                         ""
                         "Returns a map with:"
@@ -142,15 +142,15 @@
                         ""
                         "Highly experimental and subject to change, probably useful for CVM developers only."
                         "Depending on the given transaction, takes between one and several minutes to complete."]
-          :examples    [{:code (.bench.trx '(+ 2 2))}
-                        {:code (.bench.trx (compile '(+ 2 2)))}]
-          :signature   [{:params [trx]}]}}
+          :examples    [{:code (.bench.eval '(+ 2 2))}
+                        {:code (.bench.eval (compile '(+ 2 2)))}]
+          :signature   [{:params [code]}]}}
 
 
-  [trx]
+  [code]
 
-  (.shell.invoke '.bench.trx
-                 trx))
+  (.shell.invoke '.bench.eval
+                 code))
 
 
 ;;;;;;;;;; Cell utilities
