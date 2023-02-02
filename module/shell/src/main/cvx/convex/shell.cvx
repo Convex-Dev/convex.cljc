@@ -121,7 +121,7 @@
 (def .bench
 
   ^{:private?      true
-    :shell.section ["Micro-benchmarking utilities, more will be provided in the future."]}
+    :shell.section ["Micro-benchmarking utilities."]}
 
   nil)
 
@@ -134,11 +134,16 @@
                         ""
                         "Returns a map with:"
                         ""
-                        "  :mean"
-                        "    Mean execution time (nanoseconds)"
+                        "  :avg"
+                        "    Average execution time (seconds)"
+                        ""
+                        "  :Hz"
+                        "    Frequency, 1 divided by `:avg`."
+                        ""
                         "  :stddev"
-                        "    Standard deviation (nanoseconds)"
-                        "Executed in a query a high number of times."
+                        "    Standard deviation (seconds)"
+                        ""
+                        "Executed a high number of times for accurate measurement."
                         ""
                         "Highly experimental and subject to change, probably useful for CVM developers only."
                         "Depending on the given code, usually takes between one and several minutes to complete."]
@@ -158,6 +163,8 @@
 
   ^{:doc {:description ["Exactly like `.bench.eval` but executes a actual transaction,"
                         "which also accounts for other concerns such as juice accounting."
+                        ""
+                        "`:Hz` is effectively TPS (Transactions-Per-Second)."
                         ""
                         "See `(?.shell '.trx)` about transactions"]
           :examples    [{:code (.bench.trx (.trx.new.transfer *address* #12345 1000))}]
@@ -4647,13 +4654,14 @@
                          "Requires:"
                          ""
                          "  - Address issuing the transaction (origin)"
+                         "  - Code to execute (pre-compiled or not)"
                          ""
                          "A map of options may be provided:"
                          ""
                          "  :sequence"
                          "    See `.trx` about the sequence ID"]
            :examples    [{:code (.trx.new.invoke #11 '(def cool? true))}
-                         {:code (.trx.new.invoke #11 '(def cool? true) {:sequence 3})}]
+                         {:code (.trx.new.invoke #11 (compile '(def cool? true)) {:sequence 3})}]
            :signature   [{:params [address code]}
                          {:params [address code option+]}]}}
 

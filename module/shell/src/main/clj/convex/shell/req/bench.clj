@@ -25,9 +25,12 @@
   [ctx f]
 
   (let [stat+ (criterium/benchmark* f
-                                    {})]
+                                    {})
+        avg   (first (stat+ :mean))]
     ($.cvm/result-set ctx
-                      ($.cell/* {:mean   ~($.cell/double (first (stat+ :mean)))
+                      ($.cell/* {:avg    ~($.cell/double (first (stat+ :mean)))
+                                 :Hz     ~($.cell/double (/ 1
+                                                            avg))
                                  :stddev ~($.cell/double (Math/sqrt ^double (first (stat+ :variance))))}))))
 
 
