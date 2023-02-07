@@ -18,7 +18,7 @@
 ;;;;;;;;;;
 
 
-(def ^:dynamic ^:private -*ctx*
+(def ^:dynamic ^:no-doc -*ctx*
 
   nil)
 

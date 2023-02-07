@@ -108,6 +108,7 @@
   {($.cell/* .account.switch)              $.shell.req.account/switch
    ($.cell/* .bench.eval)                  $.shell.req.bench/eval
    ($.cell/* .bench.trx)                   $.shell.req.bench/trx
+   ($.cell/* .bench.trx.gen)               $.shell.req.bench/trx-gen
    ($.cell/* .cell.size)                   $.shell.req.cell/size
    ($.cell/* .cell.softness)               $.shell.req.cell/softness
    ($.cell/* .db.flush)                    $.shell.req.db/flush

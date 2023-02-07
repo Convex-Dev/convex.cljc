@@ -177,6 +177,36 @@
                  trx))
 
 
+
+
+(defn .bench.trx.gen
+
+  ^{:doc {:description ["Similar to `.bench.trx` but works with a transaction generator."
+                        "The "
+                        ""
+                        "See `(?.shell '.gen)` about generators and `(?.shell '.trx)` about"
+                        "transactions".]
+          :examples    [{:code (.bench.trx.gen (.gen.fmap (fn [amount] (.trx.new.transfer *address* #12345 amount)) (.gen.long.uniform 0 1000)))}]
+          :signature   [{:params [gen]}
+                        {:params [gen option+]}]}}
+
+
+  ([gen]
+
+   (.bench.trx.gen gen
+                   nil))
+
+
+   ([gen option+]
+
+    (.shell.invoke '.bench.trx.gen
+                   gen
+                   (or (:sample.count option+)
+                       60)
+                   (or (:sample.time option+)
+                       1000000000))))
+
+
 ;;;;;;;;;; Cell utilities
 
 
