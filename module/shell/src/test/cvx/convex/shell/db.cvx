@@ -73,7 +73,7 @@
   (.t.is (nil? (.db.read hash-1))
          "Nothing written yet")
 
-  (.t.is (= hash-1
+  (.t.is (= cell-1
             (.db.write cell-1))
          "Write returns the hash")
 
@@ -85,7 +85,7 @@
             (.db.read hash-1))
          "Can read written cell")
 
-  (.t.is (= hash-2
+  (.t.is (= cell-2
             (.db.root.write cell-2))
          "Root write returns hash")
 

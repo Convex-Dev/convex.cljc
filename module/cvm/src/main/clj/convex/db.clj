@@ -3,10 +3,11 @@
   "Etch is a fast, immutable, embedded database tailored for cells.
 
    It can be understood as a data store where keys are hashes of the cells they point to.
-   Hence, the API is pretty simple. [[write]] takes a cell and returns a hash while [[read]]
-   takes a hash and returns a cell (or nil if not found).
-
-   Most of the time, usage is even simpler by using [[root-write]] and [[root-read]] to persist
+   Hence, the API is pretty simple. [[read]] takes the hash of a cell and returns the cell
+   (if present). [[write]] takes a cell and returns a new version of that cell with some
+   internals updated.
+   
+   Most of the time, usage is made even simpler by using [[root-write]] and [[root-read]] to persist
    the state of a whole application at once (only new values are effectively written).
 
    Data is retrieved semi-lazily. For instance, in the case of a large vector, only the 
@@ -24,14 +25,7 @@
    fine using several stores in the same process as long as operations never cross-over.
 
    Convex tooling, whenever an instance is needed, will always look for the instance associated 
-   with the current thread (if any). The typical workflow is to call [[current-set]] after [[open]]:
-
-   ```clojure
-   (convex.db/current-set (convex.db/open \"my/instance.etch\"))
-   (convex.db/read (convex.db/write (convex.cell/* [:a :b 42])))
-   (convex.db/close)
-   ```
-
+   with the current thread (if any). The typical workflow is to call [[current-set]] after [[open]].
    If no instance is bound to the current thread explicitely, a temporary one is created whenever needed.
    See [[global-set]] for improving the workflow when an instance is needed in more than one thread.
   
@@ -44,6 +38,7 @@
   {:author "Adam Helinski"}
 
   (:import (convex.core.data ACell
+                             Ref
                              Hash)
            (convex.core.store Stores)
            (java.io File)
@@ -213,22 +208,28 @@
 
 (defn write
 
-  "Writes the given `cell` to the thread-local instance and returns its hash.
+  "Writes the given `cell` to the thread-local instance and returns a new \"version\" of that cell.
 
-   Very basic cells are not persisted because that would be inefficient and hardly ever happens.
-   They are typically embedded in collections. Hence, this function will return nil for:
+   If the cell is needed for more work, the old version should be discarded in favor of that new
+   version. This allows for transparent garbage-collection (see namespace description) while acting
+   as an optimization during subsequent writes (e.g. an already persisted cell is put in a collection
+   that is in turn persisted).
+
+   Very basic cell types are not persisted because that would be inefficient and hardly ever happens.
+   They are typically embedded in collections. Hence, this function will return `nil` for:
 
      - Address
      - Empty collections
      - Primitives (boolean, byte, double, long)
      - Symbolic (keywords and symbols)"
 
-  ^Hash
+  ^ACell
 
   [^ACell cell]
-   
-  (-> (ACell/createPersisted cell)
-      (.cachedHash)))
+
+  (let [^Ref r (ACell/createPersisted (.getValue (.getRef cell)))]
+    (when (.cachedHash r)
+      (.getValue r))))
 
 
 ;;;
@@ -255,16 +256,17 @@
 
 (defn root-write
 
-  "Writes the given `cell` to the root of the thread-local instance and returns its hash.
-   Behaves like [[write]].
+  "Exactly like [[write]] but the `cell` is written to the root of the thread-local instance.
 
    See [[read-root]]."
 
-  ^Hash
+  ^ACell
 
   [^ACell cell]
 
-  (when-some [hash (write cell)]
-    (.setRootHash (.getEtch (current))
-                  hash)
-    hash))
+  (let [^Ref r (ACell/createPersisted (.getValue (.getRef cell)))
+             h (.cachedHash r)]
+    (when h
+      (.setRootHash (.getEtch (current))
+                    h)
+      (.getValue r))))

@@ -52,22 +52,29 @@
 
 (T/deftest rw
 
+  (-open)
+
   (T/is (= (-data)
-           (do
-             (-open)
-             ($.db/read ($.db/write (-data)))))
-        "Can read back written data"))
+           ($.db/write (-data)))
+        "Write")
+
+  (T/is (= (-data)
+           ($.db/read ($.cell/hash (-data))))
+        "Read"))
 
 
 
 (T/deftest rw-root
 
+  (-open)
+
   (T/is (= (-data)
-           (do
-             (-open)
-             ($.db/root-write (-data))
-             ($.db/root-read)))
-        "Can read back written root data"))
+           ($.db/root-write (-data)))
+        "Write")
+
+  (T/is (= (-data)
+           ($.db/root-read))
+        "Read"))
 
 
 
@@ -97,9 +104,10 @@
 
   (-open)
 
-  (T/is (= ($.cell/hash ($.cell/* :DEREF-ME))
-           ($.db/root-write ($.cell/fake (fn []))))
-        "Writes the actual :DEREF-ME keyword")
+  (T/is (let [fake ($.cell/fake (fn []))]
+          (= fake
+             ($.db/root-write fake)))
+        "Write returns the fake cell")
 
   (T/is (= ($.cell/* :DEREF-ME)
            ($.db/root-read))
