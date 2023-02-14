@@ -23,27 +23,51 @@
 ;;;;;;;;;;
 
 
-(def stderr
+(let [handle ($.cell/* [:stream
+                        ~($.cell/fake $.shell.io/stderr-txt)
+                        -3
+                        :stderr])]
 
-  "Wraps STDERR to make it accessible to the CVM."
+  (defn stderr
 
-  ($.cell/fake $.shell.io/stderr-txt))
+    "Request for returning STDERR."
 
+    [ctx _arg+]
 
-
-(def stdin
-
-  "Wraps STDIN to make it accessible to the CVM."
-
-  ($.cell/fake $.shell.io/stdin-txt))
+    ($.cvm/result-set ctx
+                      handle)))
 
 
 
-(def stdout
+(let [handle ($.cell/* [:stream
+                        ~($.cell/fake $.shell.io/stdin-txt)
+                        -2
+                        :stdin])]
 
-  "Wraps STDOUT to make it accessible to the CVM."
+  (defn stdin
+  
+    "Request for returning STDIN."
+  
+    [ctx _arg+]
 
-  ($.cell/fake $.shell.io/stdout-txt))
+    ($.cvm/result-set ctx
+                      handle)))
+
+
+
+(let [handle ($.cell/* [:stream
+                        ~($.cell/fake $.shell.io/stdout-txt)
+                        -1
+                        :stdout])]
+
+  (defn stdout
+
+    "Request for returning STDOUT."
+
+    [ctx _arg+]
+
+    ($.cvm/result-set ctx
+                      handle)))
 
 
 ;;;;;;;;;

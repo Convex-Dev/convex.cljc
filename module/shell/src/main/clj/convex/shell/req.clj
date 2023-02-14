@@ -219,6 +219,9 @@
    ($.cell/* .stream.line)                 $.shell.req.stream/line
    ($.cell/* .stream.out)                  $.shell.req.stream/out
    ($.cell/* .stream.outln)                $.shell.req.stream/outln
+   ($.cell/* .stream.stderr)               $.shell.req.stream/stderr
+   ($.cell/* .stream.stdin)                $.shell.req.stream/stdin
+   ($.cell/* .stream.stdout)               $.shell.req.stream/stdout
    ($.cell/* .stream.txt.in)               $.shell.req.stream/txt-in
    ($.cell/* .stream.txt.line)             $.shell.req.stream/txt-line
    ($.cell/* .stream.txt.out)              $.shell.req.stream/txt-out

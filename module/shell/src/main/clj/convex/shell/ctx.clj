@@ -44,18 +44,6 @@
                 ($.cvm/fork-to Init/CORE_ADDRESS)
                 ($.cvm/def Init/CORE_ADDRESS
                            ($.std/merge ($.cell/* {.account.genesis   ~$.cvm/genesis-user
-                                                   .stream.stderr     [:stream
-                                                                       ~$.shell.req.stream/stderr
-                                                                       -3
-                                                                       :stderr]
-                                                   .stream.stdin      [:stream
-                                                                       ~$.shell.req.stream/stdin
-                                                                       -2
-                                                                       :stdin]
-                                                   .stream.stdout     [:stream
-                                                                       ~$.shell.req.stream/stdout
-                                                                       -1
-                                                                       :stdout]
                                                    .sys.eol           ~($.cell/string (System/lineSeparator))
                                                    .version.java      [~($.cell/string (System/getProperty "java.vendor"))
                                                                        ~($.cell/string (System/getProperty "java.version"))]})

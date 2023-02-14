@@ -784,7 +784,7 @@
 
 (defn .ex.print
 
-  ^{:doc {:description ["Pretty prints the given exception (by default to `.stream.*out*`."
+  ^{:doc {:description ["Pretty prints the given exception (by default to STDOUT, see `.stream.stdout`)."
                         "For catching exceptions, see `.state.safe` and `.state.tmp`."]
           :examples    [{:code (.ex.print {:code :ARGUMENT, :message "Some message"})}]
           :signature   [{:params [ex]}
@@ -2126,17 +2126,17 @@
                         ""
                         "  :stream.in"
                         "    Input stream for reading lines of cells."
-                        "    Defaults to `.stream.*in*`."
+                        "    Defaults to STDIN (returned by `.stream.stdin`)."
                         ""
                         "  :stream.out"
                         "    Output stream for printing results."
-                        "    Defaults to `.stream.*out*`."]
+                        "    Defaults to STDOUT (returned by `.stream.stdout`)."]
           :examples    [{:code (.repl)}]
           :signature   [{:params []}
                         {:params [option+]}]}
     :shell.section ["See `(? '.repl)` for driving an interactive workflow."
                     "The REPL is started automatically when the Shell is started"
-                        "without instructions."]}
+                    "without instructions."]}
 
 
   ([]
@@ -2152,8 +2152,8 @@
                         :on.prompt    .repl.on.prompt
                         :on.result    .repl.on.result
                         :stop?        .repl.stop?
-                        :stream.in    .stream.*in*
-                        :stream.out   .stream.*out*}
+                        :stream.in    (.stream.stdin)
+                        :stream.out   (.stream.stdout)}
                        option+)]
      (let [state-2 ((:on.prompt state) state)
            [read?
@@ -2821,57 +2821,42 @@
 
 
 
-(def .stream.stderr
+(defn .stream.stderr
 
-  ^{:doc {:description "Stream for STDERR."}}
+  ^{:doc {:description ["Returns the handle for the STDERR stream."]
+          :examples    [{:code (.stream.stderr)}]
+          :signature   [{:params []}]}}
 
-  .stream.stderr)
+  []
 
-
-
-(def .stream.stdin
-
-  ^{:doc {:description "Stream for STDIN."}}
-
-  .stream.stdin)
+  (.shell.invoke '.stream.stderr))
 
 
 
-(def .stream.stdout
+(defn .stream.stdin
 
-  ^{:doc {:description "Stream for STDOUT."}}
+  ^{:doc {:description ["Returns the handle for the STDIN stream."]
+          :examples    [{:code (.stream.stdin)}]
+          :signature   [{:params []}]}}
 
-  .stream.stdout)
+  []
+
+  (.shell.invoke '.stream.stdin))
+
+
+
+(defn .stream.stdout
+
+  ^{:doc {:description ["Returns the handle for the STDOUT stream."]
+          :examples    [{:code (.stream.stdout)}]
+          :signature   [{:params []}]}}
+
+  []
+
+  (.shell.invoke '.stream.stdout))
 
 
 ;;;
-
-
-(def .stream.*err*
-
-  ^{:doc {:description ["Default error stream, originally set to `.stream.stderr`."
-                        "See `.stream.set.err`."]}}
-
-  .stream.stderr)
-
-
-
-(def .stream.*in*
-
-  ^{:doc {:description ["Default input stream, originally set to `.stream.stdin`."
-                        "See `.stream.set.in`."]}}
-
-  .stream.stdin)
-
-
-
-(def .stream.*out*
-
-  ^{:doc {:description ["Default output stream, originally set to `.stream.stdout`."
-                        "See `.stream.set.out`."]}}
-
-  .stream.stdout)
-
 
 
 (defn .stream.close
@@ -2890,26 +2875,28 @@
 
 (defn .stream.err
 
-  ^{:doc {:description ["Like `.stream.out` but prints the given value to `.stream.*err*`."]
+  ^{:doc {:description ["Like `.stream.out` but prints the given value to the STDERR (returned"
+                        "by `.stream.stderr`)."]
           :examples    [{:code (.stream.err {:some :error})}]
           :signature   [{:params [x]}]}}
 
   [x]
 
-  (.stream.out .stream.*err*
+  (.stream.out (.stream.stderr)
                x))
 
 
 
 (defn .stream.errln
 
-  ^{:doc {:description ["Like `.stream.outln` but prints the given value to `.stream.*err*`."]
+  ^{:doc {:description ["Like `.stream.outln` but prints the given value to STDERR (returned"
+                        "by `.stream.stderr`)."]
           :examples    [{:code (.stream.errln {:some :error})}]
           :signature   [{:params [x]}]}}
 
   [x]
 
-  (.stream.outln .stream.*err*
+  (.stream.outln (.stream.stderr)
                  x))
 
 
@@ -2917,7 +2904,7 @@
 (defn .stream.flush
 
   ^{:doc {:description ["Flushes the given output stream, ensuring all current content is printed."
-                        "Defaults to `.stream.*out*`."
+                        "Defaults to STDOUT (returned by `.stream.stdout`)."
                         "Returns the stream handle."]
           :examples    [{:code (.stream.flush)}]
           :signature   [{:params []}
@@ -2926,7 +2913,7 @@
 
   ([]
 
-   (.stream.flush .stream.*out*))
+   (.stream.flush (.stream.stdout)))
 
 
   ([handle]
@@ -2942,7 +2929,7 @@
                         "Returns a list."
                         "Closes the stream automatically."
                         ""
-                        "Reads from `.stream.*in*` by default."]
+                        "Reads from STDIN by default (returned by `.stream.stdin`)."]
           :examples    [{:code (.stream.in+ (.str.stream.in ":a :b :c"))}]
           :signature   [{:params []}
                         {:params [handle]}]}}
@@ -2950,7 +2937,7 @@
 
   ([]
 
-   (.stream.in+ .stream.*in*))
+   (.stream.in+ (.stream.stdin)))
 
 
   ([handle]
@@ -2967,7 +2954,7 @@
                         ""
                         "Once empty, the next read will throw an exception."
                         ""
-                        "Reads from `.stream.*in*` by default."]
+                        "Reads from STDIN by default (returned by `.stream.stdin`)"]
           :examples    [{:code (.stream.line (.str.stream.in ":a :b \n :c"))}]
           :signature   [{:params []}
                         {:params [handle]}]}}
@@ -2975,7 +2962,7 @@
 
   ([]
 
-   (.stream.line .stream.*in*))
+   (.stream.line (.stream.stdin)))
 
 
   ([handle]
@@ -2990,7 +2977,7 @@
   ^{:doc {:description ["Writes the value as a cell to the given output stream."
                         "Prints in such a way that those cells can be read back."
                         ""
-                        "Defaults to `.stream.*out*`."]
+                        "Defaults to STDOUT (returned by `.stream.stdout`)."]
           :examples    [{:code (.stream.out :test)}]
           :signature   [{:params [x]}
                         {:params [handle x]}]}}
@@ -2998,7 +2985,7 @@
 
   ([x]
 
-   (.stream.out .stream.*out*
+   (.stream.out (.stream.stdout)
                 x))
 
 
@@ -3020,7 +3007,7 @@
 
   ([x]
 
-   (.stream.outln .stream.*out*
+   (.stream.outln (.stream.stdout)
                   x))
 
 
@@ -3050,64 +3037,28 @@
 
 
 
-(defn .stream.set.in
-
-  ^{:callable? true
-    :doc       {:description "Sets `.stream.*in*` to the given stream."
-                :examples    [{:code (.stream.set.in (.str.stream.in ":a :b :c"))}]
-                :signature   [{:params [handle]}]}}
-
-  [handle]
-
-  (if (= *address*
-         $CORE$)
-    (def .stream.*in*
-         handle)
-    (call $CORE$
-          (.stream.set.in handle))))
-
-
-
-(defn .stream.set.out
-
-  ^{:callable? true
-    :doc       {:description "Sets `.stream.*out* to the given stream."
-                :examples    [{:code (.stream.set.out (.str.stream.out))}]
-                :signature   [{:params [handle]}]}}
-
-  [handle]
-
-  (if (= *address*
-         $CORE$)
-    (def .stream.*out*
-         handle)
-    (call $CORE$
-          (.stream.set.out handle))))
-
-
-
 (defn .stream.txt.err
 
-  ^{:doc {:description ["Like `.stream.txt.out` but prints to `.stream.*err*`."]
+  ^{:doc {:description ["Like `.stream.txt.out` but prints to STDERR (returned by `.stream.stderr`)."]
           :examples    [{:code (.stream.err {:some :error})}]
           :signature   [{:params [x]}]}}
 
   [x]
 
-  (.stream.txt.out .stream.*err*
+  (.stream.txt.out (.stream.stderr)
                    x))
 
 
 
 (defn .stream.txt.errln
 
-  ^{:doc {:description ["Like `.stream.txt.outln but prints to `.stream.*err*`."]
+  ^{:doc {:description ["Like `.stream.txt.outln but prints to STDERR (returned by `.stream.stderr`)."]
           :examples    [{:code (.stream.errln {:some :error})}]
           :signature   [{:params [x]}]}}
 
   [x]
 
-  (.stream.txt.outln .stream.*err*
+  (.stream.txt.outln (stream.stderr)
                      x))
 
 
@@ -3115,7 +3066,7 @@
 (defn .stream.txt.in
 
   ^{:doc {:description ["Reads the full content of the given input stream as a string."
-                        "Defaults to `.stream.*in*`."
+                        "Defaults to STDIN (returned by `.stream.stdin`)."
                         "Stream is closed automatically."]
           :examples    [{:code (.stream.txt.in (.str.stream.in "test"))}]
           :signature   [{:params []}
@@ -3124,7 +3075,7 @@
 
   ([]
 
-   (.stream.txt.in .stream.*in*))
+   (.stream.txt.in (.stream.stdin)))
 
 
   ([handle]
@@ -3137,7 +3088,7 @@
 (defn .stream.txt.line
 
   ^{:doc {:description ["Reads a single line from the given input stream as a string."
-                        "Defaults to `.stream.*in*`."
+                        "Defaults to STDIN (returned by `.stream.stdin`)."
                         ""
                         "Like `.stream.in`, returns `nil` when the end of the stream is reached."
                         "Any subsequent read will then throw an exception."]
@@ -3148,7 +3099,7 @@
 
   ([]
 
-   (.stream.txt.line .stream.*in*))
+   (.stream.txt.line (.stream.stdin)))
 
 
   ([handle]
@@ -3169,7 +3120,7 @@
 
   ([x]
 
-   (.stream.txt.out .stream.*out*
+   (.stream.txt.out (.stream.stdout)
                     x))
 
 
@@ -3192,7 +3143,7 @@
 
   ([x]
 
-   (.stream.txt.outln .stream.*out*
+   (.stream.txt.outln (.stream.stdout)
                       x))
 
 
@@ -3841,7 +3792,7 @@
             (let [state          (merge {:on.run.begin   .t.on.run.begin
                                          :on.run.end     .t.on.run.end
                                          :on.test.result .t.on.test.result
-                                         :stream.out     .stream.stdout}
+                                         :stream.out     (.stream.stdout)}
                                         state)
                   on.run.begin   (:on.run.begin state)
                   on.run.end     (:on.run.end state)
@@ -4496,7 +4447,7 @@
 
 (defn .term.demo
 
-  ^{:doc {:description ["Prints a string to `.stream.*out*` producing colored output as demo"
+  ^{:doc {:description ["Prints a string to STDOUT producing colored output as demo"
                         "of the different `.term...` functions."]
           :examples    [{:code ($.term/demo)}]
           :signature   [{:params []}]}}
