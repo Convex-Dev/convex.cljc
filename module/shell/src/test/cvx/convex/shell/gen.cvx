@@ -95,7 +95,7 @@
 
 (.t.def ..gen.address
 
-  (.t.is (address? (.gen .gen.address))))
+  (.t.is (address? (.gen (.gen.address)))))
 
 
 
@@ -108,38 +108,38 @@
 
 (.t.def ..gen.any
 
-  (.t.is (let [x (.gen .gen.any)]
+  (.t.is (let [x (.gen (.gen.any))]
            (or (boolean x)
                (not x)))))
 
 
 (.t.def ..gen.any.coll
 
-  (.t.is (coll? (.gen .gen.any.coll))))
+  (.t.is (coll? (.gen (.gen.any.coll)))))
 
 
 
 (.t.def ..gen.any.list
 
-  (.t.is (list? (.gen .gen.any.list))))
+  (.t.is (list? (.gen (.gen.any.list)))))
 
 
 
 (.t.def ..gen.any.map
 
-  (.t.is (map? (.gen .gen.any.map))))
+  (.t.is (map? (.gen (.gen.any.map)))))
 
 
 
 (.t.def ..gen.any.set
 
-  (.t.is (set? (.gen .gen.any.set))))
+  (.t.is (set? (.gen (.gen.any.set)))))
 
 
 
 (.t.def ..gen.any.vector
 
-  (.t.is (vector? (.gen .gen.any.vector))))
+  (.t.is (vector? (.gen (.gen.any.vector)))))
 
 
 
@@ -153,7 +153,7 @@
                                              x]))))))
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.bind .gen.nil
+                (.gen.bind (.gen.nil)
                            42))
          "Not fn")
 
@@ -165,14 +165,14 @@
          "Not gen")
 
   (.t.is (.t.ex :FROM-TEST
-                (.gen (.gen.bind .gen.nil
+                (.gen (.gen.bind (.gen.nil)
                                  (fn [_]
                                    (fail :FROM-TEST
                                          nil)))))
          "Throw")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen (.gen.bind .gen.nil
+                (.gen (.gen.bind (.gen.nil)
                                  (fn [_]
                                    42))))
          "Returns non-gen"))
@@ -233,121 +233,121 @@
 
   (.t.is (countable? blob?
                      32
-                     (.gen .gen.blob-32))))
+                     (.gen (.gen.blob-32)))))
 
 
 
 (.t.def ..gen.blob-map
 
-  (.t.is (blob-map? (.gen (.gen.blob-map .gen.address
-                                         .gen.boolean)))
+(.t.is (blob-map? (.gen (.gen.blob-map (.gen.address)
+                                       (.gen.boolean))))
          "Any length")
 
   (.t.is (.t.ex :ARGUMENT
                 (.gen.blob-map :fail
-                               .gen.boolean))
+                               (.gen.boolean)))
          "Any length, not a key gen")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.blob-map .gen.address
+                (.gen.blob-map (.gen.address)
                                :fail))
          "Any length, not a value gen")
 
   (.t.is (.t.ex :SHELL.GEN
                 (.gen (.gen.such-that (fn [x]
                                         (not (empty? x)))
-                                      (.gen.blob-map .gen.long
-                                                     .gen.boolean))))
+                                      (.gen.blob-map (.gen.long)
+                                                     (.gen.boolean)))))
          "Any length, non-blob keys")
 
   (.t.is (countable? blob-map?
                      32
-                     (.gen (.gen.blob-map .gen.address
-                                          .gen.boolean
+                     (.gen (.gen.blob-map (.gen.address)
+                                          (.gen.boolean)
                                           32)))
          "Fixed")
 
-  (.t.is (empty? (.gen (.gen.blob-map .gen.address
-                                      .gen.boolean
+  (.t.is (empty? (.gen (.gen.blob-map (.gen.address)
+                                      (.gen.boolean)
                                       0)))
          "Fixed, empty")
 
   (.t.is (.t.ex :ARGUMENT
                 (.gen.blob-map :fail
-                               .gen.boolean
+                               (.gen.boolean)
                                32))
          "Fixed, not a key gen")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.blob-map .gen.address
+                (.gen.blob-map (.gen.address)
                                :fail
                                32))
          "Fixed, not a value gen")
 
   (.t.is (.t.ex :SHELL.GEN
-                (.gen (.gen.blob-map .gen.long
-                                     .gen.boolean
+                (.gen (.gen.blob-map (.gen.long)
+                                     (.gen.boolean)
                                      32)))
          "Fixed, non-blob keys")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.blob-map .gen.address
-                               .gen.boolean
+                (.gen.blob-map (.gen.address)
+                               (.gen.boolean)
                                -1))
          "Fixed, negative length")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.blob-map .gen.address
-                               .gen.boolean
+                (.gen.blob-map (.gen.address)
+                               (.gen.boolean)
                                :fail))
          "Fixed, bad length")
 
   (.t.is (countable? blob-map?
                      32
-                     (.gen (.gen.blob-map .gen.address
-                                          .gen.boolean
+                     (.gen (.gen.blob-map (.gen.address)
+                                          (.gen.boolean)
                                           32
                                           32)))
          "Bounded")
 
   (.t.is (.t.ex :ARGUMENT
                 (.gen.blob-map :fail
-                               .gen.boolean
+                               (.gen.boolean)
                                32
                                32))
          "Bounded, not a key gen")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.blob-map .gen.address
+                (.gen.blob-map (.gen.address)
                                :fail
                                32
                                32))
          "Bounded, not a value gen")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.blob-map .gen.address
-                               .gen.boolean
+                (.gen.blob-map (.gen.address)
+                               (.gen.boolean)
                                -1
                                32))
          "Negative Min")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.blob-map .gen.address
-                               .gen.boolean
+                (.gen.blob-map (.gen.address)
+                               (.gen.boolean)
                                :fail
                                32))
          "Bad Min")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.blob-map .gen.address
-                               .gen.boolean
+                (.gen.blob-map (.gen.address)
+                               (.gen.boolean)
                                32
                                :fail))
          "Bad max")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.blob-map .gen.address
-                               .gen.boolean
+                (.gen.blob-map (.gen.address)
+                               (.gen.boolean)
                                32
                                10))
          "Min > Max"))
@@ -356,7 +356,7 @@
 
 (.t.def ..gen.boolean
 
-  (.t.is (boolean? (.gen .gen.boolean))))
+  (.t.is (boolean? (.gen (.gen.boolean)))))
 
 
 
@@ -366,7 +366,7 @@
 
 (.t.def ..gen.double
 
-  (.t.is (double? (.gen .gen.double))))
+  (.t.is (double? (.gen (.gen.double)))))
 
 
 
@@ -418,7 +418,7 @@
 
 (.t.def ..gen.falsy
 
-  (.t.is (not (.gen .gen.falsy))))
+  (.t.is (not (.gen (.gen.falsy)))))
 
 
 
@@ -448,8 +448,8 @@
 
 (.t.def ..gen.freq
 
-  (.t.is (let [x (.gen (.gen.freq [[5 .gen.boolean]
-                                   [5 .gen.long]]))]
+  (.t.is (let [x (.gen (.gen.freq [[5 (.gen.boolean)]
+                                   [5 (.gen.long)]]))]
            (or (boolean? x)
                (long? x))))
 
@@ -532,13 +532,13 @@
 
 (.t.def ..gen.keyword
 
-  (.t.is (keyword? (.gen .gen.keyword))))
+  (.t.is (keyword? (.gen (.gen.keyword)))))
 
 
 
 (.t.def ..gen.list
 
-  (.t.is (list-2? (.gen (.gen.list .gen.boolean)))
+  (.t.is (list-2? (.gen (.gen.list (.gen.boolean))))
          "Any length")
 
   (.t.is (.t.ex :ARGUMENT
@@ -547,12 +547,12 @@
 
   (.t.is (countable? list-2?
                      32
-                     (.gen (.gen.list .gen.boolean
+                     (.gen (.gen.list (.gen.boolean)
                                       32)))
          "Fixed")
 
   (.t.is (= '()
-            (.gen (.gen.list .gen.boolean
+            (.gen (.gen.list (.gen.boolean)
                              0)))
          "Fixed, 0 length")
 
@@ -562,18 +562,18 @@
          "Fixed, not a gen")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.list .gen.boolean
+                (.gen.list (.gen.boolean)
                            -1))
          "Fixed, negative length")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.list .gen.boolean
+                (.gen.list (.gen.boolean)
                            :fail))
          "Fixed, bad arg")
 
   (.t.is (countable? list-2?
                      32
-                     (.gen (.gen.list .gen.boolean
+                     (.gen (.gen.list (.gen.boolean)
                                       32
                                       32)))
          "Bounded")
@@ -585,25 +585,25 @@
          "Bounded, not a gen")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.list .gen.boolean
+                (.gen.list (.gen.boolean)
                            -1
                            32))
          "Negative Min")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.list .gen.boolean
+                (.gen.list (.gen.boolean)
                            :fail
                            32))
          "Bad Min")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.list .gen.boolean
+                (.gen.list (.gen.boolean)
                            32
                            :fail))
          "Bad Max")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.list .gen.boolean
+                (.gen.list (.gen.boolean)
                            32
                            1))
          "Min > Max"))
@@ -612,7 +612,7 @@
 
 (.t.def ..gen.long
 
-  (.t.is (long? (.gen .gen.long))))
+  (.t.is (long? (.gen (.gen.long)))))
 
 
 
@@ -681,103 +681,103 @@
 
 (.t.def ..gen.map
 
-  (.t.is (map-2? (.gen (.gen.map .gen.long
-                                 .gen.boolean)))
+  (.t.is (map-2? (.gen (.gen.map (.gen.long)
+                                 (.gen.boolean))))
          "Any length")
 
   (.t.is (.t.ex :ARGUMENT
                 (.gen.map 42
-                          .gen.boolean))
+                          (.gen.boolean)))
          "Any length, not a key gen")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.map .gen.long
+                (.gen.map (.gen.long)
                           42))
          "Any length, not value gen")
 
   (.t.is (countable? map-2?
                      32
-                     (.gen (.gen.map .gen.long
-                                     .gen.boolean
-                                      32)))
+                     (.gen (.gen.map (.gen.long)
+                                     (.gen.boolean)
+                                     32)))
          "Fixed")
 
   (.t.is (= '{}
-            (.gen (.gen.map .gen.long
-                            .gen.boolean
+            (.gen (.gen.map (.gen.long)
+                            (.gen.boolean)
                             0)))
          "Fixed, 0 length")
 
   (.t.is (.t.ex :ARGUMENT
                 (.gen.map :fail
-                          .gen.long
+                          (.gen.long)
                           32))
          "Fixed, not a key gen")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.map .gen.long
+                (.gen.map (.gen.long)
                           :fail
                           32))
          "Fixed, not a value gen")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.map .gen.long
-                           .gen.boolean
-                           -1))
+                (.gen.map (.gen.long)
+                          (.gen.boolean)
+                          -1))
          "Fixed, negative length")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.map .gen.long
-                          .gen.boolean
+                (.gen.map (.gen.long)
+                          (.gen.boolean)
                           :fail))
          "Fixed, bad arg length")
 
   (.t.is (countable? map-2?
                      32
-                     (.gen (.gen.map .gen.long
-                                     .gen.boolean
+                     (.gen (.gen.map (.gen.long)
+                                     (.gen.boolean)
                                      32
                                      32)))
          "Bounded")
 
   (.t.is (.t.ex :ARGUMENT
                 (.gen.map :fail
-                          .gen.boolean
+                          (.gen.boolean)
                           32
                           32))
          "Bounded, not a key gen")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.map .gen.long
+                (.gen.map (.gen.long)
                           :fail
                           32
                           32))
          "Bounded, not a key gen")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.map .gen.long
-                          .gen.boolean
+                (.gen.map (.gen.long)
+                          (.gen.boolean)
                           -1
                           32))
          "Negative Min")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.map .gen.long
-                          .gen.boolean
+                (.gen.map (.gen.long)
+                          (.gen.boolean)
                           :fail
                           32))
          "Bad Min")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.map .gen.long
-                          .gen.boolean
+                (.gen.map (.gen.long)
+                          (.gen.boolean)
                           32
                           :fail))
          "Bad Max")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.map .gen.long
-                          .gen.boolean
+                (.gen.map (.gen.long)
+                          (.gen.boolean)
                           32
                           1))
          "Min > Max"))
@@ -786,7 +786,7 @@
 
 (.t.def ..gen.number
 
-  (.t.is (let [x (.gen .gen.number)]
+  (.t.is (let [x (.gen (.gen.number))]
            (or (double? x)
                (long? x)))))
 
@@ -794,14 +794,14 @@
 
 (.t.def ..gen.nil
 
-  (.t.is (nil? (.gen .gen.nil))))
+  (.t.is (nil? (.gen (.gen.nil)))))
 
 
 
 (.t.def ..gen.or
 
-  (.t.is (let [x (.gen (.gen.or [.gen.boolean
-                                 .gen.long]))]
+  (.t.is (let [x (.gen (.gen.or [(.gen.boolean)
+                                 (.gen.long)]))]
            (or (boolean? x)
                (long? x))))
 
@@ -856,13 +856,13 @@
 
 (.t.def ..gen.scalar
 
-  (.t.is (not (coll? (.gen .gen.scalar)))))
+  (.t.is (not (coll? (.gen (.gen.scalar))))))
 
 
 
 (.t.def ..gen.set
 
-  (.t.is (set-2? (.gen (.gen.set .gen.long)))
+  (.t.is (set-2? (.gen (.gen.set (.gen.long))))
          "Any length")
 
   (.t.is (.t.ex :ARGUMENT
@@ -871,12 +871,12 @@
 
   (.t.is (countable? set-2?
                      32
-                     (.gen (.gen.set .gen.long
+                     (.gen (.gen.set (.gen.long)
                                      32)))
          "Fixed")
 
   (.t.is (= #{}
-            (.gen (.gen.set .gen.long
+            (.gen (.gen.set (.gen.long)
                             0)))
          "Fixed, 0 length")
 
@@ -886,18 +886,18 @@
          "Fixed, not a gen")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.set .gen.long
+                (.gen.set (.gen.long)
                           -1))
          "Fixed, negative length")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.set .gen.long
+                (.gen.set (.gen.long)
                           :fail))
          "Fixed, bad arg")
 
   (.t.is (countable? set-2?
                      32
-                     (.gen (.gen.set .gen.long
+                     (.gen (.gen.set (.gen.long)
                                      32
                                      32)))
          "Bounded")
@@ -909,25 +909,25 @@
          "Bounded, not a gen")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.set .gen.long
+                (.gen.set (.gen.long)
                           -1
                           32))
          "Negative Min")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.set .gen.long
+                (.gen.set (.gen.long)
                           :fail
                           32))
          "Bad Min")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.set .gen.long
+                (.gen.set (.gen.long)
                           32
                           :fail))
          "Bad Max")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.set .gen.long
+                (.gen.set (.gen.long)
                           32
                           1))
          "Min > Max"))
@@ -1040,7 +1040,7 @@
             (.gen (.gen.such-that (fn [n]
                                     (> n
                                        42))
-                                  .gen.long)))
+                                  (.gen.long))))
          "Without max-try")
 
   (.t.is (< 42
@@ -1048,24 +1048,24 @@
                                   (fn [n]
                                     (> n
                                        42))
-                                  .gen.long)))
+                                  (.gen.long))))
          "With max-try")
 
   (.t.is (.t.ex :SHELL.GEN
                 (.gen (.gen.such-that (fn [_] false)
-                                      .gen.long)))
+                                      (.gen.long))))
          "Impossible")
 
   (.t.is (.t.ex :FROM-TEST
                 (.gen (.gen.such-that (fn [_]
                                         (fail :FROM-TEST
                                               nil))
-                                      .gen.long)))
+                                      (.gen.long))))
          "Pred throws")
 
   (.t.is (.t.ex :ARGUMENT
                 (.gen.such-that :fail
-                                .gen.long))
+                                (.gen.long)))
          "Not fn")
 
   (.t.is (.t.ex :ARGUMENT
@@ -1076,14 +1076,14 @@
   (.t.is (.t.ex :ARGUMENT
                 (.gen.such-that 0
                                 (fn [_])
-                                .gen.long))
+                                (.gen.long)))
          "0 trials"))
 
 
 
 (.t.def ..gen.symbol
 
-  (.t.is (symbol? (.gen .gen.symbol))))
+  (.t.is (symbol? (.gen (.gen.symbol)))))
 
 
 
@@ -1092,7 +1092,7 @@
   (.t.is (syntax? (.gen (.gen.syntax)))
          "Default")
 
-  (.t.is (long? (unsyntax (.gen (.gen.syntax .gen.long))))
+  (.t.is (long? (unsyntax (.gen (.gen.syntax (.gen.long)))))
          "Value gen")
 
   (.t.is (.t.ex :ARGUMENT
@@ -1107,24 +1107,24 @@
 
   (.t.is (.t.ex :ARGUMENT
                 (.gen.syntax 42
-                             .gen.any.map))
+                             (.gen.any.map)))
          "With meta, not a value gen")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.syntax .gen.long
+                (.gen.syntax (.gen.long)
                              42))
          "Not a meta gen")
 
   (.t.is (.t.ex :SHELL.GEN
-                (.gen (.gen.syntax .gen.long
-                                   .gen.boolean)))
+                (.gen (.gen.syntax (.gen.long)
+                                   (.gen.boolean))))
          "Non-map meta gen"))
 
 
 
 (.t.def ..gen.truthy
 
-  (.t.is (boolean (.gen .gen.truthy))))
+  (.t.is (boolean (.gen (.gen.truthy)))))
 
 
 
@@ -1150,7 +1150,7 @@
 
 (.t.def ..gen.vector
 
-  (.t.is (vector-2? (.gen (.gen.vector .gen.long)))
+  (.t.is (vector-2? (.gen (.gen.vector (.gen.long))))
          "Any length")
 
   (.t.is (.t.ex :ARGUMENT
@@ -1159,13 +1159,13 @@
 
   (.t.is (countable? vector-2?
                      32
-                     (.gen (.gen.vector .gen.long
+                     (.gen (.gen.vector (.gen.long)
                                         32)))
          "Fixed")
 
   (.t.is (= []
-            (.gen (.gen.vector .gen.long
-                            0)))
+            (.gen (.gen.vector (.gen.long)
+                               0)))
          "Fixed, 0 length")
 
   (.t.is (.t.ex :ARGUMENT
@@ -1174,18 +1174,18 @@
          "Fixed, not a gen")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.vector .gen.long
-                          -1))
+                (.gen.vector (.gen.long)
+                             -1))
          "Fixed, negative length")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.vector .gen.long
-                          :fail))
+                (.gen.vector (.gen.long)
+                             :fail))
          "Fixed, bad arg")
 
   (.t.is (countable? vector-2?
                      32
-                     (.gen (.gen.vector .gen.long
+                     (.gen (.gen.vector (.gen.long)
                                         32
                                         32)))
          "Bounded")
@@ -1197,25 +1197,25 @@
          "Bounded, not a gen")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.vector .gen.long
+                (.gen.vector (.gen.long)
                              -1
                              32))
          "Negative Min")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.vector .gen.long
+                (.gen.vector (.gen.long)
                              :fail
                              32))
          "Bad Min")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.vector .gen.long
+                (.gen.vector (.gen.long)
                              32
                              :fail))
          "Bad Max")
 
   (.t.is (.t.ex :ARGUMENT
-                (.gen.vector .gen.long
+                (.gen.vector (.gen.long)
                              32
                              1))
          "Min > Max"))

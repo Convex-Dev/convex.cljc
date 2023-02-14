@@ -1273,6 +1273,14 @@
 
 
 
+(defn .gen.address
+
+  []
+
+  (.shell.invoke '.gen.address))
+
+
+
 (defn .gen.always
 
   [x]
@@ -1280,6 +1288,54 @@
   (.shell.invoke '.gen.always
                  (.resrc.next)
                  x))
+
+
+
+(defn .gen.any
+
+  []
+
+  (.shell.invoke '.gen.any))
+
+
+
+(defn .gen.any.coll
+
+  []
+
+  (.shell.invoke '.gen.any.coll))
+
+
+
+(defn .gen.any.list
+
+  []
+
+  (.shell.invoke '.gen.any.list))
+
+
+
+(defn .gen.any.map
+
+  []
+
+  (.shell.invoke '.gen.any.map))
+
+
+
+(defn .gen.any.set
+
+  []
+
+  (.shell.invoke '.gen.any.set))
+
+
+
+(defn .gen.any.vector
+
+  []
+
+  (.shell.invoke '.gen.any.vector))
 
 
 
@@ -1319,6 +1375,14 @@
 
 
 
+(defn .gen.blob-32
+
+  []
+
+  (.shell.invoke '.gen.blob-32))
+
+
+
 (defn .gen.blob-map
 
 
@@ -1350,6 +1414,38 @@
 
 
 
+(defn .gen.boolean
+
+  []
+
+  (.shell.invoke '.gen.boolean))
+
+
+
+(defn .gen.char
+
+  []
+
+  (.shell.invoke '.gen.char))
+
+
+
+(defn .gen.char.alphanum
+
+  []
+
+  (.shell.invoke '.gen.char.alphanum))
+
+
+
+(defn .gen.double
+
+  []
+
+  (.shell.invoke '.gen.double))
+
+
+
 (defn .gen.double.bounded
 
   [option+]
@@ -1362,6 +1458,14 @@
                              true)
                  (:NaN? option+
                         true)))
+
+
+
+(defn .gen.falsy
+
+  []
+
+  (.shell.invoke '.gen.falsy))
 
 
 
@@ -1412,6 +1516,14 @@
 
 
 
+(defn .gen.keyword
+
+  []
+
+  (.shell.invoke '.gen.keyword))
+
+
+
 (defn .gen.list
 
 
@@ -1440,6 +1552,14 @@
 
 
 
+(defn .gen.long
+
+  []
+
+  (.shell.invoke '.gen.long))
+
+
+
 (defn .gen.long.bounded
 
   [option+]
@@ -1459,6 +1579,14 @@
                  (.resrc.next)
                  min
                  max))
+
+
+
+(defn .gen.number
+
+  []
+
+  (.shell.invoke '.gen.number))
 
 
 
@@ -1490,6 +1618,14 @@
                   generator-value
                   min
                   max)))
+
+
+
+(defn .gen.nil
+
+  []
+
+  (.shell.invoke '.gen.nil))
 
 
 
@@ -1542,6 +1678,14 @@
   (.shell.invoke '.gen.quoted
                  (.resrc.next)
                  generator))
+
+
+
+(defn .gen.scalar
+
+  []
+
+  (.shell.invoke '.gen.scalar))
 
 
 
@@ -1644,6 +1788,14 @@
 
 
 
+(defn .gen.symbol
+
+  []
+
+  (.shell.invoke '.gen.symbol))
+
+
+
 (defn .gen.syntax
 
 
@@ -1666,6 +1818,14 @@
                   (.resrc.next)
                   generator-value
                   generator-meta)))
+
+
+
+(defn .gen.truthy
+
+  []
+
+  (.shell.invoke '.gen.truthy))
 
 
 

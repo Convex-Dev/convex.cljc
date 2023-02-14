@@ -15,27 +15,28 @@
            (convex.core.lang Context)
            (convex.core.lang.impl CoreFn
                                   ErrorValue))
-  (:require [convex.cell              :as $.cell]
-            [convex.cvm               :as $.cvm]
-            [convex.shell.req.account :as $.shell.req.account]
-            [convex.shell.req.bench   :as $.shell.req.bench]
-            [convex.shell.req.cell    :as $.shell.req.cell]
-            [convex.shell.req.db      :as $.shell.req.db]
-            [convex.shell.req.dep     :as $.shell.req.dep]
-            [convex.shell.req.dev     :as $.shell.req.dev]
-            [convex.shell.req.file    :as $.shell.req.file]
-            [convex.shell.req.fs      :as $.shell.req.fs]
-            [convex.shell.req.juice   :as $.shell.req.juice]
-            [convex.shell.req.gen     :as $.shell.req.gen]
-            [convex.shell.req.log     :as $.shell.req.log]
-            [convex.shell.req.reader  :as $.shell.req.reader]
-            [convex.shell.req.state   :as $.shell.req.state]
-            [convex.shell.req.str     :as $.shell.req.str]
-            [convex.shell.req.stream  :as $.shell.req.stream]
-            [convex.shell.req.sys     :as $.shell.req.sys]
-            [convex.shell.req.time    :as $.shell.req.time]
-            [convex.shell.req.trx     :as $.shell.req.trx]
-            [convex.std               :as $.std]))
+  (:require [convex.cell                 :as $.cell]
+            [convex.cvm                  :as $.cvm]
+            [convex.shell.req.account    :as $.shell.req.account]
+            [convex.shell.req.bench      :as $.shell.req.bench]
+            [convex.shell.req.cell       :as $.shell.req.cell]
+            [convex.shell.req.db         :as $.shell.req.db]
+            [convex.shell.req.dep        :as $.shell.req.dep]
+            [convex.shell.req.dev        :as $.shell.req.dev]
+            [convex.shell.req.file       :as $.shell.req.file]
+            [convex.shell.req.fs         :as $.shell.req.fs]
+            [convex.shell.req.juice      :as $.shell.req.juice]
+            [convex.shell.req.gen        :as $.shell.req.gen]
+            [convex.shell.req.gen.static :as $.shell.req.gen.static]
+            [convex.shell.req.log        :as $.shell.req.log]
+            [convex.shell.req.reader     :as $.shell.req.reader]
+            [convex.shell.req.state      :as $.shell.req.state]
+            [convex.shell.req.str        :as $.shell.req.str]
+            [convex.shell.req.stream     :as $.shell.req.stream]
+            [convex.shell.req.sys        :as $.shell.req.sys]
+            [convex.shell.req.time       :as $.shell.req.time]
+            [convex.shell.req.trx        :as $.shell.req.trx]
+            [convex.std                  :as $.std]))
 
 
 (set! *warn-on-reflection*
@@ -136,28 +137,45 @@
    ($.cell/* .fs.tmp)                      $.shell.req.fs/tmp
    ($.cell/* .fs.tmp.dir)                  $.shell.req.fs/tmp-dir
    ($.cell/* .gen)                         $.shell.req.gen/gen
+   ($.cell/* .gen.address)                 $.shell.req.gen.static/address
+   ($.cell/* .gen.any)                     $.shell.req.gen.static/any
+   ($.cell/* .gen.any.coll)                $.shell.req.gen.static/any-coll
+   ($.cell/* .gen.any.list)                $.shell.req.gen.static/any-list
+   ($.cell/* .gen.any.map)                 $.shell.req.gen.static/any-map
+   ($.cell/* .gen.any.set)                 $.shell.req.gen.static/any-set
+   ($.cell/* .gen.any.vector)              $.shell.req.gen.static/any-vector
    ($.cell/* .gen.always)                  $.shell.req.gen/always
    ($.cell/* .gen.bind)                    $.shell.req.gen/bind
    ($.cell/* .gen.blob)                    $.shell.req.gen/blob
+   ($.cell/* .gen.blob-32)                 $.shell.req.gen.static/blob-32
    ($.cell/* .gen.blob.bounded)            $.shell.req.gen/blob-bounded
    ($.cell/* .gen.blob.fixed)              $.shell.req.gen/blob-fixed
    ($.cell/* .gen.blob-map)                $.shell.req.gen/blob-map
    ($.cell/* .gen.blob-map.bounded)        $.shell.req.gen/blob-map-bounded
    ($.cell/* .gen.blob-map.fixed)          $.shell.req.gen/blob-map-fixed
+   ($.cell/* .gen.boolean)                 $.shell.req.gen.static/boolean
+   ($.cell/* .gen.char)                    $.shell.req.gen.static/char
+   ($.cell/* .gen.char.alphanum)           $.shell.req.gen.static/char-alphanum
+   ($.cell/* .gen.double)                  $.shell.req.gen.static/double
    ($.cell/* .gen.double.bounded)          $.shell.req.gen/double-bounded
+   ($.cell/* .gen.falsy)                   $.shell.req.gen.static/falsy
    ($.cell/* .gen.fmap)                    $.shell.req.gen/fmap
    ($.cell/* .gen.freq)                    $.shell.req.gen/freq
    ($.cell/* .gen.hex-string)              $.shell.req.gen/hex-string
    ($.cell/* .gen.hex-string.fixed)        $.shell.req.gen/hex-string-fixed
    ($.cell/* .gen.hex-string.bounded)      $.shell.req.gen/hex-string-bounded
+   ($.cell/* .gen.keyword)                 $.shell.req.gen.static/keyword
    ($.cell/* .gen.list)                    $.shell.req.gen/list
    ($.cell/* .gen.list.bounded)            $.shell.req.gen/list-bounded
    ($.cell/* .gen.list.fixed)              $.shell.req.gen/list-fixed
+   ($.cell/* .gen.long)                    $.shell.req.gen.static/long
    ($.cell/* .gen.long.bounded)            $.shell.req.gen/long-bounded
    ($.cell/* .gen.long.uniform)            $.shell.req.gen/long-uniform
+   ($.cell/* .gen.number)                  $.shell.req.gen.static/number
    ($.cell/* .gen.map)                     $.shell.req.gen/map
    ($.cell/* .gen.map.bounded)             $.shell.req.gen/map-bounded
    ($.cell/* .gen.map.fixed)               $.shell.req.gen/map-fixed
+   ($.cell/* .gen.nil)                     $.shell.req.gen.static/nothing
    ($.cell/* .gen.or)                      $.shell.req.gen/or-
    ($.cell/* .gen.quoted)                  $.shell.req.gen/quoted
    ($.cell/* .gen.pick)                    $.shell.req.gen/pick
@@ -165,15 +183,18 @@
    ($.cell/* .gen.set.bounded)             $.shell.req.gen/set-bounded
    ($.cell/* .gen.set.fixed)               $.shell.req.gen/set-fixed
    ($.cell/* .gen.such-that)               $.shell.req.gen/such-that
+   ($.cell/* .gen.scalar)                  $.shell.req.gen.static/scalar
    ($.cell/* .gen.string)                  $.shell.req.gen/string
    ($.cell/* .gen.string.bounded)          $.shell.req.gen/string-bounded
    ($.cell/* .gen.string.fixed)            $.shell.req.gen/string-fixed
    ($.cell/* .gen.string.alphanum)         $.shell.req.gen/string-alphanum
    ($.cell/* .gen.string.alphanum.bounded) $.shell.req.gen/string-alphanum-bounded
    ($.cell/* .gen.string.alphanum.fixed)   $.shell.req.gen/string-alphanum-fixed
+   ($.cell/* .gen.symbol)                  $.shell.req.gen.static/symbol
    ($.cell/* .gen.syntax)                  $.shell.req.gen/syntax
    ($.cell/* .gen.syntax.with-meta)        $.shell.req.gen/syntax-with-meta
    ($.cell/* .gen.syntax.with-value)       $.shell.req.gen/syntax-with-value
+   ($.cell/* .gen.truthy)                  $.shell.req.gen.static/truthy
    ($.cell/* .gen.tuple)                   $.shell.req.gen/tuple
    ($.cell/* .gen.vector)                  $.shell.req.gen/vector
    ($.cell/* .gen.vector.bounded)          $.shell.req.gen/vector-bounded
