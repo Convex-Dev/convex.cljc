@@ -274,14 +274,6 @@
 
 
 
-(T/deftest dec-underflow
-
-  (T/is (= ($.cell/long Long/MAX_VALUE)
-           ($.eval/result $.break/ctx
-                          ($.cell/* (dec ~Long/MIN_VALUE))))))
-
-
-
 (mprop/deftest inc--
 
   {:ratio-num 100}
@@ -311,14 +303,6 @@
                       ($.cell/* (= inc-
                                    (+ ~x
                                       1))))))))
-
-
-
-(T/deftest inc-overflow
-
-  (T/is (= ($.cell/long Long/MIN_VALUE)
-           ($.eval/result $.break/ctx
-                          ($.cell/* (inc ~Long/MAX_VALUE))))))
 
 
 ;;;;;;;;;; Integer operations

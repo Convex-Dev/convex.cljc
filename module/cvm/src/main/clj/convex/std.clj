@@ -31,12 +31,12 @@
                              ASet
                              AString
                              AVector
-                             INumeric
                              Keyword
                              Ref
                              Symbol
                              Syntax)
-           (convex.core.data.prim CVMBool
+           (convex.core.data.prim ANumeric
+                                  CVMBool
                                   CVMChar
                                   CVMDouble
                                   CVMLong)
@@ -756,7 +756,7 @@
 
   "Like classic `+` but for numeric cells."
 
-  ^INumeric
+  ^ANumeric
 
   [& xs]
 
@@ -771,7 +771,7 @@
 
   "Like classic `-` but for numeric cells."
 
-  ^INumeric
+  ^ANumeric
 
   [& xs]
 
@@ -786,7 +786,7 @@
 
   "Like classic `*` but for numeric cells."
 
-  ^INumeric
+  ^ANumeric
 
   [& xs]
 
@@ -803,7 +803,7 @@
   
    Same type as `x`."
 
-  ^INumeric
+  ^ANumeric
 
   [number]
 
@@ -827,7 +827,7 @@
 
   "Like classic `/` but for numeric cells."
 
-  ^INumeric
+  ^ANumeric
 
   [& xs]
 
@@ -902,7 +902,7 @@
   
    As a long cell if input is a long, double cell if it is a double."
 
-  ^INumeric
+  ^ANumeric
 
   [^ACell number]
 
@@ -917,7 +917,7 @@
 
   ^CVMDouble
 
-  [^INumeric number]
+  [^ANumeric number]
 
   (-ensure-numeric-success (RT/sqrt number)))
 
@@ -929,7 +929,7 @@
 
   [^ACell x]
 
-  (if-some [^INumeric n (RT/ensureNumber x)]
+  (if-some [^ANumeric n (RT/ensureNumber x)]
     (= (.doubleValue n)
        0.0)
     false))
