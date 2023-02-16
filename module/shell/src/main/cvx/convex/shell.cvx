@@ -983,7 +983,6 @@
   [path]
 
   (.shell.invoke '.file.stream.in
-                 (.resrc.next)
                  (.fs.resolve path)
                  path))
 
@@ -1014,7 +1013,6 @@
   ([path option+]
 
    (.shell.invoke '.file.stream.out
-                  (.resrc.next)
                   path
                   (:append? option+))))
 
@@ -2763,7 +2761,6 @@
   [string]
 
   (.shell.invoke '.str.stream.in
-                 (.resrc.next)
                  string))
 
 
@@ -2782,8 +2779,7 @@
 
   []
 
-  (.shell.invoke '.str.stream.out
-                 (.resrc.next)))
+  (.shell.invoke '.str.stream.out))
 
 
 

@@ -11,6 +11,7 @@
   (:require [convex.cell             :as $.cell]
             [convex.cvm              :as $.cvm]
             [convex.shell.req.stream :as $.shell.req.stream]
+            [convex.shell.resrc      :as $.shell.resrc]
             [convex.std              :as $.std]))
 
 
@@ -39,21 +40,17 @@
 
   "Request for turning a string into an input stream."
 
-  [ctx [id string]]
+  [ctx [string]]
 
   (or (when-not ($.std/string? string)
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
                              ($.cell/* "String input stream requires a string")))
       ($.cvm/result-set ctx
-                        ($.cell/* [:stream
-                                   ~(-> string
-                                        (str)
-                                        (StringReader.)
-                                        (BufferedReader.)
-                                        ($.cell/fake))
-                                   ~id
-                                   :string]))))
+                        ($.shell.resrc/create (-> string
+                                                  (str)
+                                                  (StringReader.)
+                                                  (BufferedReader.))))))
 
 
 
@@ -61,13 +58,11 @@
 
   "Request for creating an output stream backed by a string."
 
-  [ctx [id]]
+  [ctx _arg+]
 
   ($.cvm/result-set ctx
-                    ($.cell/* [:stream
-                               ~($.cell/fake (StringWriter.))
-                               ~id
-                               :string])))
+                    ($.shell.resrc/create (StringWriter.))))
+
 
 
 (defn stream-unwrap

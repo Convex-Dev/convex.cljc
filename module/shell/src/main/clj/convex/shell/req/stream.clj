@@ -9,12 +9,13 @@
            (java.lang AutoCloseable)
            (java.util.stream Collectors))
   (:refer-clojure :exclude [flush])
-  (:require [convex.cell      :as $.cell]
-            [convex.cvm       :as $.cvm]
-            [convex.read      :as $.read]
-            [convex.shell.io  :as $.shell.io]
-            [convex.std       :as $.std]
-            [convex.write     :as $.write]))
+  (:require [convex.cell        :as $.cell]
+            [convex.cvm         :as $.cvm]
+            [convex.read        :as $.read]
+            [convex.shell.io    :as $.shell.io]
+            [convex.shell.resrc :as $.shell.resrc]
+            [convex.std         :as $.std]
+            [convex.write       :as $.write]))
 
 
 (declare close)
@@ -23,10 +24,7 @@
 ;;;;;;;;;;
 
 
-(let [handle ($.cell/* [:stream
-                        ~($.cell/fake $.shell.io/stderr-txt)
-                        -3
-                        :stderr])]
+(let [handle ($.shell.resrc/create $.shell.io/stderr-txt)]
 
   (defn stderr
 
@@ -39,10 +37,7 @@
 
 
 
-(let [handle ($.cell/* [:stream
-                        ~($.cell/fake $.shell.io/stdin-txt)
-                        -2
-                        :stdin])]
+(let [handle ($.shell.resrc/create $.shell.io/stdin-txt)]
 
   (defn stdin
   
@@ -55,10 +50,7 @@
 
 
 
-(let [handle ($.cell/* [:stream
-                        ~($.cell/fake $.shell.io/stdout-txt)
-                        -1
-                        :stdout])]
+(let [handle ($.shell.resrc/create $.shell.io/stdout-txt)]
 
   (defn stdout
 
@@ -134,43 +126,32 @@
 
   [ctx handle op+ f]
 
-  (or (when-not ($.std/vector? handle)
-        ($.cvm/exception-set ctx
-                             ($.cell/code-std* :ARGUMENT)
-                             ($.cell/* "Stream handle must be a vector")))
-      (when-not (and (= ($.std/count handle)
-                        4)
-                     (= ($.std/nth handle
-                                   0)
-                        ($.cell/* :stream)))
-        ($.cvm/exception-set ctx
-                             ($.cell/code-std* :ARGUMENT)
-                             ($.cell/* "Argument is not a stream handle")))
-      (let [f*stream ($.std/nth handle
-                                1)]
-        (or (when-not ($.cell/fake? f*stream)
-              ($.cvm/exception-set ctx
-                                   ($.cell/code-std* :ARGUMENT)
-                                   ($.cell/* "Stream is stale")))
-            (try
-              ;;
-              (f ctx
-                 @f*stream)
-              ;;
-              (catch ClassCastException _ex
-                (-fail ctx
-                       ($.cell/string (format "Stream is missing capability: %s"
-                                              op+))))
-              ;;
-              (catch ParseException ex
-                ($.cvm/exception-set ctx
-                                     ($.cell/* :READER)
-                                     ($.cell/string (.getMessage ex))))
-              ;;
-              (catch Throwable _ex
-                (-fail ctx
-                       ($.cell/string (format "Stream failed while performing: %s"
-                                              op+)))))))))
+  (let [[ok?
+         x]  ($.shell.resrc/unwrap ctx
+                                   handle)]
+    (if ok?
+      (let [stream x]
+        (try
+          ;;
+          (f ctx
+             stream)
+          ;;
+          (catch ClassCastException _ex
+            (-fail ctx
+                   ($.cell/string (format "Stream is missing capability: %s"
+                                          op+))))
+          ;;
+          (catch ParseException ex
+            ($.cvm/exception-set ctx
+                                 ($.cell/* :READER)
+                                 ($.cell/string (.getMessage ex))))
+          ;;
+          (catch Throwable _ex
+            (-fail ctx
+                   ($.cell/string (format "Stream failed while performing: %s"
+                                          op+))))))
+      (let [ctx-2 x]
+        ctx-2))))
 
 
 ;;;;;;;;;;

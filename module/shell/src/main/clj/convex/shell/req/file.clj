@@ -7,10 +7,11 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.cell     :as $.cell]
-            [convex.cvm      :as $.cvm]
-            [convex.shell.io :as $.shell.io]
-            [convex.std      :as $.std]))
+  (:require [convex.cell        :as $.cell]
+            [convex.cvm         :as $.cvm]
+            [convex.shell.io    :as $.shell.io]
+            [convex.shell.resrc :as $.shell.resrc]
+            [convex.std         :as $.std]))
 
 
 ;;;;;;;;;;
@@ -20,7 +21,7 @@
 
   ;; Used by [[stream-in]] and [[stream-out]].
 
-  [ctx id path open str-op]
+  [ctx path open str-op]
 
   (or (when-not ($.std/string? path)
         ($.cvm/exception-set ctx
@@ -39,10 +40,7 @@
                                                                        str-op)))]))]
         (or ctx-err
             ($.cvm/result-set ctx
-                              ($.cell/* [:stream
-                                         ~($.cell/fake stream)
-                                         ~id
-                                         ~path]))))))
+                              ($.shell.resrc/create stream))))))
 
 
 
@@ -50,10 +48,9 @@
 
   "Request for opening an input stream for file under `path`."
 
-  [ctx [id path]]
+  [ctx [path]]
 
   (-stream ctx
-           id
            path
            $.shell.io/file-in
            #{:read}))
@@ -64,10 +61,9 @@
 
   "Request for opening an output stream for file under `path`."
 
-  [ctx [id path append?]]
+  [ctx [path append?]]
 
   (-stream ctx
-           id
            path
            (fn [path]
              ($.shell.io/file-out path
