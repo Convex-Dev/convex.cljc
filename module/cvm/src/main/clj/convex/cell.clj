@@ -31,7 +31,8 @@
                              Symbol
                              Syntax
                              Vectors)
-           (convex.core.data.prim CVMBool
+           (convex.core.data.prim CVMBigInteger
+                                  CVMBool
                                   CVMChar
                                   CVMDouble
                                   CVMLong)
@@ -42,6 +43,7 @@
            (java.util Collection
                       List))
   (:refer-clojure :exclude [*
+                            bigint
                             boolean
                             byte
                             char
@@ -124,6 +126,16 @@
   [long]
 
   (Address/create (clojure.core/long long)))
+
+
+
+(defn bigint
+
+  "Creates a big integer cell from the given Clojure or Java a big integer."
+
+  [n]
+
+  (CVMBigInteger/create (biginteger n)))
 
 
 
@@ -635,6 +647,12 @@
                               s)))
 
 
+  clojure.lang.BigInt
+
+    (any [n]
+      (bigint n))
+
+
   clojure.lang.Keyword
 
     (any [k]
@@ -704,7 +722,13 @@
   java.lang.String
 
     (any [s]
-      (string s)))
+      (string s))
+
+
+  java.math.BigInteger
+
+    (any [n]
+      (bigint n)))
 
 
 

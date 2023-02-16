@@ -10,6 +10,7 @@ repository.
 ## {{ next-release }}
 
 - Add
+    - `$.cell/bigint`
     - `$.cvm/actor?`
     - `$.cvm/transact`
     - `$.std/memory-size`

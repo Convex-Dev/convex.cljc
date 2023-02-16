@@ -19,6 +19,9 @@
   (T/is (= "#cvx #42"
            (pr-str ($.cell/address 42))))
 
+  (T/is (= "#cvx 1234567890123456789012345678901234567890"
+           (pr-str ($.cell/bigint 1234567890123456789012345678901234567890N))))
+
   (T/is (= "#cvx 0x010203"
            (pr-str ($.cell/blob (byte-array [1 2 3])))))
 
@@ -110,6 +113,10 @@
            ($.cell/* (42)))
         "Long")
 
+  (T/is (= ($.read/string "1234567890123456789012345678901234567890")
+           ($.cell/* (1234567890123456789012345678901234567890N)))
+        "BigInt")
+
   (T/is (= ($.read/string "\"foo\"")
            ($.cell/* ("foo")))
         "String"))
@@ -168,6 +175,10 @@
   (T/is (= (first ($.read/string "42"))
            ($.cell/any 42))
         "Long")
+
+  (T/is (= (first ($.read/string "1234567890123456789012345678901234567890"))
+           ($.cell/any 1234567890123456789012345678901234567890N))
+        "BigInt")
 
   (T/is (= (first ($.read/string "\"foo\""))
            ($.cell/any "foo"))
