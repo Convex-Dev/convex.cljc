@@ -6,17 +6,16 @@
                             keyword
                             long
                             symbol])
-  (:require [convex.cell          :as $.cell]
-            [convex.cvm           :as $.cvm]
-            [convex.gen           :as $.gen]
-            [convex.shell.req.gen :as $.shell.req.gen]))
+  (:require [convex.cell        :as $.cell]
+            [convex.cvm         :as $.cvm]
+            [convex.gen         :as $.gen]
+            [convex.shell.resrc :as $.shell.resrc]))
 
 
 ;;;;;;;;;;
 
 
-(let [gen ($.shell.req.gen/create ($.cell/long -1)
-                                  $.gen/address)]
+(let [gen ($.shell.resrc/create $.gen/address)]
 
   (defn address
   
@@ -27,8 +26,7 @@
 
 
 
-(let [gen ($.shell.req.gen/create ($.cell/long -2)
-                                  $.gen/any)]
+(let [gen ($.shell.resrc/create $.gen/any)]
 
   (defn any
 
@@ -38,8 +36,7 @@
                       gen)))
 
 
-(let [gen ($.shell.req.gen/create ($.cell/long -3)
-                                  $.gen/any-coll)]
+(let [gen ($.shell.resrc/create $.gen/any-coll)]
 
   (defn any-coll
 
@@ -50,8 +47,7 @@
 
 
 
-(let [gen ($.shell.req.gen/create ($.cell/long -4)
-                                  $.gen/any-list)]
+(let [gen ($.shell.resrc/create $.gen/any-list)]
 
   (defn any-list
 
@@ -62,8 +58,7 @@
 
 
 
-(let [gen ($.shell.req.gen/create ($.cell/long -5)
-                                  $.gen/any-map)]
+(let [gen ($.shell.resrc/create $.gen/any-map)]
 
   (defn any-map
 
@@ -74,8 +69,7 @@
 
 
 
-(let [gen ($.shell.req.gen/create ($.cell/long -3)
-                                  $.gen/any-set)]
+(let [gen ($.shell.resrc/create $.gen/any-set)]
 
   (defn any-set
 
@@ -86,8 +80,7 @@
 
 
 
-(let [gen ($.shell.req.gen/create ($.cell/long -7)
-                                  $.gen/any-vector)]
+(let [gen ($.shell.resrc/create $.gen/any-vector)]
 
   (defn any-vector
 
@@ -98,8 +91,7 @@
 
 
 
-(let [gen ($.shell.req.gen/create ($.cell/long -8)
-                                  $.gen/blob-32)]
+(let [gen ($.shell.resrc/create $.gen/blob-32)]
 
   (defn blob-32
 
@@ -110,8 +102,7 @@
 
 
 
-(let [gen ($.shell.req.gen/create ($.cell/long -9)
-                                  $.gen/boolean)]
+(let [gen ($.shell.resrc/create $.gen/boolean)]
 
   (defn boolean
 
@@ -122,8 +113,7 @@
 
 
 
-(let [gen ($.shell.req.gen/create ($.cell/long -10)
-                                  $.gen/char)]
+(let [gen ($.shell.resrc/create $.gen/char)]
 
   (defn char
 
@@ -134,8 +124,7 @@
 
 
 
-(let [gen ($.shell.req.gen/create ($.cell/long -11)
-                                  $.gen/char-alphanum)]
+(let [gen ($.shell.resrc/create $.gen/char-alphanum)]
 
   (defn char-alphanum
 
@@ -146,8 +135,7 @@
 
 
 
-(let [gen ($.shell.req.gen/create ($.cell/long -12)
-                                  $.gen/double)]
+(let [gen ($.shell.resrc/create $.gen/double)]
 
   (defn double
 
@@ -158,8 +146,7 @@
 
 
 
-(let [gen ($.shell.req.gen/create ($.cell/long -13)
-                                  $.gen/falsy)]
+(let [gen ($.shell.resrc/create $.gen/falsy)]
 
   (defn falsy
 
@@ -170,8 +157,7 @@
 
 
 
-(let [gen ($.shell.req.gen/create ($.cell/long -14)
-                                  $.gen/keyword)]
+(let [gen ($.shell.resrc/create $.gen/keyword)]
 
   (defn keyword
 
@@ -181,8 +167,7 @@
                       gen)))
 
 
-(let [gen ($.shell.req.gen/create ($.cell/long -15)
-                                  $.gen/long)]
+(let [gen ($.shell.resrc/create $.gen/long)]
 
   (defn long
 
@@ -192,8 +177,7 @@
                       gen)))
 
 
-(let [gen ($.shell.req.gen/create ($.cell/long -16)
-                                  $.gen/number)]
+(let [gen ($.shell.resrc/create $.gen/number)]
 
   (defn number
 
@@ -204,8 +188,7 @@
 
 
 
-(let [gen ($.shell.req.gen/create ($.cell/long -17)
-                                  $.gen/nothing)]
+(let [gen ($.shell.resrc/create $.gen/nothing)]
 
   (defn nothing
 
@@ -215,8 +198,7 @@
                       gen)))
 
 
-(let [gen ($.shell.req.gen/create ($.cell/long -18)
-                                  $.gen/scalar)]
+(let [gen ($.shell.resrc/create $.gen/scalar)]
 
   (defn scalar
 
@@ -227,8 +209,7 @@
 
 
 
-(let [gen ($.shell.req.gen/create ($.cell/long -19)
-                                  $.gen/symbol)]
+(let [gen ($.shell.resrc/create $.gen/symbol)]
 
   (defn symbol
 
@@ -238,8 +219,7 @@
                       gen)))
 
 
-(let [gen ($.shell.req.gen/create ($.cell/long -20)
-                                  $.gen/truthy)]
+(let [gen ($.shell.resrc/create $.gen/truthy)]
 
   (defn truthy
 

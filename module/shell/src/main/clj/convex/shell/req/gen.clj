@@ -12,6 +12,7 @@
             [convex.cvm                    :as $.cvm]
             [convex.gen                    :as $.gen]
             [convex.shell.flow             :as $.shell.flow]
+            [convex.shell.resrc            :as $.shell.resrc]
             [convex.std                    :as $.std]))
 
 
@@ -74,6 +75,27 @@
        x])))
 
 
+
+(defn- -unwrap
+
+  [ctx gen]
+
+  (let [[ok?
+         x]  ($.shell.resrc/unwrap ctx
+                                   gen)]
+    (if ok?
+      (let [gen-2 x]
+        (or (when-not (TC.gen/generator? gen-2)
+              ($.cvm/exception-set ctx
+                                   ($.cell/code-std* :ARGUMENT)
+                                   ($.cell/* "Not a generator")))
+            [true
+             gen-2]))
+      (let [ctx-2 x]
+        [false
+         ctx-2]))))
+
+
 ;;;;;;;;;;
 
 
@@ -81,25 +103,13 @@
 
   [ctx gen f]
 
-  (or (when-not (and ($.std/vector? gen)
-                     (= ($.std/count gen)
-                        2))
-        ($.cvm/exception-set ctx
-                             ($.cell/code-std* :ARGUMENT)
-                             ($.cell/* "Does not seem to be a generator")))
-      (let [f*gen ($.std/nth gen
-                             0)]
-        (or (when-not ($.cell/fake? f*gen)
-              ($.cvm/exception-set ctx
-                                   ($.cell/code-std* :ARGUMENT)
-                                   ($.cell/* "Either not a generator or a stale generator")))
-            (let [gen-2 @f*gen]
-              (or (when-not (TC.gen/generator? gen-2)
-                    ($.cvm/exception-set ctx
-                                         ($.cell/code-std* :ARGUMENT)
-                                         ($.cell/* "Not a generator")))
-                  (f ctx
-                     gen-2)))))))
+  (let [[ok?
+         x]  (-unwrap ctx
+                      gen)]
+    (if ok?
+      (f ctx
+         x)
+      x)))
 
 
 
@@ -116,28 +126,15 @@
                              ($.cell/code-std* :ARGUMENT)
                              ($.cell/* "Vector of generators cannot be empty")))
       (let [x (reduce (fn [acc gen]
-                        (or (when-not (and ($.std/vector? gen)
-                                           (= ($.std/count gen)
-                                              2))
-                              (reduced
-                                ($.cvm/exception-set ctx
-                                                     ($.cell/code-std* :ARGUMENT)
-                                                     ($.cell/* "Does not seem to be a generator"))))
-                            (let [f*gen ($.std/nth gen
-                                                   0)]
-                              (or (when-not ($.cell/fake? f*gen)
-                                    (reduced
-                                      ($.cvm/exception-set ctx
-                                                           ($.cell/code-std* :ARGUMENT)
-                                                           ($.cell/* "Either not a generator or a stale generator"))))
-                                  (let [gen-2 @f*gen]
-                                    (or (when-not (TC.gen/generator? gen-2)
-                                          (reduced
-                                            ($.cvm/exception-set ctx
-                                                                 ($.cell/code-std* :ARGUMENT)
-                                                                 ($.cell/* "Not a generator"))))
-                                        (conj acc
-                                              gen-2)))))))
+                        (let [[ok?
+                               x]  (-unwrap ctx
+                                            gen)]
+                          (if ok?
+                            (let [gen-2 x]
+                              (conj acc
+                                    gen-2))
+                            (let [ctx-2 x]
+                              (reduced ctx-2)))))
                       []
                       gen+)]
         (if (vector? x)
@@ -146,21 +143,10 @@
           x))))
 
 
-
-(defn create
-
-  [id gen]
-
-  ($.cell/* [~($.cell/fake gen)
-             ~id]))
-
-
 ;;;;;;;;;;
 
 
 (defn gen
-
-  ;; size must be pos?
 
   [ctx [gen size seed]]
 
@@ -200,17 +186,16 @@
 
 (defn always
 
-  [ctx [id x]]
+  [ctx [x]]
 
   ($.cvm/result-set ctx
-                    (create id
-                            (TC.gen/return x))))
+                    ($.shell.resrc/create (TC.gen/return x))))
 
 
 
 (defn bind
 
-  [ctx [id gen f]]
+  [ctx [gen f]]
 
   (or (when-not ($.std/fn? f)
         ($.cvm/exception-set ctx
@@ -220,52 +205,51 @@
               gen
               (fn [ctx-2 gen-2]
                 ($.cvm/result-set ctx-2
-                                  (create id
-                                          (TC.gen/bind gen-2
-                                                       (fn [x]
-                                                         (let [ctx-3 (-> -*ctx*
-                                                                         ($.cvm/fork)
-                                                                         ($.cvm/invoke f
-                                                                                       ($.cvm/arg+* x)))]
-                                                           (if ($.cvm/exception? ctx-3)
-                                                             ($.shell.flow/return ctx-3)
-                                                             (let [gen-3 ($.cvm/result ctx-3)]
-                                                               (when-not (and ($.std/vector? gen-3)
-                                                                              (= ($.std/count gen-3)
-                                                                                 2))
-                                                                 ($.shell.flow/return
-                                                                   ($.cvm/exception-set ($.cvm/fork -*ctx*)
-                                                                                        ($.cell/code-std* :ARGUMENT)
-                                                                                        ($.cell/* "Does not seem to be a generator"))))
-                                                                (let [f*gen ($.std/nth gen-3
-                                                                                       0)]
-                                                                  (when-not ($.cell/fake? f*gen)
-                                                                    ($.shell.flow/return
-                                                                      ($.cvm/exception-set ($.cvm/fork -*ctx*)
-                                                                                           ($.cell/code-std* :ARGUMENT)
-                                                                                           ($.cell/* "Either not a generator or a stale generator"))))
-                                                                  (let [gen-4 @f*gen]
-                                                                    (when-not (TC.gen/generator? gen-4)
-                                                                      ($.cvm/exception-set ($.cvm/fork -*ctx*)
-                                                                                           ($.cell/code-std* :ARGUMENT)
-                                                                                           ($.cell/* "Not a generator")))
-                                                                    gen-4)))))))))))))
+                                  ($.shell.resrc/create
+                                    (TC.gen/bind gen-2
+                                                 (fn [x]
+                                                   (let [ctx-3 (-> -*ctx*
+                                                                   ($.cvm/fork)
+                                                                   ($.cvm/invoke f
+                                                                                 ($.cvm/arg+* x)))]
+                                                     (if ($.cvm/exception? ctx-3)
+                                                       ($.shell.flow/return ctx-3)
+                                                       (let [gen-3 ($.cvm/result ctx-3)]
+                                                         (when-not (and ($.std/vector? gen-3)
+                                                                        (= ($.std/count gen-3)
+                                                                           2))
+                                                           ($.shell.flow/return
+                                                             ($.cvm/exception-set ($.cvm/fork -*ctx*)
+                                                                                  ($.cell/code-std* :ARGUMENT)
+                                                                                  ($.cell/* "Does not seem to be a generator"))))
+                                                          (let [f*gen ($.std/nth gen-3
+                                                                                 0)]
+                                                            (when-not ($.cell/fake? f*gen)
+                                                              ($.shell.flow/return
+                                                                ($.cvm/exception-set ($.cvm/fork -*ctx*)
+                                                                                     ($.cell/code-std* :ARGUMENT)
+                                                                                     ($.cell/* "Either not a generator or a stale generator"))))
+                                                            (let [gen-4 @f*gen]
+                                                              (when-not (TC.gen/generator? gen-4)
+                                                                ($.cvm/exception-set ($.cvm/fork -*ctx*)
+                                                                                     ($.cell/code-std* :ARGUMENT)
+                                                                                     ($.cell/* "Not a generator")))
+                                                              gen-4)))))))))))))
 
 
 
 (defn blob
 
-  [ctx [id]]
+  [ctx _arg+]
 
   ($.cvm/result-set ctx
-                    (create id
-                            ($.gen/blob))))
+                    ($.shell.resrc/create ($.gen/blob))))
 
 
 
 (defn blob-bounded
 
-  [ctx [id min max]]
+  [ctx [min max]]
 
   (let [[ok?
          x]  (-ensure-bound ctx
@@ -273,31 +257,29 @@
                             max)]
     (if ok?
       ($.cvm/result-set ctx
-                        (create id
-                                ($.gen/blob (first x)
-                                            (second x))))
+                        ($.shell.resrc/create ($.gen/blob (first x)
+                                                          (second x))))
       x)))
 
 
 
 (defn blob-fixed
 
-  [ctx [id n]]
+  [ctx [n]]
 
   (let [[ok?
          x]  (-ensure-pos-num ctx
                              n)]
     (if ok?
       ($.cvm/result-set ctx
-                        (create id
-                                ($.gen/blob x)))
+                        ($.shell.resrc/create ($.gen/blob x)))
       x)))
 
 
 
 (defn blob-map
 
-  [ctx [id gen-k gen-v]]
+  [ctx [gen-k gen-v]]
 
   (do-gen ctx
           gen-k
@@ -306,15 +288,14 @@
                     gen-v
                     (fn [ctx-3 gen-v-2]
                       ($.cvm/result-set ctx-3
-                                        (create id
-                                                ($.gen/blob-map gen-k-2
-                                                                gen-v-2))))))))
+                                        ($.shell.resrc/create ($.gen/blob-map gen-k-2
+                                                                              gen-v-2))))))))
 
 
 
 (defn blob-map-bounded
 
-  [ctx [id gen-k gen-v min max]]
+  [ctx [gen-k gen-v min max]]
 
   (let [[ok?
          x]  (-ensure-bound ctx
@@ -328,18 +309,17 @@
                         gen-v
                         (fn [ctx-3 gen-v-2]
                           ($.cvm/result-set ctx-3
-                                            (create id
-                                                    ($.gen/blob-map gen-k-2
-                                                                    gen-v-2
-                                                                    (first x)
-                                                                    (second x))))))))
+                                            ($.shell.resrc/create ($.gen/blob-map gen-k-2
+                                                                                  gen-v-2
+                                                                                  (first x)
+                                                                                  (second x))))))))
       x)))
 
 
 
 (defn blob-map-fixed
 
-  [ctx [id gen-k gen-v n]]
+  [ctx [gen-k gen-v n]]
 
   (let [[ok?
          x]  (-ensure-pos-num ctx
@@ -352,17 +332,16 @@
                         gen-v
                         (fn [ctx-3 gen-v-2]
                           ($.cvm/result-set ctx-3
-                                            (create id
-                                                    ($.gen/blob-map gen-k-2
-                                                                    gen-v-2
-                                                                    x)))))))
+                                            ($.shell.resrc/create ($.gen/blob-map gen-k-2
+                                                                                  gen-v-2
+                                                                                  x)))))))
       x)))
 
 
 
 (defn double-bounded
 
-  [ctx [id min max infinite? nan?]]
+  [ctx [min max infinite? nan?]]
 
   (or (when-not (or (nil? min)
                     ($.std/double? min))
@@ -386,17 +365,16 @@
                                    ($.cell/code-std* :ARGUMENT)
                                    ($.cell/* "Minimum must be <= Maximum")))
             ($.cvm/result-set ctx
-                              (create id
-                                      ($.gen/double-bounded {:infinite? ($.std/true? infinite?)
-                                                             :max       max-2
-                                                             :min       min-2
-                                                             :Nan?      ($.std/true? nan?)})))))))
+                              ($.shell.resrc/create ($.gen/double-bounded {:infinite? ($.std/true? infinite?)
+                                                                           :max       max-2
+                                                                           :min       min-2
+                                                                           :Nan?      ($.std/true? nan?)})))))))
 
 
 
 (defn fmap
 
-  [ctx [id f gen]]
+  [ctx [f gen]]
 
   (or (when-not ($.std/fn? f)
         ($.cvm/exception-set ctx
@@ -406,16 +384,15 @@
               gen
               (fn [ctx-2 gen-2]
                 ($.cvm/result-set ctx-2
-                                  (create id
-                                          (TC.gen/fmap (fn [x]
-                                                         (let [ctx-3 (-> -*ctx*
-                                                                         ($.cvm/fork)
-                                                                         ($.cvm/invoke f
-                                                                                       ($.cvm/arg+* x)))]
-                                                           (if ($.cvm/exception? ctx-3)
-                                                             ($.shell.flow/return ctx-3)
-                                                             ($.cvm/result ctx-3))))
-                                                       gen-2)))))))
+                                  ($.shell.resrc/create (TC.gen/fmap (fn [x]
+                                                                       (let [ctx-3 (-> -*ctx*
+                                                                                       ($.cvm/fork)
+                                                                                       ($.cvm/invoke f
+                                                                                                     ($.cvm/arg+* x)))]
+                                                                         (if ($.cvm/exception? ctx-3)
+                                                                           ($.shell.flow/return ctx-3)
+                                                                           ($.cvm/result ctx-3))))
+                                                                     gen-2)))))))
 
 
 
@@ -423,7 +400,7 @@
 
   ;; Should frequencies always be positive?
 
-  [ctx [id pair+]]
+  [ctx [pair+]]
 
   (or (when-not ($.std/vector? pair+)
         ($.cvm/exception-set ctx
@@ -477,40 +454,37 @@
                       pair+)]
         (if (vector? x)
           ($.cvm/result-set ctx
-                            (create id
-                                    (TC.gen/frequency x)))
+                            ($.shell.resrc/create (TC.gen/frequency x)))
           x))))
 
 
 
 (defn hex-string
 
-  [ctx [id]]
+  [ctx _arg+]
 
   ($.cvm/result-set ctx
-                    (create id
-                            ($.gen/hex-string))))
+                    ($.shell.resrc/create ($.gen/hex-string))))
 
 
 
 (defn hex-string-fixed
 
-  [ctx [id n]]
+  [ctx [n]]
 
   (let [[ok?
          x]  (-ensure-pos-num ctx
                               n)]
     (if ok?
       ($.cvm/result-set ctx
-                        (create id
-                                ($.gen/hex-string x)))
+                        ($.shell.resrc/create ($.gen/hex-string x)))
       x)))
 
 
 
 (defn hex-string-bounded
 
-  [ctx [id min max]]
+  [ctx [min max]]
 
   (let [[ok?
          x]  (-ensure-bound ctx
@@ -518,29 +492,27 @@
                             max)]
     (if ok?
       ($.cvm/result-set ctx
-                        (create id
-                                ($.gen/hex-string (first x)
-                                                  (second x))))
+                        ($.shell.resrc/create ($.gen/hex-string (first x)
+                                                                (second x))))
       x)))
 
 
 
 (defn list
 
-  [ctx [id gen]]
+  [ctx [gen]]
 
   (do-gen ctx
           gen
           (fn [ctx-2 gen-2]
             ($.cvm/result-set ctx-2
-                              (create id
-                                      ($.gen/list gen-2))))))
+                              ($.shell.resrc/create ($.gen/list gen-2))))))
 
 
 
 (defn list-bounded
 
-  [ctx [id gen min max]]
+  [ctx [gen min max]]
 
   (let [[ok?
          x]  (-ensure-bound ctx
@@ -551,17 +523,16 @@
               gen
               (fn [ctx-2 gen-2]
                 ($.cvm/result-set ctx-2
-                                  (create id
-                                          ($.gen/list gen-2
-                                                      (first x)
-                                                      (second x))))))
+                                  ($.shell.resrc/create ($.gen/list gen-2
+                                                                    (first x)
+                                                                    (second x))))))
       x)))
 
 
 
 (defn long-bounded
 
-  [ctx [id min max]]
+  [ctx [min max]]
 
   (or (when-not (or (nil? min)
                     ($.std/long? min))
@@ -585,15 +556,14 @@
                                    ($.cell/code-std* :ARGUMENT)
                                    ($.cell/* "Minimum must be <= Maximum")))
             ($.cvm/result-set ctx
-                              (create id
-                                      ($.gen/long-bounded {:max max-2
-                                                           :min min-2})))))))
+                              ($.shell.resrc/create ($.gen/long-bounded {:max max-2
+                                                                         :min min-2})))))))
 
 
 
 (defn list-fixed
 
-  [ctx [id gen n]]
+  [ctx [gen n]]
 
   (let [[ok?
          x]  (-ensure-pos-num ctx
@@ -603,16 +573,15 @@
               gen
               (fn [ctx-2 gen-2]
                 ($.cvm/result-set ctx-2
-                                  (create id
-                                          ($.gen/list gen-2
-                                                      x)))))
+                                  ($.shell.resrc/create ($.gen/list gen-2
+                                                                    x)))))
       x)))
 
 
 
 (defn long-uniform
 
-  [ctx [id min max]]
+  [ctx [min max]]
 
   (or (when-not (or (nil? min)
                     ($.std/long? min))
@@ -636,15 +605,14 @@
                                    ($.cell/code-std* :ARGUMENT)
                                    ($.cell/* "Minimum must be <= Maximum")))
             ($.cvm/result-set ctx
-                              (create id
-                                      ($.gen/long-uniform min-2
-                                                          max-2)))))))
+                              ($.shell.resrc/create ($.gen/long-uniform min-2
+                                                                        max-2)))))))
 
 
 
 (defn map
 
-  [ctx [id gen-k gen-v]]
+  [ctx [gen-k gen-v]]
 
   (do-gen ctx
           gen-k
@@ -653,15 +621,14 @@
                     gen-v
                     (fn [ctx-3 gen-v-2]
                       ($.cvm/result-set ctx-3
-                                        (create id
-                                                ($.gen/map gen-k-2
-                                                           gen-v-2))))))))
+                                        ($.shell.resrc/create ($.gen/map gen-k-2
+                                                                         gen-v-2))))))))
 
 
 
 (defn map-bounded
 
-  [ctx [id gen-k gen-v min max]]
+  [ctx [gen-k gen-v min max]]
 
   (let [[ok?
          x]  (-ensure-bound ctx
@@ -675,18 +642,17 @@
                         gen-v
                         (fn [ctx-3 gen-v-2]
                           ($.cvm/result-set ctx-3
-                                            (create id
-                                                    ($.gen/map gen-k-2
-                                                               gen-v-2
-                                                               (first x)
-                                                               (second x))))))))
+                                            ($.shell.resrc/create ($.gen/map gen-k-2
+                                                                             gen-v-2
+                                                                             (first x)
+                                                                             (second x))))))))
       x)))
 
 
 
 (defn map-fixed
 
-  [ctx [id gen-k gen-v n]]
+  [ctx [gen-k gen-v n]]
 
   (let [[ok?
          x]  (-ensure-pos-num ctx
@@ -699,30 +665,28 @@
                         gen-v
                         (fn [ctx-3 gen-v-2]
                           ($.cvm/result-set ctx-3
-                                            (create id
-                                                    ($.gen/map gen-k-2
-                                                               gen-v-2
-                                                               x)))))))
+                                            ($.shell.resrc/create ($.gen/map gen-k-2
+                                                                             gen-v-2
+                                                                             x)))))))
       x)))
 
 
 
 (defn or-
 
-  [ctx [id gen+]]
+  [ctx [gen+]]
 
   (do-gen+ ctx
            gen+
            (fn [ctx-2 gen-2+]
              ($.cvm/result-set ctx-2
-                               (create id
-                                       (TC.gen/one-of gen-2+))))))
+                               ($.shell.resrc/create (TC.gen/one-of gen-2+))))))
 
 
 
 (defn pick
 
-  [ctx [id x+]]
+  [ctx [x+]]
 
   (or (when-not ($.std/vector? x+)
         ($.cvm/exception-set ctx
@@ -733,40 +697,37 @@
                              ($.cell/code-std* :ARGUMENT)
                              ($.cell/* "Vector of elements to pick cannot be empty")))
       ($.cvm/result-set ctx
-                        (create id
-                                (TC.gen/elements x+)))))
+                        ($.shell.resrc/create (TC.gen/elements x+)))))
 
 
 
 (defn quoted
 
-  [ctx [id gen]]
+  [ctx [gen]]
 
   (do-gen ctx
           gen
           (fn [ctx-2 gen-2]
             ($.cvm/result-set ctx-2
-                              (create id
-                                      ($.gen/quoted gen-2))))))
+                              ($.shell.resrc/create ($.gen/quoted gen-2))))))
 
 
 
 (defn set
 
-  [ctx [id gen]]
+  [ctx [gen]]
 
   (do-gen ctx
           gen
           (fn [ctx-2 gen-2]
             ($.cvm/result-set ctx-2
-                              (create id
-                                      ($.gen/set gen-2))))))
+                              ($.shell.resrc/create ($.gen/set gen-2))))))
 
 
 
 (defn set-bounded
 
-  [ctx [id gen min max]]
+  [ctx [gen min max]]
 
   (let [[ok?
          x]  (-ensure-bound ctx
@@ -777,17 +738,16 @@
               gen
               (fn [ctx-2 gen-2]
                 ($.cvm/result-set ctx-2
-                                  (create id
-                                          ($.gen/set gen-2
-                                                     (first x)
-                                                     (second x))))))
+                                  ($.shell.resrc/create ($.gen/set gen-2
+                                                                   (first x)
+                                                                   (second x))))))
       x)))
 
 
 
 (defn set-fixed
 
-  [ctx [id gen n]]
+  [ctx [gen n]]
 
   (let [[ok?
          x]  (-ensure-pos-num ctx
@@ -797,26 +757,24 @@
               gen
               (fn [ctx-2 gen-2]
                 ($.cvm/result-set ctx-2
-                                  (create id
-                                          ($.gen/set gen-2
-                                                     x)))))
+                                  ($.shell.resrc/create ($.gen/set gen-2
+                                                                   x)))))
       x)))
 
 
 
 (defn string
 
-  [ctx [id]]
+  [ctx _arg+]
 
   ($.cvm/result-set ctx
-                    (create id
-                            ($.gen/string))))
+                    ($.shell.resrc/create ($.gen/string))))
 
 
 
 (defn string-bounded
 
-  [ctx [id min max]]
+  [ctx [min max]]
 
   (let [[ok?
          x]  (-ensure-bound ctx
@@ -824,41 +782,38 @@
                             max)]
     (if ok?
       ($.cvm/result-set ctx
-                        (create id
-                                ($.gen/string (first x)
-                                              (second x))))
+                        ($.shell.resrc/create ($.gen/string (first x)
+                                                            (second x))))
       x)))
 
 
 
 (defn string-fixed
 
-  [ctx [id n]]
+  [ctx [n]]
 
   (let [[ok?
          x]  (-ensure-pos-num ctx
                               n)]
     (if ok?
       ($.cvm/result-set ctx
-                        (create id
-                                ($.gen/string x)))
+                        ($.shell.resrc/create ($.gen/string x)))
       x)))
 
 
 
 (defn string-alphanum
 
-  [ctx [id]]
+  [ctx _arg+]
 
   ($.cvm/result-set ctx
-                    (create id
-                            ($.gen/string-alphanum))))
+                    ($.shell.resrc/create ($.gen/string-alphanum))))
 
 
 
 (defn string-alphanum-bounded
 
-  [ctx [id min max]]
+  [ctx [min max]]
 
   (let [[ok?
          x]  (-ensure-bound ctx
@@ -866,31 +821,29 @@
                             max)]
     (if ok?
       ($.cvm/result-set ctx
-                        (create id
-                                ($.gen/string-alphanum (first x)
-                                                       (second x))))
+                        ($.shell.resrc/create ($.gen/string-alphanum (first x)
+                                                                     (second x))))
       x)))
 
 
 
 (defn string-alphanum-fixed
 
-  [ctx [id n]]
+  [ctx [n]]
 
   (let [[ok?
          x]  (-ensure-pos-num ctx
                               n)]
     (if ok?
       ($.cvm/result-set ctx
-                        (create id
-                                ($.gen/string-alphanum x)))
+                        ($.shell.resrc/create ($.gen/string-alphanum x)))
       x)))
 
 
 
 (defn such-that
 
-  [ctx [id max-try f gen]]
+  [ctx [max-try f gen]]
 
   (or (when-not ($.std/fn? f)
         ($.cvm/exception-set ctx
@@ -910,35 +863,34 @@
                     gen
                     (fn [ctx-2 gen-2]
                       ($.cvm/result-set ctx-2
-                                        (create id
-                                                (TC.gen/such-that (fn [x]
-                                                                    (let [ctx-3 (-> -*ctx*
-                                                                                    ($.cvm/fork)
-                                                                                    ($.cvm/invoke f
-                                                                                                  ($.cvm/arg+* x)))]
-                                                                      (if ($.cvm/exception? ctx-3)
-                                                                        ($.shell.flow/return ctx-3)
-                                                                        (let [result ($.cvm/result ctx-3)]
-                                                                          (not (or (nil? result)
-                                                                                   ($.std/false? result)))))))
-                                                                  gen-2
-                                                                  max-try-2)))))))))
+                                        ($.shell.resrc/create
+                                          (TC.gen/such-that (fn [x]
+                                                              (let [ctx-3 (-> -*ctx*
+                                                                              ($.cvm/fork)
+                                                                              ($.cvm/invoke f
+                                                                                            ($.cvm/arg+* x)))]
+                                                                (if ($.cvm/exception? ctx-3)
+                                                                  ($.shell.flow/return ctx-3)
+                                                                  (let [result ($.cvm/result ctx-3)]
+                                                                    (not (or (nil? result)
+                                                                             ($.std/false? result)))))))
+                                                            gen-2
+                                                            max-try-2)))))))))
 
 
 
 (defn syntax
 
-  [ctx [id]]
+  [ctx _arg+]
 
   ($.cvm/result-set ctx
-                    (create id
-                            ($.gen/syntax))))
+                    ($.shell.resrc/create ($.gen/syntax))))
 
 
 
 (defn syntax-with-meta
 
-  [ctx [id gen-v gen-meta]]
+  [ctx [gen-v gen-meta]]
 
   (do-gen ctx
           gen-v
@@ -947,55 +899,52 @@
                     gen-meta
                     (fn [ctx-3 gen-meta-2]
                       ($.cvm/result-set ctx-3
-                                        (create id
-                                                ($.gen/syntax gen-v-2
-                                                              gen-meta-2))))))))
+                                        ($.shell.resrc/create
+                                          ($.gen/syntax gen-v-2
+                                                        gen-meta-2))))))))
 
 
 
 (defn syntax-with-value
 
-  [ctx [id gen-v]]
+  [ctx [gen-v]]
 
   (do-gen ctx
           gen-v
           (fn [ctx-2 gen-v-2]
             ($.cvm/result-set ctx-2
-                              (create id
-                                      ($.gen/syntax gen-v-2))))))
+                              ($.shell.resrc/create ($.gen/syntax gen-v-2))))))
 
 
 
 (defn tuple
 
-  [ctx [id gen+]]
+  [ctx [gen+]]
 
   (do-gen+ ctx
            gen+
            (fn [ctx-2 gen-2+]
              ($.cvm/result-set ctx-2
-                               (create id
-                                       (apply $.gen/tuple
-                                              gen-2+))))))
+                               ($.shell.resrc/create (apply $.gen/tuple
+                                                            gen-2+))))))
 
 
 
 (defn vector
 
-  [ctx [id gen]]
+  [ctx [gen]]
 
   (do-gen ctx
           gen
           (fn [ctx-2 gen-2]
             ($.cvm/result-set ctx-2
-                              (create id
-                                      ($.gen/vector gen-2))))))
+                              ($.shell.resrc/create ($.gen/vector gen-2))))))
 
 
 
 (defn vector-bounded
 
-  [ctx [id gen min max]]
+  [ctx [gen min max]]
 
   (let [[ok?
          x]  (-ensure-bound ctx
@@ -1006,17 +955,16 @@
               gen
               (fn [ctx-2 gen-2]
                 ($.cvm/result-set ctx-2
-                                  (create id
-                                          ($.gen/vector gen-2
-                                                        (first x)
-                                                        (second x))))))
+                                  ($.shell.resrc/create ($.gen/vector gen-2
+                                                                      (first x)
+                                                                      (second x))))))
       x)))
 
 
 
 (defn vector-fixed
 
-  [ctx [id gen n]]
+  [ctx [gen n]]
 
   (let [[ok?
          x]  (-ensure-pos-num ctx
@@ -1026,7 +974,6 @@
               gen
               (fn [ctx-2 gen-2]
                 ($.cvm/result-set ctx-2
-                                  (create id
-                                          ($.gen/vector gen-2
-                                                        x)))))
+                                  ($.shell.resrc/create ($.gen/vector gen-2
+                                                                      x)))))
       x)))

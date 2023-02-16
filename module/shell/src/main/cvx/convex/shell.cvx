@@ -1284,7 +1284,6 @@
   [x]
 
   (.shell.invoke '.gen.always
-                 (.resrc.next)
                  x))
 
 
@@ -1342,7 +1341,6 @@
   [generator f]
 
   (.shell.invoke '.gen.bind
-                 (.resrc.next)
                  generator
                  f))
 
@@ -1353,21 +1351,18 @@
 
   ([]
 
-   (.shell.invoke '.gen.blob
-                  (.resrc.next)))
+   (.shell.invoke '.gen.blob))
 
 
   ([n]
 
    (.shell.invoke '.gen.blob.fixed
-                  (.resrc.next)
                   n))
 
 
   ([min max]
 
    (.shell.invoke '.gen.blob.bounded
-                  (.resrc.next)
                   min
                   max)))
 
@@ -1387,7 +1382,6 @@
   ([generator-key generator-value]
 
    (.shell.invoke '.gen.blob-map
-                  (.resrc.next)
                   generator-key
                   generator-value))
 
@@ -1395,7 +1389,6 @@
   ([generator-key generator-value n]
 
    (.shell.invoke '.gen.blob-map.fixed
-                  (.resrc.next)
                   generator-key
                   generator-value
                   n))
@@ -1404,7 +1397,6 @@
   ([generator-key generator-value min max]
 
    (.shell.invoke '.gen.blob-map.bounded
-                  (.resrc.next)
                   generator-key
                   generator-value
                   min
@@ -1449,7 +1441,6 @@
   [option+]
 
   (.shell.invoke '.gen.double.bounded
-                 (.resrc.next)
                  (:min option+)
                  (:max option+)
                  (:infinite? option+
@@ -1472,7 +1463,6 @@
   [f generator]
 
   (.shell.invoke '.gen.fmap
-                 (.resrc.next)
                  f
                  generator))
 
@@ -1484,7 +1474,6 @@
   [pair+]
 
   (.shell.invoke '.gen.freq
-                 (.resrc.next)
                  pair+))
 
 
@@ -1494,21 +1483,18 @@
 
   ([]
 
-   (.shell.invoke '.gen.hex-string
-                  (.resrc.next)))
+   (.shell.invoke '.gen.hex-string))
 
 
   ([n]
 
    (.shell.invoke '.gen.hex-string.fixed
-                  (.resrc.next)
                   n))
 
 
   ([min max]
 
    (.shell.invoke '.gen.hex-string.bounded
-                  (.resrc.next)
                   min
                   max)))
 
@@ -1528,14 +1514,12 @@
   ([generator]
 
    (.shell.invoke '.gen.list
-                  (.resrc.next)
                   generator))
 
 
   ([generator n]
 
    (.shell.invoke '.gen.list.fixed
-                  (.resrc.next)
                   generator
                   n))
 
@@ -1543,7 +1527,6 @@
   ([generator min max]
 
    (.shell.invoke '.gen.list.bounded
-                  (.resrc.next)
                   generator
                   min
                   max)))
@@ -1563,7 +1546,6 @@
   [option+]
 
   (.shell.invoke '.gen.long.bounded
-                 (.resrc.next)
                  (:min option+)
                  (:max option+)))
 
@@ -1574,7 +1556,6 @@
   [min max]
 
   (.shell.invoke '.gen.long.uniform
-                 (.resrc.next)
                  min
                  max))
 
@@ -1594,7 +1575,6 @@
   ([generator-key generator-value]
 
    (.shell.invoke '.gen.map
-                  (.resrc.next)
                   generator-key
                   generator-value))
 
@@ -1602,7 +1582,6 @@
   ([generator-key generator-value n]
 
    (.shell.invoke '.gen.map.fixed
-                  (.resrc.next)
                   generator-key
                   generator-value
                   n))
@@ -1611,7 +1590,6 @@
   ([generator-key generator-value min max]
 
    (.shell.invoke '.gen.map.bounded
-                  (.resrc.next)
                   generator-key
                   generator-value
                   min
@@ -1632,7 +1610,6 @@
   [generator+]
 
   (.shell.invoke '.gen.or
-                 (.resrc.next)
                  generator+))
 
 
@@ -1642,7 +1619,6 @@
   [x+]
 
   (.shell.invoke '.gen.pick
-                 (.resrc.next)
                  x+))
 
 
@@ -1674,7 +1650,6 @@
   [generator]
 
   (.shell.invoke '.gen.quoted
-                 (.resrc.next)
                  generator))
 
 
@@ -1693,14 +1668,12 @@
   ([generator]
 
    (.shell.invoke '.gen.set
-                  (.resrc.next)
                   generator))
 
 
   ([generator n]
 
    (.shell.invoke '.gen.set.fixed
-                  (.resrc.next)
                   generator
                   n))
 
@@ -1708,7 +1681,6 @@
   ([generator min max]
 
    (.shell.invoke '.gen.set.bounded
-                  (.resrc.next)
                   generator
                   min
                   max)))
@@ -1720,21 +1692,18 @@
 
   ([]
 
-   (.shell.invoke '.gen.string
-                  (.resrc.next)))
+   (.shell.invoke '.gen.string))
 
 
   ([n]
 
    (.shell.invoke '.gen.string.fixed
-                  (.resrc.next)
                   n))
 
 
   ([min max]
 
    (.shell.invoke '.gen.string.bounded
-                  (.resrc.next)
                   min
                   max)))
 
@@ -1745,21 +1714,18 @@
 
   ([]
 
-   (.shell.invoke '.gen.string.alphanum
-                  (.resrc.next)))
+   (.shell.invoke '.gen.string.alphanum))
 
 
   ([n]
 
    (.shell.invoke '.gen.string.alphanum.fixed
-                  (.resrc.next)
                   n))
 
 
   ([min max]
 
    (.shell.invoke '.gen.string.alphanum.bounded
-                  (.resrc.next)
                   min
                   max)))
 
@@ -1778,7 +1744,6 @@
   ([max-try pred generator]
 
    (.shell.invoke '.gen.such-that
-                  (.resrc.next)
                   (or max-try
                       100)
                   pred
@@ -1799,21 +1764,18 @@
 
   ([]
 
-   (.shell.invoke '.gen.syntax
-                  (.resrc.next)))
+   (.shell.invoke '.gen.syntax))
 
 
   ([generator-value]
 
    (.shell.invoke '.gen.syntax.with-value
-                  (.resrc.next)
                   generator-value))
 
 
   ([generator-value generator-meta]
 
    (.shell.invoke '.gen.syntax.with-meta
-                  (.resrc.next)
                   generator-value
                   generator-meta)))
 
@@ -1832,7 +1794,6 @@
   [generator+]
 
   (.shell.invoke '.gen.tuple
-                 (.resrc.next)
                  generator+))
 
 
@@ -1843,14 +1804,12 @@
   ([generator]
 
    (.shell.invoke '.gen.vector
-                  (.resrc.next)
                   generator))
 
 
   ([generator n]
 
    (.shell.invoke '.gen.vector.fixed
-                  (.resrc.next)
                   generator
                   n))
 
@@ -1858,7 +1817,6 @@
   ([generator min max]
 
    (.shell.invoke '.gen.vector.bounded
-                  (.resrc.next)
                   generator
                   min
                   max)))
@@ -2327,36 +2285,6 @@
   (contains-key? #{:q
                    :quit}
                  (first (:form+ state))))
-
-
-;;;;;;;;;; Used by resources external to the CVM
-
-
-(def .resrc.*count*
-
-  ^:private?
-
-  0)
-
-
-
-(defn .resrc.next
-
-  ^{:callable? true
-    :doc       {:description ["Returns an ever incrementing Long."
-                              "Some utilities use this function for identifying resources external"
-                               "to the Convex Virtual Machine (e.g. stream handles)."]
-                :examples    [{:code (.resrc.next)}]
-                :signature   [{:params []}]}}
-
-  []
-
-  (if (= *address*
-         $CORE$)
-    (def .resrc.*count*
-         (inc .resrc.*count*))
-    (call $CORE$
-          (.resrc.next))))
 
 
 ;;;;;;;;;; Shell
