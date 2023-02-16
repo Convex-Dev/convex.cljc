@@ -44,7 +44,7 @@
    of failure)."
 
   [ctx resrc]
-
+  
   (or (when (or (not ($.std/vector? resrc))
                 (not (= ($.std/count resrc)
                         2)))

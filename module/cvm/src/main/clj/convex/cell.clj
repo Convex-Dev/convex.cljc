@@ -802,7 +802,7 @@
 
    `deref` will return `x`.
   
-   Prints as the symbol cell `DEREF-ME` but is not an actual symbol cell.
+   Prints as the keyword cell `DEREF-ME` but is not an actual symbol cell.
    Similarly, writing this fake cell to Etch writes the symbol cell `DEREF-ME`.
    Obviously, reading from Etch will return that actual symbol cell since only
    real cells can be serialized and deserialized (see [[convex.db]])."
@@ -847,10 +847,10 @@
       (.getTag -deref-me))
 
     (isCanonical []
-      (.isCanonical -deref-me))
+      true)
 
     (toCanonical []
-      (.toCanonical -deref-me))))
+      this)))
 
 
 
@@ -858,9 +858,9 @@
 
   "Returns true if `cell` has been produced by [[fake]]."
 
-  [^ACell cell]
+  [x]
 
-  (and (not (instance? Keyword
-                       cell))
-       (= (.toCanonical cell)
-          -deref-me)))
+  (and (instance? ACell
+                  x)
+       (instance? IDeref
+                  x)))
