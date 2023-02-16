@@ -63,6 +63,12 @@
              ($.clj/any cell))
           "Long"))
 
+  (let [cell ($.cell/* 123456789012345678901234567890N)]
+    (T/is (= 123456789012345678901234567890N
+             ($.clj/bigint cell)
+             ($.clj/any cell))
+          "BigInt"))
+
   (let [cell ($.cell/* {:a :b})]
     (T/is (= {:a :b}
              ($.clj/map cell)

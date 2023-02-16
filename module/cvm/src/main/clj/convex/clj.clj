@@ -19,11 +19,13 @@
                              Keyword
                              Symbol
                              Syntax)
-           (convex.core.data.prim CVMBool
+           (convex.core.data.prim CVMBigInteger
+                                  CVMBool
                                   CVMChar
                                   CVMDouble
                                   CVMLong))
-  (:refer-clojure :exclude [boolean
+  (:refer-clojure :exclude [bigint
+                            boolean
                             byte
                             char
                             double
@@ -39,6 +41,10 @@
 (declare any)
 
 
+(set! *warn-on-reflection*
+      true)
+
+
 ;;;;;;;;;;
 
 
@@ -49,6 +55,16 @@
   [^Address address]
 
   (.longValue address))
+
+
+
+(defn bigint
+
+  "Returns the given `bigint` cell as a Clojure BigInt."
+
+  [^CVMBigInteger bigint]
+
+  (clojure.core/bigint (.getBigInteger bigint)))
 
 
 
@@ -241,18 +257,19 @@
   
   IClojuresque
 
-  nil       (any [_cell] nil)
-  Address   (any [cell]  (address cell))
-  ABlob     (any [cell]  (blob cell))
-  AList     (any [cell]  (list cell))
-  AMap      (any [cell]  (map cell))
-  ASet      (any [cell]  (set cell))
-  AString   (any [cell]  (string cell))
-  AVector   (any [cell]  (vector cell))
-  CVMBool   (any [cell]  (boolean cell))
-  CVMChar   (any [cell]  (char cell))
-  CVMDouble (any [cell]  (double cell))
-  CVMLong   (any [cell]  (long cell))
-  Keyword   (any [cell]  (keyword cell))
-  Syntax    (any [cell]  (syntax cell))
-  Symbol    (any [cell]  (symbol cell)))
+  nil           (any [_cell] nil)
+  Address       (any [cell]  (address cell))
+  ABlob         (any [cell]  (blob cell))
+  AList         (any [cell]  (list cell))
+  AMap          (any [cell]  (map cell))
+  ASet          (any [cell]  (set cell))
+  AString       (any [cell]  (string cell))
+  AVector       (any [cell]  (vector cell))
+  CVMBigInteger (any [cell]  (bigint cell))
+  CVMBool       (any [cell]  (boolean cell))
+  CVMChar       (any [cell]  (char cell))
+  CVMDouble     (any [cell]  (double cell))
+  CVMLong       (any [cell]  (long cell))
+  Keyword       (any [cell]  (keyword cell))
+  Syntax        (any [cell]  (syntax cell))
+  Symbol        (any [cell]  (symbol cell)))

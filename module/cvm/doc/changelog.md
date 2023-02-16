@@ -11,6 +11,7 @@ repository.
 
 - Add
     - `$.cell/bigint`
+    - `$.clj/bigint`
     - `$.cvm/actor?`
     - `$.cvm/transact`
     - `$.std/memory-size`
