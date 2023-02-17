@@ -57,3 +57,65 @@
   (.t.is (and (blob? seed)
               (= 32
                  (count seed)))))
+
+
+
+(.t.def ..kp.sign
+
+  (.t.is (blob? (.kp.sign (.kp.create)
+                          42)))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.kp.sign :fail
+                          42))
+         "Not a key pair"))
+
+
+
+(.t.def ..kp.verify
+
+  (def kp
+       (.kp.create))
+
+  (def pubkey
+       (.kp.public-key kp))
+
+  (def signature
+       (.kp.sign kp
+                 42))
+
+  (.t.is (.kp.verify signature
+                     pubkey
+                     42)
+         "Good signature")
+
+  (.t.is (= false
+            (.kp.verify (.kp.sign kp
+                                  84)
+                        pubkey
+                        42))
+         "Wrong signature")
+
+  (.t.is (= false
+            (.kp.verify signature
+                        (:key (account .account.genesis))
+                        42))
+         "Wrong public key")
+
+  (.t.is (= false
+            (.kp.verify signature
+                        pubkey
+                        :fail))
+         "Wrong data")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.kp.verify 0x0000
+                            pubkey
+                            42))
+         "Bad length for signature")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.kp.verify 0x0000
+                            :fail
+                            42))
+         "Bad public key"))

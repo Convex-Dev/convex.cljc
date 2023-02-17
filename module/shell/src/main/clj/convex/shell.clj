@@ -162,7 +162,9 @@
                             (def kp
                                  (.kp.create))
 
-                            (.kp.public-key kp)
+                            (.kp.verify (.kp.sign kp 42)
+                                        (.kp.public-key kp)
+                                        42)
 
                             )))
       ($.cvm/result))

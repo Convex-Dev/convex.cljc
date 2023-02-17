@@ -207,6 +207,8 @@
    ($.cell/* .kp.create.from-seed)         $.shell.req.kp/create-from-seed
    ($.cell/* .kp.public-key)               $.shell.req.kp/public-key
    ($.cell/* .kp.seed)                     $.shell.req.kp/seed
+   ($.cell/* .kp.sign)                     $.shell.req.kp/sign
+   ($.cell/* .kp.verify)                   $.shell.req.kp/verify
    ($.cell/* .log.clear)                   $.shell.req.log/clear
    ($.cell/* .log.get)                     $.shell.req.log/get
    ($.cell/* .reader.form+)                $.shell.req.reader/form+

@@ -89,3 +89,44 @@
           (fn [kp-2]
             ($.cvm/result-set ctx
                               ($.key-pair/seed kp-2)))))
+
+
+
+(defn sign
+
+  "Request for signing a `cell`."
+
+  [ctx [kp cell]]
+
+  (-do-kp ctx
+          kp
+          (fn [kp-2]
+            ($.cvm/result-set ctx
+                              (-> ($.key-pair/sign kp-2
+                                                   cell)
+                                  ($.key-pair/signed->signature))))))
+
+
+
+(defn verify
+
+  "Request for verifying a signature"
+
+  [ctx [signature public-key x]]
+
+  (or (when-not (and ($.std/blob? signature)
+                     (= ($.std/count signature)
+                        64))
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Signature must be a 64-byte Blob")))
+      (when-not (and ($.std/blob? public-key)
+                     (= ($.std/count public-key)
+                        32))
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Public key must be a 32-byte Blob")))
+      ($.cvm/result-set ctx
+                        ($.cell/boolean ($.key-pair/verify public-key
+                                                           signature
+                                                           x)))))

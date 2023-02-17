@@ -2033,6 +2033,38 @@
                  key-pair))
 
 
+
+(defn .kp.sign
+
+  ^{:doc {:description ["Returns a signature (64-byte Blob) of `x` (any cell) by this `key-pair`."
+                        ""
+                        "See `.kp.verify` for verifying signatures."]
+          :examples    [{:code (.kp.sign (.kp.create) :some-cell)}]
+          :signature   [{:params [key-pair x]}]}}
+
+  [key-pair x]
+
+  (.shell.invoke '.kp.sign
+                 key-pair
+                 x))
+
+
+
+(defn .kp.verify
+
+  ^{:doc {:description ["Returns `true` if the `signature` matches `x` for the given `public-key`."
+                        ""
+                        "See `.kp.sign` for producing signatures."]
+          :signature   [{:params [signature public-key x]}]}}
+
+  [signature public-key x]
+
+  (.shell.invoke '.kp.verify
+                 signature
+                 public-key
+                 x))
+
+
 ;;;;;;;;;; CVM log operations
 
 
