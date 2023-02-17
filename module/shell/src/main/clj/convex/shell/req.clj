@@ -145,6 +145,7 @@
    ($.cell/* .gen.any.set)                 $.shell.req.gen.static/any-set
    ($.cell/* .gen.any.vector)              $.shell.req.gen.static/any-vector
    ($.cell/* .gen.always)                  $.shell.req.gen/always
+   ($.cell/* .gen.bigint)                  $.shell.req.gen.static/bigint
    ($.cell/* .gen.bind)                    $.shell.req.gen/bind
    ($.cell/* .gen.blob)                    $.shell.req.gen/blob
    ($.cell/* .gen.blob-32)                 $.shell.req.gen.static/blob-32

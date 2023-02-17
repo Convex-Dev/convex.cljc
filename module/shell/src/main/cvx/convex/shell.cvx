@@ -1336,6 +1336,14 @@
 
 
 
+(defn .gen.bigint
+
+  []
+
+  (.shell.invoke '.gen.bigint))
+
+
+
 (defn .gen.bind
 
   [generator f]

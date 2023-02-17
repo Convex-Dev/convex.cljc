@@ -1,6 +1,7 @@
 (ns convex.shell.req.gen.static
 
-  (:refer-clojure :exclude [boolean
+  (:refer-clojure :exclude [bigint
+                            boolean
                             char
                             double
                             keyword
@@ -82,6 +83,17 @@
 (let [gen ($.shell.resrc/create $.gen/any-vector)]
 
   (defn any-vector
+
+    [ctx _arg+]
+
+    ($.cvm/result-set ctx
+                      gen)))
+
+
+
+(let [gen ($.shell.resrc/create $.gen/bigint)]
+
+  (defn bigint
 
     [ctx _arg+]
 
