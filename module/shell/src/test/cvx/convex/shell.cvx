@@ -10,6 +10,7 @@
           $.shell.gen     (test convex shell gen)
           $.shell.gensym  (test convex shell gensym)
           $.shell.juice   (test convex shell juice)
+          $.shell.kp      (test convex shell kp)
           $.shell.log     (test convex shell log)
           $.shell.project (test convex shell project)
           $.shell.reader  (test convex shell reader)

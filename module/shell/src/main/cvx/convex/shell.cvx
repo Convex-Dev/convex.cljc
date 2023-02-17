@@ -1964,6 +1964,75 @@
                                (expand trx)))))
 
 
+;;;;;;;;;; Key pairs
+
+
+(def .kp
+
+  ^{:private?      true
+    :shell.section ["Utilities for creating and handling key pairs (Ed25519)."
+                    ""
+                    "All user accounts are bounded to a key pair. The public key of an account"
+                    "is kept on-chain (e.g. `(:key (account *address*))`). Whoever is holding"
+                    "the matching private key can transact with that account."]}
+
+  nil)
+
+
+
+(defn .kp.create
+
+  ^{:doc {:description ["Creates a key pair from a seed (32-byte Blob)."
+                        "A random seed will be generated if none is provided."]
+          :examples    [{:code (.kp.create)}
+                        {:code (.kp.create 0xae09224a6683aa86ea7e3eaabc06fe9e8b056b0da5fa741677b11983ad2116c6)}]
+          :signature   [{:params []}
+                        {:params [seed]}]}}
+
+  ([]
+
+   (.shell.invoke '.kp.create))
+
+
+  ([seed]
+
+   (.shell.invoke '.kp.create.from-seed
+                  seed)))
+
+
+
+(defn .kp.public-key
+
+  ^{:doc {:description ["Extracts the public key from the given `key-pair`."]
+          :examples    [{:code (.kp.public-key (.kp.create))}]
+          :signature   [{:params [key-pair]}]}}
+
+  [key-pair]
+
+  (.shell.invoke '.kp.public-key
+                 key-pair))
+
+
+
+(defn .kp.seed
+
+  ^{:doc {:description ["Extracts the seed from the given `key-pair`."
+                        "It can be used in `.kp.create` for recreating the key pair."
+                        ""
+                        "Attention, it follows that seeds are absolutely confidential."
+                        "Anyone with a seed can recreate the exact same key pair."
+                        ""
+                        "You should NEVER share a seed with anyone unless you know exactly"
+                        "what you are doing and what it means."]
+          :examples    [{:code (.kp.seed (.kp.create))}]
+          :signature   [{:params [key-pair]}]}}
+
+  [key-pair]
+
+  (.shell.invoke '.kp.seed
+                 key-pair))
+
+
 ;;;;;;;;;; CVM log operations
 
 

@@ -158,7 +158,12 @@
 
   (-> (init)
       (transact ($.cell/* (do
-                            (.kp.create)
-                              )))
+
+                            (def kp
+                                 (.kp.create))
+
+                            (.kp.public-key kp)
+
+                            )))
       ($.cvm/result))
   )

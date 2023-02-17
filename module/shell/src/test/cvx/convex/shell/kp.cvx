@@ -1,0 +1,59 @@
+{}
+
+
+;;;;;;;;;;
+
+
+(.t.def ..kp.create
+
+  (def kp
+       (.kp.create))
+
+  (.t.is (boolean kp))
+
+
+  (def seed
+       (.kp.seed kp))
+
+  (.t.is (= seed
+            (.kp.seed (.kp.create seed)))
+         "From seed")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.kp.create 0x123456))
+         "Bad seed"))
+
+
+
+(.t.def ..kp.public-key
+
+  (.t.is (.t.ex :ARGUMENT
+                (.kp.public-key 42))
+         "Not a key pair")
+
+  (def kp
+       (.kp.create))
+
+  (def pubkey
+       (.kp.public-key kp))
+
+  (.t.is (.account.key? pubkey))
+
+  (.t.is (= pubkey
+            (.kp.public-key (.kp.create (.kp.seed kp))))
+         "Recreating the key pair from seed yields the same public key"))
+
+
+
+(.t.def ..kp.seed
+
+  (.t.is (.t.ex :ARGUMENT
+                (.kp.seed 42))
+         "Not a key pair")
+
+  (def seed
+       (.kp.seed (.kp.create)))
+
+  (.t.is (and (blob? seed)
+              (= 32
+                 (count seed)))))

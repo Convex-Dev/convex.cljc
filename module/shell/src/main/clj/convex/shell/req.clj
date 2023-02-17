@@ -26,6 +26,7 @@
             [convex.shell.req.file       :as $.shell.req.file]
             [convex.shell.req.fs         :as $.shell.req.fs]
             [convex.shell.req.juice      :as $.shell.req.juice]
+            [convex.shell.req.kp         :as $.shell.req.kp]
             [convex.shell.req.gen        :as $.shell.req.gen]
             [convex.shell.req.gen.static :as $.shell.req.gen.static]
             [convex.shell.req.log        :as $.shell.req.log]
@@ -202,6 +203,10 @@
    ($.cell/* .gen.vector.fixed)            $.shell.req.gen/vector-fixed
    ($.cell/* .juice.set)                   $.shell.req.juice/set
    ($.cell/* .juice.track)                 $.shell.req.juice/track
+   ($.cell/* .kp.create)                   $.shell.req.kp/create
+   ($.cell/* .kp.create.from-seed)         $.shell.req.kp/create-from-seed
+   ($.cell/* .kp.public-key)               $.shell.req.kp/public-key
+   ($.cell/* .kp.seed)                     $.shell.req.kp/seed
    ($.cell/* .log.clear)                   $.shell.req.log/clear
    ($.cell/* .log.get)                     $.shell.req.log/get
    ($.cell/* .reader.form+)                $.shell.req.reader/form+

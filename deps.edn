@@ -423,6 +423,7 @@
                                            :ext/protosens.string
                                            :module/cvm
                                            :module/gen
+                                           :module/net
                                            {dev :dev/shell}]
    :maestro/root                          "module/shell"
    :maestro.module.expose/name            world.convex/shell
