@@ -10,6 +10,7 @@ repository.
 ## {{ next-release }}
 
 - Add
+    - `bigint`
     - `long-uniform`
 - Change
     - Raise maximum number of trials to 100 for some generators (e.g. sets)

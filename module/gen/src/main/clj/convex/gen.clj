@@ -5,7 +5,8 @@
   {:author "Adam Helinski"}
 
   (:import (convex.core.lang Symbols))
-  (:refer-clojure :exclude [boolean
+  (:refer-clojure :exclude [bigint
+                            boolean
                             char
                             double
                             long
@@ -164,6 +165,15 @@
 
   (TC.gen/fmap $.cell/address
                (TC.gen/large-integer* {:min 0})))
+
+
+
+(def bigint
+
+  "BigInt bounded exclusively by ±2^(6*size)."
+
+  (TC.gen/fmap $.cell/bigint
+               TC.gen/size-bounded-bigint))
 
 
 

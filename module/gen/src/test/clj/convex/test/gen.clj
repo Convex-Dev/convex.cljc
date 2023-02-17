@@ -30,6 +30,9 @@
   (gen $.std/address?
        $.gen/address)
 
+  (gen $.std/bigint?
+       $.gen/bigint)
+
   (gen $.std/blob?
        ($.gen/blob))
 
@@ -42,7 +45,6 @@
 
   (gen $.std/blob?
        $.gen/blob-32)
-
 
   (gen $.std/boolean?
        $.gen/boolean)
