@@ -220,6 +220,40 @@
 
 
 
+(defn .cell.ref.stat
+
+  ^{:doc {:description ["Given a cell (cannot be `nil`), returns a map where:"
+                        ""
+                        "  :direct"
+                        "    Number of direct refs."
+                        ""
+                        "  :embedded"
+                        "    Number of embedded cells."
+                        ""
+                        "  :persisted"
+                        "    Number of refs marked as persisted."
+                        ""
+                        "  :soft"
+                        "    Number of soft refs."
+                        ""
+                        "  :total"
+                        "    Total number of refs."
+                        ""
+                        "This is an advanced feature meant for CVM developers familiar"
+                        "with the notion of cell references."]
+          :examples    [{:code (.cell.ref.stat *state*)}]
+          :signature   [{:params [cell]}]}}
+
+  [cell]
+
+  (when (nil? cell)
+    (fail :ARGUMENT
+          "Cell cannot be `nil`"))
+  (.shell.invoke '.cell.ref.stat
+                 cell))
+
+
+
 (defn .cell.size
 
   ^{:doc {:description ["In bytes, returns the memory size of the given `cell`."
@@ -233,25 +267,6 @@
   [cell]
 
   (.shell.invoke '.cell.size
-                 cell))
-
-
-
-(defn .cell.softness
-
-  ^{:doc {:description ["Returns a vector where, relative to `cell`:"
-                        ""
-                        "  0: Number of direct references"
-                        "  1: Number of soft references"
-                        ""
-                        "This is an advanced feature meant for CVM developers familiar"
-                        "with the notion of cell references."]
-          :examples    [{:code (.cell.softness *state*)}]
-          :signature   [{:params [cell]}]}}
-
-  [cell]
-
-  (.shell.invoke '.cell.softness
                  cell))
 
 

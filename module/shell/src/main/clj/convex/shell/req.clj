@@ -110,8 +110,8 @@
    ($.cell/* .bench.eval)                  $.shell.req.bench/eval
    ($.cell/* .bench.trx)                   $.shell.req.bench/trx
    ($.cell/* .bench.trx.gen)               $.shell.req.bench/trx-gen
+   ($.cell/* .cell.ref.stat)               $.shell.req.cell/ref-stat
    ($.cell/* .cell.size)                   $.shell.req.cell/size
-   ($.cell/* .cell.softness)               $.shell.req.cell/softness
    ($.cell/* .db.flush)                    $.shell.req.db/flush
    ($.cell/* .db.open)                     $.shell.req.db/open
    ($.cell/* .db.path)                     $.shell.req.db/path

@@ -32,7 +32,8 @@
                              AString
                              AVector
                              Keyword
-                             Ref
+                             Refs
+                             Refs$RefTreeStats
                              Symbol
                              Syntax)
            (convex.core.data.prim AInteger
@@ -1421,30 +1422,28 @@
 
 
 
-(defn softness
+(defn ref-stat 
 
-  "Returns a vector where, for `cell`:
+  "Given a `cell` (cannot be `nil`), returns a map:
   
-    0: Number of direct references
-    1: Number of soft references
-  
+   | Key          | Value                              |
+   |--------------|------------------------------------|
+   | `:direct`    | Number of direct refs              |
+   | `:embedded`  | Number of embedded refs            |
+   | `:persisted` | Number of refs marked as persisted |
+   | `:soft`      | Number of soft refs                |
+   | `:total`     | Total number of refs               |
+
    This is for CVM developers familiar with the notion of cell references."
 
   [^ACell cell]
 
-  (if (nil? cell)
-    [0
-     0]
-    (reduce (fn [[n-direct n-soft] ^Ref child]
-              (let [[n-direct-child
-                     n-soft-child]  (softness (.getValue child))]
-                [(clojure.core/+ n-direct
-                                 n-direct-child)
-                 (clojure.core/+ n-soft
-                                 n-soft-child)]))
-            (if (.isDirect (.getRef cell))
-              [1
-               0]
-              [0
-               1])
-            (.getChildRefs cell))))
+  (let [^Refs$RefTreeStats stat+ (Refs/getRefTreeStats (.getRef cell))
+        direct                   (.-direct stat+)
+        total                    (.-total stat+)]
+    {:direct    direct
+     :embedded  (.-embedded stat+)
+     :persisted (.-persisted stat+)
+     :soft      (clojure.core/- total
+                                direct)
+     :total     total}))

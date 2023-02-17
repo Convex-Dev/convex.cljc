@@ -17,16 +17,39 @@
 
 
 
-(.t.def ..cell.softness
+(.t.def ..cell.ref.stat
 
-  (.t.is (= [0 0]
-            (.cell.softness nil)))
+  (.t.is (.t.ex :ARGUMENT
+                (.cell.ref.stat nil)))
 
-  (.t.is (= [1 0]
-            (.cell.softness 1)))
+  (.t.is (= {:direct    1
+             :embedded  1
+             :persisted 0
+             :soft      0
+             :total     1}
+            (.cell.ref.stat 1)))
 
-  (.t.is (= [5 0]
-            (.cell.softness [1 2 [3]])))
+  (.t.is (= {:direct    5
+             :embedded  5
+             :persisted 0
+             :soft      0
+             :total     5}
+            (.cell.ref.stat [1 2 [3]])))
+
+  (def stat
+       (.cell.ref.stat *state*))
 
   (.t.is (< 0
-            (first (.cell.softness *state*)))))
+            (:direct stat)))
+
+  (.t.is (< 0
+            (:embedded stat)))
+
+  (.t.is (= 0
+            (:persisted stat)))
+
+  (.t.is (= 0
+            (:soft stat)))
+
+  (.t.is (< 0
+            (:total stat))))

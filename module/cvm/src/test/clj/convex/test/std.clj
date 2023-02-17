@@ -991,22 +991,35 @@
 
 
 
-(T/deftest softness
+(T/deftest ref-stat
 
-  (T/is (= [1 0]
-           ($.std/softness ($.cell/* :a))))
+  (T/is (= {:direct    1
+            :embedded  1
+            :persisted 0
+            :soft      0
+            :total     1}
+           ($.std/ref-stat ($.cell/* :a))))
 
-  (T/is (= [5 0]
-           ($.std/softness ($.cell/* [:a :b [:c]]))))
+  (T/is (= {:direct    5
+            :embedded  5
+            :persisted 0
+            :soft      0
+            :total     5}
+           ($.std/ref-stat ($.cell/* [:a :b [:c]]))))
 
-  (T/is (= [0 0]
-           ($.std/softness nil)))
+  (T/is (= {:direct    2
+            :embedded  2
+            :persisted 0
+            :soft      0
+            :total     2}
+           ($.std/ref-stat ($.cell/* [nil]))))
 
-  (T/is (= [1 0]
-           ($.std/softness ($.cell/* [nil]))))
-
-  (T/is (= [4 1]
-           ($.std/softness ($.cell/* [:a :b [~(let [^ACell c ($.cell/* :c)]
+  (T/is (= {:direct    4
+            :embedded  5
+            :persisted 0
+            :soft      1
+            :total     5}
+           ($.std/ref-stat ($.cell/* [:a :b [~(let [^ACell c ($.cell/* :c)]
                                                 (.attachRef c
                                                             (RefSoft/create nil
                                                                             c

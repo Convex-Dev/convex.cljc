@@ -21,6 +21,7 @@ repository.
     - `$.std/transaction?`
 - Change
     - Remove anything related to `CVMByte` (since removed from newer Convex version)
+    - `$.std/softness` -> `$.std/ref-stat` (provides more insights that counting soft refs)
 
 
 ---
