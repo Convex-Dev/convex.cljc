@@ -35,7 +35,9 @@
                              Ref
                              Symbol
                              Syntax)
-           (convex.core.data.prim ANumeric
+           (convex.core.data.prim AInteger
+                                  ANumeric
+                                  CVMBigInteger
                                   CVMBool
                                   CVMChar
                                   CVMDouble
@@ -77,6 +79,7 @@
                             hash-map
                             hash-set
                             inc
+                            integer?
                             into
                             keys
                             keyword
@@ -1098,6 +1101,17 @@
 
 
 
+(defn bigint?
+
+  "Is `x` a bigint?"
+
+  [x]
+
+  (instance? CVMBigInteger
+             x))
+
+
+
 (defn blob?
 
   "Is `x` a blob?"
@@ -1229,6 +1243,18 @@
 
   (instance? AHashSet
              x))
+
+
+
+(defn integer?
+
+  "Is `x` an integer cell (either a bigint or a long)?"
+
+  [x]
+
+  (instance? AInteger
+             x))
+
 
 
 (defn keyword?

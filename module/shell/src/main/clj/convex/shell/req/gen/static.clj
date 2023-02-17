@@ -6,8 +6,7 @@
                             keyword
                             long
                             symbol])
-  (:require [convex.cell        :as $.cell]
-            [convex.cvm         :as $.cvm]
+  (:require [convex.cvm         :as $.cvm]
             [convex.gen         :as $.gen]
             [convex.shell.resrc :as $.shell.resrc]))
 

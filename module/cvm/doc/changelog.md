@@ -14,6 +14,8 @@ repository.
     - `$.clj/bigint`
     - `$.cvm/actor?`
     - `$.cvm/transact`
+    - `$.std/bigint?`
+    - `$.std/integer?`
     - `$.std/memory-size`
     - `$.std/softness`
     - `$.std/transaction?`

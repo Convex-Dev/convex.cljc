@@ -14,7 +14,6 @@
             [convex.cell             :as $.cell]
             [convex.cvm              :as $.cvm]
             [convex.read             :as $.read]
-            [convex.shell.req.stream :as $.shell.req.stream]
             [convex.std              :as $.std]))
 
 
