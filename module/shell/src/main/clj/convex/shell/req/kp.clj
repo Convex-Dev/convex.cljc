@@ -64,7 +64,7 @@
 
 
 
-(defn public-key
+(defn pubkey
 
   "Request for retrieving the public key of the given key pair."
 

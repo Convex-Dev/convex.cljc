@@ -205,7 +205,7 @@
    ($.cell/* .juice.track)                 $.shell.req.juice/track
    ($.cell/* .kp.create)                   $.shell.req.kp/create
    ($.cell/* .kp.create.from-seed)         $.shell.req.kp/create-from-seed
-   ($.cell/* .kp.public-key)               $.shell.req.kp/public-key
+   ($.cell/* .kp.pubkey)                   $.shell.req.kp/pubkey
    ($.cell/* .kp.seed)                     $.shell.req.kp/seed
    ($.cell/* .kp.sign)                     $.shell.req.kp/sign
    ($.cell/* .kp.verify)                   $.shell.req.kp/verify

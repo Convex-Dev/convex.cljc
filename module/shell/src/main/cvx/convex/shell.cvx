@@ -2001,7 +2001,7 @@
 
 
 
-(defn .kp.public-key
+(defn .kp.pubkey
 
   ^{:doc {:description ["Extracts the public key from the given `key-pair`."]
           :examples    [{:code (.kp.public-key (.kp.create))}]
@@ -2009,7 +2009,7 @@
 
   [key-pair]
 
-  (.shell.invoke '.kp.public-key
+  (.shell.invoke '.kp.pubkey
                  key-pair))
 
 

@@ -163,7 +163,7 @@
                                  (.kp.create))
 
                             (.kp.verify (.kp.sign kp 42)
-                                        (.kp.public-key kp)
+                                        (.kp.pubkey kp)
                                         42)
 
                             )))
