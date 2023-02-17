@@ -211,3 +211,16 @@
   (.checkSignature (SignedData/create account-key
                                       (ASignature/fromBlob signature)
                                       (.getRef cell))))
+
+
+;;;;;;;;;; Miscellaneous
+
+
+(defn key-pair?
+
+  "Returns `true` is `x` is a key pair."
+
+  [x]
+
+  (instance? AKeyPair
+             x))

@@ -9,6 +9,8 @@ repository.
 
 ## {{ next-release }}
 
+- Add
+    - `$.key-pair/key-pair?`
 - Remove
     - `$.key-pair/sign-hash` and `$.key-pair/verify-hash` which where somewhat redundant
 

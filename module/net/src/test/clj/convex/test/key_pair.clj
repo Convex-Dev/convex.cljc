@@ -45,6 +45,14 @@
 
 
 
+(T/deftest key-pair?
+
+  (T/is (false? ($.key-pair/key-pair? 42)))
+
+  (T/is (true? ($.key-pair/key-pair? ($.key-pair/ed25519)))))
+
+
+
 (T/deftest seed
 
   (T/is (= kp

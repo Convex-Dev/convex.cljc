@@ -150,3 +150,15 @@
 
   (transact-main (init)
                  txt-cell+))
+
+
+
+
+(comment
+
+  (-> (init)
+      (transact ($.cell/* (do
+                            (.kp.create)
+                              )))
+      ($.cvm/result))
+  )
