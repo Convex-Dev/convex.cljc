@@ -1,5 +1,7 @@
 (ns convex.shell.req.pfx
 
+  "Requests relating to PFX stores for key pairs."
+
   (:import (java.security KeyStore))
   (:refer-clojure :exclude [load])
   (:require [convex.cell         :as $.cell]
@@ -16,8 +18,6 @@
 
 (defn -ensure-alias
 
-  ;;
-
   [ctx alias]
 
   (when-not ($.std/string? alias)
@@ -29,8 +29,6 @@
 
 (defn -ensure-passphrase
 
-  ;;
-
   [ctx passphrase]
 
   (when-not ($.std/string? passphrase)
@@ -41,8 +39,6 @@
 
 
 (defn -ensure-path
-
-  ;;
 
   [ctx path]
 
@@ -57,7 +53,7 @@
 
 (defn do-store
 
-  ;; Unwraps a PFX store from a resource.
+  "Unwraps a PFX store from a resource."
 
   [ctx store f]
   
@@ -80,6 +76,8 @@
 
 (defn create
 
+  "Request for creating a new store."
+
   [ctx [path passphrase]]
 
   (or (when-not ($.std/string? path)
@@ -101,6 +99,8 @@
 
 
 (defn kp-get
+
+  "Request for retrieving a key pair from a store."
 
   [ctx [store alias passphrase]]
 
@@ -125,6 +125,8 @@
 
 
 (defn kp-set
+
+  "Request for adding a key pair to a store."
 
   [ctx [store alias kp passphrase]]
 
@@ -157,6 +159,8 @@
 
 (defn load
 
+  "Request for loading an existing store from a file."
+
   [ctx [path passphrase]]
 
   (or (-ensure-path ctx
@@ -175,6 +179,8 @@
 
 
 (defn save
+
+  "Request for saving a store to a file."
 
   [ctx [store path passphrase]]
 

@@ -2112,8 +2112,31 @@
 ;;;;;;;;;; PFX stores
 
 
+(def .pfx
+
+  ^{:private?      true
+    :shell.section ["PFX stores securely index key pairs in flat files by alias (strings)."
+                    ""
+                    "They can be protected by a passphrase (optional) and each key in a store"
+                    "is additionally protected by its own passphrase (mandatory)."
+                    ""
+                    "All `.pfx.*` functions may throw in case of error."
+                    ""
+                    "See `(?.shell '.kp)` about key pairs."]}
+
+  nil)
+
+
+
 (defn .pfx.create
 
+  ^{:doc {:description ["Creates a new PFX store, optionally protected by a `passphrase` (string)."
+                        "Already stores it at the given `path`."
+                        "Also see `.pfx.load` and `.pfx.save`."]
+          :examples    [{:code (.pfx.create "/tmp/store.pfx")}
+                        {:code (.pfx.create "/tmp/store.pfx" "my-passphrase")}]
+          :signature   [{:params [path]}
+                        {:params [path passphrase]}]}}
 
   ([path]
 
@@ -2132,6 +2155,15 @@
 
 (defn .pfx.kp.get
 
+  ^{:doc {:description ["Retrieves a key pair from the given `store` by `alias`."
+                        ""
+                        "Throws an exception if the alias does not exist or the passphrase"
+                        "does not match."
+                        ""
+                        "Also see `.pfx.kp.set`."]
+          :examples    [{:code (.pfx.kp.get some-store "some-alias" "my-passphrase")}]
+          :signature   [{:params [store alias passphrase]}]}}
+
   [store alias passphrase]
 
   (.shell.invoke '.pfx.kp.get
@@ -2140,7 +2172,17 @@
                  passphrase))
 
 
+
 (defn .pfx.kp.set
+
+  ^{:doc {:description ["Adds the given `key-pair` to the given `store` under `alias`."
+                        "Alias will be the public key of `key-pair` if not provided."
+                        "Returns `store`."
+                        "Also see `.pfx.kp.get`."]
+          :examples    [{:code (.pfx.kp.set some-store (.kp.create) "my-passphrase")}
+                        {:code (.pfx.kp.set some-some "some-alias" (.kp.create) "my-passphrase")}]
+          :signature   [{:params [store key-pair passphrase]}
+                        {:params [store alias key-pair passphrase]}]}}
 
 
   ([store key-pair passphrase]
@@ -2160,7 +2202,17 @@
                   passphrase)))
 
 
+
 (defn .pfx.load
+
+  ^{:doc {:description ["Loads an existing store from the given `path`, which"
+                        "may be protected by a passphrase."
+                        ""
+                        "Also see `.pfx.save`."]
+          :examples    [{:code (.pfx.load "/tmp/store.pfx")}
+                        {:code (.pfx.load "/tmp/store.pfx" "my-passphrase")}]
+          :signature   [{:params [path]}
+                        {:params [path passphrase]}]}}
 
 
   ([path]
@@ -2179,6 +2231,15 @@
 
 
 (defn .pfx.save
+
+  ^{:doc {:description ["Saves the given `store` to the file at the given `path`, optionally"
+                        "protected by a `passphrase`."
+                        ""
+                        "Also see `.pfx.load`."]
+          :examples    [{:code (.pfx.save some-store "/tmp/store.pfx")}
+                        {:code (.pfx.save some-store "/tmp/store.pfx" "my-passphrase")}]
+          :signature   [{:params [store path]}
+                        {:params [store path passphrase]}]}}
 
 
   ([store path]
