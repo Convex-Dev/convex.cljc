@@ -30,6 +30,7 @@
             [convex.shell.req.gen        :as $.shell.req.gen]
             [convex.shell.req.gen.static :as $.shell.req.gen.static]
             [convex.shell.req.log        :as $.shell.req.log]
+            [convex.shell.req.pfx        :as $.shell.req.pfx]
             [convex.shell.req.reader     :as $.shell.req.reader]
             [convex.shell.req.state      :as $.shell.req.state]
             [convex.shell.req.str        :as $.shell.req.str]
@@ -211,6 +212,11 @@
    ($.cell/* .kp.verify)                   $.shell.req.kp/verify
    ($.cell/* .log.clear)                   $.shell.req.log/clear
    ($.cell/* .log.get)                     $.shell.req.log/get
+   ($.cell/* .pfx.create)                  $.shell.req.pfx/create
+   ($.cell/* .pfx.kp.get)                  $.shell.req.pfx/kp-get
+   ($.cell/* .pfx.kp.set)                  $.shell.req.pfx/kp-set
+   ($.cell/* .pfx.load)                    $.shell.req.pfx/load
+   ($.cell/* .pfx.save)                    $.shell.req.pfx/save
    ($.cell/* .reader.form+)                $.shell.req.reader/form+
    ($.cell/* .state.do)                    $.shell.req.state/do-
    ($.cell/* .state.genesis)               $.shell.req.state/genesis

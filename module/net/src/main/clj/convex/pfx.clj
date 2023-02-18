@@ -113,7 +113,7 @@
 
    Public key is used as `alias` if none is provided.
   
-   See [[key-pair-set]]."
+   See [[key-pair-get]]."
 
 
   (^KeyStore [^KeyStore key-store ^AKeyPair key-pair passphrase]

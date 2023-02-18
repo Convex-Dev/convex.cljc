@@ -162,9 +162,28 @@
                             (def kp
                                  (.kp.create))
 
-                            (.kp.verify (.kp.sign kp 42)
-                                        (.kp.pubkey kp)
-                                        42)
+                            (def store
+                                 (.pfx.create "/tmp/pfx"))
+
+                            (.pfx.kp.set store
+                                      "foo"
+                                      kp
+                                      "")
+
+                            (.pfx.save store
+                                          "/tmp/pfx")
+
+                            (def store-2
+                                 (.pfx.load "/tmp/pfx"))
+
+                            [(.kp.pubkey (.pfx.kp.get store
+                                                  "foo"
+                                                  ""))
+(.kp.pubkey (.pfx.kp.get store-2
+                                                  "foo"
+                                                  ""))]
+
+
 
                             )))
       ($.cvm/result))

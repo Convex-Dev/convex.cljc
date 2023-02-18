@@ -1,0 +1,226 @@
+{}
+
+
+;;;;;;;;;;
+
+
+(.t.def ..pfx.create
+
+  (.t.is (boolean (.pfx.create (.fs.tmp)))
+         "Without passphrase")
+
+  (.t.is (boolean (.pfx.create (.fs.tmp)
+                               "passphrase"))
+         "With passphrase")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.pfx.create :fail))
+         "Path is not a string")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.pfx.create (.fs.tmp)
+                             :fail))
+         "Passphrase is not a string"))
+
+
+
+(.t.def ..pfx.kp.get
+
+  (def store
+       (.pfx.create (.fs.tmp)))
+
+  (def kp
+       (.kp.create))
+
+  (.pfx.kp.set store
+               "alias"
+               kp
+               "passphrase")
+
+  (.t.is (= (.kp.pubkey kp)
+            (.kp.pubkey (.pfx.kp.get store
+                                     "alias"
+                                     "passphrase")))
+         "Retrieve key pair")
+
+  (.t.is (= (.kp.pubkey kp)
+            (.kp.pubkey (.pfx.kp.get store
+                                     'alias
+                                     "passphrase")))
+         "Alias is stringified")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.pfx.kp.get :fail
+                             "alias"
+                             "passphrase"))
+         "Not a store")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.pfx.kp.get store
+                             "alias"
+                             :fail))
+         "Not a valid passphrase")
+
+  (.t.is (.t.ex :SHELL.PFX
+                (.pfx.kp.get store
+                             "missing"
+                             "passphrase"))
+         "Inexistent alias")
+
+  (.t.is (.t.ex :SHELL.PFX
+                (.pfx.kp.get store
+                             "alias"
+                             "fail"))
+         "Wrong passphrase"))
+
+
+
+(.t.def ..pfx.kp.set
+
+  (def store
+       (.pfx.create (.fs.tmp)))
+
+  (def kp
+       (.kp.create))
+
+  (def pubkey
+       (.kp.pubkey kp))
+
+  (.t.is (= store
+            (.pfx.kp.set store
+                         kp
+                         "passphrase"))
+         "Set without alias")
+
+  (.t.is (= pubkey
+            (.kp.pubkey (.pfx.kp.get store
+                                     pubkey
+                                     "passphrase")))
+         "Retrieve by public key")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.pfx.kp.set :fail
+                             "alias"
+                             kp
+                             "passphrase"))
+         "Not a store")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.pfx.kp.set store
+                             "alias"
+                             :fail
+                             "passphrase"))
+         "Not a key pair")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.pfx.kp.set store
+                             "alias"
+                             kp
+                             :fail))
+         "Not a valid passphrase")
+
+  (def kp-2
+       (.kp.create))
+
+  (.pfx.kp.set store
+               "alias"
+               kp
+               "passphrase")
+
+  (.pfx.kp.set store
+               "alias"
+               kp-2
+               "passphrase")
+
+  (.t.is (= (.kp.pubkey kp-2)
+            (.kp.pubkey (.pfx.kp.get store
+                                     "alias"
+                                     "passphrase")))
+         "Can overwrite an alias"))
+
+
+
+(.t.def ..pfx.load
+
+  (def path
+       (.fs.tmp))
+
+  (.pfx.create path)
+
+  (.t.is (boolean (.pfx.load path))
+         "Without passphrase")
+
+  (.t.is (boolean (.pfx.load path
+                             ""))
+         "With passphrase")
+
+  (.t.is (.t.ex :SHELL.PFX
+                (.pfx.load path
+                           "fail"))
+         "Wrong passphrase")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.pfx.load :fail
+                           ""))
+         "Path is not a string")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.pfx.load path
+                           :fail))
+         "Passphrase is not a string")
+
+  (.t.is (.t.ex :SHELL.PFX
+                (.pfx.load (.fs.tmp)))
+         "Invalid file"))
+
+
+
+(.t.def ..pfx.save
+
+  (def path
+       (.fs.tmp))
+
+  (def store
+       (.pfx.create path))
+
+  (def kp
+       (.kp.create))
+
+  (.pfx.kp.set store
+               "alias"
+               kp
+               "kp-passphrase")
+
+  (.t.is (= store
+            (.pfx.save store
+                       path 
+                       "passphrase"))
+         "Save updated store")
+
+  (def store-2
+       (.pfx.load path
+                  "passphrase"))
+
+  (.t.is (= (.kp.pubkey kp)
+            (.kp.pubkey (.pfx.kp.get store-2
+                                     "alias"
+                                     "kp-passphrase")))
+         "Retrieve key pair from saved store")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.pfx.save :fail
+                           path
+                           "passphrase"))
+         "Not a store")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.pfx.save store
+                           :fail
+                           "passphrase"))
+         "Not a path")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.pfx.save store
+                           path
+                           :fail))
+         "Not a passphrase"))

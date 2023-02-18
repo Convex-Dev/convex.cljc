@@ -14,9 +14,9 @@
 ;;;;;;;;;; Private
 
 
-(defn- -do-kp
+(defn do-kp
 
-  ;; Unwraps a key pair kept
+  "Unwraps a key pair from a resource."
 
   [ctx kp f]
 
@@ -70,11 +70,11 @@
 
   [ctx [kp]]
 
-  (-do-kp ctx
-          kp
-          (fn [kp-2]
-            ($.cvm/result-set ctx
-                              ($.key-pair/account-key kp-2)))))
+  (do-kp ctx
+         kp
+         (fn [kp-2]
+           ($.cvm/result-set ctx
+                             ($.key-pair/account-key kp-2)))))
 
 
 
@@ -84,11 +84,11 @@
 
   [ctx [kp]]
 
-  (-do-kp ctx
-          kp
-          (fn [kp-2]
-            ($.cvm/result-set ctx
-                              ($.key-pair/seed kp-2)))))
+  (do-kp ctx
+         kp
+         (fn [kp-2]
+           ($.cvm/result-set ctx
+                             ($.key-pair/seed kp-2)))))
 
 
 
@@ -98,13 +98,13 @@
 
   [ctx [kp cell]]
 
-  (-do-kp ctx
-          kp
-          (fn [kp-2]
-            ($.cvm/result-set ctx
-                              (-> ($.key-pair/sign kp-2
-                                                   cell)
-                                  ($.key-pair/signed->signature))))))
+  (do-kp ctx
+         kp
+         (fn [kp-2]
+           ($.cvm/result-set ctx
+                             (-> ($.key-pair/sign kp-2
+                                                  cell)
+                                 ($.key-pair/signed->signature))))))
 
 
 

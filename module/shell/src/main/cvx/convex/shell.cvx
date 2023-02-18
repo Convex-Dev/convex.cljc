@@ -2109,6 +2109,94 @@
   (.shell.invoke '.log.get))
 
 
+;;;;;;;;;; PFX stores
+
+
+(defn .pfx.create
+
+
+  ([path]
+
+   (.pfx.create path
+                nil))
+
+
+  ([path passphrase]
+
+   (.shell.invoke '.pfx.create
+                  path
+                  (or passphrase
+                      ""))))
+
+
+
+(defn .pfx.kp.get
+
+  [store alias passphrase]
+
+  (.shell.invoke '.pfx.kp.get
+                 store
+                 (str alias)
+                 passphrase))
+
+
+(defn .pfx.kp.set
+
+
+  ([store key-pair passphrase]
+
+   (.pfx.kp.set store
+                (str (.kp.pubkey key-pair))
+                key-pair
+                passphrase))
+
+
+  ([store alias key-pair passphrase]
+
+   (.shell.invoke '.pfx.kp.set
+                  store
+                  (str alias)
+                  key-pair
+                  passphrase)))
+
+
+(defn .pfx.load
+
+
+  ([path]
+
+   (.pfx.load path
+              nil))
+
+
+  ([path passphrase]
+
+   (.shell.invoke '.pfx.load
+                  path
+                  (or passphrase
+                      ""))))
+
+
+
+(defn .pfx.save
+
+
+  ([store path]
+
+   (.pfx.save store
+              path
+              nil))
+
+
+  ([store path passphrase]
+
+   (.shell.invoke '.pfx.save
+                  store
+                  path
+                  (or passphrase
+                      ""))))
+
+
 ;;;;;;;;;; Project files
 
 
