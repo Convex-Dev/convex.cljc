@@ -13,7 +13,7 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clj-http.client   :as http]
+  (:require [hato.client       :as http]
             [clojure.data.json :as json]
             [convex.key-pair   :as $.key-pair]))
 
@@ -36,8 +36,8 @@
   (-> (http/post "https://convex.world/api/v1/createAccount"
                  {:body               (json/write-str {"accountKey" ($.key-pair/hex-string key-pair)})
                   :connection-timeout 4000})
-      :body
-      json/read-str
+      (:body)
+      (json/read-str)
       (get "address")))
 
 
@@ -57,8 +57,8 @@
                  {:body               (json/write-str {"address" address
                                                        "amount"  amount})
                   :connection-timeout 4000})
-      :body
-      json/read-str))
+      (:body)
+      (json/read-str)))
 
 
 ;;;;;;;;;;

@@ -48,12 +48,6 @@
    :maestro/url "https://github.com/dakrone/cheshire"}
 
 
-  :ext/clj-http
-
-  {:extra-deps  {clj-http/clj-http {:mvn/version "3.12.3"}}
-   :maestro/doc "HTTP client needed for recipes"}
-
-
   :ext/clojure
 
   {:extra-deps {org.clojure/clojure {:mvn/version "1.11.1"}}
@@ -404,8 +398,8 @@
                        "module/recipe/src/main/cvx"]
    :maestro/doc       "Examples for common use cases meant for the REPL."
    :maestro/platform+ [:jvm]
-   :maestro/require   [:ext/clj-http
-                       :ext/json
+   :maestro/require   [:ext/json
+                       :ext/hato
                        :module/cvm
                        :module/net]
    :maestro/root      "module/recipe"}

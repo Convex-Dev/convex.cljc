@@ -2,6 +2,8 @@
 
   "Requests for REST methods provided by `convex.world`."
 
+  {:author "Adam Helinski"}
+
   (:require [clojure.data.json :as json]
             [convex.cell       :as $.cell]
             [convex.clj        :as $.clj]
