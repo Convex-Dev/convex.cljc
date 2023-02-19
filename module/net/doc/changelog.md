@@ -12,6 +12,8 @@ repository.
 - Add
     - `$.key-pair/key-pair?`
     - `$.pfx/alias+`
+- Change
+    - `$.pfx/key-pair-get` returns `nil` for inexistent aliases (instead of throwing)
 - Remove
     - `$.key-pair/sign-hash` and `$.key-pair/verify-hash` which where somewhat redundant
 

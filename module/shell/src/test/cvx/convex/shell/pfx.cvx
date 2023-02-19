@@ -70,6 +70,11 @@
                                      "passphrase")))
          "Alias is stringified")
 
+  (.t.is (nil? (.pfx.kp.get store
+                            "missing"
+                            "passphrase"))
+         "Inexistent alias")
+
   (.t.is (.t.ex :ARGUMENT
                 (.pfx.kp.get :fail
                              "alias"
@@ -81,12 +86,6 @@
                              "alias"
                              :fail))
          "Not a valid passphrase")
-
-  (.t.is (.t.ex :SHELL.PFX
-                (.pfx.kp.get store
-                             "missing"
-                             "passphrase"))
-         "Inexistent alias")
 
   (.t.is (.t.ex :SHELL.PFX
                 (.pfx.kp.get store
@@ -120,9 +119,9 @@
             (.pfx.alias+ store))
          "`foo` has been remove")
 
-  (.t.is (.t.ex (.pfx.kp.get store
-                             "foo"
-                             "passphrase"))
+  (.t.is (nil? (.pfx.kp.get store
+                            "foo"
+                            "passphrase"))
          "Cannot retrieve `foo` anymore"))
 
 

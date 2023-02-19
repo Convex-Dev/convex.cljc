@@ -2170,8 +2170,8 @@
 
   ^{:doc {:description ["Retrieves a key pair from the given `store` by `alias`."
                         ""
-                        "Throws an exception if the alias does not exist or the passphrase"
-                        "does not match."
+                        "Returns `nil` if the alias does not exist and throws an exception"
+                        "if the passphrase does not match."
                         ""
                         "Also see `.pfx.kp.set`."]
           :examples    [{:code (.pfx.kp.get some-store "some-alias" "my-passphrase")}]

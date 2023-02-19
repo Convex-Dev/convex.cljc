@@ -128,10 +128,10 @@
                 (fn [store-2]
                   (try
                     ($.cvm/result-set ctx
-                                      ($.shell.resrc/create
-                                        ($.pfx/key-pair-get store-2
-                                                            ($.clj/string alias)
-                                                            ($.clj/string passphrase))))
+                                      (some-> ($.pfx/key-pair-get store-2
+                                                                  ($.clj/string alias)
+                                                                  ($.clj/string passphrase))
+                                              ($.shell.resrc/create)))
                     (catch Exception _ex
                       ($.cvm/exception-set ctx
                                            ($.cell/* :SHELL.PFX)

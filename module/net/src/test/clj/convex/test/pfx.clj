@@ -58,18 +58,45 @@
 
 
 
+(T/deftest key-pair-get
+
+  (let [store ($.pfx/create path)]
+    ($.pfx/key-pair-set store
+                        "foo"
+                        kp
+                        "passphrase")
+    (T/is (= kp
+             ($.pfx/key-pair-get store
+                                 "foo"
+                                 "passphrase"))
+          "Retrieve key")
+
+    (T/is (nil? ($.pfx/key-pair-get store
+                                    "bar"
+                                    "passphrase"))
+          "Inexistent alias returns nil")))
+
+
+
 (T/deftest key-pair-rm
 
-  (T/is (= '("bar")
-            (-> ($.pfx/create path)
-                ($.pfx/key-pair-set "foo"
-                                    ($.key-pair/ed25519)
-                                    "passphrase")
-                ($.pfx/key-pair-set "bar"
-                                    ($.key-pair/ed25519)
-                                    "passphrase")
-                ($.pfx/key-pair-rm "foo")
-                ($.pfx/alias+)))))
+  (let [store (-> ($.pfx/create path)
+                  ($.pfx/key-pair-set "foo"
+                                      ($.key-pair/ed25519)
+                                      "passphrase")
+                  ($.pfx/key-pair-set "bar"
+                                      ($.key-pair/ed25519)
+                                      "passphrase"))]
+
+    (T/is (= store
+             ($.pfx/key-pair-rm store
+                                "foo"))
+          "Remove key pair")
+
+    (T/is (nil? ($.pfx/key-pair-get store
+                                    "foo"
+                                    "passphrase"))
+          "Key pair has been removed")))
 
 
 

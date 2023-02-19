@@ -127,11 +127,14 @@
 
   [^KeyStore key-store alias-or-account-key passphrase]
 
-  (PFXTools/getKeyPair key-store
-                       (if (string? alias-or-account-key)
-                         alias-or-account-key
-                         (.toHexString ^AccountKey alias-or-account-key))
-                       passphrase))
+  (let [alias (if (string? alias-or-account-key)
+                alias-or-account-key
+                (.toHexString ^AccountKey alias-or-account-key))]
+    (when (.containsAlias key-store
+                          alias)
+      (PFXTools/getKeyPair key-store
+                           alias
+                           passphrase))))
 
 
 
