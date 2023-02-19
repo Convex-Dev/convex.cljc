@@ -4,15 +4,52 @@
 
   {:author "Adam Helinski"}
 
-  (:require [clojure.data.json :as json]
-            [convex.cell       :as $.cell]
-            [convex.clj        :as $.clj]
-            [convex.cvm        :as $.cvm]
-            [convex.std        :as $.std]
-            [hato.client       :as http]))
+  (:import (convex.core.lang.impl ErrorValue))
+  (:require [clojure.data.json  :as json]
+            [convex.cell        :as $.cell]
+            [convex.clj         :as $.clj]
+            [convex.cvm         :as $.cvm]
+            [convex.shell.resrc :as $.shell.resrc]
+            [convex.std         :as $.std]
+            [hato.client        :as http]
+            [promesa.core       :as P]))
 
 
-;;;;;;;;;;
+(set! *warn-on-reflection*
+      true)
+
+
+;;;;;;;;;; Private
+
+
+(defn- -post
+
+  ;; Issues a POST request.
+
+  [ctx url body f-body error-message]
+
+  ($.cvm/result-set ctx
+                    ($.shell.resrc/create
+                      (-> (http/post url
+                                      {:async?             true
+                                       :body               (json/write-str body)
+                                       :connection-timeout 20000
+                                       :timeout            120000})
+                          (P/then (fn [resp]
+                                    [true
+                                     (-> resp
+                                         (:body)
+                                         (json/read-str)
+                                         (f-body))]))
+                          (P/catch (fn [_ex]
+                                     [false
+                                      (doto
+                                        (ErrorValue/create ($.cell/keyword "SHELL.TESTNET")
+                                                           ($.cell/string error-message))
+                                        (.setAddress ($.cvm/address ctx)))]))))))
+
+
+;;;;;;;;;; Requests
 
 
 (defn create-account
@@ -27,21 +64,14 @@
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
                              ($.cell/* "Public key must be a 32-byte Blob")))
-      (try
-        ($.cvm/result-set ctx
-                          (-> (http/post "https://convex.world/api/v1/createAccount"
-                                         {:body               (json/write-str {"accountKey" ($.clj/blob->hex public-key)})
-                                          ;:connection-timeout 4000
-                                          ;:timeout            1
-                                          })
-                              (:body)
-                              (json/read-str)
-                              (get "address")
-                              ($.cell/address)))
-        (catch Exception _ex
-          ($.cvm/exception-set ctx
-                               ($.cell/* :SHELL.TESTNET)
-                               ($.cell/* "Unable to create a new account, is testnet up?"))))))
+      (-post ctx
+             "https://convex.world/api/v1/createAccount"
+             {"accountKey" ($.clj/blob->hex public-key)}
+             (fn [body]
+               (-> body
+                   (get "address")
+                   ($.cell/address)))
+             "Unable to create a new account")))
 
 
 
@@ -69,18 +99,12 @@
               ($.cvm/exception-set ctx
                                    ($.cell/code-std* :ARGUMENT)
                                    ($.cell/* "Amount must be <= 100000000")))
-            (try
-              ($.cvm/result-set ctx
-                                (-> (http/post "https://convex.world/api/v1/faucet"
-                                               {:body               (json/write-str {"address" ($.clj/address address)
-                                                                                     "amount"  ($.clj/long amount)})
-                                                ;:connection-timeout 4000
-                                                })
-                                    (:body)
-                                    (json/read-str)
-                                    (get "value")
-                                    ($.cell/long)))
-              (catch Exception _ex
-                ($.cvm/exception-set ctx
-                                     ($.cell/* :SHELL.TESTNET)
-                                     ($.cell/* "Unable to call the Faucet API for the request account"))))))))
+            (-post ctx
+                   "https://convex.world/api/v1/faucet"
+                   {"address" ($.clj/address address)
+                    "amount"  ($.clj/long amount)}
+                   (fn [body]
+                     (-> body
+                         (get "value")
+                         ($.cell/long)))
+                   "Unable to call the Faucet API for the request account")))))

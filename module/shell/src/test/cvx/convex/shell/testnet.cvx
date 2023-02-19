@@ -6,7 +6,7 @@
 
 (.t.def ..testnet.create-account
 
-  (.t.is (address? (.testnet.create-account (.kp.pubkey (.kp.create)))))
+  (.t.is (address? (.a.take (.testnet.create-account (.kp.pubkey (.kp.create))))))
 
   (.t.is (.t.ex :ARGUMENT
                 (.testnet.create-account 42))
@@ -17,16 +17,16 @@
 (.t.def ..testnet.faucet
 
   (def addr
-       (.testnet.create-account (.kp.pubkey (.kp.create))))
+       (.a.take (.testnet.create-account (.kp.pubkey (.kp.create)))))
 
   (.t.is (= 10000
-            (.testnet.faucet addr
-                             10000))
+            (.a.take (.testnet.faucet addr
+                                      10000)))
          "A few coins")
 
   (.t.is (= 0
-            (.testnet.faucet addr
-                             0))
+            (.a.take (.testnet.faucet addr
+                                      0)))
          "Also works when requesting 0 coins")
 
   (.t.is (.t.ex :ARGUMENT
