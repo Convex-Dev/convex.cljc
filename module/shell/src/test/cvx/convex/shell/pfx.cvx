@@ -4,6 +4,27 @@
 ;;;;;;;;;;
 
 
+(.t.def ..pfx.alias+
+
+  (def store
+       (.pfx.create (.fs.tmp)))
+
+  (.pfx.kp.set store
+               "foo"
+               (.kp.create)
+               "passphrase")
+
+  (.pfx.kp.set store
+               "bar"
+               (.kp.create)
+               "passphrase")
+
+  (.t.is (= #{"bar"
+              "foo"}
+            (.pfx.alias+ store))))
+
+
+
 (.t.def ..pfx.create
 
   (.t.is (boolean (.pfx.create (.fs.tmp)))

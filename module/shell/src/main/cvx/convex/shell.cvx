@@ -2128,6 +2128,19 @@
 
 
 
+(defn .pfx.alias+
+
+  ^{:doc {:description ["Returns a set of aliases available in the given `store`."]
+          :examples    [{:code (.pfx.alias+ (.pfx.create "/tmp/store.pfx"))}]
+          :signature   [{:params [store]}]}}
+
+  [store]
+
+  (.shell.invoke '.pfx.alias+
+                 store))
+
+
+
 (defn .pfx.create
 
   ^{:doc {:description ["Creates a new PFX store, optionally protected by a `passphrase` (string)."

@@ -212,6 +212,7 @@
    ($.cell/* .kp.verify)                   $.shell.req.kp/verify
    ($.cell/* .log.clear)                   $.shell.req.log/clear
    ($.cell/* .log.get)                     $.shell.req.log/get
+   ($.cell/* .pfx.alias+)                  $.shell.req.pfx/alias+
    ($.cell/* .pfx.create)                  $.shell.req.pfx/create
    ($.cell/* .pfx.kp.get)                  $.shell.req.pfx/kp-get
    ($.cell/* .pfx.kp.set)                  $.shell.req.pfx/kp-set

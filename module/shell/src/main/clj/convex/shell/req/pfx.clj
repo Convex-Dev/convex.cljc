@@ -74,6 +74,21 @@
 ;;;;;;;;;;
 
 
+(defn alias+
+
+  "Request for getting the set of available alias in the given store."
+
+  [ctx [store]]
+
+  (do-store ctx
+            store
+            (fn [store-2]
+              ($.cvm/result-set ctx
+                                ($.cell/set (map $.cell/string
+                                                 ($.pfx/alias+ store-2)))))))
+
+
+
 (defn create
 
   "Request for creating a new store."

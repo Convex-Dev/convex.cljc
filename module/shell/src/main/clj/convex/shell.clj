@@ -176,12 +176,8 @@
                             (def store-2
                                  (.pfx.load "/tmp/pfx"))
 
-                            [(.kp.pubkey (.pfx.kp.get store
-                                                  "foo"
-                                                  ""))
-(.kp.pubkey (.pfx.kp.get store-2
-                                                  "foo"
-                                                  ""))]
+
+                            (.pfx.alias+ store-2)
 
 
 
