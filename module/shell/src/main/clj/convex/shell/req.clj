@@ -18,6 +18,7 @@
   (:require [convex.cell                 :as $.cell]
             [convex.cvm                  :as $.cvm]
             [convex.shell.req.account    :as $.shell.req.account]
+            [convex.shell.req.async      :as $.shell.req.async]
             [convex.shell.req.bench      :as $.shell.req.bench]
             [convex.shell.req.cell       :as $.shell.req.cell]
             [convex.shell.req.db         :as $.shell.req.db]
@@ -109,7 +110,10 @@
   
    A map of CVX symbols pointing to a Clojure implementations."
 
-  {($.cell/* .account.switch)              $.shell.req.account/switch
+  {($.cell/* .a.do)                        $.shell.req.async/do-
+   ($.cell/* .a.take)                      $.shell.req.async/take
+   ($.cell/* .a.take.timeout)              $.shell.req.async/take-timeout
+   ($.cell/* .account.switch)              $.shell.req.account/switch
    ($.cell/* .bench.eval)                  $.shell.req.bench/eval
    ($.cell/* .bench.trx)                   $.shell.req.bench/trx
    ($.cell/* .bench.trx.gen)               $.shell.req.bench/trx-gen

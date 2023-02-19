@@ -51,6 +51,77 @@
   (.stream.outln arg+))
 
 
+;;;;;;;;;; Async
+
+
+(def .a
+
+  ^{:private?      true
+    :shell.section ["Utilities for async programming."]}
+
+  nil)
+
+
+
+(defn .a.take
+
+  ^{:doc {:description ["Awaits an async value."
+                        ""
+                        "Optionally, a timeout in milliseconds may be provided."
+                        "If this tiemout is reached, the timeout value is returned."]
+          :examples    [{:code (.a.take (.a.do* (inc 42)))}
+                        {:code (.a.take (.a.do* (.time.sleep 1000) 42) 5000 :timeout)}]
+          :signature   [{:params [async-value]}
+                        {:params [async-value timeout.millis timeout.value]}]}}
+
+
+  ([async-value]
+
+   (.shell.invoke '.a.take
+                  async-value))
+
+
+  ([async-value timeout.millis timeout.value]
+
+   (.shell.invoke '.a.take.timeout
+                  async-value
+                  timeout.millis
+                  timeout.value)))
+
+
+
+(defn .a.do
+
+  ^{:doc {:description ["Executes the given no-arg function in parallel."
+                        "Returns an async value that can be awaited with `.a.take`."
+                        ""
+                        "Trying to open an Etch instance in this function will throw."
+                        "If Etch is required, it should be open behorehand."
+                        ""
+                        "See `.a.do*` for a convenience macro."]
+          :examples    [{:code (.a.do (fn [] (.time.sleep 1000) 42))}]
+          :signature   [{:params [f]}]}}
+
+  [f]
+
+  (.shell.invoke '.a.do
+                 f))
+
+
+
+(defmacro .a.do*
+
+  ^{:doc {:description ["Convenience macro over `.a.do`."
+                        "Code to execute is provided as-is, without wrapping it in a function."]
+          :examples    [{:code (.a.do* (.time.sleep 1000) 42)}]
+          :signature   [{:params [& body]}]}}
+
+  [& body]
+
+  `(.a.do ~(concat '(fn [])
+                   body)))
+
+
 ;;;;;;;;;; Account
 
 
@@ -5527,6 +5598,8 @@
                ""
                "Key sets of features are:"
                ""
+               (feature ".a      "
+                        "Utilities for async programming")
                (feature ".account"
                         "Account management")
                (feature ".bench  "

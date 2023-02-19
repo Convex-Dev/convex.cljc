@@ -14,14 +14,15 @@
 
   (:gen-class)
   (:import (convex.core.init Init))
-  (:require [clojure.string    :as string]
-            [convex.db         :as $.db]
-            [convex.cell       :as $.cell]
-            [convex.cvm        :as $.cvm]
-            [convex.shell.ctx  :as $.shell.ctx]
-            [convex.shell.fail :as $.shell.fail]
+  (:require [clojure.string      :as string]
+            [convex.db           :as $.db]
+            [convex.cell         :as $.cell]
+            [convex.cvm          :as $.cvm]
+            [convex.shell.ctx    :as $.shell.ctx]
+            [convex.shell.fail   :as $.shell.fail]
             [convex.shell.log]
-            [convex.shell.req  :as $.shell.req]))
+            [convex.shell.req    :as $.shell.req]
+            [convex.shell.req.db :as $.shell.req.db]))
 
 
 ;;;;;;;;;; Main
@@ -49,6 +50,8 @@
   ([option+]
 
    ($.db/current-set nil)
+   (.set $.shell.req.db/allow-open?
+         true)
    (-> $.shell.ctx/genesis
        ($.cvm/fork)
        ($.cvm/def Init/CORE_ADDRESS
@@ -150,23 +153,3 @@
 
   (transact-main (init)
                  txt-cell+))
-
-
-
-
-(comment
-
-  (-> (init)
-      (transact ($.cell/* (do
-
-                            (def kp
-                                 (.kp.create))
-
-                            (def a
-                                 (.testnet.create-account (.kp.pubkey kp)))
-
-                            (.testnet.faucet a 100000)
-
-                            )))
-      ($.cvm/result))
-  )

@@ -1,4 +1,5 @@
 {:deploy [$.shell.account (test convex shell account)
+          $.shell.async   (test convex shell async)
           $.shell.bench   (test convex shell bench)
           $.shell.cell    (test convex shell cell)
           $.shell.dep     (test convex shell dep)

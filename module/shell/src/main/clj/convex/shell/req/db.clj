@@ -33,6 +33,17 @@
 ;;;;;;;;;;
 
 
+(def  ^ThreadLocal allow-open?
+
+  ;; Must be set to `true` for [[open]] to work.
+  ;;
+  ;; In a multithreaded situation, used to prevent new threads from opening an instance
+  ;; when the main thread did not.
+
+  (ThreadLocal.))
+
+
+
 (defn- -db
 
   ;; Used for carrying out Etch requests.
@@ -81,6 +92,10 @@
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
                              ($.cell/* "Path for opening Etch must be a string")))
+      (when-not (.get allow-open?)
+        ($.cvm/exception-set ctx
+                             ($.cell/* :DB)
+                             ($.cell/* "Cannot open an instance because the main thread did not")))
       (let [path-new (-> path
                          (str)
                          (bb.fs/expand-home)

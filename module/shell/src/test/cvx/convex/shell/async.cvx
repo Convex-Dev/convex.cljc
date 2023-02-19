@@ -1,0 +1,40 @@
+{}
+
+
+;;;;;;;;;;
+
+
+(.t.def ..a.take
+
+  (.t.is (.t.ex :ARGUMENT
+                (.a.take 42))
+         "Not a promise")
+
+  (.t.is (= 43
+            (.a.take (.a.do* (inc 42))
+                     5
+                     :timeout))
+         "Timeout not reached")
+
+  (.t.is (= :timeout
+            (.a.take (.a.do* (.time.sleep 100))
+                     5
+                     :timeout))
+         "Timeout reached")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.a.take (.a.do* (inc 42))
+                         :fail
+                         :timeout))
+         "Not a timeout in milliseconds"))
+
+  
+
+(.t.def ..a.do*
+
+  (.t.is (= 43
+            (.a.take (.a.do* (inc 42)))))
+
+  (.t.is (.t.ex :FROM-TEST
+                (.a.take (.a.do* (fail :FROM-TEST
+                                       nil))))))
