@@ -251,6 +251,7 @@
    ($.cell/* .sys.home)                    $.shell.req.sys/home
    ($.cell/* .sys.os)                      $.shell.req.sys/os
    ($.cell/* .testnet.create-account)      $.shell.req.testnet/create-account
+   ($.cell/* .testnet.faucet)              $.shell.req.testnet/faucet
    ($.cell/* .time.advance)                $.shell.req.time/advance
    ($.cell/* .time.iso->unix)              $.shell.req.time/iso->unix
    ($.cell/* .time.nano)                   $.shell.req.time/nano

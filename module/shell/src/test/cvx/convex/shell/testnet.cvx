@@ -11,3 +11,40 @@
   (.t.is (.t.ex :ARGUMENT
                 (.testnet.create-account 42))
          "Not a public key"))
+
+
+
+(.t.def ..testnet.faucet
+
+  (def addr
+       (.testnet.create-account (.kp.pubkey (.kp.create))))
+
+  (.t.is (= 10000
+            (.testnet.faucet addr
+                             10000))
+         "A few coins")
+
+  (.t.is (= 0
+            (.testnet.faucet addr
+                             0))
+         "Also works when requesting 0 coins")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.testnet.faucet :fail
+                                 10000))
+         "Not an address")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.testnet.faucet addr
+                                 :fail))
+         "Not an amount")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.testnet.faucet addr
+                                 -1))
+         "Negative amount")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.testnet.faucet addr
+                                 100000001))
+         "Requesting too much"))

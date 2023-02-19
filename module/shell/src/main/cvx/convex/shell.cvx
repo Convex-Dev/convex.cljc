@@ -4779,6 +4779,21 @@
                  public-key))
 
 
+
+(defn .testnet.faucet
+
+  ^{:doc {:description ["Requests Convex Coppers for an account on `convex.world`."
+                        "Amount must be >= 0 and <= 100,000,000."]
+          :examples    [{:code (.testnet.faucet #42 1000000)}]
+          :signature   [{:params [address amount]}]}}
+
+  [address amount]
+
+  (.shell.invoke '.testnet.faucet
+                 address
+                 amount))
+
+
 ;;;;;;;;;; Time utilities
 
 

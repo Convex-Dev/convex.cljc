@@ -162,8 +162,10 @@
                             (def kp
                                  (.kp.create))
 
-                            (.testnet.create-account (.kp.pubkey kp))
+                            (def a
+                                 (.testnet.create-account (.kp.pubkey kp)))
 
+                            (.testnet.faucet a 100000)
 
                             )))
       ($.cvm/result))
