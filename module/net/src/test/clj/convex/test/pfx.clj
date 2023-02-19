@@ -58,6 +58,21 @@
 
 
 
+(T/deftest key-pair-rm
+
+  (T/is (= '("bar")
+            (-> ($.pfx/create path)
+                ($.pfx/key-pair-set "foo"
+                                    ($.key-pair/ed25519)
+                                    "passphrase")
+                ($.pfx/key-pair-set "bar"
+                                    ($.key-pair/ed25519)
+                                    "passphrase")
+                ($.pfx/key-pair-rm "foo")
+                ($.pfx/alias+)))))
+
+
+
 (T/deftest main
 
   (T/is (= kp

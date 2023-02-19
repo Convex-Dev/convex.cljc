@@ -94,11 +94,26 @@
 
 (defn alias+
 
-  "Returns a sequence of aliases available in the given `key-store`."
+  "Returns a sequence of aliases available in the given `key-store` (or `nil`
+   if the store is empty)."
 
   [^KeyStore key-store]
 
   (enumeration-seq (.aliases key-store)))
+
+
+
+(defn key-pair-rm
+
+  "Removes a key pair from the given `key-store` by alias."
+
+  ^KeyStore
+
+  [^KeyStore key-store alias]
+
+  (.deleteEntry key-store
+                alias)
+  key-store)
 
 
 
