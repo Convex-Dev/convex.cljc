@@ -36,10 +36,26 @@
 (def path
      (-> (File/createTempFile "foo"
                               nil)
-         .getCanonicalPath))
+         (.getCanonicalPath)))
 
 
 ;;;;;;;;;; Tests
+
+
+(T/deftest alias+
+
+  (T/is (= #{"bar"
+             "foo"}
+           (-> ($.pfx/create path)
+               ($.pfx/key-pair-set "foo"
+                                   ($.key-pair/ed25519)
+                                   "passphrase")
+               ($.pfx/key-pair-set "bar"
+                                   ($.key-pair/ed25519)
+                                   "passphrase")
+               ($.pfx/alias+)
+               (set)))))
+
 
 
 (T/deftest main

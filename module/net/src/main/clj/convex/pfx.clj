@@ -1,6 +1,9 @@
 (ns convex.pfx
 
   "Creating and managing a key store for storing key pairs in a file.
+
+   Key pairs are indexed by alias (string). A store may be protected by a passphrase (optional).
+   Additionally, each key pair is protected by its own passphrase (mandatory).
   
    See [[convex.key-pair]] about key pairs."
 
@@ -87,6 +90,16 @@
 
 
 ;;;;;;;;;; Adding and retrieving keys
+
+
+(defn alias+
+
+  "Returns a sequence of aliases available in the given `key-store`."
+
+  [^KeyStore key-store]
+
+  (enumeration-seq (.aliases key-store)))
+
 
 
 (defn key-pair-get

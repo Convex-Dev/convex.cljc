@@ -11,6 +11,7 @@ repository.
 
 - Add
     - `$.key-pair/key-pair?`
+    - `$.pfx/alias+`
 - Remove
     - `$.key-pair/sign-hash` and `$.key-pair/verify-hash` which where somewhat redundant
 
