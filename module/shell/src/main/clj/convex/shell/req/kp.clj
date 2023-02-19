@@ -4,6 +4,8 @@
   
    Key pairs are represented as resources (see [[convex.shell.resrc]])."
 
+  {:author "Adam Helinski"}
+
   (:require [convex.cell        :as $.cell]
             [convex.cvm         :as $.cvm]
             [convex.key-pair    :as $.key-pair]

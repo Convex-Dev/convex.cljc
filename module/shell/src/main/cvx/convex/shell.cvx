@@ -5543,8 +5543,12 @@
                         "Filesystem utilities")
                (feature ".juice  "
                         "Juice operations")
+               (feature ".kp     "
+                        "Creating and managing key pairs")
                (feature ".log    "
                         "CVM log management")
+               (feature ".pfx    "
+                        "Safely storing and retrieving key pairs from files")
                (feature ".repl   "
                         "Read-Eval-Print-Loop for interactive work")
                (feature ".shell  "
@@ -5561,6 +5565,8 @@
                         "Unit testing library")
                (feature ".term   "
                         "Terminal ANSI escape codes (e.g. colored output)")
+               (feature ".testnet"
+                        "Utilities for the public testnet hosted by `https://convex.world`")
                (feature ".trx    "
                         "Executing transactions like a peer would")
                (feature ".try    "

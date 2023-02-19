@@ -2,6 +2,8 @@
 
   "Requests relating to PFX stores for key pairs."
 
+  {:author "Adam Helinski"}
+
   (:import (java.security KeyStore))
   (:refer-clojure :exclude [load])
   (:require [convex.cell         :as $.cell]
