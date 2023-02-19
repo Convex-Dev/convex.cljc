@@ -96,6 +96,37 @@
 
 
 
+(.t.def ..pfx.kp.rm
+
+  (def store
+       (.pfx.create (.fs.tmp)))
+
+  (.pfx.kp.set store
+               "foo"
+               (.kp.create)
+               "passphrase")
+
+  (.pfx.kp.set store
+               "bar"
+               (.kp.create)
+               "passphrase")
+
+  (.t.is (= store
+            (.pfx.kp.rm store
+                        "foo"))
+         "Remove `foo`.")
+
+  (.t.is (= #{"bar"}
+            (.pfx.alias+ store))
+         "`foo` has been remove")
+
+  (.t.is (.t.ex (.pfx.kp.get store
+                             "foo"
+                             "passphrase"))
+         "Cannot retrieve `foo` anymore"))
+
+
+
 (.t.def ..pfx.kp.set
 
   (def store

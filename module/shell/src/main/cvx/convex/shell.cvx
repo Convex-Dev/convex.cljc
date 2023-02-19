@@ -2186,6 +2186,21 @@
 
 
 
+(defn .pfx.kp.rm
+
+  ^{:doc {:description ["Removes a key pair from the given `store` by `alias`."
+                        "Returns `store`."]
+          :examples    [{:code (.pfx.kp.rm some-store "some-alias")}]
+          :signature   [{:params [store alias]}]}}
+
+  [store alias]
+
+  (.shell.invoke '.pfx.kp.rm
+                 store
+                 alias))
+
+
+
 (defn .pfx.kp.set
 
   ^{:doc {:description ["Adds the given `key-pair` to the given `store` under `alias`."

@@ -139,6 +139,31 @@
 
 
 
+(defn kp-rm
+
+  "Request for removing a key pair from a store."
+
+  [ctx [store alias]]
+
+  (or (-ensure-alias ctx
+                     alias)
+      (do-store ctx
+                store
+                (fn [store-2]
+                  (try
+                    ;;
+                    ($.pfx/key-pair-rm store-2
+                                       ($.clj/string alias))
+                    ($.cvm/result-set ctx
+                                      store)
+                    ;;
+                    (catch Exception _ex
+                      ($.cvm/exception-set ctx
+                                           ($.cell/* :SHELL.PFX)
+                                           ($.cell/* "Unable to remove key pair with the given alias"))))))))
+
+
+
 (defn kp-set
 
   "Request for adding a key pair to a store."

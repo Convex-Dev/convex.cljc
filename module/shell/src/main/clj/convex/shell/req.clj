@@ -215,6 +215,7 @@
    ($.cell/* .pfx.alias+)                  $.shell.req.pfx/alias+
    ($.cell/* .pfx.create)                  $.shell.req.pfx/create
    ($.cell/* .pfx.kp.get)                  $.shell.req.pfx/kp-get
+   ($.cell/* .pfx.kp.rm)                   $.shell.req.pfx/kp-rm
    ($.cell/* .pfx.kp.set)                  $.shell.req.pfx/kp-set
    ($.cell/* .pfx.load)                    $.shell.req.pfx/load
    ($.cell/* .pfx.save)                    $.shell.req.pfx/save
