@@ -36,6 +36,7 @@
             [convex.shell.req.str        :as $.shell.req.str]
             [convex.shell.req.stream     :as $.shell.req.stream]
             [convex.shell.req.sys        :as $.shell.req.sys]
+            [convex.shell.req.testnet    :as $.shell.req.testnet]
             [convex.shell.req.time       :as $.shell.req.time]
             [convex.shell.req.trx        :as $.shell.req.trx]
             [convex.std                  :as $.std]))
@@ -249,6 +250,7 @@
    ($.cell/* .sys.env.var)                 $.shell.req.sys/env-var
    ($.cell/* .sys.home)                    $.shell.req.sys/home
    ($.cell/* .sys.os)                      $.shell.req.sys/os
+   ($.cell/* .testnet.create-account)      $.shell.req.testnet/create-account
    ($.cell/* .time.advance)                $.shell.req.time/advance
    ($.cell/* .time.iso->unix)              $.shell.req.time/iso->unix
    ($.cell/* .time.nano)                   $.shell.req.time/nano

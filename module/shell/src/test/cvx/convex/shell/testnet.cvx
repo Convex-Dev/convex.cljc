@@ -1,0 +1,13 @@
+{}
+
+
+;;;;;;;;;;
+
+
+(.t.def ..testnet.create-account
+
+  (.t.is (address? (.testnet.create-account (.kp.pubkey (.kp.create)))))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.testnet.create-account 42))
+         "Not a public key"))

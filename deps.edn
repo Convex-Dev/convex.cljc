@@ -124,6 +124,13 @@
    :maestro/doc "During native compilation, initializes Clojure classes at build time"}
 
 
+  :ext/hato
+
+  {:extra-deps  {hato/hato {:mvn/version "0.9.0"}}
+   :maestro/doc "HTTP client"
+   :mastro/url  "https://github.com/gnarroway/hato"}
+
+
   :ext/json
 
   {:extra-deps  {org.clojure/data.json {:mvn/version "2.4.0"}}
@@ -408,6 +415,7 @@
   :module/shell
 
   {:convex/type                           #{:app}
+   :convex.native/arg+                    ["--enable-https"]
    :convex.shell/version                  "2023-01-18"
    :extra-paths                           ["module/shell/resource/main"
                                            "module/shell/src/main/clj"
@@ -419,6 +427,8 @@
                                            :ext/clojure
                                            :ext/criterium
                                            :ext/graal-build-time
+                                           :ext/hato
+                                           :ext/json
                                            :ext/protosens.git
                                            :ext/protosens.string
                                            :module/cvm

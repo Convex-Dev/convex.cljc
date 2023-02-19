@@ -61,14 +61,16 @@
 
   []
 
-  (System/exit
-    (-> (P.process/shell (concat ["native-image"
-                                  "-jar"
-                                  (-> (maestro/create-basis)
-                                      (get-in [:aliases
-                                               (edn/read-string (first *command-line-args*))
-                                               :maestro.plugin.build.path/output]))
-                                  "--no-fallback"
-                                  "-H:+ReportExceptionStackTraces"]
-                                 (rest *command-line-args*)))
-        (P.process/exit-code))))
+  (let [alias-data (-> (maestro/create-basis)
+                       (get-in [:aliases
+                                (edn/read-string (first *command-line-args*))]))]
+    (assert (map? alias-data))
+    (System/exit
+      (-> (P.process/shell (concat ["native-image"
+                                    "-jar"
+                                    (alias-data :maestro.plugin.build.path/output)
+                                    "--no-fallback"
+                                    "-H:+ReportExceptionStackTraces"]
+                                   (alias-data :convex.native/arg+)
+                                   (rest *command-line-args*)))
+          (P.process/exit-code)))))

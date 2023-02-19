@@ -4763,6 +4763,22 @@
   nil)
 
 
+;;;;;;;;;;
+
+
+(defn .testnet.create-account
+
+  ^{:doc {:description ["Creates a new account on `convex.world` for the given public key."
+                        "Returns the address of that new account."]
+          :examples    [{:code (.testnet.create-account (.kp.pubkey (.kp.create)))}]
+          :signature   [{:params [public-key]}]}}
+
+  [public-key]
+
+  (.shell.invoke '.testnet.create-account
+                 public-key))
+
+
 ;;;;;;;;;; Time utilities
 
 

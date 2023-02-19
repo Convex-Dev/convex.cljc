@@ -162,23 +162,7 @@
                             (def kp
                                  (.kp.create))
 
-                            (def store
-                                 (.pfx.create "/tmp/pfx"))
-
-                            (.pfx.kp.set store
-                                      "foo"
-                                      kp
-                                      "")
-
-                            (.pfx.save store
-                                          "/tmp/pfx")
-
-                            (def store-2
-                                 (.pfx.load "/tmp/pfx"))
-
-
-                            (.pfx.alias+ store-2)
-
+                            (.testnet.create-account (.kp.pubkey kp))
 
 
                             )))
