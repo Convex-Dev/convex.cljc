@@ -378,13 +378,15 @@
   (.t.is (in-range? double?
                     42.42
                     ##Inf
-                    (.gen (.gen.double.bounded {:min 42.42})))
+                    (.gen (.gen.double.bounded {:min  42.42
+                                                :NaN? false})))
          "Min")
 
   (.t.is (in-range? double?
                     ##-Inf
                     42.42
-                    (.gen (.gen.double.bounded {:max 42.42})))
+                    (.gen (.gen.double.bounded {:max  42.42
+                                                :NaN? false})))
          "Max")
 
   (.t.is (let [x (.gen (.gen.double.bounded {:infinite? false}))]

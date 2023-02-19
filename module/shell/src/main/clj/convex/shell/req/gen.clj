@@ -368,7 +368,7 @@
                               ($.shell.resrc/create ($.gen/double-bounded {:infinite? ($.std/true? infinite?)
                                                                            :max       max-2
                                                                            :min       min-2
-                                                                           :Nan?      ($.std/true? nan?)})))))))
+                                                                           :NaN?      ($.std/true? nan?)})))))))
 
 
 
