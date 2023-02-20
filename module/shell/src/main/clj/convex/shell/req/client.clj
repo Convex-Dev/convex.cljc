@@ -3,14 +3,16 @@
   "Requests relating to the binary client."
   
   (:import (convex.api Convex))
-  (:require [convex.cell        :as $.cell]
-            [convex.client      :as $.client]
-            [convex.clj         :as $.clj]
-            [convex.cvm         :as $.cvm]
-            [convex.db          :as $.db]
-            [convex.shell.async :as $.shell.async]
-            [convex.shell.resrc :as $.shell.resrc]
-            [convex.std         :as $.std]))
+  (:require [convex.cell         :as $.cell]
+            [convex.client       :as $.client]
+            [convex.clj          :as $.clj]
+            [convex.cvm          :as $.cvm]
+            [convex.db           :as $.db]
+            [convex.key-pair     :as $.key-pair]
+            [convex.shell.async  :as $.shell.async]
+            [convex.shell.req.kp :as $.shell.req.kp]
+            [convex.shell.resrc  :as $.shell.resrc]
+            [convex.std          :as $.std]))
 
 
 (set! *warn-on-reflection*
@@ -123,4 +125,32 @@
                                                             code))
                                           (fn [_ex]
                                             [($.cell/* :SHELL.CLIENT)
-                                             ($.cell/* "Unable to issue a query")]))))))
+                                             ($.cell/* "Unable to issue this query")]))))))
+
+
+
+(defn transact
+
+  "Request for issuing a transaction."
+
+  [ctx [client kp trx]]
+
+  (or (when-not ($.std/transaction? trx)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Requires a transaction, see `(?.shell '.trx)`")))
+      (-do-client ctx
+                  client
+                  (fn [client-2]
+                    ($.shell.req.kp/do-kp ctx
+                                          kp
+                                          (fn [kp-2]
+                                            ($.shell.async/return
+                                              ctx
+                                              (delay
+                                                ($.client/transact client-2
+                                                                   ($.key-pair/sign kp-2
+                                                                                    trx)))
+                                              (fn [_ex]
+                                                [($.cell/* :SHELL.CLIENT)
+                                                 ($.cell/* "Unable to issue this transaction")]))))))))

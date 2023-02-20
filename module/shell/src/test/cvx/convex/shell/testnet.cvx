@@ -17,16 +17,22 @@
 (.t.def ..testnet.faucet
 
   (def addr
-       (.a.take (.testnet.create-account (.kp.pubkey (.kp.create)))))
+       (.a.take (.testnet.create-account (.kp.pubkey (.kp.create)))
+                4000
+                :timeout))
 
   (.t.is (= 10000
             (.a.take (.testnet.faucet addr
-                                      10000)))
+                                      10000)
+                     4000
+                     :timeout))
          "A few coins")
 
   (.t.is (= 0
             (.a.take (.testnet.faucet addr
-                                      0)))
+                                      0)
+                     4000
+                     :timeout))
          "Also works when requesting 0 coins")
 
   (.t.is (.t.ex :ARGUMENT

@@ -35,7 +35,9 @@
     (def result
          (.a.take (.client.query client
                                  #2
-                                 '(inc 42))))
+                                 '(inc 42))
+                  4000
+                  :timeout))
 
     (.t.is (nil? (:error result)))
 
@@ -57,3 +59,66 @@
                                #2
                                '(inc 42)))
          "Not a client"))
+
+
+
+(.t.def ..client.transact
+
+  (def kp
+       (.kp.create))
+
+  (def addr
+       (.a.take (.testnet.create-account (.kp.pubkey kp))))
+
+  (.t.is (= 100000000
+            (.a.take (.testnet.faucet addr
+                                      100000000)
+                     4000
+                     :timeout))
+         "Requested coins")
+
+  (.try.resrc* [client (.client.connect {:host "convex.world"})
+                       (.client.close client)]
+
+    (def result
+         (.a.take (.client.transact client
+                                    kp
+                                    (.trx.new.invoke addr
+                                                     '(def foo
+                                                           (inc 42))
+                                                     {:sequence 1}))
+                  4000
+                  :timeout))
+
+    (.t.is (nil? (:error result)))
+
+    (.t.is (long? (:id result)))
+
+    (.t.is (nil? (:info result)))
+
+    (.t.is (= 43
+              (:result result)))
+
+    (.t.is (= 43
+              (:result (.a.take
+                         (.client.query client
+                                        addr
+                                        'foo)
+                         4000
+                         :timeout)))
+           "Confirm transaction with a query")
+
+    (.t.is (.t.ex :ARGUMENT
+                  (.client.transact client
+                                    :fail
+                                    (.trx.new.invoke addr
+                                                     '(def foo
+                                                           (inc 42))
+                                                     {:sequence 2})))
+           "Not a key pair")
+
+    (.t.is (.t.ex :ARGUMENT
+                  (.client.transact client
+                                    kp
+                                    :fail))
+           "Not a transaction")))

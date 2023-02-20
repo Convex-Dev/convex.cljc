@@ -444,6 +444,30 @@
                  code))
 
 
+
+(defn .client.transact
+
+  ^{:doc {:description ["Issues the given `transaction` after signing it with the provided"
+                        "`key-pair`."
+                        ""
+                        "Transactions require consensus and incur fees in Convex Coins."
+                        ""
+                        "Returns the exact same value as `.client.query`."
+                        ""
+                        "For more about transaction, see `(?.shell '.trx)`."
+                        ""
+                        "If the `client` is connected to the testnet hosted by `convex.world`,"
+                        "see `(?.shell '.testnet)` for creating an account and provisioning funds."]
+          :signature   [{:params [client key-pair transaction]}]}}
+
+  [client key-pair transaction]
+
+  (.shell.invoke '.client.transact
+                 client
+                 key-pair
+                 transaction))
+
+
 ;;;;;;;;;; Dependency management
 
 
