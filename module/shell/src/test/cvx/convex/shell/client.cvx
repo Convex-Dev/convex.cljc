@@ -6,6 +6,8 @@
 
 (.t.def ..client.connect
 
+  ;; Also tests `.client.close`.
+
   (.try.resrc* [client (.client.connect {:host "convex.world"})
                        (.client.close client)]
     (.t.is (boolean client)))
@@ -22,3 +24,36 @@
   (.t.is (.t.ex :SHELL.CLIENT
                 (.client.connect {:host "azertyazerty"}))
          "Inexistent host, cannot connect"))
+
+
+
+(.t.def ..client.query
+
+  (.try.resrc* [client (.client.connect {:host "convex.world"})
+                       (.client.close client)]
+
+    (def result
+         (.a.take (.client.query client
+                                 #2
+                                 '(inc 42))))
+
+    (.t.is (nil? (:error result)))
+
+    (.t.is (long? (:id result)))
+
+    (.t.is (nil? (:info result)))
+
+    (.t.is (= 43
+              (:result result)))
+
+    (.t.is (.t.ex :ARGUMENT
+                  (.client.query client
+                                 :fail
+                                 '(inc 42)))
+           "Not an address"))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.client.query :fail
+                               #2
+                               '(inc 42)))
+         "Not a client"))

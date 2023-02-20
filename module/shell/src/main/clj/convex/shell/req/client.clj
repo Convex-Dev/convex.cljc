@@ -8,8 +8,13 @@
             [convex.clj         :as $.clj]
             [convex.cvm         :as $.cvm]
             [convex.db          :as $.db]
+            [convex.shell.async :as $.shell.async]
             [convex.shell.resrc :as $.shell.resrc]
             [convex.std         :as $.std]))
+
+
+(set! *warn-on-reflection*
+      true)
 
 
 ;;;;;;;;;; Private
@@ -95,3 +100,27 @@
                 ($.cvm/exception-set ctx
                                      ($.cell/* :SHELL.CLIENT)
                                      ($.cell/* "Unable to connect"))))))))
+
+
+
+(defn query
+
+  "Request for issuing a query."
+
+  [ctx [client address code]]
+
+  (or (when-not ($.std/address? address)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Not an Address")))
+      (-do-client ctx
+                  client
+                  (fn [client-2]
+                    ($.shell.async/return ctx
+                                          (delay
+                                            ($.client/query client-2
+                                                            address
+                                                            code))
+                                          (fn [_ex]
+                                            [($.cell/* :SHELL.CLIENT)
+                                             ($.cell/* "Unable to issue a query")]))))))

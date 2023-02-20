@@ -401,6 +401,49 @@
                       18888))))
 
 
+
+(defn .client.query
+
+  ^{:doc {:description ["Issues a query for executing `code` in the context of `address`."
+                        ""
+                        "Queries are a dry run: executed only by the target peer, without"
+                        "consensus, and any state change is eventually discarded."
+                        "They are read-only operations and do not incur fees in Convex Coins."
+                        ""
+                        "Returns an async value that can be awaited with `.a.take`."
+                        "Will resolve to a map such as:"
+                        ""
+                        "  :error"
+                        "    Error code if an exception was thrown (`nil` otherwise)."
+                        ""
+                        "  :id"
+                        "    Long incremented by the client on each query or transaction."
+                        ""
+                        ""
+                        "  :info"
+                        "    In case of success, `nil`."
+                        "    In case of `:error`, a map such as:"
+                        ""
+                        "      :address"
+                        "        Address of the account where the exception was thrown."
+                        ""
+                        "      :trace"
+                        "        Trace of the exception."
+                        ""
+                        "  :result"
+                        "    In case of success, the result from executing `code`."
+                        "    In case of `:error`, the exception message."]
+                        :examples    [{:code (.a.take (.client.query (.client.connect {:host "convex.world"}) #2 '*balance*))}]
+          :signature   [{:params [client address code]}]}}
+
+  [client address code]
+
+  (.shell.invoke '.client.query
+                 client
+                 address
+                 code))
+
+
 ;;;;;;;;;; Dependency management
 
 

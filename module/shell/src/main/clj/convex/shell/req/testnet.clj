@@ -4,12 +4,11 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.lang.impl ErrorValue))
   (:require [clojure.data.json  :as json]
             [convex.cell        :as $.cell]
             [convex.clj         :as $.clj]
             [convex.cvm         :as $.cvm]
-            [convex.shell.resrc :as $.shell.resrc]
+            [convex.shell.async :as $.shell.async]
             [convex.std         :as $.std]
             [hato.client        :as http]
             [promesa.core       :as P]))
@@ -28,25 +27,21 @@
 
   [ctx url body f-body error-message]
 
-  ($.cvm/result-set ctx
-                    ($.shell.resrc/create
-                      (-> (http/post url
-                                      {:async?             true
-                                       :body               (json/write-str body)
-                                       :connection-timeout 20000
-                                       :timeout            120000})
-                          (P/then (fn [resp]
-                                    [true
-                                     (-> resp
-                                         (:body)
-                                         (json/read-str)
-                                         (f-body))]))
-                          (P/catch (fn [_ex]
-                                     [false
-                                      (doto
-                                        (ErrorValue/create ($.cell/keyword "SHELL.TESTNET")
-                                                           ($.cell/string error-message))
-                                        (.setAddress ($.cvm/address ctx)))]))))))
+  ($.shell.async/return ctx
+                        (delay
+                          (-> (http/post url
+                                         {:async?             true
+                                          :body               (json/write-str body)
+                                          :connection-timeout 20000
+                                          :timeout            120000})
+                              (P/then (fn [resp]
+                                        (-> resp
+                                            (:body)
+                                            (json/read-str)
+                                            (f-body))))))
+                        (fn [_ex]
+                          [($.cell/* :SHELL.TESTNET)
+                           ($.cell/string error-message)])))
 
 
 ;;;;;;;;;; Requests
