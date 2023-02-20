@@ -341,6 +341,66 @@
                  cell))
 
 
+;;;;;;;;;; Binary client
+
+
+(def .client
+
+  ^{:private?      true
+    :shell.section ["The binary client allows for connecting to a peer for the purpose"
+                    "of issuing queries and transactions."]}
+
+  nil)
+
+
+
+(defn .client.close
+
+  ^{:doc {:description ["Closes the given `client`."
+                        "See `.client.connect`."]
+          :examples    [{:code (.client.close (.client.connect)) }]
+          :signature   [{:params [client]}]}}
+
+  [client]
+
+  (.shell.invoke '.client.close
+                 client))
+
+
+
+(defn .client.connect
+
+  ^{:doc {:description ["Returns a client connected to the requested peer."
+                        ""
+                        "A map of options may be provided:"
+                        ""
+                        "  :host"
+                        "     Peer URL (String, defaults to `\"localhost\"`"
+                        ""
+                        "  :port"
+                        "     Port exposed by the peer (Long, defaults to `18888`)"
+                        ""
+                        "Also see `.client.close`."]
+          :examples    [{:code (.client.connect)}
+                        {:code (.client.connect {:host "convex.world", :port 18888})}]
+          :signature   [{:params []}
+                        {:params [option+]}]}}
+
+
+  ([]
+
+   (.client.connect nil))
+
+
+  ([option+]
+
+   (.shell.invoke '.client.connect
+                  (or (:host option+)
+                      "localhost")
+                  (or (:port option+)
+                      18888))))
+
+
 ;;;;;;;;;; Dependency management
 
 
@@ -667,6 +727,8 @@
            (assoc option-3+
                   :focus.meta (set (filter keyword?
                                            focus))
+                  :order      (filter symbol?
+                                      required-4)
                   :skip.meta  (set (filter keyword?
                                            skip)))))))
 
@@ -4095,16 +4157,17 @@
                   state          (if on.run.begin
                                    (on.run.begin state)
                                    state)
-                  state-2        (reduce (fn [state-2 [actor-sym actor-address]]
+                  state-2        (reduce (fn [state-2 actor-sym]
                                            (.t.run.actor state-2
                                                          actor-sym
-                                                         actor-address))
+                                                         (get actor-sym->addr
+                                                              actor-sym)))
                                          (assoc state
                                                 :empty-actor+ []
                                                 :n-actor      0
                                                 :n-test       0
                                                 :n-test-fail  0)
-                                         actor-sym->addr)
+                                         (:order state))
                  state-3         (.t.run.finalize state-2)]
              (if on.run.end
                (on.run.end state-3)
@@ -5606,6 +5669,8 @@
                         "Benchmarking")
                (feature ".cell   "
                         "Cell-related utilities")
+               (feature ".client "
+                        "Querying and transacting over peers")
                (feature ".db     "
                         "Using Etch, the fast immutable database for cells")
                (feature ".dep    "

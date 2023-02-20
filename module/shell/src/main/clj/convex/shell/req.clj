@@ -21,6 +21,7 @@
             [convex.shell.req.async      :as $.shell.req.async]
             [convex.shell.req.bench      :as $.shell.req.bench]
             [convex.shell.req.cell       :as $.shell.req.cell]
+            [convex.shell.req.client     :as $.shell.req.client]
             [convex.shell.req.db         :as $.shell.req.db]
             [convex.shell.req.dep        :as $.shell.req.dep]
             [convex.shell.req.dev        :as $.shell.req.dev]
@@ -119,6 +120,8 @@
    ($.cell/* .bench.trx.gen)               $.shell.req.bench/trx-gen
    ($.cell/* .cell.ref.stat)               $.shell.req.cell/ref-stat
    ($.cell/* .cell.size)                   $.shell.req.cell/size
+   ($.cell/* .client.close)                $.shell.req.client/close
+   ($.cell/* .client.connect)              $.shell.req.client/connect
    ($.cell/* .db.flush)                    $.shell.req.db/flush
    ($.cell/* .db.open)                     $.shell.req.db/open
    ($.cell/* .db.path)                     $.shell.req.db/path

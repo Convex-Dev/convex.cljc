@@ -5,6 +5,10 @@
           $.shell.dep     (test convex shell dep)
           $.shell.dev     (test convex shell dev)
           $.shell.db      (test convex shell db)
+          ;;
+          ;; Clients need an instance to Etch.
+          $.shell.client  (test convex shell client)
+          ;;
           $.shell.ex      (test convex shell ex)
           $.shell.file    (test convex shell file)
           $.shell.fs      (test convex shell fs)
