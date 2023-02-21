@@ -124,6 +124,7 @@
    ($.cell/* .client.connect)              $.shell.req.client/connect
    ($.cell/* .client.query)                $.shell.req.client/query
    ($.cell/* .client.query.state)          $.shell.req.client/query-state
+   ($.cell/* .client.resolve)              $.shell.req.client/resolve
    ($.cell/* .client.sequence)             $.shell.req.client/sequence
    ($.cell/* .client.transact)             $.shell.req.client/transact
    ($.cell/* .db.flush)                    $.shell.req.db/flush

@@ -1,10 +1,11 @@
 (ns convex.shell.req.client
 
   "Requests relating to the binary client."
-  
+
   (:import (convex.api Convex)
            (convex.core.lang.ops Special))
-  (:refer-clojure :exclude [sequence])
+  (:refer-clojure :exclude [resolve
+                            sequence])
   (:require [convex.cell         :as $.cell]
             [convex.client       :as $.client]
             [convex.clj          :as $.clj]
@@ -147,6 +148,31 @@
                                       (fn [_ex]
                                         [($.cell/* :SHELL.CLIENT)
                                          ($.cell/* "Unable to fetch the State")])))))
+
+
+
+(defn resolve
+
+  "Request for resolving a hash to a cell."
+
+  [ctx [client hash]]
+
+  (or (when-not (and ($.std/blob? hash)
+                     (= ($.std/count hash)
+                        32))
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Hash to resolve must be a 32-byte Blob")))
+      (-do-client ctx
+                  client
+                  (fn [client-2]
+                    ($.shell.async/return ctx
+                                          (delay
+                                            ($.client/resolve client-2
+                                                              ($.cell/hash<-blob hash)))
+                                          (fn [_ex]
+                                            [($.cell/* :SHELL.CLIENT)
+                                             ($.cell/* "Unable to resolve hash")]))))))
 
 
 

@@ -462,6 +462,20 @@
 
 
 
+(defn .client.resolve
+
+  ^:private?
+
+  ;; Seems to have trouble with hashes that do no point to existing data.
+
+  [client hash]
+
+  (.shell.invoke '.client.resolve
+                 client
+                 hash))
+
+
+
 (defn .client.sequence
 
   ^{:doc {:description ["Queries the next `*sequence*` of an address."
