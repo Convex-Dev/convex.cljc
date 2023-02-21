@@ -462,6 +462,25 @@
 
 
 
+(defn .client.sequence
+
+  ^{:doc {:description ["Queries the next `*sequence*` of an address."
+                        "Returns an async value that can be awaited with `.a.take`."
+                        "The resolved value is the sequence ID that should be used in the next"
+                        "transaction for that account."
+                        ""
+                        "Resolves to `nil` in case of a problem (e.g. account does not exist)."]
+          :examples    [{:code (.a.take (.client.sequence (.client.connect {:host "convex.world"}) #11))}]
+          :signature   [{:params [client address]}]}}
+
+  [client address]
+
+  (.shell.invoke '.client.sequence
+                 client
+                 address))
+
+
+
 (defn .client.transact
 
   ^{:doc {:description ["Issues the given `transaction` after signing it with the provided"

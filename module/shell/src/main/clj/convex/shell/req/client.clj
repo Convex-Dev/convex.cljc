@@ -2,7 +2,9 @@
 
   "Requests relating to the binary client."
   
-  (:import (convex.api Convex))
+  (:import (convex.api Convex)
+           (convex.core.lang.ops Special))
+  (:refer-clojure :exclude [sequence])
   (:require [convex.cell         :as $.cell]
             [convex.client       :as $.client]
             [convex.clj          :as $.clj]
@@ -12,7 +14,8 @@
             [convex.shell.async  :as $.shell.async]
             [convex.shell.req.kp :as $.shell.req.kp]
             [convex.shell.resrc  :as $.shell.resrc]
-            [convex.std          :as $.std]))
+            [convex.std          :as $.std]
+            [promesa.core        :as P]))
 
 
 (set! *warn-on-reflection*
@@ -144,6 +147,35 @@
                                       (fn [_ex]
                                         [($.cell/* :SHELL.CLIENT)
                                          ($.cell/* "Unable to fetch the State")])))))
+
+
+
+(let [op (Special/forSymbol ($.cell/* *sequence*))]
+
+  (defn sequence
+
+    "Request for retrieving the next sequence ID."
+
+    [ctx [client address]]
+
+    (or (when-not ($.std/address? address)
+          ($.cvm/exception-set ctx
+                               ($.cell/code-std* :ARGUMENT)
+                               ($.cell/* "Need an Address to retrieve the sequence ID")))
+        (-do-client ctx
+                    client
+                    (fn [client-2]
+                      ($.shell.async/return ctx
+                                            (delay
+                                              (-> ($.client/query client-2
+                                                                  address
+                                                                  op)
+                                                  (P/then (fn [q]
+                                                            (when-not ($.client/result->error-code q)
+                                                              ($.std/inc ($.client/result->value q)))))))
+                                            (fn [_ex]
+                                              [($.cell/* :SHELL.CLIENT)
+                                               ($.cell/* "Unable to retrieve next sequence ID")])))))))
 
 
 

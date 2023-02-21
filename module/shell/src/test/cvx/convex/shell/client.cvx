@@ -80,6 +80,22 @@
 
 
 
+(.t.def ..client.sequence
+
+  (.try.resrc* [client (.client.connect {:host "convex.world"})
+                       (.client.close client)]
+
+    (.t.is (= 1
+              (.a.take (.client.sequence client
+                                         #0)))
+           "Existing account")
+
+    (.t.is (nil? (.a.take (.client.sequence client
+                                            #1000000000000)))
+           "Inexistent account")))
+
+
+
 (.t.def ..client.transact
 
   (def kp
