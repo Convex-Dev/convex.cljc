@@ -445,6 +445,23 @@
 
 
 
+(defn .client.query.state
+
+  ^{:doc {:description ["Queries the current `*state*` of the peer."
+                        "Returns an async value that can be awaited with `.a.take`."
+                        ""
+                        "This operation could take anywhere from seconds to hours depending on the size"
+                        "of the state."]
+          :examples    [{:code (.a.take (.client.query.state (.client.connect {:host "convex.world"})))}]
+          :signature   [{:params [client]}]}}
+
+  [client]
+
+  (.shell.invoke '.client.query.state
+                 client))
+
+
+
 (defn .client.transact
 
   ^{:doc {:description ["Issues the given `transaction` after signing it with the provided"

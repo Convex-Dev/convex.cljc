@@ -62,6 +62,24 @@
 
 
 
+(.t.def ..client.query.state
+
+  ^:slow?
+
+  (.try.resrc* [client (.client.connect {:host "convex.world"})
+                       (.client.close client)]
+    (.t.is (= #{:accounts
+                :globals
+                :peers
+                :schedule}
+           (set (keys (.a.take (.client.query.state client)))))))
+
+  (.t.is (.t.ex :ARGUMENT
+                (.client.query.state :fail))
+         "Not a client"))
+
+
+
 (.t.def ..client.transact
 
   (def kp

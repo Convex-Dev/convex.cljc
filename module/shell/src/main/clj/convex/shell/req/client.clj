@@ -129,6 +129,24 @@
 
 
 
+(defn query-state
+
+  "Request for fetching the peer's `State`."
+
+  [ctx [client]]
+
+  (-do-client ctx
+              client
+              (fn [client-2]
+                ($.shell.async/return ctx
+                                      (delay
+                                        ($.client/state client-2))
+                                      (fn [_ex]
+                                        [($.cell/* :SHELL.CLIENT)
+                                         ($.cell/* "Unable to fetch the State")])))))
+
+
+
 (defn transact
 
   "Request for issuing a transaction."

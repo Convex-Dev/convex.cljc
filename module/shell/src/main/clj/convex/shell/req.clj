@@ -123,6 +123,7 @@
    ($.cell/* .client.close)                $.shell.req.client/close
    ($.cell/* .client.connect)              $.shell.req.client/connect
    ($.cell/* .client.query)                $.shell.req.client/query
+   ($.cell/* .client.query.state)          $.shell.req.client/query-state
    ($.cell/* .client.transact)             $.shell.req.client/transact
    ($.cell/* .db.flush)                    $.shell.req.db/flush
    ($.cell/* .db.open)                     $.shell.req.db/open
