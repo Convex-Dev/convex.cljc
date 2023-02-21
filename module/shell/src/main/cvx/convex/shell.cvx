@@ -375,10 +375,12 @@
                         "A map of options may be provided:"
                         ""
                         "  :host"
-                        "     Peer URL (String, defaults to `\"localhost\"`"
+                        "    Peer URL (String)."
+                        "    Defaults to `\"localhost\"`."
                         ""
                         "  :port"
-                        "     Port exposed by the peer (Long, defaults to `18888`)"
+                        "    Port exposed by `:host` (Long)."
+                        "    Defaults to `18888`."
                         ""
                         "Also see `.client.close`."]
           :examples    [{:code (.client.connect)}
@@ -432,7 +434,9 @@
                         ""
                         "  :result"
                         "    In case of success, the result from executing `code`."
-                        "    In case of `:error`, the exception message."]
+                        "    In case of `:error`, the exception message."
+                        ""
+                        "An Etch instance must be open (see `.db.open`)."]
                         :examples    [{:code (.a.take (.client.query (.client.connect {:host "convex.world"}) #2 '*balance*))}]
           :signature   [{:params [client address code]}]}}
 
@@ -473,6 +477,267 @@
   (.shell.invoke '.client.resolve
                  client
                  hash))
+
+
+
+(defn .client.repl
+
+  ^{:doc {:description ["Like `.repl` but connects to a Convex network."
+                        "Each line of code provided interactively will be send as a transaction."
+                        ""
+                        "To switch to query mode, enter `:query`."
+                        "To switch back to transaction mode, enter `:transact`."
+                        ""
+                        "A map of options may be provided:"
+                        ""
+                        "  :address"
+                        "    Address of the account issuing transactions."
+                        "    If not provided and if `:host` is `\"convex.world\"` (public testnet),"
+                        "    a new account will be created."
+                        ""
+                        "  :key-pair"
+                        "    Key pair for signing transactions."
+                        "    Mandatory if `:address` is provided."
+                        ""
+                        "  :host"
+                        "    Peer URL (String)."
+                        "    Defaults to `\"convex.world\"` (public testnet)."
+                        ""
+                        "  :port"
+                        "    Port exposed by `:host` (Long)."
+                        "    Defaults to `18888`."
+                        ""
+                        "  :timeout"
+                        "    Timeout in milliseconds used for network requests."
+                        "    Defaults to `10000`."
+                        "    E.g. if a transaction takes longer than this, returns `:timeout`."
+                        ""
+                        "For other options, see `.repl`."
+                        ""
+                        "Automatically open an Etch instance if none is detected (see `.db.open`)."
+                        ""
+                        "To quit, enter `:q` or `:quit`."
+                        "Returns a map with `:address`, `:key-pair`, and `:result` (last result)."]
+          :examples    [{:code (.client.repl)}
+                        {:code (.client {:address #42, :key-pair matching-key-pair, :host "localhost"})}]
+          :signature   [{:params []}
+                        {:params [option+]}]}}
+
+  ([]
+
+   (.client.repl {}))
+ 
+
+  ([option+]
+
+   (.stream.txt.outln "")
+   (let [host    (or (:host option+)
+                     "convex.world")
+         port    (or (:port option+)
+                     18888)
+         addr    (:address option+)
+         kp      (:key-pair option+)
+         timeout (or (:timeout option+)
+                     10000)]
+     (when-not (and (long? timeout)
+                    (>= timeout
+                        0))
+       (fail :ARGUMENT
+             "Timeout must be a Long >= 0"))
+     (when (and addr
+                (not kp))
+       (fail :ARGUMENT
+             "Address provided without matching key pair"))
+     (when (and kp
+                (not addr))
+       (fail :ARGUMENT
+             "Key pair provided without an address"))
+     (let [out     (or (:stream.out option+)
+                       (.stream.stdout))
+           [addr-2
+            kp-2]  (if (and addr
+                            kp)
+                     [addr
+                      kp]
+                     (if (= host
+                            "convex.world")
+                       (let [kp-2   (.kp.create)
+                             _      (do
+                                      (.stream.txt.out out
+                                                       "Creating a new account on `convex.world`")
+                                      (.stream.flush out))
+                             addr-2 (.a.take (.testnet.create-account (.kp.pubkey kp-2))
+                                             timeout
+                                             :timeout)
+                             _      (if (= addr-2
+                                             :timeout)
+                                      (fail :SHELL.CLIENT.REPL
+                                            "Timeout while creating a new account")
+                                      (.stream.txt.outln out
+                                                         (str ": "
+                                                              addr-2)))
+                             _      (do
+                                      (.stream.txt.out out
+                                                       "Provisioning Convex Coins to new account")
+                                      (.stream.flush out))
+                             amount (.a.take (.testnet.faucet addr-2
+                                                              100000000)
+                                             timeout
+                                             :timeout)
+                             _      (if (= amount
+                                           :timeout)
+                                      (fail :SHELL.CLIENT.REPL
+                                            "Timeout while provisioning funds")
+                                      (.stream.txt.outln out
+                                                         (str ": "
+                                                              amount)))]
+                         [addr-2
+                          kp-2])
+                       (fail :ARGUMENT
+                             "Unless the peer is `convex.world`, must provid an address and a key pair")))]
+       (when (nil? (.db.path))
+         (let [db-path (.fs.tmp "convex-shell-"
+                                ".etch")]
+           (.stream.txt.outln (str "Opening Etch instance at `"
+                                   db-path
+                                   "`"))
+           (.db.open db-path)))
+       (.stream.txt.outln (str "Connecting to `"
+                               host
+                               ":"
+                               port
+                               "`"))
+       (.stream.txt.outln "")
+       (let [client   (.client.connect {:host host
+                                        :port port})
+             sequence (.a.take (.client.sequence client
+                                                 addr-2))
+             _        (when (nil? sequence)
+                        (fail :SHELL.CLIENT
+                              "Unable to retrieve sequence ID"))
+             [ok?
+              x]      (.state.safe (fn []
+                                     (.repl (merge option+
+                                                   {:client.repl.address  addr-2
+                                                    :client.repl.client   client
+                                                    :client.repl.host     host
+                                                    :client.repl.key-pair kp-2
+                                                    :client.repl.mode     :transact
+                                                    :client.repl.port     port
+                                                    :client.repl.sequence sequence
+                                                    :client.repl.timeout  timeout
+                                                    :eval                 .client.repl.eval
+                                                    :on.prompt            .client.repl.on.prompt}))))]
+         (.client.close client)
+         (if ok?
+           {:address  addr-2
+            :key-pair kp-2
+            :result   (:result x)}
+           (.ex.rethrow x)))))))
+            
+
+
+(defn .client.repl.eval
+
+  ^:private?
+
+  [env]
+
+  (let [form+            (:form+ env)
+        form-1           (first form+)]
+    (if (contains-key? #{:query
+                         :transact}
+                       form-1)
+      (assoc env
+             :client.repl.mode form-1
+             :result           form-1)
+      (let [code   (if (= (count form+)
+                          1)
+                     form-1
+                     (cons 'do
+                           form+))
+            eval   (if (= (:client.repl.mode env)
+                          :transact)
+                     .client.repl.transact
+                     .client.repl.query)
+            env-2  (eval env
+                         code)
+            result (:result env-2)]
+        (if (= result
+               (:client.repl.client env))
+          (assoc env-2
+                 :result
+                 :timeout)
+          (if-let [error (:error result)]
+            (assoc env-2
+                   :exception? true
+                   :result     (assoc (:info result)
+                                      :code    error
+                                      :message (:result result)))
+            (assoc env-2
+                   :result
+                   (:result result))))))))
+
+
+
+(defn .client.repl.query
+
+  ^:private?
+
+  [env code]
+
+  (let [client (:client.repl.client env)]
+    (assoc env
+           :result
+           (.a.take (.client.query client
+                                   (:client.repl.address env)
+                                   code)
+                    (:client.repl.timeout env)
+                    client))))
+
+
+
+(defn .client.repl.transact
+
+  ^:private?
+
+  [env code]
+
+  (let [client   (:client.repl.client env)
+        sequence (:client.repl.sequence env)]
+    (assoc env
+           :client.repl.sequence (inc sequence)
+           :result               (.a.take
+                                   (.client.transact client
+                                                     (:client.repl.key-pair env)
+                                                     (.trx.new.invoke (:client.repl.address env)
+                                                                      code 
+                                                                      {:sequence sequence}))
+                                   (:client.repl.timeout env)
+                                   client))))
+
+
+
+(defn .client.repl.on.prompt
+
+  ^:private?
+
+  [env]
+
+  (let [out (:stream.out env)]
+    (.stream.txt.out out
+                     (str (.term.bold)
+                          (.term.fg.blue)
+                          (:client.repl.host env)
+                          ":"
+                          (:client.repl.port env)
+                          "~"
+                          (:client.repl.address env)
+                          (:client.repl.mode env)
+                          "> "
+                          (.term.reset)))
+    (.stream.flush out))
+  env)
 
 
 
@@ -2596,8 +2861,8 @@
                         "The result of the previous command is made available under `$`."
                         ""
                         "A map of options may be provided to alter the behavior of the REPL."
-                        "Functions in this map takes a state map and must returns it, altered or not."
-                        "The state map starts with those options. Users may want to attach additional
+                        "Functions in this map takes an \"env\" map and must returns it, altered or not."
+                        "The env map starts with those options. Users may want to attach additional
                          information."
                         ""
                         "Tweaking these option may lead to interesting ways of doing inter-process communication"
@@ -2608,6 +2873,8 @@
                         "  :eval"
                         "    Function for producing a result given cells attached under `:result`."
                         "    Defaults to `.repl.eval`."
+                        "    If the result is a caught exception, `:exception?` can be set to `true`"
+                        "    to pretty print it."
                         ""
                         "  :on.ex"
                         "    Function for acting when `:eval` throws an exception."
@@ -2616,7 +2883,7 @@
                         ""
                         "  :on.ex.reader"
                         "    Function for acting on reader errors, when an input line is not valid Convex data."
-                        "    Besides the state map, also takes the message of the reader exception."
+                        "    Besides the env map, also takes the message of the reader exception."
                         "    Defaults to `.repl.on.ex.reader`."
                         ""
                         "  :on.prompt"
@@ -2653,66 +2920,67 @@
 
   ([option+]
 
-   (loop [state (merge {:eval         .repl.eval
-                        :on.ex        .repl.on.ex
-                        :on.ex.reader .repl.on.ex.reader
-                        :on.prompt    .repl.on.prompt
-                        :on.result    .repl.on.result
-                        :stop?        .repl.stop?
-                        :stream.in    (.stream.stdin)
-                        :stream.out   (.stream.stdout)}
-                       option+)]
-     (let [state-2 ((:on.prompt state) state)
+   (loop [env (merge {:eval         .repl.eval
+                      :on.ex        .repl.on.ex
+                      :on.ex.reader .repl.on.ex.reader
+                      :on.prompt    .repl.on.prompt
+                      :on.result    .repl.on.result
+                      :stop?        .repl.stop?
+                      :stream.in    (.stream.stdin)
+                      :stream.out   (.stream.stdout)}
+                     option+)]
+     (let [env-2 ((:on.prompt env) env)
            [read?
-            x]     (.state.safe (fn []
-                                  (.stream.line (:stream.in state-2))))]
+            x]    (.state.safe (fn []
+                                 (.stream.line (:stream.in env-2))))]
        (if read?
          ;;
          ;; Successful read.
          ;;
          (let [form+   x
-               state-3 (assoc state-2
-                              :form+
-                              form+)]
+               env-3 (assoc env-2
+                            :form+
+                            form+)]
            (cond
              ;;
              (nil? form+)
-             state-3
+             env-3
              ;;
              (empty? form+)
-             (recur state-3)
+             (recur env-3)
              ;;
-             ((:stop? state-3) state-3)
-             state-3
+             ((:stop? env-3) env-3)
+             env-3
              ;;
              (let [[ok?
                     x]     (.state.safe (fn []
-                                          ((:eval state-3) (assoc state-3
-                                                                  :form+
-                                                                  form+))))
-                   state-4 (if ok?
-                             (let [state-4 x]
-                               ((:on.result state-4) state-4))
+                                          ((:eval env-3) (assoc (dissoc env-3
+                                                                        :exception?)
+                                                                :form+
+                                                                form+))))
+                   env-4 (if ok?
+                             (let [env-4 x]
+                               ((:on.result env-4) env-4))
                              (let [ex x]
-                               ((:on.ex state) (assoc state-3
-                                                      :result
-                                                      ex))))]
-               (if (contains-key? state-4
+                               ((:on.ex env) (assoc env-3
+                                                    :result
+                                                    ex))))]
+               (if (contains-key? env-4
                                   :result)
-                 (recur state-4)
-                 state-4))))
+                 (recur env-4)
+                 env-4))))
          ;;
          ;; Reading input failed.
          ;;
          (let [ex x]
            (if (= (:code ex)
                   :READER)
-             (let [state-3 ((:on.ex.reader state) state
-                                                  (:message ex))]
-               (if (contains-key? state-3
+             (let [env-3 ((:on.ex.reader env) env
+                                              (:message ex))]
+               (if (contains-key? env-3
                                   :result)
-                 (recur state-3)
-                 state-3))
+                 (recur env-3)
+                 env-3))
              (.ex.rethrow ex))))))))
 
 
@@ -2720,44 +2988,34 @@
 (defn .repl.eval
 
   ^{:doc {:description ["See `.repl`."
-                        "Relative to the REPL state, applies `:form+` to `eval` and attaches the result"
+                        "Relative to the REPL env, applies `:form+` to `eval` and attaches the result"
                         "under `:result`."]
-          :signature   [{:params [repl-state]}]}}
+          :signature   [{:params [repl-env]}]}}
 
-  [state]
+  [env]
 
-  (assoc state
+  (assoc env
          :result
-         (eval (concat `(let [$ (quote ~(:result state))])
-               (:form+ state)))))
+         (eval (concat `(let [$ (quote ~(:result env))])
+               (:form+ env)))))
 
 
 
 (defn .repl.on.ex
 
   ^{:doc {:description ["See `.repl`."
-                        "Pretty-prints the exception found under `:result` in the REPL state."]
-          :signature   [{:params [repl-state]}]}}
+                        "Pretty-prints the exception found under `:result` in the REPL env."]
+          :signature   [{:params [repl-env]}]}}
 
-  [state]
+  [env]
 
-  (let [out   (:stream.out state)
-        ex    (:result state)
-        trace (:trace ex)
-        ex-2  (assoc ex
-                     :trace
-                     (slice trace
-                            0
-                            ;; Removing lines relating to the REPL, not interesting.
-                            (- (count trace)
-                               3)))]
+  (let [out (:stream.out env)
+        ex  (:result env)]
     (.ex.print out
-               ex-2)
+               ex)
     (.stream.txt.outln out
-                       "")
-    (assoc state
-           :result
-           ex-2)))
+                       ""))
+  env)
 
 
 
@@ -2765,11 +3023,11 @@
 
   ^{:doc {:description ["See `.repl`."
                         "Prints the reader error that occured when the REPL was parsing input."]
-          :signature   [{:params [repl-state error-message]}]}}
+          :signature   [{:params [repl-env error-message]}]}}
 
-  [state message]
+  [env message]
 
-  (.stream.txt.outln (:stream.out state)
+  (.stream.txt.outln (:stream.out env)
                      (str .sys.eol
                           (.term.fg.red)
                           (.term.bold)
@@ -2779,7 +3037,7 @@
                           "  "
                           message
                           .sys.eol))
-  state)
+  env)
 
 
 
@@ -2787,55 +3045,57 @@
 
   ^{:doc {:description ["See `.repl`."
                         "Prints a simple prompt."]
-          :signature   [{:params [repl-state]}]}}
+          :signature   [{:params [repl-env]}]}}
 
-  [state]
+  [env]
 
-  (let [out (:stream.out state)]
+  (let [out (:stream.out env)]
     (.stream.txt.out out
                      (str (.term.bold)
                           (.term.fg.blue)
                           "> "
                           (.term.reset)))
     (.stream.flush out))
-  state)
+  env)
 
 
 
 (defn .repl.on.result
 
   ^{:doc {:description ["See `.repl`."
-                        "Relative to the REPL state, prints `:result` to `:stream.out`."]
-          :signature   [{:params [repl-state]}]}}
+                        "Relative to the REPL env, prints `:result` to `:stream.out`."]
+          :signature   [{:params [repl-env]}]}}
 
-  [state]
+  [env]
 
-  (let [out (:stream.out state)]
-    (.stream.txt.out out
-                     .sys.eol)
-    (.stream.out out
-                 (:result state))
-    (.stream.txt.out out
-                     .sys.eol)
-    (.stream.txt.out out
-                     .sys.eol)
-    (.stream.flush out))
-  state)
+  (if (:exception? env)
+    ((:on.ex env) env)
+    (let [out (:stream.out env)]
+      (.stream.txt.out out
+                       .sys.eol)
+      (.stream.out out
+                   (:result env))
+      (.stream.txt.out out
+                       .sys.eol)
+      (.stream.txt.out out
+                       .sys.eol)
+      (.stream.flush out)))
+  env)
 
 
 
 (defn .repl.stop?
 
   ^{:doc {:description ["See `.repl`."
-                        "Relative to the REPL state, returns `true` if the first cell in"
+                        "Relative to the REPL env, returns `true` if the first cell in"
                         "`:form+` is `:q` or `:quit`."]
-          :signature   [{:params [repl-state]}]}}
+          :signature   [{:params [repl-env]}]}}
 
-  [state]
+  [env]
 
   (contains-key? #{:q
                    :quit}
-                 (first (:form+ state))))
+                 (first (:form+ env))))
 
 
 ;;;;;;;;;; Shell
