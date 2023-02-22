@@ -471,6 +471,7 @@
   ^:private?
 
   ;; Seems to have trouble with hashes that do no point to existing data.
+  ;; Will be fixed.
 
   [client hash]
 
@@ -482,16 +483,34 @@
 
 (defn .client.repl
 
-  ^{:doc {:description ["Like `.repl` but connects to a Convex network."
-                        "Each line of code provided interactively will be send as a transaction."
+  ^{:doc {:description ["Like `.repl` but connects to a Convex peer."
                         ""
-                        "To switch to query mode, enter `:query`."
+                        "Each line of code provided interactively will executed depending on the"
+                        "current mode. Five modes are supported:"
                         ""
-                        "To switch back to transaction mode, enter `:transact`."
+                        "  :local"
+                        "    All input code is executed locally in the Shell."
+                        "    Result from the last execution is available under `$`."
                         ""
-                        "To switch to local mode for executing code in the Shell directly, enter"
-                        "`:local` (result from the last query or transaction will be available"
-                        "under `$`."
+                        "  :query"
+                        "    Input code is issued to the peer as a query (read-only operation without"
+                        "    consensus, only executed by the peer, discarding any change at the end)."
+                        ""
+                        "  :query.prepare"
+                        "    Combination between `:local` and `:query`."
+                        "    Input code is first executed locally and the result is then issued to"
+                        "    the peer as a query."
+                        ""
+                        "  :transact"
+                        "    Input code is issued to the peer as a transaction."
+                        ""
+                        "  :transact.prepare"
+                        "    Combination between `:local` and `:transact`."
+                        "    Input code is first executed locally and the result is then issued to"
+                        "    the peer as a transaction."
+                        "    Useful when transactions must be somehow prepared (e.g. fetch source"
+                        "    for a smart contract from a file)."
+                        ""
                         ""
                         "A map of options may be provided:"
                         ""
@@ -519,7 +538,8 @@
                         ""
                         "For other options, see `.repl`."
                         ""
-                        "Automatically open an Etch instance if none is detected (see `.db.open`)."
+                        ""
+                        "Automatically opens an Etch instance if none is detected (see `.db.open`)."
                         ""
                         "To quit, enter `:q` or `:quit`."
                         "Returns a map with `:address`, `:key-pair`, and `:result` (last result)."]
@@ -639,7 +659,7 @@
             :key-pair kp-2
             :result   (:result x)}
            (.ex.rethrow x)))))))
-            
+
 
 
 (defn .client.repl.eval
@@ -652,26 +672,32 @@
         form-1 (first form+)]
     (if (contains-key? #{:local
                          :query
-                         :transact}
+                         :query.prepare
+                         :transact
+                         :transact.prepare}
                        form-1)
-      (let [env-2 (assoc env
-                         :client.repl.mode form-1
-                         :result           form-1)]
-        (if (= form-1
-               :local)
-          (assoc env-2
-                 :client.repl.local.result
-                 (:result env))
-          env-2))
-      (let [code   (if (= (count form+)
-                          1)
-                     form-1
-                     (cons 'do
-                           form+))
-            eval   (get {:local    .client.repl.local
-                         :query    .client.repl.query
-                         :transact .client.repl.transact}
-                         (:client.repl.mode env))]
+        (let [env-2 (assoc env
+                           :client.repl.mode form-1
+                           :result           form-1)]
+          (if (contains-key? #{:local
+                               :query.prepare
+                               :transact.prepare}
+                             form-1)
+            (assoc env-2
+                   :client.repl.local.result
+                   (:result env))
+            env-2))
+      (let [code (if (= (count form+)
+                        1)
+                   form-1
+                   (cons 'do
+                         form+))
+            eval  (get {:local            .client.repl.local
+                        :query            .client.repl.query
+                        :query.prepare    .client.repl.query.prepare
+                        :transact         .client.repl.transact
+                        :transact.prepare .client.repl.transact.prepare}
+                       (:client.repl.mode env))]
         (eval env
               code)))))
 
@@ -705,6 +731,19 @@
                               (.client.query (:client.repl.client env)
                                              (:client.repl.address env)
                                              code)))
+
+
+
+(defn .client.repl.query.prepare
+
+  ^:private?
+
+  [env code]
+
+  (let [env-2 (.client.repl.local env
+                                  code)]
+    (.client.repl.query env-2
+                        (:result env-2))))
 
 
 
@@ -753,6 +792,20 @@
 
 
 
+
+(defn .client.repl.transact.prepare
+
+  ^:private?
+
+  [env code]
+
+  (let [env-2 (.client.repl.local env
+                                  code)]
+    (.client.repl.transact env-2
+                           (:result env-2))))
+
+
+
 (defn .client.repl.on.prompt
 
   ^:private?
@@ -773,7 +826,6 @@
                           (.term.reset)))
     (.stream.flush out))
   env)
-
 
 
 
