@@ -486,7 +486,12 @@
                         "Each line of code provided interactively will be send as a transaction."
                         ""
                         "To switch to query mode, enter `:query`."
+                        ""
                         "To switch back to transaction mode, enter `:transact`."
+                        ""
+                        "To switch to local mode for executing code in the Shell directly, enter"
+                        "`:local` (result from the last query or transaction will be available"
+                        "under `$`)."
                         ""
                         "A map of options may be provided:"
                         ""
@@ -643,23 +648,30 @@
 
   [env]
 
-  (let [form+            (:form+ env)
-        form-1           (first form+)]
-    (if (contains-key? #{:query
+  (let [form+  (:form+ env)
+        form-1 (first form+)]
+    (if (contains-key? #{:local
+                         :query
                          :transact}
                        form-1)
-      (assoc env
-             :client.repl.mode form-1
-             :result           form-1)
+      (let [env-2 (assoc env
+                         :client.repl.mode form-1
+                         :result           form-1)]
+        (if (= form-1
+               :local)
+          (assoc env-2
+                 :client.repl.local.result
+                 (:result env))
+          env-2))
       (let [code   (if (= (count form+)
                           1)
                      form-1
                      (cons 'do
                            form+))
-            eval   (if (= (:client.repl.mode env)
-                          :transact)
-                     .client.repl.transact
-                     .client.repl.query)
+            eval   (get {:local    .client.repl.local
+                         :query    .client.repl.query
+                         :transact .client.repl.transact}
+                         (:client.repl.mode env))
             env-2  (eval env
                          code)
             result (:result env-2)]
@@ -677,6 +689,27 @@
             (assoc env-2
                    :result
                    (:result result))))))))
+
+
+
+(defn .client.repl.local
+
+  ^:private?
+
+  [env code]
+
+  (let [env-2 (.repl.eval (assoc (if (contains-key? env
+                                                    :client.repl.local.result)
+                                   (assoc (dissoc env
+                                                  :client.repl.local.result)
+                                          :result
+                                          (:client.repl.local.result env))
+                                   env)
+                                 :form+
+                                 (list code)))]
+    (assoc env-2
+           :result
+           {:result (:result env-2)})))
 
 
 
