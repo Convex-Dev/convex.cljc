@@ -491,7 +491,7 @@
                         ""
                         "To switch to local mode for executing code in the Shell directly, enter"
                         "`:local` (result from the last query or transaction will be available"
-                        "under `$`)."
+                        "under `$`."
                         ""
                         "A map of options may be provided:"
                         ""
@@ -573,9 +573,9 @@
                                       (.stream.flush out))
                              addr-2 (.a.take (.testnet.create-account (.kp.pubkey kp-2))
                                              timeout
-                                             :timeout)
+                                             :client.repl.timeout)
                              _      (if (= addr-2
-                                             :timeout)
+                                             :client.repl.timeout)
                                       (fail :SHELL.CLIENT.REPL
                                             "Timeout while creating a new account")
                                       (.stream.txt.outln out
@@ -588,9 +588,9 @@
                              amount (.a.take (.testnet.faucet addr-2
                                                               100000000)
                                              timeout
-                                             :timeout)
+                                             :client.repl.timeout)
                              _      (if (= amount
-                                           :timeout)
+                                           :client.repl.timeout)
                                       (fail :SHELL.CLIENT.REPL
                                             "Timeout while provisioning funds")
                                       (.stream.txt.outln out
@@ -671,24 +671,9 @@
             eval   (get {:local    .client.repl.local
                          :query    .client.repl.query
                          :transact .client.repl.transact}
-                         (:client.repl.mode env))
-            env-2  (eval env
-                         code)
-            result (:result env-2)]
-        (if (= result
-               (:client.repl.client env))
-          (assoc env-2
-                 :result
-                 :timeout)
-          (if-let [error (:error result)]
-            (assoc env-2
-                   :exception? true
-                   :result     (assoc (:info result)
-                                      :code    error
-                                      :message (:result result)))
-            (assoc env-2
-                   :result
-                   (:result result))))))))
+                         (:client.repl.mode env))]
+        (eval env
+              code)))))
 
 
 
@@ -698,18 +683,15 @@
 
   [env code]
 
-  (let [env-2 (.repl.eval (assoc (if (contains-key? env
-                                                    :client.repl.local.result)
-                                   (assoc (dissoc env
-                                                  :client.repl.local.result)
-                                          :result
-                                          (:client.repl.local.result env))
-                                   env)
-                                 :form+
-                                 (list code)))]
-    (assoc env-2
-           :result
-           {:result (:result env-2)})))
+  (.repl.eval (assoc (if (contains-key? env
+                                        :client.repl.local.result)
+                       (assoc (dissoc env
+                                      :client.repl.local.result)
+                              :result
+                              (:client.repl.local.result env))
+                       env)
+                     :form+
+                     (list code))))
 
 
 
@@ -719,14 +701,37 @@
 
   [env code]
 
-  (let [client (:client.repl.client env)]
-    (assoc env
-           :result
-           (.a.take (.client.query client
-                                   (:client.repl.address env)
-                                   code)
-                    (:client.repl.timeout env)
-                    client))))
+  (.client.repl.remote.result env
+                              (.client.query (:client.repl.client env)
+                                             (:client.repl.address env)
+                                             code)))
+
+
+
+(defn .client.repl.remote.result
+
+  ^:private?
+
+  [env async-result]
+
+  (let [client (:client.repl.client env)
+        result (.a.take async-result
+                        (:client.repl.timeout env)
+                        client)]
+    (if (= result
+           (:client.repl.client env))
+      (assoc env
+             :result
+             :client.repl.timeout)
+      (if-let [error (:error result)]
+        (assoc env
+               :exception? true
+               :result     (assoc (:info result)
+                                  :code    error
+                                  :message (:result result)))
+        (assoc env
+               :result
+               (:result result))))))
 
 
 
@@ -736,18 +741,15 @@
 
   [env code]
 
-  (let [client   (:client.repl.client env)
-        sequence (:client.repl.sequence env)]
-    (assoc env
-           :client.repl.sequence (inc sequence)
-           :result               (.a.take
-                                   (.client.transact client
-                                                     (:client.repl.key-pair env)
-                                                     (.trx.new.invoke (:client.repl.address env)
-                                                                      code 
-                                                                      {:sequence sequence}))
-                                   (:client.repl.timeout env)
-                                   client))))
+  (let [sequence (:client.repl.sequence env)]
+    (.client.repl.remote.result (assoc env
+                                       :client.repl.sequence
+                                       (inc sequence))
+                                (.client.transact (:client.repl.client env)
+                                                  (:client.repl.key-pair env)
+                                                  (.trx.new.invoke (:client.repl.address env)
+                                                                   code 
+                                                                   {:sequence sequence})))))
 
 
 
@@ -771,6 +773,7 @@
                           (.term.reset)))
     (.stream.flush out))
   env)
+
 
 
 
