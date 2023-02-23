@@ -751,7 +751,9 @@
                               (:client.repl.local.result env))
                        env)
                      :form+
-                     (list code))))
+                     (list `(let [$.address  ~(:client.repl.address env)
+                                  $.key-pair ~(:client.repl.key-pair env)]
+                              ~code)))))
 
 
 
