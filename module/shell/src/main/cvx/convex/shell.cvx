@@ -3077,11 +3077,11 @@
              env-3
              ;;
              (let [[ok?
-                    x]     (.state.safe (fn []
-                                          ((:eval env-3) (assoc (dissoc env-3
-                                                                        :exception?)
-                                                                :form+
-                                                                form+))))
+                    x]   (.state.safe (fn []
+                                        ((:eval env-3) (assoc (dissoc env-3
+                                                                      :exception?)
+                                                              :form+
+                                                              form+))))
                    env-4 (if ok?
                              (let [env-4 x]
                                ((:on.result env-4) env-4))
@@ -3099,12 +3099,8 @@
          (let [ex x]
            (if (= (:code ex)
                   :READER)
-             (let [env-3 ((:on.ex.reader env) env
-                                              (:message ex))]
-               (if (contains-key? env-3
-                                  :result)
-                 (recur env-3)
-                 env-3))
+             (recur ((:on.ex.reader env) env
+                                         (:message ex)))
              (.ex.rethrow ex))))))))
 
 

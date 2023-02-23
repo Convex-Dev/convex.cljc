@@ -12,7 +12,7 @@
 
 (def ^:private -*counter
 
-  ;; 
+  ;; Ever incrementing number for making resources unique at the level of a process.
 
   (atom 0))
 
