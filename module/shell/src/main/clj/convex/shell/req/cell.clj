@@ -2,12 +2,37 @@
 
   "More advanced requestes relating to cells."
 
+  (:refer-clojure :exclude [compile])
   (:require [convex.cell :as $.cell]
             [convex.cvm  :as $.cvm]
             [convex.std  :as $.std]))
 
 
 ;;;;;;;;;;
+
+
+(defn compile
+
+  "Request for pre-compiling a `cell` for the given `address` which might
+   not exist in the Shell."
+
+  [ctx [state addr cell]]
+
+  (or (when-not ($.std/state? state)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Need a State for compilation")))
+      (when-not ($.std/address? addr)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Must provide an Address")))
+      ($.cvm/result-set ctx
+                        (-> ctx
+                            ($.cvm/fork-to addr)
+                            ($.cvm/state-set state)
+                            ($.cvm/expand-compile cell)
+                            ($.cvm/result)))))
+
 
 
 (defn ref-stat

@@ -291,6 +291,40 @@
 
 
 
+(defn .cell.compile
+
+  ^{:doc {:description ["Compiles the given `cell` for the given `address`, even when no account"
+                        "exist for that address in the current Shell."
+                        ""
+                        "Typically used for pre-compiling code for a transaction targeting a network"
+                        "where that account exists, as a way of saving on transaction fees (on-chain"
+                        "compilation is more expensive than executing precompiled code)."
+                        ""
+                        "User must think carefully about macros since the cell will be expanded against"
+                        "the given `state` (defaults to `*state*`)."]
+          :examples    [{:code (.cell.compile #1234567890 '(def foo (inc bar)))}
+                        {:code (.cell.compile (.state.genesis) #1234567890 '(def foo (inc bar)))}]
+          :signature   [{:params [address cell]}
+                        {:params [state address cell]}]}}
+
+
+  ([address cell]
+
+   (.cell.compile nil
+                  address
+                  cell))
+
+
+  ([state address cell]
+
+   (.shell.invoke '.cell.compile
+                  (or state
+                      *state*)
+                  address
+                  cell)))
+
+
+
 (defn .cell.ref.stat
 
   ^{:doc {:description ["Given a cell (cannot be `nil`), returns a map where:"

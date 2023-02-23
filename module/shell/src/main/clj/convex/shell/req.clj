@@ -118,6 +118,7 @@
    ($.cell/* .bench.eval)                  $.shell.req.bench/eval
    ($.cell/* .bench.trx)                   $.shell.req.bench/trx
    ($.cell/* .bench.trx.gen)               $.shell.req.bench/trx-gen
+   ($.cell/* .cell.compile)                $.shell.req.cell/compile
    ($.cell/* .cell.ref.stat)               $.shell.req.cell/ref-stat
    ($.cell/* .cell.size)                   $.shell.req.cell/size
    ($.cell/* .client.close)                $.shell.req.client/close
