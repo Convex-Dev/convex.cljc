@@ -997,6 +997,7 @@
             :embedded  1
             :persisted 0
             :soft      0
+            :stored    0
             :total     1}
            ($.std/ref-stat ($.cell/* :a))))
 
@@ -1004,6 +1005,7 @@
             :embedded  5
             :persisted 0
             :soft      0
+            :stored    0
             :total     5}
            ($.std/ref-stat ($.cell/* [:a :b [:c]]))))
 
@@ -1011,6 +1013,7 @@
             :embedded  2
             :persisted 0
             :soft      0
+            :stored    0
             :total     2}
            ($.std/ref-stat ($.cell/* [nil]))))
 
@@ -1018,6 +1021,7 @@
             :embedded  5
             :persisted 0
             :soft      1
+            :stored    0
             :total     5}
            ($.std/ref-stat ($.cell/* [:a :b [~(let [^ACell c ($.cell/* :c)]
                                                 (.attachRef c

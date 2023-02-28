@@ -1446,4 +1446,5 @@
      :persisted (.-persisted stat+)
      :soft      (clojure.core/- total
                                 direct)
+     :stored    (.-stored stat+)
      :total     total}))
