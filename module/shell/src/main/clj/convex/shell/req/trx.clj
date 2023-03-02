@@ -179,32 +179,6 @@
 ;;;;;;;;;; Transaction parameters
 
 
-(defn origin
-
-  "Request returning the origin of the given `trx`."
-
-  [ctx [^ATransaction trx]]
-
-  (or (-ensure-trx ctx
-                   trx)
-      ($.cvm/result-set ctx
-                        (.getOrigin trx))))
-
-
-
-(defn sequence
-
-  "Request returning the sequence ID of the given `trx`."
-
-  [ctx [^ATransaction trx]]
-
-  (or (-ensure-trx ctx
-                   trx)
-      ($.cvm/result-set ctx
-                        ($.cell/long (.getSequence trx)))))
-
-
-
 (defn with-sequence
 
   "Request for returning `trx` as a new transaction with an updated sequence ID."

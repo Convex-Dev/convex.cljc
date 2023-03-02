@@ -239,39 +239,13 @@
 
 
 
-(.t.def ..trx.origin
-
-  (.t.is (= #1001
-            (.trx.origin (.trx.new.invoke #1001
-                                          '(def foo 42)
-                                          {:sequence 444}))))
-
-  (.t.is (.t.ex :ARGUMENT
-                (.trx.origin 42))
-         "Not a transaction"))
-         
-
-
-(.t.def ..trx.sequence
-
-  (.t.is (= 444
-            (.trx.sequence (.trx.new.invoke #1001
-                                            '(def foo 42)
-                                            {:sequence 444}))))
-
-  (.t.is (.t.ex :ARGUMENT
-                (.trx.sequence 42))
-         "Not a transaction"))
-
-
-
-(.t.def ..trx.sequence
+(.t.def ..trx.with.sequence
 
   (.t.is (= 888
-            (.trx.sequence (.trx.with.sequence (.trx.new.invoke #1001
-                                                                '(def foo 42)
-                                                                {:sequence 444})
-                                               888))))
+            (:sequence (.trx.with.sequence (.trx.new.invoke #1001
+                                                            '(def foo 42)
+                                                            {:sequence 444})
+                                           888))))
 
   (.t.is (.t.ex :ARGUMENT
                 (.trx.with.sequence 42
