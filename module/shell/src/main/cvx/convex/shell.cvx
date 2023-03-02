@@ -5614,7 +5614,7 @@
                                   ""
                                   "Will fail with an exception if:"
                                   ""
-                                  "  - Target address is an actor (they cannot transact)"
+                                  "  - Transaction origin is an actor (they cannot transact, only users can)"
                                   "  - Sequence ID is not the current sequence ID for that address + 1"
                                   ""
                                   "Sequence ID is an on-chain number attached to an account. It is incremented on"
@@ -5646,7 +5646,7 @@
                          "Requires:"
                          ""
                          "  - Address of the account issuing the transaction (origin)"
-                         "  - Address of the actor being called"
+                         "  - Address of the actor being called (target)"
                          "  - Symbol of the function being called"
                          "  - A vector of arguments or `nil`"
                          ""
@@ -5659,26 +5659,26 @@
                          "    See `.trx` about the sequence ID"]
            :examples    [{:code (.trx.new.call #11 #42 'some-fn [1 2 3])}
                          {:code (.trx.new.call #11 #42 'some-fn [1 2 3] {:offer 10000, :sequence 100})}]
-           :signature   [{:params [address-origin address-callable function-name arg+]}
-                         {:params [address-origin address-callable function-name arg+ option+]}]}}
+           :signature   [{:params [origin target function-name arg+]}
+                         {:params [origin target function-name arg+ option+]}]}}
 
 
-  ([address-origin address-callable function-name arg+]
+  ([origin target function-name arg+]
 
-   (.trx.new.call address-origin
-                  address-callable
+   (.trx.new.call origin
+                  target
                   function-name
                   arg+
                   nil))
 
 
-  ([address-origin address-callable function-name arg+ option+]
+  ([origin target function-name arg+ option+]
 
    (.shell.invoke '.trx.new.call
-                  address-origin
+                  origin
                   (or (:sequence option+)
-                      (inc (:sequence (account address-origin))))
-                  address-callable
+                      (inc (:sequence (account origin))))
+                  target
                   (or (:offer option+)
                       0)
                   function-name
@@ -5693,7 +5693,9 @@
                          "Requires:"
                          ""
                          "  - Address issuing the transaction (origin)"
-                         "  - Code to execute (pre-compiled or not)"
+                         "  - A cell to execute (command)"
+                         ""
+                         "Advanced users may want to precompile the command using `.cell.compile`."
                          ""
                          "A map of options may be provided:"
                          ""
@@ -5701,24 +5703,24 @@
                          "    See `.trx` about the sequence ID"]
            :examples    [{:code (.trx.new.invoke #11 '(def cool? true))}
                          {:code (.trx.new.invoke #11 (compile '(def cool? true)) {:sequence 3})}]
-           :signature   [{:params [address code]}
-                         {:params [address code option+]}]}}
+           :signature   [{:params [origin command]}
+                         {:params [origin command option+]}]}}
 
 
-  ([address-origin code]
+  ([origin command]
 
-    (.trx.new.invoke address-origin
-                     code
+    (.trx.new.invoke origin
+                     command
                      nil))
 
 
-  ([address-origin code option+]
+  ([origin command option+]
 
    (.shell.invoke '.trx.new.invoke
-                  address-origin
+                  origin
                   (or (:sequence option+)
-                      (inc (:sequence (account address-origin))))
-                  code)))
+                      (inc (:sequence (account origin))))
+                  command)))
 
 
 
@@ -5730,7 +5732,7 @@
                         "Requires:"
                         ""
                         "  - Address of the sender (origin)"
-                        "  - Address of the receiver"
+                        "  - Address of the receiver (target)"
                         "  - Amount of Convex Coins to transfer"
                         ""
                         "A map of options may be provided:"
@@ -5739,25 +5741,25 @@
                         "    See `.trx` about the sequence ID"]
           :examples    [{:code (.trx.new.transfer #11 #42 100000)}
                         {:code (.trx.new.transfer #11 #42 100000 {:sequence 3})}]
-          :signature   [{:params [address-sender address-receiver amount]}
-                        {:params [address-sender address-receiver amount option+]}]}}
+          :signature   [{:params [origin target amount]}
+                        {:params [origin target amount option+]}]}}
 
 
-  ([address-sender address-receiver amount]
+  ([origin target amount]
 
-   (.trx.new.transfer address-sender
-                      address-receiver
+   (.trx.new.transfer origin
+                      target
                       amount
                       nil))
 
 
-  ([address-sender address-receiver amount option+]
+  ([origin target amount option+]
 
    (.shell.invoke '.trx.new.transfer
-                  address-sender
+                  origin
                   (or (:sequence option+)
-                      (inc (:sequence (account address-sender))))
-                  address-receiver
+                      (inc (:sequence (account origin))))
+                  target
                   amount)))
 
 

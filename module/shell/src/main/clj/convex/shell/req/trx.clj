@@ -90,13 +90,13 @@
 
   "Request for creating a new call transaction."
 
-  [ctx [address-origin sequence-id address-callable offer function arg+]]
+  [ctx [origin sequence-id target offer function arg+]]
 
   (or (-ensure-origin ctx
-                      address-origin)
+                      origin)
       (-ensure-sequence-id ctx
                            sequence-id)
-      (when-not ($.std/address? address-callable)
+      (when-not ($.std/address? target)
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
                              ($.cell/* "Callable target must be an address")))
@@ -119,9 +119,9 @@
                                    ($.cell/code-std* :ARGUMENT)
                                    ($.cell/* "Arguments must be Nil or in a Vector")))
             ($.cvm/result-set ctx
-                              ($.cell/call address-origin
+                              ($.cell/call origin
                                            ($.clj/long sequence-id)
-                                           address-callable
+                                           target
                                            offer-2
                                            function
                                            arg+))))))
@@ -132,16 +132,16 @@
 
   "Request for creating a new invoke transaction."
 
-  [ctx [address-origin sequence-id code]]
+  [ctx [origin sequence-id command]]
 
   (or (-ensure-origin ctx
-                      address-origin)
+                      origin)
       (-ensure-sequence-id ctx
                            sequence-id)
       ($.cvm/result-set ctx
-                        ($.cell/invoke address-origin
+                        ($.cell/invoke origin
                                        ($.clj/long sequence-id)
-                                       code))))
+                                       command))))
 
 
 
@@ -149,13 +149,13 @@
 
   "Request for creating a new transfer transaction."
 
-  [ctx [addr-sender sequence-id addr-receiver amount]]
+  [ctx [origin sequence-id target amount]]
 
   (or (-ensure-origin ctx
-                      addr-sender)
+                      origin)
       (-ensure-sequence-id ctx
                            sequence-id)
-      (when-not ($.std/address? addr-receiver)
+      (when-not ($.std/address? target)
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
                              ($.cell/* "Recipient must be an address")))
@@ -170,9 +170,9 @@
                                    ($.cell/code-std* :ARGUMENT)
                                    ($.cell/* "Amount to transfer must be >= 0")))
             ($.cvm/result-set ctx
-                              ($.cell/transfer addr-sender
+                              ($.cell/transfer origin
                                                ($.clj/long sequence-id)
-                                               addr-receiver
+                                               target
                                                amount-2))))))
 
 
