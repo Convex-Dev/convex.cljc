@@ -5629,8 +5629,9 @@
                     :examples    [{:code (.trx (.trx.new.invoke .account.genesis '(def cool? true)))}]
                     :signature   [{:params [trx]}]}
     :shell.section ["Creating and executing transactions like a peer would."
+                    ""
                     "Transactions a special kind of Convex data not directly available to the user"
-                    "on-chain."]}
+                    "on-chain. In the Shell, they look and behave like maps but technically are not."]}
 
   [trx]
 

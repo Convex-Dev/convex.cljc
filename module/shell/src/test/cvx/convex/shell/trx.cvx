@@ -25,6 +25,28 @@
 
 (.t.def ..trx.new.call
 
+  (def trx
+       (.trx.new.call #0
+                      #1
+                      'foo
+                      [:a :b]
+                      {:offer    1000
+                       :sequence 42}))
+  (.t.is (= '(foo :a :b)
+            (:call trx)))
+
+  (.t.is (= 1000
+            (:offer trx)))
+
+  (.t.is (= #0
+            (:origin trx)))
+
+  (.t.is (= 42
+            (:sequence trx)))
+
+  (.t.is (= #1
+            (:target trx)))
+
   (.t.is (.t.ex :ARGUMENT
                 (.trx.new.call :fail
                                #1
@@ -115,9 +137,19 @@
 
 (.t.def ..trx.new.invoke
 
-  (.t.is (not (nil? (.trx.new.invoke #42
-                                     'some-code
-                                     {:sequence 100}))))
+  (def trx
+       (.trx.new.invoke #42
+                        'some-code
+                        {:sequence 100}))
+
+  (.t.is (= 'some-code
+            (:command trx)))
+
+  (.t.is (= #42
+            (:origin trx)))
+
+  (.t.is (= 100
+            (:sequence trx)))
 
   (.t.is (.t.ex :ARGUMENT
                 (.trx.new.invoke :fail
@@ -164,10 +196,23 @@
 
 (.t.def ..trx.new.transfer
 
-  (.t.is (not (nil? (.trx.new.transfer #42
-                                       #100
-                                       4200
-                                       {:sequence 3}))))
+  (def trx
+       (.trx.new.transfer #42
+                          #100
+                          4200
+                          {:sequence 3}))
+
+  (.t.is (= 4200
+            (:amount trx)))
+
+  (.t.is (= #42
+            (:origin trx)))
+
+  (.t.is (= 3
+            (:sequence trx)))
+
+  (.t.is (= #100
+            (:target trx)))
 
   (.t.is (.t.ex :ARGUMENT
                 (.trx.new.transfer :fail
