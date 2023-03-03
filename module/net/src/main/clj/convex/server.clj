@@ -39,16 +39,16 @@
 
    An map of options may be provided:
 
-   | Key                              | Value                                                      | Default                                     |
-   |----------------------------------|------------------------------------------------------------|---------------------------------------------|
-   | `:convex.server/bind`            | Bind address (string)                                      | `\"localhost\"`                             |
-   | `:convex.server/state`           | See below                                                  | `[:genesis]`                                |
-   | `:convex.server/controller`      | Controller account address                                 | Retrieved from state                        |
-   | `:convex.server/db`              | Database (see `:module/cvm`)                               | Default temp instance created automatically |
-   | `:convex.server/n-peer`          | Maximum number of other peers this one should broadcast to | `20`                                        |
-   | `:convex.server/persist-at-stop? | True if peer data should be persisted in DB when stopped   | `true`                                      |
-   | `:convex.server/port`            | Port                                                       | `18888`                                     |
-   | `:convex.server/url              | URL of this peer (string) that will be registered on chain | /                                           |
+   | Key                               | Value                                                      | Default                                     |
+   |-----------------------------------|------------------------------------------------------------|---------------------------------------------|
+   | `:convex.server/bind`             | Bind address (string)                                      | `\"localhost\"`                             |
+   | `:convex.server/state`            | See below                                                  | `[:genesis]`                                |
+   | `:convex.server/controller`       | Controller account address                                 | Retrieved from state                        |
+   | `:convex.server/db`               | Database (see `:module/cvm`)                               | Default temp instance created automatically |
+   | `:convex.server/n-peer`           | Maximum number of other peers this one should broadcast to | `20`                                        |
+   | `:convex.server/persist-at-stop?` | True if peer data should be persisted in DB when stopped   | `true`                                      |
+   | `:convex.server/port`             | Port                                                       | `18888`                                     |
+   | `:convex.server/url`              | URL of this peer (string) that will be registered on chain | /                                           |
 
    The URL, if given, is stored on-chain so that other peers can use it to broadcast beliefs and state updates.
    It is typically different from `:convex.server/bind` and `:convex.server/port`. For instance, `convex.world`
