@@ -68,5 +68,5 @@
                                        (failure ctx
                                                 (f-catch ex)))))
                         (catch Exception ex
-                          (failure ctx
-                                   (f-catch ex)))))))
+                          (P/resolved (failure ctx
+                                               (f-catch ex))))))))
