@@ -578,7 +578,7 @@
                         "To quit, enter `:q` or `:quit`."
                         "Returns a map with `:address`, `:key-pair`, and `:result` (last result)."]
           :examples    [{:code (.client.repl)}
-                        {:code (.client {:address #42, :key-pair matching-key-pair, :host "localhost"})}]
+                        {:code (.client.repl {:address #42, :key-pair matching-key-pair, :host "localhost"})}]
           :signature   [{:params []}
                         {:params [option+]}]}}
 
@@ -2757,6 +2757,40 @@
   []
 
   (.shell.invoke '.log.get))
+
+
+;;;;;;;;;; Peers
+
+
+(defn .peer.start
+
+
+  ([state key-pair]
+
+   (.peer.start state
+                key-pair
+                nil))
+
+
+  ([state key-pair option+]
+
+   (.shell.invoke '.peer.start
+                  state
+                  key-pair
+                  (or (:host option+)
+                      "localhost")
+                  (or (:port option+)
+                      18888)
+                  )))
+
+
+
+(defn .peer.stop
+
+  [peer]
+
+  (.shell.invoke '.peer.stop
+                 peer))
 
 
 ;;;;;;;;;; PFX stores
