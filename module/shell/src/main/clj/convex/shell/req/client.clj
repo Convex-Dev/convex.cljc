@@ -3,7 +3,8 @@
   "Requests relating to the binary client."
 
   (:import (convex.api Convex)
-           (convex.core.lang.ops Special))
+           (convex.core.lang.ops Special)
+           (java.nio.channels ClosedChannelException))
   (:refer-clojure :exclude [resolve
                             sequence])
   (:require [convex.cell         :as $.cell]
@@ -45,6 +46,23 @@
             (f client-2)))
       (let [ctx-2 x]
         ctx-2))))
+
+
+
+(defn -return
+
+  ;;
+
+  [ctx d*future error-message]
+
+  ($.shell.async/return ctx
+                        d*future
+                        (fn [ex]
+                          [($.cell/* :SHELL.CLIENT)
+                           ($.cell/string (if (instance? ClosedChannelException
+                                                         ex)
+                                            "Connection severed"
+                                            error-message))])))
 
 
 ;;;;;;;;;; Requests
@@ -122,14 +140,12 @@
       (-do-client ctx
                   client
                   (fn [client-2]
-                    ($.shell.async/return ctx
-                                          (delay
-                                            ($.client/query client-2
-                                                            address
-                                                            code))
-                                          (fn [_ex]
-                                            [($.cell/* :SHELL.CLIENT)
-                                             ($.cell/* "Unable to issue this query")]))))))
+                    (-return ctx
+                             (delay
+                               ($.client/query client-2
+                                               address
+                                               code))
+                             "Unable to issue this query")))))
 
 
 
@@ -142,12 +158,10 @@
   (-do-client ctx
               client
               (fn [client-2]
-                ($.shell.async/return ctx
-                                      (delay
-                                        ($.client/state client-2))
-                                      (fn [_ex]
-                                        [($.cell/* :SHELL.CLIENT)
-                                         ($.cell/* "Unable to fetch the State")])))))
+                (-return ctx
+                         (delay
+                           ($.client/state client-2))
+                         "Unable to fetch the State"))))
 
 
 
@@ -166,13 +180,11 @@
       (-do-client ctx
                   client
                   (fn [client-2]
-                    ($.shell.async/return ctx
-                                          (delay
-                                            ($.client/resolve client-2
-                                                              ($.cell/hash<-blob hash)))
-                                          (fn [_ex]
-                                            [($.cell/* :SHELL.CLIENT)
-                                             ($.cell/* "Unable to resolve hash")]))))))
+                    (-return ctx
+                             (delay
+                               ($.client/resolve client-2
+                                                 ($.cell/hash<-blob hash)))
+                             "Unable to resolve hash")))))
 
 
 
@@ -191,17 +203,15 @@
         (-do-client ctx
                     client
                     (fn [client-2]
-                      ($.shell.async/return ctx
-                                            (delay
-                                              (-> ($.client/query client-2
-                                                                  address
-                                                                  op)
-                                                  (P/then (fn [q]
-                                                            (when-not ($.client/result->error-code q)
-                                                              ($.std/inc ($.client/result->value q)))))))
-                                            (fn [_ex]
-                                              [($.cell/* :SHELL.CLIENT)
-                                               ($.cell/* "Unable to retrieve next sequence ID")])))))))
+                      (-return ctx
+                               (delay
+                                 (-> ($.client/query client-2
+                                                     address
+                                                     op)
+                                     (P/then (fn [q]
+                                               (when-not ($.client/result->error-code q)
+                                                 ($.std/inc ($.client/result->value q)))))))
+                               "Unable to retrieve next sequence ID"))))))
 
 
 
@@ -221,12 +231,9 @@
                     ($.shell.req.kp/do-kp ctx
                                           kp
                                           (fn [kp-2]
-                                            ($.shell.async/return
-                                              ctx
-                                              (delay
-                                                ($.client/transact client-2
-                                                                   ($.key-pair/sign kp-2
-                                                                                    trx)))
-                                              (fn [_ex]
-                                                [($.cell/* :SHELL.CLIENT)
-                                                 ($.cell/* "Unable to issue this transaction")]))))))))
+                                            (-return ctx
+                                                     (delay
+                                                       ($.client/transact client-2
+                                                                          ($.key-pair/sign kp-2
+                                                                                           trx)))
+                                                     "Unable to issue this transaction")))))))
