@@ -12,6 +12,7 @@ repository.
 - Add
     - `$.key-pair/key-pair?`
     - `$.pfx/alias+`
+    - `$.server/belief`
     - `$.server/state`
 - Change
     - `$.pfx/key-pair-get` returns `nil` for inexistent aliases (instead of throwing)

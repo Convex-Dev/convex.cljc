@@ -12,7 +12,8 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core Peer
+  (:import (convex.core Belief
+                        Peer
                         State)
            (convex.core.data Address
                              Keywords)
@@ -217,6 +218,18 @@
 
 
 ;;;;;;;;;; Informations
+
+
+(defn belief
+
+  "Returns the current belief of `server`."
+
+  ^Belief
+
+  [^Server server]
+
+  (.getBelief server))
+
 
 
 (defn controller

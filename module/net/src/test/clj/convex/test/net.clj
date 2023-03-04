@@ -4,7 +4,8 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core Peer))
+  (:import (convex.core Belief
+                        Peer))
   (:require [clojure.test    :as T]
             [convex.cell     :as $.cell]
             [convex.client   :as $.client]
@@ -126,6 +127,13 @@
 
 
 ;;;;;;;;;; Tests - Server
+
+
+(T/deftest belief
+
+  (T/is (instance? Belief
+                   ($.server/belief @d*server))))
+
 
 
 (T/deftest controller
