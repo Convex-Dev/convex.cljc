@@ -2777,17 +2777,20 @@
                    "localhost")
          port  (or (:port option+)
                    18888)
-         state (:state option+)]
+         state (:state option+)
+         url   (:url option)]
      (if state
        (.shell.invoke '.peer.init.state
                       state
                       key-pair
                       host
-                      port)
+                      port
+                      url)
        (.shell.invoke '.peer.init.db
                       key-pair
                       host
-                      port)))))
+                      port
+                      url)))))
 
 
 
@@ -2804,7 +2807,8 @@
                  (or (:host option+)
                      "localhost")
                  (or (:port option+)
-                     18888)))
+                     18888)
+                 (:url option+)))
 
 
 

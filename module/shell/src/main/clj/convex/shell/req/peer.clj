@@ -35,10 +35,10 @@
         ctx-2))))
 
 
-      
+
 (defn- -init
 
-  [ctx [key-pair host port] map-option+]
+  [ctx [key-pair host port url] map-option+]
 
   (or (when-not ($.std/string? host)
         ($.cvm/exception-set ctx
@@ -48,6 +48,11 @@
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
                              ($.cell/* "An Etch instance must be open")))
+      (when-not (or (nil? url)
+                    ($.std/string? url))
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "URL must be Nil or a String")))
       (when-not ($.std/long? port)
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
@@ -68,7 +73,9 @@
                                                           ($.server/create key-pair-2
                                                                            (map-option+ {:convex.server/bind ($.clj/string host)
                                                                                          :convex.server/db   ($.db/current)
-                                                                                         :convex.server/port port-2}))))
+                                                                                         :convex.server/port port-2
+                                                                                         :convex.server/url  (some-> url 
+                                                                                                                     ($.clj/string))}))))
                                       (catch Throwable _ex
                                         ($.cvm/exception-set ctx
                                                              ($.cell/* :SHELL.PEER)
