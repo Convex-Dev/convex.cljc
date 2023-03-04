@@ -38,7 +38,7 @@
 ;;;;;;;;;; Requests
 
 
-(defn start
+(defn init
 
   [ctx [state key-pair host port]]
 
@@ -68,32 +68,38 @@
             ($.shell.req.kp/do-kp ctx
                                   key-pair
                                   (fn [key-pair-2]
-                                    (let [[ok?
-                                           x]  (try
-                                                 [true
-                                                  ($.server/create key-pair-2
-                                                                   {:convex.server/bind ($.clj/string host)
-                                                                    :convex.server/db   ($.db/current)
-                                                                    :convex.server/port port-2
-                                                                    })]
-                                                 (catch Throwable _ex
-                                                   [false
-                                                    ($.cvm/exception-set ($.cell/* :SHELL.PEER)
-                                                                         ($.cell/* "Unable to create peer, check input parameters"))]))]
-                                      (if ok?
-                                        (let [server x]
-                                          (try
-                                            ;;
-                                            ($.server/start server)
-                                            ($.cvm/result-set ctx
-                                                              ($.shell.resrc/create server))
-                                            ;;
-                                            (catch Throwable _ex
-                                              ($.cvm/exception-set ctx
-                                                                   ($.cell/* :SHELL.PEER)
-                                                                   ($.cell/* "Unable to start peer server, check input parameters")))))
-                                        (let [ctx-2 x]
-                                          ctx-2)))))))))
+                                    (try
+                                      ($.cvm/result-set ctx
+                                                        ($.shell.resrc/create
+                                                          ($.server/create key-pair-2
+                                                                           {:convex.server/bind ($.clj/string host)
+                                                                            :convex.server/db   ($.db/current)
+                                                                            :convex.server/port port-2
+                                                                            })))
+                                      (catch Throwable _ex
+                                        ($.cvm/exception-set ctx
+                                                             ($.cell/* :SHELL.PEER)
+                                                             ($.cell/* "Unable to initialize peer, check input parameters"))))))))))
+
+
+
+(defn start
+
+  [ctx [peer]]
+
+  (-do-peer ctx
+            peer
+            (fn [peer-2]
+              (try
+                ;;
+                ($.server/start peer-2)
+                ($.cvm/result-set ctx
+                                  peer)
+                ;;
+                (catch Throwable _ex
+                  ($.cvm/exception-set ctx
+                                       ($.cell/* :SHELL.PEER)
+                                       ($.cell/* "Unable to start peer server, check initialization parameters")))))))
 
 
 

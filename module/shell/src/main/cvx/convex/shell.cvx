@@ -2762,19 +2762,19 @@
 ;;;;;;;;;; Peers
 
 
-(defn .peer.start
+(defn .peer.init
 
 
   ([state key-pair]
 
-   (.peer.start state
-                key-pair
-                nil))
+   (.peer.init state
+               key-pair
+               nil))
 
 
   ([state key-pair option+]
 
-   (.shell.invoke '.peer.start
+   (.shell.invoke '.peer.init
                   state
                   key-pair
                   (or (:host option+)
@@ -2782,6 +2782,15 @@
                   (or (:port option+)
                       18888)
                   )))
+
+
+
+(defn .peer.start
+
+  [peer]
+
+  (.shell.invoke '.peer.start
+                 peer))
 
 
 
