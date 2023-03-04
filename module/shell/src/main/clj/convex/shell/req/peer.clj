@@ -101,6 +101,18 @@
 
 
 
+(defn controller
+
+  [ctx [peer]]
+
+  (-do-peer ctx
+            peer
+            (fn [peer-2]
+              ($.cvm/result-set ctx
+                                ($.server/controller peer-2)))))
+
+
+
 (defn data
 
   [ctx [peer]]

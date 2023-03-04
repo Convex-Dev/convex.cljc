@@ -228,6 +228,7 @@
    ($.cell/* .log.clear)                   $.shell.req.log/clear
    ($.cell/* .log.get)                     $.shell.req.log/get
    ($.cell/* .peer.broadcast-count)        $.shell.req.peer/broadcast-count
+   ($.cell/* .peer.controller)             $.shell.req.peer/controller
    ($.cell/* .peer.data)                   $.shell.req.peer/data
    ($.cell/* .peer.init.db)                $.shell.req.peer/init-db
    ($.cell/* .peer.init.state)             $.shell.req.peer/init-state

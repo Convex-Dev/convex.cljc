@@ -2771,6 +2771,15 @@
 
 
 
+(defn .peer.controller
+
+  [peer]
+
+  (.shell.invoke '.peer.controller
+                 peer))
+
+
+
 (defn .peer.data
 
   [peer]
