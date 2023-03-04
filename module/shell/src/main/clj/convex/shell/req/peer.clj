@@ -85,6 +85,18 @@
 ;;;;;;;;;; Requests
 
 
+(defn broadcast-count
+
+  [ctx [peer]]
+
+  (-do-peer ctx
+            peer
+            (fn [peer-2]
+              ($.cvm/result-set ctx
+                                ($.cell/long ($.server/broadcast-count peer-2))))))
+
+
+
 (defn init-db
 
   [ctx arg+]

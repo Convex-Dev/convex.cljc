@@ -2762,6 +2762,15 @@
 ;;;;;;;;;; Peers
 
 
+(defn .peer.broadcast-count
+
+  [peer]
+
+  (.shell.invoke '.peer.broadcast-count
+                 peer))
+
+
+
 (defn .peer.init
 
 

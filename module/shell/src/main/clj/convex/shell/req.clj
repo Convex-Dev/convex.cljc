@@ -227,6 +227,7 @@
    ($.cell/* .kp.verify)                   $.shell.req.kp/verify
    ($.cell/* .log.clear)                   $.shell.req.log/clear
    ($.cell/* .log.get)                     $.shell.req.log/get
+   ($.cell/* .peer.broadcast-count)        $.shell.req.peer/broadcast-count
    ($.cell/* .peer.init.db)                $.shell.req.peer/init-db
    ($.cell/* .peer.init.state)             $.shell.req.peer/init-state
    ($.cell/* .peer.init.sync)              $.shell.req.peer/init-sync
