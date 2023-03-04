@@ -205,11 +205,20 @@
    :maestro/url "https://github.com/protosens/monorepo.cljc/tree/main/module/string"}
 
 
+  :ext/slf4j
+
+  {:extra-deps  {org.slf4j/slf4j-api {:exclusions  [org.slf4j/slf4j-nop
+                                                    org.slf4j/slf4j-parent]
+                                      :mvn/version "1.7.36"}}
+   :maestro/doc "Pre 2.0 version of SLF4J (logging framework for Java)"}
+
+
   :ext/slf4j-timbre
 
   {:extra-deps      {com.fzakaria/slf4j-timbre {:mvn/version "0.3.21"}}
    :maestro/doc     "Needed for supressing warnings related to SLF4J used by some dependencies"
-   :maestro/require [:ext/timbre]}
+   :maestro/require [:ext/slf4j
+                     :ext/timbre]}
 
 
   :ext/timbre
