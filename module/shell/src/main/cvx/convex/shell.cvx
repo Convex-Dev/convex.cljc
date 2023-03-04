@@ -2791,6 +2791,23 @@
 
 
 
+(defn .peer.init.sync
+
+  [key-pair option+]
+
+  (.shell.invoke '.peer.init.sync
+                 (or (:remote.host option+)
+                     "localhost")
+                 (or (:remote.port option+)
+                     18888)
+                 key-pair
+                 (or (:host option+)
+                     "localhost")
+                 (or (:port option+)
+                     18888)))
+
+
+
 (defn .peer.start
 
   [peer]

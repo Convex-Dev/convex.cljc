@@ -108,6 +108,35 @@
 
 
 
+(defn init-sync
+
+  [ctx [remote-host remote-port & arg+]]
+
+  (or (when-not ($.std/string? remote-host)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Remote host must be a String")))
+      (when-not ($.std/long? remote-port)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Remote port must be a Long")))
+      (let [remote-port-2 ($.clj/long remote-port)]
+        (or (when-not (<= 1
+                          remote-port-2
+                          65535)
+              ($.cvm/exception-set ctx
+                                   ($.cell/code-std* :ARGUMENT)
+                                   ($.cell/* "Remote port must be >= 1 and <= 65535")))
+            (-init ctx
+                   arg+
+                   (fn [option+]
+                     (assoc option+
+                            :convex.server/state
+                            [:sync {:convex.server/host ($.clj/string remote-host)
+                                    :convex.server/port remote-port-2}])))))))
+
+
+
 (defn start
 
   [ctx [peer]]
