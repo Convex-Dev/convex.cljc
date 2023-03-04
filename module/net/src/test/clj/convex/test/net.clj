@@ -136,6 +136,12 @@
 
 
 
+(T/deftest broadcast-count
+
+  (T/is (int? ($.server/broadcast-count @d*server))))
+
+
+
 (T/deftest controller
 
   (T/is (= user

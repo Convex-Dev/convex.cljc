@@ -232,6 +232,16 @@
 
 
 
+(defn broadcast-count
+
+  "Returns the number of beliefs broadcasted by `server`"
+
+  [^Server server]
+
+  (.getBroadcastCount server))
+
+
+
 (defn controller
 
   "Returns the controller associated with `server`.
