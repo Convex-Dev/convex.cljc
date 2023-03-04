@@ -231,6 +231,7 @@
    ($.cell/* .peer.init.state)             $.shell.req.peer/init-state
    ($.cell/* .peer.init.sync)              $.shell.req.peer/init-sync
    ($.cell/* .peer.start)                  $.shell.req.peer/start
+   ($.cell/* .peer.state)                  $.shell.req.peer/state
    ($.cell/* .peer.stop)                   $.shell.req.peer/stop
    ($.cell/* .pfx.alias+)                  $.shell.req.pfx/alias+
    ($.cell/* .pfx.create)                  $.shell.req.pfx/create

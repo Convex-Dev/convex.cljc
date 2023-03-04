@@ -2821,6 +2821,15 @@
 
 
 
+(defn .peer.state
+
+  [peer]
+
+  (.shell.invoke '.peer.state
+                 peer))
+
+
+
 (defn .peer.stop
 
   ;; Cannot be restarted
