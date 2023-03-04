@@ -149,6 +149,24 @@
 
 
 
+(T/deftest data
+
+  (let [data ($.server/data @d*server)]
+
+    (T/is (boolean ($.std/get data
+                              ($.cell/* :belief)))
+          "Belief")
+
+    (T/is (boolean ($.std/get data
+                              ($.cell/* :results)))
+          "Results")
+
+    (T/is (boolean ($.std/get data
+                              ($.cell/* :states)))
+          "States")))
+
+
+
 (T/deftest db-
 
   (T/is (= @d*db

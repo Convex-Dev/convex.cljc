@@ -16,6 +16,7 @@
                         Peer
                         State)
            (convex.core.data Address
+                             AMap
                              Keywords)
            (convex.core.store AStore)
            (convex.peer IServerEvent
@@ -253,6 +254,24 @@
   [^Server server]
 
   (.getPeerController server))
+
+
+
+(defn data
+
+  "Returns a map cell with:
+
+   | Key        | Value                           |
+   |------------|---------------------------------|
+   | `:belief`  | Current belief held by `server` |
+   | `:results` | All available block results     |
+   | `:states`  | All available states            |"
+
+  ^AMap
+
+  [^Server server]
+
+  (.toData (.getPeer server)))
 
 
 

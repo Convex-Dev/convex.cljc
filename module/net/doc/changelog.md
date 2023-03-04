@@ -14,6 +14,7 @@ repository.
     - `$.pfx/alias+`
     - `$.server/belief`
     - `$.server/broadcast-count`
+    - `$.server/data`
     - `$.server/state`
 - Change
     - `$.pfx/key-pair-get` returns `nil` for inexistent aliases (instead of throwing)
