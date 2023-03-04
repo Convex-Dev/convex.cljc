@@ -35,18 +35,12 @@
         ctx-2))))
 
 
-;;;;;;;;;; Requests
+      
+(defn- -init
 
+  [ctx [key-pair host port] map-option+]
 
-(defn init
-
-  [ctx [state key-pair host port]]
-
-  (or (when-not ($.std/state? state)
-        ($.cvm/exception-set ctx
-                             ($.cell/code-std* :ARGUMENT)
-                             ($.cell/* "Genesis state required")))
-      (when-not ($.std/string? host)
+  (or (when-not ($.std/string? host)
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
                              ($.cell/* "Host must be a String")))
@@ -72,14 +66,45 @@
                                       ($.cvm/result-set ctx
                                                         ($.shell.resrc/create
                                                           ($.server/create key-pair-2
-                                                                           {:convex.server/bind ($.clj/string host)
-                                                                            :convex.server/db   ($.db/current)
-                                                                            :convex.server/port port-2
-                                                                            })))
+                                                                           (map-option+ {:convex.server/bind ($.clj/string host)
+                                                                                         :convex.server/db   ($.db/current)
+                                                                                         :convex.server/port port-2}))))
                                       (catch Throwable _ex
                                         ($.cvm/exception-set ctx
                                                              ($.cell/* :SHELL.PEER)
                                                              ($.cell/* "Unable to initialize peer, check input parameters"))))))))))
+
+
+;;;;;;;;;; Requests
+
+
+(defn init-db
+
+  [ctx arg+]
+
+  (-init ctx
+         arg+
+         (fn [option+]
+           (assoc option+
+                  :convex.server/state
+                  [:db]))))
+
+
+
+(defn init-state
+
+  [ctx [state & arg+]]
+
+  (or (when-not ($.std/state? state)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Genesis state required")))
+      (-init ctx
+             arg+
+             (fn [option+]
+               (assoc option+
+                      :convex.server/state
+                      [:use state])))))
 
 
 

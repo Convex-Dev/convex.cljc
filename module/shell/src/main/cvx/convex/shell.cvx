@@ -2765,23 +2765,29 @@
 (defn .peer.init
 
 
-  ([state key-pair]
+  ([key-pair]
 
-   (.peer.init state
-               key-pair
+   (.peer.init key-pair
                nil))
 
 
-  ([state key-pair option+]
+  ([key-pair option+]
 
-   (.shell.invoke '.peer.init
-                  state
-                  key-pair
-                  (or (:host option+)
-                      "localhost")
-                  (or (:port option+)
-                      18888)
-                  )))
+   (let [host  (or (:host option+)
+                   "localhost")
+         port  (or (:port option+)
+                   18888)
+         state (:state option+)]
+     (if state
+       (.shell.invoke '.peer.init.state
+                      state
+                      key-pair
+                      host
+                      port)
+       (.shell.invoke '.peer.init.db
+                      key-pair
+                      host
+                      port)))))
 
 
 
@@ -2795,6 +2801,8 @@
 
 
 (defn .peer.stop
+
+  ;; Cannot be restarted
 
   [peer]
 

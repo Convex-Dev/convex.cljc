@@ -227,7 +227,8 @@
    ($.cell/* .kp.verify)                   $.shell.req.kp/verify
    ($.cell/* .log.clear)                   $.shell.req.log/clear
    ($.cell/* .log.get)                     $.shell.req.log/get
-   ($.cell/* .peer.init)                   $.shell.req.peer/init
+   ($.cell/* .peer.init.db)                $.shell.req.peer/init-db
+   ($.cell/* .peer.init.state)             $.shell.req.peer/init-state
    ($.cell/* .peer.start)                  $.shell.req.peer/start
    ($.cell/* .peer.stop)                   $.shell.req.peer/stop
    ($.cell/* .pfx.alias+)                  $.shell.req.pfx/alias+
