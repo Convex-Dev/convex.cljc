@@ -170,6 +170,12 @@
            ($.server/port @d*server))))
 
 
+
+(T/deftest state
+
+  (T/is ($.std/state? ($.server/state @d*server))))
+
+
 ;;;;;;;;;; Client
 
 

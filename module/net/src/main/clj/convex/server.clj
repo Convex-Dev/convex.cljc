@@ -12,7 +12,8 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core Peer)
+  (:import (convex.core Peer
+                        State)
            (convex.core.data Address
                              Keywords)
            (convex.core.store AStore)
@@ -275,3 +276,15 @@
   [^Server server]
 
   (.getPort server))
+
+
+
+(defn state
+
+  "Returns the consensus state held by the `server`."
+
+  ^State
+
+  [^Server server]
+
+  (.getConsensusState (.getPeer server)))
