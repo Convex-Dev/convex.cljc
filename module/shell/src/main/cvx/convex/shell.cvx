@@ -2771,6 +2771,15 @@
 
 
 
+(defn .peer.data
+
+  [peer]
+
+  (.shell.invoke '.peer.data
+                 peer))
+
+
+
 (defn .peer.init
 
 
