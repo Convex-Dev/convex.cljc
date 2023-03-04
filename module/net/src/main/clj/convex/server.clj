@@ -146,10 +146,14 @@
                               nil
                               port)
                             Server/DEFAULT_PORT))
-
-                    (some->> (:convex.server/url option+)
-                             (.put h
-                                   Keywords/URL))
+                    (let [url (:convex.server/url option+)]
+                      (.put h
+                            Keywords/AUTO_MANAGE
+                            (boolean url))
+                      (when url
+                        (.put h
+                              Keywords/URL
+                              url)))
                     h))))
 
 
