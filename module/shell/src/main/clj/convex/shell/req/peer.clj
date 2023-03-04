@@ -76,6 +76,10 @@
                                                                                          :convex.server/port port-2
                                                                                          :convex.server/url  (some-> url 
                                                                                                                      ($.clj/string))}))))
+                                      (catch IllegalStateException ex
+                                        ($.cvm/exception-set ctx
+                                                             ($.cell/* :SHELL.PEER)
+                                                             ($.cell/string (.getMessage ex))))
                                       (catch Throwable _ex
                                         ($.cvm/exception-set ctx
                                                              ($.cell/* :SHELL.PEER)
