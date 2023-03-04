@@ -90,16 +90,22 @@
   
    An optional map of options may be provided:
 
-   | Key                        | Value                                           | Default                                            |
-   |----------------------------|-------------------------------------------------|----------------------------------------------------|
-   | `:convex.cvm/address`      | Address of the executing account                | [[genesis-user]]                                   |
-   | `:convex.cvm/genesis-key+` | Vector of keys for genesis users (at least one) | Vector with only [[fake-key]] for [[genesis-user]] |
-   | `:convex.cvm/state`        | State (see [[state]])                           | Initial state with Convex actors and libraries     |
-  
-   More than one genesis key can be provided in order to create more users than [[genesis-user]].
-   However, it is important those public keys are different otherwise an exception is thrown.
+   | Key                        | Value                                                  | Default                                            |
+   |----------------------------|--------------------------------------------------------|----------------------------------------------------|
+   | `:convex.cvm/address`      | Address of the executing account                       | [[genesis-user]]                                   |
+   | `:convex.cvm/genesis-key+` | Vector of public keys for genesis users (at least one) | Vector with only [[fake-key]] for [[genesis-user]] |
+   | `:convex.cvm/state`        | State (see [[state]])                                  | Initial state with Convex actors and libraries     |
 
-   See [[convex.cell/key]] about creating public keys."
+   Based on the provided public keys (which MUST be distinct):
+
+   - A special genesis user is created with 50% of available user funds, associated with the first public key
+   - For the address of that special genesis user, see [[genesis-user]]
+   - For each public key, an additional user is created, sharing the remaining user funds equally
+   - Each additional user becomes the controller of a declared peers (see the `:peers` key in the state)
+   - Each peer uses the same public key as its controller
+   - Each user stakes 1 / 3 of its balance on its peer
+
+   See [[convex.cell/key]] about creating public keys or the `convex.key-pair` namespace from `:module/net`."
 
 
   (^Context []

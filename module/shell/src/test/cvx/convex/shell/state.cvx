@@ -57,7 +57,8 @@
 (.t.def ..state.genesis
 
   (.t.is (= (.state.genesis)
-            (.state.genesis [.account.0-key])))
+            (.state.genesis [(.kp.pubkey (.kp.create .account.0-key))]))
+         "Default public key")
 
   (.t.is (.t.ex :ARGUMENT
                 (.state.genesis []))
