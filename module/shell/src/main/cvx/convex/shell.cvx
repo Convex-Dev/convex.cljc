@@ -2779,6 +2779,108 @@
                  level))
 
 
+(def .log.level.num
+
+  {:trace  0
+   :debug  1
+   :info   2
+   :warn   3
+   :error  4
+   :fatal  5
+   :report 6})
+
+
+
+(defmacro .log.trace*
+
+  [& arg+]
+
+  `(when (<= (get .log.level.num
+                  (.log.level))
+             0)
+     (.shell.invoke '.log
+                    :warn
+                    ~arg+)))
+
+
+
+(defmacro .log.debug*
+
+  [& arg+]
+
+  `(when (<= (get .log.level.num
+                  (.log.level))
+             1)
+     (.shell.invoke '.log
+                    :warn
+                    ~arg+)))
+
+
+
+(defmacro .log.info*
+
+  [& arg+]
+
+  `(when (<= (get .log.level.num
+                  (.log.level))
+             2)
+     (.shell.invoke '.log
+                    :warn
+                    ~arg+)))
+
+
+
+(defmacro .log.warn*
+
+  [& arg+]
+
+  `(when (<= (get .log.level.num
+                  (.log.level))
+             3)
+     (.shell.invoke '.log
+                    :warn
+                    ~arg+)))
+
+
+
+(defmacro .log.error*
+
+  [& arg+]
+
+  `(when (<= (get .log.level.num
+                  (.log.level))
+             4)
+     (.shell.invoke '.log
+                    :warn
+                    ~arg+)))
+
+
+
+(defmacro .log.fatal*
+
+  [& arg+]
+
+  `(when (<= (get .log.level.num
+                  (.log.level))
+             5)
+     (.shell.invoke '.log
+                    :warn
+                    ~arg+)))
+
+
+
+(defmacro .log.report*
+
+  [& arg+]
+
+  `(when (<= (get .log.level.num
+                  (.log.level))
+             6)
+     (.shell.invoke '.log
+                    :warn
+                    ~arg+)))
+
+
 ;;;;;;;;;; Peers
 
 

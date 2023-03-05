@@ -27,7 +27,7 @@
                            level)
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
-                             ($.cell/* "Provded log level not valid")))
+                             ($.cell/* "Provded log level is not valid")))
       (f ($.clj/keyword level))))
 
 
@@ -53,3 +53,19 @@
                (log/set-level! level-2)
                ($.cvm/result-set ctx
                                  level))))
+
+
+
+(defn log
+
+  [ctx [level arg+]]
+
+  (-do-level ctx
+             level
+             (fn [level-2]
+               (log/log! level-2
+                         nil
+                         arg+
+                         {:?ns-str "CONVEX-SHELL"})
+               ($.cvm/result-set ctx
+                                 arg+))))

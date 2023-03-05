@@ -228,6 +228,7 @@
    ($.cell/* .kp.seed)                     $.shell.req.kp/seed
    ($.cell/* .kp.sign)                     $.shell.req.kp/sign
    ($.cell/* .kp.verify)                   $.shell.req.kp/verify
+   ($.cell/* .log)                         $.shell.req.log/log
    ($.cell/* .log.level)                   $.shell.req.log/level
    ($.cell/* .log.level.set)               $.shell.req.log/level-set
    ($.cell/* .peer.broadcast-count)        $.shell.req.peer/broadcast-count
