@@ -24,7 +24,8 @@
             [convex.shell.ctx    :as $.shell.ctx]
             [convex.shell.fail   :as $.shell.fail]
             [convex.shell.req    :as $.shell.req]
-            [convex.shell.req.db :as $.shell.req.db]))
+            [convex.shell.req.db :as $.shell.req.db]
+            [convex.write        :as $.write]))
 
 
 ;;;;;;;;;; Main
@@ -133,7 +134,7 @@
           (println (str ($.shell.fail/mappify-cvm-ex ex)))
           (System/exit 1)))
       (do
-        (println (str ($.cvm/result ctx-2)))
+        (println (str ($.write/string ($.cvm/result ctx-2))))
         (System/exit 0)))))
 
 
