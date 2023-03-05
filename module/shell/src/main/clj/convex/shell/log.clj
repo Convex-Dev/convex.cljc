@@ -73,11 +73,12 @@
                                                     (str ($.write/string cell)))
                                                   ($.cell/* [~($.cell/string ($.shell.time/instant->iso (.toInstant ^Date (entry :instant))))
                                                              ~($.cell/keyword (name (entry :level)))
-                                                             ~(let [ns-str (entry :?ns-str)]
-                                                                (when-not (= ns-str
-                                                                             "CONVEX-SHELL")
-                                                                  ($.cell/* [~($.cell/symbol (entry :?ns-str))
-                                                                             ~($.cell/long (entry :?line))])))
+                                                             ~(let [location ($.cell/symbol (entry :?ns-str))
+                                                                    line     (entry :?line)]
+                                                                (if line
+                                                                  ($.cell/* [~location
+                                                                             ~($.cell/long (entry :?line))])
+                                                                  location))
                                                              ~($.cell/vector (keep (fn [x]
                                                                                      (let [x-2 ($.cell/any x)]
                                                                                        (when ($.std/cell? x-2)

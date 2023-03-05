@@ -89,7 +89,8 @@
                (log/log! level-2
                          nil
                          arg+
-                         {:?ns-str "CONVEX-SHELL"})
+                         {:?line   nil
+                          :?ns-str (str ($.cvm/address ctx))})
                ($.cvm/result-set ctx
                                  arg+))))
 
