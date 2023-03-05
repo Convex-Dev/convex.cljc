@@ -3200,6 +3200,17 @@
                       ""))))
 
 
+;;;;;;;;;; Processes
+
+
+(defn .process.run
+
+  [command]
+
+  (.shell.invoke '.process.run
+                 command))
+
+
 ;;;;;;;;;; Project files
 
 

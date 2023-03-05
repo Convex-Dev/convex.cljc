@@ -195,6 +195,16 @@
    :maestro/url "https://github.com/protosens/monorepo.cljc/blob/main/module/maestro.idiom"}
 
 
+  :ext/protosens.process
+
+  {:extra-deps  {protosens/process {:deps/root "module/process"
+                                    :git/sha   "2d41c8a"
+                                    :git/tag   "stable/2022-10-13"
+                                    :git/url   "https://github.com/protosens/monorepo.cljc"}}
+   :maestro/doc "Spawning processes"
+   :maestro/url "https://github.com/protosens/monorepo.cljc/tree/main/module/process"}
+
+
   :ext/protosens.string
 
   {:extra-deps  {protosens/string {:deps/root "module/string"

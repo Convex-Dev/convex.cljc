@@ -35,6 +35,7 @@
             [convex.shell.req.log        :as $.shell.req.log]
             [convex.shell.req.peer       :as $.shell.req.peer]
             [convex.shell.req.pfx        :as $.shell.req.pfx]
+            [convex.shell.req.process    :as $.shell.req.process]
             [convex.shell.req.reader     :as $.shell.req.reader]
             [convex.shell.req.state      :as $.shell.req.state]
             [convex.shell.req.str        :as $.shell.req.str]
@@ -250,6 +251,7 @@
    ($.cell/* .pfx.kp.set)                  $.shell.req.pfx/kp-set
    ($.cell/* .pfx.load)                    $.shell.req.pfx/load
    ($.cell/* .pfx.save)                    $.shell.req.pfx/save
+   ($.cell/* .process.run)                 $.shell.req.process/run
    ($.cell/* .reader.form+)                $.shell.req.reader/form+
    ($.cell/* .state.do)                    $.shell.req.state/do-
    ($.cell/* .state.genesis)               $.shell.req.state/genesis
