@@ -2771,6 +2771,20 @@
 
 
 
+(defn .log.level.can?
+
+  ^:private?
+
+  [target]
+
+  (if-let [level (.log.level)]
+    (<= (get .log.level.num
+             level)
+        target)
+    false))
+
+
+
 (defn .log.level.set
 
   [level]
@@ -2814,9 +2828,7 @@
 
   [& arg+]
 
-  `(when (<= (get .log.level.num
-                  (.log.level))
-             0)
+  `(when (.log.level.can? 0)
      (.shell.invoke '.log
                     :warn
                     ~arg+)))
@@ -2827,9 +2839,7 @@
 
   [& arg+]
 
-  `(when (<= (get .log.level.num
-                  (.log.level))
-             1)
+  `(when (.log.level.can? 1)
      (.shell.invoke '.log
                     :warn
                     ~arg+)))
@@ -2840,9 +2850,7 @@
 
   [& arg+]
 
-  `(when (<= (get .log.level.num
-                  (.log.level))
-             2)
+  `(when (.log.level.can? 2)
      (.shell.invoke '.log
                     :warn
                     ~arg+)))
@@ -2853,9 +2861,7 @@
 
   [& arg+]
 
-  `(when (<= (get .log.level.num
-                  (.log.level))
-             3)
+  `(when (.log.level.can? 3)
      (.shell.invoke '.log
                     :warn
                     ~arg+)))
@@ -2866,9 +2872,7 @@
 
   [& arg+]
 
-  `(when (<= (get .log.level.num
-                  (.log.level))
-             4)
+  `(when (.log.level.can? 4)
      (.shell.invoke '.log
                     :warn
                     ~arg+)))
@@ -2879,9 +2883,7 @@
 
   [& arg+]
 
-  `(when (<= (get .log.level.num
-                  (.log.level))
-             5)
+  `(when (.log.level.can? 5)
      (.shell.invoke '.log
                     :warn
                     ~arg+)))
@@ -2892,9 +2894,7 @@
 
   [& arg+]
 
-  `(when (<= (get .log.level.num
-                  (.log.level))
-             6)
+  `(when (.log.level.can? 6)
      (.shell.invoke '.log
                     :warn
                     ~arg+)))

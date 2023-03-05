@@ -42,7 +42,11 @@
   [ctx _arg+]
 
   ($.cvm/result-set ctx
-                    ($.cell/any (:min-level log/*config*))))
+                    (when (get-in log/*config*
+                                  [:appenders
+                                   :cvx
+                                   :enabled?])
+                      ($.cell/any (:min-level log/*config*)))))
 
 
 
@@ -50,12 +54,28 @@
 
   [ctx [level]]
 
-  (-do-level ctx
-             level
-             (fn [level-2]
-               (log/set-level! level-2)
-               ($.cvm/result-set ctx
-                                 level))))
+  (if (nil? level)
+    (do
+      (log/swap-config! (fn [config]
+                          (assoc-in config
+                                    [:appenders
+                                     :cvx
+                                     :enabled?]
+                                    false)))
+      ($.cvm/result-set ctx
+                        nil))
+    (-do-level ctx
+               level
+               (fn [level-2]
+                 (log/swap-config! (fn [config]
+                                     (update-in config
+                                                [:appenders
+                                                 :cvx]
+                                                merge
+                                                {:enabled?  true
+                                                 :min-level level-2})))
+                 ($.cvm/result-set ctx
+                                   level)))))
 
 
 
