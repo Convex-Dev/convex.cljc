@@ -38,7 +38,7 @@
 
 (defn- -init
 
-  [ctx [key-pair host port url] map-option+]
+  [ctx [key-pair host port root-key url] map-option+]
 
   (or (when-not ($.std/string? host)
         ($.cvm/exception-set ctx
@@ -71,11 +71,12 @@
                                       ($.cvm/result-set ctx
                                                         ($.shell.resrc/create
                                                           ($.server/create key-pair-2
-                                                                           (map-option+ {:convex.server/bind ($.clj/string host)
-                                                                                         :convex.server/db   ($.db/current)
-                                                                                         :convex.server/port port-2
-                                                                                         :convex.server/url  (some-> url 
-                                                                                                                     ($.clj/string))}))))
+                                                                           (map-option+ {:convex.server/bind     ($.clj/string host)
+                                                                                         :convex.server/db       ($.db/current)
+                                                                                         :convex.server/port     port-2
+                                                                                         :convex.server/root-key root-key
+                                                                                         :convex.server/url      (some-> url 
+                                                                                                                         ($.clj/string))}))))
                                       (catch IllegalStateException ex
                                         ($.cvm/exception-set ctx
                                                              ($.cell/* :SHELL.PEER)

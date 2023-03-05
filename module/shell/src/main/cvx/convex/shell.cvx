@@ -2800,23 +2800,26 @@
 
   ([key-pair option+]
 
-   (let [host  (or (:host option+)
-                   "localhost")
-         port  (or (:port option+)
-                   18888)
-         state (:state option+)
-         url   (:url option)]
+   (let [host     (or (:host option+)
+                      "localhost")
+         port     (or (:port option+)
+                      18888)
+         state    (:state option+)
+         root-key (:root-key option+)
+         url      (:url option+)]
      (if state
        (.shell.invoke '.peer.init.state
                       state
                       key-pair
                       host
                       port
+                      root-key
                       url)
        (.shell.invoke '.peer.init.db
                       key-pair
                       host
                       port
+                      root-key
                       url)))))
 
 
@@ -2835,6 +2838,7 @@
                      "localhost")
                  (or (:port option+)
                      18888)
+                 (:root-key option+)
                  (:url option+)))
 
 
