@@ -174,14 +174,11 @@
 
    However, the database is not flushed. See `convex.db/flush` from `:module/cvm`.
   
-   Returns the `server`."
-
-  ^Server
+   Returns `true` in case of success, `false` otherwise."
 
   [^Server server]
 
-  (.persistPeerData server)
-  server)
+  (.persistPeerData server))
 
 
 

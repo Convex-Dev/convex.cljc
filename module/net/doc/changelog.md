@@ -18,6 +18,7 @@ repository.
     - `$.server/state`
 - Change
     - `$.pfx/key-pair-get` returns `nil` for inexistent aliases (instead of throwing)
+    - `$.server/persist` returns a boolean indicating success
 - Remove
     - `$.key-pair/sign-hash` and `$.key-pair/verify-hash` which where somewhat redundant
 
