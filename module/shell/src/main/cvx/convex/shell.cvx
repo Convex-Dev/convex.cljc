@@ -3205,10 +3205,18 @@
 
 (defn .process.run
 
-  [command]
 
-  (.shell.invoke '.process.run
-                 command))
+  ([command]
+
+   (.process.run command
+                 nil))
+
+
+  ([command option+]
+
+   (.shell.invoke '.process.run
+                  command
+                  (:dir option+))))
 
 
 ;;;;;;;;;; Project files

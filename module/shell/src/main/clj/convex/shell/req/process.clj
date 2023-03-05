@@ -4,6 +4,7 @@
                     InputStreamReader
                     OutputStreamWriter))
   (:require [convex.cell        :as $.cell]
+            [convex.clj         :as $.clj]
             [convex.cvm         :as $.cvm]
             [convex.shell.async :as $.shell.async]
             [convex.shell.resrc :as $.shell.resrc]
@@ -17,7 +18,7 @@
 
 (defn run
 
-  [ctx [command]]
+  [ctx [command dir]]
 
   (or (when-not ($.std/vector? command)
         ($.cvm/exception-set ctx
@@ -28,7 +29,11 @@
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
                              ($.cell/* "Command must specify at least which program to run")))
-
+      (when-not (or (nil? dir)
+                    ($.std/string? dir))
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "When provided, directory must be a String")))
       (try
         (let [exit (promesa/deferred)
               p    (P.process/run (map (fn [x]
@@ -36,7 +41,9 @@
                                            "nil"
                                            (str x)))
                                        command)
-                                  {:exit-fn (fn [p-2]
+                                  {:dir     (some-> dir
+                                                    ($.clj/string))
+                                   :exit-fn (fn [p-2]
                                               (promesa/resolve! exit
                                                                 ($.shell.async/success ($.cell/long (:exit p-2)))))})]
           ($.cvm/result-set ctx
