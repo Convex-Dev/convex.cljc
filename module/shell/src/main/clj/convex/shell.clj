@@ -14,13 +14,15 @@
 
   (:gen-class)
   (:import (convex.core.init Init))
-  (:require [clojure.string      :as string]
+  (:require ;; Init logging before anything else.
+            [convex.shell.log]
+            ;;
+            [clojure.string      :as string]
             [convex.db           :as $.db]
             [convex.cell         :as $.cell]
             [convex.cvm          :as $.cvm]
             [convex.shell.ctx    :as $.shell.ctx]
             [convex.shell.fail   :as $.shell.fail]
-            [convex.shell.log]
             [convex.shell.req    :as $.shell.req]
             [convex.shell.req.db :as $.shell.req.db]))
 
