@@ -13,12 +13,26 @@
             [promesa.core       :as promesa]))
 
 
-;;;;;;;;;;
+;;;;;;;;;; Private
+
+
+(defn- -env
+
+  [m]
+
+  (into {}
+        (map (fn [[k v]]
+               [(str k)
+                (str v)]))
+        m))
+
+
+;;;;;;;;;; Requests
 
 
 (defn run
 
-  [ctx [command dir]]
+  [ctx [command dir env env-extra]]
 
   (or (when-not ($.std/vector? command)
         ($.cvm/exception-set ctx
@@ -34,6 +48,16 @@
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
                              ($.cell/* "When provided, directory must be a String")))
+      (when-not (or (nil? env)
+                    ($.std/map? env))
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "When provided, environment must be a Map")))
+      (when-not (or (nil? env-extra)
+                    ($.std/map? env-extra))
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "When provided, extra environment must be a Map")))
       (try
         (let [exit (promesa/deferred)
               p    (P.process/run (map (fn [x]
@@ -41,11 +65,15 @@
                                            "nil"
                                            (str x)))
                                        command)
-                                  {:dir     (some-> dir
-                                                    ($.clj/string))
-                                   :exit-fn (fn [p-2]
-                                              (promesa/resolve! exit
-                                                                ($.shell.async/success ($.cell/long (:exit p-2)))))})]
+                                  {:dir       (some-> dir
+                                                      ($.clj/string))
+                                   :env       (some-> env
+                                                      -env)
+                                   :exit-fn   (fn [p-2]
+                                                (promesa/resolve! exit
+                                                                  ($.shell.async/success ($.cell/long (:exit p-2)))))
+                                   :extra-env (some-> env-extra
+                                                      -env)})]
           ($.cvm/result-set ctx
                             ($.cell/* {:err  ~(-> p
                                                   (:err)

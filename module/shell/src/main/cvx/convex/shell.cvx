@@ -3216,7 +3216,9 @@
 
    (.shell.invoke '.process.run
                   command
-                  (:dir option+))))
+                  (:dir option+)
+                  (:env option+)
+                  (:env.extra option+))))
 
 
 ;;;;;;;;;; Project files
