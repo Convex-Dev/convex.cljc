@@ -22,6 +22,7 @@
             [convex.shell.req.bench      :as $.shell.req.bench]
             [convex.shell.req.cell       :as $.shell.req.cell]
             [convex.shell.req.client     :as $.shell.req.client]
+            [convex.shell.req.cvmlog     :as $.shell.req.cvmlog]
             [convex.shell.req.db         :as $.shell.req.db]
             [convex.shell.req.dep        :as $.shell.req.dep]
             [convex.shell.req.dev        :as $.shell.req.dev]
@@ -31,7 +32,6 @@
             [convex.shell.req.kp         :as $.shell.req.kp]
             [convex.shell.req.gen        :as $.shell.req.gen]
             [convex.shell.req.gen.static :as $.shell.req.gen.static]
-            [convex.shell.req.log        :as $.shell.req.log]
             [convex.shell.req.peer       :as $.shell.req.peer]
             [convex.shell.req.pfx        :as $.shell.req.pfx]
             [convex.shell.req.reader     :as $.shell.req.reader]
@@ -129,6 +129,8 @@
    ($.cell/* .client.resolve)              $.shell.req.client/resolve
    ($.cell/* .client.sequence)             $.shell.req.client/sequence
    ($.cell/* .client.transact)             $.shell.req.client/transact
+   ($.cell/* .cvmlog.clear)                $.shell.req.cvmlog/clear
+   ($.cell/* .cvmlog.get)                  $.shell.req.cvmlog/get
    ($.cell/* .db.flush)                    $.shell.req.db/flush
    ($.cell/* .db.open)                     $.shell.req.db/open
    ($.cell/* .db.path)                     $.shell.req.db/path
@@ -225,8 +227,6 @@
    ($.cell/* .kp.seed)                     $.shell.req.kp/seed
    ($.cell/* .kp.sign)                     $.shell.req.kp/sign
    ($.cell/* .kp.verify)                   $.shell.req.kp/verify
-   ($.cell/* .log.clear)                   $.shell.req.log/clear
-   ($.cell/* .log.get)                     $.shell.req.log/get
    ($.cell/* .peer.broadcast-count)        $.shell.req.peer/broadcast-count
    ($.cell/* .peer.controller)             $.shell.req.peer/controller
    ($.cell/* .peer.data)                   $.shell.req.peer/data

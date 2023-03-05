@@ -3,37 +3,37 @@
 
 ;;;;;;;;;;
 
-(.t.def ..log.clear
+(.t.def ..cvmlog.clear
 
-  (.log.clear)
+  (.cvmlog.clear)
 
   (log :a)
   (log :b)
 
   (def l
-       (.log.get))
+       (.cvmlog.get))
 
   (.t.is (not (empty? l)))
 
   (.t.is (= l
-            (.log.clear))))
+            (.cvmlog.clear))))
 
 
 
-(.t.def ..log.get
+(.t.def ..cvmlog.get
 
-  (.log.clear)
+  (.cvmlog.clear)
 
   (.t.is (= []
-            (.log.get)))
+            (.cvmlog.get)))
 
   (log :a)
 
   (.t.is (= [[*address* [:a]]]
-            (.log.get)))
+            (.cvmlog.get)))
 
   (log :b)
 
   (.t.is (= [[*address* [:a]]
              [*address* [:b]]]
-            (.log.get))))
+            (.cvmlog.get))))

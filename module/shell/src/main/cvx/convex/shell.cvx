@@ -907,6 +907,51 @@
                  transaction))
 
 
+;;;;;;;;;; CVM log operations
+
+
+(def .cvmlog
+
+  ^{:private?      true
+    :shell.section ["The core `log` functions allows for saving Convex data"
+                    "for off-chain use. For instance, a peer might issue off-chain"
+                    "notifications based on what is being logged."
+                    ""
+                    "On-chain, logged data is inaccessible. These few functions"
+                    "allowing for inspecting it in the Shell."]}
+
+  nil)
+
+
+
+(defn .cvmlog.clear
+
+  ^{:doc {:description ["Clears the CVM log."
+                        "Also see `.cvmlog.get`."]
+          :examples    [{:code (.cvmlog.clear)}]
+          :signature   [{:params []}]}}
+
+  []
+
+  (.shell.invoke '.cvmlog.clear))
+
+
+
+(defn .cvmlog.get
+
+  ^{:doc {:description ["Returns the current CVM log."
+                        "Values can be logged using the core `log` function."
+                        ""
+                        "Also see `.cvmlog.clear`."]
+          :examples    [{:code (.cvmlog.get)}]
+          :signature   [{:params []}]}}
+
+  []
+
+  (.shell.invoke '.cvmlog.get))
+
+
+
 ;;;;;;;;;; Dependency management
 
 
@@ -2713,50 +2758,6 @@
                  signature
                  public-key
                  x))
-
-
-;;;;;;;;;; CVM log operations
-
-
-(def .log
-
-  ^{:private?      true
-    :shell.section ["The core `log` functions allows for saving Convex data"
-                    "for off-chain use. For instance, a peer might issue off-chain"
-                    "notifications based on what is being logged."
-                    ""
-                    "On-chain, logged data is inaccessible. These few functions"
-                    "allowing for inspecting it in the Shell."]}
-
-  nil)
-
-
-
-(defn .log.clear
-
-  ^{:doc {:description ["Clears the CVM log."
-                        "Also see `.log.get`."]
-          :examples    [{:code (.log.clear)}]
-          :signature   [{:params []}]}}
-
-  []
-
-  (.shell.invoke '.log.clear))
-
-
-
-(defn .log.get
-
-  ^{:doc {:description ["Returns the current CVM log."
-                        "Values can be logged using the core `log` function."
-                        ""
-                        "Also see `.log.clear`."]
-          :examples    [{:code (.log.get)}]
-          :signature   [{:params []}]}}
-
-  []
-
-  (.shell.invoke '.log.get))
 
 
 ;;;;;;;;;; Peers

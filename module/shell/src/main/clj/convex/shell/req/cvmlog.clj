@@ -1,4 +1,4 @@
-(ns convex.shell.req.log
+(ns convex.shell.req.cvmlog
 
   "Requests relating to the CVM log."
 
