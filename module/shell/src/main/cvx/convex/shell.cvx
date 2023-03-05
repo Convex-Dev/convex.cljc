@@ -2791,6 +2791,16 @@
 
 
 
+(defn .log.out
+
+  []
+
+  (.shell.invoke '.log.out))
+
+
+;;;
+
+
 (defmacro .log.trace*
 
   [& arg+]

@@ -17,7 +17,7 @@
       true)
 
 
-;;;;;;;;;;
+;;;;;;;;;; Private
 
 
 (def ^:private -*out
@@ -25,6 +25,18 @@
   ;; Default output for logging.
 
   (atom $.shell.io/stdout-txt))
+
+
+;;;;;;;;;; Public
+
+
+(defn out
+
+  "Returns the stream currently used for logging."
+
+  []
+
+  @-*out)
 
 
 ;;;;;;;;;;
@@ -42,8 +54,8 @@
            :appenders
            {:cvx {:enabled? true
                   :fn       (fn [entry]
-                              (let [out @-*out]
-                                ($.write/stream out
+                              (let [stream (out)]
+                                ($.write/stream stream
                                                 (fn [cell]
                                                   (str ($.write/string cell)))
                                                 ($.cell/* [~($.cell/string ($.shell.time/instant->iso (.toInstant ^Date (entry :instant))))
@@ -58,5 +70,5 @@
                                                                                      (when ($.std/cell? x-2)
                                                                                        x-2)))
                                                                                  (entry :vargs)))]))
-                                ($.shell.io/newline out)
-                                ($.shell.io/flush out)))}})))
+                                ($.shell.io/newline stream)
+                                ($.shell.io/flush stream)))}})))

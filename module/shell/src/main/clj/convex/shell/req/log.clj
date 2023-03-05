@@ -2,10 +2,12 @@
 
   {:author "Adam Helinski"}
 
-  (:require [convex.cell     :as $.cell]
-            [convex.clj      :as $.clj]
-            [convex.cvm      :as $.cvm]
-            [taoensso.timbre :as log]))
+  (:require [convex.cell        :as $.cell]
+            [convex.clj         :as $.clj]
+            [convex.cvm         :as $.cvm]
+            [convex.shell.log   :as $.shell.log]
+            [convex.shell.resrc :as $.shell.resrc]
+            [taoensso.timbre    :as log]))
 
 
 ;;;;;;;;;; Private
@@ -69,3 +71,13 @@
                          {:?ns-str "CONVEX-SHELL"})
                ($.cvm/result-set ctx
                                  arg+))))
+
+
+
+(defn out
+
+  [ctx _arg+]
+
+  ($.cvm/result-set ctx
+                    ($.shell.resrc/create ($.shell.log/out))))
+
