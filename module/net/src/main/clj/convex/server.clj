@@ -51,6 +51,7 @@
    | `:convex.server/n-peer`           | Maximum number of other peers this one should broadcast to | `20`                                        |
    | `:convex.server/persist-at-stop?` | True if peer data should be persisted in DB when stopped   | `true`                                      |
    | `:convex.server/port`             | Port                                                       | `18888`                                     |
+   | `:convex.server/root-key`         | Optional cell (see [[persist]])                            | `nil`                                       |
    | `:convex.server/url`              | URL of this peer (string) that will be registered on chain | /                                           |
 
    The URL, if given, is stored on-chain so that other peers can use it to broadcast beliefs and state updates.
@@ -149,6 +150,9 @@
                               nil
                               port)
                             Server/DEFAULT_PORT))
+                    (some->> (:convex.server/root-key option+)
+                             (.put h
+                                   Keywords/ROOT_KEY))
                     (let [url (:convex.server/url option+)]
                       (.put h
                             Keywords/AUTO_MANAGE
@@ -166,6 +170,9 @@
 (defn persist
 
   "Persists peer data at the root of the server's Etch instance.
+
+   If `:convex.server/root-key` was provided during [[create]], assumes the root value is a map and
+   stores peer data under that key. Otherwise, stores peer dataa directly at the root.
 
    Persisted data can be recovered when creating a server with the same Etch instance (see `:convex.server/state`
    option in [[create]]).

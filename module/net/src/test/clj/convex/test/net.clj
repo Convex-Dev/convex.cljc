@@ -52,6 +52,7 @@
                          :convex.server/db         @d*db
                          :convex.server/host       "localhost"
                          :convex.server/port       port
+                         :convex.server/root-key   ($.cell/* :foo)
                          :convex.server/state      [:use (-> ($.cvm/ctx {:convex.cvm/genesis-key+ [account-key]})
                                                              ($.cvm/state))]})))
 
@@ -192,7 +193,8 @@
 
   (T/is (do
           ($.server/persist @d*server)
-          (some? ($.db/root-read)))))
+          (some? ($.std/get ($.db/root-read)
+                            ($.cell/* :foo))))))
 
 
 
