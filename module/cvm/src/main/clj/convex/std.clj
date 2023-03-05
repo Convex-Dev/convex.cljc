@@ -796,7 +796,7 @@
 
   (-> (into-array ACell
                   xs)
-      RT/times
+      RT/multiply
       -ensure-numeric-success))
 
 
