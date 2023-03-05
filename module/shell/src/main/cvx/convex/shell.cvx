@@ -2770,6 +2770,15 @@
   (.shell.invoke '.log.level))
 
 
+
+(defn .log.level.set
+
+  [level]
+
+  (.shell.invoke '.log.level.set
+                 level))
+
+
 ;;;;;;;;;; Peers
 
 
