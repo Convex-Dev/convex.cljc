@@ -39,6 +39,17 @@
   @-*out)
 
 
+
+(defn out-set
+
+  "Sets [[out]] to the given `stream`."
+
+  [stream]
+
+  (reset! -*out
+          stream))
+
+
 ;;;;;;;;;;
 
 
@@ -54,21 +65,27 @@
            :appenders
            {:cvx {:enabled? true
                   :fn       (fn [entry]
-                              (let [stream (out)]
-                                ($.write/stream stream
-                                                (fn [cell]
-                                                  (str ($.write/string cell)))
-                                                ($.cell/* [~($.cell/string ($.shell.time/instant->iso (.toInstant ^Date (entry :instant))))
-                                                           ~($.cell/keyword (name (entry :level)))
-                                                           ~(let [ns-str (entry :?ns-str)]
-                                                              (when-not (= ns-str
-                                                                           "CONVEX-SHELL")
-                                                                ($.cell/* [~($.cell/symbol (entry :?ns-str))
-                                                                           ~($.cell/long (entry :?line))])))
-                                                           ~($.cell/vector (keep (fn [x]
-                                                                                   (let [x-2 ($.cell/any x)]
-                                                                                     (when ($.std/cell? x-2)
-                                                                                       x-2)))
-                                                                                 (entry :vargs)))]))
-                                ($.shell.io/newline stream)
-                                ($.shell.io/flush stream)))}})))
+                              (try
+                                ;;
+                                (let [stream (out)]
+                                  ($.write/stream stream
+                                                  (fn [cell]
+                                                    (str ($.write/string cell)))
+                                                  ($.cell/* [~($.cell/string ($.shell.time/instant->iso (.toInstant ^Date (entry :instant))))
+                                                             ~($.cell/keyword (name (entry :level)))
+                                                             ~(let [ns-str (entry :?ns-str)]
+                                                                (when-not (= ns-str
+                                                                             "CONVEX-SHELL")
+                                                                  ($.cell/* [~($.cell/symbol (entry :?ns-str))
+                                                                             ~($.cell/long (entry :?line))])))
+                                                             ~($.cell/vector (keep (fn [x]
+                                                                                     (let [x-2 ($.cell/any x)]
+                                                                                       (when ($.std/cell? x-2)
+                                                                                         x-2)))
+                                                                                   (entry :vargs)))]))
+                                  ($.shell.io/newline stream)
+                                  ($.shell.io/flush stream))
+                                ;;
+                                (catch Throwable _ex
+                                  ;; Nothing special can be done if logging fails.
+                                  nil)))}})))

@@ -2,6 +2,7 @@
 
   {:author "Adam Helinski"}
 
+  (:import (java.io FileWriter))
   (:require [convex.cell        :as $.cell]
             [convex.clj         :as $.clj]
             [convex.cvm         :as $.cvm]
@@ -81,3 +82,25 @@
   ($.cvm/result-set ctx
                     ($.shell.resrc/create ($.shell.log/out))))
 
+
+
+(defn out-set
+
+  [ctx [stream]]
+
+  (let [[ok?
+         x]  ($.shell.resrc/unwrap ctx
+                                   stream)]
+    (if ok?
+      (let [stream-2 x]
+        (or (when-not (instance? FileWriter
+                                 stream-2)
+              ($.cvm/exception-set ctx
+                                   ($.cell/code-std* :ARGUMENT)
+                                   ($.cell/* "Not an output stream")))
+            (do
+              ($.shell.log/out-set stream-2)
+              ($.cvm/result-set ctx
+                                stream))))
+      (let [ctx-2 x]
+        ctx-2))))

@@ -2798,6 +2798,15 @@
   (.shell.invoke '.log.out))
 
 
+
+(defn .log.out.set
+
+  [stream]
+
+  (.shell.invoke '.log.out.set
+                 stream))
+
+
 ;;;
 
 
