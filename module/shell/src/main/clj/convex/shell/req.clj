@@ -28,10 +28,11 @@
             [convex.shell.req.dev        :as $.shell.req.dev]
             [convex.shell.req.file       :as $.shell.req.file]
             [convex.shell.req.fs         :as $.shell.req.fs]
-            [convex.shell.req.juice      :as $.shell.req.juice]
-            [convex.shell.req.kp         :as $.shell.req.kp]
             [convex.shell.req.gen        :as $.shell.req.gen]
             [convex.shell.req.gen.static :as $.shell.req.gen.static]
+            [convex.shell.req.juice      :as $.shell.req.juice]
+            [convex.shell.req.kp         :as $.shell.req.kp]
+            [convex.shell.req.log        :as $.shell.req.log]
             [convex.shell.req.peer       :as $.shell.req.peer]
             [convex.shell.req.pfx        :as $.shell.req.pfx]
             [convex.shell.req.reader     :as $.shell.req.reader]
@@ -227,6 +228,7 @@
    ($.cell/* .kp.seed)                     $.shell.req.kp/seed
    ($.cell/* .kp.sign)                     $.shell.req.kp/sign
    ($.cell/* .kp.verify)                   $.shell.req.kp/verify
+   ($.cell/* .log.level)                   $.shell.req.log/level
    ($.cell/* .peer.broadcast-count)        $.shell.req.peer/broadcast-count
    ($.cell/* .peer.controller)             $.shell.req.peer/controller
    ($.cell/* .peer.data)                   $.shell.req.peer/data
