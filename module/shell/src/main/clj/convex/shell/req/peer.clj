@@ -184,6 +184,22 @@
 
 
 
+(defn persist
+
+  [ctx [peer]]
+
+  (-do-peer ctx
+            peer
+            (fn [peer-2]
+              (if ($.server/persist peer-2)
+                ($.cvm/result-set ctx
+                                  peer)
+                ($.cvm/exception-set ctx
+                                     ($.cell/* :SHELL.PEER)
+                                     ($.cell/* "Unable to persist peer data"))))))
+
+
+
 (defn start
 
   [ctx [peer]]

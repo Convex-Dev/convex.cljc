@@ -2839,6 +2839,17 @@
 
 
 
+(defn .peer.persist
+
+  ;; Does not flush.
+
+  [peer]
+
+  (.shell.invoke '.peer.persist
+                 peer))
+
+
+
 (defn .peer.start
 
   [peer]

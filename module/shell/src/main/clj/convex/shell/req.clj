@@ -233,6 +233,7 @@
    ($.cell/* .peer.init.db)                $.shell.req.peer/init-db
    ($.cell/* .peer.init.state)             $.shell.req.peer/init-state
    ($.cell/* .peer.init.sync)              $.shell.req.peer/init-sync
+   ($.cell/* .peer.persist)                $.shell.req.peer/persist
    ($.cell/* .peer.start)                  $.shell.req.peer/start
    ($.cell/* .peer.state)                  $.shell.req.peer/state
    ($.cell/* .peer.stop)                   $.shell.req.peer/stop
