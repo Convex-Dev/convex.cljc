@@ -2826,78 +2826,78 @@
 
 (defmacro .log.trace*
 
-  [& arg+]
+  [x]
 
   `(when (.log.level.can? 0)
      (.shell.invoke '.log
                     :warn
-                    ~arg+)))
+                    ~x)))
 
 
 
 (defmacro .log.debug*
 
-  [& arg+]
+  [x]
 
   `(when (.log.level.can? 1)
      (.shell.invoke '.log
                     :warn
-                    ~arg+)))
+                    ~x)))
 
 
 
 (defmacro .log.info*
 
-  [& arg+]
+  [x]
 
   `(when (.log.level.can? 2)
      (.shell.invoke '.log
                     :warn
-                    ~arg+)))
+                    ~x)))
 
 
 
 (defmacro .log.warn*
 
-  [& arg+]
+  [x]
 
   `(when (.log.level.can? 3)
      (.shell.invoke '.log
                     :warn
-                    ~arg+)))
+                    ~x)))
 
 
 
 (defmacro .log.error*
 
-  [& arg+]
+  [x]
 
   `(when (.log.level.can? 4)
      (.shell.invoke '.log
                     :warn
-                    ~arg+)))
+                    ~x)))
 
 
 
 (defmacro .log.fatal*
 
-  [& arg+]
+  [x]
 
   `(when (.log.level.can? 5)
      (.shell.invoke '.log
                     :warn
-                    ~arg+)))
+                    ~x)))
 
 
 
 (defmacro .log.report*
 
-  [& arg+]
+  [x]
 
   `(when (.log.level.can? 6)
      (.shell.invoke '.log
                     :warn
-                    ~arg+)))
+                    ~x)))
 
 
 ;;;;;;;;;; Peers

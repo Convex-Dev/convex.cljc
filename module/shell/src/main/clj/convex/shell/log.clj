@@ -79,11 +79,15 @@
                                                                   ($.cell/* [~location
                                                                              ~($.cell/long (entry :?line))])
                                                                   location))
-                                                             ~($.cell/vector (keep (fn [x]
-                                                                                     (let [x-2 ($.cell/any x)]
-                                                                                       (when ($.std/cell? x-2)
-                                                                                         x-2)))
-                                                                                   (entry :vargs)))]))
+                                                             ~(let [arg+ (entry :vargs)
+                                                                    x    (first arg+)]
+                                                                (if ($.std/cell? x)
+                                                                  x
+                                                                  ($.cell/vector (keep (fn [x]
+                                                                                         (let [x-2 ($.cell/any x)]
+                                                                                           (when ($.std/cell? x-2)
+                                                                                             x-2)))
+                                                                                       arg+))))]))
                                   ($.shell.io/newline stream)
                                   ($.shell.io/flush stream))
                                 ;;

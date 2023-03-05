@@ -81,18 +81,18 @@
 
 (defn log
 
-  [ctx [level arg+]]
+  [ctx [level arg]]
 
   (-do-level ctx
              level
              (fn [level-2]
                (log/log! level-2
                          nil
-                         arg+
+                         [arg]
                          {:?line   nil
                           :?ns-str (str ($.cvm/address ctx))})
                ($.cvm/result-set ctx
-                                 arg+))))
+                                 arg))))
 
 
 
