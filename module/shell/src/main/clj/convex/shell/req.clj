@@ -251,6 +251,7 @@
    ($.cell/* .pfx.kp.set)                  $.shell.req.pfx/kp-set
    ($.cell/* .pfx.load)                    $.shell.req.pfx/load
    ($.cell/* .pfx.save)                    $.shell.req.pfx/save
+   ($.cell/* .process.kill)                $.shell.req.process/kill
    ($.cell/* .process.run)                 $.shell.req.process/run
    ($.cell/* .reader.form+)                $.shell.req.reader/form+
    ($.cell/* .state.do)                    $.shell.req.state/do-

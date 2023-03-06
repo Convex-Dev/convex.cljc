@@ -3203,6 +3203,15 @@
 ;;;;;;;;;; Processes
 
 
+(defn .process.kill
+
+  [process]
+
+  (.shell.invoke '.process.kill
+                 (:process process)))
+
+
+
 (defn .process.run
 
 

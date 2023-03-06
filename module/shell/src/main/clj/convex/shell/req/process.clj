@@ -50,6 +50,31 @@
 ;;;;;;;;;; Requests
 
 
+(defn kill
+
+  [ctx [process]]
+
+  ($.shell.resrc/unwrap-with ctx
+                             process
+                             (fn [process-2]
+                               (or (when-not (instance? babashka.process.Process
+                                                        process-2)
+                                     ($.cvm/exception-set ctx
+                                                          ($.cell/code-std* :ARGUMENT)
+                                                          ($.cell/* "Not a process")))
+                                   (try
+                                     ;;
+                                     (P.process/destroy process-2)
+                                     ($.cvm/result-set ctx
+                                                       nil)
+                                     ;;
+                                     (catch Throwable _ex
+                                       ($.cvm/exception-set ctx
+                                                            ($.cell/* :SHELL.PROCESS)
+                                                            ($.cell/* "Unable to kill given process"))))))))
+
+
+
 (defn run
 
   ;; OUT and ERR not yet supported because of: https://github.com/babashka/process/issues/104
@@ -115,23 +140,24 @@
                                                :in        in-2
                                                :out       out-2})]
                       ($.cvm/result-set ctx
-                                        ($.cell/* {:err  ~(when-not err-2
-                                                            (-> p
-                                                                (:err)
-                                                                (InputStreamReader.)
-                                                                (BufferedReader.)
-                                                                ($.shell.resrc/create)))
-                                                   :exit ~($.shell.resrc/create exit)
-                                                   :in   ~(-> p
-                                                              (:in)
-                                                              (OutputStreamWriter.)
-                                                              ($.shell.resrc/create))
-                                                   :out  ~(when-not out-2
-                                                            (-> p
-                                                                (:out)
-                                                                (InputStreamReader.)
-                                                                (BufferedReader.)
-                                                                ($.shell.resrc/create)))})))
+                                        ($.cell/* {:err     ~(when-not err-2
+                                                               (-> p
+                                                                   (:err)
+                                                                   (InputStreamReader.)
+                                                                   (BufferedReader.)
+                                                                   ($.shell.resrc/create)))
+                                                   :exit    ~($.shell.resrc/create exit)
+                                                   :in      ~(-> p
+                                                                 (:in)
+                                                                 (OutputStreamWriter.)
+                                                                 ($.shell.resrc/create))
+                                                   :out     ~(when-not out-2
+                                                               (-> p
+                                                                   (:out)
+                                                                   (InputStreamReader.)
+                                                                   (BufferedReader.)
+                                                                   ($.shell.resrc/create)))
+                                                   :process ~($.shell.resrc/create p)})))
                     (catch Throwable _ex
                       ($.cvm/exception-set ctx
                                            ($.cell/* :SHELL.PROCESS)
