@@ -9,6 +9,7 @@
             [convex.clj         :as $.clj]
             [convex.cvm         :as $.cvm]
             [convex.shell.async :as $.shell.async]
+            [convex.shell.io    :as $.shell.io]
             [convex.shell.resrc :as $.shell.resrc]
             [convex.std         :as $.std]
             [protosens.process  :as P.process]
@@ -77,8 +78,6 @@
 
 (defn run
 
-  ;; OUT and ERR not yet supported because of: https://github.com/babashka/process/issues/104
-
   [ctx [command dir env env-extra err in out]]
 
   (or (when-not ($.std/vector? command)
@@ -133,6 +132,11 @@
                                                                   -env)
                                                :err       err-2
                                                :exit-fn   (fn [p-2]
+                                                            ;; Given output streams are not flushed automatically.
+                                                            (some-> err-2
+                                                                    ($.shell.io/flush))
+                                                            (some-> out-2
+                                                                    ($.shell.io/flush))
                                                             (promesa/resolve! exit
                                                                               ($.shell.async/success ($.cell/long (:exit p-2)))))
                                                :extra-env (some-> env-extra
