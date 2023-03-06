@@ -5916,15 +5916,28 @@
 
 (defn .time.sleep
 
-  ^{:doc {:description ["Blocks execution for the given interval in milliseconds."
-                        "subject to the precision and accuracy of system timers and scheduler."]
-          :examples    [{:code (.time.sleep 1000)}]
-          :signature   [{:params [millis]}]}}
+  ^{:doc {:description ["Blocks execution for the given interval in milliseconds plus the"
+                        "optional number of nanoseconds (defaults to `0`)."
+                        ""
+                        "Subject to the precision and accuracy of system timers and scheduler."]
+          :examples    [{:code (.time.sleep 1000)}
+                        {:code (.time.sleep 1000 500000)}]
+          :signature   [{:params [millis]}
+                        {:params [millis nanos]}]}}
 
-  [millis]
 
-  (.shell.invoke '.time.sleep
-                 millis))
+  ([millis]
+
+   (.time.sleep millis
+                nil))
+
+
+  ([millis nanos]
+
+   (.shell.invoke '.time.sleep
+                  millis
+                  (or nanos
+                      0))))
 
 
 

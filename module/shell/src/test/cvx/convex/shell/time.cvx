@@ -59,12 +59,53 @@
 
 
 
+(.t.def ..time.iso<->unix
+
+  (def iso
+       (.time.iso))
+
+  (.t.is (= iso
+            (.time.unix->iso (.time.iso->unix iso)))))
+
+
+
 (.t.def ..time.nano
 
   (.t.is (long? (.time.nano)))
 
   (.t.is (< (.time.nano)
             (.time.nano))))
+
+
+
+(.t.def ..time.sleep
+
+  (.t.is (< 0
+            (first (.time.do* (.time.sleep 1))))
+         "Milliseconds only")
+
+  (.t.is (< 0
+            (first (.time.do* (.time.sleep 1
+                                           50))))
+         "With nanoseconds")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.time.sleep :fail))
+         "Millis not a Long")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.time.sleep -1))
+         "Negative millis")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.time.sleep 1
+                             :fail))
+         "Nanos not a Long")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.time.sleep 1
+                             -1))
+         "Negative nanos"))
 
 
 
@@ -76,13 +117,3 @@
             (do
               (.time.sleep 1)
               (.time.unix)))))
-
-
-
-(.t.def ..time.iso<->unix
-
-  (def iso
-       (.time.iso))
-
-  (.t.is (= iso
-            (.time.unix->iso (.time.iso->unix iso)))))

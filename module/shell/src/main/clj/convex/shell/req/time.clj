@@ -126,13 +126,28 @@
 
   "Request for temporarily blocking execution."
 
-  [ctx [millis]]
+  [ctx [millis nanos]]
 
   (let [[ok?
          x]  (-millis ctx
                       millis)]
     (or (when-not ok?
-          x)
-        (do
-          (Thread/sleep x)
-          ctx))))
+          (let [ctx-2 x]
+            ctx-2))
+        (when-not ($.std/long? nanos)
+          ($.cvm/exception-set ctx
+                               ($.cell/code-std* :ARGUMENT)
+                               ($.cell/* "Nanoseconds must be a Long")))
+        (let [millis-2 x
+              nanos-2  ($.clj/long nanos)]
+          (or (when-not (<= 0
+                            nanos-2
+                            999999)
+                ($.cvm/exception-set ctx
+                                     ($.cell/code-std* :ARGUMENT)
+                                     ($.cell/* "Nanoseconds must be a Long between 0 and 999999")))
+              (do
+                (Thread/sleep millis-2
+                              nanos-2)
+                ($.cvm/result-set ctx
+                                  nil)))))))
