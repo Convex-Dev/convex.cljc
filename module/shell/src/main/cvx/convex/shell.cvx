@@ -3212,10 +3212,6 @@
 
 
 
-
-    
-
-
 (defn .process.run
 
 
@@ -3235,6 +3231,25 @@
                   (:err option+)
                   (:in option+)
                   (:out option+))))
+
+
+
+(defn .process.success?
+
+
+  ([process]
+
+   (zero? (.a.take (:exit process))))
+
+
+  ([process millis]
+
+   (let [x (.a.take (:exit process)
+                    millis
+                    :timeout)]
+     (and (not (= x
+                  :timeout))
+          (zero? x)))))
 
 
 ;;;;;;;;;; Project files
