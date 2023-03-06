@@ -133,8 +133,9 @@
         (binding [*out* *err*]
           (println (str ($.shell.fail/mappify-cvm-ex ex)))
           (System/exit 1)))
-      (do
-        (println (str ($.write/string ($.cvm/result ctx-2))))
+      (let [result ($.cvm/result ctx-2)]
+        (when (some? result)
+          (println (str ($.write/string result))))
         (System/exit 0)))))
 
 
