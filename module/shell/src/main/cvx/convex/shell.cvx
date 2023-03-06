@@ -3212,6 +3212,10 @@
 
 
 
+
+    
+
+
 (defn .process.run
 
 
@@ -6224,6 +6228,136 @@
   ^{:doc {:description "Version of this Shell."}}
 
   .version.shell)
+
+
+;;;;;;;;;; Workers
+
+
+(defn .worker.query
+
+  
+  ([process form+]
+
+   (.worker.query nil
+                  process
+                  form+))
+
+
+  ([key process form+]
+
+   (let [in  (:in process)
+         out (:out process)]
+     (.stream.out in
+                  key)
+     (.stream.txt.out in
+                      " ")
+     (reduce (fn [_ form]
+               (.stream.out in
+                            form)
+               (.stream.txt.out in
+                                " "))
+   
+             nil
+             form+)
+     (.stream.txt.out in
+                      .sys.eol)
+     (.stream.flush in)
+     (.stream.line out))))
+
+
+
+(defn .worker.repl
+
+
+  ([process]
+
+   (.worker.repl process
+                 nil))
+
+
+  ([process option+]
+
+   (.repl (merge option+
+                 {:eval (fn [env]
+                          (let [[ok?
+                                 _key
+                                 x]   (.worker.query process
+                                                     (:form+ env))]
+                            (if ok?
+                              (assoc env
+                                     :result
+                                     x)
+                              (if (map? x)
+                                (assoc env
+                                       :exception? true
+                                       :result     x)
+                                (assoc env
+                                       :result
+                                       x)))))}))))
+
+
+
+(defn .worker.result
+
+  [env success? key result]
+
+  (let [out (:stream.out env)]
+    (.stream.out out
+                 success?)
+    (.stream.txt.out out
+                     " ")
+    (.stream.out out
+                 key)
+    (.stream.txt.out out
+                     " ")
+    (.stream.out out
+                 result)
+    (.stream.txt.out out
+                     .sys.eol)
+    (.stream.flush out))
+  nil)
+
+
+
+(defn .worker.start
+
+
+  ([]
+
+   (.worker.start nil))
+
+
+  ([option+]
+
+   (.repl
+     (merge option+
+            {:eval         (fn [env]
+                             (let [form+ (:form+ env)]
+                               (.repl.eval (assoc env
+                                                  :form+      (next form+)
+                                                  :worker.key (first form+)))))
+             :on.ex        (fn [env]
+                             (.worker.result env
+                                             false
+                                             (first (:form+ env))
+                                             (:result env))
+                             env)
+             :on.ex.reader (fn [env message]
+                             (.worker.result env
+                                             false
+                                             nil
+                                             [:reader
+                                              message])
+                             env)
+             :on.prompt    (fn [env]
+                             env)
+             :on.result    (fn [env]
+                             (.worker.result env
+                                             true
+                                             (:worker.key env)
+                                             (:result env))
+                             env)}))
+   nil))
 
 
 ;;;;;;;;;; Help
