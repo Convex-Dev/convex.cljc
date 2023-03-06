@@ -4433,6 +4433,17 @@
 
 
 
+(defn .sys.n-cpu
+
+  ^{:doc {:description ["Returns the number of available processors on this machine."]
+          :examples    [{:code (.sys.n-cpu)}]
+          :signature   [{:params []}]}}
+  []
+
+  (.shell.invoke '.sys.n-cpu))
+
+
+
 (defn .sys.os
 
   ^{:doc {:description ["Returns a vector where the first element is the operating"

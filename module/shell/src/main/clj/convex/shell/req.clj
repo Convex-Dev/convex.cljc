@@ -282,6 +282,7 @@
    ($.cell/* .sys.env)                     $.shell.req.sys/env
    ($.cell/* .sys.env.var)                 $.shell.req.sys/env-var
    ($.cell/* .sys.home)                    $.shell.req.sys/home
+   ($.cell/* .sys.n-cpu)                   $.shell.req.sys/n-cpu
    ($.cell/* .sys.os)                      $.shell.req.sys/os
    ($.cell/* .testnet.create-account)      $.shell.req.testnet/create-account
    ($.cell/* .testnet.faucet)              $.shell.req.testnet/faucet

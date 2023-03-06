@@ -10,6 +10,10 @@
             [convex.std  :as $.std]))
 
 
+(set! *warn-on-reflection*
+      true)
+
+
 ;;;;;;;;;;
 
 
@@ -95,6 +99,17 @@
 
   ($.cvm/result-set ctx
                     ($.cell/string (System/getProperty "user.home"))))
+
+
+
+(defn n-cpu
+
+  "Request for returning the number of available cores."
+
+  [ctx _arg+]
+
+  ($.cvm/result-set ctx
+                    ($.cell/long (.availableProcessors (Runtime/getRuntime)))))
 
 
 

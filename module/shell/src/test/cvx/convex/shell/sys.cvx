@@ -59,6 +59,13 @@
 
 
 
+(.t.def ..sys.n-cpu
+
+  (.t.is (<= 1
+             (.sys.n-cpu))))
+
+
+
 (.t.def ..sys.os
 
   (def os
