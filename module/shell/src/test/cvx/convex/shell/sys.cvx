@@ -79,3 +79,10 @@
   (.t.is (str? (first os)))
 
   (.t.is (str? (second os))))
+
+
+
+(.t.def ..sys.n-cpu
+
+  (.t.is (<= 0
+             (.sys.pid))))

@@ -4456,6 +4456,18 @@
   (.shell.invoke '.sys.os))
 
 
+
+
+(defn .sys.pid
+
+  ^{:doc {:description ["Returns the PID of this process."]
+          :examples    [{:code (.sys.pid)}]
+          :signature   [{:params []}]}}
+  []
+
+  (.shell.invoke '.sys.pid))
+
+
 ;;;;;;;;;; Unit testing
 
 

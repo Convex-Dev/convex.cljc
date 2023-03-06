@@ -4,6 +4,7 @@
 
   {:author "Adam Helinski"}
 
+  (:import (java.lang ProcessHandle))
   (:require [convex.clj  :as $.clj]
             [convex.cell :as $.cell]
             [convex.cvm  :as $.cvm]
@@ -122,3 +123,14 @@
   ($.cvm/result-set ctx
                     ($.cell/* [~($.cell/string (System/getProperty "os.name"))
                                ~($.cell/string (System/getProperty "os.version"))])))
+
+
+
+(defn pid
+
+  "Request for returning the PID of this process."
+
+  [ctx _arg+]
+
+  ($.cvm/result-set ctx
+                    ($.cell/long (.pid (ProcessHandle/current)))))
