@@ -2,7 +2,9 @@
 
   (:import (java.io BufferedReader
                     InputStreamReader
-                    OutputStreamWriter))
+                    OutputStreamWriter
+                    Reader
+                    Writer))
   (:require [convex.cell        :as $.cell]
             [convex.clj         :as $.clj]
             [convex.cvm         :as $.cvm]
@@ -14,6 +16,24 @@
 
 
 ;;;;;;;;;; Private
+
+
+(defn -do-stream
+
+  [ctx class stream f]
+
+  (if (nil? stream)
+    (f nil)
+    ($.shell.resrc/unwrap-with ctx
+                               stream
+                               (fn [stream-2]
+                                 (if (instance? class
+                                                stream-2)
+                                   (f stream-2)
+                                   ($.cvm/exception-set ctx
+                                                        ($.cell/code-std* :ARGUMENT)
+                                                        ($.cell/* "Not a stream")))))))
+
 
 
 (defn- -env
@@ -32,7 +52,9 @@
 
 (defn run
 
-  [ctx [command dir env env-extra]]
+  ;; OUT and ERR not yet supported because of: https://github.com/babashka/process/issues/104
+
+  [ctx [command dir env env-extra err in out]]
 
   (or (when-not ($.std/vector? command)
         ($.cvm/exception-set ctx
@@ -58,39 +80,59 @@
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
                              ($.cell/* "When provided, extra environment must be a Map")))
-      (try
-        (let [exit (promesa/deferred)
-              p    (P.process/run (map (fn [x]
-                                         (if (nil? x)
-                                           "nil"
-                                           (str x)))
-                                       command)
-                                  {:dir       (some-> dir
-                                                      ($.clj/string))
-                                   :env       (some-> env
-                                                      -env)
-                                   :exit-fn   (fn [p-2]
-                                                (promesa/resolve! exit
-                                                                  ($.shell.async/success ($.cell/long (:exit p-2)))))
-                                   :extra-env (some-> env-extra
-                                                      -env)})]
-          ($.cvm/result-set ctx
-                            ($.cell/* {:err  ~(-> p
-                                                  (:err)
-                                                  (InputStreamReader.)
-                                                  (BufferedReader.)
-                                                  ($.shell.resrc/create))
-                                       :exit ~($.shell.resrc/create exit)
-                                       :in   ~(-> p
-                                                  (:in)
-                                                  (OutputStreamWriter.)
-                                                  ($.shell.resrc/create))
-                                       :out  ~(-> p
-                                                  (:out)
-                                                  (InputStreamReader.)
-                                                  (BufferedReader.)
-                                                  ($.shell.resrc/create))})))
-        (catch Throwable _ex
-          ($.cvm/exception-set ctx
-                               ($.cell/* :SHELL.PROCESS)
-                               ($.cell/* "Error while starting process"))))))
+      (-do-stream
+        ctx
+        Writer
+        err
+        (fn [err-2]
+          (-do-stream
+            ctx
+            Reader
+            in
+            (fn [in-2]
+              (-do-stream
+                ctx
+                Writer
+                out
+                (fn [out-2]
+                  (try
+                    (let [exit (promesa/deferred)
+                          p    (P.process/run (map (fn [x]
+                                                     (if (nil? x)
+                                                       "nil"
+                                                       (str x)))
+                                                   command)
+                                              {:dir       (some-> dir
+                                                                  ($.clj/string))
+                                               :env       (some-> env
+                                                                  -env)
+                                               :err       err-2
+                                               :exit-fn   (fn [p-2]
+                                                            (promesa/resolve! exit
+                                                                              ($.shell.async/success ($.cell/long (:exit p-2)))))
+                                               :extra-env (some-> env-extra
+                                                                  -env)
+                                               :in        in-2
+                                               :out       out-2})]
+                      ($.cvm/result-set ctx
+                                        ($.cell/* {:err  ~(when-not err-2
+                                                            (-> p
+                                                                (:err)
+                                                                (InputStreamReader.)
+                                                                (BufferedReader.)
+                                                                ($.shell.resrc/create)))
+                                                   :exit ~($.shell.resrc/create exit)
+                                                   :in   ~(-> p
+                                                              (:in)
+                                                              (OutputStreamWriter.)
+                                                              ($.shell.resrc/create))
+                                                   :out  ~(when-not out-2
+                                                            (-> p
+                                                                (:out)
+                                                                (InputStreamReader.)
+                                                                (BufferedReader.)
+                                                                ($.shell.resrc/create)))})))
+                    (catch Throwable _ex
+                      ($.cvm/exception-set ctx
+                                           ($.cell/* :SHELL.PROCESS)
+                                           ($.cell/* "Error while starting process"))))))))))))

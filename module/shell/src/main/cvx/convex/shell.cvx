@@ -3218,7 +3218,10 @@
                   command
                   (:dir option+)
                   (:env option+)
-                  (:env.extra option+))))
+                  (:env.extra option+)
+                  (:err option+)
+                  (:in option+)
+                  (:out option+))))
 
 
 ;;;;;;;;;; Project files

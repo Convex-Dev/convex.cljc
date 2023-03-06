@@ -61,3 +61,21 @@
                                     ($.cell/* "Either not a resource or resource is stale"))])
             [true
              @resrc-2]))))
+
+
+
+(defn unwrap-with
+
+  "Based on [[unwrap]], calls `f` with the unwraped resource or returns `ctx`
+   in an exceptional state."
+
+  [ctx resrc f]
+
+  (let [[ok?
+         x]  (unwrap ctx
+                     resrc)]
+    (if ok?
+      (let [resrc-2 x]
+        (f resrc-2))
+      (let [ctx-2 x]
+        ctx-2))))

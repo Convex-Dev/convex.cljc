@@ -451,6 +451,7 @@
                                            :ext/json
                                            :ext/promesa
                                            :ext/protosens.git
+                                           :ext/protosens.process
                                            :ext/protosens.string
                                            :module/cvm
                                            :module/gen
