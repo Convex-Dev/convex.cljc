@@ -3500,6 +3500,8 @@
     (.stream.txt.out out
                      (str (.term.bold)
                           (.term.fg.blue)
+                          (or (:name env)
+                              "")
                           "> "
                           (.term.reset)))
     (.stream.flush out))
