@@ -6303,14 +6303,14 @@
 ;;;;;;;;;; Workers
 
 
-(defn .worker.query
+(defn .worker.exec
 
   
   ([process form]
 
-   (.worker.query nil
-                  process
-                  form))
+   (.worker.exec nil
+                 process
+                 form))
 
 
   ([key process form]
@@ -6348,9 +6348,9 @@
                  {:eval (fn [env]
                           (let [[ok?
                                  _key
-                                 x]   (.worker.query process
-                                                     (cons 'do
-                                                           (:form+ env)))]
+                                 x]   (.worker.exec process
+                                                    (cons 'do
+                                                          (:form+ env)))]
                             (cond
                               ;;
                               ok?
