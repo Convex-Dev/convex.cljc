@@ -5,12 +5,17 @@
   {:author "Adam Helinski"}
 
   (:import (convex.core State)
+           (convex.core.data AccountStatus)
            (convex.core.init Init))
   (:require [convex.cell           :as $.cell]
             [convex.cvm            :as $.cvm]
             [convex.shell.ctx      :as $.shell.ctx]
             [convex.shell.fail     :as $.shell.fail]
             [convex.std            :as $.std]))
+
+
+(set! *warn-on-reflection*
+      true)
 
 
 ;;;;;;;;;;
@@ -51,6 +56,21 @@
                                               ~($.cvm/result ctx-2)])))))))
 
 
+
+(defn- -transplant-core
+
+  ;; Replaces the environment and the metadata of the core account in `state`.
+
+  [^State state env metadata]
+
+  (.putAccount state
+               Init/CORE_ADDRESS
+               (-> (.getAccount state
+                                Init/CORE_ADDRESS)
+                   (.withEnvironment env)
+                   (.withMetadata metadata))))
+
+
 ;;;;;;;;;;
 
 
@@ -65,12 +85,9 @@
                              ($.cell/code-std* :ARGUMENT)
                              ($.cell/* "Not a State")))
       ($.cvm/result-set ctx
-                        (.putAccount state
-                                     Init/CORE_ADDRESS
-                                     (-> (.getAccount state
-                                                      Init/CORE_ADDRESS)
-                                         (.withEnvironment $.shell.ctx/core-env)
-                                         (.withMetadata $.shell.ctx/core-meta))))))
+                        (-transplant-core state
+                                          $.shell.ctx/core-env
+                                          $.shell.ctx/core-meta))))
 
 
 
@@ -163,12 +180,13 @@
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :NOBODY)
                              ($.cell/* "Account for the requested Address does not exist in the given State")))
-      (let [state-old ($.cvm/state ctx)]
+      (let [state-old           ($.cvm/state ctx)
+            ^AccountStatus core (.getAccount state-old
+                                             Init/CORE_ADDRESS)]
         (-> ctx
-            ($.cvm/state-set (.putAccount state
-                                          Init/CORE_ADDRESS
-                                          ($.cvm/account ctx
-                                                         Init/CORE_ADDRESS)))
+            ($.cvm/state-set (-transplant-core state
+                                               (.getEnvironment core)
+                                               (.getMetadata core)))
             (cond->
               (not= address
                     ($.cvm/address ctx))
