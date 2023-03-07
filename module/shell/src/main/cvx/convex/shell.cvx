@@ -6330,7 +6330,10 @@
      (.stream.txt.out in
                       .sys.eol)
      (.stream.flush in)
-     (.stream.line out))))
+     (or (.stream.line out)
+         [false
+          nil
+          nil]))))
 
 
 
@@ -6351,17 +6354,25 @@
                                  _key
                                  x]   (.worker.query process
                                                      (:form+ env))]
-                            (if ok?
+                            (cond
+                              ;;
+                              ok?
                               (assoc env
                                      :result
                                      x)
-                              (if (map? x)
-                                (assoc env
-                                       :exception? true
-                                       :result     x)
-                                (assoc env
-                                       :result
-                                       x)))))}))))
+                              ;;
+                              (nil? x)
+                              (dissoc env
+                                      :result)
+                              ;;
+                              (map? x)
+                              (assoc env
+                                     :exception? true
+                                     :result     x)
+                              ;;
+                              (assoc env
+                                     :result
+                                     x))))}))))
 
 
 
