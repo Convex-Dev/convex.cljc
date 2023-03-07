@@ -96,7 +96,7 @@
    | `:convex.cvm/genesis-key+` | Vector of public keys for genesis users (at least one) | Vector with only [[fake-key]] for [[genesis-user]] |
    | `:convex.cvm/state`        | State (see [[state]])                                  | Initial state with Convex actors and libraries     |
 
-   Based on the provided public keys (which MUST be distinct):
+   When no state is provided, based on the provided public keys (which MUST be distinct):
 
    - A special genesis user is created with 50% of available user funds, associated with the first public key
    - For the address of that special genesis user, see [[genesis-user]]

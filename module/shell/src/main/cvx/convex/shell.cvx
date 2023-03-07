@@ -3859,8 +3859,10 @@
                         "Attention, beware of consequences."
                         "E.g. Switching in a middle of an actor call who was working under"
                         "     assumptions relating to the old `*state*`."]
-          :examples    [{:code (.state.switch (.state.genesis))}]
-          :signature   [{:params [state]}]}}
+          :examples    [{:code (.state.switch (.state.genesis))}
+                        {:code (.state.switch #12 (.state.genesis))}]
+          :signature   [{:params [state]}
+                        {:params [address state]}]}}
 
 
   ([state]
