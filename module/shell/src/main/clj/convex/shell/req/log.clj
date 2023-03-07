@@ -68,12 +68,13 @@
                level
                (fn [level-2]
                  (log/swap-config! (fn [config]
-                                     (update-in config
-                                                [:appenders
-                                                 :cvx]
-                                                merge
-                                                {:enabled?  true
-                                                 :min-level level-2})))
+                                     (-> config
+                                         (assoc :min-level
+                                                level-2)
+                                         (assoc-in [:appenders
+                                                    :cvx
+                                                    :enabled?]
+                                                   true))))
                  ($.cvm/result-set ctx
                                    level)))))
 

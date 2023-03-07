@@ -2830,7 +2830,7 @@
 
   `(when (.log.level.can? 0)
      (.shell.invoke '.log
-                    :warn
+                    :trace
                     ~x)))
 
 
@@ -2841,7 +2841,7 @@
 
   `(when (.log.level.can? 1)
      (.shell.invoke '.log
-                    :warn
+                    :debug
                     ~x)))
 
 
@@ -2852,7 +2852,7 @@
 
   `(when (.log.level.can? 2)
      (.shell.invoke '.log
-                    :warn
+                    :info
                     ~x)))
 
 
@@ -2874,7 +2874,7 @@
 
   `(when (.log.level.can? 4)
      (.shell.invoke '.log
-                    :warn
+                    :error
                     ~x)))
 
 
@@ -2885,7 +2885,7 @@
 
   `(when (.log.level.can? 5)
      (.shell.invoke '.log
-                    :warn
+                    :fatal
                     ~x)))
 
 
@@ -2896,7 +2896,7 @@
 
   `(when (.log.level.can? 6)
      (.shell.invoke '.log
-                    :warn
+                    :report
                     ~x)))
 
 
