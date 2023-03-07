@@ -11,11 +11,12 @@
            (convex.core.data AccountStatus)
            (java.io InputStreamReader)
            (java.nio.charset StandardCharsets))
-  (:require [clojure.java.io         :as java.io]
-            [convex.cell             :as $.cell]
-            [convex.cvm              :as $.cvm]
-            [convex.read             :as $.read]
-            [convex.std              :as $.std]))
+  (:require [clojure.java.io :as java.io]
+            [convex.cell     :as $.cell]
+            [convex.cvm      :as $.cvm]
+            [convex.key-pair :as $.key-pair] 
+            [convex.read     :as $.read]
+            [convex.std      :as $.std]))
 
 
 ;;;;;;;;;; Private
@@ -37,7 +38,9 @@
 ;;;;;;;;;; Public
 
 
-(let [               ctx  (-> ($.cvm/ctx)
+(let [               ctx  (-> ($.cvm/ctx {:convex.cvm/genesis-key+ [(-> ($.cell/blob (byte-array 32))
+                                                                        ($.key-pair/ed25519)
+                                                                        ($.key-pair/account-key))]})
                               ($.cvm/juice-refill)
                               ($.cvm/fork-to Init/CORE_ADDRESS))
       ^AccountStatus core ($.cvm/account ctx)]
