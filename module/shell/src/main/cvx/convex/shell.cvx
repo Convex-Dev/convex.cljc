@@ -6306,14 +6306,14 @@
 (defn .worker.query
 
   
-  ([process form+]
+  ([process form]
 
    (.worker.query nil
                   process
-                  form+))
+                  form))
 
 
-  ([key process form+]
+  ([key process form]
 
    (let [in  (:in process)
          out (:out process)]
@@ -6321,14 +6321,8 @@
                   key)
      (.stream.txt.out in
                       " ")
-     (reduce (fn [_ form]
-               (.stream.out in
-                            form)
-               (.stream.txt.out in
-                                " "))
-   
-             nil
-             form+)
+     (.stream.outln in
+                    form)
      (.stream.txt.out in
                       .sys.eol)
      (.stream.flush in)
@@ -6355,7 +6349,8 @@
                           (let [[ok?
                                  _key
                                  x]   (.worker.query process
-                                                     (:form+ env))]
+                                                     (cons 'do
+                                                           (:form+ env)))]
                             (cond
                               ;;
                               ok?
