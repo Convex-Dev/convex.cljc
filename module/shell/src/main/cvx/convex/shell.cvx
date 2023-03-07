@@ -3721,6 +3721,21 @@
 
 
 
+(defn .state.core.vanilla
+
+  ^{:doc {:description ["Returns `state` with the environment and the metadata of the core"
+                        "account (see `.account.core`) restored to genesis without any of"
+                        "the extra utilities provided by the Convex Shell."]
+          :examples    [{:code (.state.core.vanilla *state*)}]
+          :signature   [{:params [state]}]}}
+
+  [state]
+
+  (.shell.invoke '.state.core.vanilla
+                 state))
+
+
+
 (defn .state.do
 
   ^{:doc {:description ["Like `.state.safe` but returns only a boolean, where `false` indicates"

@@ -8,6 +8,7 @@
   {:author "Adam Helinski"}
 
   (:import (convex.core.init Init)
+           (convex.core.data AccountStatus)
            (java.io InputStreamReader)
            (java.nio.charset StandardCharsets))
   (:require [clojure.java.io         :as java.io]
@@ -36,22 +37,43 @@
 ;;;;;;;;;; Public
 
 
-(def genesis
+(let [               ctx  (-> ($.cvm/ctx)
+                              ($.cvm/juice-refill)
+                              ($.cvm/fork-to Init/CORE_ADDRESS))
+      ^AccountStatus core ($.cvm/account ctx)]
 
-  (let [ctx (-> ($.cvm/ctx)
-                ($.cvm/juice-refill)
-                ($.cvm/fork-to Init/CORE_ADDRESS)
-                ($.cvm/def Init/CORE_ADDRESS
-                           ($.std/merge ($.cell/* {.account.genesis   ~$.cvm/genesis-user
-                                                   .sys.eol           ~($.cell/string (System/lineSeparator))
-                                                   .version.java      [~($.cell/string (System/getProperty "java.vendor"))
-                                                                       ~($.cell/string (System/getProperty "java.version"))]})
-                                        (first (-resource-cvx "convex/shell/version.cvx"))))
-                ($.cvm/eval ($.std/concat ($.cell/* (let [$CORE$ ~Init/CORE_ADDRESS]))
-                                          (-resource-cvx "convex/shell.cvx"))))]
-    (when ($.cvm/exception ctx)
-      ;; Throw on purpose.
-      ($.cvm/result ctx))
-    (-> ctx
-        ($.cvm/fork-to $.cvm/genesis-user)
-        ($.cvm/juice-refill))))
+
+  (def core-env
+
+    "Genesis Core environment."
+
+    (.getEnvironment core))
+
+
+
+  (def core-meta
+
+    "Genesis Core metadata."
+
+    (.getMetadata core))
+
+
+  (def genesis
+
+    "Genesis context prepared for the Shell."
+
+    (let [ctx-2 (-> ctx
+                    ($.cvm/def Init/CORE_ADDRESS
+                               ($.std/merge ($.cell/* {.account.genesis   ~$.cvm/genesis-user
+                                                       .sys.eol           ~($.cell/string (System/lineSeparator))
+                                                       .version.java      [~($.cell/string (System/getProperty "java.vendor"))
+                                                                           ~($.cell/string (System/getProperty "java.version"))]})
+                                            (first (-resource-cvx "convex/shell/version.cvx"))))
+                    ($.cvm/eval ($.std/concat ($.cell/* (let [$CORE$ ~Init/CORE_ADDRESS]))
+                                              (-resource-cvx "convex/shell.cvx"))))]
+      (when ($.cvm/exception ctx-2)
+        ;; Throw on purpose.
+        ($.cvm/result ctx-2))
+      (-> ctx-2
+          ($.cvm/fork-to $.cvm/genesis-user)
+          ($.cvm/juice-refill)))))

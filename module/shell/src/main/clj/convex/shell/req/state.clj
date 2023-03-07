@@ -8,6 +8,7 @@
            (convex.core.init Init))
   (:require [convex.cell           :as $.cell]
             [convex.cvm            :as $.cvm]
+            [convex.shell.ctx      :as $.shell.ctx]
             [convex.shell.fail     :as $.shell.fail]
             [convex.std            :as $.std]))
 
@@ -53,9 +54,29 @@
 ;;;;;;;;;;
 
 
+(defn core-vanilla
+
+  "Request for restoring genesis env and metadata in the core account in the given `state`."
+
+  [ctx [^State state]]
+
+  (or (when-not ($.std/state? state)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Not a State")))
+      ($.cvm/result-set ctx
+                        (.putAccount state
+                                     Init/CORE_ADDRESS
+                                     (-> (.getAccount state
+                                                      Init/CORE_ADDRESS)
+                                         (.withEnvironment $.shell.ctx/core-env)
+                                         (.withMetadata $.shell.ctx/core-meta))))))
+
+
+
 (defn do-
 
-  "Requests similar to [[safe]] but returns only a boolean (`false` in case of an exception).
+  "Request similar to [[safe]] but returns only a boolean (`false` in case of an exception).
   
    Avoids some overhead when dealing with exceptions (undesirable for situations like benchmarking)."
 
@@ -100,7 +121,7 @@
                   key+)
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
-                             ($.cell/* "All genesis keys must be 32-byte blobs")))
+                             ($.cell/* "All genesis keys must be 32-byte Blobs")))
       ($.cvm/result-set ctx
                         (-> ($.cvm/ctx {:convex.cvm/genesis-key+ (map $.cell/key
                                                                       key+)})
@@ -132,16 +153,16 @@
   (or (when-not ($.std/state? state)
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
-                             ($.cell/string "Can only load a state")))
+                             ($.cell/* "Can only load a State")))
       (when-not ($.std/address? address)
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
-                             ($.cell/string "Must provide a valid address")))
+                             ($.cell/* "Must provide a valid Address")))
       (when-not (.getAccount state
                              address)
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :NOBODY)
-                             ($.cell/* "Account for the request address does not exist in the given state")))
+                             ($.cell/* "Account for the requested Address does not exist in the given State")))
       (let [state-old ($.cvm/state ctx)]
         (-> ctx
             ($.cvm/state-set (.putAccount state

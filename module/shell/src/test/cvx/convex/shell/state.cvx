@@ -4,6 +4,32 @@
 ;;;;;;;;;;
 
 
+(.t.def ..state.core.vanilla
+
+  (def core.genesis
+       (get-in (.state.genesis)
+               [:accounts
+                (long .account.core)]))
+
+  (def core
+       (get-in (.state.core.vanilla *state*)
+               [:accounts
+                (long .account.core)]))
+
+  (.t.is (= (:environment core.genesis)
+            (:environment core))
+         "Environment")
+
+  (.t.is (= (:metadata core.genesis)
+            (:metadata core))
+         "Metadata")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.state.core.vanilla :fail))
+         "Not a State"))
+
+
+
 (.t.def ..state.do
 
 

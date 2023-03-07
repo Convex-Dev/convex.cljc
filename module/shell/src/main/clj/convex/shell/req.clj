@@ -254,6 +254,7 @@
    ($.cell/* .process.kill)                $.shell.req.process/kill
    ($.cell/* .process.run)                 $.shell.req.process/run
    ($.cell/* .reader.form+)                $.shell.req.reader/form+
+   ($.cell/* .state.core.vanilla)          $.shell.req.state/core-vanilla
    ($.cell/* .state.do)                    $.shell.req.state/do-
    ($.cell/* .state.genesis)               $.shell.req.state/genesis
    ($.cell/* .state.safe)                  $.shell.req.state/safe
