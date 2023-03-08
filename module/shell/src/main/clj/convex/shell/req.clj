@@ -235,6 +235,7 @@
    ($.cell/* .log.out)                     $.shell.req.log/out
    ($.cell/* .log.out.set)                 $.shell.req.log/out-set
    ($.cell/* .peer.broadcast-count)        $.shell.req.peer/broadcast-count
+   ($.cell/* .peer.connection+)            $.shell.req.peer/connection+
    ($.cell/* .peer.controller)             $.shell.req.peer/controller
    ($.cell/* .peer.data)                   $.shell.req.peer/data
    ($.cell/* .peer.init.db)                $.shell.req.peer/init-db

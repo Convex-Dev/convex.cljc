@@ -107,6 +107,22 @@
 
 
 
+(defn connection+
+
+  [ctx [peer]]
+
+  (-do-peer ctx
+            peer
+            (fn [^Server peer-2]
+              ($.cvm/result-set ctx
+                                ($.cell/set (or (-> peer-2
+                                                    (.getConnectionManager)
+                                                    (.getConnections)
+                                                    (keys))
+                                                []))))))
+
+
+
 (defn controller
 
   [ctx [peer]]

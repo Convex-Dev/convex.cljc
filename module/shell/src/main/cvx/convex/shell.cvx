@@ -2930,6 +2930,15 @@
 
 
 
+(defn .peer.connection+
+
+  [peer]
+
+  (.shell.invoke '.peer.connection+
+                 peer))
+
+
+
 (defn .peer.controller
 
   [peer]
