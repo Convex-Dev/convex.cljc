@@ -561,6 +561,11 @@
                         "    Peer URL (String)."
                         "    Defaults to `\"convex.world\"` (public testnet)."
                         ""
+                        "  :rtt?"
+                        "    When `true`, tracks and print the round-trip time of each query and"
+                        "    transaction (delta between sending a request and getting a result)."
+                        "    Defaults to `false`."
+                        ""
                         "  :port"
                         "    Port exposed by `:host` (Long)."
                         "    Defaults to `18888`."
@@ -789,10 +794,23 @@
 
   [env async-result]
 
-  (let [client (:client.repl.client env)
+  (let [t      (.time.nano)
+        client (:client.repl.client env)
         result (.a.take async-result
                         (:client.repl.timeout env)
-                        client)]
+                        client)
+        nano+  (- (.time.nano)
+                  t)]
+    (when (:rtt? env)
+      (let [out (:stream.out env)]
+        (.stream.txt.outln out
+                           (str .sys.eol
+                                (.term.fg.green)
+                                "RTT: "
+                                (/ nano+
+                                   1e6)
+                                " millis"
+                                (.term.reset)))))
     (if (= result
            (:client.repl.client env))
       (assoc env
