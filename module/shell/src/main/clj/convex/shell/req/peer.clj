@@ -38,12 +38,16 @@
 
 (defn- -init
 
-  [ctx [key-pair host port root-key url] map-option+]
+  [ctx [key-pair host n-peer port root-key url] map-option+]
 
   (or (when-not ($.std/string? host)
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
                              ($.cell/* "Host must be a String")))
+      (when-not ($.std/long? n-peer)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Number of peers must be a Long")))
       (when-not ($.db/current)
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
@@ -73,6 +77,7 @@
                                                           ($.server/create key-pair-2
                                                                            (map-option+ {:convex.server/bind     ($.clj/string host)
                                                                                          :convex.server/db       ($.db/current)
+                                                                                         :convex.server/n-peer   ($.clj/long n-peer)
                                                                                          :convex.server/port     port-2
                                                                                          :convex.server/root-key root-key
                                                                                          :convex.server/url      (some-> url 
