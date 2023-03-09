@@ -150,7 +150,7 @@
 
   ^{:doc {:description "Address of the core account where all core functions are defined."}}
 
-  $CORE$)
+  .account.core)
 
 
 
@@ -1329,10 +1329,10 @@
   [enable?]
 
   (if (= *address*
-         $CORE$)
+         .account.core)
     (def .*dev?*
          (boolean enable?))
-    (call $CORE$
+    (call .account.core
           (.dev.set enable?))))
 
 
@@ -2595,7 +2595,7 @@
   ([prefix]
 
    (if (= *address*
-          $CORE$)
+          .account.core)
      (do
        (let [id .*gensym*]
          (def .*gensym*
@@ -2605,7 +2605,7 @@
                       id
                       "_"
                       (.time.nano)))))
-     (call $CORE$
+     (call .account.core
            (.gensym prefix)))))
 
 
@@ -3310,14 +3310,14 @@
   [dir]
 
   (if (= *address*
-         $CORE$)
+         .account.core)
     (do
       (when-not (.fs.dir? dir)
         (fail :ARGUMENT
               "Given path is not a directory"))
       (def .project.*dir*
            dir))
-    (call $CORE$
+    (call .account.core
           (.project.dir.set dir))))
 
 
@@ -3731,14 +3731,14 @@
   [dir]
 
   (if (= *address*
-         $CORE$)
+         .account.core)
     (do
       (when-not (str? dir)
         (fail :ARGUMENT
               "Given path is not a string"))
       (def .shell.*root*
            dir))
-    (call $CORE$
+    (call .account.core
           (.shell.root.set dir))))
 
 
@@ -3879,9 +3879,9 @@
 
   [& form+]
 
-  `(~$CORE$/.state.safe (fn []
-                          ~(cons 'do
-                                 form+))))
+  `(.account.core/.state.safe (fn []
+                                ~(cons 'do
+                                       form+))))
  
 
 
@@ -3943,9 +3943,9 @@
 
   [& form+]
 
-  `(~$CORE$/.state.tmp (fn []
-                         ~(cons 'do
-                                form+))))
+  `(.account.core/.state.tmp (fn []
+                               ~(cons 'do
+                                      form+))))
 
 
 ;;;;;;;;;; Strings
@@ -4280,10 +4280,10 @@
   [handle]
 
   (if (= *address*
-         $CORE$)
+         .account.core)
     (def .stream.*err*
          handle)
-    (call $CORE$
+    (call .account.core
           (.stream.set.err handle))))
 
 
@@ -6762,7 +6762,7 @@
  ([sym]
 
    (.stream.txt.outln "")
-   (when-let [txt (get-in (account $CORE$)
+   (when-let [txt (get-in (account .account.core)
                           [:metadata
                            sym
                            :shell.section])]
