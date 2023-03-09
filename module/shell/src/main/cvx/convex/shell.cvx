@@ -92,14 +92,17 @@
 
 (defn .a.do
 
-  ^{:doc {:description ["Executes the given no-arg function in parallel."
+  ^{:doc {:description ["Executes the given no-arg function in parallel, in a new thread."
                         "Returns an async value that can be awaited with `.a.take`."
                         ""
                         "Trying to open an Etch instance in this function will throw."
                         "If Etch is required, it should be open behorehand."
                         ""
+                        "If `.sys.vthread?` is set to `true`, it means this Shell can probably"
+                        "handle hundreds of thousands if not millions of concurrent threads."
+                        ""
                         "See `.a.do*` for a convenience macro."]
-          :examples    [{:code (.a.do (fn [] (.time.sleep 1000) 42))}]
+          :examples    [{:code (.a.take (.a.do (fn [] (.time.sleep 1000) 42)))}]
           :signature   [{:params [f]}]}}
 
   [f]
@@ -4524,7 +4527,6 @@
 
 
 
-
 (defn .sys.pid
 
   ^{:doc {:description ["Returns the PID of this process."]
@@ -4533,6 +4535,15 @@
   []
 
   (.shell.invoke '.sys.pid))
+
+
+
+(def .sys.vthread?
+
+  ^{:doc {:description ["Set to `true` if this Shell supports virtual threads."
+                        "See `.a.do`."]}}
+
+  .sys.vthread?)
 
 
 ;;;;;;;;;; Unit testing

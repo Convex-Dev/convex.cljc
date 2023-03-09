@@ -16,7 +16,8 @@
             [convex.cvm      :as $.cvm]
             [convex.key-pair :as $.key-pair] 
             [convex.read     :as $.read]
-            [convex.std      :as $.std]))
+            [convex.std      :as $.std]
+            [promesa.exec    :as promesa.exec]))
 
 
 ;;;;;;;;;; Private
@@ -69,6 +70,7 @@
                     ($.cvm/def Init/CORE_ADDRESS
                                ($.std/merge ($.cell/* {.account.genesis   ~$.cvm/genesis-user
                                                        .sys.eol           ~($.cell/string (System/lineSeparator))
+                                                       .sys.vthread?      ~($.cell/boolean promesa.exec/virtual-threads-available?)
                                                        .version.java      [~($.cell/string (System/getProperty "java.vendor"))
                                                                            ~($.cell/string (System/getProperty "java.version"))]})
                                             (first (-resource-cvx "convex/shell/version.cvx"))))
