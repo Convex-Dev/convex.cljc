@@ -4538,6 +4538,30 @@
 
 
 
+(def .sys.version.convex
+
+  ^{:doc {:description "Convex version used by this Shell."}}
+
+  .sys.version.convex)
+
+
+
+(def .sys.version.java
+
+  ^:private?
+
+  .sys.version.java)
+
+
+
+(def .sys.version.shell
+
+  ^{:doc {:description "Version of this Shell."}}
+
+  .sys.version.shell)
+
+
+
 (def .sys.vthread?
 
   ^{:doc {:description ["Set to `true` if this Shell supports virtual threads."
@@ -6309,41 +6333,6 @@
            3)))))
 
 
-;;;;;;;;;; Versions
-
-
-(def .version
-
-  ^{:private?      true
-    :shell.section ["In case of a bug, please report `.version.shell` as well as `.version.convex`."]}
-
-  nil)
-
-
-
-(def .version.convex
-
-  ^{:doc {:description "Convex version used by the Shell."}}
-
-  .version.convex)
-
-
-
-(def .version.java
-
-  ^:private?
-
-  .version.java)
-
-
-
-(def .version.shell
-
-  ^{:doc {:description "Version of this Shell."}}
-
-  .version.shell)
-
-
 ;;;;;;;;;; Workers
 
 
@@ -6760,8 +6749,6 @@
                          "Error handling abstractions built over `.state.safe`.")
                (feature ".time   "
                         "Time utilities")
-               (feature ".version"
-                        "CVM and Shell versions")
                ""]))
    (?.title "List everything available in a feature set")
    (?.txt "(?.shell feature-set)  ->  (?.shell '.account)")

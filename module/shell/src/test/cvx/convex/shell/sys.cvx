@@ -86,3 +86,34 @@
 
   (.t.is (<= 0
              (.sys.pid))))
+
+
+
+(.t.def ..sys.version.convex
+
+  (.t.is (str? .sys.version.convex)))
+
+
+
+(.t.def ..version.java
+
+  (.t.is (vector? .sys.version.java))
+
+  (.t.is (= 2
+            (count .sys.version.java)))
+
+  (.t.is (str? (first .sys.version.java)))
+
+  (.t.is (str? (second .sys.version.java))))
+
+
+
+(.t.def ..sys.version.shell
+
+  (.t.is (str? .sys.version.shell)))
+
+
+
+(.t.def ..sys.vthread?
+
+  (.t.is (boolean? .sys.vthread?)))

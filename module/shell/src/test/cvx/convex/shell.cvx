@@ -30,6 +30,4 @@
           $.shell.testnet (test convex shell testnet)
           $.shell.time    (test convex shell time)
           $.shell.trx     (test convex shell trx)
-          $.shell.try     (test convex shell try)
-          $.shell.version (test convex shell version)]}
-
+          $.shell.try     (test convex shell try)]}

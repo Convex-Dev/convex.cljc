@@ -68,11 +68,11 @@
 
     (let [ctx-2 (-> ctx
                     ($.cvm/def Init/CORE_ADDRESS
-                               ($.std/merge ($.cell/* {.account.genesis   ~$.cvm/genesis-user
-                                                       .sys.eol           ~($.cell/string (System/lineSeparator))
-                                                       .sys.vthread?      ~($.cell/boolean promesa.exec/virtual-threads-available?)
-                                                       .version.java      [~($.cell/string (System/getProperty "java.vendor"))
-                                                                           ~($.cell/string (System/getProperty "java.version"))]})
+                               ($.std/merge ($.cell/* {.account.genesis  ~$.cvm/genesis-user
+                                                       .sys.eol          ~($.cell/string (System/lineSeparator))
+                                                       .sys.version.java [~($.cell/string (System/getProperty "java.vendor"))
+                                                                           ~($.cell/string (System/getProperty "java.version"))]
+                                                       .sys.vthread?     ~($.cell/boolean promesa.exec/virtual-threads-available?)})
                                             (first (-resource-cvx "convex/shell/version.cvx"))))
                     ($.cvm/eval ($.std/concat ($.cell/* (let [$CORE$ ~Init/CORE_ADDRESS]))
                                               (-resource-cvx "convex/shell.cvx"))))]
