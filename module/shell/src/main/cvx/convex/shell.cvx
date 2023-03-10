@@ -6366,6 +6366,30 @@
 
 
 
+(defn .worker.pipe+
+
+  [name]
+
+  (let [pipe-prefix (str "/tmp/cvx__" name "__")
+        pipe-in     (str pipe-prefix
+                         "in")
+        pipe-out    (str pipe-prefix
+                         "out")]
+    (when-not (.fs.exists? pipe-in)
+      (when-not (.process.success? (.process.run ["mkfifo"
+                                                  pipe-in]))
+        (fail :SHELL.WORKER
+              "Unable to create input pipe")))
+    (when-not (.fs.exists? pipe-out)
+      (when-not (.process.success? (.process.run ["mkfifo"
+                                                  pipe-out]))
+        (fail :SHELL.WORKER
+              "Unable to create output pipe")))
+    [pipe-in
+     pipe-out]))
+  
+
+
 (defn .worker.repl
 
 
@@ -6377,32 +6401,46 @@
 
   ([process option+]
 
-   (.repl (merge option+
-                 {:eval (fn [env]
-                          (let [[ok?
-                                 _key
-                                 x]   (.worker.exec process
-                                                    (cons 'do
-                                                          (:form+ env)))]
-                            (cond
-                              ;;
-                              ok?
-                              (assoc env
-                                     :result
-                                     x)
-                              ;;
-                              (nil? x)
-                              (dissoc env
-                                      :result)
-                              ;;
-                              (map? x)
-                              (assoc env
-                                     :exception? true
-                                     :result     x)
-                              ;;
-                              (assoc env
-                                     :result
-                                     x))))}))))
+   (let [pipe        (:pipe process)
+         [option-2+
+          process-2] (if pipe
+                       (let [[pipe-in
+                              pipe-out] (.worker.pipe+ pipe)]
+                         [(if (:name option+)    
+                            option+
+                            (assoc option+
+                                   :name
+                                   pipe))
+                          {:in  (.file.stream.out pipe-in)
+                           :out (.file.stream.in pipe-out)}])
+                       [option+
+                        process])]
+     (.repl (merge option-2+
+                   {:eval (fn [env]
+                            (let [[ok?
+                                   _key
+                                   x]   (.worker.exec process-2
+                                                      (cons 'do
+                                                            (:form+ env)))]
+                              (cond
+                                ;;
+                                ok?
+                                (assoc env
+                                       :result
+                                       x)
+                                ;;
+                                (nil? x)
+                                (dissoc env
+                                        :result)
+                                ;;
+                                (map? x)
+                                (assoc env
+                                       :exception? true
+                                       :result     x)
+                                ;;
+                                (assoc env
+                                       :result
+                                       x))))})))))
 
 
 
@@ -6438,35 +6476,43 @@
 
   ([option+]
 
-   (.repl
-     (merge option+
-            {:eval         (fn [env]
-                             (let [form+ (:form+ env)]
-                               (.repl.eval (assoc env
-                                                  :form+      (next form+)
-                                                  :worker.key (first form+)))))
-             :on.ex        (fn [env]
-                             (.worker.result env
-                                             false
-                                             (first (:form+ env))
-                                             (:result env))
-                             env)
-             :on.ex.reader (fn [env message]
-                             (.worker.result env
-                                             false
-                                             nil
-                                             [:reader
-                                              message])
-                             env)
-             :on.prompt    (fn [env]
-                             env)
-             :on.result    (fn [env]
-                             (.worker.result env
-                                             true
-                                             (:worker.key env)
-                                             (:result env))
-                             env)}))
-   nil))
+   (let [option-2+ (merge option+
+                          {:eval         (fn [env]
+                                           (let [form+ (:form+ env)]
+                                             (.repl.eval (assoc env
+                                                                :form+      (next form+)
+                                                                :worker.key (first form+)))))
+                           :on.ex        (fn [env]
+                                           (.worker.result env
+                                                           false
+                                                           (first (:form+ env))
+                                                           (:result env))
+                                           env)
+                           :on.ex.reader (fn [env message]
+                                           (.worker.result env
+                                                           false
+                                                           nil
+                                                           [:reader
+                                                            message])
+                                           env)
+                           :on.prompt    (fn [env]
+                                           env)
+                           :on.result    (fn [env]
+                                           (.worker.result env
+                                                           true
+                                                           (:worker.key env)
+                                                           (:result env))
+                                           env)})
+         pipe      (:pipe option+)
+         option-3+ (if pipe
+                     (let [[pipe-in
+                            pipe-out] (.worker.pipe+ pipe)]
+                       (assoc option-2+
+                              :stream.in  (.file.stream.in pipe-in)
+                              :stream.out (.file.stream.out pipe-out)))
+                     option-2+)]
+     (.repl option-3+)
+     nil)))
 
 
 ;;;;;;;;;; Help
