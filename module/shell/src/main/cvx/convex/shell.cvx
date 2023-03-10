@@ -3389,6 +3389,16 @@
 ;;;;;;;;;; Reader
 
 
+(def .reader
+
+  ^{:private?      true
+    :shell.section ["Section relating to reading cells from text."
+                    "Might grow in the future."]}
+
+  nil)
+
+
+
 (defn .reader.form+
 
   ^{:doc {:description ["Returns a list of cells read from the given string."]
@@ -6861,6 +6871,8 @@
                         "CVM log management")
                (feature ".pfx    "
                         "Safely storing and retrieving key pairs from files")
+               (feature ".reader "
+                        "Reading cells from strings")
                (feature ".repl   "
                         "Read-Eval-Print-Loop for interactive work")
                (feature ".shell  "
