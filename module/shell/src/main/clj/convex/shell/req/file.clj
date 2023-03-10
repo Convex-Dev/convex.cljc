@@ -55,7 +55,7 @@
 
 (defn lock
 
-  "Request for getting an exclusive lock on a file."
+  "Request for getting an exclusive file lock."
 
   [ctx [path]]
 
@@ -80,6 +80,35 @@
           ($.cvm/exception-set ctx
                                ($.cell/* :SHELL.FILE)
                                ($.cell/* "Unable to open file for acquiring lock"))))))
+
+
+
+(defn lock-release
+
+  "Request for releasing an exclusive file lock."
+
+  [ctx [lock]]
+
+  ($.shell.resrc/unwrap-with ctx
+                             lock
+                             (fn [lock-2]
+                               (if (instance? FileLock
+                                              lock-2)
+                                 (try
+                                   ;;
+                                   (-> ^FileLock lock-2
+                                       (.acquiredBy)
+                                       (.close))
+                                   ($.cvm/result-set ctx
+                                                     nil)
+                                   ;;
+                                   (catch Throwable _ex
+                                     ($.cvm/exception ctx
+                                                      ($.cell/* :SHELL.FILE)
+                                                      ($.cell/* "Unable to release file lock"))))
+                                 ($.cvm/exception-set ctx
+                                                      ($.cell/code-std* :ARGUMENT)
+                                                      ($.cell/* "Resource is not a file lock"))))))
 
 
 

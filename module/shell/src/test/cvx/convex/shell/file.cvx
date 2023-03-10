@@ -71,6 +71,28 @@
 
 
 
+(.t.def ..file.lock.release
+
+  (def path
+       (.fs.tmp))
+
+  (def lock
+       (.file.lock path))
+
+  (.t.is (nil? (.file.lock.release lock))
+         "Release")
+
+  (.t.is (nil? (.file.lock.release lock))
+         "Idempotent")
+
+  (.t.is (nil? (.file.lock.release (.file.lock path)))
+         "Can reacquire released lock")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.file.lock.release :fail))
+         "Not a file lock"))
+
+
 
 (.t.def ..file.stream
 

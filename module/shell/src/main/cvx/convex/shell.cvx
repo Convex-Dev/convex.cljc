@@ -1705,6 +1705,19 @@
 
 
 
+(defn .file.lock.release
+
+  ^{:doc {:description ["Releases a `file-lock` previously obtained with `.file.lock`."]
+          :examples    [{:code (.file.lock.release (.file.lock "/tmp/some_file"))}]
+          :signature   [{:params [file-lock]}]}}
+
+  [file-lock]
+
+  (.shell.invoke '.file.lock.release
+                 file-lock))
+
+
+
 (defn .file.read
 
   ^{:doc {:description ["Returns a list of cells resulting from reading the given file."

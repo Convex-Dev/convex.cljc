@@ -147,6 +147,7 @@
    ($.cell/* .dev.fatal)                   $.shell.req.dev/fatal
    ($.cell/* .ex.rethrow)                  ex-rethrow
    ($.cell/* .file.lock)                   $.shell.req.file/lock
+   ($.cell/* .file.lock.release)           $.shell.req.file/lock-release
    ($.cell/* .file.stream.in)              $.shell.req.file/stream-in
    ($.cell/* .file.stream.out)             $.shell.req.file/stream-out
    ($.cell/* .fs.copy)                     $.shell.req.fs/copy
