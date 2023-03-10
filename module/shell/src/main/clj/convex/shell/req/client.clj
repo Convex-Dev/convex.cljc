@@ -49,9 +49,9 @@
 
 
 
-(defn -return
+(defn- -return
 
-  ;;
+  ;; Handles returning a Future for a query or a transaction
 
   [ctx d*future error-message]
 
@@ -63,6 +63,18 @@
                                                          ex)
                                             "Connection severed"
                                             error-message))])))
+
+
+
+(defn- -return-trx
+
+  ;; Handles returning a Future for a transaction.
+
+  [ctx d*future]
+
+  (-return ctx
+           d*future
+           "Unable to issue this transaction"))
 
 
 ;;;;;;;;;; Requests
@@ -217,7 +229,7 @@
 
 (defn transact
 
-  "Request for issuing a transaction."
+  "Request for signing and issuing a transaction."
 
   [ctx [client kp trx]]
 
@@ -231,9 +243,29 @@
                     ($.shell.req.kp/do-kp ctx
                                           kp
                                           (fn [kp-2]
-                                            (-return ctx
-                                                     (delay
-                                                       ($.client/transact client-2
-                                                                          ($.key-pair/sign kp-2
-                                                                                           trx)))
-                                                     "Unable to issue this transaction")))))))
+                                            (-return-trx ctx
+                                                         (delay
+                                                           ($.client/transact client-2
+                                                                              ($.key-pair/sign kp-2
+                                                                                               trx))))))))))
+
+
+
+(defn transact-signed
+
+  "Request for issuing a signed transaction."
+
+  [ctx [client signed-trx]]
+
+  (or (when (or (not ($.std/signed? signed-trx))
+                (not ($.std/transaction? ($.key-pair/signed->cell signed-trx))))
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Not a signed transaction")))
+      (-do-client ctx
+                  client
+                  (fn [client-2]
+                    (-return-trx ctx
+                                 (delay
+                                    ($.client/transact client-2
+                                                       signed-trx)))))))

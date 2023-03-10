@@ -34,6 +34,7 @@
                              Keyword
                              Refs
                              Refs$RefTreeStats
+                             SignedData
                              Symbol
                              Syntax)
            (convex.core.data.prim AInteger
@@ -1323,6 +1324,17 @@
   [x]
 
   (instance? ASet
+             x))
+
+
+
+(defn signed?
+
+  "Is `x` signed data?"
+
+  [x]
+
+  (instance? SignedData
              x))
 
 

@@ -941,25 +941,36 @@
 
 (defn .client.transact
 
-  ^{:doc {:description ["Issues the given `transaction` after signing it with the provided"
-                        "`key-pair`."
+  ^{:doc {:description ["Issues the given transaction."
+                        ""
+                        "If the transaction has not been pre-signed with `.kp.sign`, `key-pair`"
+                        "must be provided."
                         ""
                         "Transactions require consensus and incur fees in Convex Coins."
                         ""
                         "Returns the exact same value as `.client.query`."
                         ""
-                        "For more about transaction, see `(?.shell '.trx)`."
+                        "For more information about transaction, see `(?.shell '.trx)`."
                         ""
                         "If the `client` is connected to the testnet hosted by `convex.world`,"
                         "see `(?.shell '.testnet)` for creating an account and provisioning funds."]
-          :signature   [{:params [client key-pair transaction]}]}}
+          :signature   [{:params [client signed-transaction]}
+                        {:params [client key-pair transaction]}]}}
 
-  [client key-pair transaction]
 
-  (.shell.invoke '.client.transact
-                 client
-                 key-pair
-                 transaction))
+  ([client signed-transaction]
+
+   (.shell.invoke '.client.transact.signed
+                  client
+                  signed-transaction))
+
+
+  ([client key-pair transaction]
+
+   (.shell.invoke '.client.transact
+                  client
+                  key-pair
+                  transaction)))
 
 
 ;;;;;;;;;; CVM log operations
@@ -2847,6 +2858,7 @@
   ^{:doc {:description ["Returns `true` if the `signature` matches `x` for the given `public-key`."
                         ""
                         "See `.kp.sign` for signing data in the first place."]
+          :examples    [{:code (.kp.verify (.kp.sign (.kp.create) :foo))}]
           :signature   [{:params [signed data]}
                         {:params [signature public-key value]}]}}
 

@@ -132,6 +132,7 @@
    ($.cell/* .client.resolve)              $.shell.req.client/resolve
    ($.cell/* .client.sequence)             $.shell.req.client/sequence
    ($.cell/* .client.transact)             $.shell.req.client/transact
+   ($.cell/* .client.transact.signed    )  $.shell.req.client/transact-signed
    ($.cell/* .cvmlog.clear)                $.shell.req.cvmlog/clear
    ($.cell/* .cvmlog.get)                  $.shell.req.cvmlog/get
    ($.cell/* .db.flush)                    $.shell.req.db/flush

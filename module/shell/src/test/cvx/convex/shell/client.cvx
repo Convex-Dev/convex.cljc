@@ -142,13 +142,23 @@
                          :timeout)))
            "Confirm transaction with a query")
 
+    (.t.is (= 44
+              (:result (.a.take
+                         (.client.transact client
+                                           (.kp.sign kp
+                                                     (.trx.new.invoke addr
+                                                                      '(def foo
+                                                                            (inc foo))
+                                                                      {:sequence 2}))))))
+           "Pre-signed transaction")
+
     (.t.is (.t.ex :ARGUMENT
                   (.client.transact client
                                     :fail
                                     (.trx.new.invoke addr
                                                      '(def foo
                                                            (inc 42))
-                                                     {:sequence 2})))
+                                                     {:sequence 3})))
            "Not a key pair")
 
     (.t.is (.t.ex :ARGUMENT
