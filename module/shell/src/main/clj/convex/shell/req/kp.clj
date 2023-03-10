@@ -104,9 +104,8 @@
          kp
          (fn [kp-2]
            ($.cvm/result-set ctx
-                             (-> ($.key-pair/sign kp-2
-                                                  cell)
-                                 ($.key-pair/signed->signature))))))
+                             ($.key-pair/sign kp-2
+                                              cell)))))
 
 
 

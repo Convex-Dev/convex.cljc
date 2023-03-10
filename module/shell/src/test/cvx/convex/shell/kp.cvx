@@ -62,8 +62,20 @@
 
 (.t.def ..kp.sign
 
-  (.t.is (blob? (.kp.sign (.kp.create)
-                          42)))
+  (def kp
+       (.kp.create))
+
+  (def sign
+       (.kp.sign kp
+                 42))
+
+  (.t.is (= (.kp.pubkey kp)
+            (:public-key sign)))
+
+  (.t.is (blob? (:signature sign)))
+
+  (.t.is (= 42
+            (:value sign)))
 
   (.t.is (.t.ex :ARGUMENT
                 (.kp.sign :fail
@@ -80,26 +92,32 @@
   (def pubkey
        (.kp.pubkey kp))
 
-  (def signature
+  (def value
+       42)
+
+  (def signed
        (.kp.sign kp
-                 42))
+                 value))
+
+  (def signature
+       (:signature signed))
 
   (.t.is (.kp.verify signature
                      pubkey
-                     42)
+                     value)
          "Good signature")
 
   (.t.is (= false
-            (.kp.verify (.kp.sign kp
-                                  84)
+            (.kp.verify (:signature (.kp.sign (.kp.create)
+                                              42))
                         pubkey
-                        42))
+                        value))
          "Wrong signature")
 
   (.t.is (= false
             (.kp.verify signature
                         (:key (account .account.genesis))
-                        42))
+                        value))
          "Wrong public key")
 
   (.t.is (= false

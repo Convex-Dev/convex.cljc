@@ -2817,7 +2817,18 @@
 
 (defn .kp.sign
 
-  ^{:doc {:description ["Returns a signature (64-byte Blob) of `x` (any cell) by this `key-pair`."
+  ^{:doc {:description ["Returns a signature of `value` (any cell) by this `key-pair`."
+                        ""
+                        "More precisely, a record where:"
+                        ""
+                        "  :public-key"
+                        "    Public key matching the private key that signed the value."
+                        ""
+                        "  :signature"
+                        "    Actual signature as a Blob."
+                        ""
+                        "  :value"
+                        "    Cell that was signed."
                         ""
                         "See `.kp.verify` for verifying signatures."]
           :examples    [{:code (.kp.sign (.kp.create) :some-cell)}]
