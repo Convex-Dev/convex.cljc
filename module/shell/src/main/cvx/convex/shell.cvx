@@ -6543,53 +6543,65 @@
                           {:in  (.file.stream.out pipe-in)
                            :out (.file.stream.in pipe-out)}])
                        [option+
-                        process])]
-     (.repl (merge option-2+
-                   {:eval (fn [env]
-                            (let [[ok?
-                                   x]  (.state.safe
-                                         (fn []
-                                           (.worker.exec process-2
-                                                         (cons 'do
-                                                               (:form+ env)))))]
-                              (if ok?
-                                (let [[ok-2?
-                                       _key
-                                       x-2] x]
-                                  (cond
-                                    ;;
-                                    ok-2?
-                                    (assoc env
-                                           :result
-                                           x-2)
-                                    ;;
-                                    (nil? x-2)
-                                    (dissoc env
-                                            :result)
-                                    ;;
-                                    (map? x-2)
-                                    (assoc env
-                                           :exception? true
-                                           :result     x-2)
-                                    ;;
-                                    (assoc env
-                                           :result
-                                           x-2)))
-                                (let [out (:stream.out env)]
-                                  (.stream.txt.out out
-                                                   .sys.eol)
-                                  (.stream.txt.out out
-                                                   (str (.term.bold)
-                                                        (.term.fg.red)
-                                                        "Stream error while sending command, worker might be dead"
-                                                        .sys.eol
-                                                        "Stopping worker REPL..."
-                                                        (.term.reset)))
-                                  (.stream.txt.out out
-                                                   .sys.eol)
-                                  (.stream.flush out)
-                                  (dissoc env
-                                          :result)))))})))))
+                        process])
+         ret         (.repl (merge option-2+
+                                   {:eval (fn [env]
+                                            (let [[ok?
+                                                   x]  (.state.safe
+                                                         (fn []
+                                                           (.worker.exec process-2
+                                                                         (cons 'do
+                                                                               (:form+ env)))))]
+                                              (if ok?
+                                                (let [[ok-2?
+                                                       _key
+                                                       x-2] x]
+                                                  (cond
+                                                    ;;
+                                                    ok-2?
+                                                    (assoc env
+                                                           :result
+                                                           x-2)
+                                                    ;;
+                                                    (nil? x-2)
+                                                    (dissoc env
+                                                            :result)
+                                                    ;;
+                                                    (map? x-2)
+                                                    (assoc env
+                                                           :exception? true
+                                                           :result     x-2)
+                                                    ;;
+                                                    (assoc env
+                                                           :result
+                                                           x-2)))
+                                                (let [out (:stream.out env)]
+                                                  (.stream.txt.out out
+                                                                   .sys.eol)
+                                                  (.stream.txt.out out
+                                                                   (str (.term.bold)
+                                                                        (.term.fg.red)
+                                                                        "Stream error while sending command, worker might be dead"
+                                                                        .sys.eol
+                                                                        "Stopping worker REPL..."
+                                                                        (.term.reset)))
+                                                  (.stream.txt.out out
+                                                                   .sys.eol)
+                                                  (.stream.flush out)
+                                                  (dissoc env
+                                                          :result)))))}))]
+    (dissoc ret
+            :eval
+            :form+
+            :name
+            :on.ex
+            :on.ex.reader
+            :on.prompt
+            :on.result
+            :stop?
+            :stream.in
+            :stream.out))))
+
 
 
 
