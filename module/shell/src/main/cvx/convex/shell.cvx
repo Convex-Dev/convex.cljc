@@ -831,25 +831,28 @@
 
   [env async-result]
 
-  (let [t      (.time.nano)
-        client (:client.repl.client env)
-        result (.a.take async-result
-                        (:client.repl.timeout env)
-                        client)
-        nano+  (- (.time.nano)
-                  t)]
+  (let [t        (.time.nano)
+        client   (:client.repl.client env)
+        result   (.a.take async-result
+                          (:client.repl.timeout env)
+                          client)
+        nano+    (- (.time.nano)
+                    t)
+        timeout? (= result
+                    client)]
     (when (:rtt? env)
       (let [out (:stream.out env)]
         (.stream.txt.outln out
                            (str .sys.eol
                                 (.term.fg.green)
                                 "RTT: "
-                                (/ nano+
-                                   1e6)
-                                " millis"
+                                (if timeout?
+                                  "timeout"
+                                  (str (/ nano+
+                                          1e6)
+                                       " millis"))
                                 (.term.reset)))))
-    (if (= result
-           (:client.repl.client env))
+    (if timeout?
       (assoc env
              :result
              :client.repl.timeout)
