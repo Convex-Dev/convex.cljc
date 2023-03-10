@@ -6402,22 +6402,27 @@
   [name]
 
   (let [pipe-prefix (str "/tmp/cvx__" name "__")
-        pipe-in     (str pipe-prefix
-                         "in")
-        pipe-out    (str pipe-prefix
-                         "out")]
-    (when-not (.fs.exists? pipe-in)
-      (when-not (.process.success? (.process.run ["mkfifo"
-                                                  pipe-in]))
-        (fail :SHELL.WORKER
-              "Unable to create input pipe")))
-    (when-not (.fs.exists? pipe-out)
-      (when-not (.process.success? (.process.run ["mkfifo"
-                                                  pipe-out]))
-        (fail :SHELL.WORKER
-              "Unable to create output pipe")))
-    [pipe-in
-     pipe-out]))
+        pipe-in     (str pipe-prefix "in")
+        pipe-out    (str pipe-prefix "out")
+        lock        (.file.lock (str pipe-prefix "lock"))
+        [ok?
+         x]         (.state.tmp
+                      (fn []
+                        (when-not (.fs.exists? pipe-in)
+                          (when-not (.process.success? (.process.run ["mkfifo"
+                                                                      pipe-in]))
+                            (fail :SHELL.WORKER
+                                  "Unable to create input pipe")))
+                        (when-not (.fs.exists? pipe-out)
+                          (when-not (.process.success? (.process.run ["mkfifo"
+                                                                      pipe-out]))
+                            (fail :SHELL.WORKER
+                                   "Unable to create output pipe")))))]
+    (.file.lock.release lock)
+    (if ok?
+      [pipe-in
+       pipe-out]
+      (.ex.rethrow x))))
   
 
 
