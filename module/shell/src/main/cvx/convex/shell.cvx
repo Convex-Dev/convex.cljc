@@ -3456,7 +3456,12 @@
                         ""
                         "  :stream.out"
                         "    Output stream for printing results."
-                        "    Defaults to STDOUT (returned by `.stream.stdout`)."]
+                        "    Defaults to STDOUT (returned by `.stream.stdout`)."
+                        ""
+                        "  :stream.out.limit"
+                        "    The `:on.result` function may use for truncating the output, useful for ensuring that"
+                        "    printing large results does not block everything."
+                        "    See `.repl.on.result`, the default for `:on.result`."]
           :examples    [{:code (.repl)}]
           :signature   [{:params []}
                         {:params [option+]}]}
@@ -3613,18 +3618,27 @@
 (defn .repl.on.result
 
   ^{:doc {:description ["See `.repl`."
-                        "Relative to the REPL env, prints `:result` to `:stream.out`."]
+                        "Relative to the REPL env, prints `:result` to `:stream.out`."
+                        ""
+                        "Truncates output towards `:stream.out.limit` in `:env` (if"
+                        "provided"]
           :signature   [{:params [repl-env]}]}}
 
   [env]
 
   (if (:exception? env)
     ((:on.ex env) env)
-    (let [out (:stream.out env)]
+    (let [limit  (:stream.out.limit env)
+          out    (:stream.out env)
+          result (:result env)]
       (.stream.txt.out out
                        .sys.eol)
-      (.stream.out out
-                   (:result env))
+      (if limit
+        (.stream.txt.out out
+                         (.cell.str limit
+                                    result))
+        (.stream.out out
+                     result))
       (.stream.txt.out out
                        .sys.eol)
       (.stream.txt.out out
