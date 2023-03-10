@@ -97,7 +97,8 @@
 
   [cell]
 
-  (str ($.write/string cell)))
+  (str ($.write/string Long/MAX_VALUE
+                       cell)))
 
 
 
@@ -108,11 +109,9 @@
 
   [cell]
 
-  (let [s (str cell)]
-    (if ($.std/char? cell)
-      (str \\
-           s)
-      s)))
+  (if ($.std/string? cell)
+    (str cell)
+    (-str-cvx cell)))
 
 
 ;;;;;;;;;;
