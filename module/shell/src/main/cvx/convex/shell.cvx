@@ -6532,7 +6532,9 @@
 
   [env success? key result]
 
-  (let [out (:stream.out env)]
+  (let [limit  (:stream.out.limit env)
+        out    (:stream.out env)
+        result (:result env)]
     (.stream.out out
                  success?)
     (.stream.txt.out out
@@ -6541,8 +6543,12 @@
                  key)
     (.stream.txt.out out
                      " ")
-    (.stream.out out
-                 result)
+    (if limit
+      (.stream.txt.out out
+                       (.cell.str limit
+                                  result))
+      (.stream.out out
+                   result))
     (.stream.txt.out out
                      .sys.eol)
     (.stream.flush out))
