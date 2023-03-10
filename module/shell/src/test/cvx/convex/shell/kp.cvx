@@ -65,17 +65,17 @@
   (def kp
        (.kp.create))
 
-  (def sign
+  (def signed
        (.kp.sign kp
                  42))
 
   (.t.is (= (.kp.pubkey kp)
-            (:public-key sign)))
+            (:public-key signed)))
 
-  (.t.is (blob? (:signature sign)))
+  (.t.is (blob? (:signature signed)))
 
   (.t.is (= 42
-            (:value sign)))
+            (:value signed)))
 
   (.t.is (.t.ex :ARGUMENT
                 (.kp.sign :fail
@@ -102,14 +102,17 @@
   (def signature
        (:signature signed))
 
+  (.t.is (.kp.verify signed)
+         "Good signature")
+
   (.t.is (.kp.verify signature
                      pubkey
                      value)
-         "Good signature")
+         "Good signature (destructuring manually)")
 
   (.t.is (= false
             (.kp.verify (:signature (.kp.sign (.kp.create)
-                                              42))
+                                              value))
                         pubkey
                         value))
          "Wrong signature")
@@ -129,11 +132,11 @@
   (.t.is (.t.ex :ARGUMENT
                 (.kp.verify 0x0000
                             pubkey
-                            42))
+                            value))
          "Bad length for signature")
 
   (.t.is (.t.ex :ARGUMENT
                 (.kp.verify 0x0000
                             :fail
-                            42))
+                            value))
          "Bad public key"))

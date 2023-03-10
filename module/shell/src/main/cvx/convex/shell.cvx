@@ -2832,7 +2832,7 @@
                         ""
                         "See `.kp.verify` for verifying signatures."]
           :examples    [{:code (.kp.sign (.kp.create) :some-cell)}]
-          :signature   [{:params [key-pair x]}]}}
+          :signature   [{:params [key-pair value]}]}}
 
   [key-pair x]
 
@@ -2846,15 +2846,24 @@
 
   ^{:doc {:description ["Returns `true` if the `signature` matches `x` for the given `public-key`."
                         ""
-                        "See `.kp.sign` for producing signatures."]
-          :signature   [{:params [signature public-key x]}]}}
+                        "See `.kp.sign` for signing data in the first place."]
+          :signature   [{:params [signed data]}
+                        {:params [signature public-key value]}]}}
 
-  [signature public-key x]
 
-  (.shell.invoke '.kp.verify
-                 signature
-                 public-key
-                 x))
+  ([signed-data]
+
+   (.kp.verify (:signature signed-data)
+               (:public-key signed-data)
+               (:value signed-data)))
+
+
+  ([signature public-key x]
+
+   (.shell.invoke '.kp.verify
+                  signature
+                  public-key
+                  x)))
 
 
 ;;;;;;;;;; Logging
