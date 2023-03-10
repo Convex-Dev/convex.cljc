@@ -45,6 +45,33 @@
 
 
 
+(.t.def ..file.lock
+
+  (def path
+       (.fs.tmp))
+
+  (.t.is (boolean (.file.lock path))
+         "Acquire lock")
+
+  (.t.is (nil? (.file.lock path))
+         "Cannot acquire more than once in the same process")
+
+  (def path-2
+       (.fs.tmp.dir))
+
+  (.fs.delete path-2)
+
+  (.t.is (.t.ex :SHELL.FILE
+                (.file.lock (str path-2 "/foo")))
+         "File does not exist")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.file.lock :fail))
+         "Path is not a String"))
+
+
+
+
 (.t.def ..file.stream
 
   (def path

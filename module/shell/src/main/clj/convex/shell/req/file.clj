@@ -7,14 +7,21 @@
 
   {:author "Adam Helinski"}
 
+  (:import (java.io FileOutputStream)
+           (java.nio.channels FileLock))
   (:require [convex.cell        :as $.cell]
+            [convex.clj         :as $.clj]
             [convex.cvm         :as $.cvm]
             [convex.shell.io    :as $.shell.io]
             [convex.shell.resrc :as $.shell.resrc]
             [convex.std         :as $.std]))
 
 
-;;;;;;;;;;
+(set! *warn-on-reflection*
+      true)
+
+
+;;;;;;;;;; Private
 
 
 (defn- -stream
@@ -41,6 +48,38 @@
         (or ctx-err
             ($.cvm/result-set ctx
                               ($.shell.resrc/create stream))))))
+
+
+;;;;;;;;; Requests
+
+
+(defn lock
+
+  "Request for getting an exclusive lock on a file."
+
+  [ctx [path]]
+
+  (or (when-not ($.std/string? path)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "File path to lock must be a String")))
+      (try
+        (let [^FileOutputStream out (FileOutputStream. ^String ($.clj/string path))]
+          (try
+            ($.cvm/result-set ctx
+                              ($.shell.resrc/create (-> out
+                                                        (.getChannel)
+                                                        (.lock))))
+            (catch Throwable _ex
+              (try
+                ($.cvm/result-set ctx
+                                  nil)
+                (finally
+                  (.close out))))))
+        (catch Throwable _ex
+          ($.cvm/exception-set ctx
+                               ($.cell/* :SHELL.FILE)
+                               ($.cell/* "Unable to open file for acquiring lock"))))))
 
 
 

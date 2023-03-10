@@ -1687,6 +1687,24 @@
 
 
 
+(defn .file.lock
+
+  ^{:doc {:description ["Blocks until able to return an exclusive lock on the file at"
+                        "the given `path`."
+                        ""
+                        "Returns `nil` if the lock cannot be acquired, for instance if this"
+                        "Shell already holds a lock to the given `path`. This function should"
+                        "be used for coordinating different processes."]
+          :examples    [{:code (.file.lock "/tmp/some_file")}]
+          :signature   [{:params [path]}]}}
+
+  [path]
+
+  (.shell.invoke '.file.lock
+                 path))
+
+
+
 (defn .file.read
 
   ^{:doc {:description ["Returns a list of cells resulting from reading the given file."
