@@ -378,6 +378,40 @@
                  cell))
 
 
+
+(defn .cell.str
+
+  ^{:doc {:description ["Stringifies `cell`."
+                        ""
+                        "There are 2 major differences from standard `str`:"
+                        ""
+                        "  - `str` controls for the size of the produced string in bytes and"
+                        "    does not print the full cell is it is too large (fairly small limit)."
+                        "    This function has no limit by default."
+                        ""
+                        "  - `str` stringigies characters and strings so that they can be concatenated."
+                        "     E.g. `\\a` -> `\"a\"`"
+                        "     This function prints them in their proper cell form."
+                        "     E.g. `\\a` -> `\"\\a\"`"]
+          :examples    [{:code (.cell.str *state*)}
+                        {:code (.cell.str 20 *state*)}]
+          :signature   [{:params [cell]}
+                        {:params [limit cell]}]}}
+
+  ([cell]
+
+   (.cell.str nil
+              cell))
+
+
+  ([limit cell]
+
+   (.shell.invoke '.cell.str
+                  (or limit
+                      9223372036854775807) 
+                  cell)))
+
+
 ;;;;;;;;;; Binary client
 
 

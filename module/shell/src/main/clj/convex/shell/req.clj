@@ -124,6 +124,7 @@
    ($.cell/* .cell.compile)                $.shell.req.cell/compile
    ($.cell/* .cell.ref.stat)               $.shell.req.cell/ref-stat
    ($.cell/* .cell.size)                   $.shell.req.cell/size
+   ($.cell/* .cell.str)                    $.shell.req.cell/str
    ($.cell/* .client.close)                $.shell.req.client/close
    ($.cell/* .client.connect)              $.shell.req.client/connect
    ($.cell/* .client.query)                $.shell.req.client/query

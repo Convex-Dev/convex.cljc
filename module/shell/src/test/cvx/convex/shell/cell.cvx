@@ -91,3 +91,40 @@
 
   (.t.is (< 0
             (:total stat))))
+
+
+
+(.t.def ..cell.str
+
+  (.t.is (= "\a"
+            (.cell.str \a))
+         "Char")
+
+  (.t.is (= "\"test\""
+            (.cell.str "test"))
+         "String")
+
+  (.t.is (.t.ex :READER
+                (.reader.form+ (str *state*)))
+         "State is not printed in full by defaul")
+
+  (.t.is (= #{:accounts
+              :globals
+              :peers
+              :schedule}
+              (set (keys (first (.reader.form+ (.cell.str *state*))))))
+         "State can be printed in full")
+
+  (.t.is (.t.ex :READER
+                (.reader.form+ (.cell.str 100
+                                          *state*)))
+         "Apply limit")
+
+  (.t.is (= "nil"
+            (.cell.str nil))
+         "Nil friendly")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.cell.str :fail
+                           :test))
+         "Limit is not a Long"))

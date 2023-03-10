@@ -2,10 +2,17 @@
 
   "More advanced requestes relating to cells."
 
-  (:refer-clojure :exclude [compile])
+  (:import (convex.core.data ACell))
+  (:refer-clojure :exclude [compile
+                            str])
   (:require [convex.cell :as $.cell]
+            [convex.clj  :as $.clj]
             [convex.cvm  :as $.cvm]
             [convex.std  :as $.std]))
+
+
+(set! *warn-on-reflection*
+      true)
 
 
 ;;;;;;;;;;
@@ -58,3 +65,25 @@
                              ($.cell/* "Cell to measure cannot be `nil`")))
       ($.cvm/result-set ctx
                         ($.cell/long ($.std/memory-size cell)))))
+
+
+
+(defn str
+
+  "Request for printing a cell to a string with a user given size limit
+   instead of the default one.
+  
+   Also, chars and strings print in their cell form." 
+
+  [ctx [limit ^ACell cell]]
+
+  (or (when-not ($.std/long? limit)
+        ($.cvm/exception-set ctx
+                             ($.cell/* :ARGUMENT)
+                             ($.cell/* "Byte limit must be a Long")))
+      ($.cvm/result-set ctx
+                        (.print (if (nil? cell)
+                                  ^ACell ($.cell/symbol "nil")
+                                  cell)
+                                (max 0
+                                     ($.clj/long limit))))))
