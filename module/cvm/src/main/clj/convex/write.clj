@@ -7,8 +7,13 @@
   {:author "Adam Helinski"}
 
   (:import (convex.core.data ACell
+                             AString
                              Strings)
            (java.io Writer)))
+
+
+(set! *warn-on-reflection*
+      true)
 
 
 ;;;;;;;;;;
@@ -40,24 +45,22 @@
 
 (defn string
 
-  "Prints the given `cell` as a string cell.
+  "Prints the given `cell` as a string cell which can be read back with the [[convex.read]] namespace.
+
+   A default limit of 10000 bytes is applied relative to the output, beyond which \"<<Print limit exceeded>>\"
+   is appended. Pass `Long/MAX_VALUE` for the maximum limit."
+
+
+  (^AString [cell]
+
+   (string nil
+           cell))
   
-   While standard `str` is sufficient for other type of cells, this function ensures that CVX strings are escaped
-   so that reading produces a CVX string as well.
-  
-   For instance, CVX string \"foo\" produces the following:
 
-   | Function                  | Cell after reading | Type |
-   |---------------------------|--------------------|------|
-   | Clojure `str`             | `\"foo\"`          | JVM  |
-   | This namespace's `string` | `\"\"(+ 1 2)\"\"`  | Cell |"
+  (^AString [limit ^ACell cell]
 
-  ^String
-
-  [^ACell cell]
-
-  ;; Cannot use `$.cell/string` because of a circular dependency.
-  ;
-  (if cell
-    (.print cell)
-    (Strings/create "nil")))
+   (if (nil? cell)
+     (Strings/create "nil")
+     (.print cell
+             (or limit
+                 10000)))))

@@ -271,7 +271,7 @@
 
 (defn str
 
-  "Stringifies the given cell(s)."
+  "Stringifies the given cell(s) like Convex's `str`."
 
   ^AString
 

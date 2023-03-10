@@ -21,9 +21,11 @@ repository.
     - `$.std/transaction?`
 - Change
     - Remove anything related to `CVMByte` (since removed from newer Convex version)
-    - `$.std/softness` -> `$.std/ref-stat` (provides more insights that counting soft refs)
     - `$.db/write` and `$.db/root-write` return a new version of the input cell
         - See docstrings, the old version should be discarded in favor of that new version 
+    - `$.std/softness` -> `$.std/ref-stat` (provides more insights that counting soft refs)
+    - `$.write/string` 
+        - Accepts a limit in bytes besides applying a default limit when producing the output 
 
 
 ---
