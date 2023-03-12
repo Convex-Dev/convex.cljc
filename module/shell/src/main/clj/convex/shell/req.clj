@@ -291,6 +291,7 @@
    ($.cell/* .sys.n-cpu)                   $.shell.req.sys/n-cpu
    ($.cell/* .sys.os)                      $.shell.req.sys/os
    ($.cell/* .sys.pid)                     $.shell.req.sys/pid
+   ($.cell/* .sys.pid.command)             $.shell.req.sys/pid-command
    ($.cell/* .testnet.create-account)      $.shell.req.testnet/create-account
    ($.cell/* .testnet.faucet)              $.shell.req.testnet/faucet
    ($.cell/* .time.advance)                $.shell.req.time/advance

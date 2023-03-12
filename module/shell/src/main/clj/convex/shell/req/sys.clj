@@ -4,7 +4,8 @@
 
   {:author "Adam Helinski"}
 
-  (:import (java.lang ProcessHandle))
+  (:import (java.lang ProcessHandle)
+           (java.util Optional))
   (:require [convex.clj  :as $.clj]
             [convex.cell :as $.cell]
             [convex.cvm  :as $.cvm]
@@ -134,3 +135,23 @@
 
   ($.cvm/result-set ctx
                     ($.cell/long (.pid (ProcessHandle/current)))))
+
+
+
+(defn pid-command
+
+  "Request for retrieving by PID the command that launched a process."
+
+  [ctx [pid]]
+
+  (or (when-not ($.std/long? pid)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "PID must be a Long")))
+      ($.cvm/result-set ctx
+                        (some-> (let [^Optional p (ProcessHandle/of ($.clj/long pid))]
+                                  (when (.isPresent p)
+                                    (let [^Optional cmd (.command (.info ^ProcessHandle (.get p)))]
+                                      (when (.isPresent cmd)
+                                        (.get cmd)))))
+                                ($.cell/string)))))

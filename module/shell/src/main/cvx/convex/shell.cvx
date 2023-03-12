@@ -4704,6 +4704,21 @@
 
 
 
+(defn .sys.pid.command
+
+  ^{:doc {:description ["Retrieves a running processe by PID and returns as a String the"
+                        "command that launched it."
+                        ""
+                        "Returns Nil if no process is found for that given PID."]
+          :examples    [{:code (.sys.pid.commaand 12345)}]
+          :signature   [{:params [pid]}]}}
+  [pid]
+
+  (.shell.invoke '.sys.pid.command
+                 pid))
+
+
+
 (def .sys.version.convex
 
   ^{:doc {:description "Convex version used by this Shell."}}
