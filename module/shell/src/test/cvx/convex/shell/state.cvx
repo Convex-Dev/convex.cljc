@@ -83,26 +83,45 @@
 (.t.def ..state.genesis
 
   (.t.is (= (.state.genesis)
-            (.state.genesis [(.kp.pubkey (.kp.create .account.0-key))]))
+            (.state.genesis {:pubkey+ [(.kp.pubkey (.kp.create .account.0-key))]}))
          "Default public key")
 
   (.t.is (.t.ex :ARGUMENT
-                (.state.genesis []))
+                (.state.genesis {:pubkey+ []}))
          "Missing keys")
 
   (.t.is (.t.ex :ARGUMENT
-                (.state.genesis [.account.0-key
-                                 .account.0-key]))
+                (.state.genesis {:pubkey+ [.account.0-key
+                                           .account.0-key]}))
          "Duplicate keys")
 
   (.t.is (.t.ex :ARGUMENT
-                (.state.genesis [.account.0-key
-                                 0x12]))
+                (.state.genesis {:pubkey+ [.account.0-key
+                                           0x12]}))
          "Bad key")
 
   (.t.is (.t.ex :ARGUMENT
-                (.state.genesis 42))
-         "Random argument"))
+                (.state.genesis {:pubkey+ 42}))
+         "Random argument")
+
+  (.t.is (reduce (fn [_ [_k peer]]
+                   (or (let [c (:controller peer)]
+                         (and (= {:url (str c)}
+                                 (:metadata peer))
+                              (= (long c)
+                                 (:stake peer))))
+                       (reduced peer)))
+                 false
+                 (:peers (.state.genesis {:each-peer '(fn [peer]
+                                                        (let [c (:controller peer)
+                                                              k (:key peer)]
+                                                          (set-peer-data k
+                                                                         {:url (str c)})
+                                                          (set-peer-stake k
+                                                                          (long c))))
+                                          :pubkey+   [(.kp.pubkey (.kp.create))
+                                                      (.kp.pubkey (.kp.create))]})))
+         ":each-peer"))
 
 
 

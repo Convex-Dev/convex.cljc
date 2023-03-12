@@ -3939,6 +3939,21 @@
                         "to bootstrap. Such a state does not have any of the features offered"
                         "by the Shell."
                         ""
+                        "A map of options may be provided:"
+                        ""
+                        "  :each-peer"
+                        "    A function expressed as a data."
+                        "    For each created peer, this function will be compiled and executed"
+                        "    using the controller account of that peer. It receives as argument"
+                        "    the peer data from `(:peers *state*)`."
+                        "    Typically used for preparing the peer (e.g. see `set-peer-data`)."
+                        ""
+                        "  :pubkey+"
+                        "    Vector of distinc public keys, one per peer to declare in the state."
+                        "    Defaults to `[(.kp.pubkey (.kp.create .account.0-key))]` which should"
+                        "    be only used for testing."
+                        ""
+                        ""
                         "Based on the provided public keys (which MUST be distinct):"
                         ""
                         "  - A special genesis user is created with 50% of available user funds,"
@@ -3951,25 +3966,52 @@
                         "  - Each peer uses the same public key as its controller"
                         "  - Each user stakes 1 / 3 of its balance on its peer"
                         ""
-                        "Defaults to a vector with the public key of the key pair created by using"
-                        "`.account.0-key` as a seed."
                         ""
                         "See `(?.shell '.kp)` about creating key pairs."]
           :examples    [{:code (.state.genesis)}
-                        {:code (.state.genesis [(.kp.pubkey (.kp.create .account.0-key))])}]
+                        {:code (.state.genesis {:each-peer '(fn [peer] (set-peer-data (:key peer) {:url "foo.com"}))
+                                                :pubkey+   [(.kp.pubkey (.kp.create))]})}]
           :signature   [{:params []}
-                        {:params [public-key+]}]}}
+                        {:params [option+]}]}}
 
   ([]
 
    (.state.genesis nil))
 
 
-  ([public-key+]
+  ([option+]
 
-   (.shell.invoke '.state.genesis
-                  (or public-key+
-                      [(.kp.pubkey (.kp.create .account.0-key))]))))
+   (let [each-peer   (:each-peer option+)
+         public-key+ (or (:pubkey+ option+)
+                         [(.kp.pubkey (.kp.create .account.0-key))])
+         state       (.shell.invoke '.state.genesis
+                                    public-key+)]
+     (if each-peer
+       (let [addr-offset (inc (long .account.genesis))
+             n.key       (count public-key+)
+             [ok?
+              x]         (.state.tmp
+                           (fn []
+                             (.state.switch .account.genesis
+                                            state)
+                             (loop [i 0]
+                               (if (< i
+                                      n.key)
+                                 (do
+                                   (.account.switch (address (+ addr-offset
+                                                                i)))
+                                   (let [pubkey (:key (account *address*))]
+                                     ((eval each-peer) (assoc (get-in *state*
+                                                                    [:peers
+                                                                     pubkey])
+                                                            :key
+                                                            pubkey))
+                                     (recur (inc i))))
+                                 (.state.core.vanilla *state*)))))]
+         (if ok?
+           x
+           (.ex.rethrow x)))
+       state))))
 
 
 
