@@ -451,7 +451,7 @@
                         ""
                         "  :port"
                         "    Port exposed by `:host` (Long)."
-                        "    Defaults to `18888`."
+                        "    Defaults to `.peer.default.port`."
                         ""
                         "Also see `.client.close`."]
           :examples    [{:code (.client.connect)}
@@ -471,7 +471,7 @@
                   (or (:host option+)
                       "localhost")
                   (or (:port option+)
-                      18888))))
+                      .peer.default.port))))
 
 
 
@@ -605,7 +605,7 @@
                         ""
                         "  :port"
                         "    Port exposed by `:host` (Long)."
-                        "    Defaults to `18888`."
+                        "    Defaults to `.peer.default.port`."
                         ""
                         "  :timeout"
                         "    Timeout in milliseconds used for network requests."
@@ -635,7 +635,7 @@
    (let [host    (or (:host option+)
                      "convex.world")
          port    (or (:port option+)
-                     18888)
+                     .peer.default.port)
          addr    (:address option+)
          kp      (:key-pair option+)
          timeout (or (:timeout option+)
@@ -3060,6 +3060,11 @@
 
 
 
+(def .peer.default.port
+
+  18888)
+
+
 (defn .peer.init
 
 
@@ -3076,7 +3081,7 @@
          n-peer   (or (:n-peer option+)
                       10)
          port     (or (:port option+)
-                      18888)
+                      .peer.default.port)
          state    (:state option+)
          root-key (:root-key option+)
          url      (:url option+)]
@@ -3107,14 +3112,14 @@
                  (or (:remote.host option+)
                      "localhost")
                  (or (:remote.port option+)
-                     18888)
+                     .peer.default.port)
                  key-pair
                  (or (:host option+)
                      "localhost")
                  (or (:n-peer option+)
                      10)
                  (or (:port option+)
-                     18888)
+                     .peer.default.port)
                  (:root-key option+)
                  (:url option+)))
 
