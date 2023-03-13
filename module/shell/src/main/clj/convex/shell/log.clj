@@ -50,6 +50,21 @@
           stream))
 
 
+(defn throwable
+
+  "Turns a `Throwable` into a cell."
+  [^Throwable ex]
+
+  ($.cell/* {:exception ~($.cell/symbol (str (.getCanonicalName (class ex))))
+             :message   ~($.cell/string (.getMessage ex))
+             :trace     ~($.cell/vector (map (fn [^StackTraceElement e]
+                                               ($.cell/* [~($.cell/symbol (.getClassName e))
+                                                          ~($.cell/symbol (.getMethodName e))
+                                                          ~($.cell/string (.getFileName e))
+                                                          ~($.cell/long (.getLineNumber e))]))
+                                             (.getStackTrace ex)))}))
+
+
 ;;;;;;;;;;
 
 
@@ -80,14 +95,19 @@
                                                                              ~($.cell/long (entry :?line))])
                                                                   location))
                                                              ~(let [arg+ (entry :vargs)
-                                                                    x    (first arg+)]
+                                                                    x    (first arg+)
+                                                                    ex   (entry :?err)]
                                                                 (if ($.std/cell? x)
                                                                   x
-                                                                  ($.cell/vector (keep (fn [x]
-                                                                                         (let [x-2 ($.cell/any x)]
-                                                                                           (when ($.std/cell? x-2)
-                                                                                             x-2)))
-                                                                                       arg+))))]))
+                                                                  (cond->
+                                                                    ($.cell/vector (map (fn [x]
+                                                                                     (let [x-2 ($.cell/any x)]
+                                                                                       (if ($.std/cell? x-2)
+                                                                                         x-2
+                                                                                         ($.cell/string (str x-2)))))
+                                                                                   arg+))
+                                                                    ex
+                                                                    ($.std/conj (throwable ex)))))]))
                                   ($.shell.io/newline stream)
                                   ($.shell.io/flush stream))
                                 ;;
