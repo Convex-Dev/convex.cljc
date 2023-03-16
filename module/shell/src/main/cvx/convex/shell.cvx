@@ -3116,6 +3116,15 @@
 
 
 
+(defn .peer.n.belief.received
+
+  [peer]
+
+  (.shell.invoke '.peer.n.belief.received
+                 peer))
+
+
+
 (defn .peer.n.belief.sent
 
   [peer]

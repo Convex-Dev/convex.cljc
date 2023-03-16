@@ -95,6 +95,18 @@
 ;;;;;;;;;; Requests
 
 
+(defn n-belief-received
+
+  [ctx [peer]]
+
+  (-do-peer ctx
+            peer
+            (fn [peer-2]
+              ($.cvm/result-set ctx
+                                ($.cell/long ($.server/n-belief-received peer-2))))))
+
+
+
 (defn n-belief-sent
 
   [ctx [peer]]
