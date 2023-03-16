@@ -18,6 +18,7 @@ repository.
     - `$.std/integer?`
     - `$.std/memory-size`
     - `$.std/softness`
+    - `$.std/hash?`
     - `$.std/transaction?`
 - Change
     - Remove anything related to `CVMByte` (since removed from newer Convex version)

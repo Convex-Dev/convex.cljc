@@ -31,6 +31,7 @@
                              ASet
                              AString
                              AVector
+                             Hash
                              Keyword
                              Refs
                              Refs$RefTreeStats
@@ -1220,6 +1221,17 @@
   [x]
 
   (instance? IFn
+             x))
+
+
+
+(defn hash?
+
+  "Is `x` a hash?"
+
+  [x]
+
+  (instance? Hash
              x))
 
 
