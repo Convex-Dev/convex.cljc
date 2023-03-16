@@ -26,7 +26,7 @@
 
 
 (def kp
-     ($.key-pair/ed25519))
+     ($.key-pair/ed25519 ($.std/blob $.cell/key-fake)))
 
 
 
@@ -48,13 +48,12 @@
 (def d*server
      (delay
        ($.server/create kp
-                        {:convex.server/controller user
-                         :convex.server/db         @d*db
-                         :convex.server/host       "localhost"
-                         :convex.server/port       port
-                         :convex.server/root-key   ($.cell/* :foo)
-                         :convex.server/state      [:use (-> ($.cvm/ctx {:convex.cvm/genesis-key+ [account-key]})
-                                                             ($.cvm/state))]})))
+                        {:convex.server/db       @d*db
+                         :convex.server/host     "localhost"
+                         :convex.server/port     port
+                         :convex.server/root-key ($.cell/* :foo)
+                         :convex.server/state    [:use (-> ($.cvm/ctx {:convex.cvm/genesis-key+ [account-key]})
+                                                           ($.cvm/state))]})))
 
 
 ;;;
@@ -139,7 +138,7 @@
 
 (T/deftest controller
 
-  (T/is (= user
+  (T/is (= ($.cell/address 12)
            ($.server/controller @d*server))))
 
 
