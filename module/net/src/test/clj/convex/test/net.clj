@@ -176,6 +176,12 @@
 
 
 
+(T/deftest n-belief-received
+
+  (T/is (int? ($.server/n-belief-received @d*server))))
+
+
+
 (T/deftest n-belief-sent
 
   (T/is (int? ($.server/n-belief-sent @d*server))))

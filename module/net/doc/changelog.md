@@ -13,7 +13,8 @@ repository.
     - `$.key-pair/key-pair?`
     - `$.pfx/alias+`
     - `$.server/belief`
-    - `$.server/broadcast-count`
+    - `$.server/n-belief-received`
+    - `$.server/n-belief-sent`
     - `$.server/data`
     - `$.server/state`
 - Change

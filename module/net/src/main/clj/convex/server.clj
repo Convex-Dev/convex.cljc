@@ -237,6 +237,16 @@
 
 
 
+(defn n-belief-received
+
+  "Returns the number of beliefs received by `server`"
+
+  [^Server server]
+
+  (.getBeliefReceivedCount server))
+
+
+
 (defn n-belief-sent
 
   "Returns the number of beliefs broadcasted by `server`"
