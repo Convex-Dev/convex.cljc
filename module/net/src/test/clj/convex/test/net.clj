@@ -243,7 +243,7 @@
                                      (-> ($.client/peer-status client)
                                          -deref
                                          $.client/result->value
-                                         last
+                                         ($.std/nth 4)
                                          $.cell/hash<-blob))
                    -deref))))))
 
