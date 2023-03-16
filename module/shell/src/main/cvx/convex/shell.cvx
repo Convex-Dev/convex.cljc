@@ -6652,10 +6652,14 @@
                                                   (.stream.txt.out out
                                                                    (str (.term.bold)
                                                                         (.term.fg.red)
-                                                                        "Stream error while sending command, worker might be dead"
+                                                                        "Stream error while executing command, worker might be dead"
                                                                         .sys.eol
                                                                         "Stopping worker REPL..."
                                                                         (.term.reset)))
+                                                  (.stream.txt.out out
+                                                                   .sys.eol)
+                                                  (.ex.print out
+                                                             x)
                                                   (.stream.txt.out out
                                                                    .sys.eol)
                                                   (.stream.flush out)
