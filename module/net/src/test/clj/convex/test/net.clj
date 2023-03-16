@@ -232,9 +232,23 @@
 
   (test-client+
     (fn [client]
-      (T/is (-> ($.client/peer-status client)
-                -deref
-                $.std/map?)))))
+      (let [status (-deref ($.client/peer-status client))]
+        (T/is ($.std/blob? ($.std/get status
+                                      ($.cell/* :hash.belief))))
+        (T/is ($.std/blob? ($.std/get status
+                                      ($.cell/* :hash.state+))))
+        (T/is ($.std/blob? ($.std/get status
+                                      ($.cell/* :hash.state.consensus))))
+        (T/is ($.std/blob? ($.std/get status
+                                      ($.cell/* :hash.state.genesis))))
+        (T/is ($.std/long? ($.std/get status
+                                      ($.cell/* :n.block))))
+        (T/is ($.std/long? ($.std/get status
+                                      ($.cell/* :point.consensus))))
+        (T/is ($.std/long? ($.std/get status
+                                      ($.cell/* :point.proposal))))
+        (T/is ($.std/blob? ($.std/get status
+                                      ($.cell/* :pubkey))))))))
 
 
 
@@ -247,8 +261,7 @@
                (-> ($.client/resolve client
                                      (-> ($.client/peer-status client)
                                          -deref
-                                         $.client/result->value
-                                         ($.std/nth 4)
+                                         ($.std/get ($.cell/* :hash.state.consensus))
                                          $.cell/hash<-blob))
                    -deref))))))
 

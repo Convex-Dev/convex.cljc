@@ -28,13 +28,18 @@
            (java.util.concurrent CompletableFuture)
            (java.util.function Function))
   (:refer-clojure :exclude [resolve])
-  (:require [convex.db       :as $.db]
+  (:require [convex.cell     :as $.cell]
+            [convex.db       :as $.db]
             [convex.clj      :as $.clj]
             [convex.key-pair :as $.key-pair]))
 
 
 (set! *warn-on-reflection*
       true)
+
+
+(declare result->error-code
+         result->value)
 
 
 ;;;;;;;;;; Lifecycle
@@ -125,33 +130,47 @@
 
 (defn peer-status
 
-  "Advanced feature. The peer status is a vector of blobs which are hashes to data about the peer.
-   For instance, blob 4 is the hash of the state. That is how [[state]] works, retrieving the hash
-   from the peer status and then using [[resolve]]."
+  "Returns a future resolving to the status of the connected peer.
+
+   Advanced feature.
+
+   Peer status is a map cell such as:
+
+   | Key                     | Value                            |
+   |-------------------------|----------------------------------|
+   | `:hash.belief`          | Hash of the current Belief       |
+   | `:hash.state+`          | Hash of all the States           |
+   | `:hash.state.consensus` | Hash of the Consensus State      |
+   | `:hash.state.genesis`   | Hash of the Genesis State        | 
+   | `:n.block`              | Number of blocks in the ordering |
+   | `:point.consensus`      | Current consensus point          |
+   | `:point.proposal`       | Current proposal point           |
+   | `:pubkey`               | Public key of that peer          |"
 
   ^CompletableFuture
 
   [^Convex client]
 
-  (.requestStatus client))
-
-
-
-(defn resolve
-
-  "Sends the given `hash` to the peer to resolve it as a cell using its Etch instance.
-
-   See `convex.db` from `:module/cvm` for more about hashes and values in the context of Etch.
-  
-   Returns a future resolving to a result."
-
-
-  ^CompletableFuture
-  
-  [^Convex client hash]
-
-  (.acquire client
-            hash))
+  (.thenApply (.requestStatus client)
+              (reify Function
+                (apply [_this result]
+                  (when-not (result->error-code result)
+                    (let [[hash-belief
+                           hash-state+
+                           hash-state-genesis
+                           key
+                           hash-state-consensus
+                           consensus-point
+                           proposal-point
+                           ordering-length]     (seq (result->value result))]
+                      ($.cell/* {:hash.belief          ~hash-belief
+                                 :hash.state+          ~hash-state+
+                                 :hash.state.consensus ~hash-state-consensus
+                                 :hash.state.genesis   ~hash-state-genesis
+                                 :n.block              ~ordering-length
+                                 :point.consensus      ~consensus-point
+                                 :point.proposal       ~proposal-point
+                                 :pubkey               ~key})))))))
 
 
 
@@ -171,6 +190,24 @@
   (.query client
           cell
           address))
+
+
+
+(defn resolve
+
+  "Sends the given `hash` to the peer to resolve it as a cell using its Etch instance.
+
+   See `convex.db` from `:module/cvm` for more about hashes and values in the context of Etch.
+  
+   Returns a future resolving to a result."
+
+
+  ^CompletableFuture
+  
+  [^Convex client hash]
+
+  (.acquire client
+            hash))
 
 
 
@@ -287,7 +324,6 @@
                       address
                       Symbols/STAR_SEQUENCE)
                (reify Function
-
                  (apply [_this result]
                    (if-some [ec (result->error-code result)]
                      (throw (ex-info "Unable to fetch next sequence ID"

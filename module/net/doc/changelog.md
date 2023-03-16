@@ -18,7 +18,8 @@ repository.
     - `$.server/data`
     - `$.server/state`
 - Change
-    - `$.pfx/key-pair-get` returns `nil` for inexistent aliases (instead of throwing)
+    - `$.client/peer-status` returns a cell Map instead of a Vector
+    - `$.pfx/key-pair-get` returns Nil for inexistent aliases (instead of throwing)
     - `$.server/persist`
         - Returns a boolean indicating success
         - Accepts a root key with `:convex.server/root-key`
