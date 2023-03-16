@@ -95,7 +95,7 @@
 ;;;;;;;;;; Requests
 
 
-(defn broadcast-count
+(defn n-belief-sent
 
   [ctx [peer]]
 
@@ -103,7 +103,7 @@
             peer
             (fn [peer-2]
               ($.cvm/result-set ctx
-                                ($.cell/long ($.server/broadcast-count peer-2))))))
+                                ($.cell/long ($.server/n-belief-sent peer-2))))))
 
 
 

@@ -237,7 +237,7 @@
 
 
 
-(defn broadcast-count
+(defn n-belief-sent
 
   "Returns the number of beliefs broadcasted by `server`"
 

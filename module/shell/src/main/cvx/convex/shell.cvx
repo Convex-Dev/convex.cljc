@@ -3024,15 +3024,6 @@
 ;;;;;;;;;; Peers
 
 
-(defn .peer.broadcast-count
-
-  [peer]
-
-  (.shell.invoke '.peer.broadcast-count
-                 peer))
-
-
-
 (defn .peer.connection+
 
   [peer]
@@ -3122,6 +3113,15 @@
                      .peer.default.port)
                  (:root-key option+)
                  (:url option+)))
+
+
+
+(defn .peer.n.belief.sent
+
+  [peer]
+
+  (.shell.invoke '.peer.n.belief.sent
+                 peer))
 
 
 

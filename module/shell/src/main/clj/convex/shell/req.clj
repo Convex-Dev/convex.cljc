@@ -238,7 +238,7 @@
    ($.cell/* .log.level.set)               $.shell.req.log/level-set
    ($.cell/* .log.out)                     $.shell.req.log/out
    ($.cell/* .log.out.set)                 $.shell.req.log/out-set
-   ($.cell/* .peer.broadcast-count)        $.shell.req.peer/broadcast-count
+   ($.cell/* .peer.n.belief.sent)          $.shell.req.peer/n-belief-sent
    ($.cell/* .peer.connection+)            $.shell.req.peer/connection+
    ($.cell/* .peer.controller)             $.shell.req.peer/controller
    ($.cell/* .peer.data)                   $.shell.req.peer/data

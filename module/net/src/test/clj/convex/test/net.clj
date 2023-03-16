@@ -137,12 +137,6 @@
 
 
 
-(T/deftest broadcast-count
-
-  (T/is (int? ($.server/broadcast-count @d*server))))
-
-
-
 (T/deftest controller
 
   (T/is (= user
@@ -179,6 +173,12 @@
 
   (T/is (= "127.0.0.1"
            ($.server/host @d*server))))
+
+
+
+(T/deftest n-belief-sent
+
+  (T/is (int? ($.server/n-belief-sent @d*server))))
 
 
 
