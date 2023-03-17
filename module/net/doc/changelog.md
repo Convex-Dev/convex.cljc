@@ -10,6 +10,7 @@ repository.
 ## {{ next-release }}
 
 - Add
+    - `$.client/endpoint`
     - `$.key-pair/key-pair?`
     - `$.pfx/alias+`
     - `$.server/belief`

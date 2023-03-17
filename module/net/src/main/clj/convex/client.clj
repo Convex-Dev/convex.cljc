@@ -15,7 +15,8 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.api Convex)
+  (:import (convex.api Convex
+                       ConvexRemote)
            (convex.core Result)
            (convex.core.crypto AKeyPair)
            (convex.core.data ACell
@@ -124,6 +125,21 @@
   [^Convex client]
 
   (.isConnected client))
+
+
+
+(defn endpoint
+
+  "Given a remote `client` (i.e. not a client from [[connect-local]]), returns a map:
+
+   | Key                   | Value                                            |
+   |-----------------------|--------------------------------------------------|
+   | `:convex.server/host` | Hostname of the peer this client is connected to |
+   | `:convex.server/port` | Port of the peer this client is connected to     |"
+
+  [^ConvexRemote client]
+
+  ($.server/-socket-address->map (.getRemoteAddress client)))
 
 
 ;;;;;;;;;; Networking - Performed directly by the client

@@ -218,6 +218,7 @@
 
   (T/is (= {:convex.server/host "localhost"
             :convex.server/port port}
+           ($.client/endpoint client)
            ($.server/endpoint @d*server))))
 
 

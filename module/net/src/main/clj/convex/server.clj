@@ -276,21 +276,6 @@
 
 
 
-(defn endpoint
-
-  "Given a `server`, returns a map:
-  
-   | Key                   | Value                            |
-   |-----------------------|----------------------------------|
-   | `:convex.server/host` | Hostname this server is bound to |
-   | `:convex.server/port` | Port this server is listening to |"
-
-  [^Server server]
-
-  (-socket-address->map (.getHostAddress server)))
-
-
-
 (defn controller
 
   "Returns the controller associated with `server`.
@@ -332,6 +317,21 @@
   [^Server server]
 
   (.getStore server))
+
+
+
+(defn endpoint
+
+  "Given a `server`, returns a map:
+  
+   | Key                   | Value                            |
+   |-----------------------|----------------------------------|
+   | `:convex.server/host` | Hostname this server is bound to |
+   | `:convex.server/port` | Port this server is listening to |"
+
+  [^Server server]
+
+  (-socket-address->map (.getHostAddress server)))
 
 
 
