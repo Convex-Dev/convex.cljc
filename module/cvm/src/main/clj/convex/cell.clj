@@ -135,7 +135,7 @@
 
   [n]
 
-  (CVMBigInteger/create (biginteger n)))
+  (CVMBigInteger/wrap (biginteger n)))
 
 
 
