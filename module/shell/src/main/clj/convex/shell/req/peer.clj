@@ -16,7 +16,7 @@
 
 (defn -do-peer
 
-  ;;
+  ;; Executes `f` only if the user has provided a peer.
 
   [ctx peer f]
 
@@ -37,6 +37,8 @@
 
 
 (defn- -init
+
+  ;; Used by the [[init-*]] functions.
 
   [ctx [key-pair host n-peer port root-key url] map-option+]
 

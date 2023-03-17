@@ -1,17 +1,56 @@
 {}
 
 
-;;;;;;;;;;
+;;;;;;;;;; Preparations
+
+
+(def -client.kp
+     (.kp.create))
+
+
+
+(def -peer.kp
+     -client.kp)
+
+
+
+(def -peer.pubkey
+     (.kp.pubkey -peer.kp))
+
+
+
+(def -state
+     (.state.genesis {:pubkey+ [-peer.pubkey]}))
+
+
+
+(def -state.hash
+     (hash (encoding -state)))
+
+
+
+(defn -with-client
+
+  [f]
+
+  (.try.resrc* [peer   (.peer.start (.peer.init -peer.kp
+                                                {:state -state}))
+                       (.peer.stop peer)
+                client (.client.connect)
+                       (.client.close client)]
+    (f client)))
+
+
+  
+;;;;;;;;;; Tests
 
 
 (.t.def ..client.connect
 
   ;; Also tests `.client.close`.
 
-  (.try.resrc* [client (.client.connect {:host "convex.world"})
-                       (.client.close client)]
-    (.t.is (boolean client)))
-
+  (-with-client (fn [client]
+                  (.t.is (boolean client))))
 
   (.t.is (.t.ex :ARGUMENT
                 (.client.connect {:host :fail}))
@@ -29,36 +68,20 @@
 
 (.t.def ..client.peer.status
 
-  (def kp
-       (.kp.create))
-
-  (def pubkey
-       (.kp.pubkey kp))
-
-  (def state
-       (.state.genesis {:pubkey+ [pubkey]}))
-
-  (def state.hash
-       (hash (encoding state)))
-
   (def status
-       (.try.resrc* [peer   (.peer.start (.peer.init kp
-                                                     {:state state}))
-                            (.peer.stop peer)
-                     client (.client.connect)
-                            (.client.close client)]
-         (.a.take (.client.peer.status client)
-                  2000
-                  :timeout)))
+       (-with-client (fn [client]
+                       (.a.take (.client.peer.status client)
+                                2000
+                                :timeout))))
 
   (.t.is (blob? (:hash.belief status))
          "Belief hash")
 
-  (.t.is (= state.hash
+  (.t.is (= -state.hash
             (:hash.state.consensus status))
          "Consensus state hash")
 
-  (.t.is (= state.hash
+  (.t.is (= -state.hash
             (:hash.state.genesis status))
          "Genesis state hash")
 
@@ -71,7 +94,7 @@
   (.t.is (zero? (:point.proposal status))
          "Proposal point")
 
-  (.t.is (= pubkey
+  (.t.is (= -peer.pubkey
             (:pubkey status))
          "Pubkey"))
 
@@ -79,31 +102,31 @@
 
 (.t.def ..client.query
 
-  (.try.resrc* [client (.client.connect {:host "convex.world"})
-                       (.client.close client)]
+  (-with-client
+    (fn [client]
 
-    (def result
-         (.a.take (.client.query client
-                                 #2
-                                 '(inc 42))
-                  4000
-                  :timeout))
-
-    (.t.is (nil? (:error result)))
-
-    (.t.is (long? (:id result)))
-
-    (.t.is (nil? (:info result)))
-
-    (.t.is (= 43
-              (:result result)))
-
-    (.t.is (.t.ex :ARGUMENT
-                  (.client.query client
-                                 :fail
-                                 '(inc 42)))
-           "Not an address"))
-
+      (def result
+           (.a.take (.client.query client
+                                   #2
+                                   '(inc 42))
+                    4000
+                    :timeout))
+  
+      (.t.is (nil? (:error result)))
+      
+      (.t.is (long? (:id result)))
+      
+      (.t.is (nil? (:info result)))
+      
+      (.t.is (= 43
+                (:result result)))
+      
+      (.t.is (.t.ex :ARGUMENT
+                    (.client.query client
+                                   :fail
+                                   '(inc 42)))
+             "Not an address")))
+      
   (.t.is (.t.ex :ARGUMENT
                 (.client.query :fail
                                #2
@@ -116,13 +139,12 @@
 
   ^:slow?
 
-  (.try.resrc* [client (.client.connect {:host "convex.world"})
-                       (.client.close client)]
-    (.t.is (= #{:accounts
-                :globals
-                :peers
-                :schedule}
-           (set (keys (.a.take (.client.query.state client)))))))
+  (-with-client (fn [client]
+                  (.t.is (= #{:accounts
+                              :globals
+                              :peers
+                              :schedule}
+                            (set (keys (.a.take (.client.query.state client))))))))
 
   (.t.is (.t.ex :ARGUMENT
                 (.client.query.state :fail))
@@ -132,87 +154,74 @@
 
 (.t.def ..client.sequence
 
-  (.try.resrc* [client (.client.connect {:host "convex.world"})
-                       (.client.close client)]
+  (-with-client
+    (fn [client]
 
-    (.t.is (= 1
-              (.a.take (.client.sequence client
-                                         #0)))
-           "Existing account")
+      (.t.is (= 1
+                (.a.take (.client.sequence client
+                                           #0)))
+             "Existing account")
 
-    (.t.is (nil? (.a.take (.client.sequence client
-                                            #1000000000000)))
-           "Inexistent account")))
+      (.t.is (nil? (.a.take (.client.sequence client
+                                              #1000000000000)))
+             "Inexistent account"))))
 
 
 
 (.t.def ..client.transact
 
-  (def kp
-       (.kp.create))
+  (-with-client
+    (fn [client]
+      
+      (def result
+           (.a.take (.client.transact client
+                                      -client.kp
+                                      (.trx.new.invoke .account.genesis
+                                                       '(def foo
+                                                             (inc 42))
+                                                       {:sequence 1}))
+                    4000
+                    :timeout))
 
-  (def addr
-       (.a.take (.testnet.create-account (.kp.pubkey kp))))
+      (.t.is (nil? (:error result)))
 
-  (.t.is (= 100000000
-            (.a.take (.testnet.faucet addr
-                                      100000000)
-                     4000
-                     :timeout))
-         "Requested coins")
+      (.t.is (long? (:id result)))
 
-  (.try.resrc* [client (.client.connect {:host "convex.world"})
-                       (.client.close client)]
+      (.t.is (nil? (:info result)))
 
-    (def result
-         (.a.take (.client.transact client
-                                    kp
-                                    (.trx.new.invoke addr
-                                                     '(def foo
-                                                           (inc 42))
-                                                     {:sequence 1}))
-                  4000
-                  :timeout))
+      (.t.is (= 43
+                (:result result)))
 
-    (.t.is (nil? (:error result)))
+      (.t.is (= 43
+                (:result (.a.take
+                           (.client.query client
+                                          .account.genesis
+                                          'foo)
+                           4000
+                           :timeout)))
+             "Confirm transaction with a query")
 
-    (.t.is (long? (:id result)))
+      (.t.is (= 44
+                (:result (.a.take
+                           (.client.transact client
+                                             (.kp.sign -client.kp
+                                                       (.trx.new.invoke .account.genesis
+                                                                        '(def foo
+                                                                              (inc foo))
+                                                                        {:sequence 2}))))))
+             "Pre-signed transaction")
 
-    (.t.is (nil? (:info result)))
+      (.t.is (.t.ex :ARGUMENT
+                    (.client.transact client
+                                      :fail
+                                      (.trx.new.invoke .account.genesis
+                                                       '(def foo
+                                                             (inc 42))
+                                                       {:sequence 3})))
+             "Not a key pair")
 
-    (.t.is (= 43
-              (:result result)))
-
-    (.t.is (= 43
-              (:result (.a.take
-                         (.client.query client
-                                        addr
-                                        'foo)
-                         4000
-                         :timeout)))
-           "Confirm transaction with a query")
-
-    (.t.is (= 44
-              (:result (.a.take
-                         (.client.transact client
-                                           (.kp.sign kp
-                                                     (.trx.new.invoke addr
-                                                                      '(def foo
-                                                                            (inc foo))
-                                                                      {:sequence 2}))))))
-           "Pre-signed transaction")
-
-    (.t.is (.t.ex :ARGUMENT
-                  (.client.transact client
-                                    :fail
-                                    (.trx.new.invoke addr
-                                                     '(def foo
-                                                           (inc 42))
-                                                     {:sequence 3})))
-           "Not a key pair")
-
-    (.t.is (.t.ex :ARGUMENT
-                  (.client.transact client
-                                    kp
-                                    :fail))
-           "Not a transaction")))
+      (.t.is (.t.ex :ARGUMENT
+                    (.client.transact client
+                                      -client.kp
+                                      :fail))
+             "Not a transaction"))))
