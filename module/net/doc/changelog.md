@@ -17,6 +17,7 @@ repository.
     - `$.server/n-belief-sent`
     - `$.server/data`
     - `$.server/state`
+    - `$.server/status`
 - Change
     - `$.client/peer-status` returns a cell Map instead of a Vector
     - `$.pfx/key-pair-get` returns Nil for inexistent aliases (instead of throwing)

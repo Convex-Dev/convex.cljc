@@ -17,16 +17,44 @@
                         State)
            (convex.core.data Address
                              AMap
+                             AVector
                              Keywords)
            (convex.core.store AStore)
            (convex.peer IServerEvent
                         Server)
            (java.net InetSocketAddress)
-           (java.util HashMap)))
+           (java.util HashMap))
+  (:require [convex.cell :as $.cell]))
 
 
 (set! *warn-on-reflection*
       true)
+
+;;;;;;;;;; Private
+
+
+(defn ^:no-doc -status->map
+
+  ;; Turns a peer status vector into a map for ease of use.
+
+  [^AVector status]
+
+  (let [[hash-belief
+         hash-state+
+         hash-state-genesis
+         key
+         hash-state-consensus
+         consensus-point
+         proposal-point
+         ordering-length]     (seq status)]
+    ($.cell/* {:hash.belief          ~hash-belief
+               :hash.state+          ~hash-state+
+               :hash.state.consensus ~hash-state-consensus
+               :hash.state.genesis   ~hash-state-genesis
+               :n.block              ~ordering-length
+               :point.consensus      ~consensus-point
+               :point.proposal       ~proposal-point
+               :pubkey               ~key})))
 
 
 ;;;;;;;;;; Creating a new server
@@ -344,3 +372,26 @@
   [^Server server]
 
   (.getConsensusState (.getPeer server)))
+
+
+
+(defn status
+
+  "Returns the current status of `server`, a Map cell such as:
+
+   | Key                     | Value                            |
+   |-------------------------|----------------------------------|
+   | `:hash.belief`          | Hash of the current Belief       |
+   | `:hash.state+`          | Hash of all the States           |
+   | `:hash.state.consensus` | Hash of the Consensus State      |
+   | `:hash.state.genesis`   | Hash of the Genesis State        | 
+   | `:n.block`              | Number of blocks in the ordering |
+   | `:point.consensus`      | Current consensus point          |
+   | `:point.proposal`       | Current proposal point           |
+   | `:pubkey`               | Public key of that peer          |"
+
+  ^AMap
+
+  [^Server server]
+
+  (-status->map (.getStatusVector server)))

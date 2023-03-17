@@ -248,7 +248,10 @@
         (T/is ($.std/long? ($.std/get status
                                       ($.cell/* :point.proposal))))
         (T/is ($.std/blob? ($.std/get status
-                                      ($.cell/* :pubkey))))))))
+                                      ($.cell/* :pubkey))))
+        (T/is (= status
+                 ($.server/status @d*server))
+              "Consistent with the status returned direclty by the server object")))))
 
 
 

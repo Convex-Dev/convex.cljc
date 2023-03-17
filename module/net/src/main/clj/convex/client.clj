@@ -31,7 +31,8 @@
   (:require [convex.cell     :as $.cell]
             [convex.db       :as $.db]
             [convex.clj      :as $.clj]
-            [convex.key-pair :as $.key-pair]))
+            [convex.key-pair :as $.key-pair]
+            [convex.server   :as $.server]))
 
 
 (set! *warn-on-reflection*
@@ -132,20 +133,7 @@
 
   "Returns a future resolving to the status of the connected peer.
 
-   Advanced feature.
-
-   Peer status is a map cell such as:
-
-   | Key                     | Value                            |
-   |-------------------------|----------------------------------|
-   | `:hash.belief`          | Hash of the current Belief       |
-   | `:hash.state+`          | Hash of all the States           |
-   | `:hash.state.consensus` | Hash of the Consensus State      |
-   | `:hash.state.genesis`   | Hash of the Genesis State        | 
-   | `:n.block`              | Number of blocks in the ordering |
-   | `:point.consensus`      | Current consensus point          |
-   | `:point.proposal`       | Current proposal point           |
-   | `:pubkey`               | Public key of that peer          |"
+   See [[convex.server/status]] for the definition of a status."
 
   ^CompletableFuture
 
@@ -155,22 +143,7 @@
               (reify Function
                 (apply [_this result]
                   (when-not (result->error-code result)
-                    (let [[hash-belief
-                           hash-state+
-                           hash-state-genesis
-                           key
-                           hash-state-consensus
-                           consensus-point
-                           proposal-point
-                           ordering-length]     (seq (result->value result))]
-                      ($.cell/* {:hash.belief          ~hash-belief
-                                 :hash.state+          ~hash-state+
-                                 :hash.state.consensus ~hash-state-consensus
-                                 :hash.state.genesis   ~hash-state-genesis
-                                 :n.block              ~ordering-length
-                                 :point.consensus      ~consensus-point
-                                 :point.proposal       ~proposal-point
-                                 :pubkey               ~key})))))))
+                    ($.server/-status->map (result->value result)))))))
 
 
 
