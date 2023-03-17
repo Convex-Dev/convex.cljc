@@ -168,13 +168,6 @@
 
 
 
-(T/deftest host
-
-  (T/is (= "127.0.0.1"
-           ($.server/host @d*server))))
-
-
-
 (T/deftest n-belief-received
 
   (T/is (int? ($.server/n-belief-received @d*server))))
@@ -200,13 +193,6 @@
           ($.server/persist @d*server)
           (some? ($.std/get ($.db/root-read)
                             ($.cell/* :foo))))))
-
-
-
-(T/deftest port-
-
-  (T/is (= port
-           ($.server/port @d*server))))
 
 
 

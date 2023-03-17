@@ -33,6 +33,17 @@
 ;;;;;;;;;; Private
 
 
+(defn ^:no-doc -socket-address->map
+
+  ;; Turns an `InetSocketAddress` into a map.
+
+  [^InetSocketAddress endpoint]
+
+  {:convex.server/host (.getHostName endpoint)
+   :convex.server/port (.getPort endpoint)})
+
+
+
 (defn ^:no-doc -status->map
 
   ;; Turns a peer status vector into a map for ease of use.
@@ -276,29 +287,7 @@
 
   [^Server server]
 
-  (let [^InetSocketAddress endpoint (.getHostAddress server)]
-    {:convex.server/host (.getHostName endpoint)
-     :convex.server/port (.getPort endpoint)}))
-
-
-
-(defn n-belief-received
-
-  "Returns the number of beliefs received by `server`"
-
-  [^Server server]
-
-  (.getBeliefReceivedCount server))
-
-
-
-(defn n-belief-sent
-
-  "Returns the number of beliefs broadcasted by `server`"
-
-  [^Server server]
-
-  (.getBroadcastCount server))
+  (-socket-address->map (.getHostAddress server)))
 
 
 
@@ -346,13 +335,23 @@
 
 
 
-(defn host
+(defn n-belief-received
 
-  "Returns bind address used by the `server` as a string."
+  "Returns the number of beliefs received by `server`"
 
   [^Server server]
 
-  (.getHostString (.getHostAddress server)))
+  (.getBeliefReceivedCount server))
+
+
+
+(defn n-belief-sent
+
+  "Returns the number of beliefs broadcasted by `server`"
+
+  [^Server server]
+
+  (.getBroadcastCount server))
 
 
 
@@ -367,16 +366,6 @@
   [^Server server]
 
   (.getPeer server))
-
-
-
-(defn port
-
-  "Returns the port used by the `server`."
-
-  [^Server server]
-
-  (.getPort server))
 
 
 

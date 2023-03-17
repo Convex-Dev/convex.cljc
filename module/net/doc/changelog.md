@@ -27,6 +27,8 @@ repository.
         - Accepts a root key with `:convex.server/root-key`
 - Remove
     - `$.key-pair/sign-hash` and `$.key-pair/verify-hash` which where somewhat redundant
+    - `$.server/host`
+    - `$.server/port`
 
 
 ---
