@@ -3204,6 +3204,15 @@
 
 
 
+(defn .peer.status
+
+  [peer]
+
+  (.shell.invoke '.peer.status
+                 peer))
+
+
+
 (defn .peer.stop
 
   ;; Cannot be restarted

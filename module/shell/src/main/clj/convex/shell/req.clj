@@ -250,6 +250,7 @@
    ($.cell/* .peer.persist)                $.shell.req.peer/persist
    ($.cell/* .peer.start)                  $.shell.req.peer/start
    ($.cell/* .peer.state)                  $.shell.req.peer/state
+   ($.cell/* .peer.status)                 $.shell.req.peer/status
    ($.cell/* .peer.stop)                   $.shell.req.peer/stop
    ($.cell/* .pfx.alias+)                  $.shell.req.pfx/alias+
    ($.cell/* .pfx.create)                  $.shell.req.pfx/create

@@ -268,6 +268,18 @@
 
 
 
+(defn status
+
+  [ctx [peer]]
+
+  (-do-peer ctx
+            peer
+            (fn [peer-2]
+              ($.cvm/result-set ctx
+                                ($.server/status peer-2)))))
+
+
+
 (defn stop
 
   [ctx [peer]]
