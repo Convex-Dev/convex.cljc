@@ -27,6 +27,56 @@
 
 
 
+(.t.def ..client.peer.status
+
+  (def kp
+       (.kp.create))
+
+  (def pubkey
+       (.kp.pubkey kp))
+
+  (def state
+       (.state.genesis {:pubkey+ [pubkey]}))
+
+  (def state.hash
+       (hash (encoding state)))
+
+  (def status
+       (.try.resrc* [peer   (.peer.start (.peer.init kp
+                                                     {:state state}))
+                            (.peer.stop peer)
+                     client (.client.connect)
+                            (.client.close client)]
+         (.a.take (.client.peer.status client)
+                  2000
+                  :timeout)))
+
+  (.t.is (blob? (:hash.belief status))
+         "Belief hash")
+
+  (.t.is (= state.hash
+            (:hash.state.consensus status))
+         "Consensus state hash")
+
+  (.t.is (= state.hash
+            (:hash.state.genesis status))
+         "Genesis state hash")
+
+  (.t.is (zero? (:n.block status))
+         "Ordering length")
+
+  (.t.is (zero? (:point.consensus status))
+         "Consensus point")
+
+  (.t.is (zero? (:point.proposal status))
+         "Proposal point")
+
+  (.t.is (= pubkey
+            (:pubkey status))
+         "Pubkey"))
+
+
+
 (.t.def ..client.query
 
   (.try.resrc* [client (.client.connect {:host "convex.world"})

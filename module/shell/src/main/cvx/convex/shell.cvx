@@ -475,6 +475,47 @@
 
 
 
+(defn .client.peer.status
+
+  ^{:doc {:description ["Retrieves the current status of the peer this `client` is connected to."
+                        ""
+                        "Advanced feature."
+                        ""
+                        "Returns an async value resolving to a Map such as:"
+                        ""
+                        "  :hash.belief"
+                        "    Hash of the current Belief this peer has."
+                        ""
+                        "  :hash.state+"
+                        "    Hash of all the States this peer has."
+                        ""
+                        "  :hash.state.consensus"
+                        "    Hash of the current consensus State."
+                        ""
+                        "  :hash.state.genesis"
+                        "    Hash of the genesis State."
+                        ""
+                        "  :n.block"
+                        "    Number of blocks this peer has in its ordering."
+                        ""
+                        "  :point.consensus"
+                        "    Current consensus point of this peer."
+                        ""
+                        "  :point.proposal"
+                        "    Current proposal point of this peer."
+                        ""
+                        "  :pubkey+"
+                        "    Public key of this peer."]
+          :examples    [{:code (.a.take (.client.peer.status (.client.connect {:host "convex.world"})))}]
+          :signature   [{:params [client]}]}}
+
+  [client]
+
+  (.shell.invoke '.client.peer.status
+                 client))
+
+
+
 (defn .client.query
 
   ^{:doc {:description ["Issues a query for executing `code` in the context of `address`."

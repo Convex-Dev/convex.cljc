@@ -127,12 +127,13 @@
    ($.cell/* .cell.str)                    $.shell.req.cell/str
    ($.cell/* .client.close)                $.shell.req.client/close
    ($.cell/* .client.connect)              $.shell.req.client/connect
+   ($.cell/* .client.peer.status)          $.shell.req.client/peer-status
    ($.cell/* .client.query)                $.shell.req.client/query
    ($.cell/* .client.query.state)          $.shell.req.client/query-state
    ($.cell/* .client.resolve)              $.shell.req.client/resolve
    ($.cell/* .client.sequence)             $.shell.req.client/sequence
    ($.cell/* .client.transact)             $.shell.req.client/transact
-   ($.cell/* .client.transact.signed    )  $.shell.req.client/transact-signed
+   ($.cell/* .client.transact.signed)      $.shell.req.client/transact-signed
    ($.cell/* .cvmlog.clear)                $.shell.req.cvmlog/clear
    ($.cell/* .cvmlog.get)                  $.shell.req.cvmlog/get
    ($.cell/* .db.flush)                    $.shell.req.db/flush

@@ -139,6 +139,22 @@
 
 
 
+(defn peer-status
+
+  "Request for retrieving the current peer status"
+
+  [ctx [client]]
+
+  (-do-client ctx
+              client
+              (fn [client-2]
+                (-return ctx
+                         (delay
+                           ($.client/peer-status client-2))
+                         "Unable to retrieve the current peer status"))))
+
+
+
 (defn query
 
   "Request for issuing a query."
