@@ -228,6 +228,14 @@
 
 
 
+(T/deftest endpoint
+
+  (T/is (= {:convex.server/host "localhost"
+            :convex.server/port port}
+           ($.server/endpoint @d*server))))
+
+
+
 (T/deftest peer-status
 
   (test-client+

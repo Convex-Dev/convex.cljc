@@ -16,6 +16,7 @@ repository.
     - `$.server/n-belief-received`
     - `$.server/n-belief-sent`
     - `$.server/data`
+    - `$.server/endpoint`
     - `$.server/state`
     - `$.server/status`
 - Change

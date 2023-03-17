@@ -265,6 +265,23 @@
 
 
 
+(defn endpoint
+
+  "Given a `server`, returns a map:
+  
+   | Key                   | Value                            |
+   |-----------------------|----------------------------------|
+   | `:convex.server/host` | Hostname this server is bound to |
+   | `:convex.server/port` | Port this server is listening to |"
+
+  [^Server server]
+
+  (let [^InetSocketAddress endpoint (.getHostAddress server)]
+    {:convex.server/host (.getHostName endpoint)
+     :convex.server/port (.getPort endpoint)}))
+
+
+
 (defn n-belief-received
 
   "Returns the number of beliefs received by `server`"
