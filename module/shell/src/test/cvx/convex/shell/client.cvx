@@ -14,6 +14,11 @@
 
 
 
+(def -peer.port
+     40000)
+
+
+
 (def -peer.pubkey
      (.kp.pubkey -peer.kp))
 
@@ -34,9 +39,10 @@
   [f]
 
   (.try.resrc* [peer   (.peer.start (.peer.init -peer.kp
-                                                {:state -state}))
+                                                {:port  -peer.port
+                                                 :state -state}))
                        (.peer.stop peer)
-                client (.client.connect)
+                client (.client.connect {:port -peer.port})
                        (.client.close client)]
     (f client)))
 
@@ -70,7 +76,7 @@
 
   (-with-client (fn [client]
                   (.t.is (= {:host "localhost"
-                             :port 18888}
+                             :port -peer.port}
                             (.client.peer.endpoint client))))))
 
 
