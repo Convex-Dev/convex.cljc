@@ -18,6 +18,7 @@ repository.
     - `$.server/n-belief-sent`
     - `$.server/data`
     - `$.server/endpoint`
+    - `$.server/pubkey`
     - `$.server/state`
     - `$.server/status`
 - Change

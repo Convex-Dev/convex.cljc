@@ -296,6 +296,13 @@
 
 
 
+(T/deftest server
+
+  (T/is (= ($.key-pair/account-key kp)
+           ($.server/pubkey @d*server))))
+
+
+
 (T/deftest transact
 
   (test-client+

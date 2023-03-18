@@ -15,7 +15,8 @@
   (:import (convex.core Belief
                         Peer
                         State)
-           (convex.core.data Address
+           (convex.core.data AccountKey
+                             Address
                              AMap
                              AVector
                              Keywords)
@@ -357,7 +358,7 @@
 
 (defn peer
 
-  "Returns the peer object wrapped by the server.
+  "Returns the peer object wrapped by the `server`.
    
    For advanced users only."
 
@@ -366,6 +367,18 @@
   [^Server server]
 
   (.getPeer server))
+
+
+
+(defn pubkey
+
+  "Returns the public key of this `server`'s peer."
+
+  ^AccountKey
+
+  [^Server server]
+
+  (.getPeerKey server))
 
 
 
