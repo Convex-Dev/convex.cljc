@@ -35,6 +35,14 @@
         ctx-2))))
 
 
+(defn ^:no-doc -endpoint->map
+
+  [endpoint]
+
+  ($.cell/* {:host ~($.cell/string (endpoint :convex.server/host))
+             :port ~($.cell/long (endpoint :convex.server/port))}))
+
+
 
 (defn- -init
 
@@ -169,9 +177,7 @@
             peer
             (fn [peer-2]
               ($.cvm/result-set ctx
-                                (let [endpoint ($.server/endpoint peer-2)]
-                                  ($.cell/* {:host ~($.cell/string (endpoint :convex.server/host))
-                                             :port ~($.cell/long (endpoint :convex.server/port))}))))))
+                                (-endpoint->map ($.server/endpoint peer-2))))))
 
 
 

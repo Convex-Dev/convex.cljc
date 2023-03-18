@@ -7,17 +7,18 @@
            (java.nio.channels ClosedChannelException))
   (:refer-clojure :exclude [resolve
                             sequence])
-  (:require [convex.cell         :as $.cell]
-            [convex.client       :as $.client]
-            [convex.clj          :as $.clj]
-            [convex.cvm          :as $.cvm]
-            [convex.db           :as $.db]
-            [convex.key-pair     :as $.key-pair]
-            [convex.shell.async  :as $.shell.async]
-            [convex.shell.req.kp :as $.shell.req.kp]
-            [convex.shell.resrc  :as $.shell.resrc]
-            [convex.std          :as $.std]
-            [promesa.core        :as P]))
+  (:require [convex.cell           :as $.cell]
+            [convex.client         :as $.client]
+            [convex.clj            :as $.clj]
+            [convex.cvm            :as $.cvm]
+            [convex.db             :as $.db]
+            [convex.key-pair       :as $.key-pair]
+            [convex.shell.async    :as $.shell.async]
+            [convex.shell.req.kp   :as $.shell.req.kp]
+            [convex.shell.req.peer :as $.shell.req.peer]
+            [convex.shell.resrc    :as $.shell.resrc]
+            [convex.std            :as $.std]
+            [promesa.core          :as P]))
 
 
 (set! *warn-on-reflection*
@@ -136,6 +137,22 @@
                 ($.cvm/exception-set ctx
                                      ($.cell/* :SHELL.CLIENT)
                                      ($.cell/* "Unable to connect"))))))))
+
+
+
+(defn peer-endpoint
+
+  "Request for retrieving the endpoint the client is connected to."
+
+  [ctx [client]]
+
+  (-do-client ctx
+              client
+              (fn [client-2]
+                ($.cvm/result-set ctx
+                                  (-> client-2
+                                      ($.client/endpoint)
+                                      ($.shell.req.peer/-endpoint->map))))))
 
 
 

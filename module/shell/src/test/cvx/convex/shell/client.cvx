@@ -66,6 +66,15 @@
 
 
 
+(.t.def ..client.peer.endpoint
+
+  (-with-client (fn [client]
+                  (.t.is (= {:host "localhost"
+                             :port 18888}
+                            (.client.peer.endpoint client))))))
+
+
+
 (.t.def ..client.peer.status
 
   (def status

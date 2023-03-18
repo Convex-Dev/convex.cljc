@@ -475,6 +475,25 @@
 
 
 
+(defn .client.peer.endpoint
+
+  ^{:doc {:description ["Given a `client`, returns a Map such as:"
+                        ""
+                        "  :host"
+                        "    Host of the peer this client is connected to (String)."
+                        ""
+                        "  :port"
+                        "    Port of the peer this client is connected to (Long)."]
+          :examples    [{:code (.client.peer.endpoint (.client.connect {:host "convex.world"}))}]
+          :signature   [{:params [client]}]}}
+
+  [client]
+
+  (.shell.invoke '.client.peer.endpoint
+                 client))
+
+
+
 (defn .client.peer.status
 
   ^{:doc {:description ["Retrieves the current status of the peer this `client` is connected to."

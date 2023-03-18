@@ -127,6 +127,7 @@
    ($.cell/* .cell.str)                    $.shell.req.cell/str
    ($.cell/* .client.close)                $.shell.req.client/close
    ($.cell/* .client.connect)              $.shell.req.client/connect
+   ($.cell/* .client.peer.endpoint)        $.shell.req.client/peer-endpoint
    ($.cell/* .client.peer.status)          $.shell.req.client/peer-status
    ($.cell/* .client.query)                $.shell.req.client/query
    ($.cell/* .client.query.state)          $.shell.req.client/query-state
