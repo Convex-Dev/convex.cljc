@@ -161,6 +161,20 @@
 
 
 
+(defn endpoint
+
+  [ctx [peer]]
+
+  (-do-peer ctx
+            peer
+            (fn [peer-2]
+              ($.cvm/result-set ctx
+                                (let [endpoint ($.server/endpoint peer-2)]
+                                  ($.cell/* {:host ~($.cell/string (endpoint :convex.server/host))
+                                             :port ~($.cell/long (endpoint :convex.server/port))}))))))
+
+
+
 (defn init-db
 
   [ctx arg+]

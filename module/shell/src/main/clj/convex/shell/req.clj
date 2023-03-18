@@ -244,6 +244,7 @@
    ($.cell/* .peer.connection+)            $.shell.req.peer/connection+
    ($.cell/* .peer.controller)             $.shell.req.peer/controller
    ($.cell/* .peer.data)                   $.shell.req.peer/data
+   ($.cell/* .peer.endpoint)               $.shell.req.peer/endpoint
    ($.cell/* .peer.init.db)                $.shell.req.peer/init-db
    ($.cell/* .peer.init.state)             $.shell.req.peer/init-state
    ($.cell/* .peer.init.sync)              $.shell.req.peer/init-sync

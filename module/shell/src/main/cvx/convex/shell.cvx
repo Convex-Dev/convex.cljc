@@ -3097,6 +3097,16 @@
   18888)
 
 
+
+(defn .peer.endpoint
+
+  [peer]
+
+  (.shell.invoke '.peer.endpoint
+                 peer))
+
+
+
 (defn .peer.init
 
 
