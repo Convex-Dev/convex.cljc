@@ -256,6 +256,18 @@
 
 
 
+(defn pubkey
+
+  [ctx [peer]]
+
+  (-do-peer ctx
+            peer
+            (fn [peer-2]
+              ($.cvm/result-set ctx
+                                ($.server/pubkey peer-2)))))
+
+
+
 (defn start
 
   [ctx [peer]]

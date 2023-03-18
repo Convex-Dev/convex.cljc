@@ -3215,6 +3215,15 @@
 
 
 
+(defn .peer.pubkey
+
+  [peer]
+
+  (.shell.invoke '.peer.pubkey
+                 peer))
+
+
+
 (defn .peer.start
 
   [peer]

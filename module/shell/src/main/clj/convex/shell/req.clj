@@ -250,6 +250,7 @@
    ($.cell/* .peer.init.state)             $.shell.req.peer/init-state
    ($.cell/* .peer.init.sync)              $.shell.req.peer/init-sync
    ($.cell/* .peer.persist)                $.shell.req.peer/persist
+   ($.cell/* .peer.pubkey)                 $.shell.req.peer/pubkey
    ($.cell/* .peer.start)                  $.shell.req.peer/start
    ($.cell/* .peer.state)                  $.shell.req.peer/state
    ($.cell/* .peer.status)                 $.shell.req.peer/status
