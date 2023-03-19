@@ -184,6 +184,7 @@
    ($.cell/* .gen.boolean)                 $.shell.req.gen.static/boolean
    ($.cell/* .gen.char)                    $.shell.req.gen.static/char
    ($.cell/* .gen.char.alphanum)           $.shell.req.gen.static/char-alphanum
+   ($.cell/* .gen.check)                   $.shell.req.gen/check
    ($.cell/* .gen.double)                  $.shell.req.gen.static/double
    ($.cell/* .gen.double.bounded)          $.shell.req.gen/double-bounded
    ($.cell/* .gen.falsy)                   $.shell.req.gen.static/falsy

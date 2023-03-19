@@ -2,15 +2,20 @@
 
   ;; Needs refactoring, lots of duplication.
 
+  (:import (convex.core.data ACell))
   (:refer-clojure :exclude [list
                             map
                             set
                             vector])
-  (:require [clojure.test.check.generators :as TC.gen]
+  (:require [clojure.test.check            :as TC]
+            [clojure.test.check.generators :as TC.gen]
+            [clojure.test.check.properties :as TC.prop]
+            [clojure.test.check.results    :as TC.result]
             [convex.cell                   :as $.cell]
             [convex.clj                    :as $.clj]
             [convex.cvm                    :as $.cvm]
             [convex.gen                    :as $.gen]
+            [convex.shell.fail             :as $.shell.fail]
             [convex.shell.flow             :as $.shell.flow]
             [convex.shell.resrc            :as $.shell.resrc]
             [convex.std                    :as $.std]))
@@ -977,3 +982,60 @@
                                   ($.shell.resrc/create ($.gen/vector gen-2
                                                                       x)))))
       x)))
+
+
+;;;;;;;;;;
+
+
+(defn check
+
+  [ctx [gen+ f]]
+
+  (or (when-not ($.std/fn? f)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Must provide a function to test a property")))
+      (do-gen+ ctx
+               gen+
+               (fn [ctx-2 gen+]
+                 (let [result (TC/quick-check 100
+                                              (TC.prop/for-all*
+                                                gen+
+                                                (fn [& x+]
+                                                  (let [ctx-3 (binding [-*ctx* ctx-2]
+                                                                (-> ctx
+                                                                    ($.cvm/fork)
+                                                                    ($.cvm/invoke f
+                                                                                  (into-array ACell
+                                                                                              x+))))
+                                                        ex    ($.cvm/exception ctx-3)]
+                                                    (if ex
+                                                      (reify TC.result/Result
+                                                             (pass? [_this]
+                                                               false)
+                                                             (result-data [_this]
+                                                               {:cvx ($.shell.fail/mappify-cvm-ex ex)
+                                                                :ex? true}))
+                                                      (let [result ($.cvm/result ctx-3)]
+                                                        (or ($.std/true? result)
+                                                            (reify TC.result/Result
+                                                                   (pass? [_this]
+                                                                     false)
+                                                                   (result-data [_this]
+                                                                     {:cvx result
+                                                                      :ex? false})))))))))]
+                   ($.cvm/result-set ctx-2
+                                     (if (result :pass?)
+                                       ($.cell/* {:pass? true})
+                                       (let [data        (result :result-data)
+                                             shrunk      (result :shrunk)
+                                             data-shrunk (result :result-data)]
+                                         ($.cell/* {:fail            ~($.cell/vector (result :fail))
+                                                    :fail.ex?        ~($.cell/boolean (data :ex?))
+                                                    :fail.result     ~(data :cvx)
+                                                    :pass?           false
+                                                    :smallest        ~($.cell/vector (shrunk :smallest))
+                                                    :smallest.ex?    ~($.cell/boolean (data-shrunk :ex?))
+                                                    :smallest.result ~(get-in shrunk
+                                                                              [:result-data
+                                                                               :cvx])})))))))))

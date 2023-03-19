@@ -2306,6 +2306,16 @@
 
 
 
+(defn .gen.check
+
+  [generator+ f]
+
+  (.shell.invoke '.gen.check
+                 generator+
+                 f))
+
+
+
 (defn .gen.double
 
   []
@@ -2501,6 +2511,15 @@
 
 
 
+(defn .gen.quoted
+
+  [generator]
+
+  (.shell.invoke '.gen.quoted
+                 generator))
+
+
+
 (defn .gen.record
 
   [k->gen]
@@ -2520,15 +2539,6 @@
                                         i)))
                      record)))
                (.gen.tuple (values k->gen)))))
-
-
-
-(defn .gen.quoted
-
-  [generator]
-
-  (.shell.invoke '.gen.quoted
-                 generator))
 
 
 

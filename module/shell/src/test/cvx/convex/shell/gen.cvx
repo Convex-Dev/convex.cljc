@@ -360,6 +360,92 @@
 
 
 
+(.t.def ..gen.check
+
+  (.t.is (= {:pass? true}
+            (.gen.check [(.gen.double)
+                         (.gen.long)]
+                        (fn [d l]
+                          (and (double? d)
+                               (long? l)))))
+         "Success")
+
+
+  (def fail
+       (.gen.check [(.gen.long)]
+                   (fn [l]
+                     (or (double? l)
+                         :fail))))
+  
+  (.t.is (= false
+            (:pass? fail))
+         "Fail")
+
+  (.t.is (long? (first (:fail fail))))
+
+  (.t.is (= :fail
+            (:fail.result fail)))
+
+  (.t.is (= false
+            (:fail.ex? fail)))
+
+  (.t.is (long? (first (:smallest fail))))
+
+  (.t.is (= :fail
+            (:smallest.result fail)))
+
+  (.t.is (= false
+            (:smallest.ex? fail)))
+
+
+  (def fail.ex
+       (.gen.check [(.gen.long)]
+                   (fn [l]
+                     (+ l
+                        []))))
+
+
+  (.t.is (= false
+            (:pass? fail.ex)))
+
+  (.t.is (long? (first (:fail fail.ex))))
+
+  (.t.is (:fail.ex? fail.ex))
+
+  (.t.is (= #{:address
+              :code
+              :message
+              :trace}
+            (set (keys (:fail.result fail.ex)))))
+
+  (.t.is (long? (first (:smallest fail.ex))))
+
+  (.t.is (:smallest.ex? fail.ex))
+
+  (.t.is (= #{:address
+              :code
+              :message
+              :trace}
+            (set (keys (:smallest.result fail.ex)))))
+
+
+  (.t.is (.t.ex :ARGUMENT
+                (.gen.check :fail
+                            (fn [])))
+         "Not a vector of generators")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.gen.check [:fail]
+                            (fn [])))
+         "Vector but not of generators")
+
+  (.t.is (.t.ex :ARGUMENT
+                (.gen.check [(.gen.long)]
+                            :fail))
+         "Not a function"))
+
+
+
 ;; TODO. Missing `char?` for testing char generation.
 
 
