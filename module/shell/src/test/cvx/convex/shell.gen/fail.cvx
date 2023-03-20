@@ -1,0 +1,28 @@
+{}
+
+
+;;;;;;;;;;
+
+
+(.t.def exception
+
+  (.t.is (.t.gen [l (.gen.long)]
+           (conj l
+                 42))
+         "Property throws"))
+
+
+
+(.t.def fail
+
+  (.t.is (.t.gen [l (.gen.long)]
+           (zero? l))
+         "Impossible property"))
+
+
+
+(.t.def pass
+
+  (.t.is (.t.gen [l (.gen.long)]
+           (long? l))
+         "Always true"))

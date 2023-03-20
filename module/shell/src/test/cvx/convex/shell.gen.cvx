@@ -1,0 +1,1 @@
+{:deploy [$.shell.gen.fail (test convex shell.gen fail)]}
