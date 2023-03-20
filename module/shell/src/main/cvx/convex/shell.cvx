@@ -2308,11 +2308,21 @@
 
 (defn .gen.check
 
-  [generator+ f]
 
-  (.shell.invoke '.gen.check
-                 generator+
-                 f))
+  ([generator+ f]
+
+   (.gen.check generator+
+               f
+               nil))
+
+
+  ([generator+ f option+]
+
+   (.shell.invoke '.gen.check
+                  generator+
+                  f
+                  (or (:n.test option+)
+                      100))))
 
 
 

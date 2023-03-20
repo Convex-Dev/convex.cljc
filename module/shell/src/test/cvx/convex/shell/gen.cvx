@@ -371,6 +371,16 @@
                                (long? l)))))
          "Success")
 
+  (.t.is (= {:n.test 50
+             :pass?  true}
+            (.gen.check [(.gen.double)
+                         (.gen.long)]
+                        (fn [d l]
+                          (and (double? d)
+                               (long? l)))
+                        {:n.test 50}))
+        "Success with N tests")
+
 
   (def fail
        (.gen.check [(.gen.long)]

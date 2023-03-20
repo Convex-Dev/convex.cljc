@@ -989,16 +989,21 @@
 
 (defn check
 
-  [ctx [gen+ f]]
+  [ctx [gen+ f n-test]]
 
   (or (when-not ($.std/fn? f)
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
-                             ($.cell/* "Must provide a function to test a property")))
+                             ($.cell/* "Must provide a Function to test a property")))
+      (when-not ($.std/long? n-test)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Number of tests must be a Long")))
       (do-gen+ ctx
                gen+
                (fn [ctx-2 gen+]
-                 (let [result   (TC/quick-check 100
+                 (let [result   (TC/quick-check (max 0
+                                                     ($.clj/long n-test))
                                                 (TC.prop/for-all*
                                                   gen+
                                                   (fn [& x+]
