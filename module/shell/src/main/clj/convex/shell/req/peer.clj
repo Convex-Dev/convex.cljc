@@ -48,7 +48,7 @@
 
   ;; Used by the [[init-*]] functions.
 
-  [ctx [key-pair host n-peer port root-key url] map-option+]
+  [ctx [key-pair host n-peer poll-delay port root-key url] map-option+]
 
   (or (when-not ($.std/string? host)
         ($.cvm/exception-set ctx
@@ -58,6 +58,10 @@
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
                              ($.cell/* "Number of peers must be a Long")))
+      (when-not ($.std/long? poll-delay)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Poll delay must be a Long")))
       (when-not ($.db/current)
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
@@ -85,13 +89,15 @@
                                       ($.cvm/result-set ctx
                                                         ($.shell.resrc/create
                                                           ($.server/create key-pair-2
-                                                                           (map-option+ {:convex.server/bind     ($.clj/string host)
-                                                                                         :convex.server/db       ($.db/current)
-                                                                                         :convex.server/n-peer   ($.clj/long n-peer)
-                                                                                         :convex.server/port     port-2
-                                                                                         :convex.server/root-key root-key
-                                                                                         :convex.server/url      (some-> url 
-                                                                                                                         ($.clj/string))}))))
+                                                                           (map-option+ {:convex.server/bind       ($.clj/string host)
+                                                                                         :convex.server/db         ($.db/current)
+                                                                                         :convex.server/n-peer     ($.clj/long n-peer)
+                                                                                         :convex.server/poll-delay (max 0
+                                                                                                                        ($.clj/long poll-delay))
+                                                                                         :convex.server/port       port-2
+                                                                                         :convex.server/root-key   root-key
+                                                                                         :convex.server/url        (some-> url 
+                                                                                                                           ($.clj/string))}))))
                                       (catch IllegalStateException ex
                                         ($.cvm/exception-set ctx
                                                              ($.cell/* :SHELL.PEER)
