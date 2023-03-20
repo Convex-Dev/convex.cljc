@@ -1029,7 +1029,8 @@
                                                                      (result-data [_this]
                                                                        {:cvx result
                                                                         :ex? false})))))))))
-                       result-2 ($.cell/* {:n.test ~($.cell/long (result :num-tests))})]
+                       result-2 ($.cell/* {:n.test ~($.cell/long (result :num-tests))
+                                           :seed   ~($.cell/long (result :seed))})]
                    ($.cvm/result-set ctx-2
                                      (if (result :pass?)
                                        ($.std/merge result-2

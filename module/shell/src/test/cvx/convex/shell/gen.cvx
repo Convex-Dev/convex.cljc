@@ -360,59 +360,85 @@
 
 
 
-(.t.def ..gen.check
+(.t.def ..gen.check..ok
 
-  (.t.is (= {:n.test 100
-             :pass?  true}
-            (.gen.check [(.gen.double)
-                         (.gen.long)]
-                        (fn [d l]
-                          (and (double? d)
-                               (long? l)))))
-         "Success")
+  (def result
+       (.gen.check [(.gen.double)
+                    (.gen.long)]
+                   (fn [d l]
+                     (and (double? d)
+                          (long? l)))))
 
-  (.t.is (= {:n.test 50
-             :pass?  true}
-            (.gen.check [(.gen.double)
-                         (.gen.long)]
-                        (fn [d l]
-                          (and (double? d)
-                               (long? l)))
-                        {:n.test 50}))
-        "Success with N tests")
+  (.t.is (= 3
+            (count result)))
+
+  (.t.is (= 100
+            (:n.test result)))
+
+  (.t.is (:pass? result))
+
+  (.t.is (long? (:seed result))))
 
 
-  (def fail
+
+(.t.def ..gen.check..ok-opt+
+
+  (def result
+       (.gen.check [(.gen.double)
+                    (.gen.long)]
+                   (fn [d l]
+                     (and (double? d)
+                          (long? l)))
+                   {:n.test 50}))
+
+  (.t.is (= 3
+            (count result)))
+
+  (.t.is (= 50
+            (:n.test result)))
+
+  (.t.is (:pass? result))
+
+  (.t.is (long? (:seed result))))
+  
+
+
+(.t.def ..gen.check..fail
+
+  (def result
        (.gen.check [(.gen.long)]
                    (fn [l]
                      (or (double? l)
                          :fail))))
   
   (.t.is (= false
-            (:pass? fail))
+            (:pass? result))
          "Fail")
 
   (.t.is (< 0
-            (:n.test fail)))
+            (:n.test result)))
 
-  (.t.is (long? (first (:fail fail))))
-
-  (.t.is (= :fail
-            (:fail.result fail)))
-
-  (.t.is (= false
-            (:fail.ex? fail)))
-
-  (.t.is (long? (first (:smallest fail))))
+  (.t.is (long? (first (:fail result))))
 
   (.t.is (= :fail
-            (:smallest.result fail)))
+            (:fail.result result)))
 
   (.t.is (= false
-            (:smallest.ex? fail)))
+            (:fail.ex? result)))
+
+  (.t.is (long? (first (:smallest result))))
+
+  (.t.is (= :fail
+            (:smallest.result result)))
+
+  (.t.is (= false
+            (:smallest.ex? result))))
 
 
-  (def fail.ex
+
+(.t.def ..gen.check..fail.ex
+
+  (def result
        (.gen.check [(.gen.long)]
                    (fn [l]
                      (+ l
@@ -420,30 +446,30 @@
 
 
   (.t.is (= false
-            (:pass? fail.ex)))
+            (:pass? result)))
 
   (.t.is (< 0
-            (:n.test fail.ex)))
+            (:n.test result)))
 
-  (.t.is (long? (first (:fail fail.ex))))
+  (.t.is (long? (first (:fail result))))
 
-  (.t.is (:fail.ex? fail.ex))
-
-  (.t.is (= #{:address
-              :code
-              :message
-              :trace}
-            (set (keys (:fail.result fail.ex)))))
-
-  (.t.is (long? (first (:smallest fail.ex))))
-
-  (.t.is (:smallest.ex? fail.ex))
+  (.t.is (:fail.ex? result))
 
   (.t.is (= #{:address
               :code
               :message
               :trace}
-            (set (keys (:smallest.result fail.ex)))))
+            (set (keys (:fail.result result)))))
+
+  (.t.is (long? (first (:smallest result))))
+
+  (.t.is (:smallest.ex? result))
+
+  (.t.is (= #{:address
+              :code
+              :message
+              :trace}
+            (set (keys (:smallest.result result)))))
 
 
   (.t.is (.t.ex :ARGUMENT
