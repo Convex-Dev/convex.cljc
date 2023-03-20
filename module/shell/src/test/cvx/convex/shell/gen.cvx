@@ -362,7 +362,8 @@
 
 (.t.def ..gen.check
 
-  (.t.is (= {:pass? true}
+  (.t.is (= {:n.test 100
+             :pass?  true}
             (.gen.check [(.gen.double)
                          (.gen.long)]
                         (fn [d l]
@@ -380,6 +381,9 @@
   (.t.is (= false
             (:pass? fail))
          "Fail")
+
+  (.t.is (< 0
+            (:n.test fail)))
 
   (.t.is (long? (first (:fail fail))))
 
@@ -407,6 +411,9 @@
 
   (.t.is (= false
             (:pass? fail.ex)))
+
+  (.t.is (< 0
+            (:n.test fail.ex)))
 
   (.t.is (long? (first (:fail fail.ex))))
 
