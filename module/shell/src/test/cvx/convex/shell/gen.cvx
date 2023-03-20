@@ -360,41 +360,25 @@
 
 
 
-(.t.def ..gen.check..ok
-
-  (def result
-       (.gen.check [(.gen.double)
-                    (.gen.long)]
-                   (fn [d l]
-                     (and (double? d)
-                          (long? l)))))
-
-  (.t.is (= 3
-            (count result)))
-
-  (.t.is (= 100
-            (:n.test result)))
-
-  (.t.is (:pass? result))
-
-  (.t.is (long? (:seed result))))
+(.t.def ..gen.check.bad-arg
 
 
+  (.t.is (.t.ex :ARGUMENT
+                (.gen.check :fail
+                            (fn [])))
+         "Not a vector of generators")
 
-(.t.def ..gen.check..ok-opt+
+  (.t.is (.t.ex :ARGUMENT
+                (.gen.check [:fail]
+                            (fn [])))
+         "Vector but not of generators")
 
-  (.t.is (= {:n.test 50
-             :pass?  true
-             :seed   -42}
-            (.gen.check [(.gen.double)
-                         (.gen.long)]
-                        (fn [d l]
-                          (and (double? d)
-                               (long? l)))
-                        {:n.test 50
-                         :seed   -42}))))
+  (.t.is (.t.ex :ARGUMENT
+                (.gen.check [(.gen.long)]
+                            :fail))
+         "Not a function"))
 
-  
+ 
 
 (.t.def ..gen.check..fail
 
@@ -425,7 +409,12 @@
             (:smallest.result result)))
 
   (.t.is (= false
-            (:smallest.ex? result))))
+            (:smallest.ex? result)))
+
+  (.t.is (long? (:seed result)))
+
+  (.t.is (= 200
+            (:size.max result))))
 
 
 
@@ -464,21 +453,51 @@
               :trace}
             (set (keys (:smallest.result result)))))
 
+  (.t.is (long? (:seed result)))
 
-  (.t.is (.t.ex :ARGUMENT
-                (.gen.check :fail
-                            (fn [])))
-         "Not a vector of generators")
+  (.t.is (= 200
+            (:size.max result))))
 
-  (.t.is (.t.ex :ARGUMENT
-                (.gen.check [:fail]
-                            (fn [])))
-         "Vector but not of generators")
 
-  (.t.is (.t.ex :ARGUMENT
-                (.gen.check [(.gen.long)]
-                            :fail))
-         "Not a function"))
+
+(.t.def ..gen.check..ok
+
+  (def result
+       (.gen.check [(.gen.double)
+                    (.gen.long)]
+                   (fn [d l]
+                     (and (double? d)
+                          (long? l)))))
+
+  (.t.is (= 4
+            (count result)))
+
+  (.t.is (= 100
+            (:n.test result)))
+
+  (.t.is (:pass? result))
+
+  (.t.is (long? (:seed result)))
+
+  (.t.is (= 200
+            (:size.max result))))
+
+
+
+(.t.def ..gen.check..ok-opt+
+
+  (.t.is (= {:n.test   50
+             :pass?    true
+             :seed     -42
+             :size.max 20}
+            (.gen.check [(.gen.double)
+                         (.gen.long)]
+                        (fn [d l]
+                          (and (double? d)
+                               (long? l)))
+                        {:n.test   50
+                         :seed     -42
+                         :size.max 20}))))
 
 
 

@@ -989,12 +989,16 @@
 
 (defn check
 
-  [ctx [gen+ f n-test seed]]
+  [ctx [gen+ f size-max n-test seed]]
 
   (or (when-not ($.std/fn? f)
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
                              ($.cell/* "Must provide a Function to test a property")))
+      (when-not ($.std/long? size-max)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Maximum size must be a Long")))
       (when-not ($.std/long? n-test)
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
@@ -1006,36 +1010,40 @@
       (do-gen+ ctx
                gen+
                (fn [ctx-2 gen+]
-                 (let [result   (TC/quick-check (max 0
-                                                     ($.clj/long n-test))
-                                                (TC.prop/for-all*
-                                                  gen+
-                                                  (fn [& x+]
-                                                    (let [ctx-3 (binding [-*ctx* ctx-2]
-                                                                  (-> ctx
-                                                                      ($.cvm/fork)
-                                                                      ($.cvm/invoke f
-                                                                                    (into-array ACell
-                                                                                                x+))))
-                                                          ex    ($.cvm/exception ctx-3)]
-                                                      (if ex
-                                                        (reify TC.result/Result
-                                                               (pass? [_this]
-                                                                 false)
-                                                               (result-data [_this]
-                                                                 {:cvx ($.shell.fail/mappify-cvm-ex ex)
-                                                                  :ex? true}))
-                                                        (let [result ($.cvm/result ctx-3)]
-                                                          (or ($.std/true? result)
-                                                              (reify TC.result/Result
-                                                                     (pass? [_this]
-                                                                       false)
-                                                                     (result-data [_this]
-                                                                       {:cvx result
-                                                                        :ex? false}))))))))
-                                                  :seed ($.clj/long seed))
-                       result-2 ($.cell/* {:n.test ~($.cell/long (result :num-tests))
-                                           :seed   ~($.cell/long (result :seed))})]
+                 (let [size-max-2 (max 0
+                                       ($.clj/long size-max))
+                       result     (TC/quick-check (max 0
+                                                       ($.clj/long n-test))
+                                                  (TC.prop/for-all*
+                                                    gen+
+                                                    (fn [& x+]
+                                                      (let [ctx-3 (binding [-*ctx* ctx-2]
+                                                                    (-> ctx
+                                                                        ($.cvm/fork)
+                                                                        ($.cvm/invoke f
+                                                                                      (into-array ACell
+                                                                                                  x+))))
+                                                            ex    ($.cvm/exception ctx-3)]
+                                                        (if ex
+                                                          (reify TC.result/Result
+                                                                 (pass? [_this]
+                                                                   false)
+                                                                 (result-data [_this]
+                                                                   {:cvx ($.shell.fail/mappify-cvm-ex ex)
+                                                                    :ex? true}))
+                                                          (let [result ($.cvm/result ctx-3)]
+                                                            (or ($.std/true? result)
+                                                                (reify TC.result/Result
+                                                                       (pass? [_this]
+                                                                         false)
+                                                                       (result-data [_this]
+                                                                         {:cvx result
+                                                                          :ex? false}))))))))
+                                                  :max-size size-max-2
+                                                  :seed     ($.clj/long seed))
+                       result-2   ($.cell/* {:n.test   ~($.cell/long (result :num-tests))
+                                             :seed     ~($.cell/long (result :seed))
+                                             :size.max ~($.cell/long size-max-2)})]
                    ($.cvm/result-set ctx-2
                                      (if (result :pass?)
                                        ($.std/merge result-2

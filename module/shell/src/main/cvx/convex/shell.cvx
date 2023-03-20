@@ -2321,10 +2321,12 @@
    (.shell.invoke '.gen.check
                   generator+
                   f
+                  (or (:size.max option+)
+                      200)
                   (or (:n.test option+)
                       100)
                   (or (:seed option+)
-                      (.time.nano)))))
+                      (.time.unix)))))
 
 
 
