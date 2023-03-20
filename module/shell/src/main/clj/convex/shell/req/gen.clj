@@ -989,7 +989,7 @@
 
 (defn check
 
-  [ctx [gen+ f n-test]]
+  [ctx [gen+ f n-test seed]]
 
   (or (when-not ($.std/fn? f)
         ($.cvm/exception-set ctx
@@ -999,6 +999,10 @@
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
                              ($.cell/* "Number of tests must be a Long")))
+      (when-not ($.std/long? seed)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Seed must be a Long")))
       (do-gen+ ctx
                gen+
                (fn [ctx-2 gen+]
@@ -1028,7 +1032,8 @@
                                                                        false)
                                                                      (result-data [_this]
                                                                        {:cvx result
-                                                                        :ex? false})))))))))
+                                                                        :ex? false}))))))))
+                                                  :seed ($.clj/long seed))
                        result-2 ($.cell/* {:n.test ~($.cell/long (result :num-tests))
                                            :seed   ~($.cell/long (result :seed))})]
                    ($.cvm/result-set ctx-2

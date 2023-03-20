@@ -383,25 +383,18 @@
 
 (.t.def ..gen.check..ok-opt+
 
-  (def result
-       (.gen.check [(.gen.double)
-                    (.gen.long)]
-                   (fn [d l]
-                     (and (double? d)
-                          (long? l)))
-                   {:n.test 50}))
+  (.t.is (= {:n.test 50
+             :pass?  true
+             :seed   -42}
+            (.gen.check [(.gen.double)
+                         (.gen.long)]
+                        (fn [d l]
+                          (and (double? d)
+                               (long? l)))
+                        {:n.test 50
+                         :seed   -42}))))
 
-  (.t.is (= 3
-            (count result)))
-
-  (.t.is (= 50
-            (:n.test result)))
-
-  (.t.is (:pass? result))
-
-  (.t.is (long? (:seed result))))
   
-
 
 (.t.def ..gen.check..fail
 

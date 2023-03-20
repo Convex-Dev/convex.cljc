@@ -2322,7 +2322,9 @@
                   generator+
                   f
                   (or (:n.test option+)
-                      100))))
+                      100)
+                  (or (:seed option+)
+                      (.time.nano)))))
 
 
 
