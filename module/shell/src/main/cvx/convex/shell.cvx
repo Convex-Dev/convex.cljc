@@ -5357,6 +5357,13 @@
                        (str .sys.eol
                             (.term.bold)
                             (.term.fg.cyan)
+                            "Seed:   "
+                            (.term.reset)
+                            (:seed fail)))
+    (.stream.txt.outln s
+                       (str .sys.eol
+                            (.term.bold)
+                            (.term.fg.cyan)
                             "Input:  "
                             (.term.reset)
                             (:smallest fail)))
