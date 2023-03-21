@@ -5047,7 +5047,8 @@
                                                         (+ i
                                                            2))
                                                  acc)))
-                                       body))]
+                                       body)
+                              {:seed .t.gen.seed})]
        (or (:pass? result)
            (syntax result
                    {:test.status :gen})))))
@@ -5524,6 +5525,12 @@
          x]
         (.state.tmp
           (fn []
+            (let [addr *address*]
+              (.account.switch .account.core)
+              (def .t.gen.seed
+                   (or (:gen.seed state)
+                       (.time.unix)))
+              (.account.switch addr))
             (let [state          (merge {:on.run.begin   .t.on.run.begin
                                          :on.run.end     .t.on.run.end
                                          :on.test.result .t.on.test.result
