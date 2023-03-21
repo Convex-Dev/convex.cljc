@@ -1,0 +1,17 @@
+{}
+
+
+;;;;;;;;;;
+
+
+(.t.def ..t.gen
+
+  (.t.is (.t.gen [l (.gen.long)]
+           (long? l))
+         "Always true")
+
+  (.t.is (.t.gen [l (.gen.long)]
+           (.t.ex :CAST
+                  (conj l
+                        42)))
+         "Property throws exception with expected code"))

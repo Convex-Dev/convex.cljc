@@ -1,2 +1,0 @@
-{:deploy [$.fake.empty   (test convex fake empty)
-          $.fake.failing (test convex fake failing)]}

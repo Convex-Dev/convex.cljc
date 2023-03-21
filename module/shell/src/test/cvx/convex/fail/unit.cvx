@@ -1,0 +1,64 @@
+{}
+
+
+;;;;;;;;;
+
+
+(.t.def ex.expected
+
+  (.t.is (.t.ex true)
+         "Not an exception")
+
+  (.t.is (.t.ex :CODE
+                (assert false))
+         "Wrong code"))
+
+
+
+(.t.def ex.unexpected
+
+  (.t.is (= 42
+            (+ 2 2))
+         "Some message")
+
+  (defn -fail [] (fail :TEST-THROW
+                       "Thrown on purpose"))
+
+  (-fail)
+
+  (.t.is (= :a
+            (first [:a]))
+         "Another message"))
+
+
+
+(.t.def fail
+
+
+  (.t.is (= 4
+            (+ 2 2))
+         "Some message")
+
+  (.t.is (= 1000
+            (+ 2 2))
+         "With message")
+
+  (.t.is (< 1
+            1000)))
+
+
+
+(.t.def fail.explicit
+
+  (.t.is (fail :FROM-TEST
+               "Thrown on purpose from assertion")))
+
+
+
+(.t.def with-meta
+
+  ^:meta?
+
+  (.t.is (< 10
+            0)
+         "Test with metadata"))

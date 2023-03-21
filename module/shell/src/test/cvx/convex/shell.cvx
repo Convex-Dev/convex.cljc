@@ -27,6 +27,7 @@
           $.shell.stream  (test convex shell stream)
           $.shell.sys     (test convex shell sys)
           $.shell.term    (test convex shell term)
+          $.shell.test    (test convex shell test)
           $.shell.testnet (test convex shell testnet)
           $.shell.time    (test convex shell time)
           $.shell.trx     (test convex shell trx)

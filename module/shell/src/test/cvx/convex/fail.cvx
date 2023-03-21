@@ -1,0 +1,3 @@
+{:deploy [$.fail.empty (test convex fail empty)
+          $.fail.gen   (test convex fail gen)
+          $.fail.unit  (test convex fail unit)]}

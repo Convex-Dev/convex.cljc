@@ -2322,11 +2322,23 @@
                   generator+
                   f
                   (or (:size.max option+)
-                      200)
+                      .gen.check.size.max)
                   (or (:n.trial option+)
-                      100)
+                      .gen.check.n.trial)
                   (or (:seed option+)
                       (.time.unix)))))
+
+
+
+(def .gen.check.n.trial
+
+  100)
+
+
+
+(def .gen.check.size.max
+
+  200)
 
 
 
@@ -5048,8 +5060,9 @@
                                                            2))
                                                  acc)))
                                        body)
-                              {:n.trial .t.gen.n.trial
-                               :seed    .t.gen.seed})]
+                              {:n.trial  .t.gen.n.trial
+                               :seed     .t.gen.seed
+                               :size.max .t.gen.size.max})]
        (or (:pass? result)
            (syntax result
                    {:test.status :gen})))))
@@ -5530,10 +5543,13 @@
               (.account.switch .account.core)
               (def .t.gen.n.trial
                    (or (:gen.n.trial state)
-                       100))
+                       .gen.check.n.trial))
               (def .t.gen.seed
                    (or (:gen.seed state)
                        (.time.unix)))
+              (def .t.gen.size.max
+                   (or (:gen.size.max state)
+                       .gen.check.size.max))
               (.account.switch addr))
             (let [state          (merge {:on.run.begin   .t.on.run.begin
                                          :on.run.end     .t.on.run.end

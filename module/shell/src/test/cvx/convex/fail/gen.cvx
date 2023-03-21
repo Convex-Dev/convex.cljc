@@ -1,0 +1,29 @@
+{}
+
+
+;;;;;;;;;;
+
+
+(.t.def impossible
+
+  (.t.is (.t.gen [l (.gen.long)]
+           (zero? l))
+         "Impossible property"))
+
+
+
+(.t.def thrown
+
+  (.t.is (.t.gen [l (.gen.any)]
+           (conj l
+                 42))
+         "Property throws unexpectedly"))
+
+
+
+(.t.def thrown.wrong-ex-code
+  (.t.is (.t.gen [l (.gen.long)]
+           (.t.ex :WRONG-CODE
+                  (conj l
+                        42)))
+         "Property throws exception with unexpected code"))
