@@ -5464,7 +5464,16 @@
                                        (.term.reset)
                                        .sys.eol
                                        "  "
-                                       (:form failed)))
+                                       (let [form (str (:form failed))]
+                                         (if (> (count form)
+                                                100)
+                                           (str (slice form
+                                                       0
+                                                       97)
+                                                (.term.bold)
+                                                "..."
+                                                (.term.reset))
+                                           form))))
                (let [status (:status failed)]
                  (when-not (= status
                               :pass)
