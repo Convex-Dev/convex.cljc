@@ -2323,7 +2323,7 @@
                   f
                   (or (:size.max option+)
                       200)
-                  (or (:n.test option+)
+                  (or (:n.trial option+)
                       100)
                   (or (:seed option+)
                       (.time.unix)))))
@@ -5048,7 +5048,8 @@
                                                            2))
                                                  acc)))
                                        body)
-                              {:seed .t.gen.seed})]
+                              {:n.trial .t.gen.n.trial
+                               :seed    .t.gen.seed})]
        (or (:pass? result)
            (syntax result
                    {:test.status :gen})))))
@@ -5527,6 +5528,9 @@
           (fn []
             (let [addr *address*]
               (.account.switch .account.core)
+              (def .t.gen.n.trial
+                   (or (:gen.n.trial state)
+                       100))
               (def .t.gen.seed
                    (or (:gen.seed state)
                        (.time.unix)))

@@ -393,7 +393,7 @@
          "Fail")
 
   (.t.is (< 0
-            (:n.test result)))
+            (:n.trial result)))
 
   (.t.is (long? (first (:fail result))))
 
@@ -431,7 +431,7 @@
             (:pass? result)))
 
   (.t.is (< 0
-            (:n.test result)))
+            (:n.trial result)))
 
   (.t.is (long? (first (:fail result))))
 
@@ -473,7 +473,7 @@
             (count result)))
 
   (.t.is (= 100
-            (:n.test result)))
+            (:n.trial result)))
 
   (.t.is (:pass? result))
 
@@ -486,7 +486,7 @@
 
 (.t.def ..gen.check..ok-opt+
 
-  (.t.is (= {:n.test   50
+  (.t.is (= {:n.trial  50
              :pass?    true
              :seed     -42
              :size.max 20}
@@ -495,7 +495,7 @@
                         (fn [d l]
                           (and (double? d)
                                (long? l)))
-                        {:n.test   50
+                        {:n.trial  50
                          :seed     -42
                          :size.max 20}))))
 

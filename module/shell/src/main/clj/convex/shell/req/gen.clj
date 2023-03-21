@@ -989,7 +989,7 @@
 
 (defn check
 
-  [ctx [gen+ f size-max n-test seed]]
+  [ctx [gen+ f size-max n-trial seed]]
 
   (or (when-not ($.std/fn? f)
         ($.cvm/exception-set ctx
@@ -999,7 +999,7 @@
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
                              ($.cell/* "Maximum size must be a Long")))
-      (when-not ($.std/long? n-test)
+      (when-not ($.std/long? n-trial)
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
                              ($.cell/* "Number of tests must be a Long")))
@@ -1013,7 +1013,7 @@
                  (let [size-max-2 (max 0
                                        ($.clj/long size-max))
                        result     (TC/quick-check (max 0
-                                                       ($.clj/long n-test))
+                                                       ($.clj/long n-trial))
                                                   (TC.prop/for-all*
                                                     gen+
                                                     (fn [& x+]
@@ -1041,7 +1041,7 @@
                                                                           :ex? false}))))))))
                                                   :max-size size-max-2
                                                   :seed     ($.clj/long seed))
-                       result-2   ($.cell/* {:n.test   ~($.cell/long (result :num-tests))
+                       result-2   ($.cell/* {:n.trial  ~($.cell/long (result :num-tests))
                                              :seed     ~($.cell/long (result :seed))
                                              :size.max ~($.cell/long size-max-2)})]
                    ($.cvm/result-set ctx-2
