@@ -51,6 +51,34 @@
   (.stream.outln arg+))
 
 
+
+(defn .trunc.str
+
+  ^:private?
+
+
+  ([string]
+
+   (.trunc.str nil
+               string))
+
+
+  ([n.char string]
+
+   (let [n.char-2 (or n.char
+                      100)
+         string-2 (str string)]
+     (if (> (count string-2)
+            n.char-2)
+        (str (slice string-2
+                    0
+                    97)
+             (.term.bold)
+             "..."
+             (.term.reset))
+       string-2))))
+
+
 ;;;;;;;;;; Async
 
 
@@ -1686,7 +1714,7 @@
                                (conj acc
                                      .sys.eol
                                      "  "
-                                     entry))
+                                     (.trunc.str entry)))
                              []
                              trace-2)))
             (if (and extra-data
@@ -5464,16 +5492,7 @@
                                        (.term.reset)
                                        .sys.eol
                                        "  "
-                                       (let [form (str (:form failed))]
-                                         (if (> (count form)
-                                                100)
-                                           (str (slice form
-                                                       0
-                                                       97)
-                                                (.term.bold)
-                                                "..."
-                                                (.term.reset))
-                                           form))))
+                                       (.trunc.str (:form failed))))
                (let [status (:status failed)]
                  (when-not (= status
                               :pass)
