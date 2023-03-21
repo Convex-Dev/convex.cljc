@@ -4,12 +4,22 @@
 ;;;;;;;;;;
 
 
-(.t.def exception
+(.t.def ..t.ex
 
   (.t.is (.t.gen [l (.gen.long)]
-           (conj l
-                 42))
-         "Property throws"))
+           (.t.ex :CAST
+                  (conj l
+                        42)))
+         "Property throws exception with expected code"))
+
+
+
+(.t.def ..t.ex..wrong-code
+  (.t.is (.t.gen [l (.gen.long)]
+           (.t.ex :WRONG-CODE
+                  (conj l
+                        42)))
+         "Property throws exception with unexpected code"))
 
 
 
@@ -26,3 +36,12 @@
   (.t.is (.t.gen [l (.gen.long)]
            (long? l))
          "Always true"))
+
+
+
+(.t.def thrown
+
+  (.t.is (.t.gen [l (.gen.any)]
+           (conj l
+                 42))
+         "Property throws unexpectedly"))

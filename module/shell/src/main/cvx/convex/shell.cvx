@@ -5002,7 +5002,7 @@
 
    `(let [ex-code ~ex-code
           [ok?
-           x]    (.state.safe* ~form)]
+           x]     (.state.safe* ~form)]
       (if ok?
         (syntax x
                 {:test.status :fail})
@@ -5360,9 +5360,18 @@
                             "Input:  "
                             (.term.reset)
                             (:smallest fail)))
-    (if (:smallest.ex? fail)
+    (cond
+      ;;
+      (:smallest.ex? fail)
       (.ex.print s
                  result)
+      ;;
+      (and (syntax? result)
+           (= (:test.status (meta result)
+              :exception)))
+      (.ex.print s
+                 (unsyntax result))
+      ;;
       (.stream.txt.outln s
                          (str .sys.eol
                               (.term.bold)

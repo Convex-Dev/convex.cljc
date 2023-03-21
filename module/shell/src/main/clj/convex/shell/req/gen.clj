@@ -1050,7 +1050,7 @@
                                                     ($.cell/* {:pass? true}))
                                        (let [data        (result :result-data)
                                              shrunk      (result :shrunk)
-                                             data-shrunk (result :result-data)]
+                                             data-shrunk (shrunk :result-data)]
                                          ($.std/merge result-2
                                                       ($.cell/* {:fail            ~($.cell/vector (result :fail))
                                                                  :fail.ex?        ~($.cell/boolean (data :ex?))
