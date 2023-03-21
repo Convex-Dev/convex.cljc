@@ -6,17 +6,20 @@
 
 (.t.def impossible
 
-  (.t.is (.t.gen [l (.gen.long)]
-           (zero? l))
+  (.t.is (.t.gen [d (.gen.double)
+                  l (.gen.long)]
+           (= d
+              l))
          "Impossible property"))
 
 
 
 (.t.def thrown
 
-  (.t.is (.t.gen [l (.gen.any)]
+  (.t.is (.t.gen [l (.gen.any)
+                  x (.gen.any)]
            (conj l
-                 42))
+                 x))
          "Property throws unexpectedly"))
 
 

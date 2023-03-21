@@ -5027,51 +5027,6 @@
 
 
 
-
-
-(defmacro .t.gen
-
-  [gen-binding+ & body]
-
-  (let [n (count gen-binding+)]
-    (when-not (zero? (mod n
-                          2))
-      (fail :ARGUMENT
-            "Generators must be provided in bindings like `let`"))
-    `(let [result (.gen.check ~(loop [acc []
-                                      i   1]
-                                 (if (< i
-                                        n)
-                                   (recur (conj acc
-                                                (nth gen-binding+
-                                                     i))
-                                          (+ i
-                                             2))
-                                   acc))
-                              ~(concat (list 'fn
-                                             (loop [acc []
-                                                    i   0]
-                                               (if (< i
-                                                      n)
-                                                 (recur (conj acc
-                                                              (nth gen-binding+
-                                                                   i))
-                                                        (+ i
-                                                           2))
-                                                 acc)))
-                                       body)
-                              {:n.trial  .t.gen.n.trial
-                               :seed     .t.gen.seed
-                               :size.max .t.gen.size.max})]
-       (or (:pass? result)
-           (syntax result
-                   {:test.status :gen})))))
-
-
-
-
-
-
 (defmacro .t.def
 
   ^{:doc {:description ["Defines a function that can run as a test."
@@ -5176,6 +5131,50 @@
                   acc)))
             []
             env)))
+
+
+
+(defmacro .t.gen
+
+  [gen-binding+ & body]
+
+  (let [n (count gen-binding+)]
+    (when-not (zero? (mod n
+                          2))
+      (fail :ARGUMENT
+            "Generators must be provided in bindings like `let`"))
+    (let [binding+ (loop [acc []
+                          i   0]
+                     (if (< i
+                            n)
+                       (recur (conj acc
+                                    (nth gen-binding+
+                                         i))
+                              (+ i
+                                 2))
+                       acc))
+          gen+     (loop [acc []
+                          i   1]
+                     (if (< i
+                            n)
+                       (recur (conj acc
+                                    (nth gen-binding+
+                                         i))
+                              (+ i
+                                 2))
+                       acc))]
+      `(let [result (.gen.check ~gen+
+                                ~(concat (list 'fn
+                                               binding+)
+                                         body)
+                                {:n.trial  .t.gen.n.trial
+                                 :seed     .t.gen.seed
+                                 :size.max .t.gen.size.max})]
+         (or (:pass? result)
+             (syntax (assoc result
+                            :binding+
+                            (quote ~binding+))
+                     {:test.status :gen}))))))
 
 
 
@@ -5380,10 +5379,16 @@
                        (str (.term.bold)
                             (.term.fg.cyan)
                             "Input:"
-                            (.term.reset)
-                            .sys.eol
-                            "  "
-                            (:smallest fail)))
+                            (.term.reset)))
+    (map (fn [sym x]
+           (.stream.txt.outln (str "  "
+                                   sym
+                                   (.term.bold)
+                                   "  =  "
+                                   (.term.reset)
+                                   x)))
+         (:binding+ fail)
+         (:smallest fail))
     (cond
       ;;
       (:smallest.ex? fail)
