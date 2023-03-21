@@ -5369,18 +5369,20 @@
         result (:smallest.result fail)
         s      (:stream.out state)]
     (.stream.txt.outln s
-                       (str .sys.eol
-                            (.term.bold)
+                       (str (.term.bold)
                             (.term.fg.cyan)
-                            "Seed:   "
+                            "Seed:"
                             (.term.reset)
+                            .sys.eol
+                            "  "
                             (:seed fail)))
     (.stream.txt.outln s
-                       (str .sys.eol
-                            (.term.bold)
+                       (str (.term.bold)
                             (.term.fg.cyan)
-                            "Input:  "
+                            "Input:"
                             (.term.reset)
+                            .sys.eol
+                            "  "
                             (:smallest fail)))
     (cond
       ;;
@@ -5395,11 +5397,12 @@
                  (unsyntax result))
       ;;
       (.stream.txt.outln s
-                         (str .sys.eol
-                              (.term.bold)
+                         (str (.term.bold)
                               (.term.fg.cyan)
-                              "Result: "
+                              "Result:"
                               (.term.reset)
+                              .sys.eol
+                              "  "
                               result)))))
 
 
@@ -5440,8 +5443,10 @@
                (.stream.txt.outln s
                                   (str (.term.bold)
                                        (.term.fg.cyan)
-                                       "Form:   "
+                                       "Assertion:"
                                        (.term.reset)
+                                       .sys.eol
+                                       "  "
                                        (:form failed)))
                (let [status (:status failed)]
                  (when-not (= status
@@ -5451,11 +5456,12 @@
                      (= status
                         :fail)
                      (.stream.txt.outln s
-                                        (str .sys.eol
-                                             (.term.bold)
+                                        (str (.term.bold)
                                              (.term.fg.cyan)
-                                             "Result: "
+                                             "Result:"
                                              (.term.reset)
+                                             .sys.eol
+                                             "  "
                                              (:fail failed)))
                      ;;
                      (= status
