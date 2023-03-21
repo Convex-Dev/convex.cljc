@@ -464,7 +464,10 @@
 
   (def result
        (.gen.check [(.gen.double)
-                    (.gen.long)]
+                    (.gen.such-that (fn [l]
+                                      (> l
+                                         0))
+                                    (.gen.long))]
                    (fn [d l]
                      (and (double? d)
                           (long? l)))))
