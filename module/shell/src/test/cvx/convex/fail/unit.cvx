@@ -15,6 +15,14 @@
 
 
 
+(.t.def ex.not-thrown
+
+  (.t.is (.t.ex :FOO
+                (inc 42))
+         "Exception not thrown as expected"))
+
+
+
 (.t.def ex.unexpected
 
   (.t.is (= 42

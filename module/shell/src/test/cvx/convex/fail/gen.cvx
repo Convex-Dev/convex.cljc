@@ -4,6 +4,34 @@
 ;;;;;;;;;;
 
 
+(.t.def ex.not-thrown
+
+  (.t.is (.t.gen [x (.gen.any)]
+           (.t.ex :FOO
+                  true))
+         "Exception not thrown as expected"))
+
+
+
+(.t.def ex.unexpected
+
+  (.t.is (.t.gen [x (.gen.any)
+                  y (.gen.any)]
+           (conj x
+                 y))
+         "Property throws unexpectedly"))
+
+
+
+(.t.def ex.wrong-code
+  (.t.is (.t.gen [l (.gen.long)]
+           (.t.ex :WRONG-CODE
+                  (conj l
+                        42)))
+         "Property throws exception with unexpected code"))
+
+
+
 (.t.def impossible
 
   (.t.is (.t.gen [d (.gen.double)
@@ -11,22 +39,3 @@
            (= d
               l))
          "Impossible property"))
-
-
-
-(.t.def thrown
-
-  (.t.is (.t.gen [l (.gen.any)
-                  x (.gen.any)]
-           (conj l
-                 x))
-         "Property throws unexpectedly"))
-
-
-
-(.t.def thrown.wrong-ex-code
-  (.t.is (.t.gen [l (.gen.long)]
-           (.t.ex :WRONG-CODE
-                  (conj l
-                        42)))
-         "Property throws exception with unexpected code"))

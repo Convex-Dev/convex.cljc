@@ -5396,10 +5396,22 @@
                  result)
       ;;
       (and (syntax? result)
-           (= (:test.status (meta result)
-              :exception)))
+           (= (:test.status (meta result))
+              :exception))
       (.ex.print s
                  (unsyntax result))
+      ;;
+      (and (syntax? result)
+           (= (:test.status (meta result))
+              :fail))
+      (.stream.txt.outln s
+                         (str (.term.bold)
+                              (.term.fg.cyan)
+                              "Result:"
+                              (.term.reset)
+                              .sys.eol
+                              "  "
+                              (unsyntax result)))
       ;;
       (.stream.txt.outln s
                          (str (.term.bold)
