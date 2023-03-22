@@ -2177,6 +2177,18 @@
 
 
 
+(defn .gen.address.existing
+
+  []
+
+  (.gen.bind (.gen.always nil)
+             (fn [_]
+               (.gen.fmap address
+                          (.gen.long.uniform 0
+                                             (dec (count (:accounts *state*))))))))
+
+
+
 (defn .gen.always
 
   [x]

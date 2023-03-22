@@ -99,6 +99,18 @@
 
 
 
+(.t.def ..gen.address.existing
+
+  (def a
+       (.gen (.gen.address.existing)))
+
+  (.t.is (address? a))
+
+  (.t.is (> (count (:accounts *state*))
+            (long a))))
+
+
+
 (.t.def ..gen.always
 
   (.t.is (= :always
