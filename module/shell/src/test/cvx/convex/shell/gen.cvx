@@ -99,6 +99,17 @@
 
 
 
+(.t.def ..gen.address.actor
+
+  (def addr
+       (.gen (.gen.address.actor)))
+
+  (.t.is (address? addr))
+
+  (.t.is (actor? addr)))
+
+
+
 (.t.def ..gen.address.existing
 
   (def addr
@@ -118,7 +129,7 @@
 
   (.t.is (address? addr))
 
-  (.t.is (blob? (:key (account addr)))))
+  (.t.is (not (actor? addr))))
 
 
 
