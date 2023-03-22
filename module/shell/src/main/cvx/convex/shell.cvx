@@ -2189,6 +2189,23 @@
 
 
 
+(defn .gen.address.user
+
+
+  ([]
+
+    (.gen.address.user nil))
+
+
+  ([max-try]
+
+   (.gen.such-that max-try
+                   (fn [addr]
+                     (:key (account addr))) 
+                   (.gen.address.existing))))
+
+
+
 (defn .gen.always
 
   [x]

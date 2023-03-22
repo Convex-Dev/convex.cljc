@@ -101,13 +101,24 @@
 
 (.t.def ..gen.address.existing
 
-  (def a
+  (def addr
        (.gen (.gen.address.existing)))
 
-  (.t.is (address? a))
+  (.t.is (address? addr))
 
   (.t.is (> (count (:accounts *state*))
-            (long a))))
+            (long addr))))
+
+
+
+(.t.def ..gen.address.user
+
+  (def addr
+       (.gen (.gen.address.user)))
+
+  (.t.is (address? addr))
+
+  (.t.is (blob? (:key (account addr)))))
 
 
 
