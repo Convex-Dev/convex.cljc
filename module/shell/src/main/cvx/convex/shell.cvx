@@ -2732,7 +2732,7 @@
 
    (.shell.invoke '.gen.such-that
                   (or max-try
-                      100)
+                      1000)
                   pred
                   generator)))
 
@@ -5457,7 +5457,7 @@
            (.stream.txt.outln (str "  "
                                    sym
                                    (.term.bold)
-                                   "  =  "
+                                   " = "
                                    (.term.reset)
                                    x)))
          (:binding+ fail)
