@@ -3332,7 +3332,6 @@
 
    (get-in (.peer.data peer)
            [:belief
-            :value
             :orders
             (or pubkey
                 (.peer.pubkey peer))

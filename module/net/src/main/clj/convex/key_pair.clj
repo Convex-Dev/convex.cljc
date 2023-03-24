@@ -178,9 +178,8 @@
 
   [^SignedData signed]
 
-  (-> signed
-      (.getDataRef)
-      (.getValue)))
+  (.getValue signed))
+
 
 
 (defn signed->signature
