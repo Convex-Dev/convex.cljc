@@ -255,7 +255,7 @@
                                                      op)
                                      (P/then (fn [q]
                                                (when-not ($.client/result->error-code q)
-                                                 ($.std/inc ($.client/result->value q)))))))
+                                                 ($.client/result->value q))))))
                                "Unable to retrieve next sequence ID"))))))
 
 

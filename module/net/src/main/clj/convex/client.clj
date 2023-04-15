@@ -29,8 +29,7 @@
            (java.util.concurrent CompletableFuture)
            (java.util.function Function))
   (:refer-clojure :exclude [resolve])
-  (:require [convex.cell     :as $.cell]
-            [convex.db       :as $.db]
+  (:require [convex.db       :as $.db]
             [convex.clj      :as $.clj]
             [convex.key-pair :as $.key-pair]
             [convex.server   :as $.server]))
@@ -319,4 +318,4 @@
                                      {:convex.cell/address address
                                       :convex.error/code   ec
                                       :convex.error/trace  (result->trace result)}))
-                     (inc ($.clj/long (result->value result))))))))
+                     ($.clj/long (result->value result)))))))
