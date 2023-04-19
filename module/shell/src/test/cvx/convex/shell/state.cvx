@@ -104,23 +104,36 @@
                 (.state.genesis {:pubkey+ 42}))
          "Random argument")
 
-  (.t.is (reduce (fn [_ [_k peer]]
-                   (or (let [c (:controller peer)]
-                         (and (= {:url (str c)}
-                                 (:metadata peer))
-                              (= (long c)
-                                 (:stake peer))))
-                       (reduced peer)))
-                 false
-                 (:peers (.state.genesis {:each-peer '(fn [peer]
-                                                        (let [c (:controller peer)
-                                                              k (:key peer)]
-                                                          (set-peer-data k
-                                                                         {:url (str c)})
-                                                          (set-peer-stake k
-                                                                          (long c))))
-                                          :pubkey+   [(.kp.pubkey (.kp.create))
-                                                      (.kp.pubkey (.kp.create))]})))
+  (.t.is (let [state (.state.genesis
+                       {:each-peer '(fn [peer]
+                                      (def x
+                                           (:x peer))
+                                      (let [c (:controller peer)
+                                            k (:key peer)]
+                                        (set-peer-data k
+                                                       {:url (str c)})
+                                        (set-peer-stake k
+                                                        (long c))))
+                        :peer+     [{:x 12}
+                                    {:x 13}]
+                        :pubkey+   [(.kp.pubkey (.kp.create))
+                                    (.kp.pubkey (.kp.create))]})]
+           (reduce (fn [_ [_k peer]]
+                            (or (let [c      (:controller peer)
+                                      c.long (long c)]
+                                  (and (= (get-in state
+                                                  [:accounts
+                                                   c.long
+                                                   :environment
+                                                   'x])
+                                          c.long)
+                                       (= {:url (str c)}
+                                          (:metadata peer))
+                                       (= (long c)
+                                          (:stake peer))))
+                                (reduced peer)))
+                          false
+                          (:peers state)))
          ":each-peer"))
 
 

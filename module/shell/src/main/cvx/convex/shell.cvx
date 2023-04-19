@@ -4185,6 +4185,10 @@
                         "    the peer data from `(:peers *state*)`."
                         "    Typically used for preparing the peer (e.g. see `set-peer-data`)."
                         ""
+                        "  :peer+"
+                        "    Vector where each item is a map of additional data that will be merged"
+                        "    with the data passed to `:each-peer`."
+                        ""
                         "  :pubkey+"
                         "    Vector of distinc public keys, one per peer to declare in the state."
                         "    Defaults to `[(.kp.pubkey (.kp.create .account.0-key))]` which should"
@@ -4226,6 +4230,7 @@
      (if each-peer
        (let [addr-offset (inc (long .account.genesis))
              n.key       (count public-key+)
+             peer+       (:peer+ option+)
              [ok?
               x]         (.state.tmp
                            (fn []
@@ -4238,11 +4243,12 @@
                                    (.account.switch (address (+ addr-offset
                                                                 i)))
                                    (let [pubkey (:key (account *address*))]
-                                     ((eval each-peer) (assoc (get-in *state*
-                                                                    [:peers
-                                                                     pubkey])
-                                                            :key
-                                                            pubkey))
+                                     ((eval each-peer) (merge (get-in *state*
+                                                                      [:peers
+                                                                       pubkey])
+                                                              {:key pubkey}
+                                                              (get peer+
+                                                                   i)))
                                      (recur (inc i))))
                                  (.state.core.vanilla *state*)))))]
          (if ok?
