@@ -481,7 +481,7 @@
 
   ^CVMLong
 
-  [x]
+  [^long x]
 
   (CVMLong/create x))
 
