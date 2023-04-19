@@ -4679,24 +4679,6 @@
 
 
 
-(defn .stream.set.err
-
-  ^{:callable? true
-    :doc       {:description "Sets `.stream.*err*` to the given stream."
-                :examples    [{:code (.stream.set.err (.str.stream.out))}]
-                :signature   [{:params [handle]}]}}
-
-  [handle]
-
-  (if (= *address*
-         .account.core)
-    (def .stream.*err*
-         handle)
-    (call .account.core
-          (.stream.set.err handle))))
-
-
-
 (defn .stream.txt.err
 
   ^{:doc {:description ["Like `.stream.txt.out` but prints to STDERR (returned by `.stream.stderr`)."]
