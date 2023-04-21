@@ -417,7 +417,7 @@
                         "    does not print the full cell is it is too large (fairly small limit)."
                         "    This function has no limit by default."
                         ""
-                        "  - `str` stringigies characters and strings so that they can be concatenated."
+                        "  - `str` stringifies characters and strings so that they can be concatenated."
                         "     E.g. `\\a` -> `\"a\"`"
                         "     This function prints them in their proper cell form."
                         "     E.g. `\\a` -> `\"\\a\"`"]
@@ -4682,7 +4682,7 @@
 (defn .stream.txt.err
 
   ^{:doc {:description ["Like `.stream.txt.out` but prints to STDERR (returned by `.stream.stderr`)."]
-          :examples    [{:code (.stream.err {:some :error})}]
+          :examples    [{:code (.stream.txt.err "Some error")}]
           :signature   [{:params [x]}]}}
 
   [x]
@@ -4695,12 +4695,12 @@
 (defn .stream.txt.errln
 
   ^{:doc {:description ["Like `.stream.txt.outln but prints to STDERR (returned by `.stream.stderr`)."]
-          :examples    [{:code (.stream.errln {:some :error})}]
+          :examples    [{:code (.stream.txt.errln "Some error")}]
           :signature   [{:params [x]}]}}
 
   [x]
 
-  (.stream.txt.outln (stream.stderr)
+  (.stream.txt.outln (.stream.stderr)
                      x))
 
 
