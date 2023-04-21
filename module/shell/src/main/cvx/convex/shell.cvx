@@ -4053,7 +4053,7 @@
       (= (:code x)
          :READER)
       (do
-        (.stream.txt.outln
+        (.stream.txt.errln
            (str .sys.eol
                 (.term.fg.red)
                 (.term.bold)
@@ -4870,8 +4870,7 @@
 (defn .sys.exit
 
   ^{:doc {:description ["Exists the Shell process with the given exit code."
-                        "Exit code must be 0 or >= 128 and <= 255."
-                        "Values below 128 are reserved for the Shell itself."]
+                        "Exit code must be between 0 and 255 (inclusive)."]
           :examples    [{:code (.sys.exit 128)}]
           :signature   [{:params [code]}]}}
 
