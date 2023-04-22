@@ -131,11 +131,13 @@
             (flush))
           (System/exit 2))
         (binding [*out* *err*]
-          (println (str ($.shell.fail/mappify-cvm-ex ex)))
+          (println (str ($.write/string Long/MAX_VALUE
+                                        ($.shell.fail/mappify-cvm-ex ex))))
           (System/exit 1)))
       (let [result ($.cvm/result ctx-2)]
         (when (some? result)
-          (println (str ($.write/string result))))
+          (println (str ($.write/string Long/MAX_VALUE
+                                        result))))
         (System/exit 0)))))
 
 
