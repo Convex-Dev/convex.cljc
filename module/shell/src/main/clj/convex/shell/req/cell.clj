@@ -5,10 +5,11 @@
   (:import (convex.core.data ACell))
   (:refer-clojure :exclude [compile
                             str])
-  (:require [convex.cell :as $.cell]
-            [convex.clj  :as $.clj]
-            [convex.cvm  :as $.cvm]
-            [convex.std  :as $.std]))
+  (:require [convex.cell  :as $.cell]
+            [convex.clj   :as $.clj]
+            [convex.cvm   :as $.cvm]
+            [convex.std   :as $.std]
+            [convex.write :as $.write]))
 
 
 (set! *warn-on-reflection*
@@ -75,15 +76,13 @@
   
    Also, chars and strings print in their cell form." 
 
-  [ctx [limit ^ACell cell]]
+  [ctx [limit cell]]
 
   (or (when-not ($.std/long? limit)
         ($.cvm/exception-set ctx
                              ($.cell/* :ARGUMENT)
                              ($.cell/* "Byte limit must be a Long")))
       ($.cvm/result-set ctx
-                        (.print (if (nil? cell)
-                                  ^ACell ($.cell/symbol "nil")
-                                  cell)
-                                (max 0
-                                     ($.clj/long limit))))))
+                        ($.write/string (max 0
+                                             ($.clj/long limit))
+                                        cell))))
