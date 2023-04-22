@@ -25,7 +25,7 @@
 
 
 (def -state
-     (.state.genesis {:pubkey+ [-peer.pubkey]}))
+     (.state.genesis {:peer+ [{:key -peer.pubkey}]}))
 
 
 

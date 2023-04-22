@@ -4178,22 +4178,28 @@
                         ""
                         "A map of options may be provided:"
                         ""
-                        "  :each-peer"
-                        "    A function expressed as a data."
-                        "    For each created peer, this function will be compiled and executed"
-                        "    using the controller account of that peer. It receives as argument"
-                        "    the peer data from `(:peers *state*)`."
-                        "    Typically used for preparing the peer (e.g. see `set-peer-data`)."
-                        ""
                         "  :peer+"
-                        "    Vector where each item is a map of additional data that will be merged"
-                        "    with the data passed to `:each-peer`."
+                        "    Vector of maps describing peers such as:"
                         ""
-                        "  :pubkey+"
-                        "    Vector of distinc public keys, one per peer to declare in the state."
-                        "    Defaults to `[(.kp.pubkey (.kp.create .account.0-key))]` which should"
-                        "    be only used for testing."
+                        "      :host"
+                        "        Host to advertise in the URL of that peer."
+                        "        Defaults to `\"localhost\"."
                         ""
+                        "      :key (mandatory)"
+                        "        Public key identifying the peer and its controller."
+                        "        Must be unique."
+                        ""
+                        "      :port"
+                        "        Port to advertise the URL of that peer."
+                        "        Defaults to `.peer.default.port`)."
+                        ""
+                        "      :stake"
+                        "        Custom stake the controller will put on this peer."
+                        "        Defaults to 1 / 3 of the initial controller funds."
+                        ""
+                        ""
+                        "If `:peer+` is not provided, a single peer is created using the public key"
+                        "of `(.kp.create .account.0-key)`."
                         ""
                         "Based on the provided public keys (which MUST be distinct):"
                         ""
@@ -4210,8 +4216,7 @@
                         ""
                         "See `(?.shell '.kp)` about creating key pairs."]
           :examples    [{:code (.state.genesis)}
-                        {:code (.state.genesis {:each-peer '(fn [peer] (set-peer-data (:key peer) {:url "foo.com"}))
-                                                :pubkey+   [(.kp.pubkey (.kp.create))]})}]
+                        {:code (.state.genesis {:peer+ [{:key (.kp.pubkey (.kp.create))}]})}]
           :signature   [{:params []}
                         {:params [option+]}]}}
 
@@ -4222,39 +4227,43 @@
 
   ([option+]
 
-   (let [each-peer   (:each-peer option+)
-         public-key+ (or (:pubkey+ option+)
-                         [(.kp.pubkey (.kp.create .account.0-key))])
+   (let [peer+       (or (:peer+ option+)
+                         [{:key (.kp.pubkey (.kp.create .account.0-key))}])
          state       (.shell.invoke '.state.genesis
-                                    public-key+)]
-     (if each-peer
-       (let [addr-offset (inc (long .account.genesis))
-             n.key       (count public-key+)
-             peer+       (:peer+ option+)
-             [ok?
-              x]         (.state.tmp
-                           (fn []
+                                    (map :key
+                                         peer+))
+         addr.offset (inc (long .account.genesis))
+         n.peer      (count peer+)
+         [ok?
+          x]         (.state.tmp
+                       (fn []
+                         (.state.core.vanilla
+                           (do
                              (.state.switch .account.genesis
                                             state)
-                             (loop [i 0]
-                               (if (< i
-                                      n.key)
-                                 (do
-                                   (.account.switch (address (+ addr-offset
-                                                                i)))
-                                   (let [pubkey (:key (account *address*))]
-                                     ((eval each-peer) (merge (get-in *state*
-                                                                      [:peers
-                                                                       pubkey])
-                                                              {:key pubkey}
-                                                              (get peer+
-                                                                   i)))
-                                     (recur (inc i))))
-                                 (.state.core.vanilla *state*)))))]
-         (if ok?
-           x
-           (.ex.rethrow x)))
-       state))))
+                             (loop [i.peer 0]
+                               (if (< i.peer
+                                      n.peer)
+                                 (let [peer (get peer+
+                                                 i.peer)]
+                                   (.account.switch (address (+ addr.offset
+                                                                i.peer)))
+                                   (let [pubkey (get peer
+                                                     :key)]
+                                     (set-peer-data pubkey
+                                                    {:url (str (or (:host peer)
+                                                                   "localhost")
+                                                               ":"
+                                                               (or (:port peer)
+                                                                   .peer.default.port))})
+                                     (when-let [stake (:stake peer)]
+                                       (set-peer-stake pubkey
+                                                       stake)))
+                                   (recur (inc i.peer))))
+                                 *state*)))))]
+     (when-not ok?
+       (.ex.rethrow x))
+     x)))
 
 
 

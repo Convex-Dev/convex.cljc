@@ -83,58 +83,67 @@
 (.t.def ..state.genesis
 
   (.t.is (= (.state.genesis)
-            (.state.genesis {:pubkey+ [(.kp.pubkey (.kp.create .account.0-key))]}))
+            (.state.genesis {:peer+ [{:key (.kp.pubkey (.kp.create .account.0-key))}]}))
          "Default public key")
 
   (.t.is (.t.ex :ARGUMENT
-                (.state.genesis {:pubkey+ []}))
+                (.state.genesis {:peer+ []}))
          "Missing keys")
 
   (.t.is (.t.ex :ARGUMENT
-                (.state.genesis {:pubkey+ [.account.0-key
-                                           .account.0-key]}))
+                (.state.genesis {:peer+ [{:key .account.0-key}
+                                         {:key .account.0-key}]}))
          "Duplicate keys")
 
   (.t.is (.t.ex :ARGUMENT
-                (.state.genesis {:pubkey+ [.account.0-key
-                                           0x12]}))
+                (.state.genesis {:peer+ [{:key .account.0-key}
+                                         {:key 0x12}]}))
          "Bad key")
 
   (.t.is (.t.ex :ARGUMENT
-                (.state.genesis {:pubkey+ 42}))
+                (.state.genesis {:peer+ [{:key 42}]}))
          "Random argument")
 
-  (.t.is (let [state (.state.genesis
-                       {:each-peer '(fn [peer]
-                                      (def x
-                                           (:x peer))
-                                      (let [c (:controller peer)
-                                            k (:key peer)]
-                                        (set-peer-data k
-                                                       {:url (str c)})
-                                        (set-peer-stake k
-                                                        (long c))))
-                        :peer+     [{:x 12}
-                                    {:x 13}]
-                        :pubkey+   [(.kp.pubkey (.kp.create))
-                                    (.kp.pubkey (.kp.create))]})]
-           (reduce (fn [_ [_k peer]]
-                            (or (let [c      (:controller peer)
-                                      c.long (long c)]
-                                  (and (= (get-in state
-                                                  [:accounts
-                                                   c.long
-                                                   :environment
-                                                   'x])
-                                          c.long)
-                                       (= {:url (str c)}
-                                          (:metadata peer))
-                                       (= (long c)
-                                          (:stake peer))))
-                                (reduced peer)))
-                          false
-                          (:peers state)))
-         ":each-peer"))
+  (def pubkey-1
+       (.gen (.gen.blob-32)))
+
+  (def pubkey-2
+       (.gen (.gen.blob-32)))
+
+  (def state
+       (.state.genesis {:peer+ [{:key pubkey-1}
+                                {:host  "foo"
+                                 :key   pubkey-2
+                                 :port  42
+                                 :stake 10}]}))
+
+  (def peer+
+       (:peers state))
+
+  (.t.is (= 2
+            (count peer+))
+         "Only 2 peers declared as expected")
+
+  (def peer-1
+       (get peer+
+            pubkey-1))
+
+  (.t.is (= "localhost:18888"
+            (:url (:metadata peer-1)))
+         "Default URL for peer 1")
+
+  (def peer-2
+       (get peer+
+            pubkey-2))
+
+  (.t.is (= "foo:42"
+            (:url (:metadata peer-2)))
+         "Custom URL for peer 2")
+
+  (.t.is (= 10
+            (:stake peer-2))
+         "Custom stake for peer 2"))
+
 
 
 
