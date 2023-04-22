@@ -6899,7 +6899,7 @@
      (.stream.flush in)
      (or (.stream.line out)
          [false
-          nil
+          key
           nil]))))
 
 
@@ -7083,11 +7083,16 @@
                            :on.prompt    (fn [env]
                                            env)
                            :on.result    (fn [env]
-                                           (.worker.result env
-                                                           true
-                                                           (:worker.key env)
-                                                           (:result env))
-                                           env)})
+                                           (let [result (:result env)]
+                                             (.worker.result env
+                                                             true
+                                                             (:worker.key env)
+                                                             result)
+                                           (if (= result
+                                                  :worker.stop)
+                                             (dissoc env
+                                                     :result)
+                                             env)))})
          pipe      (:pipe option+)
          option-3+ (if pipe
                      (let [[pipe-in
