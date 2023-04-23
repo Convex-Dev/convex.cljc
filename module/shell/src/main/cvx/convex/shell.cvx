@@ -3597,7 +3597,11 @@
   ([command option+]
 
    (.shell.invoke '.process.run
-                  command
+                  (map (fn [x]
+                         (if (str? x)
+                           x
+                           (.cell.str x)))
+                       command)
                   (:dir option+)
                   (:env option+)
                   (:env.extra option+)
