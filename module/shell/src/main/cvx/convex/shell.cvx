@@ -1912,7 +1912,7 @@
 
    (.shell.invoke '.file.stream.out
                   path
-                  (:append? option+))))
+                  (boolean (:append? option+)))))
 
 
 
@@ -2995,6 +2995,24 @@
 
   (.shell.invoke '.kp.seed
                  key-pair))
+
+
+
+(defn .kp.seed.dev
+
+  ^{:doc {:description ["Given an address, returns a reproducible seed for creating"
+                        "a key pair."
+                        ""
+                        "Attention, this should only be used for dev and testing."
+                        ""
+                        "See `.kp.create`."]
+          :examples    [{:code (.kp.seed.dev #12)}]
+          :signature   [{:params [address]}]}}
+
+  [address]
+
+  (.gen (.gen.blob-32)
+        {:seed (long address)}))
 
 
 

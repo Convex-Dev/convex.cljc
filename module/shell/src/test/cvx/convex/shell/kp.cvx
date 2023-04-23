@@ -60,6 +60,23 @@
 
 
 
+(.t.def ..kp.seed.dev
+
+  (def seed
+       (.kp.seed.dev #12))
+
+  (.t.is (and (blob? seed)
+              (= (count seed)
+                 32)))
+
+  (.t.is (= seed
+            (.kp.seed.dev #12)))
+
+  (.t.is (not (= seed
+                 (.kp.seed.dev #1000)))))
+
+
+
 (.t.def ..kp.sign
 
   (def kp
