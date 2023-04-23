@@ -3246,23 +3246,23 @@
 
   ([key-pair option+]
 
-   (let [host       (or (:host option+)
-                        "localhost")
-         n-peer     (or (:n-peer option+)
-                        10)
-         port       (or (:port option+)
-                        .peer.default.port)
-         state      (:state option+)
-         poll-delay (or (:delay.poll option+)
-                        2000)
-         root-key   (:root-key option+)
-         url        (:url option+)]
+   (let [host          (or (:host option+)
+                           "localhost")
+         n.max.sibling (or (:n.max.sibling option+)
+                           10)
+         port          (or (:port option+)
+                           .peer.default.port)
+         state         (:state option+)
+         poll-delay    (or (:delay.poll option+)
+                           2000)
+         root-key      (:root-key option+)
+         url           (:url option+)]
      (if state
        (.shell.invoke '.peer.init.state
                       state
                       key-pair
                       host
-                      n-peer
+                      n.max.sibling
                       poll-delay
                       port
                       root-key
@@ -3270,7 +3270,7 @@
        (.shell.invoke '.peer.init.db
                       key-pair
                       host
-                      n-peer
+                      n.max.sibling
                       poll-delay
                       port
                       root-key
@@ -3290,7 +3290,7 @@
                  key-pair
                  (or (:host option+)
                      "localhost")
-                 (or (:n-peer option+)
+                 (or (:n.max.sibling option+)
                      10)
                  (or (:delay.poll option+)
                      2000)

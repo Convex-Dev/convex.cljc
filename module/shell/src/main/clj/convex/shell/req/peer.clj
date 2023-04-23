@@ -48,16 +48,16 @@
 
   ;; Used by the [[init-*]] functions.
 
-  [ctx [key-pair host n-peer poll-delay port root-key url] map-option+]
+  [ctx [key-pair host n-max-sibling poll-delay port root-key url] map-option+]
 
   (or (when-not ($.std/string? host)
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
                              ($.cell/* "Host must be a String")))
-      (when-not ($.std/long? n-peer)
+      (when-not ($.std/long? n-max-sibling)
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
-                             ($.cell/* "Number of peers must be a Long")))
+                             ($.cell/* "Maximum number of sibling peers must be a Long")))
       (when-not ($.std/long? poll-delay)
         ($.cvm/exception-set ctx
                              ($.cell/code-std* :ARGUMENT)
@@ -91,7 +91,7 @@
                                                           ($.server/create key-pair-2
                                                                            (map-option+ {:convex.server/bind       ($.clj/string host)
                                                                                          :convex.server/db         ($.db/current)
-                                                                                         :convex.server/n-peer     ($.clj/long n-peer)
+                                                                                         :convex.server/n-peer     ($.clj/long n-max-sibling)
                                                                                          :convex.server/poll-delay (max 0
                                                                                                                         ($.clj/long poll-delay))
                                                                                          :convex.server/port       port-2
