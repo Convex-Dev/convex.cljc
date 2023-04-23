@@ -131,9 +131,13 @@
 
   [ctx [path append?]]
 
-  (-stream ctx
-           path
-           (fn [path]
-             ($.shell.io/file-out path
-                                  append?))
-           #{:write}))
+  (or (when-not ($.std/boolean? append?)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Appending must be indicated with a Boolean")))
+      (-stream ctx
+               path
+               (fn [path]
+                 ($.shell.io/file-out path
+                                      ($.clj/boolean append?)))
+               #{:write})))
