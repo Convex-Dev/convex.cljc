@@ -159,3 +159,20 @@
 
   (transact-main (init)
                  txt-cell+))
+
+
+
+
+(comment
+
+
+  (-> (init)
+      (transact ($.cell/* (do
+                            (.account.switch (address 12))
+                            (set-peer-data (blob "3b6a27bcceb6a42d62a3a8d02a6f0d73653215771de243a63ac048a18b59da29")
+                                           {:test :foo})
+                            (:peers *state*))))
+      ($.cvm/result))
+
+
+         )

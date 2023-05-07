@@ -96,7 +96,7 @@
 
 (.t.def ..cell.str
 
-  (.t.is (= "\a"
+  (.t.is (= "\\a"
             (.cell.str \a))
          "Char")
 

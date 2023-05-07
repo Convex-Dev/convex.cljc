@@ -157,7 +157,7 @@
 
   ^Blob
 
-  [hex-string]
+  [^String hex-string]
 
   (Blobs/fromHex hex-string))
 

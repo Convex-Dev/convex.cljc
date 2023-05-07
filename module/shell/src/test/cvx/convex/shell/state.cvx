@@ -233,7 +233,7 @@
                                :a)))))
 
 
-  (.t.is (not (defined? a))
+  (.t.is (not (defined? 'a))
          "State reverted on success")
 
   (def failure
@@ -246,7 +246,7 @@
   (.t.is (= false
             (first failure)))
 
-  (.t.is (not (defined? a))
+  (.t.is (not (defined? 'a))
          "State reverted on failure")
 
   (.t.is (.t.ex :FROM-TEST
@@ -273,7 +273,7 @@
                    :a))))
 
 
-  (.t.is (not (defined? a))
+  (.t.is (not (defined? 'a))
          "State reverted on success")
 
   (def failure
@@ -286,7 +286,7 @@
   (.t.is (= false
             (first failure)))
 
-  (.t.is (not (defined? a))
+  (.t.is (not (defined? 'a))
          "State reverted on failure")
 
   (.t.is (.t.ex :FROM-TEST

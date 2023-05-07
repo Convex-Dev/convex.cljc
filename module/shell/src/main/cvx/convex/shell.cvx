@@ -3718,8 +3718,7 @@
                         ""
                         "A map of options may be provided to alter the behavior of the REPL."
                         "Functions in this map takes an \"env\" map and must returns it, altered or not."
-                        "The env map starts with those options. Users may want to attach additional
-                         information."
+                        "The env map starts with those options. Users may want to attach additional information."
                         ""
                         "Tweaking these option may lead to interesting ways of doing inter-process communication"
                         "through STDIO."

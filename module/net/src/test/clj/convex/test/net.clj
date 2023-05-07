@@ -147,17 +147,33 @@
 
   (let [data ($.server/data @d*server)]
 
-    (T/is (boolean ($.std/get data
-                              ($.cell/* :belief)))
+    (T/is (boolean (get data
+                        ($.cell/* :belief)))
           "Belief")
 
-    (T/is (boolean ($.std/get data
-                              ($.cell/* :results)))
+    (T/is ($.std/long? (get data
+                            ($.cell/* :history)))
+          "History")
+
+    (T/is (boolean (get data
+                        ($.cell/* :results)))
           "Results")
 
-    (T/is (boolean ($.std/get data
-                              ($.cell/* :states)))
-          "States")))
+    (T/is ($.std/state? (get data
+                             ($.cell/* :genesis)))
+          "Genesis state")
+
+    (T/is ($.std/long? (get data
+                            ($.cell/* :position)))
+          "Position")
+
+    (T/is ($.std/state? (get data
+                             ($.cell/* :state)))
+          "Current state")
+
+    (T/is ($.std/long? (get data
+                            ($.cell/* :timestamp)))
+          "Current timestamp")))
 
 
 
@@ -281,7 +297,7 @@
       (T/is (= ($.cell/boolean false)
                (-> ($.client/query client
                                    user
-                                   ($.cell/* (defined? foo-query)))
+                                   ($.cell/* (defined? 'foo-query)))
                    -deref
                    $.client/result->value))
             "State change in previous query has been reversed"))))

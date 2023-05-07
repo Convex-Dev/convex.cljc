@@ -436,7 +436,7 @@
 
   (-> ctx
       (state)
-      (.getTimeStamp)))
+      (.getTimestamp)))
 
 
 ;;;;;;;;;; Modifying context properties

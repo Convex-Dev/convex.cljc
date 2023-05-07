@@ -21,8 +21,7 @@
                              AVector
                              Keywords)
            (convex.core.store AStore)
-           (convex.peer IServerEvent
-                        Server)
+           (convex.peer Server)
            (java.net InetSocketAddress)
            (java.util HashMap))
   (:require [convex.cell :as $.cell]))
@@ -163,12 +162,6 @@
                     (some->> (:convex.server/db option+)
                              (.put h
                                    Keywords/STORE))
-                    (when-some [hook (:convex.server/hook option+)]
-                      (.put h
-                            Keywords/EVENT_HOOK
-                            (reify IServerEvent
-                              (onServerChange [_this event]
-                                (hook event)))))
                     (.put h
                           Keywords/KEYPAIR
                           keypair)
@@ -295,11 +288,15 @@
 
   "Returns a map cell with:
 
-   | Key        | Value                           |
-   |------------|---------------------------------|
-   | `:belief`  | Current belief held by `server` |
-   | `:results` | All available block results     |
-   | `:states`  | All available states            |"
+   | Key          | Value                                                       |
+   |--------------|-------------------------------------------------------------|
+   | `:belief`    | Current belief held by `server`                             |
+   | `:genesis`   | Genesis state                                               |
+   | `:history`   | Ordering position for which results and states are avaiable |
+   | `:position`  | State index (ie. number of state transitions)               |
+   | `:results`   | All available block results                                 |
+   | `:state`     | Consensus state                                             |
+   | `:timestamp` | Current timestamp                                           |"
 
   ^AMap
 

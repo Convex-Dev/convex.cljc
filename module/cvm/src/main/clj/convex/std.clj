@@ -660,10 +660,10 @@
 
   ^CVMLong
 
-  [a b]
+  [^AInteger a ^AInteger b]
 
-  (-ensure-numeric-success (RT/mod a
-                           b)))
+  (.mod a
+        b))
 
 
 
