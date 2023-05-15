@@ -29,6 +29,11 @@
               ($.cvm/exception-set ctx
                                    ($.cell/code-std* :ARGUMENT)
                                    ($.cell/* "Juice units cannot be < 1")))
+            (when (> n-unit-2
+                     ($.cvm/juice-limit ctx))
+              ($.cvm/exception-set ctx
+                                   ($.cell/code-std* :ARGUMENT)
+                                   ($.cell/* "Juice used cannot be > juice limit")))
             ($.cvm/juice-set ctx
                              ($.clj/long n-unit))))))
 
@@ -48,5 +53,5 @@
                   ($.cvm/eval trx))]
     ($.cvm/result-set ctx
                       ($.cell/* [~($.cvm/result ctx-2)
-                                 ~($.cell/long (- j-1
-                                                  ($.cvm/juice ctx-2)))]))))
+                                 ~($.cell/long (- ($.cvm/juice ctx-2)
+                                                  j-1))]))))

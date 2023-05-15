@@ -43,6 +43,7 @@
                                                                         ($.key-pair/ed25519)
                                                                         ($.key-pair/account-key))]})
                               ($.cvm/juice-refill)
+                              ($.cvm/juice-limit-set Long/MAX_VALUE)
                               ($.cvm/fork-to Init/CORE_ADDRESS))
       ^AccountStatus core ($.cvm/account ctx)]
 

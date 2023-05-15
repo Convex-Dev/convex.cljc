@@ -62,6 +62,8 @@
 
 
 (declare juice
+         juice-limit
+         juice-limit-set
          juice-set
          state-set)
 
@@ -152,6 +154,7 @@
 
   (-> ctx
       (.forkWithAddress address)
+      (juice-limit-set (juice-limit ctx))
       (juice-set (juice ctx))))
 
 
@@ -328,13 +331,33 @@
 
 (defn juice
 
-  "Returns the remaining amount of juice available for the executing account.
+  "Returns the amount of juice consumed so far in the given context.
   
    Also see [[juice-set]]."
 
   [^Context ctx]
 
-  (.getJuice ctx))
+  (.getJuiceUsed ctx))
+
+
+
+(defn juice-available
+
+  "Returns the amount of juice available for execution according to [[juice]] and [[juice-limit]]."
+
+  [^Context ctx]
+
+  (.getJuiceAvailable ctx))
+
+
+
+(defn juice-limit
+
+  "Returns the maximum amount of juice that can be consumed."
+
+  [^Context ctx]
+
+  (.getJuiceLimit ctx))
 
 
 
@@ -510,7 +533,8 @@
   [^Context ctx code]
 
   (.deployActor ctx
-                code))
+                (into-array ACell
+                            [code])))
 
 
 
@@ -566,24 +590,27 @@
 
 (defn juice-refill
 
-  "Refills juice to maximum.
+  "Resets the value of [[juice]] to `0`.
 
-   Also see [[juice-set]]."
+   Also see [[juice-set]].
+  
+   Returns an update context."
 
   ^Context
 
   [^Context ctx]
 
   (juice-set ctx
-             Long/MAX_VALUE))
-
+             0))
 
 
 (defn juice-set
 
-  "Sets the juice of the given `ctx` to the requested `amount`.
+  "Sets the value of [[juice]] to the requested `amount`.
   
-   Also see [[juice]], [[juice-refill]]."
+   Also see [[juice]], [[juice-refill]].
+  
+   Returns an update context."
 
   ^Context
 
@@ -591,6 +618,21 @@
 
   (.withJuice ctx
               amount))
+
+
+
+(defn juice-limit-set
+
+  "Sets the value of [[juice-limit]] to the requested `amount`.
+
+   Returns an update context."
+
+  ^Context
+
+  [^Context ctx amount]
+
+  (.withJuiceLimit ctx
+                   amount))
 
 
 

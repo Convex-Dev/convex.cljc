@@ -8,10 +8,10 @@
 
   (.juice.set 100000)
 
-  (.t.is (long? (.juice.refill)))
+  (.t.is (zero? (.juice.refill)))
 
-  (.t.is (< 100000
-            *juice*)))
+  (.t.is (< *juice*
+            100000)))
 
 
 
@@ -25,9 +25,9 @@
   (.t.is (.t.ex :JUICE
                 (.ex.rethrow
                   (second (.state.tmp*
-                            (.juice.set 0)
+                            (.juice.set *juice-limit*)
                             (+ 2 2)))))
-         "Zero juice")
+         "Zero juice left")
 
   (.t.is (.t.ex :ARGUMENT
                 (.juice.set -1))

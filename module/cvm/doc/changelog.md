@@ -13,6 +13,9 @@ repository.
     - `$.cell/bigint`
     - `$.clj/bigint`
     - `$.cvm/actor?`
+    - `$.cvm/juice-available`
+    - `$.cvm/juice-limit`
+    - `$.cvm/juice-limit-set`
     - `$.cvm/transact`
     - `$.std/bigint?`
     - `$.std/integer?`
@@ -21,6 +24,7 @@ repository.
     - `$.std/hash?`
     - `$.std/transaction?`
 - Change
+    - `$.cvm/juice` now indicates consumed juice instead of remaining juice
     - Remove anything related to `CVMByte` (since removed from newer Convex version)
     - `$.db/write` and `$.db/root-write` return a new version of the input cell
         - See docstrings, the old version should be discarded in favor of that new version 
