@@ -4,36 +4,38 @@
 ;;;;;;;;;;
 
 
-(.t.def ..cell.compile
-
-  (def code
-       '(def foo (inc bar)))
-
-  (.t.is (boolean (.cell.compile #1234567890
-                                 code))
-         "Inexistent account")
-
-  (.t.is (= (compile code)
-            (.cell.compile *address*
-                           code))
-         "With `*state*`")
-
-  (.t.is (= (compile code)
-            (.cell.compile (.state.genesis)
-                           *address*
-                           code))
-         "With custom state")
-
-  (.t.is (.t.ex :ARGUMENT
-                (.cell.compile :fail
-                               *address*
-                               code))
-         "Not a state")
-
-  (.t.is (.t.ex :ARGUMENT
-                (.cell.compile :fail
-                               code))
-         "Not a address"))
+;; `.cell.compile` has been removed for now because it does not work with recent Convex changes.
+;
+; (.t.def ..cell.compile
+; 
+;   (def code
+;        '(def foo (inc bar)))
+; 
+;   (.t.is (boolean (.cell.compile #1234567890
+;                                  code))
+;          "Inexistent account")
+; 
+;   (.t.is (= (compile code)
+;             (.cell.compile *address*
+;                            code))
+;          "With `*state*`")
+; 
+;   (.t.is (= (compile code)
+;             (.cell.compile (.state.genesis)
+;                            *address*
+;                            code))
+;          "With custom state")
+; 
+;   (.t.is (.t.ex :ARGUMENT
+;                 (.cell.compile :fail
+;                                *address*
+;                                code))
+;          "Not a state")
+; 
+;   (.t.is (.t.ex :ARGUMENT
+;                 (.cell.compile :fail
+;                                code))
+;          "Not a address"))
 
 
 
