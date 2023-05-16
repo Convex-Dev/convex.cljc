@@ -183,14 +183,10 @@
       (let [state-old           ($.cvm/state ctx)
             ^AccountStatus core (.getAccount state-old
                                              Init/CORE_ADDRESS)]
-        (-> ctx
-            ($.cvm/state-set (-transplant-core state
-                                               (.getEnvironment core)
-                                               (.getMetadata core)))
-            (cond->
-              (not= address
-                    ($.cvm/address ctx))
-              ($.cvm/fork-to address))
+        (-> ($.cvm/ctx {:convex.cvm/address address
+                        :convex.cvm/state   (-transplant-core state
+                                                              (.getEnvironment core)
+                                                              (.getMetadata core))})
             ($.cvm/result-set state-old)))))
 
 

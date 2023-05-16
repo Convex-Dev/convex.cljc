@@ -665,6 +665,8 @@
 (defn state-set
 
   "Replaces the CVM state in the `ctx` with the given one.
+
+   Attention, will fail if the [[address]] does not exist in the  new `state`.
   
    See [[state]]."
 
