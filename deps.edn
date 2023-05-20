@@ -33,6 +33,30 @@
 
   ;; EXTERNAL DEPENDENCIES
 
+  :ext/aws
+
+  {:extra-deps {com.cognitect.aws/api       {:mvn/version "0.8.666"}
+                com.cognitect.aws/endpoints {:mvn/version "1.1.12.456"}}
+   :maestro/doc "AWS data-driven API by Cognitect"
+   :maestro/url "https://github.com/cognitect-labs/aws-api"}
+
+
+  :ext/aws.cloudformation
+
+  {:extra-deps      {com.cognitect.aws/cloudformation {:mvn/version "847.2.1365.0"}}
+   :maestro/doc     "CloudFormation drier for the AWS API"
+   :maestro/require [:ext/aws]
+   :maestro/url     "https://github.com/cognitect-labs/aws-api"}
+
+
+  :ext/aws.s3
+
+  {:extra-deps      {com.cognitect.aws/s3 {:mvn/version "847.2.1365.0"}}
+   :maestro/doc     "S3 driver for the AWS API"
+   :maestro/require [:ext/aws]
+   :maestro/url     "https://github.com/cognitect-labs/aws-api"}
+
+
 
   :ext/babashka.fs
 
@@ -304,6 +328,17 @@
                        :module/break
                        :module/cvm]
    :maestro/root      "module/app.fuzz"}
+
+  ;---
+
+  :module/aws.loadnet
+
+  {:convex/type       #{:lib}
+   :extra-paths       ["module/aws.loadnet/src/main/clj"]
+   :maestro/doc       "Deploying and managing Convex networks for load testing"
+   :maestro/platform+ [:jvm]
+   :maestro/require   [:ext/aws.cloudformation
+                       :ext/json]}
 
   ;---
 
