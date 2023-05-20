@@ -1,10 +1,15 @@
 (ns convex.aws.loadnet
 
+  (:refer-clojure :exclude [await])
   (:require [clojure.data.json         :as json]
             [clojure.string            :as string]
             [cognitect.aws.client.api  :as aws]
             [cognitect.aws.credentials :as aws.cred]
             [protosens.process         :as P.process]))
+
+
+(declare ip+
+         status)
 
 
 ;;;;;;;;;; Private
@@ -61,8 +66,8 @@
      {:Description "Convex network for load testing"
       :Outputs     (into {}
                          (map (fn [i-peer name-peer]
-                                [(str "Ip"
-                                      i-peer)
+                                [(format "IpPeer%d"
+                                         i-peer)
                                  {:Description (format "%s public IP"
                                                        name-peer)
                                   :Value       {"Fn::GetAtt" [name-peer
@@ -125,6 +130,28 @@
 ;;;
 
 
+(defn await
+
+  [client stack]
+
+  (let [status- (status client
+                        stack)]
+    (case status-
+      ;;
+      "CREATE_IN_PROGRESS"
+      (do
+        (Thread/sleep 2000)
+        (recur client
+               stack))
+      ;;
+      "CREATE_COMPLETE"
+      nil
+      ;;
+      (throw (ex-info "Something failed while creating the stack"
+                      {:convex.aws.stack/status status-})))))
+
+
+
 (defn cost
 
 
@@ -160,17 +187,21 @@
 
    (let [stack-name (or (:StackName option+)
                         (str "LoadNet-"
-                             (System/currentTimeMillis)))]
-     (-> (aws/invoke client
-                     {:op      :CreateStack
-                      :request {;:OnFailure  "DELETE"
-                                :Parameters  (-request-param+ param+)
-                                :StackName    stack-name
-                                :Tags         (:Tags option+)
-                                :TemplateBody (json/write-str (template option+))}})
-         (-validate-result)
-         (assoc :StackName
-                stack-name)))))
+                             (System/currentTimeMillis)))
+         stack      (-> (aws/invoke client
+                                    {:op      :CreateStack
+                                     :request {;:OnFailure  "DELETE"
+                                               :Parameters  (-request-param+ param+)
+                                               :StackName    stack-name
+                                               :Tags         (:Tags option+)
+                                               :TemplateBody (json/write-str (template option+))}})
+                        (-validate-result)
+                        (assoc :StackName
+                               stack-name))]
+     (await client
+            stack)
+     (ip+ client
+          stack))))
 
 
 
@@ -205,14 +236,20 @@
 
   [client stack]
 
-  (-> (describe client
-                stack)
-      (:Outputs)
-      (->> (into []
-                 (keep (fn [output]
-                         (when (string/starts-with? (output :OutputKey)
-                                                    "Ip")
-                           (output :OutputValue))))))))
+  (let [output+ (:Outputs (describe client
+                                    stack))]
+    (assoc stack
+           :convex.aws.ip/peer+
+           (->> output+
+                (keep (fn [output]
+                       (let [^String k (output :OutputKey)]
+                         (when (string/starts-with? k
+                                                    "IpPeer")
+                           [(Integer/parseInt (.substring k
+                                                          6))
+                            (output :OutputValue)]))))
+                (sort-by first)
+                (mapv second)))))
 
 
 
@@ -220,8 +257,8 @@
 
   [client stack]
 
-  (= (:StackStatus (describe client
-                             stack))
+  (= (status client
+             stack)
      "CREATE_COMPLETE"))
 
 
@@ -238,6 +275,48 @@
       (:StackResources)))
 
 
+
+(defn status
+
+  [client stack]
+
+  (:StackStatus (describe client
+                          stack)))
+
+
+;;;;;;;;;; Remote commands
+
+
+(defn ssh
+
+  [key ip command]
+
+  (P.process/shell (concat ["ssh"
+                            "-i" key
+                            "-o" "StrictHostKeyChecking=no"
+                            (str "ubuntu@"
+                                 ip)]
+                           command)))
+
+
+
+(defn cvx
+
+  [key ip]
+
+  (P.process/shell ["ssh"
+                    "-i" key
+                    "-o" "StrictHostKeyChecking=no"
+                    (str "ubuntu@"
+                         ip)
+                    "cvx"
+                    "'(.worker.start {:pipe \"peer\"})'"
+                    "&"]
+                   ))
+
+
+
+
 ;;;;;;;;;;
 
 
@@ -247,11 +326,9 @@
   (def c (client))
 
 
-
   (sort (keys (aws/ops c))) ; :CreateStack  :DeleteStack
 
-  (aws/doc c :EstimateTemplateCost)
-
+  (aws/doc c :DescribeStacks)
 
 
   (def s (create c
@@ -267,8 +344,24 @@
   (describe c s)
   (resrc+ c s)
   (ip+ c s)
+  (status c s)
+
 
   (cost c {:KeyName "foo"})
+
+
+  (def p
+       (ssh "/Users/adam/Desktop/Test.pem"
+            (first (ip+ c s))
+            ["cvx"
+             "'(inc 42)'"
+             ]))
+
+  (def p
+       (cvx "/Users/adam/Desktop/Test.pem"
+            (first (ip+ c s))))
+
+  (P.process/destroy p)
 
 
 
