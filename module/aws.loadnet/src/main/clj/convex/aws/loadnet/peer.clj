@@ -12,7 +12,7 @@
 
   [env i-peer]
 
-  (log/info (format "Awaiting peer %d"
+  (log/info (format "Awaiting peer process startup %d"
                     i-peer))
   (when-not (= ($.cell/* :ready)
                @($.aws.loadnet.rpc/worker env
@@ -20,7 +20,7 @@
                                           ($.cell/* :ready)))
     (throw (Exception. (format "Problem while testing if peer %d was ready"
                                i-peer))))
-  (log/info (format "Peer %d ready to receive transactions"
+  (log/info (format "Peer process %d ready"
                     i-peer)))
 
 
@@ -86,7 +86,7 @@
                        (mapv (fn [i-batch ip-ready _ip-todo]
                                (let [i-peer (+ n-ready
                                                i-batch)]
-                                 (log/info (format "Starting peer %d"
+                                 (log/info (format "Starting peer process %d"
                                                    i-peer))
                                  [i-peer
                                   ($.aws.loadnet.rpc/cvx
@@ -129,5 +129,31 @@
   (let [env-2 (-> env
                   (start-genesis)
                   (start-syncer+))]
-    (log/info "LoadNet ready to receive transactions")
+    (log/info "All peer processes ready to receive transactions")
     env-2))
+
+
+
+(defn stop
+
+  [env]
+
+  (doseq [[i-peer
+           d*result] (mapv (fn [i-peer]
+                             (log/info (format "Stopping peer server %d"
+                                               i-peer))
+                             [i-peer
+                              ($.aws.loadnet.rpc/worker env
+                                                        i-peer
+                                                        ($.cell/*
+                                                          (do
+                                                            (.peer.stop peer)
+                                                            (.db.flush)
+                                                            :ok)))])
+                           (range (count (env :convex.aws.ip/peer+))))]
+    (when-not (= @d*result
+                 ($.cell/* :ok))
+      (log/error (format "Peer server %d might not have been stopped properly"
+                         i-peer))))
+  (log/info "All peer servers have been stopped")
+  env)

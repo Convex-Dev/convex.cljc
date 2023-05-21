@@ -75,12 +75,12 @@
                               out] (.worker.pipe+ "peer")]
                          (.worker.exec {:in  (.file.stream.out in)
                                         :out (.file.stream.in out)}
-                                       ~cell))))]
+                                       (quote ~cell)))))]
     (delay
       (when-not (zero? (:exit @process))
         (throw (ex-info "SSH error while executing remote CVX command"
                         {:convex.aws/i.peer      i-peer
-                         :convex.aws.process/err (slurp (:out process))})))
+                         :convex.aws.process/err (slurp (:err process))})))
       (let [[ok?
              _
              x]  (seq (first ($.read/string (slurp (:out process)))))]
