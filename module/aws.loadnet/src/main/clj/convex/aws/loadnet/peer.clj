@@ -9,7 +9,7 @@
 ;;;;;;;;;;
 
 
-(defn -await-ready
+(defn- -await-ready
 
   [env i-peer]
 
@@ -23,6 +23,17 @@
                                i-peer))))
   (log/info (format "Peer process %d ready"
                     i-peer)))
+
+
+
+(defn- -dir
+
+  [env]
+
+  (-> (or (env :convex.aws.loadnet/dir)
+          "./")
+      (bb.fs/canonicalize)
+      (str)))
 
 
 ;;;;;;;;;;
@@ -163,13 +174,40 @@
 ;;;;;;;;;;
 
 
+(defn etch
+
+
+  ([env]
+
+   (etch env
+         nil))
+
+
+  ([env i-peer]
+
+   (let [dir      (format "%s/etch"
+                          (-dir env))
+         i-peer-2 (or i-peer
+                      0)]
+     (log/info (format "Downloading Etch instance from peer %d to '%s'"
+                       i-peer-2
+                       dir))
+     (bb.fs/create-dirs dir)
+     ($.aws.loadnet.rpc/rsync env
+                              i-peer-2
+                              (format "%s/%d.etch"
+                                      dir
+                                      i-peer)
+                              {:src "store.etch"}))))
+
+
+
 (defn log+
 
   [env]
 
   (let [dir (format "%s/log"
-                    (or (env :convex.aws.loadnet/dir)
-                        "./"))]
+                    (-dir env))]
     (log/info (format "Collecting peer logs to '%s'"
                       dir))
     (bb.fs/create-dirs dir)

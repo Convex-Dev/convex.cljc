@@ -52,6 +52,7 @@
                            {:exclude ["store.etch"]})
 
   ($.aws.loadnet.peer/log+ env-2)
+  ($.aws.loadnet.peer/etch env-2)
 
 
 
