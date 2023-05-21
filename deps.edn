@@ -340,6 +340,7 @@
    :maestro/require   [:ext/aws.cloudformation
                        :ext/json
                        :ext/protosens.process
+                       :ext/timbre
                        :module/cvm]}
 
   ;---

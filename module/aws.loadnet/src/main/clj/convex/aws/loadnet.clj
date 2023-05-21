@@ -1,6 +1,7 @@
 (ns convex.aws.loadnet
 
   (:require [cognitect.aws.client.api  :as aws]
+            [convex.aws.loadnet.log]
             [convex.aws.loadnet.peer   :as $.aws.loadnet.peer]
             [convex.aws.loadnet.rpc    :as $.aws.loadnet.rpc]
             [convex.aws.loadnet.stack  :as $.aws.loadnet.stack]
@@ -24,7 +25,7 @@
   (def env-2
        ($.aws.loadnet.stack/create (merge env
                                           {:convex.aws.key/file         "/Users/adam/Desktop/Test.pem"
-                                           :convex.aws.loadnet/n.peer   10
+                                           :convex.aws.loadnet/n.peer   3
                                            :convex.aws.stack/parameter+ {:KeyName          "Test"
                                                                          :PeerInstanceType "t2.micro"}
                                            :convex.aws.stack/tag+       {:Project "Ontochain"}})))

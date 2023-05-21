@@ -1,7 +1,8 @@
 (ns convex.aws.loadnet.peer
   
   (:require [convex.aws.loadnet.rpc :as $.aws.loadnet.rpc]
-            [convex.cell            :as $.cell]))
+            [convex.cell            :as $.cell]
+            [taoensso.timbre        :as log]))
 
 
 ;;;;;;;;;;
@@ -11,12 +12,16 @@
 
   [env i-peer]
 
+  (log/info (format "Awaiting peer %d"
+                    i-peer))
   (when-not (= ($.cell/* :ready)
                ($.aws.loadnet.rpc/worker env
                                          i-peer
                                          ($.cell/* :ready)))
     (throw (Exception. (format "Problem while testing if peer %d was ready"
-                               i-peer)))))
+                               i-peer))))
+  (log/info (format "Peer %d ready to receive transactions"
+                    i-peer)))
 
 
 ;;;;;;;;;;
@@ -26,6 +31,7 @@
 
   [env]
 
+  (log/info "Starting peer 0 (genesis)")
   (let [env-2
         (assoc env
                :convex.aws.loadnet.cvx/peer+
@@ -65,6 +71,7 @@
 
   [env]
 
+  (log/info "Starting syncers")
   (let [ip+ (env :convex.aws.ip/peer+)]
     (loop [process+ []
            ready+   [(first ip+)]
@@ -79,6 +86,8 @@
                        (map (fn [i-batch ip-ready _ip-todo]
                               (let [i-peer (+ n-ready
                                               i-batch)]
+                                (log/info (format "Starting peer %d"
+                                                  i-peer))
                                 [i-peer
                                  ($.aws.loadnet.rpc/cvx
                                   env

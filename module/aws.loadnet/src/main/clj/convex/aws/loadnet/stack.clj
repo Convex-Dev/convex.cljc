@@ -4,7 +4,8 @@
             [clojure.string              :as string]
             [cognitect.aws.client.api    :as aws]
             [cognitect.aws.credentials   :as aws.cred]
-            [convex.aws.loadnet.template :as $.aws.loadnet.template]))
+            [convex.aws.loadnet.template :as $.aws.loadnet.template]
+            [taoensso.timbre             :as log]))
 
 
 (declare describe
@@ -43,19 +44,21 @@
 
   [env]
 
-  (let [status- (status env)]
-    (case status-
-      ;;
-      "CREATE_IN_PROGRESS"
-      (do
-        (Thread/sleep 2000)
-        (recur env))
-      ;;
-      "CREATE_COMPLETE"
-      env
-      ;;
-      (throw (ex-info "Something failed while creating the stack"
-                      {:convex.aws.stack/status status-})))))
+  (log/info "Awaiting stack creation")
+  (loop []
+    (let [status- (status env)]
+      (case status-
+        ;;
+        "CREATE_IN_PROGRESS"
+        (do
+          (Thread/sleep 2000)
+          (recur))
+        ;;
+        "CREATE_COMPLETE"
+        env
+        ;;
+        (throw (ex-info "Something failed while creating the stack"
+                        {:convex.aws.stack/status status-}))))))
 
 
 
@@ -77,6 +80,7 @@
 
   [env]
 
+  (log/info "Fetching IP addresses of all peer instances")
   (let [output+ (:Outputs (describe env))]
     (assoc env
            :convex.aws.ip/peer+
@@ -115,6 +119,8 @@
   (let [stack-name (or (:convex.aws.stack/name env)
                        (str "LoadNet-"
                             (System/currentTimeMillis)))
+        _          (log/info (format "Creating stack for loadnet called '%s'"
+                                     stack-name))
         result     (-invoke env
                             :CreateStack
                             {;:OnFailure   "DELETE"
