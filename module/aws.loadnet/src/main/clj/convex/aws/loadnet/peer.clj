@@ -27,7 +27,7 @@
 ;;;;;;;;;;
 
 
-(defn genesis
+(defn start-genesis
 
   [env]
 
@@ -67,7 +67,7 @@
 
 
 
-(defn syncer+
+(defn start-syncer+
 
   [env]
 
@@ -117,3 +117,17 @@
                 :convex.aws.loadnet.cvx/peer+
                 into
                 process+)))))
+
+
+;;;
+
+
+(defn start
+
+  [env]
+
+  (let [env-2 (-> env
+                  (start-genesis)
+                  (start-syncer+))]
+    (log/info "LoadNet ready to receive transactions")
+    env-2))

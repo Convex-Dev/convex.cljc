@@ -39,16 +39,7 @@
   ($.aws.loadnet.stack/cost env-2)
 
 
-
-  (def env-3
-       ($.aws.loadnet.peer/genesis env-2))
-
-  (def env-4
-       ($.aws.loadnet.peer/syncer+ env-2))
-
-  (-> env-3 :convex.aws.loadnet.cvx/peer+ (first))
-
-  ($.aws.loadnet.rpc/worker env-3 0 (convex.cell/* (.sys.exit 0)))
+  ($.aws.loadnet.rpc/worker env-2 0 (convex.cell/* (.sys.exit 0)))
 
 
 

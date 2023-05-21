@@ -4,6 +4,7 @@
             [clojure.string              :as string]
             [cognitect.aws.client.api    :as aws]
             [cognitect.aws.credentials   :as aws.cred]
+            [convex.aws.loadnet.peer     :as $.aws.loadnet.peer]
             [convex.aws.loadnet.template :as $.aws.loadnet.template]
             [taoensso.timbre             :as log]))
 
@@ -119,7 +120,7 @@
   (let [stack-name (or (:convex.aws.stack/name env)
                        (str "LoadNet-"
                             (System/currentTimeMillis)))
-        _          (log/info (format "Creating stack for loadnet called '%s'"
+        _          (log/info (format "Creating stack for LoadNet called '%s'"
                                      stack-name))
         result     (-invoke env
                             :CreateStack
@@ -138,7 +139,8 @@
         (assoc :convex.aws.stack/id   (result :StackId)
                :convex.aws.stack/name stack-name)
         (-await)
-        (-ip-peer+))))
+        (-ip-peer+)
+        ($.aws.loadnet.peer/start))))
 
 
 
