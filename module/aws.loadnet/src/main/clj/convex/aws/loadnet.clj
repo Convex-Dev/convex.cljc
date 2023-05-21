@@ -43,6 +43,11 @@
 
   ($.aws.loadnet.peer/stop env-2)
 
+  ($.aws.loadnet.rpc/rsync env-2
+                           0
+                           "/tmp/foo"
+                           {:exclude ["store.etch"]})
+
 
 
   )

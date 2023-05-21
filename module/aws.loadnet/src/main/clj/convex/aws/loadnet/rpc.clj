@@ -4,7 +4,30 @@
             [convex.read       :as $.read]
             [convex.std        :as $.std]
             [convex.write      :as $.write]
-            [protosens.process :as P.process]))
+            [protosens.process :as P.process]
+            [taoensso.timbre   :as log]))
+
+
+;;;;;;;;;;
+
+
+(defn- -key
+
+  [env]
+
+  (or (env :convex.aws.key/file)
+      (throw (IllegalArgumentException. "Path to key missing"))))
+
+
+
+(defn- -peer-ip
+
+  [env i-peer]
+
+  (str "ubuntu@"
+       (get-in env
+               [:convex.aws.ip/peer+
+                i-peer])))
 
 
 ;;;;;;;;;;
@@ -15,15 +38,10 @@
   [env i-peer command]
 
   (P.process/run (concat ["ssh"
-                          "-i" (or (env :convex.aws.key/file)
-                                   (throw (IllegalArgumentException. "Path to key missing")))
+                          "-i" (-key env)
                           "-o" "StrictHostKeyChecking=no"
-                          (str "ubuntu@"
-                               (if (string? i-peer)
-                                 i-peer
-                                 (get-in env
-                                         [:convex.aws.ip/peer+
-                                          i-peer])))]
+                          (-peer-ip env
+                                    i-peer)]
                          command)))
 
 ;;;
@@ -61,6 +79,43 @@
         env
         i-peer
         cell))
+
+
+
+(defn rsync
+
+
+  ([env i-peer dest]
+
+   (rsync env
+          i-peer
+          dest
+          nil))
+
+
+  ([env i-peer dest option+]
+
+   (let [process (P.process/run (reduce (fn [cmd path]
+                                          (conj cmd
+                                                "--exclude"
+                                                path))
+                                        ["rsync"
+                                         "-azrv"
+                                         "-e"    (format "ssh -i %s -o StrictHostKeyChecking=no"
+                                                         (-key env))
+                                         (str (-peer-ip env
+                                                        i-peer)
+                                              ":/tmp/peer/"
+                                              (:src option+))
+                                         dest]
+                                        (:exclude option+)))]
+     (or (= 0
+            (:exit @process))
+         (do
+           (log/error (format "Rsync over peer %d failed: %s"
+                              i-peer
+                              (slurp (:err process))))
+           false)))))
 
 
 
