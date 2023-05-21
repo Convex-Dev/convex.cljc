@@ -2,14 +2,15 @@
 
   (:require [clojure.data.json           :as json]
             [clojure.string              :as string]
-            [cognitect.aws.client.api    :as aws]
-            [cognitect.aws.credentials   :as aws.cred]
+            [convex.aws                  :as $.aws]
             [convex.aws.loadnet.peer     :as $.aws.loadnet.peer]
             [convex.aws.loadnet.template :as $.aws.loadnet.template]
             [taoensso.timbre             :as log]))
 
 
 (declare describe
+         peer-instance+
+         resrc+
          status)
 
 
@@ -41,14 +42,9 @@
 
    (assoc env
           :convex.aws.client/cloudformation
-          (aws/client (merge {:api    :cloudformation
-                              :region "eu-central-1"}
-                      (when (contains? env
-                                       :access-key-id)
-
-
-
-                        {:credentials-provider (aws.cred/basic-credentials-provider env)}))))))
+          ($.aws/client :cloudformation
+                        "eu-central-1"
+                        env))))
 
 
 ;;;;;;;;;; Operations
@@ -83,13 +79,9 @@
 
   [env op request]
 
-  (let [result (aws/invoke (env :convex.aws.client/cloudformation)
-                           {:op      op
-                            :request request})]
-    (when (result :cognitect.anomalies/category)
-      (throw (ex-info "Error while executing AWS operation"
-                      result)))
-    result))
+  ($.aws/invoke (env :convex.aws.client/cloudformation)
+                op
+                request))
 
 
 
@@ -180,6 +172,26 @@
                {:StackName (env :convex.aws.stack/name)})
       (:Stacks)
       (first)))
+
+
+
+(defn peer-id+
+
+  [env]
+
+  (map :PhysicalResourceId
+       (peer-instance+ env)))
+
+
+
+(defn peer-instance+
+
+  [env]
+
+  (filter (fn [resrc]
+            (= (resrc :ResourceType)
+               "AWS::EC2::Instance"))
+          (resrc+ env)))
 
 
 

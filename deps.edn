@@ -44,7 +44,15 @@
   :ext/aws.cloudformation
 
   {:extra-deps      {com.cognitect.aws/cloudformation {:mvn/version "847.2.1365.0"}}
-   :maestro/doc     "CloudFormation drier for the AWS API"
+   :maestro/doc     "CloudFormation driver for the AWS API"
+   :maestro/require [:ext/aws]
+   :maestro/url     "https://github.com/cognitect-labs/aws-api"}
+
+
+  :ext/aws.cloudwatch
+
+  {:extra-deps      {com.cognitect.aws/monitoring {:mvn/version "847.2.1365.0"}}
+   :maestro/doc     "CloudWatch driver for the AWS API"
    :maestro/require [:ext/aws]
    :maestro/url     "https://github.com/cognitect-labs/aws-api"}
 
@@ -338,6 +346,7 @@
    :maestro/doc       "Deploying and managing Convex networks for load testing"
    :maestro/platform+ [:jvm]
    :maestro/require   [:ext/aws.cloudformation
+                       :ext/aws.cloudwatch
                        :ext/babashka.fs
                        :ext/json
                        :ext/protosens.process
