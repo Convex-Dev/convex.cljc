@@ -25,6 +25,7 @@
   (def env-2
        ($.aws.loadnet.stack/create (merge env
                                           {:convex.aws.key/file         "/Users/adam/Desktop/Test.pem"
+                                           :convex.aws.loadnet/dir      "/tmp/loadnet"
                                            :convex.aws.loadnet/n.peer   3
                                            :convex.aws.stack/parameter+ {:KeyName          "Test"
                                                                          :PeerInstanceType "t2.micro"}
@@ -49,6 +50,8 @@
                            0
                            "/tmp/foo"
                            {:exclude ["store.etch"]})
+
+  ($.aws.loadnet.peer/log+ env-2)
 
 
 

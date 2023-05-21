@@ -71,7 +71,7 @@
         "CREATE_COMPLETE"
         (do
           ;; Sometimes instances need a little bit of time for their SSH server to start.
-          (Thread/sleep 2000)
+          (Thread/sleep 5000)
           env)
         ;;
         (throw (ex-info "Something failed while creating the stack"

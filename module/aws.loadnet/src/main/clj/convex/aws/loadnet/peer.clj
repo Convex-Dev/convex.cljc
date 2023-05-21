@@ -1,6 +1,7 @@
 (ns convex.aws.loadnet.peer
-  
-  (:require [convex.aws.loadnet.rpc :as $.aws.loadnet.rpc]
+
+  (:require [babashka.fs            :as bb.fs]
+            [convex.aws.loadnet.rpc :as $.aws.loadnet.rpc]
             [convex.cell            :as $.cell]
             [taoensso.timbre        :as log]))
 
@@ -156,4 +157,30 @@
       (log/error (format "Peer server %d might not have been stopped properly"
                          i-peer))))
   (log/info "All peer servers have been stopped")
+  env)
+
+
+;;;;;;;;;;
+
+
+(defn log+
+
+  [env]
+
+  (let [dir (format "%s/log"
+                    (or (env :convex.aws.loadnet/dir)
+                        "./"))]
+    (log/info (format "Collecting peer logs to '%s'"
+                      dir))
+    (bb.fs/create-dirs dir)
+    (run! deref
+          (mapv (fn [i-peer]
+                  (future
+                    ($.aws.loadnet.rpc/rsync env
+                                             i-peer
+                                             (format "%s/%d.cvx"
+                                                     dir
+                                                     i-peer)
+                                             {:src "log.cvx"})))
+                (range (count (env :convex.aws.ip/peer+))))))
   env)

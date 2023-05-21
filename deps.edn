@@ -338,6 +338,7 @@
    :maestro/doc       "Deploying and managing Convex networks for load testing"
    :maestro/platform+ [:jvm]
    :maestro/require   [:ext/aws.cloudformation
+                       :ext/babashka.fs
                        :ext/json
                        :ext/protosens.process
                        :ext/timbre
