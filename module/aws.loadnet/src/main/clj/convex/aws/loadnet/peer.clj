@@ -15,9 +15,9 @@
   (log/info (format "Awaiting peer %d"
                     i-peer))
   (when-not (= ($.cell/* :ready)
-               ($.aws.loadnet.rpc/worker env
-                                         i-peer
-                                         ($.cell/* :ready)))
+               @($.aws.loadnet.rpc/worker env
+                                          i-peer
+                                          ($.cell/* :ready)))
     (throw (Exception. (format "Problem while testing if peer %d was ready"
                                i-peer))))
   (log/info (format "Peer %d ready to receive transactions"
@@ -83,31 +83,31 @@
                               (-await-ready env
                                             i-peer)
                               process))
-                       (map (fn [i-batch ip-ready _ip-todo]
-                              (let [i-peer (+ n-ready
-                                              i-batch)]
-                                (log/info (format "Starting peer %d"
-                                                  i-peer))
-                                [i-peer
-                                 ($.aws.loadnet.rpc/cvx
-                                  env
-                                  i-peer
-                                  ($.cell/*
-                                    (do
-                                      (.project.dir.set "/home/ubuntu/repo/lab.cvx")
-                                      (let [dep+ (.dep.deploy '[$.net.test (lib net test)])]
-                                        (def $.net.test
-                                             (get dep+
-                                                  '$.net.test))
-                                        ($.net.test/start.sync ~($.cell/long i-peer)
-                                                               {:dir "/tmp/peer"
-                                                                :remote.host ~($.cell/string ip-ready)}))
-                                      (loop []
-                                        (.worker.start {:pipe "peer"})
-                                        (recur)))))]))
-                            (range)
-                            ready+
-                            todo+))
+                       (mapv (fn [i-batch ip-ready _ip-todo]
+                               (let [i-peer (+ n-ready
+                                               i-batch)]
+                                 (log/info (format "Starting peer %d"
+                                                   i-peer))
+                                 [i-peer
+                                  ($.aws.loadnet.rpc/cvx
+                                   env
+                                   i-peer
+                                   ($.cell/*
+                                     (do
+                                       (.project.dir.set "/home/ubuntu/repo/lab.cvx")
+                                       (let [dep+ (.dep.deploy '[$.net.test (lib net test)])]
+                                         (def $.net.test
+                                              (get dep+
+                                                   '$.net.test))
+                                         ($.net.test/start.sync ~($.cell/long i-peer)
+                                                                {:dir "/tmp/peer"
+                                                                 :remote.host ~($.cell/string ip-ready)}))
+                                       (loop []
+                                         (.worker.start {:pipe "peer"})
+                                         (recur)))))]))
+                             (range)
+                             ready+
+                             todo+))
                  (into ready+
                        (take n-ready
                              todo+))

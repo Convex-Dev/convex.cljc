@@ -25,7 +25,7 @@
   (def env-2
        ($.aws.loadnet.stack/create (merge env
                                           {:convex.aws.key/file         "/Users/adam/Desktop/Test.pem"
-                                           :convex.aws.loadnet/n.peer   3
+                                           :convex.aws.loadnet/n.peer   10
                                            :convex.aws.stack/parameter+ {:KeyName          "Test"
                                                                          :PeerInstanceType "t2.micro"}
                                            :convex.aws.stack/tag+       {:Project "Ontochain"}})))
@@ -39,7 +39,7 @@
   ($.aws.loadnet.stack/cost env-2)
 
 
-  ($.aws.loadnet.rpc/worker env-2 0 (convex.cell/* (.sys.exit 0)))
+  @($.aws.loadnet.rpc/worker env-2 0 (convex.cell/* (.sys.exit 0)))
 
 
 
