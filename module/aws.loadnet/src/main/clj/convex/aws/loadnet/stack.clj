@@ -13,6 +13,19 @@
          status)
 
 
+;;;;;;;;;; Private
+
+
+(defn- -param+
+
+  [env]
+
+  (mapv (fn [[k v]]
+          {:ParameterKey   (name k)
+           :ParameterValue v})
+        (env :convex.aws.stack/parameter+)))
+  
+
 ;;;;;;;;;; Init
 
 
@@ -109,8 +122,11 @@
 
   (-> (-invoke env
                :EstimateTemplateCost
-               {:Parameters   [{:ParameterKey   "KeyName"
-                                :ParameterValue "Test"}]
+               {:Parameters   (-param+ (update-in env
+                                                  [:convex.aws.stack/parameter+
+                                                   :KeyName]
+                                                  #(or %
+                                                       "Test")))
                 :TemplateBody (json/write-str ($.aws.loadnet.template/net env))})
        (:Url)))
 
@@ -128,10 +144,7 @@
         result     (-invoke env
                             :CreateStack
                             {;:OnFailure   "DELETE"
-                             :Parameters   (mapv (fn [[k v]]
-                                                   {:ParameterKey   (name k)
-                                                    :ParameterValue v})
-                                                 (env :convex.aws.stack/parameter+))
+                             :Parameters   (-param+ env)
                              :StackName    stack-name
                              :Tags         (mapv (fn [[k v]]
                                                    {:Key   (name k)

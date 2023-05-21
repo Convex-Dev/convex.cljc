@@ -36,7 +36,9 @@
   ($.aws.loadnet.stack/resrc+ env-2)
   ($.aws.loadnet.stack/status env-2)
 
-  ($.aws.loadnet.stack/cost env-2)
+  ($.aws.loadnet.stack/cost (merge env
+                                   {:convex.aws.loadnet/n.peer  10
+                                    :convex.aws.stack/parameter {}}))
 
 
   (deref ($.aws.loadnet.rpc/worker env-2 2 (convex.cell/* (.sys.exit 0))))
