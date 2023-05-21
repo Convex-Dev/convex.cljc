@@ -19,9 +19,11 @@
                                    (throw (IllegalArgumentException. "Path to key missing")))
                           "-o" "StrictHostKeyChecking=no"
                           (str "ubuntu@"
-                               (get-in env
-                                       [:convex.aws.ip/peer+
-                                        i-peer]))]
+                               (if (string? i-peer)
+                                 i-peer
+                                 (get-in env
+                                         [:convex.aws.ip/peer+
+                                          i-peer])))]
                          command)))
 
 ;;;
