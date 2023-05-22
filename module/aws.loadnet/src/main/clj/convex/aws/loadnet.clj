@@ -27,7 +27,7 @@
        ($.aws.loadnet.stack/create (merge env
                                           {:convex.aws.key/file         "/Users/adam/Desktop/Test.pem"
                                            :convex.aws.loadnet/dir      "/tmp/loadnet"
-                                           :convex.aws.loadnet/n.peer   1
+                                           :convex.aws.loadnet/n.peer   2
                                            :convex.aws.stack/parameter+ {:KeyName          "Test"
                                                                          :PeerInstanceType "t2.micro"}
                                            :convex.aws.stack/tag+       {:Project "Ontochain"}})))
@@ -65,7 +65,8 @@
 
 
   (def env-3 ($.aws.loadnet.metric/client env-2))
-  ($.aws.loadnet.metric/fetch env-3)
+  (def x ($.aws.loadnet.metric/fetch env-3))
+  ($.aws.loadnet.metric/save env-3 x)
 
 
 

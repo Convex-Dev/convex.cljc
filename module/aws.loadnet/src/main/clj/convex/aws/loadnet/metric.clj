@@ -1,9 +1,13 @@
 (ns convex.aws.loadnet.metric
 
   (:import (java.util Date))
-  (:require [clojure.data.json        :as json]
+  (:require [babashka.fs              :as bb.fs]
+            [clojure.data.csv         :as csv]
+            [clojure.data.json        :as json]
+            [clojure.java.io          :as java.io]
             [convex.aws               :as $.aws]
-            [convex.aws.loadnet.stack :as $.aws.loadnet.stack]))
+            [convex.aws.loadnet.stack :as $.aws.loadnet.stack]
+            [taoensso.timbre          :as log]))
 
 
 ;;;;;;;;;;
@@ -105,3 +109,31 @@
                                            next-token))))
                        {:kf :NextToken
                         :vf :MetricDataResults}))))
+
+
+
+(defn save
+
+  [env metric+]
+
+  (let [dir (format "%s/metric"
+                    (env :convex.aws.loadnet/dir))]
+    (log/info (format "Saving metrics to '%s'"
+                      dir))
+    (bb.fs/create-dirs dir)
+    (spit (format "%s/cloudwatch.edn"
+                  dir)
+          metric+)
+    (with-open [out (java.io/writer (format "%s/cloudwatch.csv"
+                                            dir))]
+      (csv/write-csv out
+                     (into []
+                           (mapcat (fn [[instance-id metric-name->data]]
+                                     (into []
+                                           (mapcat (fn [[metric-name data]]
+                                                     (map (fn [[timestamp value]]
+                                                            [instance-id metric-name timestamp value])
+                                                          data)))
+                                           metric-name->data)))
+
+                           metric+)))))

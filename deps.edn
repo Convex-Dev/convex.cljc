@@ -138,6 +138,13 @@
    :maestro/doc "Benchmarking"}
 
 
+  :ext/csv
+
+  {:extra-deps  {org.clojure/data.csv {:mvn/version "1.0.1"}}
+   :maestro/doc "CSV library"
+   :maestro/url "https://github.com/clojure/data.csv"}
+
+
   :ext/deps-deploy
 
   {:replace-deps {slipset/deps-deploy {:mvn/version "0.2.0"}}
@@ -348,6 +355,7 @@
    :maestro/require   [:ext/aws.cloudformation
                        :ext/aws.cloudwatch
                        :ext/babashka.fs
+                       :ext/csv
                        :ext/json
                        :ext/protosens.process
                        :ext/timbre
