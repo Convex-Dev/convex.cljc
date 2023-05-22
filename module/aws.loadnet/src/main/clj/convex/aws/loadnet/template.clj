@@ -26,7 +26,10 @@
                              (range (or (:convex.aws.region/n.peer env)
                                         3)))]
      {:Description "Convex network for load testing"
-      :Mappings    {"RegionalAMI" {"eu-central-1" {"AMI" "ami-057b1d40595cd9308"}}}
+      :Mappings    {"RegionalAMI" {"ap-southeast-1" {"AMI" "ami-00ec12023a2360a31"}
+                                   "eu-central-1"   {"AMI" "ami-057b1d40595cd9308"}
+                                   "us-east-1"      {"AMI" "ami-089dc670716bd48a3"}
+                                   "us-west-1"      {"AMI" "ami-0cda40c5263ddd0ca"}}}
       :Outputs     (into {}
                          (map (fn [i-peer name-peer]
                                 [(format "IpPeer%d"

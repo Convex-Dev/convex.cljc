@@ -15,7 +15,9 @@
   (let [result ($.aws.loadnet.cloudformation/invoke
                  env
                  op
-                 request)
+                 (assoc request
+                        :OperationPreferences
+                        {:RegionConcurrencyType "PARALLEL"}))
         op-id  (result :OperationId)]
     (loop []
       (let [status (-> ($.aws.loadnet.cloudformation/invoke
@@ -48,8 +50,11 @@
 
   [env]
 
-  (log/info (format "Creating regional stacks, %d peer(s) per region"
-                    (env :convex.aws.region/n.peer)))
+  (let [n-peer (env :convex.aws.region/n.peer)]
+    (log/info (format "Creating regional stacks, %d peer(s) per region = %d peer(s)"
+                      n-peer
+                      (* n-peer
+                         (count (env :convex.aws/region+))))))
   (-stack-set-op env
                  :CreateStackInstances
                  {:Accounts     [(env :convex.aws/account)]

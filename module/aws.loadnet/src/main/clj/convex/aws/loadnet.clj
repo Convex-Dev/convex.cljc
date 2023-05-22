@@ -46,16 +46,21 @@
 
   (def env
        (create {:convex.aws/account          (System/getenv "CONVEX_AWS_ACCOUNT")
-                :convex.aws/region+          ["eu-central-1"]
+                :convex.aws/region+          ["eu-central-1"
+                                              "us-east-1"
+                                              "us-west-1"
+                                              "ap-southeast-1"
+                                              ]
                 :convex.aws.key/file         "/Users/adam/Code/convex/clj/private/Test"
                 :convex.aws.loadnet/dir      "/tmp/loadnet"
-                :convex.aws.region/n.peer    2
+                :convex.aws.region/n.peer    10
                 :convex.aws.stack/parameter+ {:KeyName          "Test"
                                               :PeerInstanceType "t2.micro"}
                 :convex.aws.stack/tag+       {:Project "Ontochain"}}))
 
 
-  ($.aws.loadnet.stack-set/delete env)
+  (future
+    ($.aws.loadnet.stack-set/delete env))
 
   ($.aws.loadnet.stack-set/describe env)
 
@@ -76,6 +81,9 @@
   ($.aws.loadnet.peer/log+ env-2)
   ($.aws.loadnet.peer/etch env-2)
   ($.aws.loadnet.peer/etch-stat {:convex.aws.loadnet/dir "/tmp/loadnet"})
+
+
+  (def env-2 ($.aws.loadnet.peer/start env))
 
 
   )
