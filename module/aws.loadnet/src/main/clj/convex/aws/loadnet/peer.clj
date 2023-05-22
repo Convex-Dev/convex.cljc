@@ -1,9 +1,16 @@
 (ns convex.aws.loadnet.peer
 
-  (:require [babashka.fs            :as bb.fs]
-            [convex.aws.loadnet.rpc :as $.aws.loadnet.rpc]
-            [convex.cell            :as $.cell]
-            [taoensso.timbre        :as log]))
+  (:require [babashka.fs                   :as bb.fs]
+            [clojure.test.check.generators :as TC.gen]
+            [convex.aws.loadnet.rpc        :as $.aws.loadnet.rpc]
+            [convex.cell                   :as $.cell]
+            [convex.clj                    :as $.clj]
+            [convex.db                     :as $.db]
+            [convex.key-pair               :as $.key-pair]
+            [convex.gen                    :as $.gen]
+            [convex.std                    :as $.std]
+            [kixi.stats.core               :as kixi.stats]
+            [taoensso.timbre               :as log]))
 
 
 ;;;;;;;;;;
@@ -199,6 +206,80 @@
                                       dir
                                       i-peer)
                               {:src "store.etch"}))))
+
+
+
+(defn etch-stat
+
+
+  ([env]
+
+   (etch-stat env
+              nil))
+
+
+  ([env i-peer]
+
+   (let [i-peer-2 (or i-peer
+                      0)
+         instance ($.db/open (format "%s/etch/%s.etch"
+                                     (env :convex.aws.loadnet/dir)
+                                     i-peer-2))]
+     (try
+       ($.db/current-set instance)
+       (let [order           (get-in ($.db/root-read)
+                                     [($.cell/* :belief)
+                                      ($.cell/* :orders)
+                                      (-> (TC.gen/generate $.gen/blob-32
+                                                           0
+                                                           (+ 12 ; address of first peer controller
+                                                              i-peer-2))
+                                          ($.key-pair/ed25519)
+                                          ($.key-pair/account-key))
+                                      ($.cell/* :value)])
+             block+          ($.std/get order
+                                        ($.cell/* :blocks))
+             n-block         ($.std/count block+)
+             n-trx+          (mapv (fn [block]
+                                     (-> (get-in block
+                                                 [($.cell/* :value)
+                                                  ($.cell/* :transactions)])
+                                         ($.std/count)))
+                                   block+)
+             cp              ($.clj/long ($.std/get order
+                                                    ($.cell/* :consensus-point)))
+             timestamp       (fn [i-block]
+                               (-> ($.std/nth block+
+                                              i-block)
+                                   (get-in [($.cell/* :value)
+                                            ($.cell/* :timestamp)])
+                                   ($.clj/long)))
+             timestamp-first (timestamp 0)
+             timestamp-last  (timestamp (dec n-block))
+             duration        (/ (- timestamp-last
+                                   timestamp-first)
+                                1000)
+             n-trx-consensus (reduce +
+                                     (take cp
+                                           n-trx+))]
+         {:block-size      (transduce identity
+                                      kixi.stats/summary
+                                      n-trx+)
+          :bps             (double (/ cp
+                                      duration))
+          :duration        (double duration)
+          :etch-size       ($.db/size)
+          :n.block         n-block
+          :n.trx.consensus n-trx-consensus
+          :point.consensus cp
+          :point.proposal  ($.clj/long ($.std/get order
+                                                  ($.cell/* :proposal-point)))
+          :timestamp.first timestamp-first
+          :timestamp.last  timestamp-last
+          :tps             (double (/ n-trx-consensus
+                                      duration))})
+       (finally
+         ($.db/close))))))
 
 
 

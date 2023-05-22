@@ -176,6 +176,13 @@
    :maestro/doc "Testing framework"}
 
 
+  :ext/kixi.stats
+
+  {:extra-deps  {kixi/stats {:mvn/version "0.5.5"}}
+   :maestro/doc "Statistical sampling and transducing functions"
+   :maestro/url "https://github.com/MastodonC/kixi.stats"}
+
+
   :ext/maestro
   
   {:extra-deps  {protosens/maestro {:deps/root "module/maestro"
@@ -357,9 +364,12 @@
                        :ext/babashka.fs
                        :ext/csv
                        :ext/json
+                       :ext/kixi.stats
                        :ext/protosens.process
                        :ext/timbre
-                       :module/cvm]}
+                       :module/cvm
+                       :module/gen
+                       :module/net]}
 
   ;---
 

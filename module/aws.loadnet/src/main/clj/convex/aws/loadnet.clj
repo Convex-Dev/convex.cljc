@@ -68,6 +68,8 @@
   (def x ($.aws.loadnet.metric/fetch env-3))
   ($.aws.loadnet.metric/save env-3 x)
 
+  ($.aws.loadnet.peer/etch-stat {:convex.aws.loadnet/dir "/tmp/loadnet"})
+
 
 
 
