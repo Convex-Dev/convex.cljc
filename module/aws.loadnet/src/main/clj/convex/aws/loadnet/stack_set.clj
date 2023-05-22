@@ -41,13 +41,10 @@
                                    :convex.aws.stack-set/name stack-set-name)
                             ($.aws.loadnet.stack-set.op/create))]
     (if ok?
-      (let [env-3 (-> env-2
-                      ($.aws.loadnet.stack-set.op/region->id)
-                      ($.aws.loadnet.stack-set.op/ip-peer+))]
-        ;; TODO. Sometimes fails, probably because SSH servers takes a bit more time to boot
-        ;;       than instances.
-        (Thread/sleep 10000)
-        ($.aws.loadnet.peer/start env-3))
+      (-> env-2
+          ($.aws.loadnet.stack-set.op/region->id)
+          ($.aws.loadnet.stack-set.op/ip-peer+)
+          ($.aws.loadnet.peer/start))
       (log/error "Failed to create stacks, will delete stack set"))))
 
 

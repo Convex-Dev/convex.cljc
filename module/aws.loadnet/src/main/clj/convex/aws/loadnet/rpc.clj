@@ -1,5 +1,8 @@
 (ns convex.aws.loadnet.rpc
 
+  (:import (java.net InetSocketAddress
+                     Socket
+                     SocketTimeoutException))
   (:require [convex.cell       :as $.cell]
             [convex.read       :as $.read]
             [convex.std        :as $.std]
@@ -24,10 +27,20 @@
 
   [env i-peer]
 
-  (str "ubuntu@"
-       (get-in env
-               [:convex.aws.ip/peer+
-                i-peer])))
+  (let [ip (get-in env
+                   [:convex.aws.ip/peer+
+                    i-peer])]
+    (try
+      (.connect (Socket.)
+                (InetSocketAddress. ip
+                                    22)
+                30000)
+      (catch SocketTimeoutException _ex
+        (log/error (format "SSH port seems closed on %s"
+                           ip))
+        (throw (Exception. "SSH port closed"))))
+    (str "ubuntu@"
+         ip)))
 
 
 ;;;;;;;;;;

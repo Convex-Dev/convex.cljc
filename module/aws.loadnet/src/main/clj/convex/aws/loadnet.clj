@@ -47,7 +47,7 @@
   (def env
        (create {:convex.aws/account          (System/getenv "CONVEX_AWS_ACCOUNT")
                 :convex.aws/region+          ["eu-central-1"]
-                :convex.aws.key/file         "/Users/adam/Desktop/Test.pem"
+                :convex.aws.key/file         "/Users/adam/Code/convex/clj/private/Test"
                 :convex.aws.loadnet/dir      "/tmp/loadnet"
                 :convex.aws.region/n.peer    2
                 :convex.aws.stack/parameter+ {:KeyName          "Test"
