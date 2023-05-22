@@ -1,0 +1,91 @@
+(ns convex.aws.loadnet.stack-set
+
+  (:require [clojure.data.json                 :as json]
+            [convex.aws.loadnet.cloudformation :as $.aws.loadnet.cloudformation]
+            [convex.aws.loadnet.peer           :as $.aws.loadnet.peer]
+            [convex.aws.loadnet.stack-set.op   :as $.aws.loadnet.stack-set.op]
+            [convex.aws.loadnet.template       :as $.aws.loadnet.template]
+            [taoensso.timbre                   :as log]))
+
+
+(declare delete
+         describe)
+
+;;;;;;;;;;
+
+
+(defn create
+
+  [env]
+
+  (let [stack-set-name (or (:convex.aws.stack/name env)
+                           (str "LoadNet-"
+                                (System/currentTimeMillis)))
+        _              (log/info (format "Creating stack set named '%s' for %d region(s)"
+                                         stack-set-name
+                                         (count (env :convex.aws/region+))))
+        result         ($.aws.loadnet.cloudformation/invoke
+                         env
+                         :CreateStackSet
+                         {:Description  "Stack set forming a loadnet"
+                          :Parameters   ($.aws.loadnet.cloudformation/param+ env)
+                          :StackSetName stack-set-name
+                          :Tags         (mapv (fn [[k v]]
+                                                {:Key   (name k)
+                                                 :Value v})
+                                              (env :convex.aws.stack/tag+))
+                          :TemplateBody (json/write-str ($.aws.loadnet.template/net env))})
+        [ok?
+         env-2]         (-> env
+                            (assoc :convex.aws.stack-set/id   (result :StackSetId)
+                                   :convex.aws.stack-set/name stack-set-name)
+                            ($.aws.loadnet.stack-set.op/create))]
+    (if ok?
+      (let [env-3 (-> env-2
+                      ($.aws.loadnet.stack-set.op/region->id)
+                      ($.aws.loadnet.stack-set.op/ip-peer+))]
+        ;; TODO. Sometimes fails, probably because SSH servers takes a bit more time to boot
+        ;;       than instances.
+        (Thread/sleep 10000)
+        ($.aws.loadnet.peer/start env-3))
+      (log/error "Failed to create stacks, will delete stack set"))))
+
+
+
+(defn delete
+
+  [env]
+
+  (let [d*delete (delay
+                   (log/info "Deleting stack set")
+                   ($.aws.loadnet.cloudformation/invoke
+                     env
+                     :DeleteStackSet
+                     {:StackSetName (env :convex.aws.stack-set/name)})
+                   (log/info "Stack set deleted"))]
+    (if (env :convex.aws.stack/region->id)
+      (let [[ok?
+             env-2] ($.aws.loadnet.stack-set.op/delete env)]
+        (if ok?
+          (do
+            @d*delete
+            (dissoc env-2
+                    :convex.aws.loadnet/region->stack-id))
+          (do
+            (log/error "Cannot delete the stack set")
+            env)))
+      (do
+        @d*delete
+        env))))
+
+
+
+(defn describe
+
+  [env]
+
+  (-> ($.aws.loadnet.cloudformation/invoke env
+                                           :DescribeStackSet
+                                           {:StackSetName (env :convex.aws.stack-set/name)})
+      (:StackSet)
+      (dissoc :TemplateBody)))

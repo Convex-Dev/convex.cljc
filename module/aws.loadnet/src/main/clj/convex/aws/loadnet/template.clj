@@ -23,9 +23,10 @@
          name-peer+    (mapv (fn [i-peer]
                                (str "Peer"
                                     i-peer))
-                             (range (or (:convex.aws.loadnet/n.peer env)
+                             (range (or (:convex.aws.region/n.peer env)
                                         3)))]
      {:Description "Convex network for load testing"
+      :Mappings    {"RegionalAMI" {"eu-central-1" {"AMI" "ami-057b1d40595cd9308"}}}
       :Outputs     (into {}
                          (map (fn [i-peer name-peer]
                                 [(format "IpPeer%d"
@@ -60,7 +61,9 @@
                                  {:Type       "AWS::EC2::Instance"
                                   :Properties {:BlockDeviceMappings [{:DeviceName "/dev/sda1"
                                                                       :Ebs        ebs}]
-                                               :ImageId             "ami-057b1d40595cd9308"
+                                               :ImageId             {"Fn::FindInMap" ["RegionalAMI"
+                                                                                      {:Ref "AWS::Region"}
+                                                                                      "AMI"]}
                                                :InstanceType        {:Ref "PeerInstanceType"}
                                                :KeyName             {:Ref "KeyName"}
                                                :SecurityGroups      [{:Ref "SecurityGroup"}]

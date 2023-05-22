@@ -1,213 +1,134 @@
 (ns convex.aws.loadnet.stack
 
-  (:require [clojure.data.json           :as json]
-            [clojure.string              :as string]
-            [convex.aws                  :as $.aws]
-            [convex.aws.loadnet.peer     :as $.aws.loadnet.peer]
-            [convex.aws.loadnet.template :as $.aws.loadnet.template]
-            [taoensso.timbre             :as log]))
+  (:require [clojure.string                    :as string]
+            [convex.aws.loadnet.cloudformation :as $.aws.loadnet.cloudformation]))
 
 
-(declare describe
-         peer-instance+
-         resrc+
-         status)
+(declare output+
+         resrc+)
 
 
 ;;;;;;;;;; Private
 
 
-(defn- -param+
+(defn- -stack-name
 
-  [env]
+  [env region]
 
-  (mapv (fn [[k v]]
-          {:ParameterKey   (name k)
-           :ParameterValue v})
-        (env :convex.aws.stack/parameter+)))
-  
-
-;;;;;;;;;; Init
+  (get-in env
+          [:convex.aws.stack/region->id
+           region]))
 
 
-(defn client
-
-
-  ([]
-
-   (client nil))
-
-
-  ([env]
-
-   (assoc env
-          :convex.aws.client/cloudformation
-          ($.aws/client :cloudformation
-                        "eu-central-1"
-                        env))))
-
-
-;;;;;;;;;; Operations
-
-
-(defn- -await
-
-  [env]
-
-  (log/info "Awaiting stack creation")
-  (loop []
-    (let [status- (status env)]
-      (case status-
-        ;;
-        "CREATE_IN_PROGRESS"
-        (do
-          (Thread/sleep 2000)
-          (recur))
-        ;;
-        "CREATE_COMPLETE"
-        (do
-          ;; Sometimes instances need a little bit of time for their SSH server to start.
-          (Thread/sleep 5000)
-          env)
-        ;;
-        (throw (ex-info "Something failed while creating the stack"
-                        {:convex.aws.stack/status status-}))))))
-
-
-
-(defn- -invoke
-
-  [env op request]
-
-  ($.aws/invoke (env :convex.aws.client/cloudformation)
-                op
-                request))
-
-
-
-(defn -ip-peer+
-
-  [env]
-
-  (log/info "Fetching IP addresses of all peer instances")
-  (let [output+ (:Outputs (describe env))]
-    (assoc env
-           :convex.aws.ip/peer+
-           (->> output+
-                (keep (fn [output]
-                       (let [^String k (output :OutputKey)]
-                         (when (string/starts-with? k
-                                                    "IpPeer")
-                           [(Integer/parseInt (.substring k
-                                                          6))
-                            (output :OutputValue)]))))
-                (sort-by first)
-                (mapv second)))))
-
-
-;;;
-
-
-(defn cost
-
-  [env]
-
-  (-> (-invoke env
-               :EstimateTemplateCost
-               {:Parameters   (-param+ (update-in env
-                                                  [:convex.aws.stack/parameter+
-                                                   :KeyName]
-                                                  #(or %
-                                                       "Test")))
-                :TemplateBody (json/write-str ($.aws.loadnet.template/net env))})
-       (:Url)))
-
-
-
-(defn create
-
-  [env]
-
-  (let [stack-name (or (:convex.aws.stack/name env)
-                       (str "LoadNet-"
-                            (System/currentTimeMillis)))
-        _          (log/info (format "Creating stack for LoadNet called '%s'"
-                                     stack-name))
-        result     (-invoke env
-                            :CreateStack
-                            {;:OnFailure   "DELETE"
-                             :Parameters   (-param+ env)
-                             :StackName    stack-name
-                             :Tags         (mapv (fn [[k v]]
-                                                   {:Key   (name k)
-                                                    :Value v})
-                                                 (env :convex.aws.stack/tag+))
-                             :TemplateBody (json/write-str ($.aws.loadnet.template/net env))})]
-    (-> env
-        (assoc :convex.aws.stack/id   (result :StackId)
-               :convex.aws.stack/name stack-name)
-        (-await)
-        (-ip-peer+)
-        ($.aws.loadnet.peer/start))))
-
-
-
-(defn delete
-
-  [env]
-
-  (-invoke env
-           :DeleteStack
-           {:StackName (env :convex.aws.stack/name)})
-  nil)
-
+;;;;;;;;;; Public
 
 
 (defn describe
 
-  [env]
+  [env region]
 
-  (-> (-invoke env
-               :DescribeStacks
-               {:StackName (env :convex.aws.stack/name)})
+  (-> ($.aws.loadnet.cloudformation/invoke
+        env
+        region
+        :DescribeStacks
+        {:StackName (-stack-name env
+                                 region)})
+         
       (:Stacks)
       (first)))
 
 
 
-(defn peer-id+
+(defn ip-peer+
 
-  [env]
+  [env region]
 
-  (map :PhysicalResourceId
-       (peer-instance+ env)))
+  (->> (output+ env
+                region)
+       (keep (fn [output]
+              (let [^String k (output :OutputKey)]
+                (when (string/starts-with? k
+                                           "IpPeer")
+                  [(Integer/parseInt (.substring k
+                                                 6))
+                   (output :OutputValue)]))))
+       (sort-by first)
+       (mapv second)))
+
+
+
+(defn output+
+
+  [env region]
+
+  (-> (describe env
+                region)
+      (:Outputs)))
 
 
 
 (defn peer-instance+
 
-  [env]
+  [env region]
 
-  (filter (fn [resrc]
-            (= (resrc :ResourceType)
-               "AWS::EC2::Instance"))
-          (resrc+ env)))
+  (filterv (fn [resrc]
+             (= (resrc :ResourceType)
+                "AWS::EC2::Instance"))
+           (resrc+ env
+                   region)))
+
+
+
+(defn peer-instance-id+
+
+  [env region]
+
+  (mapv :PhysicalResourceId
+       (peer-instance+ env
+                       region)))
 
 
 
 (defn resrc+
 
-  [env]
+  ;; Note: limited to 100 resources, use `ListStackResources` if more is expected.
 
-  (-> (-invoke env
-               :DescribeStackResources
-               {:StackName (env :convex.aws.stack/name)})
+  [env region]
+
+  (-> ($.aws.loadnet.cloudformation/invoke
+        env
+        region
+        :DescribeStackResources
+        {:StackName (-stack-name env
+                                 region)})
       (:StackResources)))
 
 
 
 (defn status
 
-  [env]
+  [env region]
 
-  (:StackStatus (describe env)))
+  (-> (describe env
+                region)
+      (:StackStatus)))
+
+
+;;;;;;;;;; TODO
+
+
+;; Adapt to stack sets.
+;
+; (defn cost
+; 
+;   [env]
+; 
+;   (-> (-invoke env
+;                :EstimateTemplateCost
+;                {:Parameters   (-param+ (update-in env
+;                                                   [:convex.aws.stack/parameter+
+;                                                    :KeyName]
+;                                                   #(or %
+;                                                        "Test")))
+;                 :TemplateBody (json/write-str ($.aws.loadnet.template/net env))})
+;        (:Url)))

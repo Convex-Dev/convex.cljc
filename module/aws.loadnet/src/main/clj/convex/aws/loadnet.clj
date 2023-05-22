@@ -1,12 +1,41 @@
 (ns convex.aws.loadnet
 
-  (:require [cognitect.aws.client.api  :as aws]
+  (:require [babashka.fs                       :as bb.fs]
+            [cognitect.aws.client.api          :as aws]
+            [convex.aws.loadnet.cloudformation :as $.aws.loadnet.cloudformation]
             [convex.aws.loadnet.log]
-            [convex.aws.loadnet.metric :as $.aws.loadnet.metric]
-            [convex.aws.loadnet.peer   :as $.aws.loadnet.peer]
-            [convex.aws.loadnet.rpc    :as $.aws.loadnet.rpc]
-            [convex.aws.loadnet.stack  :as $.aws.loadnet.stack]
-            [convex.cell               :as $.cell]))
+            [convex.aws.loadnet.metric         :as $.aws.loadnet.metric]
+            [convex.aws.loadnet.peer           :as $.aws.loadnet.peer]
+            [convex.aws.loadnet.rpc            :as $.aws.loadnet.rpc]
+            [convex.aws.loadnet.stack          :as $.aws.loadnet.stack]
+            [convex.aws.loadnet.stack-set      :as $.aws.loadnet.stack-set]
+            [convex.cell                       :as $.cell]))
+
+
+;;;;;;;;;;
+
+
+(defn create
+
+  [env]
+
+  (assert (env :convex.aws/account))
+  (assert (not-empty (env :convex.aws/region+)))
+  (assert (get-in env
+                  [:convex.aws.stack/parameter+
+                   :KeyName]))
+  (-> env
+      (update :convex.aws.loadnet/dir
+              #(-> (or %
+                       "./")
+                   (bb.fs/canonicalize)
+                   (str)))
+      (update :convex.aws.region/n.peer
+              #(or %
+                   3))
+      ($.aws.loadnet.cloudformation/client+)
+      ($.aws.loadnet.stack-set/create)
+      ))
 
 
 ;;;;;;;;;;
@@ -15,63 +44,38 @@
 (comment
 
 
-  (def env ($.aws.loadnet.stack/client))
+  (def env
+       (create {:convex.aws/account          (System/getenv "CONVEX_AWS_ACCOUNT")
+                :convex.aws/region+          ["eu-central-1"]
+                :convex.aws.key/file         "/Users/adam/Desktop/Test.pem"
+                :convex.aws.loadnet/dir      "/tmp/loadnet"
+                :convex.aws.region/n.peer    2
+                :convex.aws.stack/parameter+ {:KeyName          "Test"
+                                              :PeerInstanceType "t2.micro"}
+                :convex.aws.stack/tag+       {:Project "Ontochain"}}))
+
+
+  ($.aws.loadnet.stack-set/delete env)
+
+  ($.aws.loadnet.stack-set/describe env)
+
+
+  (deref ($.aws.loadnet.rpc/worker env 2 (convex.cell/* (.sys.exit 0))))
+  ($.aws.loadnet.peer/stop env)
+
 
 
   (sort (keys (aws/ops (env :convex.aws.client/cloudformation))))
-
-  (aws/doc (env :convex.aws.client/cloudformation) :DescribeStacks)
-
-
-  (def env-2
-       ($.aws.loadnet.stack/create (merge env
-                                          {:convex.aws.key/file         "/Users/adam/Desktop/Test.pem"
-                                           :convex.aws.loadnet/dir      "/tmp/loadnet"
-                                           :convex.aws.loadnet/n.peer   2
-                                           :convex.aws.stack/parameter+ {:KeyName          "Test"
-                                                                         :PeerInstanceType "t2.micro"}
-                                           :convex.aws.stack/tag+       {:Project "Ontochain"}})))
-
-  ($.aws.loadnet.stack/delete env-2)
-
-  ($.aws.loadnet.stack/describe env-2)
-  ($.aws.loadnet.stack/resrc+ env-2)
-  ($.aws.loadnet.stack/status env-2)
-  ($.aws.loadnet.stack/peer-id+ env-2)
-
-  ($.aws.loadnet.stack/cost (merge env
-                                   {:convex.aws.loadnet/n.peer  10
-                                    :convex.aws.stack/parameter {}}))
+  (aws/doc (env :convex.aws.client/cloudformation) :DeleteStackSet)
 
 
-  (deref ($.aws.loadnet.rpc/worker env-2 2 (convex.cell/* (.sys.exit 0))))
-
-  ($.aws.loadnet.peer/stop env-2)
-
-  ($.aws.loadnet.rpc/rsync env-2
-                           0
-                           "/tmp/foo"
-                           {:exclude ["store.etch"]})
+  (def env-2 ($.aws.loadnet.metric/client+ env))
+  (def x ($.aws.loadnet.metric/fetch env-2))
+  ($.aws.loadnet.metric/save env-2 x)
 
   ($.aws.loadnet.peer/log+ env-2)
   ($.aws.loadnet.peer/etch env-2)
-
-
-  (def c (aws/client {:api    :monitoring
-                      :region "eu-central-1"}))
-
-  (sort (keys (aws/ops c)))
-  (aws/doc c :GetMetricData)
-
-
-  (def env-3 ($.aws.loadnet.metric/client env-2))
-  (def x ($.aws.loadnet.metric/fetch env-3))
-  ($.aws.loadnet.metric/save env-3 x)
-
   ($.aws.loadnet.peer/etch-stat {:convex.aws.loadnet/dir "/tmp/loadnet"})
-
-
-
 
 
   )

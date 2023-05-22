@@ -20,8 +20,6 @@
 
   [env i-peer]
 
-  (log/info (format "Awaiting peer process startup %d"
-                    i-peer))
   (when-not (= ($.cell/* :ready)
                @($.aws.loadnet.rpc/worker env
                                           i-peer
@@ -205,7 +203,9 @@
                               (format "%s/%d.etch"
                                       dir
                                       i-peer)
-                              {:src "store.etch"}))))
+                              {:src "store.etch"})
+     (log/info (format "Finished downloading Etch instance from peer %d"
+                       i-peer-2)))))
 
 
 
@@ -256,28 +256,55 @@
                                    ($.clj/long)))
              timestamp-first (timestamp 0)
              timestamp-last  (timestamp (dec n-block))
-             duration        (/ (- timestamp-last
-                                   timestamp-first)
-                                1000)
+             duration        (double (/ (- timestamp-last
+                                           timestamp-first)
+                                        1000))
              n-trx-consensus (reduce +
                                      (take cp
-                                           n-trx+))]
-         {:block-size      (transduce identity
-                                      kixi.stats/summary
-                                      n-trx+)
-          :bps             (double (/ cp
-                                      duration))
-          :duration        (double duration)
-          :etch-size       ($.db/size)
-          :n.block         n-block
-          :n.trx.consensus n-trx-consensus
-          :point.consensus cp
-          :point.proposal  ($.clj/long ($.std/get order
-                                                  ($.cell/* :proposal-point)))
-          :timestamp.first timestamp-first
-          :timestamp.last  timestamp-last
-          :tps             (double (/ n-trx-consensus
-                                      duration))})
+                                           n-trx+))
+             result          {:block-size      (transduce identity
+                                                          kixi.stats/summary
+                                                          n-trx+)
+                              :bps             (double (/ cp
+                                                          duration))
+                              :duration        duration
+                              :etch-size       ($.db/size)
+                              :n.block         n-block
+                              :n.trx.consensus n-trx-consensus
+                              :point.consensus cp
+                              :point.proposal  ($.clj/long ($.std/get order
+                                                                      ($.cell/* :proposal-point)))
+                              :timestamp.first timestamp-first
+                              :timestamp.last  timestamp-last
+                              :tps             (double (/ n-trx-consensus
+                                      duration))}]
+         (log/info (format "Peer %d stats"
+                           i-peer-2))
+         (log/info (if (< duration
+                          60000)
+                     (format "Load duration (seconds) = %.2f"
+                             duration)
+                     (format "Load duration (minutes) = %.2f"
+                             (/ duration
+                                60))))
+         (log/info (format "Number of blocks = %d"
+                           (result :n.block)))
+         (log/info (format "Consensus point = %d"
+                           (result :point.consensus)))
+         (log/info (format "Proposal point = %d"
+                           (result :point.proposal)))
+         (log/info (format "Number of transactions in consensus = %d"
+                           (result :n.trx.consensus)))
+         (log/info (format "Blocks / second = %.2f"
+                           (result :bps)))
+         (log/info (format "Transactions / second = %.2f"
+                           (result :tps)))
+         (log/info (format "Block size quartiles = %s"
+                           (result :block-size)))
+         (log/info (format "Etch size (MB) = %.2f"
+                           (/ (result :etch-size)
+                              1e6)))
+         result)
        (finally
          ($.db/close))))))
 
@@ -302,4 +329,5 @@
                                                      i-peer)
                                              {:src "log.cvx"})))
                 (range (count (env :convex.aws.ip/peer+))))))
+  (log/info "Done collecting peer logs")
   env)

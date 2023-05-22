@@ -13,31 +13,30 @@
 ;;;;;;;;;;
 
 
-(defn client
+(defn client+
 
+  [env]
 
-  ([]
-
-   (client nil))
-
-
-  ([env]
-
-   (assoc env
-          :convex.aws.client/monitoring
-          ($.aws/client :monitoring
-                        "eu-central-1"
-                        env))))
-
+  (assoc env
+         :convex.aws.client/cloudwatch+
+         (into {}
+               (map (fn [region]
+                      [region
+                       ($.aws/client :monitoring
+                                     region
+                                     env)]))
+               (env :convex.aws/region+))))
 
 ;;;;;;;;;;
 
 
 (defn- -invoke
 
-  [env op request]
+  [env region op request]
 
-  ($.aws/invoke (env :convex.aws.client/monitoring)
+  ($.aws/invoke (get-in env
+                        [:convex.aws.client/cloudwatch+
+                         region])
                 op
                 request))
 
@@ -45,11 +44,12 @@
 ;;;
 
 
-(defn fetch
+(defn fetch-region
 
-  [env]
+  [env region]
 
-  (let [id+     ($.aws.loadnet.stack/peer-id+ env)
+  (let [id+     ($.aws.loadnet.stack/peer-instance-id+ env
+                                                       region)
         metric  (fn [metric-name ^String id]
                   {:Label      (json/write-str [metric-name
                                                 id])
@@ -86,7 +86,7 @@
                         (let [[metric-name
                                id]         (json/read-str (result :Label))]
                           (update-in acc-2
-                                     [id
+                                     [[region id]
                                       metric-name]
                                      (fnil into
                                            [])
@@ -101,6 +101,7 @@
             {}
             (iteration (fn [next-token]
                          (-invoke env
+                                  region
                                   :GetMetricData
                                   (cond->
                                     request
@@ -112,13 +113,37 @@
 
 
 
+(defn fetch
+
+  [env]
+
+  (let [result (reduce (fn [acc [region f*result]]
+                         (let [result @f*result]
+                           (log/info (format "Done retrieving CloudWatch metrics from region '%s'"
+                                             region))
+                           (merge acc
+                                  result)))
+                       {}
+                       (map (fn [region]
+                              (log/info (format "Retrieving CloudWatch metrics for instances in region '%s'"
+                                                region))
+                              [region
+                               (future
+                                 (fetch-region env
+                                               region))])
+                            (env :convex.aws/region+)))]
+    (log/info "Done retrieving all CloudWatch metrics")
+    result))
+
+
+
 (defn save
 
   [env metric+]
 
   (let [dir (format "%s/metric"
                     (env :convex.aws.loadnet/dir))]
-    (log/info (format "Saving metrics to '%s'"
+    (log/info (format "Saving CloudWatch metrics to '%s'"
                       dir))
     (bb.fs/create-dirs dir)
     (spit (format "%s/cloudwatch.edn"
@@ -128,11 +153,15 @@
                                             dir))]
       (csv/write-csv out
                      (into []
-                           (mapcat (fn [[instance-id metric-name->data]]
+                           (mapcat (fn [[[region instance-id] metric-name->data]]
                                      (into []
                                            (mapcat (fn [[metric-name data]]
                                                      (map (fn [[timestamp value]]
-                                                            [instance-id metric-name timestamp value])
+                                                            [region
+                                                             instance-id
+                                                             metric-name
+                                                             timestamp
+                                                             value])
                                                           data)))
                                            metric-name->data)))
 
