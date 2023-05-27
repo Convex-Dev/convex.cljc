@@ -1,4 +1,4 @@
-(ns convex.aws.loadnet.metric
+(ns convex.aws.loadnet.cloudwatch
 
   (:import (java.util Date))
   (:require [babashka.fs              :as bb.fs]
