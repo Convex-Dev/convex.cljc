@@ -105,27 +105,33 @@
 
   [env]
 
-  (let [result (into []
-                     (mapcat (fn [[region f*ip+]]
-                               (let [ip+ @f*ip+]
-                                 (log/info (format "Done retrieving peer IP addresses for region '%s'"
-                                                   region))
-                                 ip+)))
-                     (mapv (fn [region]
-                             (log/info (format "Retrieving peer IP addresses for region '%s'"
-                                               region))
-                             [region
-                              (future
-                                ($.aws.loadnet.stack/ip-peer+ env
-                                                              region))])
-                           (env :convex.aws/region+)))]
+  (let [region+  (env :convex.aws/region+)
+        n-region (count region+)
+        result   (into []
+                       (mapcat (fn [[region f*ip+]]
+                                 (let [ip+ @f*ip+]
+                                   (log/info (format "Done retrieving peer IP addresses for region '%s'"
+                                                     region))
+                                   ip+)))
+                       (mapv (fn [region]
+                               (log/info (format "Retrieving peer IP addresses for region '%s'"
+                                                 region))
+                               [region
+                                (future
+                                  ($.aws.loadnet.stack/ip-peer+ env
+                                                                region))])
+                             region+))]
     (doseq [[i-peer
              ip]    (partition 2
                                (interleave (range)
                                            result))]
-      (log/info (format "Peer %d IP = %s"
+      (log/info (format "Peer %d IP = %s (%s)"
                         i-peer
-                        ip)))
+                        ip
+                        (or (get region+
+                                 (mod i-peer
+                                      n-region))
+                            "unknown region"))))
     (log/info "Done retrieving all peer IP addresses")
     (assoc env
            :convex.aws.ip/peer+
