@@ -66,6 +66,9 @@
   (future
     ($.aws.loadnet.stack-set/delete env))
 
+  (future
+    ($.aws.loadnet.stack-set/stop env))
+
   ($.aws.loadnet.stack-set/describe env)
 
 

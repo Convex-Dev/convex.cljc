@@ -193,19 +193,21 @@
    (let [dir      (format "%s/etch"
                           (-dir env))
          i-peer-2 (or i-peer
-                      0)]
+                      0)
+         path     (format "%s/%d.etch"
+                          dir
+                          i-peer-2)]
      (log/info (format "Downloading Etch instance from peer %d to '%s'"
                        i-peer-2
-                       dir))
+                       path))
      (bb.fs/create-dirs dir)
      ($.aws.loadnet.rpc/rsync env
                               i-peer-2
-                              (format "%s/%d.etch"
-                                      dir
-                                      i-peer-2)
+                              path
                               {:src "store.etch"})
      (log/info (format "Finished downloading Etch instance from peer %d"
-                       i-peer-2)))))
+                       i-peer-2)))
+   env))
 
 
 
@@ -222,9 +224,12 @@
 
    (let [i-peer-2 (or i-peer
                       0)
-         instance ($.db/open (format "%s/etch/%s.etch"
-                                     (env :convex.aws.loadnet/dir)
-                                     i-peer-2))]
+         path     (format "%s/etch/%s.etch"
+                          (env :convex.aws.loadnet/dir)
+                          i-peer-2)
+         _        (log/info (format "Computing Etch stats from '%s'"
+                                    path))
+         instance ($.db/open path)]
      (try
        ($.db/current-set instance)
        (let [order           (get-in ($.db/root-read)
@@ -262,6 +267,9 @@
              n-trx-consensus (reduce +
                                      (take cp
                                            n-trx+))
+             file            (format "%s/etch/%d.edn"
+                                     (env :convex.aws.loadnet/dir)
+                                     i-peer-2)
              result          {:block-size      (transduce identity
                                                           kixi.stats/summary
                                                           n-trx+)
@@ -278,8 +286,6 @@
                               :timestamp.last  timestamp-last
                               :tps             (double (/ n-trx-consensus
                                       duration))}]
-         (log/info (format "Peer %d stats"
-                           i-peer-2))
          (log/info (if (< duration
                           60000)
                      (format "Load duration (seconds) = %.2f"
@@ -304,7 +310,14 @@
          (log/info (format "Etch size (MB) = %.2f"
                            (/ (result :etch-size)
                               1e6)))
-         result)
+         (log/info (format "Saving Etch stats to '%s'"
+                           path))
+         (spit file
+               result)
+         (assoc-in env
+                   [:convex.aws.loadnet.etch/stat+
+                    i-peer-2]
+                   result))
        (finally
          ($.db/close))))))
 
