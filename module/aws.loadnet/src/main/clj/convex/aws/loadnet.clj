@@ -26,18 +26,26 @@
   (assert (get-in env
                   [:convex.aws.stack/parameter+
                    :KeyName]))
-  (-> env
-      (update :convex.aws.loadnet/dir
-              #(-> (or %
-                       $.aws.loadnet.default/dir)
-                   (bb.fs/canonicalize)
-                   (str)))
-      (update :convex.aws.region/n.peer
-              #(or %
-                   $.aws.loadnet.default/n-peer))
-      ($.aws.loadnet.cloudwatch/client+)
-      ($.aws.loadnet.cloudformation/client+)
-      ($.aws.loadnet.stack-set/create)))
+  (let [env-2 (-> env
+                  (update :convex.aws.loadnet/dir
+                          #(-> (or %
+                                   $.aws.loadnet.default/dir)
+                               (bb.fs/canonicalize)
+                               (str)))
+                  (update :convex.aws.region/n.peer
+                          #(or %
+                               $.aws.loadnet.default/n-peer))
+                  ($.aws.loadnet.cloudwatch/client+)
+                  ($.aws.loadnet.cloudformation/client+)
+                  ($.aws.loadnet.stack-set/create))]
+    (spit (format "%s/run.edn"
+                  (env :convex.aws.loadnet/dir))
+          (select-keys env-2
+                       [:convex.aws/region+
+                        :convex.aws.region/n.peer
+                        :convex.aws.stack/parameter+
+                        :convex.aws.stack/tag+]))
+    env-2))
 
 
 
