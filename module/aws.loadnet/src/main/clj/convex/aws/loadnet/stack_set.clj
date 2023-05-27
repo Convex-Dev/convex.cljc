@@ -9,9 +9,6 @@
             [taoensso.timbre                   :as log]))
 
 
-(declare delete
-         describe)
-
 ;;;;;;;;;;
 
 
@@ -22,13 +19,18 @@
   (let [stack-set-name (or (:convex.aws.stack/name env)
                            (str "LoadNet-"
                                 (System/currentTimeMillis)))
+        region+        (env :convex.aws/region+)
         _              (do
                          (log/info (format "Creating stack set named '%s' for %d region(s)"
                                            stack-set-name
-                                           (count (env :convex.aws/region+))))
-
-
-                         )
+                                           (count region+)))
+                         (doseq [[i-region
+                                  region]  (partition 2
+                                                      (interleave (range)
+                                                                  region+))]
+                           (log/info (format "Region %d = %s"
+                                             i-region
+                                             region))))
         result         ($.aws.loadnet.cloudformation/invoke
                          env
                          :CreateStackSet

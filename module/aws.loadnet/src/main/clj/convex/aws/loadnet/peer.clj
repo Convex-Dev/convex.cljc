@@ -224,8 +224,10 @@
 
    (let [i-peer-2 (or i-peer
                       0)
-         path     (format "%s/etch/%s.etch"
-                          (env :convex.aws.loadnet/dir)
+         dir      (format "%s/etch"
+                          (env :convex.aws.loadnet/dir))
+         path     (format "%s/%s.etch"
+                          dir
                           i-peer-2)
          _        (log/info (format "Computing Etch stats from '%s'"
                                     path))
@@ -267,8 +269,8 @@
              n-trx-consensus (reduce +
                                      (take cp
                                            n-trx+))
-             file            (format "%s/etch/%d.edn"
-                                     (env :convex.aws.loadnet/dir)
+             result-file     (format "%s/%d.edn"
+                                     dir
                                      i-peer-2)
              result          {:block-size      (transduce identity
                                                           kixi.stats/summary
@@ -311,8 +313,8 @@
                            (/ (result :etch-size)
                               1e6)))
          (log/info (format "Saving Etch stats to '%s'"
-                           path))
-         (spit file
+                           result-file))
+         (spit result-file
                result)
          (assoc-in env
                    [:convex.aws.loadnet.etch/stat+

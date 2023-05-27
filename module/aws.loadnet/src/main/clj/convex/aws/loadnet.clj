@@ -49,13 +49,13 @@
     (def env
          (create {:convex.aws/account          (System/getenv "CONVEX_AWS_ACCOUNT")
                   :convex.aws/region+          ["eu-central-1"
-                                                "us-east-1"
-                                                "us-west-1"
-                                                "ap-southeast-1"
+                                                ;"us-east-1"
+                                                ;"us-west-1"
+                                                ;"ap-southeast-1"
                                                 ]
                   :convex.aws.key/file         "/Users/adam/Code/convex/clj/private/Test"
                   :convex.aws.loadnet/dir      "/tmp/loadnet"
-                  :convex.aws.region/n.peer    3
+                  :convex.aws.region/n.peer    1
                   :convex.aws.stack/parameter+ {:KeyName          "Test"
                                                 :PeerInstanceType "t2.micro"
                                                 }
