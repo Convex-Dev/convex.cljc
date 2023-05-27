@@ -67,9 +67,12 @@
                             :convex.aws.stack/region->id
                             :convex.aws.stack/tag+
                             :convex.aws.stack-set/name]))
-        (-> env-3
-            ($.aws.loadnet.rpc/await-ssh)
-            ($.aws.loadnet.peer/start)))
+        (let [env-4 ($.aws.loadnet.rpc/await-ssh env-3)]
+          (if (env-4 :convex.aws.loadnet/ssh-ready?)
+            ($.aws.loadnet.peer/start env-4)
+            (do
+              (log/error "Wait a bit and try starting peers manually")
+              env-4))))
       (do
         (log/error "Failed to create stacks, check your AWS console")
         env-2))))

@@ -17,13 +17,14 @@
 
   ([env region]
 
-   (assoc-in env
-             [:convex.aws.client/cloudformation+
-              region]
-             ($.aws/client :cloudformation
-                           (or region
-                               (first (env :convex.aws/region+)))
-                           env))))
+   (let [region-2 (or region
+                      (first (env :convex.aws/region+)))]
+     (assoc-in env
+               [:convex.aws.client/cloudformation+
+                region-2]
+               ($.aws/client :cloudformation
+                             region-2
+                             env)))))
 
 
 

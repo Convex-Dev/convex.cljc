@@ -101,8 +101,10 @@
       nil))
 
 
-  (future
-    ($.aws.loadnet.stack-set/delete env))
+  ;; If awaiting SSH servers fail.
+  ;
+  (def env
+       ($.aws.loadnet.peer/start env))
 
 
   ($.aws.loadnet.stack-set/describe env)
