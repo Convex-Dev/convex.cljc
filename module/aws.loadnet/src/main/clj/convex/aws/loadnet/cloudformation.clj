@@ -6,19 +6,34 @@
 ;;;;;;;;;;
 
 
+(defn client
+
+
+  ([env]
+
+   (client env
+           nil))
+
+
+  ([env region]
+
+   (assoc-in env
+             [:convex.aws.client/cloudformation+
+              region]
+             ($.aws/client :cloudformation
+                           (or region
+                               (first (env :convex.aws/region+)))
+                           env))))
+
+
+
 (defn client+
 
   [env]
 
-  (assoc env
-         :convex.aws.client/cloudformation+
-         (into {}
-               (map (fn [region]
-                      [region
-                       ($.aws/client :cloudformation
-                                     region
-                                     env)]))
-               (env :convex.aws/region+))))
+  (reduce client
+          env
+          (env :convex.aws/region+)))
 
 
 

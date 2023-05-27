@@ -1,6 +1,7 @@
 (ns convex.aws.loadnet
 
   (:require [babashka.fs                       :as bb.fs]
+            [clojure.edn                       :as edn]
             [cognitect.aws.client.api          :as aws]
             [convex.aws.loadnet.cloudformation :as $.aws.loadnet.cloudformation]
             [convex.aws.loadnet.cloudwatch     :as $.aws.loadnet.cloudwatch]
@@ -26,26 +27,18 @@
   (assert (get-in env
                   [:convex.aws.stack/parameter+
                    :KeyName]))
-  (let [env-2 (-> env
-                  (update :convex.aws.loadnet/dir
-                          #(-> (or %
-                                   $.aws.loadnet.default/dir)
-                               (bb.fs/canonicalize)
-                               (str)))
-                  (update :convex.aws.region/n.peer
-                          #(or %
-                               $.aws.loadnet.default/n-peer))
-                  ($.aws.loadnet.cloudwatch/client+)
-                  ($.aws.loadnet.cloudformation/client+)
-                  ($.aws.loadnet.stack-set/create))]
-    (spit (format "%s/run.edn"
-                  (env :convex.aws.loadnet/dir))
-          (select-keys env-2
-                       [:convex.aws/region+
-                        :convex.aws.region/n.peer
-                        :convex.aws.stack/parameter+
-                        :convex.aws.stack/tag+]))
-    env-2))
+  (-> env
+      (update :convex.aws.loadnet/dir
+              #(-> (or %
+                       $.aws.loadnet.default/dir)
+                   (bb.fs/canonicalize)
+                   (str)))
+      (update :convex.aws.region/n.peer
+              #(or %
+                   $.aws.loadnet.default/n-peer))
+      ($.aws.loadnet.cloudwatch/client+)
+      ($.aws.loadnet.cloudformation/client+)
+      ($.aws.loadnet.stack-set/create)))
 
 
 
@@ -59,6 +52,18 @@
       ($.aws.loadnet.peer.etch/download)
       ($.aws.loadnet.peer.etch/stat+)
       ($.aws.loadnet.cloudwatch/download)
+      ($.aws.loadnet.stack-set/delete)))
+
+
+
+(defn stop-2
+
+  [env]
+
+  (-> env
+      (merge (edn/read-string (slurp (format "%s/run.edn"
+                                             (env :convex.aws.loadnet/dir)))))
+      ($.aws.loadnet.cloudformation/client)
       ($.aws.loadnet.stack-set/delete)))
 
 
@@ -87,6 +92,12 @@
   (future
     (do
       (stop env)
+      nil))
+
+  (future
+    (do
+      (stop-2 {:convex.aws/account     (System/getenv "CONVEX_AWS_ACCOUNT")
+               :convex.aws.loadnet/dir "/tmp/loadnet"})
       nil))
 
 

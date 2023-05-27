@@ -4,7 +4,6 @@
             [convex.aws.loadnet.cloudformation :as $.aws.loadnet.cloudformation]
             [convex.aws.loadnet.default        :as $.aws.loadnet.default]
             [convex.aws.loadnet.peer           :as $.aws.loadnet.peer]
-            [convex.aws.loadnet.peer.etch      :as $.aws.loadnet.peer.etch]
             [convex.aws.loadnet.stack-set.op   :as $.aws.loadnet.stack-set.op]
             [convex.aws.loadnet.rpc            :as $.aws.loadnet.rpc]
             [convex.aws.loadnet.template       :as $.aws.loadnet.template]
@@ -55,11 +54,22 @@
                                    :convex.aws.stack-set/name stack-set-name)
                             ($.aws.loadnet.stack-set.op/create))]
     (if ok?
-      (-> env-2
-          ($.aws.loadnet.stack-set.op/region->id)
-          ($.aws.loadnet.stack-set.op/ip-peer+)
-          ($.aws.loadnet.rpc/await-ssh)
-          ($.aws.loadnet.peer/start))
+      (let [env-3 (-> env-2
+                      ($.aws.loadnet.stack-set.op/region->id)
+                      ($.aws.loadnet.stack-set.op/ip-peer+))]
+        (spit (format "%s/run.edn"
+                      (env-3 :convex.aws.loadnet/dir))
+              (select-keys env-3
+                           [:convex.aws/region+
+                            :convex.aws.region/n.peer
+                            :convex.aws.ip/peer+
+                            :convex.aws.stack/parameter+
+                            :convex.aws.stack/region->id
+                            :convex.aws.stack/tag+
+                            :convex.aws.stack-set/name]))
+        (-> env-3
+            ($.aws.loadnet.rpc/await-ssh)
+            ($.aws.loadnet.peer/start)))
       (do
         (log/error "Failed to create stacks, check your AWS console")
         env-2))))
@@ -84,7 +94,7 @@
           (do
             @d*delete
             (dissoc env-2
-                    :convex.aws.loadnet/region->stack-id))
+                    :convex.aws.stack/region->id))
           (do
             (log/error "Cannot delete the stack set")
             env)))
