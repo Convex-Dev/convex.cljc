@@ -691,7 +691,7 @@
                         "  :rtt?"
                         "    When `true`, tracks and print the round-trip time of each query and"
                         "    transaction (delta between sending a request and getting a result)."
-                        "    Defaults to `false`."
+                        "    Defaults to `true`."
                         ""
                         "  :port"
                         "    Port exposed by `:host` (Long)."
@@ -930,7 +930,8 @@
                     t)
         timeout? (= result
                     client)]
-    (when (:rtt? env)
+    (when-not (= (:rtt? env)
+                 false)
       (let [out (:stream.out env)]
         (.stream.txt.outln out
                            (str .sys.eol
