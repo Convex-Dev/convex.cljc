@@ -27,9 +27,10 @@
 
   [env i-peer]
 
-  (get-in env
-          [:convex.aws.ip/peer+
-           i-peer]))
+  (format "ubuntu@%s"
+          (get-in env
+                  [:convex.aws.ip/peer+
+                   i-peer])))
 
 
 ;;;;;;;;;;
@@ -40,34 +41,40 @@
   [env]
 
   (log/info "Awaiting for all SSH servers to be ready")
-  (reduce (fn [env-2 ip]
-            (loop [i 10]
-              (or (try
-                    (.connect (Socket.)
-                              (InetSocketAddress. ip
-                                                  22)
-                              60000)
-                    env-2
-                    ;;
-                    (catch SocketTimeoutException _ex
-                      (log/error (format "Timeout when awaiting SSH server seems closed on %s"
-                                         ip))
-                      (reduced (assoc env-2
-                                      :convex.aws.loadnet/ssh-ready?
-                                      false)))
-                    ;;
-                    (catch Exception _ex
-                      (when (zero? i)
-                        (log/error (format "Unable to estalbish SSH connection to %s"
-                                           ip))
-                        (reduced (assoc env-2
-                                        :convex.aws.loadnet/ssh-ready?
-                                        false)))))
-                  (recur (dec i)))))
-          (assoc env
-                 :convex.aws.loadnet/ssh-ready?
-                 true)
-          (env :convex.aws.ip/peer+)))
+  (let [env-2
+        (reduce (fn [env-2 ip]
+                  (loop [i 10]
+                    (or (try
+                          (with-open [^Socket socket (Socket.)]
+                            (.connect socket
+                                      (InetSocketAddress. ip
+                                                          22)
+                                      60000))
+                          env-2
+                          ;;
+                          (catch SocketTimeoutException _ex
+                            (log/error (format "Timeout when awaiting SSH server seems closed on %s"
+                                               ip))
+                            (reduced (assoc env-2
+                                            :convex.aws.loadnet/ssh-ready?
+                                            false)))
+                          ;;
+                          (catch Exception _ex
+                            (when (zero? i)
+                              (log/error (format "Unable to establish SSH connection to %s"
+                                                 ip))
+                              (reduced (assoc env-2
+                                              :convex.aws.loadnet/ssh-ready?
+                                              false)))))
+                        (recur (dec i)))))
+                (assoc env
+                       :convex.aws.loadnet/ssh-ready?
+                       true)
+                (env :convex.aws.ip/peer+))]
+    ; (when (env-2 :convex.aws.loadnet/ssh-ready?)
+    ;   ;; Extra delay just in case.
+    ;   (Thread/sleep 5000))
+    env-2))
 
 
 
