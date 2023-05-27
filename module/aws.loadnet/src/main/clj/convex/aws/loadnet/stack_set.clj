@@ -2,6 +2,7 @@
 
   (:require [clojure.data.json                 :as json]
             [convex.aws.loadnet.cloudformation :as $.aws.loadnet.cloudformation]
+            [convex.aws.loadnet.default        :as $.aws.loadnet.default]
             [convex.aws.loadnet.peer           :as $.aws.loadnet.peer]
             [convex.aws.loadnet.stack-set.op   :as $.aws.loadnet.stack-set.op]
             [convex.aws.loadnet.rpc            :as $.aws.loadnet.rpc]
@@ -30,7 +31,12 @@
                                                                   region+))]
                            (log/info (format "Region %d = %s"
                                              i-region
-                                             region))))
+                                             region)))
+                         (log/info (format "Peer instance type = %s"
+                                           (or (get-in env
+                                                       [:convex.aws.stack/parameter+
+                                                        :PeerInstanceType])
+                                               $.aws.loadnet.default/instance-type))))
         result         ($.aws.loadnet.cloudformation/invoke
                          env
                          :CreateStackSet
