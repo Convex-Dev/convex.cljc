@@ -4,6 +4,7 @@
             [convex.aws.loadnet.cloudformation :as $.aws.loadnet.cloudformation]
             [convex.aws.loadnet.peer           :as $.aws.loadnet.peer]
             [convex.aws.loadnet.stack-set.op   :as $.aws.loadnet.stack-set.op]
+            [convex.aws.loadnet.rpc            :as $.aws.loadnet.rpc]
             [convex.aws.loadnet.template       :as $.aws.loadnet.template]
             [taoensso.timbre                   :as log]))
 
@@ -48,7 +49,8 @@
       (-> env-2
           ($.aws.loadnet.stack-set.op/region->id)
           ($.aws.loadnet.stack-set.op/ip-peer+)
-          #_($.aws.loadnet.peer/start))
+          ($.aws.loadnet.rpc/await-ssh)
+          ($.aws.loadnet.peer/start))
       (do
         (log/error "Failed to create stacks, check your AWS console")
         env-2))))
