@@ -74,7 +74,7 @@
                                                                                               ($.cell/* {:host ~($.cell/string ip)}))
                                                                                             (env :convex.aws.ip/peer+)))})
                                                                     5
-                                                                    50))})
+                                                                    20))})
                         (loop []
                           (.worker.start {:pipe "peer"})
                           (recur))))))])]
@@ -202,7 +202,7 @@
                               i-peer-2
                               (format "%s/%d.etch"
                                       dir
-                                      i-peer)
+                                      i-peer-2)
                               {:src "store.etch"})
      (log/info (format "Finished downloading Etch instance from peer %d"
                        i-peer-2)))))

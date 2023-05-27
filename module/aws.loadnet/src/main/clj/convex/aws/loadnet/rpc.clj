@@ -34,7 +34,7 @@
       (.connect (Socket.)
                 (InetSocketAddress. ip
                                     22)
-                30000)
+                60000)
       (catch SocketTimeoutException _ex
         (log/error (format "SSH port seems closed on %s"
                            ip))

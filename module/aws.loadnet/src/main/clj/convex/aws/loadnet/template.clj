@@ -1,4 +1,6 @@
-(ns convex.aws.loadnet.template)
+(ns convex.aws.loadnet.template
+
+  (:require [convex.aws.loadnet.default :as $.aws.loadnet.default]))
 
 
 ;;;;;;;;;;
@@ -24,7 +26,7 @@
                                (str "Peer"
                                     i-peer))
                              (range (or (:convex.aws.region/n.peer env)
-                                        3)))]
+                                        $.aws.loadnet.default/n-peer)))]
      {:Description "Convex network for load testing"
       :Mappings    {"RegionalAMI" {"ap-southeast-1" {"AMI" "ami-00ec12023a2360a31"}
                                    "eu-central-1"   {"AMI" "ami-057b1d40595cd9308"}
@@ -44,7 +46,7 @@
                                         :Description           "Name of an existing EC2 KeyPair to enable SSH access to peers"
                                         :ConstraintDescription "Must be the name of an existing EC2 KeyPair"}
                     "PeerInstanceType" {:Type        "String"
-                                        :Default     "m4.2xlarge"
+                                        :Default     $.aws.loadnet.default/instance-type
                                         :Description "Instance type to be used for peers"}}
       :Resources   (into {"SecurityGroup" {:Type       "AWS::EC2::SecurityGroup"
                                            :Properties {:GroupDescription     "Network access for peers"

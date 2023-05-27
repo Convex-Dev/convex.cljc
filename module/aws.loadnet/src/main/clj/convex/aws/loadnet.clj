@@ -3,6 +3,7 @@
   (:require [babashka.fs                       :as bb.fs]
             [cognitect.aws.client.api          :as aws]
             [convex.aws.loadnet.cloudformation :as $.aws.loadnet.cloudformation]
+            [convex.aws.loadnet.default        :as $.aws.loadnet.default]
             [convex.aws.loadnet.log]
             [convex.aws.loadnet.metric         :as $.aws.loadnet.metric]
             [convex.aws.loadnet.peer           :as $.aws.loadnet.peer]
@@ -27,12 +28,12 @@
   (-> env
       (update :convex.aws.loadnet/dir
               #(-> (or %
-                       "./")
+                       $.aws.loadnet.default/dir)
                    (bb.fs/canonicalize)
                    (str)))
       (update :convex.aws.region/n.peer
               #(or %
-                   3))
+                   $.aws.loadnet.default/n-peer))
       ($.aws.loadnet.cloudformation/client+)
       ($.aws.loadnet.stack-set/create)
       ))
@@ -53,9 +54,10 @@
                                               ]
                 :convex.aws.key/file         "/Users/adam/Code/convex/clj/private/Test"
                 :convex.aws.loadnet/dir      "/tmp/loadnet"
-                :convex.aws.region/n.peer    10
+                :convex.aws.region/n.peer    1
                 :convex.aws.stack/parameter+ {:KeyName          "Test"
-                                              :PeerInstanceType "t2.micro"}
+                                              ;:PeerInstanceType "t2.micro"
+                                              }
                 :convex.aws.stack/tag+       {:Project "Ontochain"}}))
 
 
@@ -66,11 +68,15 @@
 
 
   (deref ($.aws.loadnet.rpc/worker env 2 (convex.cell/* (.sys.exit 0))))
+
+
   ($.aws.loadnet.peer/stop env)
 
 
 
   (sort (keys (aws/ops (env :convex.aws.client/cloudformation))))
+
+
   (aws/doc (env :convex.aws.client/cloudformation) :DeleteStackSet)
 
 
@@ -78,8 +84,8 @@
   (def x ($.aws.loadnet.metric/fetch env-2))
   ($.aws.loadnet.metric/save env-2 x)
 
-  ($.aws.loadnet.peer/log+ env-2)
-  ($.aws.loadnet.peer/etch env-2)
+  (time ($.aws.loadnet.peer/log+ env-2))
+  (time ($.aws.loadnet.peer/etch env-2))
   ($.aws.loadnet.peer/etch-stat {:convex.aws.loadnet/dir "/tmp/loadnet"})
 
 

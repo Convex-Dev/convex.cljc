@@ -21,9 +21,13 @@
   (let [stack-set-name (or (:convex.aws.stack/name env)
                            (str "LoadNet-"
                                 (System/currentTimeMillis)))
-        _              (log/info (format "Creating stack set named '%s' for %d region(s)"
-                                         stack-set-name
-                                         (count (env :convex.aws/region+))))
+        _              (do
+                         (log/info (format "Creating stack set named '%s' for %d region(s)"
+                                           stack-set-name
+                                           (count (env :convex.aws/region+))))
+
+
+                         )
         result         ($.aws.loadnet.cloudformation/invoke
                          env
                          :CreateStackSet
@@ -44,8 +48,10 @@
       (-> env-2
           ($.aws.loadnet.stack-set.op/region->id)
           ($.aws.loadnet.stack-set.op/ip-peer+)
-          ($.aws.loadnet.peer/start))
-      (log/error "Failed to create stacks, will delete stack set"))))
+          #_($.aws.loadnet.peer/start))
+      (do
+        (log/error "Failed to create stacks, check your AWS console")
+        env-2))))
 
 
 
