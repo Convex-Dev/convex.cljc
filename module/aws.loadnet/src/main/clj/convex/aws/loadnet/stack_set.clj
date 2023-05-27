@@ -103,16 +103,3 @@
                                            {:StackSetName (env :convex.aws.stack-set/name)})
       (:StackSet)
       (dissoc :TemplateBody)))
-
-
-
-(defn stop
-
-  [env]
-
-  (-> env
-      ($.aws.loadnet.peer/stop)
-      ($.aws.loadnet.peer/log+)
-      ($.aws.loadnet.peer.etch/download)
-      ($.aws.loadnet.peer.etch/stat+)
-      (delete)))

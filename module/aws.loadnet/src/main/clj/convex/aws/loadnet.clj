@@ -35,8 +35,23 @@
       (update :convex.aws.region/n.peer
               #(or %
                    $.aws.loadnet.default/n-peer))
+      ($.aws.loadnet.cloudwatch/client+)
       ($.aws.loadnet.cloudformation/client+)
       ($.aws.loadnet.stack-set/create)))
+
+
+
+(defn stop
+
+  [env]
+
+  (-> env
+      ($.aws.loadnet.peer/stop)
+      ($.aws.loadnet.peer/log+)
+      ($.aws.loadnet.peer.etch/download)
+      ($.aws.loadnet.peer.etch/stat+)
+      ($.aws.loadnet.cloudwatch/download)
+      ($.aws.loadnet.stack-set/delete)))
 
 
 ;;;;;;;;;;
@@ -48,7 +63,7 @@
   (def env
        (create {:convex.aws/account          (System/getenv "CONVEX_AWS_ACCOUNT")
                 :convex.aws/region+          ["eu-central-1"
-                                              ;"us-east-1"
+                                              "us-east-1"
                                               ;"us-west-1"
                                               ;"ap-southeast-1"
                                               ]
@@ -62,10 +77,14 @@
 
 
   (future
-    ($.aws.loadnet.stack-set/delete env))
+    (do
+      (stop env)
+      nil))
+
 
   (future
-    ($.aws.loadnet.stack-set/stop env))
+    ($.aws.loadnet.stack-set/delete env))
+
 
   ($.aws.loadnet.stack-set/describe env)
 
@@ -73,9 +92,7 @@
   (deref ($.aws.loadnet.rpc/worker env 2 (convex.cell/* (.sys.exit 0))))
 
 
-  (def env-2 ($.aws.loadnet.cloudwatch/client+ env))
-  (def x ($.aws.loadnet.cloudwatch/fetch env-2))
-  ($.aws.loadnet.cloudwatch/save env-2 x)
+  ($.aws.loadnet.cloudwatch/download env)
 
   ($.aws.loadnet.peer/stop env)
   (time ($.aws.loadnet.peer/log+ env))
