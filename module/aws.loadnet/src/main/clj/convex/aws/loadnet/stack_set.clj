@@ -4,6 +4,7 @@
             [convex.aws.loadnet.cloudformation :as $.aws.loadnet.cloudformation]
             [convex.aws.loadnet.default        :as $.aws.loadnet.default]
             [convex.aws.loadnet.peer           :as $.aws.loadnet.peer]
+            [convex.aws.loadnet.peer.etch      :as $.aws.loadnet.peer.etch]
             [convex.aws.loadnet.stack-set.op   :as $.aws.loadnet.stack-set.op]
             [convex.aws.loadnet.rpc            :as $.aws.loadnet.rpc]
             [convex.aws.loadnet.template       :as $.aws.loadnet.template]
@@ -112,6 +113,6 @@
   (-> env
       ($.aws.loadnet.peer/stop)
       ($.aws.loadnet.peer/log+)
-      ($.aws.loadnet.peer/etch)
-      ($.aws.loadnet.peer/etch-stat)
+      ($.aws.loadnet.peer.etch/download)
+      ($.aws.loadnet.peer.etch/stat+)
       (delete)))

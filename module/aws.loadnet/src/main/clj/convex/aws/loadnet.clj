@@ -7,6 +7,7 @@
             [convex.aws.loadnet.log]
             [convex.aws.loadnet.metric         :as $.aws.loadnet.metric]
             [convex.aws.loadnet.peer           :as $.aws.loadnet.peer]
+            [convex.aws.loadnet.peer.etch      :as $.aws.loadnet.peer.etch]
             [convex.aws.loadnet.rpc            :as $.aws.loadnet.rpc]
             [convex.aws.loadnet.stack          :as $.aws.loadnet.stack]
             [convex.aws.loadnet.stack-set      :as $.aws.loadnet.stack-set]
@@ -85,9 +86,9 @@
   (def x ($.aws.loadnet.metric/fetch env-2))
   ($.aws.loadnet.metric/save env-2 x)
 
-  (time ($.aws.loadnet.peer/log+ env-2))
-  (time ($.aws.loadnet.peer/etch env-2))
-  ($.aws.loadnet.peer/etch-stat {:convex.aws.loadnet/dir "/tmp/loadnet"})
+  (time ($.aws.loadnet.peer/log+ env))
+  (time ($.aws.loadnet.peer.etch/download env))
+  ($.aws.loadnet.peer.etch/stat+ {:convex.aws.loadnet/dir "/tmp/loadnet"})
 
 
   (def env-2 ($.aws.loadnet.peer/start env))
