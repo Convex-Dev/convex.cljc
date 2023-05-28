@@ -70,7 +70,8 @@
                 (assoc env
                        :convex.aws.loadnet/ssh-ready?
                        true)
-                (env :convex.aws.ip/peer+))]
+                (concat (env :convex.aws.ip/load+)
+                        (env :convex.aws.ip/peer+)))]
     (when (env-2 :convex.aws.loadnet/ssh-ready?)
       ;; Extra delay just in case.
       (Thread/sleep 5000))
