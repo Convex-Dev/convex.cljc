@@ -32,10 +32,15 @@
                            (log/info (format "Region %d = %s"
                                              i-region
                                              region)))
+                         (log/info (format "Load generator instance type = %s"
+                                           (or (get-in env
+                                                       [:convex.aws.stack/parameter+
+                                                        :InstanceTypeLoad])
+                                               $.aws.loadnet.default/instance-type)))
                          (log/info (format "Peer instance type = %s"
                                            (or (get-in env
                                                        [:convex.aws.stack/parameter+
-                                                        :PeerInstanceType])
+                                                        :InstanceTypePeer])
                                                $.aws.loadnet.default/instance-type)))
                          (log/info (format "Scenario path = %s"
                                            (or (env :convex.aws.loadnet.scenario/path)
@@ -62,7 +67,7 @@
     (if ok?
       (let [env-3 (-> env-2
                       ($.aws.loadnet.stack-set.op/region->id)
-                      ($.aws.loadnet.stack-set.op/ip-peer+))]
+                      ($.aws.loadnet.stack-set.op/ip+))]
         (spit (format "%s/run.edn"
                       (env-3 :convex.aws.loadnet/dir))
               (select-keys env-3

@@ -39,21 +39,26 @@
 
 
 
-(defn ip-peer+
+(defn ip+
 
   [env region]
 
-  (->> (output+ env
-                region)
-       (keep (fn [output]
-              (let [^String k (output :OutputKey)]
-                (when (string/starts-with? k
-                                           "IpPeer")
-                  [(Integer/parseInt (.substring k
-                                                 6))
-                   (output :OutputValue)]))))
-       (sort-by first)
-       (mapv second)))
+  (let [result (output+ env
+                        region)
+        parse  (fn [str-filter]
+                 (let [n-char (count str-filter)]
+                   (->> result
+                        (keep (fn [output]
+                                (let [^String k (output :OutputKey)]
+                                  (when (string/starts-with? k
+                                                             str-filter)
+                                    [(Integer/parseInt (.substring k
+                                                                   n-char))
+                                     (output :OutputValue)]))))
+                        (sort-by first)
+                        (mapv second))))]
+    [(parse "IpLoad")
+     (parse "IpPeer")]))
 
 
 

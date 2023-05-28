@@ -78,17 +78,19 @@
                 :convex.aws/region+                  ["eu-central-1"
                                                       ;"us-east-1"
                                                       ;"us-west-1"
-                                                      ;"ap-southeast-1"
+                                                      "ap-southeast-1"
                                                       ]
                 :convex.aws.key/file                 "/Users/adam/Code/convex/clj/private/Test"
                 :convex.aws.loadnet/dir              "/tmp/loadnet"
                 :convex.aws.loadnet.scenario/path    ($.cell/* (lib sim scenario torus))
                 :convex.aws.loadnet.scenario/param+  ($.cell/* {:n.token 5
                                                                 :n.user  100})
-                :convex.aws.region/n.peer           1
+                :convex.aws.region/n.peer           2
+                :convex.aws.region/n.load           3
                 :convex.aws.stack/parameter+        {:DetailedMonitoring "false"
                                                      :KeyName            "Test"
-                                                     :PeerInstanceType   "t2.micro"
+                                                     :InstanceTypeLoad   "t2.micro"
+                                                     :InstanceTypePeer   "t2.micro"
                                                      }
                 :convex.aws.stack/tag+              {:Project "Ontochain"}}))
 
