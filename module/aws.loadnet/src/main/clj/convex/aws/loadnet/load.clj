@@ -21,6 +21,7 @@
       (let [ip-peer+   (env :convex.aws.ip/peer+)
             n-peer     (count ip-peer+)
             n-load-cvx ($.cell/long n-load)
+            *stopped?  (env :convex.aws.loadnet/*stopped?)
             process+   (mapv (fn [i-load]
                                (log/info (format "Starting load generator %d"
                                                  i-load))
@@ -48,7 +49,19 @@
                                                                    ~($.cell/long i-load)]
                                                           :host   ~($.cell/string (get ip-peer+
                                                                                        (mod i-load
-                                                                                            n-peer)))}))))))
+                                                                                            n-peer)))}))))
+                                 {:exit-fn (fn [process]
+                                             (let [exit     (:exit @process)
+                                                   stopped? @*stopped?]
+                                               (if stopped?
+                                                 (log/info (format "Load generated %d terminated"
+                                                                   i-load))
+                                                 (if (zero? exit)
+                                                   (log/warn (format "Load generator %d terminated but the simulation has not been stopped"
+                                                                     i-load))
+                                                   (log/warn (format "Load generator %d terminated with status %d before the simulation was stopped"
+                                                                     i-load
+                                                                     exit))))))}))
                              (range n-load))]
         (log/info "Done starting all load generators")
         (assoc env

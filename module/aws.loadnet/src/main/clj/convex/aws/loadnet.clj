@@ -52,6 +52,18 @@
 
 
 
+(defn delete
+
+  [env]
+
+  (-> env
+      (merge (edn/read-string (slurp (format "%s/run.edn"
+                                             (env :convex.aws.loadnet/dir)))))
+      ($.aws.loadnet.cloudformation/client)
+      ($.aws.loadnet.stack-set/delete)))
+
+
+
 (defn start
 
   [env]
@@ -81,18 +93,6 @@
       ($.aws.loadnet.stack-set/delete)))
 
 
-
-(defn stop-2
-
-  [env]
-
-  (-> env
-      (merge (edn/read-string (slurp (format "%s/run.edn"
-                                             (env :convex.aws.loadnet/dir)))))
-      ($.aws.loadnet.cloudformation/client)
-      ($.aws.loadnet.stack-set/delete)))
-
-
 ;;;;;;;;;;
 
 
@@ -102,18 +102,18 @@
   (def env
        (create {:convex.aws/account                  (System/getenv "CONVEX_AWS_ACCOUNT")
                 :convex.aws/region+                  ["eu-central-1"
-                                                      "us-east-1"
+                                                      ;"us-east-1"
                                                       ;"us-west-1"
                                                       ;"ap-southeast-1"
                                                       ]
                 :convex.aws.key/file                 "/Users/adam/Code/convex/clj/private/Test"
                 :convex.aws.loadnet/dir              "/tmp/loadnet"
-                ;:convex.aws.loadnet.peer/native?     true
+                :convex.aws.loadnet.peer/native?     true
                 :convex.aws.loadnet.scenario/path    ($.cell/* (lib sim scenario torus))
                 :convex.aws.loadnet.scenario/param+  ($.cell/* {:n.token 5
-                                                                :n.user  1000})
-                :convex.aws.region/n.peer           5
-                :convex.aws.region/n.load           10
+                                                                :n.user  100})
+                :convex.aws.region/n.peer           1
+                :convex.aws.region/n.load           2
                 :convex.aws.stack/parameter+        {:DetailedMonitoring "false"
                                                      :KeyName            "Test"
                                                      ;:InstanceTypeLoad   "t2.micro"
@@ -123,15 +123,14 @@
 
 
   (future
-    (do
-      (stop env)
-      nil))
+    (stop env)
+    nil)
+
 
   (future
-    (do
-      (stop-2 {:convex.aws/account     (System/getenv "CONVEX_AWS_ACCOUNT")
-               :convex.aws.loadnet/dir "/tmp/loadnet"})
-      nil))
+    (delete {:convex.aws/account     (System/getenv "CONVEX_AWS_ACCOUNT")
+             :convex.aws.loadnet/dir "/tmp/loadnet"})
+    nil)
 
 
   ;; If awaiting SSH servers fail.

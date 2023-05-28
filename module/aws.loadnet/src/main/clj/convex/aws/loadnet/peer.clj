@@ -42,15 +42,16 @@
                    (if (zero? exit)
                      (log/info (format "SSH process of Peer %d stopped normally"
                                        i-peer))
-                     (if (and @*stopped?
-                              (= exit
-                                 255))
+                     (if @*stopped?
                        (log/info (format "SSH process of Peer %d terminated"
                                          i-peer))
-                       (log/warn (format "SSH process of Peer %d stopped with status %d, STDERR = %s"
-                                         i-peer
-                                         exit
-                                         (slurp (:err process))))))))})))
+                       (if (zero? exit)
+                         (log/warn (format "SSH process of Peer %d terminated before the simulation was stopped"
+                                           i-peer))
+                         (log/warn (format "SSH process of Peer %d termianted with status %d before the simulation was stopped, STDERR = %s"
+                                           i-peer
+                                           exit
+                                           (slurp (:err process)))))))))})))
 
 
 ;;;;;;;;;;
