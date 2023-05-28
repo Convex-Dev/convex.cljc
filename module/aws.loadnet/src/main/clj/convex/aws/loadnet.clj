@@ -28,18 +28,23 @@
   (assert (get-in env
                   [:convex.aws.stack/parameter+
                    :KeyName]))
-  (-> env
-      (update :convex.aws.loadnet/dir
-              #(-> (or %
-                       $.aws.loadnet.default/dir)
-                   (bb.fs/canonicalize)
-                   (str)))
-      (update :convex.aws.region/n.peer
-              #(or %
-                   $.aws.loadnet.default/n-peer))
-      ($.aws.loadnet.cloudwatch/client+)
-      ($.aws.loadnet.cloudformation/client+)
-      ($.aws.loadnet.stack-set/create)))
+  (let [dir (-> (or (env :convex.aws.loadnet/dir)
+                    $.aws.loadnet.default/dir)
+                (bb.fs/canonicalize)
+                (str))]
+    (bb.fs/create-dirs dir)
+    (-> env
+        (assoc :convex.aws.loadnet/dir
+               dir)
+        (update :convex.aws.region/n.load
+                #(or %
+                     $.aws.loadnet.default/n-load))
+        (update :convex.aws.region/n.peer
+                #(or %
+                     $.aws.loadnet.default/n-peer))
+        ($.aws.loadnet.cloudwatch/client+)
+        ($.aws.loadnet.cloudformation/client+)
+        ($.aws.loadnet.stack-set/create))))
 
 
 
@@ -61,6 +66,7 @@
       ($.aws.loadnet.load/stop)
       ($.aws.loadnet.peer/stop)
       ($.aws.loadnet.peer/log+)
+      ($.aws.loadnet.load/log+)
       ($.aws.loadnet.peer.etch/download)
       ($.aws.loadnet.peer.etch/stat+)
       ($.aws.loadnet.cloudwatch/download)
@@ -98,7 +104,7 @@
                 :convex.aws.loadnet.scenario/param+  ($.cell/* {:n.token 5
                                                                 :n.user  20})
                 :convex.aws.region/n.peer           1
-                :convex.aws.region/n.load           1
+                :convex.aws.region/n.load           4
                 :convex.aws.stack/parameter+        {:DetailedMonitoring "false"
                                                      :KeyName            "Test"
                                                      :InstanceTypeLoad   "t2.micro"
@@ -122,12 +128,14 @@
   ;; If awaiting SSH servers fail.
   ;
   (def env
+       (start env))
+
+  (def env
        ($.aws.loadnet.peer/start env))
 
   (def env
        ($.aws.loadnet.load/start env))
 
-  ($.aws.loadnet.load/stop env)
 
 
   ($.aws.loadnet.stack-set/describe env)
@@ -139,9 +147,12 @@
   ($.aws.loadnet.cloudwatch/download env)
 
   ($.aws.loadnet.peer/stop env)
+  ($.aws.loadnet.load/stop env)
   (time ($.aws.loadnet.peer/log+ env))
   (time ($.aws.loadnet.peer.etch/download env))
   ($.aws.loadnet.peer.etch/stat+ {:convex.aws.loadnet/dir "/tmp/loadnet"})
+
+  ($.aws.loadnet.load/log+ env)
 
 
   )

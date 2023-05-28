@@ -31,17 +31,18 @@
                           (env :convex.aws.loadnet/dir))
          i-peer-2 (or i-peer
                       0)
-         path     (format "%s/%d.etch"
+         dest     (format "%s/%d.etch"
                           dir
                           i-peer-2)]
      (log/info (format "Downloading Etch instance from peer %d to '%s'"
                        i-peer-2
-                       path))
+                       dest))
      (bb.fs/create-dirs dir)
      ($.aws.loadnet.rpc/rsync env
+                              :convex.aws.ip/peer+
                               i-peer-2
-                              path
-                              {:src "store.etch"})
+                              "/tmp/peer/store.etch"
+                              dest)
      (log/info (format "Finished downloading Etch instance from peer %d"
                        i-peer-2)))
    env))

@@ -168,7 +168,7 @@
 
   [env]
 
-  (let [dir (format "%s/log"
+  (let [dir (format "%s/log/peer"
                     (env :convex.aws.loadnet/dir))]
     (log/info (format "Collecting peer logs to '%s'"
                       dir))
@@ -177,11 +177,12 @@
           (mapv (fn [i-peer]
                   (future
                     ($.aws.loadnet.rpc/rsync env
+                                             :convex.aws.ip/peer+
                                              i-peer
+                                             "/tmp/peer/log.cvx"
                                              (format "%s/%d.cvx"
                                                      dir
-                                                     i-peer)
-                                             {:src "log.cvx"})))
+                                                     i-peer))))
                 (range (count (env :convex.aws.ip/peer+))))))
   (log/info "Done collecting peer logs")
   env)

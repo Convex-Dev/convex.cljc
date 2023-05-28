@@ -150,15 +150,17 @@
 (defn rsync
 
 
-  ([env i-peer dest]
+  ([env k-ip+ i-ip src dest]
 
    (rsync env
-          i-peer
+          k-ip+
+          i-ip
+          src
           dest
           nil))
 
 
-  ([env i-peer dest option+]
+  ([env k-ip+ i-ip src dest option+]
 
    (let [process (P.process/run (reduce (fn [cmd path]
                                           (conj cmd
@@ -169,17 +171,18 @@
                                          "-e"    (format "ssh -i %s -o StrictHostKeyChecking=no"
                                                          (-key env))
                                          (str (-ip env
-                                                   :convex.aws.ip/peer+
-                                                   i-peer)
-                                              ":/tmp/peer/"
-                                              (:src option+))
+                                                   k-ip+
+                                                   i-ip)
+                                              (format ":%s"
+                                                      src))
                                          dest]
                                         (:exclude option+)))]
      (or (= 0
             (:exit @process))
          (do
            (log/error (format "Rsync over peer %d failed: %s"
-                              i-peer
+                              [k-ip+
+                               i-ip]
                               (slurp (:err process))))
            false)))))
 
