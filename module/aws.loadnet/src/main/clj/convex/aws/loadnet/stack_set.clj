@@ -36,7 +36,13 @@
                                            (or (get-in env
                                                        [:convex.aws.stack/parameter+
                                                         :PeerInstanceType])
-                                               $.aws.loadnet.default/instance-type))))
+                                               $.aws.loadnet.default/instance-type)))
+                         (log/info (format "Scenario path = %s"
+                                           (or (env :convex.aws.loadnet.scenario/path)
+                                               (throw (IllegalArgumentException. "Missing scenario path")))))
+                         (log/info (format "Scenario parameters = %s"
+                                           (or (env :convex.aws.loadnet.scenario/param+)
+                                               (throw (IllegalArgumentException. "Missing scenario parameters"))))))
         result         ($.aws.loadnet.cloudformation/invoke
                          env
                          :CreateStackSet

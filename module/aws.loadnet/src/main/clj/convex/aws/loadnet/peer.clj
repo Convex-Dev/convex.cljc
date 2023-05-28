@@ -40,23 +40,22 @@
                   ($.cell/*
                     (do
                       (.project.dir.set "/home/ubuntu/repo/lab.cvx")
-                      (let [dep+ (.dep.deploy '[$.net.test           (lib net test)
-                                                $.sim.scenario.torus (lib sim scenario torus)])]
+                      (let [dep+ (.dep.deploy '[$.net.test  (lib net test)
+                                                scenario    ~(env :convex.aws.loadnet.scenario/path)])]
                         (def $.net.test
                              (get dep+
                                   '$.net.test))
-                        (def $.sim.scenario.torus
+                        (def scenario
                              (get dep+
-                                  '$.sim.scenario.torus))
+                                  'scenario))
                         ($.net.test/start.genesis {:dir   "/tmp/peer"
-                                                   :state (:state ($.sim.scenario.torus/state
+                                                   :state (:state (scenario/state
                                                                     ($.net.test/state.genesis
                                                                       {:peer+
                                                                        ~($.cell/vector (map (fn [ip]
                                                                                               ($.cell/* {:host ~($.cell/string ip)}))
                                                                                             (env :convex.aws.ip/peer+)))})
-                                                                    {:n.token 5
-                                                                     :n.user  20}))})
+                                                                    ~(env :convex.aws.loadnet.scenario/param+)))})
                         (loop []
                           (.worker.start {:pipe "peer"})
                           (recur))))))])]
