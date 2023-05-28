@@ -14,7 +14,12 @@
             [convex.aws.loadnet.rpc            :as $.aws.loadnet.rpc]
             [convex.aws.loadnet.stack          :as $.aws.loadnet.stack]
             [convex.aws.loadnet.stack-set      :as $.aws.loadnet.stack-set]
-            [convex.cell                       :as $.cell]))
+            [convex.cell                       :as $.cell]
+            [taoensso.timbre                   :as log]))
+
+
+(declare start
+         stop)
 
 
 ;;;;;;;;;;
@@ -49,7 +54,8 @@
                      $.aws.loadnet.default/n-peer))
         ($.aws.loadnet.cloudwatch/client+)
         ($.aws.loadnet.cloudformation/client+)
-        ($.aws.loadnet.stack-set/create))))
+        ($.aws.loadnet.stack-set/create)
+        (start))))
 
 
 
@@ -69,9 +75,25 @@
 
   [env]
 
-  (-> env
-      ($.aws.loadnet.peer/start)
-      ($.aws.loadnet.load/start)))
+  (let [env-2 ($.aws.loadnet.rpc/await-ssh env)]
+    (if (env-2 :convex.aws.loadnet/ssh-ready?)
+      (let [timer (env-2 :convex.aws.loadnet/timer)
+            env-3 (-> env-2
+                      ($.aws.loadnet.peer/start)
+                      ($.aws.loadnet.load/start))]
+        (log/info "Simulation running")
+        (when timer
+          (log/info (format "Simulation will stop in %d minute(s)"
+                            timer))
+          (future
+            (Thread/sleep (* timer ; minutes
+                             60
+                             1000))
+            (stop env-3)))
+        env-3)
+      (do
+        (log/error "Wait a bit and try starting the simulation")
+        env-2))))
 
 
 
@@ -79,6 +101,7 @@
 
   [env]
 
+  (log/info "Stopping simulation and deleting stack set")
   (-> env
       (update :convex.aws.loadnet/*stopped?
               reset!
@@ -88,8 +111,8 @@
       ($.aws.loadnet.peer/log+)
       ($.aws.loadnet.load.log/download)
       ($.aws.loadnet.load.log/stat+)
-      ;($.aws.loadnet.peer.etch/download)
-      ;($.aws.loadnet.peer.etch/stat+)
+      ($.aws.loadnet.peer.etch/download)
+      ($.aws.loadnet.peer.etch/stat+)
       ;($.aws.loadnet.cloudwatch/download)
       ($.aws.loadnet.stack-set/delete)))
 
@@ -109,6 +132,7 @@
                                                       ]
                 :convex.aws.key/file                 "/Users/adam/Code/convex/clj/private/Test"
                 :convex.aws.loadnet/dir              "/tmp/loadnet"
+                :convex.aws.loadnet/timer            1
                 :convex.aws.loadnet.peer/native?     true
                 :convex.aws.loadnet.scenario/path    ($.cell/* (lib sim scenario torus))
                 :convex.aws.loadnet.scenario/param+  ($.cell/* {:n.token 5
