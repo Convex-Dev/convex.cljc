@@ -7,6 +7,7 @@
             [convex.aws.loadnet.cloudwatch     :as $.aws.loadnet.cloudwatch]
             [convex.aws.loadnet.default        :as $.aws.loadnet.default]
             [convex.aws.loadnet.load           :as $.aws.loadnet.load]
+            [convex.aws.loadnet.load.log       :as $.aws.loadnet.load.log]
             [convex.aws.loadnet.log]
             [convex.aws.loadnet.peer           :as $.aws.loadnet.peer]
             [convex.aws.loadnet.peer.etch      :as $.aws.loadnet.peer.etch]
@@ -66,7 +67,8 @@
       ($.aws.loadnet.load/stop)
       ($.aws.loadnet.peer/stop)
       ($.aws.loadnet.peer/log+)
-      ($.aws.loadnet.load/log+)
+      ($.aws.loadnet.load.log/download)
+      ($.aws.loadnet.load.log/stat+)
       ($.aws.loadnet.peer.etch/download)
       ($.aws.loadnet.peer.etch/stat+)
       ($.aws.loadnet.cloudwatch/download)
@@ -152,7 +154,8 @@
   (time ($.aws.loadnet.peer.etch/download env))
   ($.aws.loadnet.peer.etch/stat+ {:convex.aws.loadnet/dir "/tmp/loadnet"})
 
-  ($.aws.loadnet.load/log+ env)
+  ($.aws.loadnet.load.log/download env)
+  ($.aws.loadnet.load.log/stat+ env)
 
 
   )

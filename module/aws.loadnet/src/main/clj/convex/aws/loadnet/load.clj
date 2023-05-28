@@ -78,30 +78,3 @@
                                             "/tmp/load.pid"))])
               (range (count (env :convex.aws.ip/load+)))))
   env)
-
-
-;;;;;;;;;;
-
-
-(defn log+
-
-  [env]
-
-  (let [dir (format "%s/log/load"
-                    (env :convex.aws.loadnet/dir))]
-    (log/info (format "Collecting load generator logs to '%s'"
-                      dir))
-    (bb.fs/create-dirs dir)
-    (run! deref
-          (mapv (fn [i-peer]
-                  (future
-                    ($.aws.loadnet.rpc/rsync env
-                                             :convex.aws.ip/load+
-                                             i-peer
-                                             "/tmp/load.cvx"
-                                             (format "%s/%d.cvx"
-                                                     dir
-                                                     i-peer))))
-                (range (count (env :convex.aws.ip/load+))))))
-  (log/info "Done collecting load generator logs")
-  env)
