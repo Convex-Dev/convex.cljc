@@ -14,23 +14,23 @@
 ;;;;;;;;;;
 
 
+(defn- -ip
+
+  [env k-ip+ i-ip]
+
+  (format "ubuntu@%s"
+          (get-in env
+                  [k-ip+
+                   i-ip])))
+
+
+
 (defn- -key
 
   [env]
 
   (or (env :convex.aws.key/file)
       (throw (IllegalArgumentException. "Path to key missing"))))
-
-
-
-(defn- -peer-ip
-
-  [env i-peer]
-
-  (format "ubuntu@%s"
-          (get-in env
-                  [:convex.aws.ip/peer+
-                   i-peer])))
 
 
 ;;;;;;;;;;
@@ -81,13 +81,14 @@
 
 (defn ssh
 
-  [env i-peer command]
+  [env k-ip+ i-ip command]
 
   (P.process/run (concat ["ssh"
                           "-i" (-key env)
                           "-o" "StrictHostKeyChecking=no"
-                          (-peer-ip env
-                                    i-peer)]
+                          (-ip env
+                               k-ip+
+                               i-ip)]
                          command)))
 
 
@@ -96,10 +97,11 @@
 
 (defn- -cvx
 
-  [cvx-cmd env i-peer cell]
+  [cvx-cmd env k-ip+ i-ip cell]
 
   (ssh env
-       i-peer
+       k-ip+
+       i-ip
        [cvx-cmd
         (format "'%s'"
                 ($.write/string Long/MAX_VALUE
@@ -109,23 +111,39 @@
 
 (defn cvx
 
-  [env i-peer cell]
+  [env k-ip+ i-ip cell]
 
   (-cvx "cvx"
         env
-        i-peer
+        k-ip+
+        i-ip
         cell))
 
 
 
 (defn jcvx
 
-  [env i-peer cell]
+  [env k-ip+ i-ip cell]
 
   (-cvx "jcvx"
         env
-        i-peer
+        k-ip+
+        i-ip
         cell))
+
+
+
+(defn kill-process
+
+  [env k-ip+ i-ip file-pid]
+
+  (ssh env
+       k-ip+
+       i-ip
+       ["kill"
+        "-9"
+        (format "`cat %s`"
+                file-pid)]))
 
 
 
@@ -150,8 +168,9 @@
                                          "-azrv"
                                          "-e"    (format "ssh -i %s -o StrictHostKeyChecking=no"
                                                          (-key env))
-                                         (str (-peer-ip env
-                                                        i-peer)
+                                         (str (-ip env
+                                                   :convex.aws.ip/peer+
+                                                   i-peer)
                                               ":/tmp/peer/"
                                               (:src option+))
                                          dest]
@@ -168,10 +187,11 @@
 
 (defn worker
 
-  [env i-peer cell]
+  [env k-ip+ i-ip cell]
 
   (let [process (cvx env
-                     i-peer
+                     k-ip+
+                     i-ip
                      ($.cell/*
                        (let [[in
                               out] (.worker.pipe+ "peer")]
@@ -181,13 +201,15 @@
     (delay
       (when-not (zero? (:exit @process))
         (throw (ex-info "SSH error while executing remote CVX command"
-                        {:convex.aws/i.peer      i-peer
-                         :convex.aws.process/err (slurp (:err process))})))
+                        {:convex.aws.loadnet/worker [k-ip+
+                                                     i-ip]
+                         :convex.aws.process/err    (slurp (:err process))})))
       (let [[ok?
              _
              x]  (seq (first ($.read/string (slurp (:out process)))))]
         (when-not ($.std/true? ok?)
           (throw (ex-info "CVM exception while executing remote CVX command"
-                          {:convex.aws/i.peer    i-peer
-                           :convex.cvm/exception x})))
+                          {:convex.aws.loadnet/worker [k-ip+
+                                                       i-ip]
+                           :convex.cvm/exception      x})))
         x))))

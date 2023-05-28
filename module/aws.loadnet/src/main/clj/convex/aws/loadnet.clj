@@ -6,6 +6,7 @@
             [convex.aws.loadnet.cloudformation :as $.aws.loadnet.cloudformation]
             [convex.aws.loadnet.cloudwatch     :as $.aws.loadnet.cloudwatch]
             [convex.aws.loadnet.default        :as $.aws.loadnet.default]
+            [convex.aws.loadnet.load           :as $.aws.loadnet.load]
             [convex.aws.loadnet.log]
             [convex.aws.loadnet.peer           :as $.aws.loadnet.peer]
             [convex.aws.loadnet.peer.etch      :as $.aws.loadnet.peer.etch]
@@ -42,11 +43,22 @@
 
 
 
+(defn start
+
+  [env]
+
+  (-> env
+      ($.aws.loadnet.peer/start)
+      ($.aws.loadnet.load/start)))
+
+
+
 (defn stop
 
   [env]
 
   (-> env
+      ($.aws.loadnet.load/stop)
       ($.aws.loadnet.peer/stop)
       ($.aws.loadnet.peer/log+)
       ($.aws.loadnet.peer.etch/download)
@@ -78,15 +90,15 @@
                 :convex.aws/region+                  ["eu-central-1"
                                                       ;"us-east-1"
                                                       ;"us-west-1"
-                                                      "ap-southeast-1"
+                                                      ;"ap-southeast-1"
                                                       ]
                 :convex.aws.key/file                 "/Users/adam/Code/convex/clj/private/Test"
                 :convex.aws.loadnet/dir              "/tmp/loadnet"
                 :convex.aws.loadnet.scenario/path    ($.cell/* (lib sim scenario torus))
                 :convex.aws.loadnet.scenario/param+  ($.cell/* {:n.token 5
-                                                                :n.user  100})
-                :convex.aws.region/n.peer           2
-                :convex.aws.region/n.load           3
+                                                                :n.user  20})
+                :convex.aws.region/n.peer           1
+                :convex.aws.region/n.load           1
                 :convex.aws.stack/parameter+        {:DetailedMonitoring "false"
                                                      :KeyName            "Test"
                                                      :InstanceTypeLoad   "t2.micro"
@@ -112,11 +124,16 @@
   (def env
        ($.aws.loadnet.peer/start env))
 
+  (def env
+       ($.aws.loadnet.load/start env))
+
+  ($.aws.loadnet.load/stop env)
+
 
   ($.aws.loadnet.stack-set/describe env)
 
 
-  (deref ($.aws.loadnet.rpc/worker env 2 (convex.cell/* (.sys.exit 0))))
+  (deref ($.aws.loadnet.rpc/worker env :convex.aws.ip/load+ 2 (convex.cell/* (.sys.exit 0))))
 
 
   ($.aws.loadnet.cloudwatch/download env)

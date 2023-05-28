@@ -15,6 +15,7 @@
 
   (when-not (= ($.cell/* :ready)
                @($.aws.loadnet.rpc/worker env
+                                          :convex.aws.ip/peer+
                                           i-peer
                                           ($.cell/* :ready)))
     (throw (Exception. (format "Problem while testing if peer %d was ready"
@@ -36,6 +37,7 @@
                :convex.aws.loadnet.cvx/peer+
                [($.aws.loadnet.rpc/cvx
                   env
+                  :convex.aws.ip/peer+
                   0
                   ($.cell/*
                     (do
@@ -89,6 +91,7 @@
                                  [i-peer
                                   ($.aws.loadnet.rpc/cvx
                                    env
+                                   :convex.aws.ip/peer+
                                    i-peer
                                    ($.cell/*
                                      (do
@@ -142,6 +145,7 @@
                                                i-peer))
                              [i-peer
                               ($.aws.loadnet.rpc/worker env
+                                                        :convex.aws.ip/peer+
                                                         i-peer
                                                         ($.cell/*
                                                           (do

@@ -59,7 +59,7 @@
                                   result)))
                        {}
                        (map (fn [region]
-                              (log/info (format "Retrieving CloudWatch metrics for instances in region '%s'"
+                              (log/info (format "Retrieving CloudWatch metrics for peer instances in region '%s'"
                                                 region))
                               [region
                                (future

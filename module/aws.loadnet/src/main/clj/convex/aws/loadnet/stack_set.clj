@@ -3,6 +3,7 @@
   (:require [clojure.data.json                 :as json]
             [convex.aws.loadnet.cloudformation :as $.aws.loadnet.cloudformation]
             [convex.aws.loadnet.default        :as $.aws.loadnet.default]
+            [convex.aws.loadnet.load           :as $.aws.loadnet.load]
             [convex.aws.loadnet.peer           :as $.aws.loadnet.peer]
             [convex.aws.loadnet.stack-set.op   :as $.aws.loadnet.stack-set.op]
             [convex.aws.loadnet.rpc            :as $.aws.loadnet.rpc]
@@ -80,9 +81,11 @@
                             :convex.aws.stack-set/name]))
         (let [env-4 ($.aws.loadnet.rpc/await-ssh env-3)]
           (if (env-4 :convex.aws.loadnet/ssh-ready?)
-            ($.aws.loadnet.peer/start env-4)
+            (-> env-4
+                ($.aws.loadnet.peer/start)
+                ($.aws.loadnet.load/start))
             (do
-              (log/error "Wait a bit and try starting peers manually")
+              (log/error "Wait a bit and try starting the simulation")
               env-4))))
       (do
         (log/error "Failed to create stacks, check your AWS console")
