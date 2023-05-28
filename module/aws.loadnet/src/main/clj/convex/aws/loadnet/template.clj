@@ -33,13 +33,10 @@
                              (range (or (:convex.aws.region/n.peer env)
                                         $.aws.loadnet.default/n-peer)))]
      {:Description "Convex network for load testing"
-      :Mappings    {"RegionalAMI" {"ap-southeast-1" {;"AMI" "ami-00ec12023a2360a31"
-                                                     "AMI" "ami-0d8378a705bbaad85"}
-                                   "eu-central-1"   {"AMI" ;"ami-057b1d40595cd9308"
-                                                           "ami-05028054e79ce04d4"}
-                                   ;"us-east-1"      {"AMI" "ami-089dc670716bd48a3"}
-                                   ;"us-west-1"      {"AMI" "ami-0cda40c5263ddd0ca"}
-                                   }}
+      :Mappings    {"RegionalAMI" {"ap-southeast-1" {"AMI" "ami-0d8378a705bbaad85"}
+                                   "eu-central-1"   {"AMI" "ami-05028054e79ce04d4"}
+                                   "us-east-1"      {"AMI" "ami-0f06c7dc7086d1fe5"}
+                                   "us-west-1"      {"AMI" "ami-0f523bb7cfa9fe01c"}}}
       :Outputs     (-> {}
                        (into (map (fn [i-load name-load]
                                     [(format "IpLoad%d"
