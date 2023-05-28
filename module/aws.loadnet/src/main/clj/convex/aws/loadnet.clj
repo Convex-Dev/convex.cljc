@@ -35,8 +35,9 @@
                 (str))]
     (bb.fs/create-dirs dir)
     (-> env
-        (assoc :convex.aws.loadnet/dir       dir
-               :convex.aws.loadnet/*stopped? (atom false))
+        (assoc :convex.aws.loadnet/dir            dir
+               :convex.aws.loadnet/*stopped?      (atom false)
+               :convex.aws.loadnet.load/*stopped+ (atom #{}))
         (update :convex.aws.loadnet.peer/native?
                 #(or %
                      $.aws.loadnet.default/peer-native?))
@@ -87,8 +88,8 @@
       ($.aws.loadnet.peer/log+)
       ($.aws.loadnet.load.log/download)
       ($.aws.loadnet.load.log/stat+)
-      ($.aws.loadnet.peer.etch/download)
-      ($.aws.loadnet.peer.etch/stat+)
+      ;($.aws.loadnet.peer.etch/download)
+      ;($.aws.loadnet.peer.etch/stat+)
       ;($.aws.loadnet.cloudwatch/download)
       ($.aws.loadnet.stack-set/delete)))
 

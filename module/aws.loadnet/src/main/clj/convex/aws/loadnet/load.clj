@@ -22,6 +22,7 @@
             n-peer     (count ip-peer+)
             n-load-cvx ($.cell/long n-load)
             *stopped?  (env :convex.aws.loadnet/*stopped?)
+            *stopped+  (env :convex.aws.loadnet.load/*stopped+)
             process+   (mapv (fn [i-load]
                                (log/info (format "Starting load generator %d"
                                                  i-load))
@@ -51,6 +52,9 @@
                                                                                        (mod i-load
                                                                                             n-peer)))}))))
                                  {:exit-fn (fn [process]
+                                             (swap! *stopped+
+                                                    conj
+                                                    i-load)
                                              (let [exit     (:exit @process)
                                                    stopped? @*stopped?]
                                                (if stopped?
@@ -89,5 +93,7 @@
                                                    :convex.aws.ip/load+
                                                    i-load
                                             "/tmp/load.pid"))])
-              (range (count (env :convex.aws.ip/load+)))))
+              (filter (comp not
+                            @(env :convex.aws.loadnet.load/*stopped+))
+                      (range (count (env :convex.aws.ip/load+))))))
   env)
