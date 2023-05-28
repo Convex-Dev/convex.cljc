@@ -55,8 +55,8 @@
                                                                        ~($.cell/vector (map (fn [ip]
                                                                                               ($.cell/* {:host ~($.cell/string ip)}))
                                                                                             (env :convex.aws.ip/peer+)))})
-                                                                    5
-                                                                    20))})
+                                                                    {:n.token 5
+                                                                     :n.user  20}))})
                         (loop []
                           (.worker.start {:pipe "peer"})
                           (recur))))))])]

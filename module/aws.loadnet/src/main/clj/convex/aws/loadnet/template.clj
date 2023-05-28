@@ -28,10 +28,12 @@
                              (range (or (:convex.aws.region/n.peer env)
                                         $.aws.loadnet.default/n-peer)))]
      {:Description "Convex network for load testing"
-      :Mappings    {"RegionalAMI" {"ap-southeast-1" {"AMI" "ami-00ec12023a2360a31"}
-                                   "eu-central-1"   {"AMI" "ami-057b1d40595cd9308"}
-                                   "us-east-1"      {"AMI" "ami-089dc670716bd48a3"}
-                                   "us-west-1"      {"AMI" "ami-0cda40c5263ddd0ca"}}}
+      :Mappings    {"RegionalAMI" {;"ap-southeast-1" {"AMI" "ami-00ec12023a2360a31"}
+                                   "eu-central-1"   {"AMI" ;"ami-057b1d40595cd9308"
+                                                           "ami-05028054e79ce04d4"}
+                                   ;"us-east-1"      {"AMI" "ami-089dc670716bd48a3"}
+                                   ;"us-west-1"      {"AMI" "ami-0cda40c5263ddd0ca"}
+                                   }}
       :Outputs     (into {}
                          (map (fn [i-peer name-peer]
                                 [(format "IpPeer%d"
@@ -42,12 +44,18 @@
                                                               "PublicIp"]}}])
                               (range)
                               name-peer+))
-      :Parameters  {"KeyName"          {:Type                  "AWS::EC2::KeyPair::KeyName"
-                                        :Description           "Name of an existing EC2 KeyPair to enable SSH access to peers"
-                                        :ConstraintDescription "Must be the name of an existing EC2 KeyPair"}
-                    "PeerInstanceType" {:Type        "String"
-                                        :Default     $.aws.loadnet.default/instance-type
-                                        :Description "Instance type to be used for peers"}}
+      :Parameters  {"DetailedMonitoring" {:Type        "String"
+                                          :Description "Enables detailed monitoring (defaults to true)"
+                                          :Default     "true"}
+                    "KeyName"            {:Type                  "AWS::EC2::KeyPair::KeyName"
+                                          :Description           "Name of an existing EC2 KeyPair to enable SSH access to peers"
+                                          :ConstraintDescription "Must be the name of an existing EC2 KeyPair"}
+                    "PeerInstanceType"   {:Type        "String"
+                                          :Default     $.aws.loadnet.default/instance-type
+                                          :Description "Instance type to be used for peers"}
+                    "PeerRole"           {:Type        "String"
+                                          :Default     "CloudWatchAgentServerRole"
+                                          :Description "IAM role for Peers, see https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/create-iam-roles-for-cloudwatch-agent-commandline.html"}}
       :Resources   (into {"SecurityGroup" {:Type       "AWS::EC2::SecurityGroup"
                                            :Properties {:GroupDescription     "Network access for peers"
                                                         :GroupName            {:Ref "AWS::StackName"}
@@ -66,10 +74,12 @@
                                  {:Type       "AWS::EC2::Instance"
                                   :Properties {:BlockDeviceMappings [{:DeviceName "/dev/sda1"
                                                                       :Ebs        ebs}]
+                                               :IamInstanceProfile  {:Ref "PeerRole"}
                                                :ImageId             {"Fn::FindInMap" ["RegionalAMI"
                                                                                       {:Ref "AWS::Region"}
                                                                                       "AMI"]}
                                                :InstanceType        {:Ref "PeerInstanceType"}
+                                               :Monitoring          {:Ref "DetailedMonitoring"}
                                                :KeyName             {:Ref "KeyName"}
                                                :SecurityGroups      [{:Ref "SecurityGroup"}]
                                                :Tags                [{:Key   "Name"
