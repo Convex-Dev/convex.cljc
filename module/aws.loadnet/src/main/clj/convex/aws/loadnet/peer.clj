@@ -24,6 +24,35 @@
                     i-peer)))
 
 
+
+(defn- -cvx
+
+  [env i-peer cell]
+
+  (let [*stopped? (env :convex.aws.loadnet/*stopped?)]
+    ((if (env :convex.aws.loadnet.peer/native?)
+       $.aws.loadnet.rpc/cvx
+       $.aws.loadnet.rpc/jcvx)
+     env
+     :convex.aws.ip/peer+
+     i-peer
+     cell
+     {:exit-fn (fn [process]
+                 (let [exit (:exit process)]
+                   (if (zero? exit)
+                     (log/info (format "SSH process of Peer %d stopped normally"
+                                       i-peer))
+                     (if (and @*stopped?
+                              (= exit
+                                 255))
+                       (log/info (format "SSH process of Peer %d terminated"
+                                         i-peer))
+                       (log/warn (format "SSH process of Peer %d stopped with status %d, STDERR = %s"
+                                         i-peer
+                                         exit
+                                         (slurp (:err process))))))))})))
+
+
 ;;;;;;;;;;
 
 
@@ -35,32 +64,30 @@
   (let [env-2
         (assoc env
                :convex.aws.loadnet.cvx/peer+
-               [($.aws.loadnet.rpc/cvx
-                  env
-                  :convex.aws.ip/peer+
-                  0
-                  ($.cell/*
-                    (do
-                      (.project.dir.set "/home/ubuntu/repo/lab.cvx")
-                      (let [dep+ (.dep.deploy '[$.net.test  (lib net test)
-                                                scenario    ~(env :convex.aws.loadnet.scenario/path)])]
-                        (def $.net.test
-                             (get dep+
-                                  '$.net.test))
-                        (def scenario
-                             (get dep+
-                                  'scenario))
-                        ($.net.test/start.genesis {:dir   "/tmp/peer"
-                                                   :state (:state (scenario/state
-                                                                    ($.net.test/state.genesis
-                                                                      {:peer+
-                                                                       ~($.cell/vector (map (fn [ip]
-                                                                                              ($.cell/* {:host ~($.cell/string ip)}))
-                                                                                            (env :convex.aws.ip/peer+)))})
-                                                                    ~(env :convex.aws.loadnet.scenario/param+)))})
-                        (loop []
-                          (.worker.start {:pipe "peer"})
-                          (recur))))))])]
+               [(-cvx env
+                      0
+                      ($.cell/*
+                        (do
+                          (.project.dir.set "/home/ubuntu/repo/lab.cvx")
+                          (let [dep+ (.dep.deploy '[$.net.test  (lib net test)
+                                                    scenario    ~(env :convex.aws.loadnet.scenario/path)])]
+                            (def $.net.test
+                                 (get dep+
+                                      '$.net.test))
+                            (def scenario
+                                 (get dep+
+                                      'scenario))
+                            ($.net.test/start.genesis {:dir   "/tmp/peer"
+                                                       :state (:state (scenario/state
+                                                                        ($.net.test/state.genesis
+                                                                          {:peer+
+                                                                           ~($.cell/vector (map (fn [ip]
+                                                                                                  ($.cell/* {:host ~($.cell/string ip)}))
+                                                                                                (env :convex.aws.ip/peer+)))})
+                                                                        ~(env :convex.aws.loadnet.scenario/param+)))})
+                            (loop []
+                              (.worker.start {:pipe "peer"})
+                              (recur))))))])]
     (-await-ready env-2
                   0)
     env-2))
@@ -89,23 +116,21 @@
                                  (log/info (format "Starting peer process %d"
                                                    i-peer))
                                  [i-peer
-                                  ($.aws.loadnet.rpc/cvx
-                                   env
-                                   :convex.aws.ip/peer+
-                                   i-peer
-                                   ($.cell/*
-                                     (do
-                                       (.project.dir.set "/home/ubuntu/repo/lab.cvx")
-                                       (let [dep+ (.dep.deploy '[$.net.test (lib net test)])]
-                                         (def $.net.test
-                                              (get dep+
-                                                   '$.net.test))
-                                         ($.net.test/start.sync ~($.cell/long i-peer)
-                                                                {:dir         "/tmp/peer"
-                                                                 :remote.host ~($.cell/string ip-ready)}))
-                                       (loop []
-                                         (.worker.start {:pipe "peer"})
-                                         (recur)))))]))
+                                  (-cvx env
+                                        i-peer
+                                        ($.cell/*
+                                          (do
+                                            (.project.dir.set "/home/ubuntu/repo/lab.cvx")
+                                            (let [dep+ (.dep.deploy '[$.net.test (lib net test)])]
+                                              (def $.net.test
+                                                   (get dep+
+                                                        '$.net.test))
+                                              ($.net.test/start.sync ~($.cell/long i-peer)
+                                                                     {:dir         "/tmp/peer"
+                                                                      :remote.host ~($.cell/string ip-ready)}))
+                                            (loop []
+                                              (.worker.start {:pipe "peer"})
+                                              (recur)))))]))
                              (range)
                              ready+
                              todo+))

@@ -60,12 +60,16 @@
                                             false)))
                           ;;
                           (catch Exception _ex
-                            (when (zero? i)
-                              (log/error (format "Unable to establish SSH connection to %s"
-                                                 ip))
-                              (reduced (assoc env-2
-                                              :convex.aws.loadnet/ssh-ready?
-                                              false)))))
+                            (if (zero? i)
+                              (do
+                                (log/error (format "Unable to establish SSH connection to %s"
+                                                   ip))
+                                (reduced (assoc env-2
+                                                :convex.aws.loadnet/ssh-ready?
+                                                false)))
+                              (do
+                                (Thread/sleep 2000)
+                                nil))))
                         (recur (dec i)))))
                 (assoc env
                        :convex.aws.loadnet/ssh-ready?
@@ -81,15 +85,26 @@
 
 (defn ssh
 
-  [env k-ip+ i-ip command]
 
-  (P.process/run (concat ["ssh"
-                          "-i" (-key env)
-                          "-o" "StrictHostKeyChecking=no"
-                          (-ip env
-                               k-ip+
-                               i-ip)]
-                         command)))
+  ([env k-ip+ i-ip command]
+
+   (ssh env
+        k-ip+
+        i-ip
+        command
+        nil))
+
+
+  ([env k-ip+ i-ip command option+]
+
+   (P.process/run (concat ["ssh"
+                           "-i" (-key env)
+                           "-o" "StrictHostKeyChecking=no"
+                           (-ip env
+                                k-ip+
+                                i-ip)]
+                          command)
+                  option+)))
 
 
 ;;;
@@ -97,7 +112,7 @@
 
 (defn- -cvx
 
-  [cvx-cmd env k-ip+ i-ip cell]
+  [cvx-cmd env k-ip+ i-ip cell option+]
 
   (ssh env
        k-ip+
@@ -105,31 +120,67 @@
        [cvx-cmd
         (format "'%s'"
                 ($.write/string Long/MAX_VALUE
-                                cell))]))
+                                cell))]
+       option+))
 
 
 
 (defn cvx
 
-  [env k-ip+ i-ip cell]
 
-  (-cvx "cvx"
-        env
+  ([env k-ip+ i-ip cell]
+
+   (cvx env
         k-ip+
         i-ip
-        cell))
+        cell
+        nil))
+
+
+  ([env k-ip+ i-ip cell option+]
+
+   (-cvx "cvx"
+         env
+         k-ip+
+         i-ip
+         cell
+         option+)))
 
 
 
 (defn jcvx
 
-  [env k-ip+ i-ip cell]
 
-  (-cvx "jcvx"
-        env
+  ([env k-ip+ i-ip cell]
+
+   (jcvx env
+         k-ip+
+         i-ip
+         cell
+         nil))
+
+
+  ([env k-ip+ i-ip cell option+]
+
+  ;; TODO. Remove `rlwrap` from `jcvx` in AMIs.
+  ;
+  ; (-cvx "jcvx"
+  ;       env
+  ;       k-ip+
+  ;       i-ip
+  ;       cell))
+
+   (ssh env
         k-ip+
         i-ip
-        cell))
+        ["source" "$HOME/.sdkman/bin/sdkman-init.sh"
+         "&&"
+         "java"
+         "-jar" "~/repo/convex.cljc/private/target/shell.uber.jar"
+         (format "'%s'"
+                 ($.write/string Long/MAX_VALUE
+                                 cell))]
+        option+)))
 
 
 

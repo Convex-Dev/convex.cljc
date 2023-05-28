@@ -35,8 +35,11 @@
                 (str))]
     (bb.fs/create-dirs dir)
     (-> env
-        (assoc :convex.aws.loadnet/dir
-               dir)
+        (assoc :convex.aws.loadnet/dir       dir
+               :convex.aws.loadnet/*stopped? (atom false))
+        (update :convex.aws.loadnet.peer/native?
+                #(or %
+                     $.aws.loadnet.default/peer-native?))
         (update :convex.aws.region/n.load
                 #(or %
                      $.aws.loadnet.default/n-load))
@@ -64,6 +67,9 @@
   [env]
 
   (-> env
+      (update :convex.aws.loadnet/*stopped?
+              reset!
+              true)
       ($.aws.loadnet.load/stop)
       ($.aws.loadnet.peer/stop)
       ($.aws.loadnet.peer/log+)
@@ -98,15 +104,16 @@
                 :convex.aws/region+                  ["eu-central-1"
                                                       "us-east-1"
                                                       ;"us-west-1"
-                                                      "ap-southeast-1"
+                                                      ;"ap-southeast-1"
                                                       ]
                 :convex.aws.key/file                 "/Users/adam/Code/convex/clj/private/Test"
                 :convex.aws.loadnet/dir              "/tmp/loadnet"
+                ;:convex.aws.loadnet.peer/native?     true
                 :convex.aws.loadnet.scenario/path    ($.cell/* (lib sim scenario torus))
                 :convex.aws.loadnet.scenario/param+  ($.cell/* {:n.token 5
-                                                                :n.user  2000})
-                :convex.aws.region/n.peer           4
-                :convex.aws.region/n.load           20
+                                                                :n.user  1000})
+                :convex.aws.region/n.peer           5
+                :convex.aws.region/n.load           10
                 :convex.aws.stack/parameter+        {:DetailedMonitoring "false"
                                                      :KeyName            "Test"
                                                      ;:InstanceTypeLoad   "t2.micro"
@@ -129,8 +136,9 @@
 
   ;; If awaiting SSH servers fail.
   ;
-  (def env
-       (start env))
+  (future
+    (def env
+         (start env)))
 
   (def env
        ($.aws.loadnet.peer/start env))
@@ -143,7 +151,7 @@
   ($.aws.loadnet.stack-set/describe env)
 
 
-  (deref ($.aws.loadnet.rpc/worker env :convex.aws.ip/load+ 2 (convex.cell/* (.sys.exit 0))))
+  (deref ($.aws.loadnet.rpc/worker env :convex.aws.ip/peer+ 2 (convex.cell/* (.sys.exit 0))))
 
 
   ($.aws.loadnet.cloudwatch/download env)

@@ -43,6 +43,10 @@
                                                        [:convex.aws.stack/parameter+
                                                         :InstanceTypePeer])
                                                $.aws.loadnet.default/instance-type-peer)))
+                         (log/info (format "Peers will run %s"
+                                           (if (env :convex.aws.loadnet.peer/native?)
+                                             "natively"
+                                             "on the JVM")))
                          (log/info (format "Scenario path = %s"
                                            (or (env :convex.aws.loadnet.scenario/path)
                                                (throw (IllegalArgumentException. "Missing scenario path")))))
