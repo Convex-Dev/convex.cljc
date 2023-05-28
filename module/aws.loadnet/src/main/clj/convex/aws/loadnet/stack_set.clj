@@ -37,12 +37,12 @@
                                            (or (get-in env
                                                        [:convex.aws.stack/parameter+
                                                         :InstanceTypeLoad])
-                                               $.aws.loadnet.default/instance-type)))
+                                               $.aws.loadnet.default/instance-type-load)))
                          (log/info (format "Peer instance type = %s"
                                            (or (get-in env
                                                        [:convex.aws.stack/parameter+
                                                         :InstanceTypePeer])
-                                               $.aws.loadnet.default/instance-type)))
+                                               $.aws.loadnet.default/instance-type-peer)))
                          (log/info (format "Scenario path = %s"
                                            (or (env :convex.aws.loadnet.scenario/path)
                                                (throw (IllegalArgumentException. "Missing scenario path")))))

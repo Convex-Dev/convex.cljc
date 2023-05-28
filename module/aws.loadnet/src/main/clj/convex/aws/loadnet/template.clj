@@ -63,10 +63,10 @@
                                           :Description           "Name of an existing EC2 KeyPair to enable SSH access to peers"
                                           :ConstraintDescription "Must be the name of an existing EC2 KeyPair"}
                     "InstanceTypeLoad"   {:Type        "String"
-                                          :Default     $.aws.loadnet.default/instance-type
+                                          :Default     $.aws.loadnet.default/instance-type-load
                                           :Description "Instance type to be used for load generators"}
                     "InstanceTypePeer"   {:Type        "String"
-                                          :Default     $.aws.loadnet.default/instance-type
+                                          :Default     $.aws.loadnet.default/instance-type-peer
                                           :Description "Instance type to be used for peers"}
                     "RolePeer"           {:Type        "String"
                                           :Default     "CloudWatchAgentServerRole"

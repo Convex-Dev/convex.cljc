@@ -86,9 +86,9 @@
        result          {:convex.aws.loadnet.finality/avg       finality-avg
                         :convex.aws.loadnet.finality/quartile+ finality-quart
                         :convex.aws.loadnet.finality/stddev    finality-stddev}]
-    (log/info (format "Finality (avg) = %f milliseconds"
+    (log/info (format "Finality (avg) = %.2f milliseconds"
                       finality-avg))
-    (log/info (format "Finality (stddev) = %f milliseconds"
+    (log/info (format "Finality (stddev) = %.2f milliseconds"
                       finality-stddev))
     (log/info (format "Finality (quartiles) = %s"
                       finality-quart))

@@ -10,7 +10,13 @@
 
 
 
-(def instance-type
+(def instance-type-load
+
+  "t2.micro")
+
+
+
+(def instance-type-peer
 
   "m4.2xlarge")
 
