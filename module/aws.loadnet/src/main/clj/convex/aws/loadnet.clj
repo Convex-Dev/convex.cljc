@@ -81,7 +81,9 @@
             env-3 (-> env-2
                       ($.aws.loadnet.peer/start)
                       ($.aws.loadnet.load/start))]
-        (log/info "Simulation running")
+        (log/info "Everything is ready")
+        (when-not (zero? (env :convex.aws.region/n.load))
+          (log/info "Simulation is running"))
         (when timer
           (log/info (format "Simulation will stop in %d minute(s)"
                             timer))
@@ -133,14 +135,14 @@
                                                       ]
                 :convex.aws.key/file                 "/Users/adam/Code/convex/clj/private/Test"
                 :convex.aws.loadnet/dir              "/tmp/loadnet"
-                :convex.aws.loadnet/timer            2
-                ;:convex.aws.loadnet.peer/native?     true
+                ;:convex.aws.loadnet/timer            2
+                :convex.aws.loadnet.peer/native?     true
                 :convex.aws.loadnet.scenario/path    ($.cell/* (lib sim scenario torus))
                 :convex.aws.loadnet.scenario/param+  ($.cell/* {:n.token 5
                                                                 :n.user  20})
                 :convex.aws.region/n.peer           1
                 :convex.aws.region/n.load           0
-                :convex.aws.stack/parameter+        {:DetailedMonitoring "false"
+                :convex.aws.stack/parameter+        {;:DetailedMonitoring "false"
                                                      :KeyName            "Test"
                                                      ;:InstanceTypeLoad   "t2.micro"
                                                      :InstanceTypePeer   "t2.micro"

@@ -48,7 +48,7 @@
                        (if (zero? exit)
                          (log/warn (format "SSH process of Peer %d terminated before the simulation was stopped"
                                            i-peer))
-                         (log/warn (format "SSH process of Peer %d termianted with status %d before the simulation was stopped, STDERR = %s"
+                         (log/warn (format "SSH process of Peer %d terminated with status %d before the simulation was stopped, STDERR = %s"
                                            i-peer
                                            exit
                                            (slurp (:err process)))))))))})))
