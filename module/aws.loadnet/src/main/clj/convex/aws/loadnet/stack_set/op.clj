@@ -61,13 +61,14 @@
     (log/info (format "%d load generator(s) per region = %d load generators(s)"
                       n-load-region
                       n-load))
-    (log/info (format "Simulated users per load generator = %.2f"
-                      (double (/ (or (some-> (get-in env
-                                                     [:convex.aws.loadnet.scenario/param+
-                                                      ($.cell/* :n.user)])
-                                             ($.clj/long))
-                                     100)
-                                 n-load))))
+    (when-not (zero? n-load)
+      (log/info (format "Simulated users per load generator = %.2f"
+                        (double (/ (or (some-> (get-in env
+                                                       [:convex.aws.loadnet.scenario/param+
+                                                        ($.cell/* :n.user)])
+                                               ($.clj/long))
+                                       100)
+                                   n-load)))))
     (log/info (format "%d peer(s) per region = %d peer(s)"
                       n-peer-region
                       (* n-peer-region

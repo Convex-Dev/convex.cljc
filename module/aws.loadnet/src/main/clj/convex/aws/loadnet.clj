@@ -89,7 +89,8 @@
             (Thread/sleep (* timer ; minutes
                              60
                              1000))
-            (stop env-3)))
+            (when-not @(env-3 :convex.aws.loadnet/*stopped?)
+              (stop env-3))))
         env-3)
       (do
         (log/error "Wait a bit and try starting the simulation")
@@ -136,13 +137,13 @@
                 ;:convex.aws.loadnet.peer/native?     true
                 :convex.aws.loadnet.scenario/path    ($.cell/* (lib sim scenario torus))
                 :convex.aws.loadnet.scenario/param+  ($.cell/* {:n.token 5
-                                                                :n.user  1000})
-                :convex.aws.region/n.peer           10
-                :convex.aws.region/n.load           10
+                                                                :n.user  20})
+                :convex.aws.region/n.peer           1
+                :convex.aws.region/n.load           0
                 :convex.aws.stack/parameter+        {:DetailedMonitoring "false"
                                                      :KeyName            "Test"
                                                      ;:InstanceTypeLoad   "t2.micro"
-                                                     ;:InstanceTypePeer   "t2.micro"
+                                                     :InstanceTypePeer   "t2.micro"
                                                      }
                 :convex.aws.stack/tag+              {:Project "Ontochain"}}))
 
