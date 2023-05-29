@@ -2,6 +2,8 @@
 
   (:require [convex.aws.loadnet.cloudformation :as $.aws.loadnet.cloudformation]
             [convex.aws.loadnet.stack          :as $.aws.loadnet.stack]
+            [convex.clj                        :as $.clj]
+            [convex.cell                       :as $.cell]
             [taoensso.timbre                   :as log]))
 
 
@@ -51,16 +53,24 @@
   [env]
 
   (log/info "Creating regional stacks")
-  (let [n-region (count (env :convex.aws/region+))
-        n-load   (env :convex.aws.region/n.load)
-        n-peer   (env :convex.aws.region/n.peer)]
+  (let [n-region      (count (env :convex.aws/region+))
+        n-load-region (env :convex.aws.region/n.load)
+        n-load        (* n-region
+                         n-load-region)
+        n-peer-region (env :convex.aws.region/n.peer)]
     (log/info (format "%d load generator(s) per region = %d load generators(s)"
-                      n-load
-                      (* n-load
-                         n-region)))
+                      n-load-region
+                      n-load))
+    (log/info (format "Simulated users per load generator = %.2f"
+                      (double (/ (or (some-> (get-in env
+                                                     [:convex.aws.loadnet.scenario/param+
+                                                      ($.cell/* :n.user)])
+                                             ($.clj/long))
+                                     100)
+                                 n-load))))
     (log/info (format "%d peer(s) per region = %d peer(s)"
-                      n-peer
-                      (* n-peer
+                      n-peer-region
+                      (* n-peer-region
                          n-region))))
   (-stack-set-op env
                  :CreateStackInstances

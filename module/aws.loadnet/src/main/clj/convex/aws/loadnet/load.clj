@@ -58,7 +58,7 @@
                                              (let [exit     (:exit @process)
                                                    stopped? @*stopped?]
                                                (if stopped?
-                                                 (log/info (format "Load generated %d terminated"
+                                                 (log/info (format "Load generator %d terminated"
                                                                    i-load))
                                                  (if (zero? exit)
                                                    (log/warn (format "Load generator %d terminated but the simulation has not been stopped"

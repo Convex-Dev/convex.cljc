@@ -132,13 +132,13 @@
                                                       ]
                 :convex.aws.key/file                 "/Users/adam/Code/convex/clj/private/Test"
                 :convex.aws.loadnet/dir              "/tmp/loadnet"
-                :convex.aws.loadnet/timer            1
-                :convex.aws.loadnet.peer/native?     true
+                :convex.aws.loadnet/timer            2
+                ;:convex.aws.loadnet.peer/native?     true
                 :convex.aws.loadnet.scenario/path    ($.cell/* (lib sim scenario torus))
                 :convex.aws.loadnet.scenario/param+  ($.cell/* {:n.token 5
-                                                                :n.user  100})
-                :convex.aws.region/n.peer           1
-                :convex.aws.region/n.load           2
+                                                                :n.user  1000})
+                :convex.aws.region/n.peer           10
+                :convex.aws.region/n.load           10
                 :convex.aws.stack/parameter+        {:DetailedMonitoring "false"
                                                      :KeyName            "Test"
                                                      ;:InstanceTypeLoad   "t2.micro"
