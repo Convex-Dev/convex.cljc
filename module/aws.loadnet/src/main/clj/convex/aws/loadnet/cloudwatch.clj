@@ -1,14 +1,13 @@
 (ns convex.aws.loadnet.cloudwatch
 
   (:import (java.util Date))
-  (:require [babashka.fs                :as bb.fs]
-            [clojure.data.csv           :as csv]
-            [clojure.data.json          :as json]
-            [clojure.java.io            :as java.io]
-            [convex.aws                 :as $.aws]
-            [convex.aws.loadnet.default :as $.aws.loadnet.default]
-            [convex.aws.loadnet.stack   :as $.aws.loadnet.stack]
-            [taoensso.timbre            :as log]))
+  (:require [babashka.fs              :as bb.fs]
+            [clojure.data.csv         :as csv]
+            [clojure.data.json        :as json]
+            [clojure.java.io          :as java.io]
+            [convex.aws               :as $.aws]
+            [convex.aws.loadnet.stack :as $.aws.loadnet.stack]
+            [taoensso.timbre          :as log]))
 
 
 (declare fetch-region)
@@ -78,10 +77,9 @@
 
   (let [id+      ($.aws.loadnet.stack/peer-instance-id+ env
                                                         region)
-        detailed (= (or (get-in env
-                                [:convex.aws.stack/parameter+
-                                 :DetailedMonitoring])
-                        $.aws.loadnet.default/detailed-monitoring)
+        detailed (= (get-in env
+                            [:convex.aws.stack/parameter+
+                             :DetailedMonitoring])
                     "true")
         period   (if detailed
                    60

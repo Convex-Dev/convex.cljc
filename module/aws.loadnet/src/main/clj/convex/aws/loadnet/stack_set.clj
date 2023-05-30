@@ -2,11 +2,7 @@
 
   (:require [clojure.data.json                 :as json]
             [convex.aws.loadnet.cloudformation :as $.aws.loadnet.cloudformation]
-            [convex.aws.loadnet.default        :as $.aws.loadnet.default]
-            [convex.aws.loadnet.load           :as $.aws.loadnet.load]
-            [convex.aws.loadnet.peer           :as $.aws.loadnet.peer]
             [convex.aws.loadnet.stack-set.op   :as $.aws.loadnet.stack-set.op]
-            [convex.aws.loadnet.rpc            :as $.aws.loadnet.rpc]
             [convex.aws.loadnet.template       :as $.aws.loadnet.template]
             [taoensso.timbre                   :as log]))
 
@@ -35,11 +31,9 @@
                                              i-region
                                              region)))
                          (log/info (format "Load generator instance type = %s"
-                                           (or (parameter+ :InstanceTypeLoad)
-                                               $.aws.loadnet.default/instance-type-load)))
+                                           (parameter+ :InstanceTypeLoad)))
                          (log/info (format "Peer instance type = %s"
-                                           (or (parameter+ :InstanceTypePeer)
-                                               $.aws.loadnet.default/instance-type-peer)))
+                                           (parameter+ :InstanceTypePeer)))
                          (log/info (format "Peers will run %s"
                                            (if (env :convex.aws.loadnet.peer/native?)
                                              "natively"

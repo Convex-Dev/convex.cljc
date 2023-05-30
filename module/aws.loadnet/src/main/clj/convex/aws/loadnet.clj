@@ -57,7 +57,13 @@
                   (-> parameter+
                       (update :DetailedMonitoring
                               #(or %
-                                   $.aws.loadnet.default/detailed-monitoring)))))
+                                   $.aws.loadnet.default/detailed-monitoring))
+                      (update :InstanceTypeLoad
+                              #(or %
+                                   $.aws.loadnet.default/instance-type-load))
+                      (update :InstanceTypePeer
+                              #(or %
+                                   $.aws.loadnet.default/instance-type-peer)))))
         ($.aws.loadnet.cloudwatch/client+)
         ($.aws.loadnet.cloudformation/client+)
         ($.aws.loadnet.stack-set/create)
