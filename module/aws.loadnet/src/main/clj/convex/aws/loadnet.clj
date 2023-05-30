@@ -132,7 +132,7 @@
       ($.aws.loadnet.load.log/stat+)
       ($.aws.loadnet.peer.etch/download)
       ($.aws.loadnet.peer.etch/stat+)
-      ;($.aws.loadnet.cloudwatch/download)
+      ($.aws.loadnet.cloudwatch/download)
       ($.aws.loadnet.stack-set/delete)))
 
 
@@ -151,17 +151,17 @@
                                                       ]
                 :convex.aws.key/file                 "/Users/adam/Code/convex/clj/private/Test"
                 :convex.aws.loadnet/dir              "/tmp/loadnet"
-                ;:convex.aws.loadnet/timer            2
+                :convex.aws.loadnet/timer            6
                 :convex.aws.loadnet.peer/native?     true
                 :convex.aws.loadnet.scenario/path    ($.cell/* (lib sim scenario torus))
                 :convex.aws.loadnet.scenario/param+  ($.cell/* {:n.token 5
                                                                 :n.user  20})
                 :convex.aws.region/n.peer           1
-                :convex.aws.region/n.load           0
+                :convex.aws.region/n.load           1
                 :convex.aws.stack/parameter+        {;:DetailedMonitoring "false"
                                                      :KeyName            "Test"
                                                      ;:InstanceTypeLoad   "t2.micro"
-                                                     :InstanceTypePeer   "t2.micro"
+                                                     ;:InstanceTypePeer   "t2.micro"
                                                      }
                 :convex.aws.stack/tag+              {:Project "Ontochain"}}))
 
@@ -197,21 +197,16 @@
   (deref ($.aws.loadnet.rpc/worker env :convex.aws.ip/peer+ 2 (convex.cell/* (.sys.exit 0))))
 
 
-  (def x ($.aws.loadnet.cloudwatch/fetch env))
-  (x :convex.aws.loadnet.cloudwatch/metric+)
-
-  (def env-old x)
-
-  ($.aws.loadnet.cloudwatch/download env)
 
   ($.aws.loadnet.peer/stop env)
   ($.aws.loadnet.load/stop env)
   (time ($.aws.loadnet.peer/log+ env))
   (time ($.aws.loadnet.peer.etch/download env))
-  ($.aws.loadnet.peer.etch/stat+ {:convex.aws.loadnet/dir "/tmp/loadnet"})
+  (time ($.aws.loadnet.cloudwatch/download env))
+  (time ($.aws.loadnet.peer.etch/stat+ {:convex.aws.loadnet/dir "/tmp/loadnet"}))
 
-  ($.aws.loadnet.load.log/download env)
-  ($.aws.loadnet.load.log/stat+ env)
+  (time ($.aws.loadnet.load.log/download env))
+  (time ($.aws.loadnet.load.log/stat+ env))
 
 
   )
