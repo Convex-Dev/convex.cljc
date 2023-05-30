@@ -17,6 +17,22 @@
 ;;;;;;;;;;
 
 
+(def config-cloudwatch
+
+  ;; Cf. https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Agent-Configuration-File-Details.html
+  ;;     https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/metrics-collected-by-CloudWatch-agent.html#linux-metrics-enabled-by-CloudWatch-agent
+
+  {; :agent   {:metrics_collection_interval 60} ;; default
+   :metrics {:append_dimensions {:InstanceId  {"Fn::Sub" "${!aws:InstanceId}"}}
+             :metrics_collected {;; Not quite necessary, the most important thing to measure is Etch size.
+                                 ;
+                                 ; :disk {:measurement ["disk_used"]
+                                 ;        :resources   ["/"]}
+                                 ;
+                                 :mem  {:measurement ["mem_used"]}}}})
+
+
+
 (defn metadata
 
   [name-peer]
@@ -72,9 +88,7 @@
     "02_config-amazon-cloudwatch-agent"
     {:files
      {"/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json"
-      {:content {:metrics {:append_dimensions {:InstanceId  {"Fn::Sub" "${!aws:InstanceId}"}}
-                           :metrics_collected {:mem {:measurement  ["mem_used_percent"]}
-                                               :swap {:measurement ["swap_used_percent"]}}}}}}}
+      {:content config-cloudwatch}}}
 
 
     "03_restart_amazon-cloudwatch-agent"
@@ -94,6 +108,7 @@
            "wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb -O /tmp/amazon-cloudwatch-agent.deb"
            "dpkg -i /tmp/amazon-cloudwatch-agent.deb"
            ;; Install Cfn-init.
+           ;; Cf. https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-helper-scripts-reference.html
            "apt-get update"
            "apt-get -y install python3-pip"
            "pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-py3-latest.tar.gz"

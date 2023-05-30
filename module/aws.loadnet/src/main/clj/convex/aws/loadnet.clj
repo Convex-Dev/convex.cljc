@@ -142,7 +142,7 @@
                                                                 :n.user  20})
                 :convex.aws.region/n.peer           1
                 :convex.aws.region/n.load           0
-                :convex.aws.stack/parameter+        {;:DetailedMonitoring "false"
+                :convex.aws.stack/parameter+        {:DetailedMonitoring "false"
                                                      :KeyName            "Test"
                                                      ;:InstanceTypeLoad   "t2.micro"
                                                      :InstanceTypePeer   "t2.micro"

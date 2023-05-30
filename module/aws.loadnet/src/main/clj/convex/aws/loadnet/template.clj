@@ -51,7 +51,7 @@
 
   {"DetailedMonitoring" {:Type        "String"
                          :Description "Enables EC2 detailed monitoring on peer instances"
-                         :Default     "false"}
+                         :Default     "true"}
    "KeyName"            {:Type                  "AWS::EC2::KeyPair::KeyName"
                          :Description           "Name of an existing EC2 KeyPair to enable SSH access to peers"
                          :ConstraintDescription "Must be the name of an existing EC2 KeyPair"}
