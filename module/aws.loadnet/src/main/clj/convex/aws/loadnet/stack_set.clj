@@ -22,6 +22,7 @@
                            (str "LoadNet-"
                                 (System/currentTimeMillis)))
         region+        (env :convex.aws/region+)
+        parameter+     (env :convex.aws.stack/parameter+)
         _              (do
                          (log/info (format "Creating stack set named '%s' for %d region(s)"
                                            stack-set-name
@@ -34,19 +35,17 @@
                                              i-region
                                              region)))
                          (log/info (format "Load generator instance type = %s"
-                                           (or (get-in env
-                                                       [:convex.aws.stack/parameter+
-                                                        :InstanceTypeLoad])
+                                           (or (parameter+ :InstanceTypeLoad)
                                                $.aws.loadnet.default/instance-type-load)))
                          (log/info (format "Peer instance type = %s"
-                                           (or (get-in env
-                                                       [:convex.aws.stack/parameter+
-                                                        :InstanceTypePeer])
+                                           (or (parameter+ :InstanceTypePeer)
                                                $.aws.loadnet.default/instance-type-peer)))
                          (log/info (format "Peers will run %s"
                                            (if (env :convex.aws.loadnet.peer/native?)
                                              "natively"
                                              "on the JVM")))
+                         (log/info (format "EC2 Detailed Monitoring on peer instances = %s"
+                                           (parameter+ :DetailedMonitoring)))
                          (log/info (format "Scenario path = %s"
                                            (or (env :convex.aws.loadnet.scenario/path)
                                                (throw (IllegalArgumentException. "Missing scenario path")))))

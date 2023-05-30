@@ -52,6 +52,12 @@
         (update :convex.aws.region/n.peer
                 #(or %
                      $.aws.loadnet.default/n-peer))
+        (update :convex.aws.stack/parameter+
+                (fn [parameter+]
+                  (-> parameter+
+                      (update :DetailedMonitoring
+                              #(or %
+                                   $.aws.loadnet.default/detailed-monitoring)))))
         ($.aws.loadnet.cloudwatch/client+)
         ($.aws.loadnet.cloudformation/client+)
         ($.aws.loadnet.stack-set/create)
@@ -187,6 +193,8 @@
 
   (def x ($.aws.loadnet.cloudwatch/fetch env))
   (x :convex.aws.loadnet.cloudwatch/metric+)
+
+  (def env-old x)
 
   ($.aws.loadnet.cloudwatch/download env)
 
