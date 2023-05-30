@@ -80,7 +80,9 @@
       (let [timer (env-2 :convex.aws.loadnet/timer)
             env-3 (-> env-2
                       ($.aws.loadnet.peer/start)
-                      ($.aws.loadnet.load/start))]
+                      ($.aws.loadnet.load/start)
+                      (assoc :convex.aws.loadnet.timestamp/start
+                             (System/currentTimeMillis)))]
         (log/info "Everything is ready")
         (when-not (zero? (env :convex.aws.region/n.load))
           (log/info "Simulation is running"))
@@ -109,6 +111,8 @@
       (update :convex.aws.loadnet/*stopped?
               reset!
               true)
+      (assoc :convex.aws.loadnet.timestamp/end
+             (System/currentTimeMillis))
       ($.aws.loadnet.load/stop)
       ($.aws.loadnet.peer/stop)
       ($.aws.loadnet.peer/log+)
@@ -142,7 +146,7 @@
                                                                 :n.user  20})
                 :convex.aws.region/n.peer           1
                 :convex.aws.region/n.load           0
-                :convex.aws.stack/parameter+        {:DetailedMonitoring "false"
+                :convex.aws.stack/parameter+        {;:DetailedMonitoring "false"
                                                      :KeyName            "Test"
                                                      ;:InstanceTypeLoad   "t2.micro"
                                                      :InstanceTypePeer   "t2.micro"
@@ -180,6 +184,9 @@
 
   (deref ($.aws.loadnet.rpc/worker env :convex.aws.ip/peer+ 2 (convex.cell/* (.sys.exit 0))))
 
+
+  (def x ($.aws.loadnet.cloudwatch/fetch env))
+  (x :convex.aws.loadnet.cloudwatch/metric+)
 
   ($.aws.loadnet.cloudwatch/download env)
 

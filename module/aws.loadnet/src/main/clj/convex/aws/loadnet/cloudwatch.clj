@@ -1,13 +1,14 @@
 (ns convex.aws.loadnet.cloudwatch
 
   (:import (java.util Date))
-  (:require [babashka.fs              :as bb.fs]
-            [clojure.data.csv         :as csv]
-            [clojure.data.json        :as json]
-            [clojure.java.io          :as java.io]
-            [convex.aws               :as $.aws]
-            [convex.aws.loadnet.stack :as $.aws.loadnet.stack]
-            [taoensso.timbre          :as log]))
+  (:require [babashka.fs                :as bb.fs]
+            [clojure.data.csv           :as csv]
+            [clojure.data.json          :as json]
+            [clojure.java.io            :as java.io]
+            [convex.aws                 :as $.aws]
+            [convex.aws.loadnet.default :as $.aws.loadnet.default]
+            [convex.aws.loadnet.stack   :as $.aws.loadnet.stack]
+            [taoensso.timbre            :as log]))
 
 
 (declare fetch-region)
@@ -75,39 +76,56 @@
 
   [env region]
 
-  (let [id+     ($.aws.loadnet.stack/peer-instance-id+ env
-                                                       region)
-        metric  (fn [metric-name ^String id]
-                  {:Label      (json/write-str [metric-name
-                                                id])
-                   :MetricStat {:Metric {:Namespace  "AWS/EC2"
-                                         :MetricName metric-name
-                                         :Dimensions [{:Name  "InstanceId"
-                                                       :Value id}]}
-                                :Period 300
-                                :Stat   "Average"}})
-        metric+ (fn [id]
-                  (for [metric-name ["CPUUtilization"
-                                     "DiskReadBytes"
-                                     "DiskReadOps"
-                                     "DiskWriteBytes"
-                                     "DiskWriteOps"
-                                     "NetworkIn"
-                                     "NetworkOut"
-                                     "NetworkPacketsIn"
-                                     "NetworkPacketsOut"]]
-                    (metric metric-name
-                            id)))
-        request {:EndTime           (System/currentTimeMillis)
-                 :MetricDataQueries (map (fn [i metric]
-                                           (assoc metric
-                                                  :Id
-                                                  (format "m%d"
-                                                          i)))
-                                         (range)
-                                         (mapcat metric+
-                                                 id+))
-                 :StartTime         0}]
+  (let [id+      ($.aws.loadnet.stack/peer-instance-id+ env
+                                                        region)
+        detailed (= (or (get-in env
+                                [:convex.aws.stack/parameter+
+                                 :DetailedMonitoring])
+                        $.aws.loadnet.default/detailed-monitoring)
+                    "true")
+        period   (if detailed
+                   60
+                   300)
+        metric   (fn [namespace metric-name metric-stat ^String id]
+                   {:Label      (json/write-str [metric-name
+                                                 id])
+                    :MetricStat {:Metric {:Namespace  namespace
+                                          :MetricName metric-name
+                                          :Dimensions [{:Name  "InstanceId"
+                                                        :Value id}]}
+                                 :Period period
+                                 :Stat   metric-stat}})
+        metric+  (fn [id]
+                   (for [[namespace
+                          metric-name
+                          metric-stat] [["AWS/EC2"
+                                         "CPUUtilization"
+                                         "Average"]
+                                        ["AWS/EC2"
+                                         "NetworkIn"
+                                         "Sum"]
+                                        ["AWS/EC2"
+                                         "NetworkOut"
+                                         "Sum"]
+                                        ["Convex/LoadNet"
+                                         "mem_used"
+                                         "Average"]
+                                        ]]
+                     (metric namespace
+                             metric-name
+                             metric-stat
+                             id)))
+        request  {:EndTime           (or (env :convex.aws.loadnet.timestamp/end)
+                                         (System/currentTimeMillis))
+                  :MetricDataQueries (map (fn [i metric]
+                                            (assoc metric
+                                                   :Id
+                                                   (format "m%d"
+                                                           i)))
+                                          (range)
+                                          (mapcat metric+
+                                                  id+))
+                  :StartTime         (env :convex.aws.loadnet.timestamp/start)}]
     (assoc env
            :convex.aws.loadnet.cloudwatch/metric+
            (reduce (fn [acc result+]

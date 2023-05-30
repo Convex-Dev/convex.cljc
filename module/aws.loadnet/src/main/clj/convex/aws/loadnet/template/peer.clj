@@ -29,7 +29,8 @@
                                  ; :disk {:measurement ["disk_used"]
                                  ;        :resources   ["/"]}
                                  ;
-                                 :mem  {:measurement ["mem_used"]}}}})
+                                 :mem  {:measurement ["mem_used"]}}
+             :namespace         "Convex/LoadNet"}})
 
 
 

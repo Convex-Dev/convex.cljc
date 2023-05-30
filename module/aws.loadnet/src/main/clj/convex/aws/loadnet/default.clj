@@ -4,6 +4,12 @@
 ;;;;;;;;;;
 
 
+(def detailed-monitoring
+
+  "true")
+
+
+
 (def dir
 
   "./")
