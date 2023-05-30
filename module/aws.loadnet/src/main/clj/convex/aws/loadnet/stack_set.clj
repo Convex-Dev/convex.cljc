@@ -4,6 +4,7 @@
             [convex.aws.loadnet.cloudformation :as $.aws.loadnet.cloudformation]
             [convex.aws.loadnet.stack-set.op   :as $.aws.loadnet.stack-set.op]
             [convex.aws.loadnet.template       :as $.aws.loadnet.template]
+            [convex.clj                        :as $.clj]
             [taoensso.timbre                   :as log]))
 
 
@@ -39,11 +40,9 @@
                          (log/info (format "EC2 Detailed Monitoring on peer instances = %s"
                                            (parameter+ :DetailedMonitoring)))
                          (log/info (format "Scenario path = %s"
-                                           (or (env :convex.aws.loadnet.scenario/path)
-                                               (throw (IllegalArgumentException. "Missing scenario path")))))
+                                           (env :convex.aws.loadnet.scenario/path)))
                          (log/info (format "Scenario parameters = %s"
-                                           (or (env :convex.aws.loadnet.scenario/param+)
-                                               (throw (IllegalArgumentException. "Missing scenario parameters"))))))
+                                           (env :convex.aws.loadnet.scenario/param+))))
         result         ($.aws.loadnet.cloudformation/invoke
                          env
                          :CreateStackSet
@@ -66,16 +65,22 @@
                       ($.aws.loadnet.stack-set.op/ip+))]
         (spit (format "%s/run.edn"
                       (env-3 :convex.aws.loadnet/dir))
-              (select-keys env-3
-                           [:convex.aws/region+
-                            :convex.aws.region/n.load
-                            :convex.aws.region/n.peer
-                            :convex.aws.ip/load+
-                            :convex.aws.ip/peer+
-                            :convex.aws.stack/parameter+
-                            :convex.aws.stack/region->id
-                            :convex.aws.stack/tag+
-                            :convex.aws.stack-set/name]))
+              (-> env-3
+                  (select-keys [:convex.aws/region+
+                                :convex.aws.region/n.load
+                                :convex.aws.region/n.peer
+                                :convex.aws.ip/load+
+                                :convex.aws.ip/peer+
+                                :convex.aws.loadnet.scenario/path
+                                :convex.aws.loadnet.scenario/param+
+                                :convex.aws.stack/parameter+
+                                :convex.aws.stack/region->id
+                                :convex.aws.stack/tag+
+                                :convex.aws.stack-set/name])
+                  (update :convex.aws.loadnet.scenario/path
+                          $.clj/any)
+                  (update :convex.aws.loadnet.scenario/param+
+                          $.clj/any)))
         env-3)
       (do
         (log/error "Failed to create stacks, check your AWS console")

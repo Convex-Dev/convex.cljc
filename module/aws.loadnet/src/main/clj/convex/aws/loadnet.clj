@@ -39,6 +39,8 @@
   (assert (get-in env
                   [:convex.aws.stack/parameter+
                    :KeyName]))
+  (assert (env :convex.aws.loadnet.scenario/path))
+  (assert (env :convex.aws.loadnet.scenario/param+))
   (let [stack-set-name (or (env :convex.aws.stack/name)
                            (str "LoadNet-"
                                 (System/currentTimeMillis)))
@@ -60,6 +62,10 @@
         (update :convex.aws.loadnet.peer/native?
                 #(or %
                      $.aws.loadnet.default/peer-native?))
+        (update :convex.aws.loadnet.scenario/path
+                $.cell/any)
+        (update :convex.aws.loadnet.scenario/param+
+                $.cell/any)
         (update :convex.aws.region/n.load
                 #(or %
                      $.aws.loadnet.default/n-load))
@@ -167,9 +173,9 @@
                 :convex.aws.loadnet/dir              "/tmp/loadnet"
                 :convex.aws.loadnet/timer            1
                 :convex.aws.loadnet.peer/native?     true
-                :convex.aws.loadnet.scenario/path    ($.cell/* (lib sim scenario torus))
-                :convex.aws.loadnet.scenario/param+  ($.cell/* {:n.token 5
-                                                                :n.user  20})
+                :convex.aws.loadnet.scenario/path    '(lib sim scenario torus)
+                :convex.aws.loadnet.scenario/param+  {:n.token 5
+                                                      :n.user  20}
                 :convex.aws.region/n.peer           1
                 :convex.aws.region/n.load           1
                 :convex.aws.stack/parameter+        {;:DetailedMonitoring "false"
