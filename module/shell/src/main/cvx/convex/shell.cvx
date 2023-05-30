@@ -3214,10 +3214,9 @@
                     "All operations in a transaction, such as calling a function,"
                     "are measured in this unit."
                     ""
-                    "Currently available juice can be retrieved with `*juice*`."
+                    "Currently consumed juice can be retrieved with `*juice*`."
                     ""
-                    "For instance, try setting this value to 0 with `.juice.set`"
-                    "and do anything afterwards. A `:JUICE` exception will be thrown."]}
+                    "A `:JUICE` exception is thrown when there is not any left"]}
 
   nil)
 
@@ -3225,7 +3224,7 @@
 
 (defn .juice.refill
 
-  ^{:doc {:description ["Refills `*juice*` to the maximum value."
+  ^{:doc {:description ["Refills `*juice*` by setting it to `0`."
                         "Useful to call once in a while when running long operations."]
           :examples    [{:code (.juice.refill)}]
           :signature   [{:params []}]}}
@@ -3233,9 +3232,6 @@
   []
 
   (.juice.set 0))
-
-
-
 
 
 
