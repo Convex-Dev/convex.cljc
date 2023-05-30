@@ -3417,8 +3417,41 @@
 ;;;;;;;;;; Logging
 
 
+(def .log
+
+  ^{:private?      true
+    :shell.section ["Logging utilities."
+                    ""
+                    "Logged values are printed as a Vector:"
+                    ""
+                    "  0: DateTime as an ISO 8601 UTC String (also see `.time.iso`)"
+                    "  1: Log level"
+                    "  2: Address of current account"
+                    "  3: Logged value"
+                    ""
+                    "Those entries can thus be read back with `.reader.form+`."
+                    ""
+                    "For logging level and their importance (higher number -> higher order),"
+                    "see `.log.level.num`. Values are only logged if the level is >= current level."
+                    ""
+                    "See `.log.level` for retrieving the current level and `.log.level.set` for"
+                    "setting it."
+                    ""
+                    "See `.log.level.set` for setting an output stream (defaults to STDOUT)."
+                    ""
+                    "See the various `.log.LEVEL*` macros for logging values depending on the"
+                    "current level. Values are computed only they can be logged according to"
+                    "the current level."]}
+
+  nil)
+
+
+
 (defn .log.level
 
+  ^{:doc {:description ["Returns the current log level or nil if logging is disabled."]
+          :examples    [{:code (.log.level)}]
+          :signature   [{:params []}]}}
   []
 
   (.shell.invoke '.log.level))
@@ -3441,6 +3474,10 @@
 
 (defn .log.level.set
 
+  ^{:doc {:description ["Sets the current log level or disables logging by providing `nil`."]
+          :examples    [{:code (.log.level.set :debug)}]
+          :signature   [{:params [level]}]}}
+
   [level]
 
   (.shell.invoke '.log.level.set
@@ -3448,6 +3485,8 @@
 
 
 (def .log.level.num
+
+  ^{:doc {:description ["Map of log levels to order."]}}
 
   {:trace  0
    :debug  1
@@ -3461,6 +3500,9 @@
 
 (defn .log.out
 
+  ^{:doc {:description ["Returns the current output stream for logging values."]
+          :examples    [{:code (.log.out)}]
+          :signature   [{:params []}]}}
   []
 
   (.shell.invoke '.log.out))
@@ -3468,6 +3510,12 @@
 
 
 (defn .log.out.set
+
+  ^{:doc {:description ["Sets the output stream to use when logging values."
+                        ""
+                        "See `(?.shell '.stream)` about streams."]
+          :examples    [{:code (.log.out.set (.file.stream.output "/tmp/log.cvx"))}]
+          :signature   [{:params [stream]}]}}
 
   [stream]
 
@@ -3480,6 +3528,9 @@
 
 (defmacro .log.trace*
 
+  ^{:doc {:description ["Macro for logging `x` at `:trace` level."]
+          :examples    [{:code (.log.trace* 42)}]
+          :signature   [{:params [x]}]}}
   [x]
 
   `(when (.log.level.can? 0)
@@ -3491,6 +3542,9 @@
 
 (defmacro .log.debug*
 
+  ^{:doc {:description ["Macro for logging `x` at `:debug` level."]
+          :examples    [{:code (.log.debug* 42)}]
+          :signature   [{:params [x]}]}}
   [x]
 
   `(when (.log.level.can? 1)
@@ -3502,6 +3556,9 @@
 
 (defmacro .log.info*
 
+  ^{:doc {:description ["Macro for logging `x` at `:info` level."]
+          :examples    [{:code (.log.info* 42)}]
+          :signature   [{:params [x]}]}}
   [x]
 
   `(when (.log.level.can? 2)
@@ -3513,6 +3570,9 @@
 
 (defmacro .log.warn*
 
+  ^{:doc {:description ["Macro for logging `x` at `:warn` level."]
+          :examples    [{:code (.log.warn* 42)}]
+          :signature   [{:params [x]}]}}
   [x]
 
   `(when (.log.level.can? 3)
@@ -3524,6 +3584,9 @@
 
 (defmacro .log.error*
 
+  ^{:doc {:description ["Macro for logging `x` at `:error` level."]
+          :examples    [{:code (.log.error* 42)}]
+          :signature   [{:params [x]}]}}
   [x]
 
   `(when (.log.level.can? 4)
@@ -3535,6 +3598,9 @@
 
 (defmacro .log.fatal*
 
+  ^{:doc {:description ["Macro for logging `x` at `:fatal` level."]
+          :examples    [{:code (.log.fatal* 42)}]
+          :signature   [{:params [x]}]}}
   [x]
 
   `(when (.log.level.can? 5)
@@ -3546,6 +3612,9 @@
 
 (defmacro .log.report*
 
+  ^{:doc {:description ["Macro for logging `x` at `:report` level."]
+          :examples    [{:code (.log.report* 42)}]
+          :signature   [{:params [x]}]}}
   [x]
 
   `(when (.log.level.can? 6)
@@ -6865,7 +6934,7 @@
 
 (defn .time.iso
 
-  ^{:doc {:description ["Returns the current time as an ISO 8601 UTC string."
+  ^{:doc {:description ["Returns the current time as an ISO 8601 UTC String."
                         "This refers to clock time, the actual time of the machine the Shell"
                         "is running on, not `*timestamp*`."]
           :examples    [{:code (.time.iso)}]
@@ -6878,7 +6947,7 @@
 
 (defn .time.iso->unix
 
-  ^{:doc {:description ["Converts time as an ISO 8601 UTC string into a Unix timestamp."
+  ^{:doc {:description ["Converts time as an ISO 8601 UTC String into a Unix timestamp."
                         "Also see `.time.iso`, `.time.unix`."]
           :examples    [{:code (.time.iso->unix "2022-09-14T11:43:34.633")}]
           :signature   [{:params [iso-string]}]}}
@@ -7722,6 +7791,8 @@
                         "Cell-related utilities")
                (feature ".client "
                         "Querying and transacting over peers")
+               (feature ".cvmlog "
+                        "CVM log management")
                (feature ".db     "
                         "Using Etch, the fast immutable database for cells")
                (feature ".dep    "
@@ -7737,11 +7808,11 @@
                (feature ".kp     "
                         "Creating and managing key pairs")
                (feature ".log    "
-                        "CVM log management")
+                        "Logging utilities")
                (feature ".pfx    "
                         "Safely storing and retrieving key pairs from files")
                (feature ".reader "
-                        "Reading cells from strings")
+                        "Reading cells from Strings")
                (feature ".repl   "
                         "Read-Eval-Print-Loop for interactive work")
                (feature ".shell  "
