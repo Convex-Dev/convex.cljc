@@ -4152,7 +4152,19 @@
 ;;;;;;;;;; Processes
 
 
+(def .process
+
+  ^{:private? true
+    :shell.section ["Shelling out processes."]}
+
+  nil)
+
+
+
 (defn .process.kill
+
+  ^{:doc {:description ["Kills a process started with `.process.run`."]
+          :signature   [{:params [process]}]}}
 
   [process]
 
@@ -4162,6 +4174,63 @@
 
 
 (defn .process.run
+
+  ^{:doc {:description ["Runs a process by providing a command."
+                        ""
+                        "A command is a Vector of Strings where the first item"
+                        "is the program to invoke and other items are arguments."
+                        "All arguments must be separated Strings."
+                        ""
+                        ""
+                        "A Map of options may be provided:"
+                        ""
+                        "  :dir"
+                        "    Working directory."
+                        "    Defaults to `(.sys.cwd)`."
+                        ""
+                        "  :env"
+                        "    Environment Map to use for the process (String -> String)."
+                        "    Defaults to the current environment."
+                        "    Usually, the `:env.extra` option is preferred."
+                        ""
+                        "  :env.extra"
+                        "    Similar to the `:env` option but those key-values will be merged into"
+                        "    the current environment and passed to the process."
+                        ""
+                        "  :err"
+                        "    Output stream to use as STDERR for the process."
+                        ""
+                        "  :in"
+                        "    Output stream to use as STDIN for the process."
+                        ""
+                        "  :out"
+                        "    Output stream to use as STDOUT for the process."
+                        ""
+                        ""
+                        "Returns a process Map:"
+                        ""
+                        "  :err"
+                        "    STDERR stream of the process."
+                        "    Can be read as an input stream unless it has been provided as an option."
+                        ""
+                        "  :exit"
+                        "    Async value resolving to the exit code of the process."
+                        "    `0` means the process terminated normally."
+                        "    Can be awaited with `.a.take`."
+                        "    See also `.process.success?`."
+                        ""
+                        "  :in"
+                        "    STDIN stream of the process."
+                        "    Can be written to as an output stream unless it has been provided as an option."
+                        ""
+                        "  :out"
+                        "    STDOUT stream of the process."
+                        "    Can be read as an input stream unless it has been provided as an option."
+                        ""
+                        "See `(!.shell '.stream)` about streams."]
+          :examples    [{:code (.stream.txt.in (:out (.process.run ["echo" "Convex rocks"])))}]
+          :signature   [{:params [command]}
+                        {:params [command option+]}]}}
 
 
   ([command]
@@ -4188,6 +4257,15 @@
 
 
 (defn .process.success?
+
+  ^{:doc {:description ["Awaits the given `process` (started with `.process.run`) and"
+                        "returns `true` if the exit code is `0`."
+                        ""
+                        "An optional timeout in milliseconds can be provided."
+                        "If the process does not terminate before this timeout elapses,"
+                        "`:timeout` is returned."]
+          :signature   [{:params [process]}
+                        {:params [process millis]}]}}
 
 
   ([process]
@@ -7956,6 +8034,8 @@
                         "Running Convex peers and networks")
                (feature ".pfx    "
                         "Safely storing and retrieving key pairs from files")
+               (feature ".process"
+                        "Shelling out processes")
                (feature ".reader "
                         "Reading cells from Strings")
                (feature ".repl   "
