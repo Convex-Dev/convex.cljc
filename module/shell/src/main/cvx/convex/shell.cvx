@@ -2155,6 +2155,38 @@
 
 (defn .gen
 
+  ^{:doc           {:description ["Generates a value given a generator."
+                                  ""
+                                  "A map of options may be provided:"
+                                  ""
+                                  "  :seed"
+                                  "    Long value."
+                                  "    Given the same generator and the same seed, the exact same value"
+                                  "    will always be generated."
+                                  ""
+                                  "  :size"
+                                  "    Long >= 0."
+                                  "    Impacts the complexity of the generated value."
+                                  "    Defaults to 30."
+                                  "    E.g. When generating collections, a bigger number will result in"
+                                  "         more items on average."
+                                  ""
+                                  "See `(?.shell '.gen)`."]
+                    :examples    [{:code (.gen (.gen.long))}
+                                  {:code (.gen (.gen.long) {:seed 42})}
+                                  {:code (.gen (.gen.any.vector) {:size 100})}]
+                    :signature   [{:params [generator]}
+                                  {:params [generator option+]}]}
+    :shell.section ["Generating random values in a controlled way."
+                    "Excellent for generative testing."
+                    ""
+                    "See `.gen` for generating values using generators built with the"
+                    "`.gen.*` functions."
+                    ""
+                    "Those generators are considered as resources external to the CVM."
+                    "They cannot be persisted in Etch (see `(?.shell '.db)`) and it is"
+                    "best not `def`ining them in the environment to be safe."]}
+
 
   ([generator]
 
@@ -2174,6 +2206,9 @@
 
 (defn .gen.address
 
+  ^{:doc {:description ["Returns a generator for Addresses."]
+          :signature   [{:params []}]}}
+
   []
 
   (.shell.invoke '.gen.address))
@@ -2182,6 +2217,12 @@
 
 (defn .gen.address.actor
 
+  ^{:doc {:description ["Returns a generator for Addresses of existing actors."
+                        ""
+                        "Throws an exception when failing to do so after 100 trials."
+                        "This behavior can be adjusted with the `max-try` argument."]
+          :signature   [{:params []}
+                        {:params [max-try]}]}}
 
   ([]
 
@@ -2198,6 +2239,9 @@
 
 (defn .gen.address.existing
 
+  ^{:doc {:description ["Returns a generator for existing Addresses."]
+          :signature   [{:params []}]}}
+
   []
 
   (.gen.bind (.gen.always nil)
@@ -2210,6 +2254,8 @@
 
 (defn .gen.address.user
 
+  ^{:doc {:description ["Returns a generator for Addresses of users."]
+          :signature   [{:params []}]}}
 
   ([]
 
@@ -2227,6 +2273,9 @@
 
 (defn .gen.always
 
+  ^{:doc {:description ["Returns a generator that will always generate `x`."]
+          :examples    [{:code (.gen.always 42)}]
+          :signature   [{:params [x]}]}}
   [x]
 
   (.shell.invoke '.gen.always
@@ -2236,6 +2285,9 @@
 
 (defn .gen.any
 
+  ^{:doc {:description ["Returns a generator for any kind of cell."]
+          :signature   [{:params []}]}}
+
   []
 
   (.shell.invoke '.gen.any))
@@ -2243,6 +2295,10 @@
 
 
 (defn .gen.any.coll
+
+  ^{:doc {:description ["Returns a generator for any kind of collection containing"
+                        "any kind of values."]
+          :signature   [{:params []}]}}
 
   []
 
@@ -2252,6 +2308,9 @@
 
 (defn .gen.any.list
 
+  ^{:doc {:description ["Returns a generator for Lists containing any kind of values."]
+          :signature   [{:params []}]}}
+
   []
 
   (.shell.invoke '.gen.any.list))
@@ -2259,6 +2318,9 @@
 
 
 (defn .gen.any.map
+
+  ^{:doc {:description ["Returns a generator for Maps containing any kind of values."]
+          :signature   [{:params []}]}}
 
   []
 
@@ -2268,6 +2330,9 @@
 
 (defn .gen.any.set
 
+  ^{:doc {:description ["Returns a generator for Sets containing any kind of values."]
+          :signature   [{:params []}]}}
+
   []
 
   (.shell.invoke '.gen.any.set))
@@ -2275,6 +2340,9 @@
 
 
 (defn .gen.any.vector
+
+  ^{:doc {:description ["Returns a generator for Vectors containing any kind of values."]
+          :signature   [{:params []}]}}
 
   []
 
@@ -2284,6 +2352,9 @@
 
 (defn .gen.bigint
 
+  ^{:doc {:description ["Returns a generator for BigIntegers."]
+          :signature   [{:params []}]}}
+
   []
 
   (.shell.invoke '.gen.bigint))
@@ -2291,6 +2362,16 @@
 
 
 (defn .gen.bind
+
+  ^{:doc {:description ["Returns a generator that will generate a value from the given"
+                        "generator and pass it to the Function `f`. This Function must"
+                        "return another generator that will be used to produce the final"
+                        "value."
+                        ""
+                        "Any state change performed in the Function is reversed afterwards."
+                        ""
+                        "Rarely used but very useful when needed."]
+          :signature   [{:params [generator f]}]}}
 
   [generator f]
 
@@ -2302,6 +2383,16 @@
 
 (defn .gen.blob
 
+  ^{:doc {:description ["Returns a generator for Blobs."
+                        ""
+                        "Depending on arguments, the length of these Blobs will either:"
+                        ""
+                        "  - Depend on the size used with `.gen`"
+                        "  - Be fixed at `n` bytes"
+                        "  - Range between `min` and `max` bytes (inclusive)"]
+          :signature   [{:params []}
+                        {:params [n]}
+                        {:params [min max]}]}}
 
   ([]
 
@@ -2324,6 +2415,10 @@
 
 (defn .gen.blob-32
 
+  ^{:doc {:description ["Returns a generator for 32-byte Blobs."
+                        ""
+                        "That length is very common (keys, hashes,...)"]
+          :signature   [{:params []}]}}
   []
 
   (.shell.invoke '.gen.blob-32))
@@ -2332,6 +2427,20 @@
 
 (defn .gen.blob-map
 
+  ^{:doc {:description ["Returns a generator for BlobMaps."
+                        ""
+                        "`generator-key` must be a generator for any kind of Blob."
+                        "`generator-value` can be a generator for anything."
+                        ""
+                        "Depending on arguments, the size of those Blobs will either:"
+                        ""
+                        "  - Depend on the size used with `.gen`"
+                        "  - Be fixed at `n` key-values"
+                        "  - Range between `min` and `max` key-values (inclusive)"]
+          :examples    [{:code (.gen (.gen.blob-map (.gen.address) (.gen.long)))}]
+          :signature   [{:params [generator-key generator-value]}
+                        {:params [generator-key generator-value n]}
+                        {:params [generator-key generator-value min max]}]}}
 
   ([generator-key generator-value]
 
@@ -2360,6 +2469,9 @@
 
 (defn .gen.boolean
 
+  ^{:doc {:description ["Returns a generator for Booleans."]
+          :signature   [{:params []}]}}
+
   []
 
   (.shell.invoke '.gen.boolean))
@@ -2367,6 +2479,9 @@
 
 
 (defn .gen.char
+
+  ^{:doc {:description ["Returns a generator for Characters."]
+          :signature   [{:params []}]}}
 
   []
 
@@ -2376,6 +2491,9 @@
 
 (defn .gen.char.alphanum
 
+  ^{:doc {:description ["Returns a generator for alphanumeric Characters."]
+          :signature   [{:params []}]}}
+
   []
 
   (.shell.invoke '.gen.char.alphanum))
@@ -2384,6 +2502,28 @@
 
 (defn .gen.check
 
+  ^{:doc {:description ["Generative assertion to be used with `.t.is`."
+                        ""
+                        "Generative testing is a very powerful tool since it automatically generates"
+                        "required values according to the given Vector of generators and ensures the"
+                        "given Function always hold true for those values."
+                        ""
+                        "A map of options may be provided:"
+                        ""
+                        "  :size.max"
+                        "    Size is automatically grown with trials until this maximum."
+                        "    Defaults to `.gen.check.max.size`."
+                        ""
+                        "  :n.trial"
+                        "    How many trials per run."
+                        "    Defaults to `.gen.check.n.trial`."
+                        ""
+                        "  :seed"
+                        "    Seed to start with."
+                        "    Ensures the test is always reproducible"]
+          :examples    [{:code (.t.is [(.gen.long)] (fn [n] (= n (+ n 0))))}]
+          :signature   [{:params [generator+ f]}
+                        {:params [generator+ f option+]}]}}
 
   ([generator+ f]
 
@@ -2408,17 +2548,24 @@
 
 (def .gen.check.n.trial
 
+  ^{:doc {:description ["Default number of trials when using `.gen.check`."]}}
+
   100)
 
 
 
 (def .gen.check.size.max
 
+  ^{:doc {:description ["Maximum size tested when using `.gen.check`."]}}
+
   200)
 
 
 
 (defn .gen.double
+
+  ^{:doc {:description ["Returns a generator for Doubles."]
+          :signature   [{:params []}]}}
 
   []
 
@@ -2427,6 +2574,24 @@
 
 
 (defn .gen.double.bounded
+
+  ^{:doc {:description ["Returns a generator for Doubles conforming to options:"
+                        ""
+                        "  :infinite?"
+                        "    Can the generator produce `##Inf` and `##-Inf`?"
+                        "    Defaults to `true`."
+                        ""
+                        "  :max"
+                        "    Maximum value this generator can produce."
+                        ""
+                        "  :min"
+                        "    Minimum value this generator can produce."
+                        ""
+                        "  :NaN?"
+                        "    Can this gnerator produce `##NaN`?"
+                        "    Defaults to `true`."]
+          :examples    [{:code (.gen (.gen.double.bounded {:max 42.42 :NaN? false}))}]
+          :signature   [{:params [option+]}]}}
 
   [option+]
 
@@ -2442,6 +2607,8 @@
 
 (defn .gen.falsy
 
+  ^{:doc {:description ["Returns a generator for either `false` or `nil`."]
+          :signature   [{:params []}]}}
   []
 
   (.shell.invoke '.gen.falsy))
@@ -2449,6 +2616,19 @@
 
 
 (defn .gen.fmap
+
+  ^{:doc {:description ["Returns a generator such that:"
+                        ""
+                        "  - First, a value is generated with `generator`"
+                        "  - Final value is produced by passing the first one to Function `f`"
+                        ""
+                        "Any state change performed in the Function is reversed afterwards."
+                        ""
+                        "See example below about a generator which, based on a generator for Doubles,"
+                        "will output tuples where the first item is a Double and the second item is that"
+                        "same value as a Long."]
+          :examples    [{:code (.gen (.gen.fmap (fn [d] [d (long d)]) (.gen.double)))}]
+          :signature   [{:params [f generator]}]}}
 
   [f generator]
 
@@ -2461,6 +2641,14 @@
 (defn .gen.freq
 
 
+  ^{:doc {:description ["Returns a generator which, given a Vector of pairs associating a frequencies"
+                        "with generators, will produce values according to those generators by respecting"
+                        "those frequencies."
+                        ""
+                        "See example below about a generator that will, on average, output 9 Booleans"
+                        "for every Long."]
+          :examples    [{:code (.gen (.gen.freq [[9 (.gen.boolean)] [1 (.gen.long)]]))}]
+          :signature   [{:params [pair+]}]}}
   [pair+]
 
   (.shell.invoke '.gen.freq
@@ -2470,6 +2658,17 @@
 
 (defn .gen.hex-string
 
+  ^{:doc {:description ["Returns a generator for hex-strings."
+                        ""
+                        "Depending on arguments, the size of those hex-strings will either:"
+                        ""
+                        "  - Depend on the size used with `.gen`"
+                        "  - Be fixed at `n` bytes"
+                        "  - Range between `min` and `max` bytes"]
+          :examples    [{:code (.gen (.gen.hex-string 2 10))}]
+          :signature   [{:params []}
+                        {:params [n]}
+                        {:params [min max]}]}}
 
   ([]
 
@@ -2492,6 +2691,9 @@
 
 (defn .gen.keyword
 
+  ^{:doc {:description ["Returns a generator for Keywords."]
+          :signature   [{:params []}]}}
+
   []
 
   (.shell.invoke '.gen.keyword))
@@ -2500,6 +2702,18 @@
 
 (defn .gen.list
 
+  ^{:doc {:description ["Returns a generator for Lists where items will be produced using"
+                        "the given `generator`."
+                        ""
+                        "Depending on arguments, the size of those Lists will either:"
+                        ""
+                        "  - Depend on the size used with `.gen`"
+                        "  - Be fixed at `n` values"
+                        "  - Range between `min` and `max` values (inclusive)"]
+          :examples    [{:code (.gen (.gen.list (.gen.long) 4))}]
+          :signature   [{:params [generator]}
+                        {:params [generator n]}
+                        {:params [generator min max]}]}}
 
   ([generator]
 
@@ -2525,6 +2739,9 @@
 
 (defn .gen.long
 
+  ^{:doc {:description ["Returns a generator for Longs."]
+          :signature   [{:params []}]}}
+
   []
 
   (.shell.invoke '.gen.long))
@@ -2532,6 +2749,16 @@
 
 
 (defn .gen.long.bounded
+
+  ^{:doc {:description ["Returns a generator for Longs conforming to options:"
+                        ""
+                        "  :max"
+                        "    Maximum value this generator can produce."
+                        ""
+                        "  :min"
+                        "    Minimum value this generator can produce."]
+          :examples    [{:code (.gen (.gen.long.bounded {:max 42}))}]
+          :signature   [{:params [option+]}]}}
 
   [option+]
 
@@ -2543,6 +2770,13 @@
 
 (defn .gen.long.uniform
 
+  ^{:doc {:description ["Returns a generator for Longs uniformely selected between `min`"
+                        "and `max` (inclusive)."
+                        ""
+                        "Size will have no effect on this generator."]
+          :examples    [{:code (.gen (.gen.long.uniform 0 10))}]
+          :signature   [{:params [min max]}]}}
+
   [min max]
 
   (.shell.invoke '.gen.long.uniform
@@ -2553,6 +2787,9 @@
 
 (defn .gen.number
 
+  ^{:doc {:description ["Returns a generator for any kind of Number."]
+          :signature   [{:params []}]}}
+
   []
 
   (.shell.invoke '.gen.number))
@@ -2561,6 +2798,18 @@
 
 (defn .gen.map
 
+  ^{:doc {:description ["Returns a generator for Maps where keys will be produced using"
+                        "the `generator-key` and values using `generator-values`."
+                        ""
+                        "Depending on arguments, the size of those Maps will either:"
+                        ""
+                        "  - Depend on the size used with `.gen`"
+                        "  - Be fixed at `n` key-values"
+                        "  - Range between `min` and `max` key-values (inclusive)"]
+          :examples    [{:code (.gen (.gen.map (.gen.keyword) (.gen.boolean)))}]
+          :signature   [{:params [generator-key generator-value]}
+                        {:params [generator-key generator-value n]}
+                        {:params [generator-key generator-value min max]}]}}
 
   ([generator-key generator-value]
 
@@ -2589,6 +2838,8 @@
 
 (defn .gen.nil
 
+  ^{:doc {:description ["Returns a generator always producing `nil`."]
+          :signature   [{:params []}]}}
   []
 
   (.shell.invoke '.gen.nil))
@@ -2596,6 +2847,11 @@
 
 
 (defn .gen.or
+
+  ^{:doc {:description ["Returns a generator producing values by picking a generator"
+                        "from the given Vector."]
+          :examples    [{:code (.gen (.gen.or [(.gen.boolean) (.gen.long)]))}]
+          :signature   [{:params [generator+]}]}}
 
   [generator+]
 
@@ -2606,6 +2862,10 @@
 
 (defn .gen.pick
 
+  ^{:doc {:description ["Returns a generator always producing a value by picking one"
+                        "from the given Vector."]
+          :examples    [{:code (.gen (.gen.pick [:a :b :c]))}]
+          :signature   [{:params [x+]}]}}
   [x+]
 
   (.shell.invoke '.gen.pick
@@ -2615,6 +2875,11 @@
 
 (defn .gen.quoted
 
+  ^{:doc {:description ["Returns a generator that will quote values produced by the"
+                        "given generator."]
+          :examples    [{:code (.gen (.gen.quoted (.gen.symbol)))}]
+          :signature   [{:params [generator]}]}}
+
   [generator]
 
   (.shell.invoke '.gen.quoted
@@ -2623,6 +2888,13 @@
 
 
 (defn .gen.record
+
+  ^{:doc {:description ["Returns a generator producing Maps by following the given"
+                        "Map of keys to generators."
+                        ""
+                        "Typically used for producing record-like Maps."]
+          :examples    [{:code (.gen (.gen.record {:age (.gen.long.uniform 0 100) :name (.gen.string)}))}]
+          :signature   [{:params [k->gen]}]}}
 
   [k->gen]
 
@@ -2646,6 +2918,8 @@
 
 (defn .gen.scalar
 
+  ^{:doc {:description ["Returns a generator for producing values that are not collections"]
+          :signature   [{:params []}]}}
   []
 
   (.shell.invoke '.gen.scalar))
@@ -2654,6 +2928,18 @@
 
 (defn .gen.set
 
+  ^{:doc {:description ["Returns a generator for Sets where items will be produced using"
+                        "the given `generator`."
+                        ""
+                        "Depending on arguments, the size of those Sets will either:"
+                        ""
+                        "  - Depend on the size used with `.gen`"
+                        "  - Be fixed at `n` values"
+                        "  - Range between `min` and `max` values (inclusive)"]
+          :examples    [{:code (.gen (.gen.set (.gen.long) 4))}]
+          :signature   [{:params [generator]}
+                        {:params [generator n]}
+                        {:params [generator min max]}]}}
 
   ([generator]
 
@@ -2679,6 +2965,17 @@
 
 (defn .gen.string
 
+  ^{:doc {:description ["Returns a generator for Strings."
+                        ""
+                        "Depending on arguments, the size of those Strings will either:"
+                        ""
+                        "  - Depend on the size used with `.gen`"
+                        "  - Be fixed at `n` Characters"
+                        "  - Range between `min` and `max` Characters (inclusive)"]
+          :examples    [{:code (.gen (.gen.set (.gen.long) 4))}]
+          :signature   [{:params []}
+                        {:params [n]}
+                        {:params [min max]}]}}
 
   ([]
 
@@ -2701,6 +2998,11 @@
 
 (defn .gen.string.alphanum
 
+  ^{:doc {:description ["Like `.gen.string` but uses only alphanumeric Characters."]
+          :examples    [{:code (.gen (.gen.string.alphanum 10))}]
+          :signature   [{:params []}
+                        {:params [n]}
+                        {:params [min max]}]}}
 
   ([]
 
@@ -2723,6 +3025,17 @@
 
 (defn .gen.such-that
 
+  ^{:doc {:description ["Returns a generator for producing values out of the given"
+                        "generator that only return `true` on the given `pred`icate"
+                        "Function."
+                        ""
+                        "Throws an exception if `pred` cannot be satisfied after a 100 trials."
+                        "This behavior can be adjusted with the `n-max` argument."
+                        ""
+                        "See example below about a generator that only produces even Longs."]
+          :examples    [{:code (.gen (.gen.such-that (fn [n] (zero? (mod n 2))) (.gen.long)))}]
+          :signature   [{:params [pred generator]}
+                        {:params [max-try pred generator]}]}}
 
   ([pred generator]
 
@@ -2743,6 +3056,8 @@
 
 (defn .gen.symbol
 
+  ^{:doc {:description ["Returns a generator for Symbols."]
+          :signature   [{:params []}]}}
   []
 
   (.shell.invoke '.gen.symbol))
@@ -2751,6 +3066,16 @@
 
 (defn .gen.syntax
 
+  ^{:doc {:description ["Returns a generator for producing Syntax objects."
+                        ""
+                        "Values are produced with `generator-value` (defaults to `.gen.any`)."
+                        "Metadata are produced with `generator-meta` (defaults to `.gen.any.map`)."
+                        ""
+                        "Rarely used."]
+          :examples    [{:code (.gen.syntax (.gen.long))}]
+          :signature   [{:params []}
+                        {:params [generator-value]}
+                        {:params [generator-value generator-meta]}]}}
 
   ([]
 
@@ -2773,6 +3098,8 @@
 
 (defn .gen.truthy
 
+  ^{:doc {:description ["Returns a generator for producing any value but `nil` and `false`."]
+          :signature   [{:params []}]}}
   []
 
   (.shell.invoke '.gen.truthy))
@@ -2780,6 +3107,11 @@
 
 
 (defn .gen.tuple
+
+  ^{:doc {:description ["Returns a generator for producing Vector where each value is generated"
+                        "from the corresponding position in the given Vector of generators."]
+          :examples    [{:code (.gen (.gen.tuple [(.gen.boolean) (.gen.long)]))}]
+          :signature   [{:params [generator+]}]}}
 
   [generator+]
 
@@ -2790,6 +3122,18 @@
 
 (defn .gen.vector
 
+  ^{:doc {:description ["Returns a generator for Vectors where items will be produced using"
+                        "the given `generator`."
+                        ""
+                        "Depending on arguments, the size of those Vectors will either:"
+                        ""
+                        "  - Depend on the size used with `.gen`"
+                        "  - Be fixed at `n` values"
+                        "  - Range between `min` and `max` values (inclusive)"]
+          :examples    [{:code (.gen (.gen.vector (.gen.long) 4))}]
+          :signature   [{:params [generator]}
+                        {:params [generator n]}
+                        {:params [generator min max]}]}}
 
   ([generator]
 
@@ -7390,6 +7734,8 @@
                         "Reading and writing files")
                (feature ".fs     "
                         "Filesystem utilities")
+               (feature ".gen    "
+                        "Generating random values in a controlled way")
                (feature ".juice  "
                         "Juice operations")
                (feature ".kp     "
