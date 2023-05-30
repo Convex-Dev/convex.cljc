@@ -3,6 +3,7 @@
   (:import (java.util Locale))
   (:require [babashka.fs                       :as bb.fs]
             [clojure.edn                       :as edn]
+            [clojure.string                    :as string]
             [cognitect.aws.client.api          :as aws]
             [convex.aws.loadnet.cloudformation :as $.aws.loadnet.cloudformation]
             [convex.aws.loadnet.cloudwatch     :as $.aws.loadnet.cloudwatch]
@@ -38,15 +39,24 @@
   (assert (get-in env
                   [:convex.aws.stack/parameter+
                    :KeyName]))
-  (let [dir (-> (or (env :convex.aws.loadnet/dir)
-                    $.aws.loadnet.default/dir)
-                (bb.fs/canonicalize)
-                (str))]
-    (bb.fs/create-dirs dir)
+  (let [stack-set-name (or (env :convex.aws.stack/name)
+                           (str "LoadNet-"
+                                (System/currentTimeMillis)))
+        dir            (or (env :convex.aws.loadnet/dir)
+                           $.aws.loadnet.default/dir)
+        dir-2          (-> (format "%s/%s"
+                                   dir
+                                   (string/replace stack-set-name
+                                                   #"\s"
+                                                   "_"))
+                            (bb.fs/canonicalize)
+                            (str))]
+    (bb.fs/create-dirs dir-2)
     (-> env
-        (assoc :convex.aws.loadnet/dir            dir
+        (assoc :convex.aws.loadnet/dir            dir-2
                :convex.aws.loadnet/*stopped?      (atom false)
-               :convex.aws.loadnet.load/*stopped+ (atom #{}))
+               :convex.aws.loadnet.load/*stopped+ (atom #{})
+               :convex.aws.stack/name             stack-set-name)
         (update :convex.aws.loadnet.peer/native?
                 #(or %
                      $.aws.loadnet.default/peer-native?))
@@ -155,7 +165,7 @@
                                                       ]
                 :convex.aws.key/file                 "/Users/adam/Code/convex/clj/private/Test"
                 :convex.aws.loadnet/dir              "/tmp/loadnet"
-                :convex.aws.loadnet/timer            6
+                :convex.aws.loadnet/timer            1
                 :convex.aws.loadnet.peer/native?     true
                 :convex.aws.loadnet.scenario/path    ($.cell/* (lib sim scenario torus))
                 :convex.aws.loadnet.scenario/param+  ($.cell/* {:n.token 5
@@ -165,7 +175,7 @@
                 :convex.aws.stack/parameter+        {;:DetailedMonitoring "false"
                                                      :KeyName            "Test"
                                                      ;:InstanceTypeLoad   "t2.micro"
-                                                     ;:InstanceTypePeer   "t2.micro"
+                                                     :InstanceTypePeer   "t2.micro"
                                                      }
                 :convex.aws.stack/tag+              {:Project "Ontochain"}}))
 

@@ -14,9 +14,7 @@
 
   [env]
 
-  (let [stack-set-name (or (:convex.aws.stack/name env)
-                           (str "LoadNet-"
-                                (System/currentTimeMillis)))
+  (let [stack-set-name (env :convex.aws.stack/name)
         region+        (env :convex.aws/region+)
         parameter+     (env :convex.aws.stack/parameter+)
         _              (do
