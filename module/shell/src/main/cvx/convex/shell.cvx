@@ -3626,7 +3626,22 @@
 ;;;;;;;;;; Peers
 
 
+(def .peer
+
+  ^{:private?      true
+    :shell.section ["Running Convex peers and networks."
+                    ""
+                    "See `.peer.init` and `.peer.init.sync` for creating peers."]}
+
+  nil)
+
+
+
 (defn .peer.connection+
+
+  ^{:doc {:description ["Returns a Set containing the public keys of the peers the"
+                        "given `peer` is currently connected to."]
+          :signature   [{:params [peer]}]}}
 
   [peer]
 
@@ -3637,6 +3652,9 @@
 
 (defn .peer.controller
 
+  ^{:doc {:description ["Returns the Address of the account controlling the given `peer`."]
+          :signature   [{:params [peer]}]}}
+
   [peer]
 
   (.shell.invoke '.peer.controller
@@ -3645,6 +3663,10 @@
 
 
 (defn .peer.data
+
+  ^{:doc {:description ["Returns a map containing the current data maintained by the given"
+                        "`peer` such as the current State."]
+          :signature   [{:params [peer]}]}}
 
   [peer]
 
@@ -3655,11 +3677,17 @@
 
 (def .peer.default.port
 
+  ^{:doc {:description ["Default port used by peers."]}}
+
   18888)
 
 
 
 (defn .peer.endpoint
+
+  ^{:doc {:description ["Returns a map containing the `:host` and the `:port` used"
+                        "by the given `peer`."]
+          :signature   [{:params [peer]}]}}
 
   [peer]
 
@@ -3670,11 +3698,58 @@
 
 (defn .peer.init
 
+  ^{:doc {:description ["Initializes and returns a `peer`."
+                        ""
+                        "Requires the key pair of the account that will control the peer."
+                        "Controller will be deduced from the `:state` option."
+                        "See `(?.shell 'kp)` about key pairs."
+                        ""
+                        "Requires an Etch instance."
+                        "See `(?.shell '.db) about Etch."
+                        ""
+                        "A map of options may be provided:"
+                        ""
+                        "  :delay.poll"
+                        "    Interval in milliseconds at which this peer will poll beliefs from other peers"
+                        "    as an anti-entropy measure."
+                        ""
+                        "  :host"
+                        "    Host this peer will bind to when started."
+                        "    Defaults to `\"localhost\"`."
+                        ""
+                        "  :n.max.sibling"
+                        "    Maximum number of connections to other peers this peer can maintain."
+                        "    Defaults to `10`."
+                        ""
+                        "  :port"
+                        "    Port this peer will bind to when started."
+                        "    Defaults to `.peer.default.port`."
+                        ""
+                        "  :state"
+                        "    A State to use as the Genesis State."
+                        "    When not provided, will be read from the current Etch instance according to"
+                        "    the `:root-key` option."
+                        ""
+                        "  :root-key"
+                        "    Assuming the root of Etch is a Map, all peer data will be stored and maintained"
+                        "    under this key."
+                        "    Defaults to `nil` meaning the data will be stored directly at the root."
+                        ""
+                        "  :url"
+                        "    When provided, the controller will automatically transact to save this URL"
+                        "    as the public URL of the peer."
+                        ""
+                        "See `.peer.start` for actually starting the peer."
+                        "Also see `.peer.init.sync`."]
+          :examples    [{:code (.peer.init some-kp {:state (.state.genesis)})}]
+          :signature   [{:params [key-pair]}
+                        {:params [key-pair option+]}]}}
+
 
   ([key-pair]
 
-   (.peer.init key-pair
-               nil))
+   (recur key-pair
+          nil))
 
 
   ([key-pair option+]
@@ -3713,28 +3788,64 @@
 
 (defn .peer.init.sync
 
-  [key-pair option+]
+  ^{:doc {:description ["Similar to `.peer.init` but the peer will sync the current State of"
+                        "the network from another peer."
+                        ""
+                        "Common options are:"
+                        ""
+                        "  :delay.poll"
+                        "  :host"
+                        "  :n.max.sibling"
+                        "  :port"
+                        "  :root-key"
+                        "  :url"
+                        ""
+                        ""
+                        "Custom options are:"
+                        ""
+                        ":remote.host"
+                        "  Host of the remote peer to sync to."
+                        "  Defaults to `\"localhost\"`."
+                        ""
+                        ":remote.port"
+                        "  Port of the remote peer to sync to."
+                        "  Defaults to `.peer.default.port`."]
+          :examples    [{:code (.peer.init.sync some-kp {:remote.host "42.123.24.321"})}]
+          :signature   [{:params [key-pair]}
+                        {:params [key-pair option+]}]}}
 
-  (.shell.invoke '.peer.init.sync
-                 (or (:remote.host option+)
-                     "localhost")
-                 (or (:remote.port option+)
-                     .peer.default.port)
-                 key-pair
-                 (or (:host option+)
-                     "localhost")
-                 (or (:n.max.sibling option+)
-                     10)
-                 (or (:delay.poll option+)
-                     2000)
-                 (or (:port option+)
-                     .peer.default.port)
-                 (:root-key option+)
-                 (:url option+)))
+
+  ([key-pair]
+
+   (recur key-pair
+          nil))
+
+
+  ([key-pair option+]
+
+   (.shell.invoke '.peer.init.sync
+                  (or (:remote.host option+)
+                      "localhost")
+                  (or (:remote.port option+)
+                      .peer.default.port)
+                  key-pair
+                  (or (:host option+)
+                      "localhost")
+                  (or (:n.max.sibling option+)
+                      10)
+                  (or (:delay.poll option+)
+                      2000)
+                  (or (:port option+)
+                      .peer.default.port)
+                  (:root-key option+)
+                  (:url option+))))
 
 
 
 (defn .peer.n.belief.received
+
+  ^{:doc {:description ["Returns the number of beliefs the given `peer` has received."]
+          :signature   [{:params [peer]}]}}
 
   [peer]
 
@@ -3745,6 +3856,9 @@
 
 (defn .peer.n.belief.sent
 
+  ^{:doc {:description ["Returns the number of beliefs the given `peer` has sent."]
+          :signature   [{:params [peer]}]}}
+
   [peer]
 
   (.shell.invoke '.peer.n.belief.sent
@@ -3753,6 +3867,9 @@
 
 
 (defn .peer.order
+
+  ^{:doc {:description ["Returns the current Order of the given `peer`."]
+          :signature   [{:params [peer]}]}}
 
 
   ([peer]
@@ -3774,7 +3891,14 @@
 
 (defn .peer.persist
 
-  ;; Does not flush.
+  ^{:doc {:description ["Persists the current peer data to Etch."
+                        ""
+                        "Done automatically when stopping the peer or when cleanly shutting down"
+                        "the Shell."
+                        ""
+                        "See `.db.flush` to fully flush everything."
+                        "Also see `.peer.data`."]
+          :signature   [{:params [peer]}]}}
 
   [peer]
 
@@ -3785,6 +3909,9 @@
 
 (defn .peer.pubkey
 
+  ^{:doc {:description ["Returns the public key of the given `peer`."]
+          :signature   [{:params [peer]}]}}
+
   [peer]
 
   (.shell.invoke '.peer.pubkey
@@ -3793,6 +3920,12 @@
 
 
 (defn .peer.start
+
+  ^{:doc {:description ["Starts the given `peer`."
+                        ""
+                        "See `.peer.init` and `.peer.init.sync` for creating them"
+                        "in the first place."]
+          :signature   [{:params [peer]}]}}
 
   [peer]
 
@@ -3803,6 +3936,9 @@
 
 (defn .peer.state
 
+  ^{:doc {:description ["Returns the current network State according to the given `peer`."]
+          :signature   [{:params [peer]}]}}
+
   [peer]
 
   (.shell.invoke '.peer.state
@@ -3811,6 +3947,9 @@
 
 
 (defn .peer.status
+
+  ^{:doc {:description ["Returns a Vector describing the current status of the given `peer`."]
+          :signature   [{:params [peer]}]}}
 
   [peer]
 
@@ -3821,7 +3960,11 @@
 
 (defn .peer.stop
 
-  ;; Cannot be restarted
+  ^{:doc {:description ["Stops the given `peer`."
+                        ""
+                        "Attention, cannot be restarted with `.peer.start`."
+                        "Simply recreate the peer if needed."]
+          :signature   [{:params [peer]}]}}
 
   [peer]
 
@@ -7809,6 +7952,8 @@
                         "Creating and managing key pairs")
                (feature ".log    "
                         "Logging utilities")
+               (feature ".peer   "
+                        "Running Convex peers and networks")
                (feature ".pfx    "
                         "Safely storing and retrieving key pairs from files")
                (feature ".reader "
