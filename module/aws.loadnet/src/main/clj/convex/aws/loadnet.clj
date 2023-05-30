@@ -1,5 +1,6 @@
 (ns convex.aws.loadnet
 
+  (:import (java.util Locale))
   (:require [babashka.fs                       :as bb.fs]
             [clojure.edn                       :as edn]
             [cognitect.aws.client.api          :as aws]
@@ -20,6 +21,9 @@
 
 (declare start
          stop)
+
+
+(Locale/setDefault Locale/US)
 
 
 ;;;;;;;;;;
