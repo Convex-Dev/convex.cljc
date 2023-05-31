@@ -5649,8 +5649,11 @@
   ^{:private?      true
     :shell.section ["Unit testing framework."
                     ""
-                    "Tests are functions defined with `.t.def` which should"
-                    "contain assertions written with `.t.is`."
+                    "Tests are functions defined with `.t.def` which should contain"
+                    "assertions written with `.t.is`."
+                    ""
+                    "Also see `.gen.check` for generative testing, a highly effective"
+                    "testing technique."
                     ""
                     "See `.dep.test` about how to run them."]}
 
@@ -7541,7 +7544,55 @@
 ;;;;;;;;;; Workers
 
 
+(def .worker
+
+  ^{:private?      true
+    :shell.section ["Connect to a Convex Shell through STDIO"
+                    ""
+                    "A worker is a Convex Shell listening for code to execute on STDIN"
+                    "and outputting the result to STDOUT (by default)."
+                    ""
+                    "Alternatively, on Unix systems, named pipes can be used."
+                    ""
+                    "For instance, a common use case is running a peer and turning the Shell"
+                    "into a worker, allowing one to connect to it when needed to inspect data"
+                    "or run further operations."
+                    ""
+                    "For a quick pratical example:"
+                    ""
+                    "  - In one Shell,   run `(.worker.start {:pipe \"foo\"})`"
+                    "  - In another one, run `(.worker.repl {:pipe \"foo\"})`"
+                    "  - You have now a REPL for executing code in the first Shell"
+                    ""
+                    "The underlying protocol is quite simple, see `.worker.exec` and `.worker.result`."]}
+
+  nil)
+
+
+
 (defn .worker.exec
+
+  ^{:doc {:description ["Sends a request to a worker for executing code."
+                        ""
+                        "The worker is modelled as a process, a Map where:"
+                        ""
+                        "  :in"
+                        "    Input stream for that worker, effectively an output stream from our end."
+                        ""
+                        "  :out"
+                        "    Output stream for that worker, effectively an input stream from our end."
+                        ""
+                        "Note: `.process.run` returns such a Map."
+                        ""
+
+                        "The request written to `:in` is a Vector where:"
+                        ""
+                        "  0: Key, any Cell identifying the request, defaults to `nil`"
+                        "  1: Form to execute, the actual code"
+                        ""
+                        "See `.worker.result` for reading the result."]
+          :signature   [{:params [process form]}
+                        {:params [key process form]}]}}
 
   
   ([process form]
@@ -7573,6 +7624,16 @@
 
 (defn .worker.pipe+
 
+  ^{:doc {:description ["Used by tooling connecting to workers through Unix pipes instead of"
+                        "STDIO."
+                        ""
+                        "Given a `name` (any String), this function creates 2 pipes in `/tmp`"
+                        "if required and returns a Vector where:"
+                        ""
+                        "  0: Path to the input pipe of the worker"
+                        "  1: Path to the output pipe of the worker"]
+          :signature   [{:params [name]}]}}
+
   [name]
 
   (let [pipe-prefix (str "/tmp/cvx__" name "__")
@@ -7601,6 +7662,19 @@
 
 
 (defn .worker.repl
+
+  ^{:doc {:description ["Starts a REPL over a worker started in another Convex Shell."
+                        ""
+                        "The `process` argument is either:"
+                        ""
+                        "  - A Map as described in `.worker.exec`"
+                        "  - A Map containing only `:pipe` (see `.worker.start`)."
+                        ""
+                        "Expert users may provide a Map of options for the REPL but"
+                        "`:eval` will be overwritten (see `.repl`)."]
+          :examples    [{:code (.worker.repl {:pipe "foo"})}]
+          :signature   [{:params [process]}
+                        {:params [process option+]}]}}
 
 
   ([process]
@@ -7692,6 +7766,18 @@
 
 (defn .worker.result
 
+  ^{:doc {:description ["Used by `.worker.start` for outputting results for requests"
+                        "received by another process conforming to the protocol described"
+                        "in `.worker.exec`."
+                        ""
+                        "A result is printed as a Vector where:"
+                        ""
+                        "  0: Boolean indicating success, `false` in case of an exception, `true`"
+                        "     otherwise"
+                        "  1: Key that was sent in the request, identifying it"
+                        "  2: Result (exception in case of failyre)"]
+          :signature   [{:params [env success? key result]}]}}
+
   [env success? key result]
 
   (let [limit  (:stream.out.limit env)
@@ -7719,6 +7805,34 @@
 
 
 (defn .worker.start
+
+  ^{:doc {:description ["Turns this Convex Shell into a worker."
+                        ""
+                        "See `.worker.repl` about obtaining a REPL to it from another"
+                        "Shell."
+                        ""
+                        ""
+                        "A Map of options may be provided:"
+                        ""
+                        "  :pipe"
+                        "    A name that the other Shell can use in `.worker.repl` to connect"
+                        "    via named pipes on Unix systems."
+                        "    Will use `.worker.pipe+` for creating those pipes and will ignore"
+                        "    stream options below."
+                        ""
+                        "  :stream.in"
+                        "    Input stream to use for listening to requests."
+                        "    Ignored if named pipes are used."
+                        "    Defaults to STDIN otherwise."
+                        ""
+                        "  :stream.out"
+                        "    Output stream to use for writing results."
+                        "    Ignored if named pipes are used."
+                        "    Defaults to STDOUT otherwise."]
+          :examples    [{:code (.worker.start)}
+                        {:code (.worker.start {:pipe "foo"})}]
+          :signature   [{:params []}
+                        {:params [option+]}]}}
 
 
   ([]
@@ -8062,6 +8176,8 @@
                          "Error handling abstractions built over `.state.safe`.")
                (feature ".time   "
                         "Time utilities")
+               (feature ".worker "
+                        "Connect to a Convex Shell through STDIO")
                ""]))
    (?.title "List everything available in a feature set")
    (?.txt "(?.shell feature-set)  ->  (?.shell '.account)")
