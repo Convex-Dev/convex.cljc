@@ -12,8 +12,28 @@ repository.
 - Add
     - `.cell.size`
     - `.cell.softness`
+    - `.cell.str`
+    - `.kp.seed.dev`
+    - `.file.lock`
+    - `.file.lock.release`
     - `.time.do*` 
+    - `.state.core.vanilla`
     - `.state.do`
+    - `.sys.n-cpu`
+    - `.sys.pid`
+    - `.sys.vthread`
+    - Shelling out processes, see `(?.shell '.process)`
+    - Connecting to Convex Shell via STDIO, see `(?.shell '.worker)`
+    - Clients utilities for querying and transacting over Convex pers, see `(?.shell '.client)`
+    - Creating transactions, see `(?.shell '.trx)`
+    - Simple async utilities useful for clients, see `(?.shell '.a)`
+    - Running and managing Convex peers, see `(?.shell '.peer)`
+    - Logging utitities, see `(?.shell '.log)`
+    - Generating random values and generative testing, see `(?.shell '.gen)`
+- Change
+    - Previous `.log.*` functions renamed to `.cvmlog.*`
+        - To prevent clashing with the new logging utilities
+    - Move `.version.*` values to `.sys.version.*`
 
 ---
 

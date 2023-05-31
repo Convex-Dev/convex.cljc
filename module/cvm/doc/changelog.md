@@ -14,14 +14,14 @@ repository.
     - `$.clj/bigint`
     - `$.cvm/actor?`
     - `$.cvm/juice-available`
-    - `$.cvm/juice-limit`
     - `$.cvm/juice-limit-set`
+    - `$.cvm/juice-limit`
     - `$.cvm/transact`
     - `$.std/bigint?`
+    - `$.std/hash?`
     - `$.std/integer?`
     - `$.std/memory-size`
     - `$.std/softness`
-    - `$.std/hash?`
     - `$.std/transaction?`
 - Change
     - `$.cvm/juice` now indicates consumed juice instead of remaining juice
