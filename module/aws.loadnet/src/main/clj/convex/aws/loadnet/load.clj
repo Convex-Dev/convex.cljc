@@ -1,7 +1,6 @@
 (ns convex.aws.loadnet.load
 
-  (:require [babashka.fs            :as bb.fs]
-            [convex.aws.loadnet.rpc :as $.aws.loadnet.rpc]
+  (:require [convex.aws.loadnet.rpc :as $.aws.loadnet.rpc]
             [convex.cell            :as $.cell]
             [taoensso.timbre        :as log]))
 

@@ -4,7 +4,6 @@
   (:require [babashka.fs                       :as bb.fs]
             [clojure.edn                       :as edn]
             [clojure.string                    :as string]
-            [cognitect.aws.client.api          :as aws]
             [convex.aws.loadnet.cloudformation :as $.aws.loadnet.cloudformation]
             [convex.aws.loadnet.cloudwatch     :as $.aws.loadnet.cloudwatch]
             [convex.aws.loadnet.default        :as $.aws.loadnet.default]
@@ -14,7 +13,6 @@
             [convex.aws.loadnet.peer           :as $.aws.loadnet.peer]
             [convex.aws.loadnet.peer.etch      :as $.aws.loadnet.peer.etch]
             [convex.aws.loadnet.rpc            :as $.aws.loadnet.rpc]
-            [convex.aws.loadnet.stack          :as $.aws.loadnet.stack]
             [convex.aws.loadnet.stack-set      :as $.aws.loadnet.stack-set]
             [convex.cell                       :as $.cell]
             [taoensso.timbre                   :as log]))

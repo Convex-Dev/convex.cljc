@@ -2,7 +2,6 @@
 
   "More advanced requestes relating to cells."
 
-  (:import (convex.core.data ACell))
   (:refer-clojure :exclude [compile
                             str])
   (:require [convex.cell  :as $.cell]

@@ -103,9 +103,9 @@
                                                      nil)
                                    ;;
                                    (catch Throwable _ex
-                                     ($.cvm/exception ctx
-                                                      ($.cell/* :SHELL.FILE)
-                                                      ($.cell/* "Unable to release file lock"))))
+                                     ($.cvm/exception-set ctx
+                                                          ($.cell/* :SHELL.FILE)
+                                                          ($.cell/* "Unable to release file lock"))))
                                  ($.cvm/exception-set ctx
                                                       ($.cell/code-std* :ARGUMENT)
                                                       ($.cell/* "Resource is not a file lock"))))))

@@ -42,7 +42,7 @@
   [ctx _arg+]
 
   ($.cvm/result-set ctx
-                    (when (get-in log/*config*
+                    (when (get-in #_:clj-kondo/ignore log/*config*  ; For some reason, linter doesn't detect this Var.
                                   [:appenders
                                    :cvx
                                    :enabled?])
