@@ -135,7 +135,7 @@ Running loadnets.
 
 
 
-## <a name="convex.aws.loadnet/create">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/aws.loadnet/src/main/clj/convex/aws/loadnet.clj#L38-L205) `create`</a>
+## <a name="convex.aws.loadnet/create">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/aws.loadnet/src/main/clj/convex/aws/loadnet.clj#L38-L208) `create`</a>
 ``` clojure
 
 (create env)
@@ -228,6 +228,9 @@ Creates and start a loadnet on AWS.
    Uses the [Cognitect AWS API](https://github.com/cognitect-labs/aws-api).
    Follow instructions there for credentials.
 
+   You must also create a `CloudWatchAgentServerRole` that Peer instances will use.
+   See [this guide](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/create-iam-roles-for-cloudwatch-agent-commandline.html).
+
    
    Returns `env` augmented with extra information.
 
@@ -252,7 +255,7 @@ Creates and start a loadnet on AWS.
                  :convex.aws.stack/tag+              {:Project "Foo"}}))
    ```
 
-## <a name="convex.aws.loadnet/start">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/aws.loadnet/src/main/clj/convex/aws/loadnet.clj#L223-L254) `start`</a>
+## <a name="convex.aws.loadnet/start">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/aws.loadnet/src/main/clj/convex/aws/loadnet.clj#L226-L257) `start`</a>
 ``` clojure
 
 (start env)
@@ -263,7 +266,7 @@ If [`create`](#convex.aws.loadnet/create) has trouble awaiting SSH connections t
    run this with the returned `env` to try starting the simulation again on currently
    deployed machines.
 
-## <a name="convex.aws.loadnet/stop">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/aws.loadnet/src/main/clj/convex/aws/loadnet.clj#L258-L283) `stop`</a>
+## <a name="convex.aws.loadnet/stop">[:page_facing_up:](https://github.com/Convex-Dev/convex.cljc/blob/main/module/aws.loadnet/src/main/clj/convex/aws/loadnet.clj#L261-L286) `stop`</a>
 ``` clojure
 
 (stop env)
@@ -275,6 +278,8 @@ Stops a simulation and deletes the whole CloudFormation stack set.
    Key data and metrics will be logged to STDOUT.
   
    Returns `env` augmented with that kind of results.
+
+-----
 
 -----
 # <a name="convex.aws.loadnet.cloudformation">convex.aws.loadnet.cloudformation</a>

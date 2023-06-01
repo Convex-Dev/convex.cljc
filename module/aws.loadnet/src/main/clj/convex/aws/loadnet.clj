@@ -123,6 +123,9 @@
    Uses the [Cognitect AWS API](https://github.com/cognitect-labs/aws-api).
    Follow instructions there for credentials.
 
+   You must also create a `CloudWatchAgentServerRole` that Peer instances will use.
+   See [this guide](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/create-iam-roles-for-cloudwatch-agent-commandline.html).
+
    
    Returns `env` augmented with extra information.
 
