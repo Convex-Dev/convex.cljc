@@ -123,6 +123,9 @@
    Uses the [Cognitect AWS API](https://github.com/cognitect-labs/aws-api).
    Follow instructions there for credentials.
 
+   
+   Returns `env` augmented with extra information.
+
 
    E.g. Simulation of Automated Market Maker operations over 10 Peers in
         a single region, with 20 Load Generators deployed alongside to
@@ -253,6 +256,12 @@
 
 
 (defn stop
+
+  "Stops a simulation and deletes the whole CloudFormation stack set.
+
+   Key data and metrics will be logged to STDOUT.
+  
+   Returns `env` augmented with that kind of results."
 
   [env]
 

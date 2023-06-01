@@ -1,0 +1,1 @@
+{:block-size {:min 1.0, :q1 1.0, :median 10.0, :q3 95.37394110528439, :max 200.0, :iqr 94.37394110528439}, :n.block 13989, :n.trx.consensus 731854, :timestamp.first 1685635984400, :etch-size 2174387009, :duration 570.726, :bps 24.505629671681334, :tps :tps, :point.proposal 13986, :timestamp.last 1685636555126, :point.consensus 13986}

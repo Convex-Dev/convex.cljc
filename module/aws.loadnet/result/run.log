@@ -1,0 +1,194 @@
+2023-06-01T16:10:45.278Z helins.local INFO [convex.aws.loadnet.stack-set:22] - Creating stack set named 'LoadNet-1685635845118' for 1 region(s)
+2023-06-01T16:10:45.291Z helins.local INFO [convex.aws.loadnet.stack-set:29] - Region 0 = eu-central-1
+2023-06-01T16:10:45.291Z helins.local INFO [convex.aws.loadnet.stack-set:32] - Load generator instance type = t2.micro
+2023-06-01T16:10:45.291Z helins.local INFO [convex.aws.loadnet.stack-set:34] - Peer instance type = m4.2xlarge
+2023-06-01T16:10:45.292Z helins.local INFO [convex.aws.loadnet.stack-set:36] - Peers will run on the JVM
+2023-06-01T16:10:45.292Z helins.local INFO [convex.aws.loadnet.stack-set:40] - EC2 Detailed Monitoring on peer instances = true
+2023-06-01T16:10:45.292Z helins.local INFO [convex.aws.loadnet.stack-set:42] - Scenario path = (lib sim scenario torus)
+2023-06-01T16:10:45.292Z helins.local INFO [convex.aws.loadnet.stack-set:44] - Scenario parameters = {:n.user 2000,:n.token 5}
+2023-06-01T16:10:46.545Z helins.local INFO [convex.aws.loadnet.stack-set.op:61] - Creating regional stacks
+2023-06-01T16:10:46.546Z helins.local INFO [convex.aws.loadnet.stack-set.op:67] - 20 load generator(s) per region = 20 load generators(s)
+2023-06-01T16:10:46.546Z helins.local INFO [convex.aws.loadnet.stack-set.op:71] - Simulated users per load generator = 100.00
+2023-06-01T16:10:46.547Z helins.local INFO [convex.aws.loadnet.stack-set.op:78] - 10 peer(s) per region = 10 peer(s)
+2023-06-01T16:12:02.680Z helins.local INFO [convex.aws.loadnet.stack-set.op:44] - All stacks created
+2023-06-01T16:12:02.684Z helins.local INFO [convex.aws.loadnet.stack-set.op:203] - Retrieving stack IDs
+2023-06-01T16:12:02.982Z helins.local INFO [convex.aws.loadnet.stack-set.op:209] - Done retrieving stack IDs by region
+2023-06-01T16:12:02.984Z helins.local INFO [convex.aws.loadnet.stack-set.op:158] - Retrieving IP addresses for region 'eu-central-1'
+2023-06-01T16:12:03.067Z helins.local INFO [convex.aws.loadnet.stack-set.op:145] - Done retrieving IP addresses for region 'eu-central-1'
+2023-06-01T16:12:03.069Z helins.local INFO [convex.aws.loadnet.stack-set.op:181] - Load 0 IP = 18.184.166.154 (eu-central-1)
+2023-06-01T16:12:03.069Z helins.local INFO [convex.aws.loadnet.stack-set.op:181] - Load 1 IP = 3.67.76.67 (eu-central-1)
+2023-06-01T16:12:03.070Z helins.local INFO [convex.aws.loadnet.stack-set.op:181] - Load 2 IP = 3.122.237.241 (eu-central-1)
+2023-06-01T16:12:03.070Z helins.local INFO [convex.aws.loadnet.stack-set.op:181] - Load 3 IP = 3.75.179.154 (eu-central-1)
+2023-06-01T16:12:03.070Z helins.local INFO [convex.aws.loadnet.stack-set.op:181] - Load 4 IP = 3.64.165.170 (eu-central-1)
+2023-06-01T16:12:03.070Z helins.local INFO [convex.aws.loadnet.stack-set.op:181] - Load 5 IP = 3.70.236.176 (eu-central-1)
+2023-06-01T16:12:03.071Z helins.local INFO [convex.aws.loadnet.stack-set.op:181] - Load 6 IP = 3.76.104.217 (eu-central-1)
+2023-06-01T16:12:03.071Z helins.local INFO [convex.aws.loadnet.stack-set.op:181] - Load 7 IP = 35.159.30.147 (eu-central-1)
+2023-06-01T16:12:03.071Z helins.local INFO [convex.aws.loadnet.stack-set.op:181] - Load 8 IP = 3.71.89.42 (eu-central-1)
+2023-06-01T16:12:03.071Z helins.local INFO [convex.aws.loadnet.stack-set.op:181] - Load 9 IP = 18.196.182.86 (eu-central-1)
+2023-06-01T16:12:03.071Z helins.local INFO [convex.aws.loadnet.stack-set.op:181] - Load 10 IP = 3.120.172.71 (eu-central-1)
+2023-06-01T16:12:03.072Z helins.local INFO [convex.aws.loadnet.stack-set.op:181] - Load 11 IP = 3.70.206.220 (eu-central-1)
+2023-06-01T16:12:03.072Z helins.local INFO [convex.aws.loadnet.stack-set.op:181] - Load 12 IP = 52.59.78.211 (eu-central-1)
+2023-06-01T16:12:03.072Z helins.local INFO [convex.aws.loadnet.stack-set.op:181] - Load 13 IP = 3.71.1.116 (eu-central-1)
+2023-06-01T16:12:03.073Z helins.local INFO [convex.aws.loadnet.stack-set.op:181] - Load 14 IP = 3.68.183.128 (eu-central-1)
+2023-06-01T16:12:03.073Z helins.local INFO [convex.aws.loadnet.stack-set.op:181] - Load 15 IP = 3.75.208.71 (eu-central-1)
+2023-06-01T16:12:03.073Z helins.local INFO [convex.aws.loadnet.stack-set.op:181] - Load 16 IP = 18.185.239.136 (eu-central-1)
+2023-06-01T16:12:03.073Z helins.local INFO [convex.aws.loadnet.stack-set.op:181] - Load 17 IP = 3.120.245.45 (eu-central-1)
+2023-06-01T16:12:03.073Z helins.local INFO [convex.aws.loadnet.stack-set.op:181] - Load 18 IP = 52.29.221.32 (eu-central-1)
+2023-06-01T16:12:03.074Z helins.local INFO [convex.aws.loadnet.stack-set.op:181] - Load 19 IP = 18.159.202.254 (eu-central-1)
+2023-06-01T16:12:03.074Z helins.local INFO [convex.aws.loadnet.stack-set.op:181] - Peer 0 IP = 3.120.172.222 (eu-central-1)
+2023-06-01T16:12:03.074Z helins.local INFO [convex.aws.loadnet.stack-set.op:181] - Peer 1 IP = 18.159.60.154 (eu-central-1)
+2023-06-01T16:12:03.074Z helins.local INFO [convex.aws.loadnet.stack-set.op:181] - Peer 2 IP = 3.71.186.220 (eu-central-1)
+2023-06-01T16:12:03.074Z helins.local INFO [convex.aws.loadnet.stack-set.op:181] - Peer 3 IP = 3.67.83.166 (eu-central-1)
+2023-06-01T16:12:03.074Z helins.local INFO [convex.aws.loadnet.stack-set.op:181] - Peer 4 IP = 18.192.61.7 (eu-central-1)
+2023-06-01T16:12:03.075Z helins.local INFO [convex.aws.loadnet.stack-set.op:181] - Peer 5 IP = 3.70.247.101 (eu-central-1)
+2023-06-01T16:12:03.075Z helins.local INFO [convex.aws.loadnet.stack-set.op:181] - Peer 6 IP = 18.196.239.129 (eu-central-1)
+2023-06-01T16:12:03.075Z helins.local INFO [convex.aws.loadnet.stack-set.op:181] - Peer 7 IP = 3.76.125.56 (eu-central-1)
+2023-06-01T16:12:03.075Z helins.local INFO [convex.aws.loadnet.stack-set.op:181] - Peer 8 IP = 18.195.116.13 (eu-central-1)
+2023-06-01T16:12:03.075Z helins.local INFO [convex.aws.loadnet.stack-set.op:181] - Peer 9 IP = 3.76.126.230 (eu-central-1)
+2023-06-01T16:12:03.076Z helins.local INFO [convex.aws.loadnet.stack-set.op:190] - Done retrieving all IP addresses
+2023-06-01T16:12:03.082Z helins.local INFO [convex.aws.loadnet.rpc:51] - Awaiting for all SSH servers to be ready
+2023-06-01T16:12:09.178Z helins.local INFO [convex.aws.loadnet.peer:64] - Starting peer 0 (genesis)
+2023-06-01T16:12:16.535Z helins.local INFO [convex.aws.loadnet.peer:23] - Peer process 0 ready
+2023-06-01T16:12:16.536Z helins.local INFO [convex.aws.loadnet.peer:102] - Starting syncers
+2023-06-01T16:12:16.536Z helins.local INFO [convex.aws.loadnet.peer:117] - Starting peer process 1
+2023-06-01T16:12:23.082Z helins.local INFO [convex.aws.loadnet.peer:23] - Peer process 1 ready
+2023-06-01T16:12:23.083Z helins.local INFO [convex.aws.loadnet.peer:117] - Starting peer process 2
+2023-06-01T16:12:23.091Z helins.local INFO [convex.aws.loadnet.peer:117] - Starting peer process 3
+2023-06-01T16:12:30.255Z helins.local INFO [convex.aws.loadnet.peer:23] - Peer process 2 ready
+2023-06-01T16:12:31.986Z helins.local INFO [convex.aws.loadnet.peer:23] - Peer process 3 ready
+2023-06-01T16:12:31.987Z helins.local INFO [convex.aws.loadnet.peer:117] - Starting peer process 4
+2023-06-01T16:12:31.989Z helins.local INFO [convex.aws.loadnet.peer:117] - Starting peer process 5
+2023-06-01T16:12:31.992Z helins.local INFO [convex.aws.loadnet.peer:117] - Starting peer process 6
+2023-06-01T16:12:31.995Z helins.local INFO [convex.aws.loadnet.peer:117] - Starting peer process 7
+2023-06-01T16:12:38.471Z helins.local INFO [convex.aws.loadnet.peer:23] - Peer process 4 ready
+2023-06-01T16:12:49.138Z helins.local INFO [convex.aws.loadnet.peer:23] - Peer process 5 ready
+2023-06-01T16:12:50.833Z helins.local INFO [convex.aws.loadnet.peer:23] - Peer process 6 ready
+2023-06-01T16:12:52.513Z helins.local INFO [convex.aws.loadnet.peer:23] - Peer process 7 ready
+2023-06-01T16:12:52.514Z helins.local INFO [convex.aws.loadnet.peer:117] - Starting peer process 8
+2023-06-01T16:12:52.518Z helins.local INFO [convex.aws.loadnet.peer:117] - Starting peer process 9
+2023-06-01T16:12:59.398Z helins.local INFO [convex.aws.loadnet.peer:23] - Peer process 8 ready
+2023-06-01T16:13:01.226Z helins.local INFO [convex.aws.loadnet.peer:23] - Peer process 9 ready
+2023-06-01T16:13:01.227Z helins.local INFO [convex.aws.loadnet.peer:159] - All peer processes ready to receive transactions
+2023-06-01T16:13:01.228Z helins.local INFO [convex.aws.loadnet.load:26] - Starting load generator 0
+2023-06-01T16:13:01.233Z helins.local INFO [convex.aws.loadnet.load:26] - Starting load generator 1
+2023-06-01T16:13:01.236Z helins.local INFO [convex.aws.loadnet.load:26] - Starting load generator 2
+2023-06-01T16:13:01.239Z helins.local INFO [convex.aws.loadnet.load:26] - Starting load generator 3
+2023-06-01T16:13:01.242Z helins.local INFO [convex.aws.loadnet.load:26] - Starting load generator 4
+2023-06-01T16:13:01.244Z helins.local INFO [convex.aws.loadnet.load:26] - Starting load generator 5
+2023-06-01T16:13:01.247Z helins.local INFO [convex.aws.loadnet.load:26] - Starting load generator 6
+2023-06-01T16:13:01.249Z helins.local INFO [convex.aws.loadnet.load:26] - Starting load generator 7
+2023-06-01T16:13:01.252Z helins.local INFO [convex.aws.loadnet.load:26] - Starting load generator 8
+2023-06-01T16:13:01.254Z helins.local INFO [convex.aws.loadnet.load:26] - Starting load generator 9
+2023-06-01T16:13:01.256Z helins.local INFO [convex.aws.loadnet.load:26] - Starting load generator 10
+2023-06-01T16:13:01.259Z helins.local INFO [convex.aws.loadnet.load:26] - Starting load generator 11
+2023-06-01T16:13:01.261Z helins.local INFO [convex.aws.loadnet.load:26] - Starting load generator 12
+2023-06-01T16:13:01.264Z helins.local INFO [convex.aws.loadnet.load:26] - Starting load generator 13
+2023-06-01T16:13:01.266Z helins.local INFO [convex.aws.loadnet.load:26] - Starting load generator 14
+2023-06-01T16:13:01.269Z helins.local INFO [convex.aws.loadnet.load:26] - Starting load generator 15
+2023-06-01T16:13:01.271Z helins.local INFO [convex.aws.loadnet.load:26] - Starting load generator 16
+2023-06-01T16:13:01.273Z helins.local INFO [convex.aws.loadnet.load:26] - Starting load generator 17
+2023-06-01T16:13:01.275Z helins.local INFO [convex.aws.loadnet.load:26] - Starting load generator 18
+2023-06-01T16:13:01.278Z helins.local INFO [convex.aws.loadnet.load:26] - Starting load generator 19
+2023-06-01T16:13:01.280Z helins.local INFO [convex.aws.loadnet.load:69] - Done starting all load generators
+2023-06-01T16:13:01.280Z helins.local INFO [convex.aws.loadnet:116] - Everything is ready
+2023-06-01T16:13:01.280Z helins.local INFO [convex.aws.loadnet:118] - Simulation is running
+2023-06-01T16:13:01.280Z helins.local INFO [convex.aws.loadnet:120] - Simulation will stop in 10 minute(s)
+2023-06-01T16:23:01.286Z helins.local INFO [convex.aws.loadnet:139] - Stopping simulation and deleting stack set
+2023-06-01T16:23:01.292Z helins.local INFO [convex.aws.loadnet.load:87] - Killing load generator 0
+2023-06-01T16:23:01.293Z helins.local INFO [convex.aws.loadnet.load:87] - Killing load generator 1
+2023-06-01T16:23:01.295Z helins.local INFO [convex.aws.loadnet.load:87] - Killing load generator 2
+2023-06-01T16:23:01.299Z helins.local INFO [convex.aws.loadnet.load:87] - Killing load generator 3
+2023-06-01T16:23:01.300Z helins.local INFO [convex.aws.loadnet.load:87] - Killing load generator 4
+2023-06-01T16:23:01.306Z helins.local INFO [convex.aws.loadnet.load:87] - Killing load generator 5
+2023-06-01T16:23:01.307Z helins.local INFO [convex.aws.loadnet.load:87] - Killing load generator 6
+2023-06-01T16:23:01.308Z helins.local INFO [convex.aws.loadnet.load:87] - Killing load generator 7
+2023-06-01T16:23:01.308Z helins.local INFO [convex.aws.loadnet.load:87] - Killing load generator 8
+2023-06-01T16:23:01.309Z helins.local INFO [convex.aws.loadnet.load:87] - Killing load generator 9
+2023-06-01T16:23:01.309Z helins.local INFO [convex.aws.loadnet.load:87] - Killing load generator 10
+2023-06-01T16:23:01.310Z helins.local INFO [convex.aws.loadnet.load:87] - Killing load generator 11
+2023-06-01T16:23:01.311Z helins.local INFO [convex.aws.loadnet.load:87] - Killing load generator 12
+2023-06-01T16:23:01.312Z helins.local INFO [convex.aws.loadnet.load:87] - Killing load generator 13
+2023-06-01T16:23:01.312Z helins.local INFO [convex.aws.loadnet.load:87] - Killing load generator 14
+2023-06-01T16:23:01.313Z helins.local INFO [convex.aws.loadnet.load:87] - Killing load generator 15
+2023-06-01T16:23:01.314Z helins.local INFO [convex.aws.loadnet.load:87] - Killing load generator 16
+2023-06-01T16:23:01.314Z helins.local INFO [convex.aws.loadnet.load:87] - Killing load generator 17
+2023-06-01T16:23:01.314Z helins.local INFO [convex.aws.loadnet.load:87] - Killing load generator 18
+2023-06-01T16:23:01.315Z helins.local INFO [convex.aws.loadnet.load:87] - Killing load generator 19
+2023-06-01T16:23:02.614Z helins.local INFO [convex.aws.loadnet.load:60] - Load generator 18 terminated
+2023-06-01T16:23:03.742Z helins.local INFO [convex.aws.loadnet.load:60] - Load generator 4 terminated
+2023-06-01T16:23:03.806Z helins.local INFO [convex.aws.loadnet.load:60] - Load generator 14 terminated
+2023-06-01T16:23:03.854Z helins.local INFO [convex.aws.loadnet.load:60] - Load generator 3 terminated
+2023-06-01T16:23:03.863Z helins.local INFO [convex.aws.loadnet.load:60] - Load generator 15 terminated
+2023-06-01T16:23:03.956Z helins.local INFO [convex.aws.loadnet.load:60] - Load generator 16 terminated
+2023-06-01T16:23:03.956Z helins.local INFO [convex.aws.loadnet.load:60] - Load generator 10 terminated
+2023-06-01T16:23:03.965Z helins.local INFO [convex.aws.loadnet.load:60] - Load generator 19 terminated
+2023-06-01T16:23:03.977Z helins.local INFO [convex.aws.loadnet.load:60] - Load generator 6 terminated
+2023-06-01T16:23:03.977Z helins.local INFO [convex.aws.loadnet.load:60] - Load generator 13 terminated
+2023-06-01T16:23:03.978Z helins.local INFO [convex.aws.loadnet.load:60] - Load generator 5 terminated
+2023-06-01T16:23:03.978Z helins.local INFO [convex.aws.loadnet.load:60] - Load generator 11 terminated
+2023-06-01T16:23:03.978Z helins.local INFO [convex.aws.loadnet.load:60] - Load generator 9 terminated
+2023-06-01T16:23:03.979Z helins.local INFO [convex.aws.loadnet.load:60] - Load generator 8 terminated
+2023-06-01T16:23:04.000Z helins.local INFO [convex.aws.loadnet.load:60] - Load generator 2 terminated
+2023-06-01T16:23:04.017Z helins.local INFO [convex.aws.loadnet.load:60] - Load generator 1 terminated
+2023-06-01T16:23:04.033Z helins.local INFO [convex.aws.loadnet.load:60] - Load generator 7 terminated
+2023-06-01T16:23:04.145Z helins.local INFO [convex.aws.loadnet.load:60] - Load generator 0 terminated
+2023-06-01T16:23:04.220Z helins.local INFO [convex.aws.loadnet.load:60] - Load generator 17 terminated
+2023-06-01T16:23:04.573Z helins.local INFO [convex.aws.loadnet.load:60] - Load generator 12 terminated
+2023-06-01T16:23:05.432Z helins.local INFO [convex.aws.loadnet.peer:170] - Stopping peer server 0
+2023-06-01T16:23:05.435Z helins.local INFO [convex.aws.loadnet.peer:170] - Stopping peer server 1
+2023-06-01T16:23:05.437Z helins.local INFO [convex.aws.loadnet.peer:170] - Stopping peer server 2
+2023-06-01T16:23:05.439Z helins.local INFO [convex.aws.loadnet.peer:170] - Stopping peer server 3
+2023-06-01T16:23:05.441Z helins.local INFO [convex.aws.loadnet.peer:170] - Stopping peer server 4
+2023-06-01T16:23:05.443Z helins.local INFO [convex.aws.loadnet.peer:170] - Stopping peer server 5
+2023-06-01T16:23:05.445Z helins.local INFO [convex.aws.loadnet.peer:170] - Stopping peer server 6
+2023-06-01T16:23:05.448Z helins.local INFO [convex.aws.loadnet.peer:170] - Stopping peer server 7
+2023-06-01T16:23:05.450Z helins.local INFO [convex.aws.loadnet.peer:170] - Stopping peer server 8
+2023-06-01T16:23:05.451Z helins.local INFO [convex.aws.loadnet.peer:170] - Stopping peer server 9
+2023-06-01T16:23:17.097Z helins.local INFO [convex.aws.loadnet.peer:186] - All peer servers have been stopped
+2023-06-01T16:23:17.099Z helins.local INFO [convex.aws.loadnet.peer:199] - Collecting peer logs to '/private/tmp/loadnet/LoadNet-1685635845118/log/peer'
+2023-06-01T16:23:23.801Z helins.local INFO [convex.aws.loadnet.peer:213] - Done collecting peer logs
+2023-06-01T16:23:23.804Z helins.local INFO [convex.aws.loadnet.load.log:39] - Collecting load generator logs to '/private/tmp/loadnet/LoadNet-1685635845118/log/load'
+2023-06-01T16:23:29.428Z helins.local INFO [convex.aws.loadnet.load.log:53] - Done collecting load generator logs
+2023-06-01T16:23:29.430Z helins.local INFO [convex.aws.loadnet.load.log:66] - Starting finality analysis from load generator logs
+2023-06-01T16:23:45.456Z helins.local INFO [convex.aws.loadnet.load.log:102] - Finality (avg) = 1069.77 milliseconds
+2023-06-01T16:23:45.456Z helins.local INFO [convex.aws.loadnet.load.log:104] - Finality (stddev) = 1389.04 milliseconds
+2023-06-01T16:23:45.456Z helins.local INFO [convex.aws.loadnet.load.log:106] - Finality (quartiles) = {:min 15.199314, :q1 323.865540660644, :median 515.1137695458588, :q3 1136.1709017613946, :max 9886.06507, :iqr 812.3053611007506}
+2023-06-01T16:23:45.456Z helins.local INFO [convex.aws.loadnet.load.log:108] - Saving finality analysis to '/private/tmp/loadnet/LoadNet-1685635845118/finality.edn'
+2023-06-01T16:23:45.457Z helins.local INFO [convex.aws.loadnet.peer.etch:40] - Downloading Etch instance from peer 0 to '/private/tmp/loadnet/LoadNet-1685635845118/etch/0.etch'
+2023-06-01T16:27:18.864Z helins.local INFO [convex.aws.loadnet.peer.etch:49] - Finished downloading Etch instance from peer 0
+2023-06-01T16:27:18.869Z helins.local INFO [convex.aws.loadnet.peer.etch:79] - Computing Etch stats from '/private/tmp/loadnet/LoadNet-1685635845118/etch/0.etch'
+2023-06-01T16:27:20.587Z helins.local INFO [convex.aws.loadnet.peer.etch:123] - Etch size (MB) = 2174.39
+2023-06-01T16:27:20.587Z helins.local INFO [convex.aws.loadnet.peer.etch:126] - Number of blocks = 13989
+2023-06-01T16:27:20.587Z helins.local INFO [convex.aws.loadnet.peer.etch:128] - Consensus point = 13986
+2023-06-01T16:27:20.588Z helins.local INFO [convex.aws.loadnet.peer.etch:130] - Proposal point = 13986
+2023-06-01T16:27:20.588Z helins.local INFO [convex.aws.loadnet.peer.etch:132] - Number of transactions in consensus = 731854
+2023-06-01T16:27:20.588Z helins.local INFO [convex.aws.loadnet.peer.etch:134] - Block size quartiles = {:min 1.0, :q1 1.0, :median 10.0, :q3 95.37394110528439, :max 200.0, :iqr 94.37394110528439}
+2023-06-01T16:27:20.589Z helins.local INFO [convex.aws.loadnet.peer.etch:156] - Load duration (seconds) = 570.73
+2023-06-01T16:27:20.589Z helins.local INFO [convex.aws.loadnet.peer.etch:163] - Blocks / second = 24.51
+2023-06-01T16:27:20.589Z helins.local INFO [convex.aws.loadnet.peer.etch:165] - Transactions / second = 1282.32
+2023-06-01T16:27:20.589Z helins.local INFO [convex.aws.loadnet.peer.etch:173] - Saving Etch stats to '/private/tmp/loadnet/LoadNet-1685635845118/etch/0.edn'
+2023-06-01T16:27:20.670Z helins.local INFO [convex.aws.loadnet.cloudwatch:119] - Retrieving CloudWatch metrics for peer instances in region 'eu-central-1'
+2023-06-01T16:27:21.448Z helins.local INFO [convex.aws.loadnet.cloudwatch:47] - Saving CloudWatch metrics to '/private/tmp/loadnet/LoadNet-1685635845118/cloudwatch'
+2023-06-01T16:27:21.461Z helins.local INFO [convex.aws.loadnet.cloudwatch:113] - Done retrieving CloudWatch metrics from region 'eu-central-1'
+2023-06-01T16:27:21.462Z helins.local INFO [convex.aws.loadnet.cloudwatch:126] - Done retrieving all CloudWatch metrics
+2023-06-01T16:27:21.463Z helins.local INFO [convex.aws.loadnet.cloudwatch:260] - CPU utilization per peer (percent) = {:min 0.004717708942139103, :q1 0.11071603223117538, :median 0.333958333333333, :q3 0.5562499999999999, :max 0.98625, :iqr 0.44553396776882453}
+2023-06-01T16:27:21.464Z helins.local INFO [convex.aws.loadnet.cloudwatch:262] - Memory used per peer (MB) = {:min 5018.796032, :q1 9204.346880000001, :median 9269.014528, :q3 9289.652224000001, :max 9383.186432, :iqr 85.30534400000033}
+2023-06-01T16:27:21.464Z helins.local INFO [convex.aws.loadnet.cloudwatch:264] - Network Input total volume (GB) = 22.961
+2023-06-01T16:27:21.464Z helins.local INFO [convex.aws.loadnet.cloudwatch:266] - Network Input speed per peer (MB/s) = 2.733
+2023-06-01T16:27:21.465Z helins.local INFO [convex.aws.loadnet.cloudwatch:268] - Network Output total volume (GB) = 20.455
+2023-06-01T16:27:21.465Z helins.local INFO [convex.aws.loadnet.cloudwatch:270] - Network Output speed per peer (MB/s) = 2.435
+2023-06-01T16:27:21.465Z helins.local INFO [convex.aws.loadnet.cloudwatch:272] - Storing summary of above CloudWatch metrics to '/private/tmp/loadnet/LoadNet-1685635845118/cloudwatch/summary.edn'
+2023-06-01T16:27:21.465Z helins.local INFO [convex.aws.loadnet.stack-set.op:98] - Deleting stacks
+2023-06-01T16:27:57.707Z helins.local INFO [convex.aws.loadnet.peer:46] - SSH process of Peer 8 terminated
+2023-06-01T16:27:57.707Z helins.local INFO [convex.aws.loadnet.peer:46] - SSH process of Peer 3 terminated
+2023-06-01T16:27:57.707Z helins.local INFO [convex.aws.loadnet.peer:46] - SSH process of Peer 4 terminated
+2023-06-01T16:27:57.707Z helins.local INFO [convex.aws.loadnet.peer:46] - SSH process of Peer 1 terminated
+2023-06-01T16:27:57.721Z helins.local INFO [convex.aws.loadnet.peer:46] - SSH process of Peer 7 terminated
+2023-06-01T16:27:57.727Z helins.local INFO [convex.aws.loadnet.peer:46] - SSH process of Peer 5 terminated
+2023-06-01T16:27:57.766Z helins.local INFO [convex.aws.loadnet.peer:46] - SSH process of Peer 2 terminated
+2023-06-01T16:27:57.767Z helins.local INFO [convex.aws.loadnet.peer:46] - SSH process of Peer 0 terminated
+2023-06-01T16:27:57.790Z helins.local INFO [convex.aws.loadnet.peer:46] - SSH process of Peer 6 terminated
+2023-06-01T16:27:57.796Z helins.local INFO [convex.aws.loadnet.peer:46] - SSH process of Peer 9 terminated
+2023-06-01T16:28:47.114Z helins.local INFO [convex.aws.loadnet.stack-set.op:44] - All stacks deleted
+2023-06-01T16:28:47.118Z helins.local INFO [convex.aws.loadnet.stack-set:96] - Deleting stack set
+2023-06-01T16:28:47.516Z helins.local INFO [convex.aws.loadnet.stack-set:101] - Stack set deleted
