@@ -27,14 +27,14 @@
   world.convex/convex-peer {:mvn/version "0.7.11"},
   world.convex/cvm
   {:deps/root "module/cvm",
-   :git/sha "2d5cac5584d00e0e9a963a4a8d59029a78d624d0",
+   :git/sha "a35d0a80fecd085afbca1ffb82684142da8f2e77",
    :git/url "https://github.com/convex-dev/convex.cljc"},
   world.convex/gen
   {:deps/root "module/gen",
-   :git/sha "2d5cac5584d00e0e9a963a4a8d59029a78d624d0",
+   :git/sha "a35d0a80fecd085afbca1ffb82684142da8f2e77",
    :git/url "https://github.com/convex-dev/convex.cljc"},
   world.convex/net
   {:deps/root "module/net",
-   :git/sha "2d5cac5584d00e0e9a963a4a8d59029a78d624d0",
+   :git/sha "a35d0a80fecd085afbca1ffb82684142da8f2e77",
    :git/url "https://github.com/convex-dev/convex.cljc"}},
  :paths ["src/main/clj"]}
