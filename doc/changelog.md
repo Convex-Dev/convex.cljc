@@ -12,11 +12,14 @@ provided.
 
 ## {{ next-release }}
 
-- Update to Convex 0.7.10
+- Update to Convex 0.7.11
 - Impacted
     - [`module/cvm`]
     - [`module/gen`]
+    - [`module/net`]
     - [`module/shell`]
+- Add new module
+    - [`module/aws.loadnet`]
 
 
 ---
@@ -48,7 +51,8 @@ Transition from [semver](https://semver.org) to [calver](https://calver.org).
 <!--- Links to module changelogs -->
 
 
-[`module/cvm`]:   ../module/cvm/doc/changelog.md
-[`module/gen`]:   ../module/gen/doc/changelog.md
-[`module/net`]:   ../module/net/doc/changelog.md
-[`module/shell`]: ../module/shell/doc/changelog.md
+[`module/aws.loadnet`]:   ../module/aws.loadnet/doc/changelog.md
+[`module/cvm`]:           ../module/cvm/doc/changelog.md
+[`module/gen`]:           ../module/gen/doc/changelog.md
+[`module/net`]:           ../module/net/doc/changelog.md
+[`module/shell`]:         ../module/shell/doc/changelog.md
