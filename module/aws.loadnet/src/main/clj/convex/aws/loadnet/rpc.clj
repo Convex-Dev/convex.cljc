@@ -1,5 +1,7 @@
 (ns convex.aws.loadnet.rpc
 
+  "Remote operations on EC2 instances through SSH."
+
   (:import (java.net InetSocketAddress
                      Socket
                      SocketTimeoutException))
@@ -11,10 +13,12 @@
             [taoensso.timbre   :as log]))
 
 
-;;;;;;;;;;
+;;;;;;;;;; Private
 
 
 (defn- -ip
+
+  ;; TODO. Rename to `-host`.
 
   [env k-ip+ i-ip]
 
@@ -33,10 +37,14 @@
       (throw (IllegalArgumentException. "Path to key missing"))))
 
 
-;;;;;;;;;;
+;;;;;;;;;; Public
 
 
 (defn await-ssh
+
+  "Tries to await all SSH servers from load generator and peer instances.
+
+   Returns a Boolean in `env` under `:convex.aws.loadnet/ssh-ready?` indicating success."
 
   [env]
 
@@ -85,6 +93,12 @@
 
 (defn ssh
 
+  "Executes a remote command through SSH given the key in `env` where IPs
+   are stored (`:convex.aws.ip/load+` or `:convex.aws.ip/peer+`) and the
+   index of the IP to use.
+
+   Options are forwarded to `protosens.process/run` (used to run the local
+   SSH process)."
 
   ([env k-ip+ i-ip command]
 
@@ -112,6 +126,8 @@
 
 (defn- -cvx
 
+  ;; Used by [[cvx]] and [[jcvx]];
+
   [cvx-cmd env k-ip+ i-ip cell option+]
 
   (ssh env
@@ -126,6 +142,10 @@
 
 
 (defn cvx
+
+  "Executes CVX code (`cell`) on a remote instance using the Convex Shell (native).
+  
+   See [[ssh]] for arguments."
 
 
   ([env k-ip+ i-ip cell]
@@ -150,6 +170,9 @@
 
 (defn jcvx
 
+  "Executes CVX code (`cell`) on a remote instance using the Convex Shell (JVM).
+  
+   See [[ssh]] for arguments."
 
   ([env k-ip+ i-ip cell]
 
@@ -186,6 +209,8 @@
 
 (defn kill-process
 
+  "Kills a remote process through [[ssh]]."
+
   [env k-ip+ i-ip file-pid]
 
   (ssh env
@@ -200,6 +225,9 @@
 
 (defn rsync
 
+  "Performs RSYNC on a remote instance.
+  
+   Uses [[ssh]] as a remote shell."
 
   ([env k-ip+ i-ip src dest]
 
@@ -240,6 +268,11 @@
 
 
 (defn worker
+
+  "Executes CVX code (`cell`) on a remote instance using the Convex Shell (native)
+   to connect to the peer worker.
+  
+   See [[ssh]] for arguments."
 
   [env k-ip+ i-ip cell]
 

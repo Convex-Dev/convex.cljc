@@ -1,5 +1,7 @@
 (ns convex.aws.loadnet.peer
 
+  "Managing peer instances."
+
   (:require [babashka.fs            :as bb.fs]
             [convex.aws.loadnet.rpc :as $.aws.loadnet.rpc]
             [convex.cell            :as $.cell]
@@ -10,6 +12,8 @@
 
 
 (defn- -await-ready
+
+  ;; Ensures that a peer is up and running, ready for transactions.
 
   [env i-peer]
 
@@ -26,6 +30,9 @@
 
 
 (defn- -cvx
+
+  ;; Used for starting a peer via SSH and monitoring the SSH process.
+  ;; If it dies, something bad most likely happened.
 
   [env i-peer cell]
 
@@ -58,6 +65,8 @@
 
 
 (defn start-genesis
+
+  "Starts a Genesis Peer on a remote EC2 instance."
 
   [env]
 
@@ -96,6 +105,9 @@
 
 
 (defn start-syncer+
+
+  "Starts Syncing Peers on EC2 instance.
+   They are gradually bootstrapped by syncing against the Genesis Peer, and then between themselves."
 
   [env]
 
@@ -151,6 +163,8 @@
 
 (defn start
 
+  "Starts all Peer processes on EC2 instances."
+
   [env]
 
   (let [env-2 (-> env
@@ -162,6 +176,8 @@
 
 
 (defn stop
+
+  "Stops all Peer processes."
 
   [env]
 
@@ -191,6 +207,8 @@
 
 
 (defn log+
+
+  "Downloads logs from all Peers."
 
   [env]
 

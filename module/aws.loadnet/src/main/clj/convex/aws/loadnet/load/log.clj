@@ -1,5 +1,7 @@
 (ns convex.aws.loadnet.load.log
 
+  "Log analysis of load generators for computing finality."
+
   (:require [babashka.fs            :as bb.fs]
             [convex.aws.loadnet.rpc :as $.aws.loadnet.rpc]
             [convex.cell            :as $.cell]
@@ -15,6 +17,9 @@
 
 (defn dir
 
+  "Returns the directory where all logs will be downloaded from load generator
+   instances."
+
   [env]
 
   (format "%s/log/load"
@@ -23,6 +28,10 @@
 
 
 (defn download
+
+  "Downloads all logs from load generator instances.
+  
+   Also see [[dir]]."
 
   [env]
 
@@ -47,6 +56,10 @@
 
 
 (defn stat+
+
+  "Statistical analysis of load generator logs.
+  
+   For the time being, computes the finality only."
 
   [env]
 

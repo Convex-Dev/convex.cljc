@@ -1,5 +1,7 @@
 (ns convex.aws.loadnet.template.peer
 
+  "Generating parts of AWS CloudFormation templates relating to Peer instances."
+
   (:require [clojure.string :as string]))
 
 
@@ -19,8 +21,11 @@
 
 (def config-cloudwatch
 
-  ;; Cf. https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Agent-Configuration-File-Details.html
-  ;;     https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/metrics-collected-by-CloudWatch-agent.html#linux-metrics-enabled-by-CloudWatch-agent
+  "Configuration for the AWS CloudWatch Agent.
+   Used to monitor memory usage on Peer instances.
+
+   Cf. https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Agent-Configuration-File-Details.html
+       https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/metrics-collected-by-CloudWatch-agent.html#linux-metrics-enabled-by-CloudWatch-agent"
 
   {; :agent   {:metrics_collection_interval 60} ;; default
    :metrics {:append_dimensions {:InstanceId  {"Fn::Sub" "${!aws:InstanceId}"}}
@@ -35,6 +40,13 @@
 
 
 (defn metadata
+
+  "Template metadata for Peer instances.
+   
+   Provides the necessary configuration for running Cfn-init and installing the CloudWatch Agent.
+
+   Cf. [[config-cloudwatch]]
+       https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-helper-scripts-reference.html"
 
   [name-peer]
 
@@ -100,6 +112,12 @@
 
 (defn user-data
 
+  "User Data used to run a scripts that installs on Peer instances everything that is necessary for
+   the AWS CloudWatch Agent.
+
+   Cf. [[config-cloudwatch]]
+       [[metadata]]"
+
   [name-peer]
 
   {"Fn::Base64"
@@ -109,7 +127,6 @@
            "wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb -O /tmp/amazon-cloudwatch-agent.deb"
            "dpkg -i /tmp/amazon-cloudwatch-agent.deb"
            ;; Install Cfn-init.
-           ;; Cf. https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-helper-scripts-reference.html
            "apt-get update"
            "apt-get -y install python3-pip"
            "pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-py3-latest.tar.gz"
@@ -124,6 +141,8 @@
 
 
 (defn resource
+
+  "Returns a description of a Peer instance as a template resource."
   
   [i-peer name-peer ebs]
 
@@ -149,6 +168,8 @@
 
 
 (defn resource+
+
+  "Returns a description of Peer instances as template resources."
 
   [name-peer+ ebs]
 

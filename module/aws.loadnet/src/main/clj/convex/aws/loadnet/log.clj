@@ -1,5 +1,9 @@
 (ns convex.aws.loadnet.log
 
+  "Logging setup redirecting entries directly to the STDOUT file descriptor.
+   
+   Plays nicely at the REPL."
+
   (:import (java.io FileDescriptor
                     FileWriter))
   (:refer-clojure :exclude [newline])

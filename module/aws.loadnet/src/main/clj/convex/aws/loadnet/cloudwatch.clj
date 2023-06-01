@@ -1,5 +1,11 @@
 (ns convex.aws.loadnet.cloudwatch
 
+  "Collecting EC2 instance metrics from AWS CloudWatch for Peers:
+  
+   - CPU utilization
+   - Memory usage
+   - Network volume (inbound and outbound)"
+
   (:import (java.util Date))
   (:require [babashka.fs              :as bb.fs]
             [clojure.data.csv         :as csv]
@@ -18,6 +24,8 @@
 
 
 (defn- -dir
+
+  ;; Directory where metrics will be saved.
 
   [env]
 
@@ -40,6 +48,8 @@
 
 
 (defn- -persist-metric+
+
+  ;; Saves collected metrics as EDN and CSV.
 
   [env metric+]
 
@@ -75,6 +85,8 @@
 
 (defn client+
 
+  "Creates CloudWatch clients for all regions in the stack set."
+
   [env]
 
   (assoc env
@@ -106,6 +118,8 @@
 
 (defn fetch
 
+  "Retrieves metrics from all regions."
+
   [env]
 
   (let [result (reduce (fn [acc [region f*result]]
@@ -129,6 +143,8 @@
 
 
 (defn fetch-region
+
+  "Retrieves metrics from the given `region`."
 
   [env region]
 
@@ -213,6 +229,8 @@
 
 (defn stat+
 
+  "Computes and logs statistics about metrics."
+
   [env]
 
   (let [metric+          (vals (env :convex.aws.loadnet.cloudwatch/metric+))
@@ -282,6 +300,8 @@
 
 
 (defn download
+
+  "Retrieves all metrics and computes statistics."
 
   [env]
 

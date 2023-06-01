@@ -1,5 +1,9 @@
 (ns convex.aws.loadnet
 
+  "Running loadnets.
+   
+   See [[create]]."
+
   (:import (java.util Locale))
   (:require [babashka.fs                       :as bb.fs]
             [clojure.edn                       :as edn]
@@ -22,6 +26,9 @@
          stop)
 
 
+;; On non-US machines, makes `format` behaves consistently with the rest
+;; of the system.
+;
 (Locale/setDefault Locale/US)
 
 
@@ -29,6 +36,113 @@
 
 
 (defn create
+
+  "Creates and start a loadnet on AWS.
+
+   Provisions the required number of Peers as well as Load Generators that
+   will simulate User transactions. Logs the whole process and collects a
+   whole series of performance metrics.
+
+
+   Env is a Map providing options:
+
+     `:convex.aws/account`
+        AWS account number.
+        Loadnet will be deployed as an AWS CloudFormation stack set in this account.
+
+        It must have self-managed permissions by granting it the `AWSCloudFormationStackSetAdministrationRole`
+        role and the `AWSCloudFormationStackSetExecutionRole` role.
+
+        See [this guide](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/stacksets-prereqs-self-managed.html).
+
+        Mandatory.
+
+     `:convex.aws/region+`
+       Vector of supported AWS regions (as Strings).
+       Currently: ap-southeast-1, eu-central-1, us-east-1, us-west-1
+       Mandatory.
+
+     `:convex.aws.key/file`
+       Path to private key used for connecting to all EC2 instances.
+       The same key pair must be available in all regions under the same name.
+       Mandatory.
+
+     `:convex.aws.loadnet/dir`
+       Path to directory where all data, metrics, and statistics will be persisted.
+       Defaults to `\"./\"`.
+
+     `:convex.aws.loadnet/timer`
+       Number of minutes the simulation load will run before shutting down the loadnet.
+       Defaults to `nil`, meaning the simulation must be stopped manually.
+       For meaningful results, run for at least 5 minutes.
+       See [[stop]].
+
+     `:convex.aws.loadnet.peer/native?`
+       If `true` (default), Peers will run on the JVM (advised for much better performance).
+       If `false`, they will run natively, compiled with GraalVM Native-Image.
+
+     `:convex.aws.loadnet.scenario/path`
+       Actor path to a simulation scenario from the following repository (as a List).
+
+     `:convex.aws.loadnet.scenario/param+`
+       Configuration for the simulation scenario chosen in `:convex.aws.loadnet.scenario/path`
+       (as a Map).
+    
+     `:convex.aws.region/n.peer`
+       Number of Load Generators to deploy per region.
+       Defaults to `3`.
+
+     `:convex.aws.region/n.peer`
+       Number of Peers to deploy per region.
+       Defaults to `8`.
+    
+     `:convex.aws.stack/parameter+`
+       Map of parameters for the CloudFormation template:
+
+          `:DetailedMonitoring`
+            Enables 1-minute resolution on CloudWatch metrics (but incurs extra cost).
+            Defaults to `\"true\"` (Boolean as a String).
+
+          `:KeyName`
+            Name of the key pair as registered on AWS.
+            Related to the `:convex.aws.key/file` option.
+
+          `:InstanceTypeLoad`
+            EC2 instance type to use for Load Generators.
+            Defaults to `\"t2.micro\"`.
+
+          `:InstanceTypePeer`
+            EC2 instance type to use for Peers.
+            Defaults to `\"m4.2xlarge\"`.
+    
+     `:convex.aws.stack/tag+`
+       Map of AWS tags to attach to the CloudFormation stack set, thus on all created
+       resources.
+
+
+   Uses the [Cognitect AWS API](https://github.com/cognitect-labs/aws-api).
+   Follow instructions there for credentials.
+
+
+   E.g. Simulation of Automated Market Maker operations over 10 Peers in
+        a single region, with 20 Load Generators deployed alongside to
+        emulate 2000 Users trading between 5 fungible tokens:
+
+   ```clojure
+   (def env
+        (create {:convex.aws/account                 \"513128561298\"
+                 :convex.aws/region+                 [\"eu-central-1\"]
+                 :convex.aws.key/file                \"some/dir/Test\"
+                 :convex.aws.loadnet/dir             \"/tmp/loadnet\"
+                 :convex.aws.loadnet/timer           10
+                 :convex.aws.loadnet.scenario/path   '(lib sim scenario torus)
+                 :convex.aws.loadnet.scenario/param+ {:n.token 5
+                                                      :n.user  2000}
+                 :convex.aws.region/n.load           20
+                 :convex.aws.region/n.peer           10
+                 :convex.aws.stack/parameter+        {:KeyName \"Test\"}}
+                 :convex.aws.stack/tag+              {:Project \"Foo\"}}))
+   ```"
 
   [env]
 
@@ -89,7 +203,9 @@
 
 
 
-(defn delete
+(defn- delete
+
+  ;; TODO. Document.
 
   [env]
 
@@ -102,6 +218,10 @@
 
 
 (defn start
+
+  "If [[create]] has trouble awaiting SSH connections to EC2 instances (as logged),
+   run this with the returned `env` to try starting the simulation again on currently
+   deployed machines."
 
   [env]
 
@@ -160,28 +280,35 @@
 (comment
 
 
-  (def env
-       (create {:convex.aws/account                  (System/getenv "CONVEX_AWS_ACCOUNT")
-                :convex.aws/region+                  ["eu-central-1"
-                                                      ;"us-east-1"
-                                                      ;"us-west-1"
-                                                      ;"ap-southeast-1"
-                                                      ]
-                :convex.aws.key/file                 "/Users/adam/Code/convex/clj/private/Test"
-                :convex.aws.loadnet/dir              "/tmp/loadnet"
-                :convex.aws.loadnet/timer            1
-                :convex.aws.loadnet.peer/native?     true
-                :convex.aws.loadnet.scenario/path    '(lib sim scenario torus)
-                :convex.aws.loadnet.scenario/param+  {:n.token 5
-                                                      :n.user  20}
-                :convex.aws.region/n.peer           1
-                :convex.aws.region/n.load           1
-                :convex.aws.stack/parameter+        {;:DetailedMonitoring "false"
-                                                     :KeyName            "Test"
-                                                     ;:InstanceTypeLoad   "t2.micro"
-                                                     :InstanceTypePeer   "t2.micro"
-                                                     }
-                :convex.aws.stack/tag+              {:Project "Ontochain"}}))
+  (future
+    (def env
+         (create {:convex.aws/account                 (System/getenv "CONVEX_AWS_ACCOUNT")
+                  :convex.aws/region+                 ["eu-central-1"
+                                                       ;"us-east-1"
+                                                       ;"us-west-1"
+                                                       ;"ap-southeast-1"
+                                                       ]
+                  :convex.aws.key/file                "/Users/adam/Code/convex/clj/private/Test"
+                  :convex.aws.loadnet/dir             "/tmp/loadnet"
+                  :convex.aws.loadnet/timer           2
+                  ;:convex.aws.loadnet.peer/native?    true
+                  :convex.aws.loadnet.scenario/path   '(lib sim scenario torus)
+                  :convex.aws.loadnet.scenario/param+ {:n.token 5
+                                                       :n.user  200}
+                  :convex.aws.region/n.load           4
+                  :convex.aws.region/n.peer           1
+                  :convex.aws.stack/parameter+        {;:DetailedMonitoring "false"
+                                                       :KeyName            "Test"
+                                                       ;:InstanceTypePeer   "t2.micro"
+                                                       }
+                  :convex.aws.stack/tag+              {:Project "Ontochain"}})))
+
+
+  ;; If awaiting SSH servers fail, run this to start the load.
+  ;
+  (future
+    (def env
+         (start env)))
 
 
   (future
@@ -193,38 +320,6 @@
     (delete {:convex.aws/account     (System/getenv "CONVEX_AWS_ACCOUNT")
              :convex.aws.loadnet/dir "/tmp/loadnet"})
     nil)
-
-
-  ;; If awaiting SSH servers fail.
-  ;
-  (future
-    (def env
-         (start env)))
-
-  (def env
-       ($.aws.loadnet.peer/start env))
-
-  (def env
-       ($.aws.loadnet.load/start env))
-
-
-
-  ($.aws.loadnet.stack-set/describe env)
-
-
-  (deref ($.aws.loadnet.rpc/worker env :convex.aws.ip/peer+ 2 (convex.cell/* (.sys.exit 0))))
-
-
-
-  ($.aws.loadnet.peer/stop env)
-  ($.aws.loadnet.load/stop env)
-  (time ($.aws.loadnet.peer/log+ env))
-  (time ($.aws.loadnet.peer.etch/download env))
-  (time ($.aws.loadnet.cloudwatch/download env))
-  (time ($.aws.loadnet.peer.etch/stat+ {:convex.aws.loadnet/dir "/tmp/loadnet"}))
-
-  (time ($.aws.loadnet.load.log/download env))
-  (time ($.aws.loadnet.load.log/stat+ env))
 
 
   )

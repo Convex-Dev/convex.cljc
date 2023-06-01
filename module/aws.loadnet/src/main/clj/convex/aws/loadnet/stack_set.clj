@@ -1,5 +1,7 @@
 (ns convex.aws.loadnet.stack-set
 
+  "Managing an AWS CloudFormation stack set."
+
   (:require [clojure.data.json                 :as json]
             [convex.aws.loadnet.cloudformation :as $.aws.loadnet.cloudformation]
             [convex.aws.loadnet.stack-set.op   :as $.aws.loadnet.stack-set.op]
@@ -12,6 +14,9 @@
 
 
 (defn create
+
+  "Creates a stack set and retrieve all necessary information for starting a simulation,
+   such as IP addresses of EC2 instances."
 
   [env]
 
@@ -90,6 +95,10 @@
 
 (defn delete
 
+  "Deletes a stack set.
+  
+   If required, also deletes existing stacks first (a necessary condition)."
+
   [env]
 
   (let [d*delete (delay
@@ -117,6 +126,8 @@
 
 
 (defn describe
+
+  "Queries a description of the current stack set."
 
   [env]
 

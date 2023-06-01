@@ -1,5 +1,7 @@
 (ns convex.aws.loadnet.cloudformation
 
+  "Generic utilities related to AWS Cloudformation."
+
   (:require [convex.aws :as $.aws]))
 
 
@@ -7,6 +9,9 @@
 
 
 (defn client
+
+  "Creates a CloudFormation client for the given region (defaults to
+   the first region in `:convex.aws/region+`)."
 
 
   ([env]
@@ -30,6 +35,8 @@
 
 (defn client+
 
+  "Creates CloudFormation clients for all regions in `:convex.aws/region+`."
+
   [env]
 
   (reduce client
@@ -40,6 +47,7 @@
 
 (defn invoke
 
+  "Invokes a CloudFormation operation."
 
   ([env op request]
 
@@ -62,6 +70,7 @@
 
 (defn param+
 
+  "Turns a Map of `parameter` -> `value` into the format that AWS understands."
   [env]
 
   (mapv (fn [[k v]]

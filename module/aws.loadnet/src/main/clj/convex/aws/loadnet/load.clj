@@ -1,5 +1,7 @@
 (ns convex.aws.loadnet.load
 
+  "Managing Load Generators."
+
   (:require [convex.aws.loadnet.rpc :as $.aws.loadnet.rpc]
             [convex.cell            :as $.cell]
             [taoensso.timbre        :as log]))
@@ -9,6 +11,12 @@
 
 
 (defn start
+
+  "Starts all Load Generators on EC2 instances (if needed).
+
+   Monitors and logs any Load Generator that seemingly terminates before the simulated
+   ends, meaning something went wrong and simulated users were not able to transact
+   anymore."
 
   [env]
 
@@ -74,6 +82,8 @@
 
 
 (defn stop
+
+  "Kills all Load Generators (if any)."
 
   [env]
 

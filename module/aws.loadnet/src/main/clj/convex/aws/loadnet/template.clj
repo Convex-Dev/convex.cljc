@@ -1,5 +1,9 @@
 (ns convex.aws.loadnet.template
 
+  "Creating an AWS CloudFormation template for a stack containing
+   all Load Generator and Peer instances, as well as any required
+   configuration."
+
   (:require [convex.aws.loadnet.default       :as $.aws.loadnet.default]
             [convex.aws.loadnet.template.peer :as $.aws.loadnet.template.peer]))
 
@@ -8,6 +12,8 @@
 
 
 (def region->ami
+
+  "Map of `AWS Region` -> `AMI ID`."
 
   {"ap-southeast-1" "ami-0d8378a705bbaad85"
    "eu-central-1"   "ami-05028054e79ce04d4"
@@ -20,6 +26,8 @@
 
 (def mapping+
 
+  "Template Mappings for selecting the right AMI depending on in the region."
+
   {"RegionalAMI" (into {}
                        (map (juxt first
                                   (comp (fn [ami]
@@ -30,6 +38,8 @@
 
 
 (def security-group
+
+  "Security group allowing SSH and Convex Peers."
 
   {:Type       "AWS::EC2::SecurityGroup"
    :Properties {:GroupDescription     "Network access for peers"
@@ -48,6 +58,8 @@
 
 
 (def parameter+
+
+  "Template parameters."
 
   {"DetailedMonitoring" {:Type        "String"
                          :Description "Enables EC2 detailed monitoring on peer instances"
@@ -70,6 +82,8 @@
 
 
 (defn load-generator+
+
+  "Returns descriptions of Load Generators as template resources."
 
   [name-load+ ebs]
 
@@ -96,6 +110,9 @@
 
 (defn output+
 
+  "Returns template outputs.
+   Used for collecting IP addresses of Load Generator and Peer instances."
+
   [name-load+ name-peer+]
 
   (let [out (fn [fstr-name-out name-resrc+]
@@ -117,6 +134,8 @@
 
 (defn resource+
 
+  "Returns a description of all template resources."
+
   [name-load+ name-peer+ ebs]
 
   (merge {"SecurityGroup" security-group}
@@ -130,6 +149,8 @@
 
 
 (defn net
+
+  "Entry point for generating a template for a whole loadnet."
 
 
   ([]

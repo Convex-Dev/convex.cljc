@@ -357,7 +357,7 @@
 
   {:convex/type       #{:lib}
    :extra-paths       ["module/aws.loadnet/src/main/clj"]
-   :maestro/doc       "Deploying and managing Convex networks for load testing"
+   :maestro/doc       "Deploying and managing Convex networks as AWS CloudFormation stack sets for load testing"
    :maestro/platform+ [:jvm]
    :maestro/require   [:ext/aws.cloudformation
                        :ext/aws.cloudwatch

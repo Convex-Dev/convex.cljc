@@ -1,5 +1,7 @@
 (ns convex.aws.loadnet.peer.etch
 
+  "Downlading Etch instances from peer instances and conducting statistical analysis."
+
   (:require [babashka.fs                   :as bb.fs]
             [clojure.test.check.generators :as TC.gen]
             [convex.aws.loadnet.rpc        :as $.aws.loadnet.rpc]
@@ -18,6 +20,7 @@
 
 (defn download
 
+  "Downloads the Etch instance of a peer (peer 0 by default, aka Genesis Peer)."
 
   ([env]
 
@@ -52,6 +55,10 @@
 
 
 (defn stat+
+
+  "Computes and outputs statistics on an Etch instance that has been [[download]]ed.
+
+   Offers insights on consensus and key values like Transactions Per Second."
 
 
   ([env]

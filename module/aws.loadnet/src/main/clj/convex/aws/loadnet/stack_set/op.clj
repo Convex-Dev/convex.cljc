@@ -1,5 +1,7 @@
 (ns convex.aws.loadnet.stack-set.op
 
+  "Operations on AWS Cloudformation stack sets."
+
   (:require [convex.aws.loadnet.cloudformation :as $.aws.loadnet.cloudformation]
             [convex.aws.loadnet.stack          :as $.aws.loadnet.stack]
             [convex.clj                        :as $.clj]
@@ -11,6 +13,8 @@
 
 
 (defn- -stack-set-op
+
+  ;; Executes a stack set operation, awaiting completion and logging the result.
 
   [env op request msg-ok msg-fail]
 
@@ -50,6 +54,8 @@
 
 (defn create
 
+  "Creates stacks for required regions in the stack set, deploying all peers and load generators."
+
   [env]
 
   (log/info "Creating regional stacks")
@@ -85,6 +91,8 @@
 
 (defn delete
 
+  "Deletes stacks from all regions of the stack set, stopping all peers and load generators."
+
   [env]
 
   (log/info "Deleting stacks")
@@ -100,6 +108,8 @@
 
 
 (defn fetch
+
+  "Queries a Vector of stack instances."
 
   [env]
 
@@ -120,6 +130,10 @@
 
 
 (defn ip+
+
+  "Queries IPs of all peers and all load generators across all regions of the stack set.
+
+   Returned in `env` respectively under `:convex.aws.ip/peer+` and `convex.aws.ip/load+`."
 
   [env]
 
@@ -179,6 +193,10 @@
 
 
 (defn region->id
+
+  "Queries stack IDs for all regions.
+  
+   Returned in `env` under `:convex.aws.stack/region->id`."
 
   [env]
 
