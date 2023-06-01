@@ -38,6 +38,7 @@
 
   [f]
 
+  (.db.root.write {}) ;; Persisting Peer data fails when the root is not a map.
   (.try.resrc* [peer   (.peer.start (.peer.init -peer.kp
                                                 {:port  -peer.port
                                                  :state -state}))

@@ -62,6 +62,19 @@
            "No Etch instance has been opened")))
 
 
+
+(defn- -write
+
+  [ctx cell f-write]
+
+  (or (when (nil? cell)
+        (-fail ctx
+               "Cell to write cannot be Nil"))
+      (-db ctx
+           (fn []
+             (f-write cell)))))
+
+
 ;;;;;;;;;;
 
 
@@ -176,9 +189,9 @@
 
   [ctx [cell]]
 
-  (-db ctx
-       (fn []
-         ($.db/root-write cell))))
+  (-write ctx
+          cell
+          $.db/root-write))
 
 
 
@@ -200,6 +213,6 @@
 
   [ctx [cell]]
 
-  (-db ctx
-       (fn []
-         ($.db/write cell))))
+  (-write ctx
+          cell
+          $.db/write))

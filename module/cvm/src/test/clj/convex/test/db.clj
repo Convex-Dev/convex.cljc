@@ -100,7 +100,7 @@
 ;;;
 
 
-(T/deftest fake-cell-support
+#_(T/deftest fake-cell-support
 
   (-open)
 

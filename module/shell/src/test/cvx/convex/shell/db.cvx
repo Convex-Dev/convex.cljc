@@ -77,6 +77,10 @@
             (.db.write cell-1))
          "Write returns the hash")
 
+  (.t.is (.t.ex :DB
+                (.db.write nil))
+         "Cannot write Nil")
+
   (.t.is (< size-init
             (.db.size))
          "Size increase after writing a cell")
@@ -88,6 +92,10 @@
   (.t.is (= cell-2
             (.db.root.write cell-2))
          "Root write returns hash")
+
+  (.t.is (.t.ex :DB
+                (.db.root.write nil))
+         "Cannot write Nil to the root")
 
   (.t.is (= cell-2
             (.db.root.read))

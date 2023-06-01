@@ -138,7 +138,7 @@
 
   [^ConvexRemote client]
 
-  ($.server/-socket-address->map (.getRemoteAddress client)))
+  ($.server/-socket-address->map (.getHostAddress client)))
 
 
 ;;;;;;;;;; Networking - Performed directly by the client
