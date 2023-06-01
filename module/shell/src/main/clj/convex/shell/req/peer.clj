@@ -288,6 +288,7 @@
                                   peer)
                 ;;
                 (catch Throwable _ex
+                  (prn :ex _ex)
                   ($.cvm/exception-set ctx
                                        ($.cell/* :SHELL.PEER)
                                        ($.cell/* "Unable to start peer server, check initialization parameters")))))))
