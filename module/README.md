@@ -4,6 +4,7 @@
 
 | Module | Description |
 |---|---|
+| [`aws.loadnet`](./aws.loadnet) | Deploying and managing Convex networks as AWS CloudFormation stack sets for load testing |
 | [`cvm`](./cvm) | Core utilities related to the Convex Virtual Machine |
 | [`gen`](./gen) | Convex cells generators |
 | [`net`](./net) | Interact with a Convex network |

@@ -355,21 +355,26 @@
 
   :module/aws.loadnet
 
-  {:convex/type       #{:lib}
-   :extra-paths       ["module/aws.loadnet/src/main/clj"]
-   :maestro/doc       "Deploying and managing Convex networks as AWS CloudFormation stack sets for load testing"
-   :maestro/platform+ [:jvm]
-   :maestro/require   [:ext/aws.cloudformation
-                       :ext/aws.cloudwatch
-                       :ext/babashka.fs
-                       :ext/csv
-                       :ext/json
-                       :ext/kixi.stats
-                       :ext/protosens.process
-                       :ext/timbre
-                       :module/cvm
-                       :module/gen
-                       :module/net]}
+  {:convex/type                         #{:lib}
+   :extra-paths                         ["module/aws.loadnet/src/main/clj"]
+   :maestro/doc                         "Deploying and managing Convex networks as AWS CloudFormation stack sets for load testing."
+   :maestro/root                        "module/aws.loadnet"
+   :maestro.module.expose/name          world.convex/aws.loadnet
+   :maestro.module.requirer/namespace   convex.aws.loadnet.-requirer
+   :maestro.module.requirer/path        "module/aws.loadnet/src/main/clj"
+   :maestro.plugin.quickdoc.path/output "module/aws.loadnet/doc/API.md"
+   :maestro/platform+                   [:jvm]
+   :maestro/require                     [:ext/aws.cloudformation
+                                         :ext/aws.cloudwatch
+                                         :ext/babashka.fs
+                                         :ext/csv
+                                         :ext/json
+                                         :ext/kixi.stats
+                                         :ext/protosens.process
+                                         :ext/timbre
+                                         :module/cvm
+                                         :module/gen
+                                         :module/net]}
 
   ;---
 
