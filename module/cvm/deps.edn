@@ -6,5 +6,8 @@
 {:deps
  {com.fzakaria/slf4j-timbre {:mvn/version "0.3.21"},
   com.taoensso/timbre {:mvn/version "5.2.1"},
-  world.convex/convex-core {:mvn/version "0.7.9"}},
+  org.slf4j/slf4j-api
+  {:exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-parent],
+   :mvn/version "1.7.36"},
+  world.convex/convex-core {:mvn/version "0.7.11"}},
  :paths ["src/main/clj"]}
