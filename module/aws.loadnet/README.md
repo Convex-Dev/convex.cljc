@@ -7,8 +7,8 @@ Deploying and managing Convex networks as AWS CloudFormation stack sets for load
 ;;
 world.convex/aws.loadnet
 {:deps/root "module/aws.loadnet"
- :git/sha   "06c7137"
- :git/tag   "stable/2023-01-18"
+ :git/sha   "7cd357f"
+ :git/tag   "stable/2023-06-01"
  :git/url   "https://github.com/convex-dev/convex.cljc"}
 ```
 

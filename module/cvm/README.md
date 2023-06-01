@@ -7,8 +7,8 @@ Core utilities related to the Convex Virtual Machine.
 ;;
 world.convex/cvm
 {:deps/root "module/cvm"
- :git/sha   "06c7137"
- :git/tag   "stable/2023-01-18"
+ :git/sha   "7cd357f"
+ :git/tag   "stable/2023-06-01"
  :git/url   "https://github.com/convex-dev/convex.cljc"}
 ```
 

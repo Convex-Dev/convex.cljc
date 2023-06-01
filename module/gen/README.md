@@ -7,8 +7,8 @@ Convex cells generators.
 ;;
 world.convex/gen
 {:deps/root "module/gen"
- :git/sha   "06c7137"
- :git/tag   "stable/2023-01-18"
+ :git/sha   "7cd357f"
+ :git/tag   "stable/2023-06-01"
  :git/url   "https://github.com/convex-dev/convex.cljc"}
 ```
 

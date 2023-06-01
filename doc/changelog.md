@@ -10,7 +10,7 @@ provided.
 ---
 
 
-## {{ next-release }}
+## 2023-06-01
 
 - Update to Convex 0.7.11
 - Impacted
