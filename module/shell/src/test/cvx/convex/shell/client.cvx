@@ -15,7 +15,18 @@
 
 
 (def -peer.port
-     40000)
+     20000)
+
+
+
+(defn -peer.port.get
+
+  ^:callable?
+
+  []
+
+  (def -peer.port
+       (inc -peer.port)))
 
 
 
@@ -39,14 +50,16 @@
   [f]
 
   (.db.root.write {}) ;; Persisting Peer data fails when the root is not a map.
-  (.try.resrc* [peer   (.peer.start (.peer.init -peer.kp
-                                                {:port  -peer.port
-                                                 :state -state}))
-                       (.peer.stop peer)
-                client (.client.connect {:port -peer.port})
-                       (.client.close client)]
-    (f client)))
-
+  (let [port (+ -peer.port
+                (.gen (.gen.long.uniform 0
+                                         40000)))]
+    (.try.resrc* [peer   (.peer.start (.peer.init -peer.kp
+                                                  {:port  port
+                                                   :state -state}))
+                         (.peer.stop peer)
+                  client (.client.connect {:port port})
+                         (.client.close client)]
+                         (f client))))
 
   
 ;;;;;;;;;; Tests
@@ -76,9 +89,10 @@
 (.t.def ..client.peer.endpoint
 
   (-with-client (fn [client]
-                  (.t.is (= {:host "localhost"
-                             :port -peer.port}
-                            (.client.peer.endpoint client))))))
+                  (let [endpoint (.client.peer.endpoint client)]
+                    (.t.is (= "localhost"
+                              (:host endpoint)))
+                    (.t.is (long? (:port endpoint)))))))
 
 
 
