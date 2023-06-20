@@ -257,12 +257,15 @@
                                               metric+)
                                  volume (reduce +
                                                 byte+)]
-                             [(double (/ volume
-                                         (count byte+)
-                                         period
-                                         1e6))
-                              (double (/ volume
-                                         1e9))]))
+                             (if (seq byte+)
+                               [(double (/ volume
+                                           (count byte+)
+                                           period
+                                           1e6))
+                                (double (/ volume
+                                           1e9))]
+                               [nil
+                                nil])))
         [net-in-mbps
          net-in-volume]  (net "NetworkIn")
         [net-out-mbps
