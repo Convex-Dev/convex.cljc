@@ -242,16 +242,24 @@
         (log/info "Everything is ready")
         (when-not (zero? (env :convex.aws.region/n.load))
           (log/info "Simulation is running"))
-        (when timer
-          (log/info (format "Simulation will stop in %d minute(s)"
-                            timer))
-          (future
-            (Thread/sleep (* timer ; minutes
-                             60
-                             1000))
-            (when-not @(env-3 :convex.aws.loadnet/*stopped?)
-              (stop env-3))))
-        env-3)
+        (if timer
+          (do
+            (log/info (format "Simulation will stop in %d minute(s)"
+                              timer))
+            (assoc env-3
+                   :convex.aws.loadnet/f*timer
+                   (future
+                     (Thread/sleep (* timer ; minutes
+                                      60
+                                      1000))
+                     (when-not @(env-3 :convex.aws.loadnet/*stopped?)
+                       (try
+                         (stop env-3)
+                         (catch Exception ex
+                           (log/error ex
+                                      "While stopping loadnet")
+                           (throw ex)))))))
+          env-3))
       (do
         (log/error "Wait a bit and try starting the simulation")
         env-2))))
@@ -302,14 +310,14 @@
                                                        ]
                   :convex.aws.key/file                "/Users/adam/Code/convex/clj/private/Test"
                   :convex.aws.loadnet/dir             "/tmp/loadnet"
-                  :convex.aws.loadnet/timer           2
+                  :convex.aws.loadnet/timer           1
                   ;:convex.aws.loadnet.peer/native?    true
                   :convex.aws.loadnet.scenario/path   '(lib sim scenario torus)
                   :convex.aws.loadnet.scenario/param+ {:n.token 5
-                                                       :n.user  200}
-                  :convex.aws.region/n.load           4
-                  :convex.aws.region/n.peer           1
-                  :convex.aws.stack/parameter+        {;:DetailedMonitoring "false"
+                                                       :n.user  30}
+                  :convex.aws.region/n.load           1
+                  :convex.aws.region/n.peer           2
+                  :convex.aws.stack/parameter+        {:DetailedMonitoring "false"
                                                        :KeyName            "Test"
                                                        ;:InstanceTypePeer   "t2.micro"
                                                        }
@@ -330,7 +338,7 @@
 
   (future
     (delete {:convex.aws/account     (System/getenv "CONVEX_AWS_ACCOUNT")
-             :convex.aws.loadnet/dir "/tmp/loadnet"})
+             :convex.aws.loadnet/dir "/private/tmp/loadnet/LoadNet-1687257891873"})
     nil)
 
 
