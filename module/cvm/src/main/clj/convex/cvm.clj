@@ -695,10 +695,10 @@
   (state-set ctx
              (-> ctx
                  (state)
-                 (.applyBlock (Block/create (long (+ (.longValue (time ctx))
-                                                     millis))
-                                            ($.cell/vector [])))
-                 (.getState))))
+                 (.applyTimeUpdate (long (+ (.longValue (time ctx))
+                                            (max 0
+                                                 millis))))
+                 (.applyScheduledTransactions))))
 
 
 
