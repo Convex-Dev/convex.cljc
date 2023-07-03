@@ -59,3 +59,19 @@
   "Peers will run on the JVM by default, as opposed to running natively."
 
   false)
+
+
+
+(def volume-load
+
+  "In GB, volume for load generator instances."
+
+  8)
+
+
+
+(def volume-peer
+
+  "In GB, volume for peer instances."
+
+  16)

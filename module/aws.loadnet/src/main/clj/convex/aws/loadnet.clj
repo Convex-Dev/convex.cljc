@@ -177,9 +177,15 @@
                :convex.aws.loadnet/*stopped?      (atom false)
                :convex.aws.loadnet.load/*stopped+ (atom #{})
                :convex.aws.stack/name             stack-set-name)
+        (update :convex.aws.loadnet.load/volume
+                #(or %
+                     $.aws.loadnet.default/volume-load))
         (update :convex.aws.loadnet.peer/native?
                 #(or %
                      $.aws.loadnet.default/peer-native?))
+        (update :convex.aws.loadnet.peer/volume
+                #(or %
+                     $.aws.loadnet.default/volume-peer))
         (update :convex.aws.loadnet.scenario/path
                 $.cell/any)
         (update :convex.aws.loadnet.scenario/param+
@@ -310,14 +316,14 @@
                                                        ]
                   :convex.aws.key/file                "/Users/adam/Code/convex/clj/private/Test"
                   :convex.aws.loadnet/dir             "/tmp/loadnet"
-                  :convex.aws.loadnet/timer           1
+                  :convex.aws.loadnet/timer           5
                   ;:convex.aws.loadnet.peer/native?    true
                   :convex.aws.loadnet.scenario/path   '(lib sim scenario torus)
                   :convex.aws.loadnet.scenario/param+ {:n.token 5
-                                                       :n.user  30}
-                  :convex.aws.region/n.load           1
-                  :convex.aws.region/n.peer           2
-                  :convex.aws.stack/parameter+        {:DetailedMonitoring "false"
+                                                       :n.user  2000}
+                  :convex.aws.region/n.load           20
+                  :convex.aws.region/n.peer           10
+                  :convex.aws.stack/parameter+        {;:DetailedMonitoring "false"
                                                        :KeyName            "Test"
                                                        ;:InstanceTypePeer   "t2.micro"
                                                        }
@@ -338,8 +344,11 @@
 
   (future
     (delete {:convex.aws/account     (System/getenv "CONVEX_AWS_ACCOUNT")
-             :convex.aws.loadnet/dir "/private/tmp/loadnet/LoadNet-1687257891873"})
+             :convex.aws.loadnet/dir "/private/tmp/loadnet/LoadNet-1688379070090"})
     nil)
 
+
+  ($.aws.loadnet.load/stop env)
+  ($.aws.loadnet.peer/stop env)
 
   )

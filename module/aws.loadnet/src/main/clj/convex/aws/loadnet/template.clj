@@ -16,7 +16,8 @@
   "Map of `AWS Region` -> `AMI ID`."
 
   {"ap-southeast-1" "ami-0d8378a705bbaad85"
-   "eu-central-1"   "ami-05028054e79ce04d4"
+   "eu-central-1"   "ami-02c47fb958cbe5f8f"
+                   ;"ami-05028054e79ce04d4"
    "us-east-1"      "ami-0f06c7dc7086d1fe5"
    "us-west-1"      "ami-0f523bb7cfa9fe01c"})
 
@@ -136,13 +137,18 @@
 
   "Returns a description of all template resources."
 
-  [name-load+ name-peer+ ebs]
+  [env name-load+ name-peer+]
 
-  (merge {"SecurityGroup" security-group}
-         (load-generator+ name-load+
-                          ebs)
-         ($.aws.loadnet.template.peer/resource+ name-peer+
-                                                ebs)))
+  (let [ebs {:DeleteOnTermination true}]
+    (merge {"SecurityGroup" security-group}
+           (load-generator+ name-load+
+                            (assoc ebs
+                                   :VolumeSize
+                                   (env :convex.aws.loadnet.load/volume)))
+           ($.aws.loadnet.template.peer/resource+ name-peer+
+                                                  (assoc ebs
+                                                         :VolumeSize
+                                                         (env :convex.aws.loadnet.peer/volume))))))
 
 
 ;;;
@@ -160,25 +166,19 @@
 
   ([env]
 
-   (let [volume-size   (:convex.aws.instance/volume env)
-         ebs           (cond->
-                         {:DeleteOnTermination true}
-                         volume-size
-                         (assoc :VolumeSize
-                                volume-size))
-         name-load+    (mapv #(str "Load"
-                                   %)
-                             (range (or (:convex.aws.region/n.load env)
-                                        $.aws.loadnet.default/n-load)))
-         name-peer+    (mapv #(str "Peer"
-                                   %)
-                             (range (or (:convex.aws.region/n.peer env)
-                                        $.aws.loadnet.default/n-peer)))]
+   (let [name-load+ (mapv #(str "Load"
+                                %)
+                          (range (or (:convex.aws.region/n.load env)
+                                     $.aws.loadnet.default/n-load)))
+         name-peer+ (mapv #(str "Peer"
+                                %)
+                          (range (or (:convex.aws.region/n.peer env)
+                                     $.aws.loadnet.default/n-peer)))]
      {:Description "Convex network for load testing"
       :Mappings    mapping+
       :Outputs     (output+ name-load+
                             name-peer+)
       :Parameters  parameter+
-      :Resources   (resource+ name-load+
-                              name-peer+
-                              ebs)})))
+      :Resources   (resource+ env
+                              name-load+
+                              name-peer+)})))
