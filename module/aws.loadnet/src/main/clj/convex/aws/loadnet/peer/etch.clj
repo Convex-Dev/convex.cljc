@@ -81,18 +81,20 @@
          result-file (format "%s/%d.edn"
                              dir
                              i-peer-2)
-         instance    ($.db/open path)]
+         instance    ($.db/open path)
+         pubkey      (-> (TC.gen/generate $.gen/blob-32
+                                          0
+                                          (+ 12 ; address of first peer controller
+                                             i-peer-2))
+                         ($.key-pair/ed25519)
+                         ($.key-pair/account-key))]
      (try
        ($.db/current-set instance)
        (if-some [order (get-in ($.db/root-read)
-                               [($.cell/* :belief)
+                               [pubkey
+                                ($.cell/* :belief)
                                 ($.cell/* :orders)
-                                (-> (TC.gen/generate $.gen/blob-32
-                                                     0
-                                                     (+ 12 ; address of first peer controller
-                                                        i-peer-2))
-                                    ($.key-pair/ed25519)
-                                    ($.key-pair/account-key))
+                                pubkey
                                 ($.cell/* :value)])]
          (let [etch-size        ($.db/size)
                block+           ($.std/get order
