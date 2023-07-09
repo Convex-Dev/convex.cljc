@@ -16,7 +16,7 @@
   "Map of `AWS Region` -> `AMI ID`."
 
   {"ap-southeast-1" "ami-0d8378a705bbaad85"
-   "eu-central-1"   "ami-02c47fb958cbe5f8f"
+   "eu-central-1"   "ami-000f36df402a1ed81"
                    ;"ami-05028054e79ce04d4"
    "us-east-1"      "ami-0f06c7dc7086d1fe5"
    "us-west-1"      "ami-0f523bb7cfa9fe01c"})

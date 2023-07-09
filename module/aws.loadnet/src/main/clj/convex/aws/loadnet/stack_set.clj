@@ -72,14 +72,17 @@
                       (env-3 :convex.aws.loadnet/dir))
               (-> env-3
                   (select-keys [:convex.aws/region+
+                                :convex.aws.loadnet.load/distr
+                                :convex.aws.loadnet.load/n.client
+                                :convex.aws.loadnet.load/n.iter.trx
+                                :convex.aws.loadnet.peer/native?
+                                :convex.aws.loadnet.peer/stake
+                                :convex.aws.loadnet.scenario/param+
+                                :convex.aws.loadnet.scenario/path
+                                :convex.aws.loadnet/timer
                                 :convex.aws.region/n.load
                                 :convex.aws.region/n.peer
-                                :convex.aws.ip/load+
-                                :convex.aws.ip/peer+
-                                :convex.aws.loadnet.scenario/path
-                                :convex.aws.loadnet.scenario/param+
                                 :convex.aws.stack/parameter+
-                                :convex.aws.stack/region->id
                                 :convex.aws.stack/tag+
                                 :convex.aws.stack-set/name])
                   (update :convex.aws.loadnet.scenario/path
