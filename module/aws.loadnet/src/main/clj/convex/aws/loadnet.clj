@@ -82,6 +82,10 @@
       Used by load generators when creating connections to those peers according to that distribution.
       If missing, connections will be created uniformly.
 
+     `:convex.aws.loadnet.load/n.client`
+      Number of clients per load generator.
+      Defaults to the number of users in the load generator bucket.
+
      `:convex.aws.loadnet.load/n.iter.trx`
       Number of times the transaction code is looped within each transaction (as supported by some scenarios).
       Defaults to 1.
@@ -346,6 +350,7 @@
                   :convex.aws.loadnet/dir             "/tmp/loadnet"
                   :convex.aws.loadnet/timer           1
                   :convex.aws.loadnet.load/distr      [0.6 0.2]
+                  :convex.aws.loadnet.load/n.client   3
                   :convex.aws.loadnet.load/n.iter.trx 75
                   ;:convex.aws.loadnet.peer/native?    true
                   :convex.aws.loadnet.scenario/path   '(lib sim scenario torus)

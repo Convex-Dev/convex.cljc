@@ -31,9 +31,23 @@
             n-load-cvx    ($.cell/long n-load)
             *stopped?     (env :convex.aws.loadnet/*stopped?)
             *stopped+     (env :convex.aws.loadnet.load/*stopped+)
+            distr         (env :convex.aws.loadnet.load/distr)
+            _             (if distr
+                            (log/info (format "Client distribution = %s"
+                                              distr))
+                            (log/info "Client distribution will be uniform"))
+            distr-2       ($.cell/any distr)
+            n-client      (env :convex.aws.loadnet.load/n.client)
+            _             (log/info (if n-client
+                                      (format "N client / load generator = %d"
+                                              n-client)
+                                      "1 client / user will be created"))
+            n-client-2    (some-> n-client
+                                  ($.cell/long))
             n-iter-trx    (env :convex.aws.loadnet.load/n.iter.trx)
             _             (log/info (format "Iterations per transaction = %d"
                                             n-iter-trx))
+            n-iter-trx-2  ($.cell/long n-iter-trx)
             process+      (mapv (fn [i-load]
                                   (log/info (format "Starting load generator %d"
                                                     i-load))
@@ -59,11 +73,12 @@
                                           ($.sim.load/start scenario/gen.trx
                                                             {:bucket       [~n-load-cvx
                                                                             ~($.cell/long i-load)]
-                                                             :client.distr ~($.cell/any (env :convex.aws.loadnet.load/distr))
+                                                             :client.distr ~distr-2
                                                              :host         ~($.cell/string (get ip-peer+
                                                                                                 (mod i-load
                                                                                                      n-peer)))
-                                                             :n.iter.trx   ~($.cell/long n-iter-trx)
+                                                             :n.client     ~n-client-2
+                                                             :n.iter.trx   ~n-iter-trx-2
                                                              :region       ~($.cell/long (quot i-load
                                                                                                n-load-region))}))))
                                     {:exit-fn (fn [process]
