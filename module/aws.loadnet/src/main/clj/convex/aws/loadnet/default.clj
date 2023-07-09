@@ -38,6 +38,14 @@
 
 
 
+(def n-iter-trx
+
+  "Some scenarios support looping the transaction code N times."
+
+  1)
+
+
+
 (def n-load
 
   "Default number of load generators per region."

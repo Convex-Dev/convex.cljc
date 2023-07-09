@@ -30,6 +30,9 @@
             n-load-cvx ($.cell/long n-load)
             *stopped?  (env :convex.aws.loadnet/*stopped?)
             *stopped+  (env :convex.aws.loadnet.load/*stopped+)
+            n-iter-trx (env :convex.aws.loadnet.load/n.iter.trx)
+            _          (log/info (format "Iterations per transaction = %d"
+                                         n-iter-trx))
             process+   (mapv (fn [i-load]
                                (log/info (format "Starting load generator %d"
                                                  i-load))
@@ -57,7 +60,8 @@
                                                                    ~($.cell/long i-load)]
                                                           :host   ~($.cell/string (get ip-peer+
                                                                                        (mod i-load
-                                                                                            n-peer)))}))))
+                                                                                            n-peer)))
+                                                          :n.iter.trx ~($.cell/long n-iter-trx)}))))
                                  {:exit-fn (fn [process]
                                              (swap! *stopped+
                                                     conj

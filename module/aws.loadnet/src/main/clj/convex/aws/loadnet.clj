@@ -177,6 +177,9 @@
                :convex.aws.loadnet/*stopped?      (atom false)
                :convex.aws.loadnet.load/*stopped+ (atom #{})
                :convex.aws.stack/name             stack-set-name)
+        (update :convex.aws.loadnet.load/n.iter.trx
+                #(or %
+                     $.aws.loadnet.default/n-iter-trx))
         (update :convex.aws.loadnet.load/volume
                 #(or %
                      $.aws.loadnet.default/volume-load))
@@ -261,7 +264,7 @@
                      (when-not @(env-3 :convex.aws.loadnet/*stopped?)
                        (try
                          (stop env-3)
-                         (catch Exception ex
+                         (catch Throwable ex
                            (log/error ex
                                       "While stopping loadnet")
                            (throw ex)))))))
@@ -300,6 +303,22 @@
       ($.aws.loadnet.stack-set/delete)))
 
 
+(defn collect
+
+  [env]
+
+  (-> env
+      ;($.aws.loadnet.load/stop)
+      ;($.aws.loadnet.peer/stop)
+      ($.aws.loadnet.peer/log+)
+      ($.aws.loadnet.load.log/download)
+      ($.aws.loadnet.load.log/stat+)
+      ($.aws.loadnet.peer.etch/download)
+      ($.aws.loadnet.peer.etch/stat+)
+      ($.aws.loadnet.cloudwatch/download)
+      ($.aws.loadnet.stack-set/delete)))
+
+
 ;;;;;;;;;;
 
 
@@ -316,7 +335,7 @@
                                                        ]
                   :convex.aws.key/file                "/Users/adam/Code/convex/clj/private/Test"
                   :convex.aws.loadnet/dir             "/tmp/loadnet"
-                  :convex.aws.loadnet/timer           5
+                  :convex.aws.loadnet/timer           1
                   ;:convex.aws.loadnet.peer/native?    true
                   :convex.aws.loadnet.scenario/path   '(lib sim scenario torus)
                   :convex.aws.loadnet.scenario/param+ {:n.token 5
@@ -344,11 +363,20 @@
 
   (future
     (delete {:convex.aws/account     (System/getenv "CONVEX_AWS_ACCOUNT")
-             :convex.aws.loadnet/dir "/private/tmp/loadnet/LoadNet-1688379070090"})
+             :convex.aws.loadnet/dir "/private/tmp/loadnet/LoadNet-1688813640141"})
     nil)
 
 
   ($.aws.loadnet.load/stop env)
   ($.aws.loadnet.peer/stop env)
+
+
+  ($.aws.loadnet.peer.etch/stat+ env)
+  ($.aws.loadnet.peer/log+ env)
+
+
+  (future
+    (collect env)
+    nil)
 
   )
