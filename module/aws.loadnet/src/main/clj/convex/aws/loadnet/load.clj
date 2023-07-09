@@ -25,59 +25,62 @@
       (do
         (log/info "No load generator to start")
         env)
-      (let [ip-peer+   (env :convex.aws.ip/peer+)
-            n-peer     (count ip-peer+)
-            n-load-cvx ($.cell/long n-load)
-            *stopped?  (env :convex.aws.loadnet/*stopped?)
-            *stopped+  (env :convex.aws.loadnet.load/*stopped+)
-            n-iter-trx (env :convex.aws.loadnet.load/n.iter.trx)
-            _          (log/info (format "Iterations per transaction = %d"
-                                         n-iter-trx))
-            process+   (mapv (fn [i-load]
-                               (log/info (format "Starting load generator %d"
-                                                 i-load))
-                               ($.aws.loadnet.rpc/cvx
-                                 env
-                                 :convex.aws.ip/load+
-                                 i-load
-                                 ($.cell/*
-                                   (let [_    (.project.dir.set "/home/ubuntu/repo/lab.cvx")
-                                         dep+ (.dep.deploy '[$.sim.load (lib sim load)
-                                                             scenario   ~(env :convex.aws.loadnet.scenario/path)])]
-                                     (def $.sim.load
-                                          (get dep+
-                                               '$.sim.load))
-                                     (def scenario
-                                          (get dep+
-                                               'scenario))
-                                     (.file.txt.write "/tmp/load.pid"
-                                                      (.sys.pid))
-                                     (.log.level.set :info)
-                                     (.log.out.set (.file.stream.out "/tmp/load.cvx"))
-                                     ($.sim.load/await
-                                       ($.sim.load/start scenario/gen.trx
-                                                         {:bucket [~n-load-cvx
-                                                                   ~($.cell/long i-load)]
-                                                          :host   ~($.cell/string (get ip-peer+
-                                                                                       (mod i-load
-                                                                                            n-peer)))
-                                                          :n.iter.trx ~($.cell/long n-iter-trx)}))))
-                                 {:exit-fn (fn [process]
-                                             (swap! *stopped+
-                                                    conj
-                                                    i-load)
-                                             (let [exit     (:exit @process)
-                                                   stopped? @*stopped?]
-                                               (if stopped?
-                                                 (log/info (format "Load generator %d terminated"
-                                                                   i-load))
-                                                 (if (zero? exit)
-                                                   (log/warn (format "Load generator %d terminated but the simulation has not been stopped"
-                                                                     i-load))
-                                                   (log/warn (format "Load generator %d terminated with status %d before the simulation was stopped"
-                                                                     i-load
-                                                                     exit))))))}))
-                             (range n-load))]
+      (let [n-load-region (env :convex.aws.region/n.load)
+            ip-peer+      (env :convex.aws.ip/peer+)
+            n-peer        (count ip-peer+)
+            n-load-cvx    ($.cell/long n-load)
+            *stopped?     (env :convex.aws.loadnet/*stopped?)
+            *stopped+     (env :convex.aws.loadnet.load/*stopped+)
+            n-iter-trx    (env :convex.aws.loadnet.load/n.iter.trx)
+            _             (log/info (format "Iterations per transaction = %d"
+                                            n-iter-trx))
+            process+      (mapv (fn [i-load]
+                                  (log/info (format "Starting load generator %d"
+                                                    i-load))
+                                  ($.aws.loadnet.rpc/cvx
+                                    env
+                                    :convex.aws.ip/load+
+                                    i-load
+                                    ($.cell/*
+                                      (let [_    (.project.dir.set "/home/ubuntu/repo/lab.cvx")
+                                            dep+ (.dep.deploy '[$.sim.load (lib sim load)
+                                                                scenario   ~(env :convex.aws.loadnet.scenario/path)])]
+                                        (def $.sim.load
+                                             (get dep+
+                                                  '$.sim.load))
+                                        (def scenario
+                                             (get dep+
+                                                  'scenario))
+                                        (.file.txt.write "/tmp/load.pid"
+                                                         (.sys.pid))
+                                        (.log.level.set :info)
+                                        (.log.out.set (.file.stream.out "/tmp/load.cvx"))
+                                        ($.sim.load/await
+                                          ($.sim.load/start scenario/gen.trx
+                                                            {:bucket     [~n-load-cvx
+                                                                          ~($.cell/long i-load)]
+                                                             :host       ~($.cell/string (get ip-peer+
+                                                                                              (mod i-load
+                                                                                                   n-peer)))
+                                                             :n.iter.trx ~($.cell/long n-iter-trx)
+                                                             :region     ~($.cell/long (quot i-load
+                                                                                             n-load-region))}))))
+                                    {:exit-fn (fn [process]
+                                                (swap! *stopped+
+                                                       conj
+                                                       i-load)
+                                                (let [exit     (:exit @process)
+                                                      stopped? @*stopped?]
+                                                  (if stopped?
+                                                    (log/info (format "Load generator %d terminated"
+                                                                      i-load))
+                                                    (if (zero? exit)
+                                                      (log/warn (format "Load generator %d terminated but the simulation has not been stopped"
+                                                                        i-load))
+                                                      (log/warn (format "Load generator %d terminated with status %d before the simulation was stopped"
+                                                                        i-load
+                                                                        exit))))))}))
+                                (range n-load))]
         (log/info "Done starting all load generators")
         (assoc env
                :convex.aws.loadnet.cvx/load+

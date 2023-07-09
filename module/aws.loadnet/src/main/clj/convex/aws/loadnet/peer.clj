@@ -91,9 +91,12 @@
                                                        :state (:state (scenario/state
                                                                         ($.net.test/state.genesis
                                                                           {:peer+
-                                                                           ~($.cell/vector (map (fn [ip]
-                                                                                                  ($.cell/* {:host ~($.cell/string ip)}))
-                                                                                                (env :convex.aws.ip/peer+)))})
+                                                                           ~($.cell/vector (let [n-peer-region (env :convex.aws.region/n.peer)]
+                                                                                             (map-indexed (fn [i-peer ip]
+                                                                                                            ($.cell/* {:host     ~($.cell/string ip)
+                                                                                                                       :metadata {:region ~($.cell/long (quot i-peer
+                                                                                                                                                              n-peer-region))}}))
+                                                                                                          (env :convex.aws.ip/peer+))))})
                                                                         ~(env :convex.aws.loadnet.scenario/param+)))})
                             (loop []
                               (.worker.start {:pipe "peer"})
