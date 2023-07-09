@@ -154,7 +154,9 @@
                                   bps             (double (/ cp
                                                              duration))
                                   tps             (double (/ n-trx-consensus
-                                                             duration))]
+                                                             duration))
+                                  ops             (* tps
+                                                     (env :convex.aws.loadnet.load/n.iter.trx))]
                               (log/info (if (< duration
                                                60000)
                                           (format "Load duration (seconds) = %.2f"
@@ -166,12 +168,15 @@
                                                 bps))
                               (log/info (format "Transactions / second = %.2f"
                                                 tps))
+                              (log/info (format "Operations / second = %.2f"
+                                                ops))
                               (assoc result
                                      :bps             bps
                                      :duration        duration
+                                     :ops             ops
                                      :timestamp.first timestamp-first
                                      :timestamp.last  timestamp-last
-                                     :tps             :tps)))]
+                                     :tps             tps)))]
              (log/info (format "Saving Etch stats to '%s'"
                                result-file))
              (spit result-file

@@ -80,6 +80,7 @@
      `:convex.aws.loadnet.load/distr`
       Vector of probabilities corresponding to peers per region.
       Used by load generators when creating connections to those peers according to that distribution.
+      If missing, connections will be created uniformly.
 
      `:convex.aws.loadnet.load/n.iter.trx`
       Number of times the transaction code is looped within each transaction (as supported by some scenarios).
