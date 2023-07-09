@@ -94,6 +94,12 @@
        If `true` (default), Peers will run on the JVM (advised for much better performance).
        If `false`, they will run natively, compiled with GraalVM Native-Image.
 
+     `:convex.aws.loadnet.peer/stake`
+      Vector of coefficients for staking peers within a region, default stake being `1e14`.
+      E.g. `[1 0.5 0.1]`
+           First peer in the region will be staked at `1e14`, second at half that, and all other
+           peers at `1e13`.
+      
      `:convex.aws.loadnet.scenario/path`
        Actor path to a simulation scenario from the following repository (as a List).
 
@@ -348,16 +354,17 @@
                                                        ]
                   :convex.aws.key/file                "/Users/adam/Code/convex/clj/private/Test"
                   :convex.aws.loadnet/dir             "/tmp/loadnet"
-                  :convex.aws.loadnet/timer           1
+                  :convex.aws.loadnet/timer           10
                   :convex.aws.loadnet.load/distr      [0.6 0.2]
                   :convex.aws.loadnet.load/n.client   3
-                  :convex.aws.loadnet.load/n.iter.trx 75
+                  :convex.aws.loadnet.load/n.iter.trx 1
                   ;:convex.aws.loadnet.peer/native?    true
+                  :convex.aws.loadnet.peer/stake      [1 0.25 0.01]
                   :convex.aws.loadnet.scenario/path   '(lib sim scenario torus)
                   :convex.aws.loadnet.scenario/param+ {:n.token 5
-                                                       :n.user  30}
-                  :convex.aws.region/n.load           1
-                  :convex.aws.region/n.peer           3
+                                                       :n.user  2000}
+                  :convex.aws.region/n.load           20
+                  :convex.aws.region/n.peer           10
                   :convex.aws.stack/parameter+        {:DetailedMonitoring "false"
                                                        :KeyName            "Test"
                                                        ;:InstanceTypePeer   "t2.micro"
@@ -379,7 +386,7 @@
 
   (future
     (delete {:convex.aws/account     (System/getenv "CONVEX_AWS_ACCOUNT")
-             :convex.aws.loadnet/dir "/private/tmp/loadnet/LoadNet-1688929780225"})
+             :convex.aws.loadnet/dir "/private/tmp/loadnet/LoadNet-1688935584763"})
     nil)
 
 
