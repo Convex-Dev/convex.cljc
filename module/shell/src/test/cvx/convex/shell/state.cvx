@@ -113,9 +113,10 @@
   (def state
        (.state.genesis {:peer+ [{:key pubkey-1}
                                 {:host  "foo"
-                                 :key   pubkey-2
-                                 :port  42
-                                 :stake 10}]}))
+                                 :key      pubkey-2
+                                 :metadata {:region 2}
+                                 :port     42
+                                 :stake    10}]}))
 
   (def peer+
        (:peers state))
@@ -136,9 +137,10 @@
        (get peer+
             pubkey-2))
 
-  (.t.is (= "foo:42"
-            (:url (:metadata peer-2)))
-         "Custom URL for peer 2")
+  (.t.is (= {:region 2
+             :url    "foo:42"}
+            (:metadata peer-2))
+         "Metadata peer 2")
 
   (.t.is (= 10
             (:stake peer-2))

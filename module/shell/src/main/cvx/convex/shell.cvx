@@ -4846,6 +4846,9 @@
                         "        Public key identifying the peer and its controller."
                         "        Must be unique."
                         ""
+                        "      :metadata"
+                        "        Map of metadata for that peer."
+                        ""
                         "      :port"
                         "        Port to advertise the URL of that peer."
                         "        Defaults to `.peer.default.port`)."
@@ -4908,11 +4911,15 @@
                                    (let [pubkey (get peer
                                                      :key)]
                                      (set-peer-data pubkey
-                                                    {:url (str (or (:host peer)
-                                                                   "localhost")
-                                                               ":"
-                                                               (or (:port peer)
-                                                                   .peer.default.port))})
+                                                    (assoc (get-in peer+
+                                                                   [i.peer
+                                                                    :metadata])
+                                                           :url
+                                                           (str (or (:host peer)
+                                                                    "localhost")
+                                                                ":"
+                                                                (or (:port peer)
+                                                                    .peer.default.port))))
                                      (when-let [stake (:stake peer)]
                                        (set-peer-stake pubkey
                                                        stake)))
