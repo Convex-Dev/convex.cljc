@@ -57,14 +57,15 @@
                                         (.log.out.set (.file.stream.out "/tmp/load.cvx"))
                                         ($.sim.load/await
                                           ($.sim.load/start scenario/gen.trx
-                                                            {:bucket     [~n-load-cvx
-                                                                          ~($.cell/long i-load)]
-                                                             :host       ~($.cell/string (get ip-peer+
-                                                                                              (mod i-load
-                                                                                                   n-peer)))
-                                                             :n.iter.trx ~($.cell/long n-iter-trx)
-                                                             :region     ~($.cell/long (quot i-load
-                                                                                             n-load-region))}))))
+                                                            {:bucket       [~n-load-cvx
+                                                                            ~($.cell/long i-load)]
+                                                             :client.distr ~($.cell/any (env :convex.aws.loadnet.load/distr))
+                                                             :host         ~($.cell/string (get ip-peer+
+                                                                                                (mod i-load
+                                                                                                     n-peer)))
+                                                             :n.iter.trx   ~($.cell/long n-iter-trx)
+                                                             :region       ~($.cell/long (quot i-load
+                                                                                               n-load-region))}))))
                                     {:exit-fn (fn [process]
                                                 (swap! *stopped+
                                                        conj

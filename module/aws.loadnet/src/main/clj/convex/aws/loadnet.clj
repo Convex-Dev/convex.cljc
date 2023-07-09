@@ -77,6 +77,14 @@
        For meaningful results, run for at least 5 minutes.
        See [[stop]].
 
+     `:convex.aws.loadnet.load/distr`
+      Vector of probabilities corresponding to peers per region.
+      Used by load generators when creating connections to those peers according to that distribution.
+
+     `:convex.aws.loadnet.load/n.iter.trx`
+      Number of times the transaction code is looped within each transaction (as supported by some scenarios).
+      Defaults to 1.
+
      `:convex.aws.loadnet.peer/native?`
        If `true` (default), Peers will run on the JVM (advised for much better performance).
        If `false`, they will run natively, compiled with GraalVM Native-Image.
@@ -336,13 +344,15 @@
                   :convex.aws.key/file                "/Users/adam/Code/convex/clj/private/Test"
                   :convex.aws.loadnet/dir             "/tmp/loadnet"
                   :convex.aws.loadnet/timer           1
+                  :convex.aws.loadnet.load/distr      [0.6 0.2]
+                  :convex.aws.loadnet.load/n.iter.trx 75
                   ;:convex.aws.loadnet.peer/native?    true
                   :convex.aws.loadnet.scenario/path   '(lib sim scenario torus)
                   :convex.aws.loadnet.scenario/param+ {:n.token 5
-                                                       :n.user  2000}
-                  :convex.aws.region/n.load           20
-                  :convex.aws.region/n.peer           10
-                  :convex.aws.stack/parameter+        {;:DetailedMonitoring "false"
+                                                       :n.user  30}
+                  :convex.aws.region/n.load           1
+                  :convex.aws.region/n.peer           3
+                  :convex.aws.stack/parameter+        {:DetailedMonitoring "false"
                                                        :KeyName            "Test"
                                                        ;:InstanceTypePeer   "t2.micro"
                                                        }
@@ -363,7 +373,7 @@
 
   (future
     (delete {:convex.aws/account     (System/getenv "CONVEX_AWS_ACCOUNT")
-             :convex.aws.loadnet/dir "/private/tmp/loadnet/LoadNet-1688813640141"})
+             :convex.aws.loadnet/dir "/private/tmp/loadnet/LoadNet-1688929780225"})
     nil)
 
 
