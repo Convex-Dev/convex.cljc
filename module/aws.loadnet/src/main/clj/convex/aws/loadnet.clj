@@ -21,6 +21,7 @@
             [convex.aws.loadnet.rpc            :as $.aws.loadnet.rpc]
             [convex.aws.loadnet.stack-set      :as $.aws.loadnet.stack-set]
             [convex.cell                       :as $.cell]
+            [convex.clj                        :as $.clj]
             [taoensso.timbre                   :as log]))
 
 
@@ -76,6 +77,7 @@
           block-size         (etch :block-size)
           finality-quartile+ (env :convex.aws.loadnet.finality/quartile+)
           region+            (env :convex.aws/region+)
+          scenario-param+    (env :convex.aws.loadnet.scenario/param+)
           master-file        (java.io/file master)
           exists?            (.exists master-file)]
       (log/info (format "Writing data to master file: %s"
@@ -100,6 +102,7 @@
                                  "Client distribution"
                                  "N iter / trx"
                                  "Scenario"
+                                 "N users"
                                  "Scenario params"
                                  "Finality avg (millis)"
                                  "Finality stddev (millis)"
@@ -156,7 +159,9 @@
                               (env :convex.aws.loadnet.load/distr)
                               (env :convex.aws.loadnet.load/n.iter.trx)
                               (env :convex.aws.loadnet.scenario/path)
-                              (env :convex.aws.loadnet.scenario/param+)
+                              ($.clj/long (get scenario-param+
+                                               ($.cell/* :n.user)))
+                              scenario-param+
                               (env :convex.aws.loadnet.finality/avg)
                               (env :convex.aws.loadnet.finality/stddev)
                               (finality-quartile+ :min)
@@ -279,7 +284,7 @@
        Configuration for the simulation scenario chosen in `:convex.aws.loadnet.scenario/path`
        (as a Map).
     
-     `:convex.aws.region/n.peer`
+     `:convex.aws.region/n.load`
        Number of Load Generators to deploy per region.
        Defaults to `3`.
 
@@ -505,7 +510,7 @@
                   :convex.aws.key/file                "/Users/adam/Code/convex/clj/private/Test"
                   :convex.aws.loadnet/dir             "/tmp/loadnet"
                   :convex.aws.loadnet/master          "/tmp/loadnet/master.csv"
-                  :convex.aws.loadnet/timer           10
+                  :convex.aws.loadnet/timer           2
                   :convex.aws.loadnet.load/distr      [0.6 0.2]
                   ;:convex.aws.loadnet.load/n.client   3
                   :convex.aws.loadnet.load/n.iter.trx 1
@@ -513,9 +518,9 @@
                   :convex.aws.loadnet.peer/stake      [1 0.25 0.01]
                   :convex.aws.loadnet.scenario/path   '(lib sim scenario torus)
                   :convex.aws.loadnet.scenario/param+ {:n.token 5
-                                                       :n.user  2000}
-                  :convex.aws.region/n.load           20
-                  :convex.aws.region/n.peer           10
+                                                       :n.user  10}
+                  :convex.aws.region/n.load           1
+                  :convex.aws.region/n.peer           5
                   :convex.aws.stack/parameter+        {;:DetailedMonitoring "false"
                                                        :KeyName            "Test"
                                                        ;:InstanceTypePeer   "t2.micro"
