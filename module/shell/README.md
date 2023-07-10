@@ -51,7 +51,7 @@ allowing for scripted or dynamic interactions with networks of peers.
 ## Usage
 
 Install the [latest
-release](https://github.com/Convex-Dev/convex.cljc/releases/tag/stable%2F2023-01-18)
+release](https://github.com/Convex-Dev/convex.cljc/releases/tag/stable%2F2023-06-01)
 on your system.
 
 The native version is highly recommended, but an uberjar file is provided in case
