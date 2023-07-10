@@ -6,7 +6,9 @@
 
   (:import (java.util Locale))
   (:require [babashka.fs                       :as bb.fs]
+            [clojure.data.csv                  :as csv]
             [clojure.edn                       :as edn]
+            [clojure.java.io                   :as java.io]
             [clojure.string                    :as string]
             [convex.aws.loadnet.cloudformation :as $.aws.loadnet.cloudformation]
             [convex.aws.loadnet.cloudwatch     :as $.aws.loadnet.cloudwatch]
@@ -22,7 +24,12 @@
             [taoensso.timbre                   :as log]))
 
 
-(declare start
+(set! *warn-on-reflection*
+      true)
+
+
+(declare ^:private -master
+         start
          stop)
 
 
@@ -32,7 +39,169 @@
 (Locale/setDefault Locale/US)
 
 
-;;;;;;;;;;
+;;;;;;;;;; Private
+
+
+(defn- -collect
+
+  ;; Collects all results and deletes the stack set.
+
+  [env]
+
+  (let [env-2 (-> env
+                  ($.aws.loadnet.peer/log+)
+                  ($.aws.loadnet.load.log/download)
+                  ($.aws.loadnet.load.log/stat+)
+                  ($.aws.loadnet.peer.etch/download)
+                  ($.aws.loadnet.peer.etch/stat+)
+                  ($.aws.loadnet.cloudwatch/download)
+                  ($.aws.loadnet.stack-set/delete)
+                  (-master))]
+    (log/info "Simulation is finished")
+    env-2))
+
+
+
+(defn- -master
+
+  [env]
+
+  (if-some [master (env :convex.aws.loadnet/master)]
+    (let [cloudwatch         (env :convex.aws.loadnet.cloudwatch/summary)
+          cpu                (cloudwatch :cpu-utilization-percent)
+          mem                (cloudwatch :mem-used-mb)
+          etch               (get-in env
+                                     [:convex.aws.loadnet.etch/stat+
+                                      0])
+          block-size         (etch :block-size)
+          finality-quartile+ (env :convex.aws.loadnet.finality/quartile+)
+          master-file        (java.io/file master)
+          exists?            (.exists master-file)]
+      (log/info (format "Writing data to master file: %s"
+                        (.getCanonicalPath master-file)))
+      (bb.fs/create-dirs (.getParent master-file))
+      (with-open [out (java.io/writer master-file
+                                      :append true)]
+        (csv/write-csv out
+                       (conj (if exists?
+                               []
+                               [["Name"
+                                 "Timer (min)"
+                                 "Stack params"
+                                 "Stack tags"
+                                 "Regions"
+                                 "N peers / region"
+                                 "Peer platform"
+                                 "Stake distribution"
+                                 "N load gen / region"
+                                 "N client / load gen"
+                                 "Client distribution"
+                                 "N iter / trx"
+                                 "Scenario"
+                                 "Scenario params"
+                                 "Finality avg (millis)"
+                                 "Finality stddev (millis)"
+                                 "Finality min (millis)"
+                                 "Finality q1 (millis)"
+                                 "Finality median (millis)"
+                                 "Finality q3 (millis)"
+                                 "Finality max (millis)"
+                                 "Finality iqr (millis)"
+                                 "Etch size (GB)"
+                                 "Consensus point"
+                                 "Proposal point"
+                                 "Load duration (sec)"
+                                 "Block size min (trx)"
+                                 "Block size q1 (trx)"
+                                 "Block size median (trx)"
+                                 "Block size q3(trx)"
+                                 "Block size max (trx)"
+                                 "Block size iqr (trx)"
+                                 "N blocks"
+                                 "Blocks / second"
+                                 "N trxs confirmed"
+                                 "Transactions / second"
+                                 "Operations / second"
+                                 "CPU min (percent)"
+                                 "CPU q1 (percent)"
+                                 "CPU median (percent)"
+                                 "CPU q3 (percent)"
+                                 "CPU max (percent)"
+                                 "CPU iqr (percent)"
+                                 "Memory min (MB)"
+                                 "Memory q1 (MB)"
+                                 "Memory median (MB)"
+                                 "Memory q3 (MB)"
+                                 "Memory max (MB)"
+                                 "Memory iqr (MB)"
+                                 "Network input speed / peer (MB/s)"
+                                 "Network input volume (GB)"
+                                 "Network output speed / peer (MB/s)"
+                                 "Network output volume (GB)"]])
+                             [(env :convex.aws.stack-set/name)
+                              (env :convex.aws.loadnet/timer)
+                              (env :convex.aws.stack/parameter+)
+                              (env :convex.aws.stack/tag+)
+                              (env :convex.aws/region+)
+                              (env :convex.aws.region/n.peer)
+                              (if (env :convex.aws.loadnet.peer/native?)
+                                "Native"
+                                "JVM")
+                              (env :convex.aws.loadnet.peer/stake)
+                              (env :convex.aws.region/n.load)
+                              (env :convex.aws.loadnet.load/n.client)
+                              (env :convex.aws.loadnet.load/distr)
+                              (env :convex.aws.loadnet.load/n.iter.trx)
+                              (env :convex.aws.loadnet.scenario/path)
+                              (env :convex.aws.loadnet.scenario/param+)
+                              (env :convex.aws.loadnet.finality/avg)
+                              (env :convex.aws.loadnet.finality/stddev)
+                              (finality-quartile+ :min)
+                              (finality-quartile+ :q1)
+                              (finality-quartile+ :median)
+                              (finality-quartile+ :q3)
+                              (finality-quartile+ :max)
+                              (finality-quartile+ :iqr)
+                              (format "%.3f"
+                                      (/ (etch :etch-size)
+                                         1e9))
+                              (etch :point.consensus)
+                              (etch :point.proposal)
+                              (format "%.2f"
+                                      (etch :duration))
+                              (block-size :min)
+                              (block-size :q1)
+                              (block-size :median)
+                              (block-size :q3)
+                              (block-size :max)
+                              (block-size :iqr)
+                              (etch :n.block)
+                              (etch :bps)
+                              (etch :n.trx.consensus)
+                              (etch :tps)
+                              (etch :ops)
+                              (cpu :min)
+                              (cpu :q1)
+                              (cpu :median)
+                              (cpu :q3)
+                              (cpu :max)
+                              (cpu :iqr)
+                              (mem :min)
+                              (mem :q1)
+                              (mem :median)
+                              (mem :q3)
+                              (mem :max)
+                              (mem :iqr)
+                              (cloudwatch :net-in-mbps)
+                              (cloudwatch :net-in-volume-gb)
+                              (cloudwatch :net-out-mbps)
+                              (cloudwatch :net-out-volume-gb)]))))
+    (do
+      (log/info "No master file specified for aggregating results")
+      env)))
+
+
+;;;;;;;;;; Public
 
 
 (defn create
@@ -313,29 +482,7 @@
              (System/currentTimeMillis))
       ($.aws.loadnet.load/stop)
       ($.aws.loadnet.peer/stop)
-      ($.aws.loadnet.peer/log+)
-      ($.aws.loadnet.load.log/download)
-      ($.aws.loadnet.load.log/stat+)
-      ($.aws.loadnet.peer.etch/download)
-      ($.aws.loadnet.peer.etch/stat+)
-      ($.aws.loadnet.cloudwatch/download)
-      ($.aws.loadnet.stack-set/delete)))
-
-
-(defn collect
-
-  [env]
-
-  (-> env
-      ;($.aws.loadnet.load/stop)
-      ;($.aws.loadnet.peer/stop)
-      ($.aws.loadnet.peer/log+)
-      ($.aws.loadnet.load.log/download)
-      ($.aws.loadnet.load.log/stat+)
-      ($.aws.loadnet.peer.etch/download)
-      ($.aws.loadnet.peer.etch/stat+)
-      ($.aws.loadnet.cloudwatch/download)
-      ($.aws.loadnet.stack-set/delete)))
+      (-collect)))
 
 
 ;;;;;;;;;;
@@ -354,7 +501,8 @@
                                                        ]
                   :convex.aws.key/file                "/Users/adam/Code/convex/clj/private/Test"
                   :convex.aws.loadnet/dir             "/tmp/loadnet"
-                  :convex.aws.loadnet/timer           10
+                  :convex.aws.loadnet/master          "/tmp/loadnet/master.csv"
+                  :convex.aws.loadnet/timer           2
                   :convex.aws.loadnet.load/distr      [0.6 0.2]
                   :convex.aws.loadnet.load/n.client   3
                   :convex.aws.loadnet.load/n.iter.trx 1
@@ -362,10 +510,10 @@
                   :convex.aws.loadnet.peer/stake      [1 0.25 0.01]
                   :convex.aws.loadnet.scenario/path   '(lib sim scenario torus)
                   :convex.aws.loadnet.scenario/param+ {:n.token 5
-                                                       :n.user  2000}
-                  :convex.aws.region/n.load           20
-                  :convex.aws.region/n.peer           10
-                  :convex.aws.stack/parameter+        {:DetailedMonitoring "false"
+                                                       :n.user  10}
+                  :convex.aws.region/n.load           1
+                  :convex.aws.region/n.peer           4
+                  :convex.aws.stack/parameter+        {;:DetailedMonitoring "false"
                                                        :KeyName            "Test"
                                                        ;:InstanceTypePeer   "t2.micro"
                                                        }
@@ -386,7 +534,7 @@
 
   (future
     (delete {:convex.aws/account     (System/getenv "CONVEX_AWS_ACCOUNT")
-             :convex.aws.loadnet/dir "/private/tmp/loadnet/LoadNet-1688935584763"})
+             :convex.aws.loadnet/dir "/private/tmp/loadnet/LoadNet-1688970161454"})
     nil)
 
 
@@ -397,9 +545,11 @@
   ($.aws.loadnet.peer.etch/stat+ env)
   ($.aws.loadnet.peer/log+ env)
 
+  (-master env)
+
 
   (future
-    (collect env)
+    (-collect env)
     nil)
 
   )
