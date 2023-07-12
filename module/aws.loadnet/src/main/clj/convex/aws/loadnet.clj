@@ -90,6 +90,7 @@
                        (conj (if exists?
                                []
                                [["Name"
+                                 "Comment"
                                  "Timer (min)"
                                  "Stack params"
                                  "Stack tags"
@@ -145,6 +146,8 @@
                                  "Network output speed / peer (MB/s)"
                                  "Network output volume (GB)"]])
                              [(env :convex.aws.stack-set/name)
+                              (or (env :convex.aws.loadnet/comment)
+                                  "None")
                               (env :convex.aws.loadnet/timer)
                               (env :convex.aws.stack/parameter+)
                               (env :convex.aws.stack/tag+)
@@ -514,6 +517,7 @@
                                                        ;"ap-southeast-1"
                                                        ]
                   :convex.aws.key/file                "/Users/adam/Code/convex/clj/private/Test"
+                  :convex.aws.loadnet/comment         "Test"
                   :convex.aws.loadnet/dir             "/tmp/loadnet"
                   :convex.aws.loadnet/master          "/tmp/loadnet/master.csv"
                   :convex.aws.loadnet/timer           1
