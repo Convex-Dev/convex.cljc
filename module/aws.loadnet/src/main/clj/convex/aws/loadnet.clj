@@ -271,9 +271,17 @@
        The same key pair must be available in all regions under the same name.
        Mandatory.
 
+     `:convex.aws.loadnet/comment`
+      A comment (String) that will appear in the master file.
+      See the `:convex.aws.loadnet/master` option.
+
      `:convex.aws.loadnet/dir`
        Path to directory where all data, metrics, and statistics will be persisted.
        Defaults to `\"./\"`.
+
+     `:convex.aws.loadnet/master`
+       Path to the \"master\" csv file where loadnet results are appended.
+       Useful for comparing runs.
 
      `:convex.aws.loadnet/timer`
        Number of minutes the simulation load will run before shutting down the loadnet.
@@ -293,6 +301,11 @@
      `:convex.aws.loadnet.load/n.iter.trx`
       Number of times the transaction code is looped within each transaction (as supported by some scenarios).
       Defaults to 1.
+
+     `:convex.aws.loadnet.peer/external-ip+`
+      Vector of IP addresses of external peers that are not part of the stack set.
+      After all peers from the stack set are synced, the user must sync those external peers
+      and then call [[start-load]] to continue the simulation.
 
      `:convex.aws.loadnet.peer/native?`
        If `true` (default), Peers will run on the JVM (advised for much better performance).
