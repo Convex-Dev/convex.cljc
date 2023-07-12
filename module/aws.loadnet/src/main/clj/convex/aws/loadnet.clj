@@ -355,62 +355,67 @@
                    :KeyName]))
   (assert (env :convex.aws.loadnet.scenario/path))
   (assert (env :convex.aws.loadnet.scenario/param+))
-  (let [stack-set-name (or (env :convex.aws.stack/name)
-                           (str "LoadNet-"
-                                (System/currentTimeMillis)))
-        dir            (or (env :convex.aws.loadnet/dir)
-                           $.aws.loadnet.default/dir)
-        dir-2          (-> (format "%s/%s"
-                                   dir
-                                   (string/replace stack-set-name
-                                                   #"\s"
-                                                   "_"))
-                            (bb.fs/canonicalize)
-                            (str))]
-    (bb.fs/create-dirs dir-2)
-    (-> env
-        (assoc :convex.aws.loadnet/dir            dir-2
-               :convex.aws.loadnet/*stopped?      (atom false)
-               :convex.aws.loadnet.load/*stopped+ (atom #{})
-               :convex.aws.stack/name             stack-set-name)
-        (update :convex.aws.loadnet.load/n.iter.trx
-                #(or %
-                     $.aws.loadnet.default/n-iter-trx))
-        (update :convex.aws.loadnet.load/volume
-                #(or %
-                     $.aws.loadnet.default/volume-load))
-        (update :convex.aws.loadnet.peer/native?
-                #(or %
-                     $.aws.loadnet.default/peer-native?))
-        (update :convex.aws.loadnet.peer/volume
-                #(or %
-                     $.aws.loadnet.default/volume-peer))
-        (update :convex.aws.loadnet.scenario/path
-                $.cell/any)
-        (update :convex.aws.loadnet.scenario/param+
-                $.cell/any)
-        (update :convex.aws.region/n.load
-                #(or %
-                     $.aws.loadnet.default/n-load))
-        (update :convex.aws.region/n.peer
-                #(or %
-                     $.aws.loadnet.default/n-peer))
-        (update :convex.aws.stack/parameter+
-                (fn [parameter+]
-                  (-> parameter+
-                      (update :DetailedMonitoring
-                              #(or %
-                                   $.aws.loadnet.default/detailed-monitoring))
-                      (update :InstanceTypeLoad
-                              #(or %
-                                   $.aws.loadnet.default/instance-type-load))
-                      (update :InstanceTypePeer
-                              #(or %
-                                   $.aws.loadnet.default/instance-type-peer)))))
-        ($.aws.loadnet.cloudwatch/client+)
-        ($.aws.loadnet.cloudformation/client+)
-        ($.aws.loadnet.stack-set/create)
-        (start))))
+  (try
+    (let [stack-set-name (or (env :convex.aws.stack/name)
+                             (str "LoadNet-"
+                                  (System/currentTimeMillis)))
+          dir            (or (env :convex.aws.loadnet/dir)
+                             $.aws.loadnet.default/dir)
+          dir-2          (-> (format "%s/%s"
+                                     dir
+                                     (string/replace stack-set-name
+                                                     #"\s"
+                                                     "_"))
+                              (bb.fs/canonicalize)
+                              (str))]
+      (bb.fs/create-dirs dir-2)
+      (-> env
+          (assoc :convex.aws.loadnet/dir            dir-2
+                 :convex.aws.loadnet/*stopped?      (atom false)
+                 :convex.aws.loadnet.load/*stopped+ (atom #{})
+                 :convex.aws.stack/name             stack-set-name)
+          (update :convex.aws.loadnet.load/n.iter.trx
+                  #(or %
+                       $.aws.loadnet.default/n-iter-trx))
+          (update :convex.aws.loadnet.load/volume
+                  #(or %
+                       $.aws.loadnet.default/volume-load))
+          (update :convex.aws.loadnet.peer/native?
+                  #(or %
+                       $.aws.loadnet.default/peer-native?))
+          (update :convex.aws.loadnet.peer/volume
+                  #(or %
+                       $.aws.loadnet.default/volume-peer))
+          (update :convex.aws.loadnet.scenario/path
+                  $.cell/any)
+          (update :convex.aws.loadnet.scenario/param+
+                  $.cell/any)
+          (update :convex.aws.region/n.load
+                  #(or %
+                       $.aws.loadnet.default/n-load))
+          (update :convex.aws.region/n.peer
+                  #(or %
+                       $.aws.loadnet.default/n-peer))
+          (update :convex.aws.stack/parameter+
+                  (fn [parameter+]
+                    (-> parameter+
+                        (update :DetailedMonitoring
+                                #(or %
+                                     $.aws.loadnet.default/detailed-monitoring))
+                        (update :InstanceTypeLoad
+                                #(or %
+                                     $.aws.loadnet.default/instance-type-load))
+                        (update :InstanceTypePeer
+                                #(or %
+                                     $.aws.loadnet.default/instance-type-peer)))))
+          ($.aws.loadnet.cloudwatch/client+)
+          ($.aws.loadnet.cloudformation/client+)
+          ($.aws.loadnet.stack-set/create)
+          (start)))
+    ;;
+    (catch Throwable e
+      (log/fatal e
+                 "While creating loadnet"))))
 
 
 
@@ -503,24 +508,24 @@
     (def env
          (create {:convex.aws/account                 (System/getenv "CONVEX_AWS_ACCOUNT")
                   :convex.aws/region+                 ["eu-central-1"
-                                                       ;"us-east-1"
+                                                       "us-east-1"
                                                        ;"us-west-1"
-                                                       ;"ap-southeast-1"
+                                                       "ap-southeast-1"
                                                        ]
                   :convex.aws.key/file                "/Users/adam/Code/convex/clj/private/Test"
                   :convex.aws.loadnet/dir             "/tmp/loadnet"
                   :convex.aws.loadnet/master          "/tmp/loadnet/master.csv"
-                  :convex.aws.loadnet/timer           2
+                  :convex.aws.loadnet/timer           10
                   :convex.aws.loadnet.load/distr      [0.6 0.2]
-                  ;:convex.aws.loadnet.load/n.client   3
-                  :convex.aws.loadnet.load/n.iter.trx 1
+                  ;:convex.aws.loadnet.load/n.client   10
+                  ;:convex.aws.loadnet.load/n.iter.trx 10
                   ;:convex.aws.loadnet.peer/native?    true
                   :convex.aws.loadnet.peer/stake      [1 0.25 0.01]
                   :convex.aws.loadnet.scenario/path   '(lib sim scenario torus)
                   :convex.aws.loadnet.scenario/param+ {:n.token 5
-                                                       :n.user  10}
-                  :convex.aws.region/n.load           1
-                  :convex.aws.region/n.peer           5
+                                                       :n.user  2000}
+                  :convex.aws.region/n.load           7
+                  :convex.aws.region/n.peer           15
                   :convex.aws.stack/parameter+        {;:DetailedMonitoring "false"
                                                        :KeyName            "Test"
                                                        ;:InstanceTypePeer   "t2.micro"
@@ -542,7 +547,7 @@
 
   (future
     (delete {:convex.aws/account     (System/getenv "CONVEX_AWS_ACCOUNT")
-             :convex.aws.loadnet/dir "/private/tmp/loadnet/LoadNet-1688978796117"})
+             :convex.aws.loadnet/dir "/private/tmp/loadnet/LoadNet-1689157931526"})
     nil)
 
 
