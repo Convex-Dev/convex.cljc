@@ -74,6 +74,8 @@
                       (env-3 :convex.aws.loadnet/dir))
               (-> env-3
                   (select-keys [:convex.aws/region+
+                                :convex.aws.ip/load+
+                                :convex.aws.ip/peer+
                                 :convex.aws.loadnet.load/distr
                                 :convex.aws.loadnet.load/n.client
                                 :convex.aws.loadnet.load/n.iter.trx
