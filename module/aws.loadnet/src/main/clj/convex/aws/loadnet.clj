@@ -52,6 +52,7 @@
   (let [env-2 (-> env
                   ($.aws.loadnet.peer/log+)
                   ($.aws.loadnet.load.log/download)
+                  ($.aws.loadnet.stack-set/terminate-instance+)
                   ($.aws.loadnet.load.log/stat+)
                   ($.aws.loadnet.peer.etch/download)
                   ($.aws.loadnet.peer.etch/stat+)
@@ -508,14 +509,14 @@
     (def env
          (create {:convex.aws/account                 (System/getenv "CONVEX_AWS_ACCOUNT")
                   :convex.aws/region+                 ["eu-central-1"
-                                                       "us-east-1"
+                                                       ;"us-east-1"
                                                        ;"us-west-1"
-                                                       "ap-southeast-1"
+                                                       ;"ap-southeast-1"
                                                        ]
                   :convex.aws.key/file                "/Users/adam/Code/convex/clj/private/Test"
                   :convex.aws.loadnet/dir             "/tmp/loadnet"
                   :convex.aws.loadnet/master          "/tmp/loadnet/master.csv"
-                  :convex.aws.loadnet/timer           10
+                  :convex.aws.loadnet/timer           1
                   :convex.aws.loadnet.load/distr      [0.6 0.2]
                   ;:convex.aws.loadnet.load/n.client   10
                   ;:convex.aws.loadnet.load/n.iter.trx 10
@@ -523,12 +524,12 @@
                   :convex.aws.loadnet.peer/stake      [1 0.25 0.01]
                   :convex.aws.loadnet.scenario/path   '(lib sim scenario torus)
                   :convex.aws.loadnet.scenario/param+ {:n.token 5
-                                                       :n.user  2000}
-                  :convex.aws.region/n.load           7
-                  :convex.aws.region/n.peer           15
-                  :convex.aws.stack/parameter+        {;:DetailedMonitoring "false"
+                                                       :n.user  20}
+                  :convex.aws.region/n.load           2
+                  :convex.aws.region/n.peer           2
+                  :convex.aws.stack/parameter+        {:DetailedMonitoring "false"
                                                        :KeyName            "Test"
-                                                       ;:InstanceTypePeer   "t2.micro"
+                                                       :InstanceTypePeer   "t2.micro"
                                                        }
                   :convex.aws.stack/tag+              {:Project "Ontochain"}})))
 
@@ -547,7 +548,7 @@
 
   (future
     (delete {:convex.aws/account     (System/getenv "CONVEX_AWS_ACCOUNT")
-             :convex.aws.loadnet/dir "/private/tmp/loadnet/LoadNet-1689157931526"})
+             :convex.aws.loadnet/dir "/private/tmp/loadnet/LoadNet-1689164041949"})
     nil)
 
 
@@ -558,11 +559,10 @@
   ($.aws.loadnet.peer.etch/stat+ env)
   ($.aws.loadnet.peer/log+ env)
 
-  (-master env)
-
 
   (future
     (-collect env)
     nil)
+
 
   )

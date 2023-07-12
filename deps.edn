@@ -57,6 +57,14 @@
    :maestro/url     "https://github.com/cognitect-labs/aws-api"}
 
 
+  :ext/aws.ec2
+
+  {:extra-deps      {com.cognitect.aws/ec2 {:mvn/version "848.2.1413.0"}}
+   :maestro/doc     "EC2 driver for the AWS API"
+   :maestro/require [:ext/aws]
+   :maestro/url     "https://github.com/cognitect-labs/aws-api"}
+
+
   :ext/aws.s3
 
   {:extra-deps      {com.cognitect.aws/s3 {:mvn/version "847.2.1365.0"}}
@@ -366,6 +374,7 @@
    :maestro/platform+                   [:jvm]
    :maestro/require                     [:ext/aws.cloudformation
                                          :ext/aws.cloudwatch
+                                         :ext/aws.ec2
                                          :ext/babashka.fs
                                          :ext/csv
                                          :ext/json

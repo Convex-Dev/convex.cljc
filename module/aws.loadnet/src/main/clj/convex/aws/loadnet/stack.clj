@@ -45,6 +45,20 @@
 
 
 
+(defn instance+
+
+  "Queries a Vector of information about instances in the given `region`."
+
+  [env region]
+
+  (filterv (fn [resrc]
+             (= (resrc :ResourceType)
+                "AWS::EC2::Instance"))
+           (resrc+ env
+                   region)))
+
+
+
 (defn ip+
 
   "Queries a Vector of instance IPs for the given `region`.
@@ -91,8 +105,8 @@
   [env region]
 
   (filterv (fn [resrc]
-             (= (resrc :ResourceType)
-                "AWS::EC2::Instance"))
+             (string/starts-with? (resrc :LogicalResourceId)
+                                  "Peer"))
            (resrc+ env
                    region)))
 
@@ -105,8 +119,8 @@
   [env region]
 
   (mapv :PhysicalResourceId
-       (peer-instance+ env
-                       region)))
+        (peer-instance+ env
+                        region)))
 
 
 

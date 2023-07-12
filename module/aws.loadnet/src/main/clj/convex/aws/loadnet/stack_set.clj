@@ -4,6 +4,8 @@
 
   (:require [clojure.data.json                 :as json]
             [convex.aws.loadnet.cloudformation :as $.aws.loadnet.cloudformation]
+            [convex.aws.loadnet.ec2            :as $.aws.loadnet.ec2]
+            [convex.aws.loadnet.stack          :as $.aws.loadnet.stack]
             [convex.aws.loadnet.stack-set.op   :as $.aws.loadnet.stack-set.op]
             [convex.aws.loadnet.template       :as $.aws.loadnet.template]
             [convex.clj                        :as $.clj]
@@ -139,3 +141,38 @@
                                            {:StackSetName (env :convex.aws.stack-set/name)})
       (:StackSet)
       (dissoc :TemplateBody)))
+
+
+
+(defn terminate-instance+
+
+  "Terminates all EC2 instance in the stack set but Peer 0 (needed for Etch analytics)."
+
+  [env]
+
+  (log/info "Terminating all EC2 instances but Peer 0")
+  (let [region+  (env :convex.aws/region+)
+        region-0 (first region+)
+        env-2    ($.aws.loadnet.ec2/client+ env)]
+    (run! (fn [region]
+            (future
+              (try
+                (let [instance+   ($.aws.loadnet.stack/instance+ env-2
+                                                                 region)
+                      instance-2+ (cond->>
+                                    instance+
+                                    (= region
+                                       region-0)
+                                    (filter (fn [instance]
+                                              (not= (instance :LogicalResourceId)
+                                                    "Peer0"))))]
+                  ($.aws.loadnet.ec2/terminate+ env-2
+                                                region
+                                                (map :PhysicalResourceId
+                                                     instance-2+)))
+                (catch Throwable e
+                  (log/error e
+                             (format "While terminating instances in region %s"
+                                     region))))))
+          region+)
+    env-2))
