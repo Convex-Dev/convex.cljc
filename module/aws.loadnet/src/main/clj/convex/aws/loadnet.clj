@@ -31,6 +31,7 @@
 
 (declare ^:private -master
          start
+         start-load
          stop)
 
 
@@ -95,9 +96,10 @@
                                  "Timer (min)"
                                  "Stack params"
                                  "Stack tags"
-                                 "N regions"
+                                 "N region"
                                  "Regions"
-                                 "N peers / region"
+                                 "N peer / region"
+                                 "N external peer"
                                  "Peer platform"
                                  "Stake distribution"
                                  "N load gen / region"
@@ -105,7 +107,7 @@
                                  "Client distribution"
                                  "N iter / trx"
                                  "Scenario"
-                                 "N users"
+                                 "N user"
                                  "Scenario params"
                                  "Finality avg (millis)"
                                  "Finality stddev (millis)"
@@ -131,9 +133,9 @@
                                  "Block size q3 (trx)"
                                  "Block size max (trx)"
                                  "Block size iqr (trx)"
-                                 "N blocks"
+                                 "N block"
                                  "Blocks / second"
-                                 "N trxs confirmed"
+                                 "N trx confirmed"
                                  "Transactions / second"
                                  "Operations / second"
                                  "CPU min (percent)"
@@ -161,6 +163,7 @@
                               (count region+)
                               region+
                               (env :convex.aws.region/n.peer)
+                              (count (env :convex.aws.loadnet.peer/external-ip+))
                               (if (env :convex.aws.loadnet.peer/native?)
                                 "Native"
                                 "JVM")
@@ -460,36 +463,51 @@
 
   (let [env-2 ($.aws.loadnet.rpc/await-ssh env)]
     (if (env-2 :convex.aws.loadnet/ssh-ready?)
-      (let [timer (env-2 :convex.aws.loadnet/timer)
-            env-3 (-> env-2
-                      ($.aws.loadnet.peer/start)
-                      ($.aws.loadnet.load/start)
-                      (assoc :convex.aws.loadnet.timestamp/start
-                             (System/currentTimeMillis)))]
-        (log/info "Everything is ready")
-        (when-not (zero? (env :convex.aws.region/n.load))
-          (log/info "Simulation is running"))
-        (if timer
+      (let [env-3 ($.aws.loadnet.peer/start env-2)]
+        (if (seq (env-3 :convex.aws.loadnet.peer/external-ip+))
           (do
-            (log/info (format "Simulation will stop in %d minute(s)"
-                              timer))
-            (assoc env-3
-                   :convex.aws.loadnet/f*timer
-                   (future
-                     (Thread/sleep (* timer ; minutes
-                                      60
-                                      1000))
-                     (when-not @(env-3 :convex.aws.loadnet/*stopped?)
-                       (try
-                         (stop env-3)
-                         (catch Throwable ex
-                           (log/error ex
-                                      "While stopping loadnet")
-                           (throw ex)))))))
-          env-3))
+            (log/info "Prepare external peers and start load generator when ready")
+            env-3)
+          (-> env-3
+              (start-load))))
       (do
         (log/error "Wait a bit and try starting the simulation")
         env-2))))
+
+
+
+(defn start-load
+
+  "Starts load generation (if required)."
+
+  [env]
+
+  (let [timer (env :convex.aws.loadnet/timer)
+        env-2 (-> env
+                  ($.aws.loadnet.load/start)
+                  (assoc :convex.aws.loadnet.timestamp/start
+                         (System/currentTimeMillis)))]
+    (log/info "Everything is ready")
+    (when-not (zero? (env-2 :convex.aws.region/n.load))
+      (log/info "Simulation is running"))
+    (if timer
+      (do
+        (log/info (format "Simulation will stop in %d minute(s)"
+                          timer))
+        (assoc env-2
+               :convex.aws.loadnet/f*timer
+               (future
+                 (Thread/sleep (* timer ; minutes
+                                  60
+                                  1000))
+                 (when-not @(env-2 :convex.aws.loadnet/*stopped?)
+                   (try
+                     (stop env-2)
+                     (catch Throwable ex
+                       (log/error ex
+                                  "While stopping loadnet")
+                       (throw ex)))))))
+      env-2)))
 
 
 
@@ -523,32 +541,33 @@
 
   (future
     (def env
-         (create {:convex.aws/account                 (System/getenv "CONVEX_AWS_ACCOUNT")
-                  :convex.aws/region+                 ["eu-central-1"
-                                                       ;"us-east-1"
-                                                       ;"us-west-1"
-                                                       ;"ap-southeast-1"
-                                                       ]
-                  :convex.aws.key/file                "/Users/adam/Code/convex/clj/private/Test"
-                  :convex.aws.loadnet/comment         "Test"
-                  :convex.aws.loadnet/dir             "/tmp/loadnet"
-                  :convex.aws.loadnet/master          "/tmp/loadnet/master.csv"
-                  :convex.aws.loadnet/timer           1
-                  :convex.aws.loadnet.load/distr      [0.6 0.2]
-                  ;:convex.aws.loadnet.load/n.client   10
-                  ;:convex.aws.loadnet.load/n.iter.trx 10
-                  ;:convex.aws.loadnet.peer/native?    true
-                  :convex.aws.loadnet.peer/stake      [1 0.25 0.01]
-                  :convex.aws.loadnet.scenario/path   '(lib sim scenario torus)
-                  :convex.aws.loadnet.scenario/param+ {:n.token 5
-                                                       :n.user  20}
-                  :convex.aws.region/n.load           2
-                  :convex.aws.region/n.peer           2
-                  :convex.aws.stack/parameter+        {:DetailedMonitoring "false"
-                                                       :KeyName            "Test"
-                                                       :InstanceTypePeer   "t2.micro"
-                                                       }
-                  :convex.aws.stack/tag+              {:Project "Ontochain"}})))
+         (create {:convex.aws/account                   (System/getenv "CONVEX_AWS_ACCOUNT")
+                  :convex.aws/region+                   ["eu-central-1"
+                                                         ;"us-east-1"
+                                                         ;"us-west-1"
+                                                         ;"ap-southeast-1"
+                                                         ]
+                  :convex.aws.key/file                  "/Users/adam/Code/convex/clj/private/Test"
+                  :convex.aws.loadnet/comment           "Test"
+                  :convex.aws.loadnet/dir               "/tmp/loadnet"
+                  :convex.aws.loadnet/master            "/tmp/loadnet/master.csv"
+                  ;:convex.aws.loadnet/timer             1
+                  :convex.aws.loadnet.load/distr        [0.6 0.2]
+                  ;:convex.aws.loadnet.load/n.client     10
+                  ;:convex.aws.loadnet.load/n.iter.trx   10
+                  :convex.aws.loadnet.peer/external-ip+ ["42.42.42.42"]
+                  ;:convex.aws.loadnet.peer/native?      true
+                  :convex.aws.loadnet.peer/stake        [1 0.25 0.01]
+                  :convex.aws.loadnet.scenario/path     '(lib sim scenario torus)
+                  :convex.aws.loadnet.scenario/param+   {:n.token 5
+                                                         :n.user  20}
+                  :convex.aws.region/n.load             0
+                  :convex.aws.region/n.peer             2
+                  :convex.aws.stack/parameter+          {:DetailedMonitoring "false"
+                                                         :KeyName            "Test"
+                                                         :InstanceTypePeer   "t2.micro"
+                                                         }
+                  :convex.aws.stack/tag+                {:Project "Ontochain"}})))
 
 
   ;; If awaiting SSH servers fail, run this to start the load.
@@ -556,6 +575,13 @@
   (future
     (def env
          (start env)))
+
+
+  ;; Called manually when external peers (if any) are ready.
+  ;
+  (future
+    (def env
+         (start-load env)))
 
 
   (future

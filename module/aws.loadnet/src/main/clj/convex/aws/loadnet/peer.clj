@@ -92,14 +92,14 @@
                                                                         ($.net.test/state.genesis
                                                                           {:peer+
                                                                            ~($.cell/vector (let [n-peer-region (env :convex.aws.region/n.peer)
-                                                                                                 peer+         (env :convex.aws.ip/peer+)
+                                                                                                 ip-peer+      (env :convex.aws.ip/peer+)
                                                                                                  stake         (take n-peer-region
                                                                                                                      (env :convex.aws.loadnet.peer/stake))
                                                                                                  _             (log/info (if stake
                                                                                                                            (format "Stake distribution / region = %s"
                                                                                                                                    (vec stake))
                                                                                                                            "Stake distributed uniformly"))
-                                                                                                 stake-2       (take (count peer+)
+                                                                                                 stake-2       (take (count ip-peer+)
                                                                                                                      (cycle
                                                                                                                        (mapv (fn [p]
                                                                                                                                (* p
@@ -109,13 +109,18 @@
                                                                                                                                                 (count stake))
                                                                                                                                              (or (last stake)
                                                                                                                                                  1))))))]
-                                                                                             (map-indexed (fn [i-peer ip]
-                                                                                                            ($.cell/* {:host     ~($.cell/string ip)
-                                                                                                                       :metadata {:region ~($.cell/long (quot i-peer
-                                                                                                                                                              n-peer-region))}
-                                                                                                                       :stake    ~($.cell/long (nth stake-2
-                                                                                                                                                    i-peer))}))
-                                                                                                          peer+)))})
+                                                                                             (concat
+                                                                                               (map-indexed (fn [i-peer ip]
+                                                                                                              ($.cell/* {:host     ~($.cell/string ip)
+                                                                                                                         :metadata {:region ~($.cell/long (quot i-peer
+                                                                                                                                                                n-peer-region))}
+                                                                                                                         :stake    ~($.cell/long (nth stake-2
+                                                                                                                                                      i-peer))}))
+                                                                                                            ip-peer+)
+                                                                                               (map (fn [ip]
+                                                                                                      ($.cell/* {:host  ~($.cell/string ip)
+                                                                                                                 :stake 10000000000}))
+                                                                                                    (env :convex.aws.loadnet.peer/external-ip+)))))})
                                                                         ~(env :convex.aws.loadnet.scenario/param+)))})
                             (loop []
                               (.worker.start {:pipe "peer"})

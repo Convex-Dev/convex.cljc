@@ -46,6 +46,8 @@
                                              "on the JVM")))
                          (log/info (format "EC2 Detailed Monitoring on peer instances = %s"
                                            (parameter+ :DetailedMonitoring)))
+                         (log/info (format "N external peer = %d"
+                                           (count (env :convex.aws.loadnet.peer/external-ip+))))
                          (log/info (format "Scenario path = %s"
                                            (env :convex.aws.loadnet.scenario/path)))
                          (log/info (format "Scenario parameters = %s"
@@ -84,6 +86,7 @@
                                 :convex.aws.loadnet.scenario/param+
                                 :convex.aws.loadnet.scenario/path
                                 :convex.aws.loadnet/timer
+                                :convex.aws.loadnet.peer/external-ip+
                                 :convex.aws.region/n.load
                                 :convex.aws.region/n.peer
                                 :convex.aws.stack/parameter+
