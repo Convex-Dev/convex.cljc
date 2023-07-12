@@ -80,7 +80,10 @@
           block-size-trx     (etch :block-size-trx)
           finality-quartile+ (env :convex.aws.loadnet.finality/quartile+)
           region+            (env :convex.aws/region+)
+          n-region           (count region+)
           scenario-param+    (env :convex.aws.loadnet.scenario/param+)
+          n-peer-region      (env :convex.aws.region/n.peer)
+          n-peer-external    (count (env :convex.aws.loadnet.peer/external-ip+))
           master-file        (java.io/file master)
           exists?            (.exists master-file)]
       (log/info (format "Writing data to master file: %s"
@@ -100,6 +103,7 @@
                                  "Regions"
                                  "N peer / region"
                                  "N external peer"
+                                 "N peer"
                                  "Peer platform"
                                  "Stake distribution"
                                  "N load gen / region"
@@ -160,10 +164,13 @@
                               (env :convex.aws.loadnet/timer)
                               (env :convex.aws.stack/parameter+)
                               (env :convex.aws.stack/tag+)
-                              (count region+)
+                              n-region
                               region+
-                              (env :convex.aws.region/n.peer)
-                              (count (env :convex.aws.loadnet.peer/external-ip+))
+                              n-peer-region
+                              n-peer-external
+                              (+ (* n-region
+                                    n-peer-region)
+                                 n-peer-external)
                               (if (env :convex.aws.loadnet.peer/native?)
                                 "Native"
                                 "JVM")
@@ -551,17 +558,17 @@
                   :convex.aws.loadnet/comment           "Test"
                   :convex.aws.loadnet/dir               "/tmp/loadnet"
                   :convex.aws.loadnet/master            "/tmp/loadnet/master.csv"
-                  ;:convex.aws.loadnet/timer             1
+                  :convex.aws.loadnet/timer             1
                   :convex.aws.loadnet.load/distr        [0.6 0.2]
                   ;:convex.aws.loadnet.load/n.client     10
                   ;:convex.aws.loadnet.load/n.iter.trx   10
-                  :convex.aws.loadnet.peer/external-ip+ ["42.42.42.42"]
+                  ;:convex.aws.loadnet.peer/external-ip+ ["42.42.42.42"]
                   ;:convex.aws.loadnet.peer/native?      true
                   :convex.aws.loadnet.peer/stake        [1 0.25 0.01]
                   :convex.aws.loadnet.scenario/path     '(lib sim scenario torus)
                   :convex.aws.loadnet.scenario/param+   {:n.token 5
                                                          :n.user  20}
-                  :convex.aws.region/n.load             0
+                  :convex.aws.region/n.load             2
                   :convex.aws.region/n.peer             2
                   :convex.aws.stack/parameter+          {:DetailedMonitoring "false"
                                                          :KeyName            "Test"
@@ -591,7 +598,7 @@
 
   (future
     (delete {:convex.aws/account     (System/getenv "CONVEX_AWS_ACCOUNT")
-             :convex.aws.loadnet/dir "/private/tmp/loadnet/LoadNet-1689164041949"})
+             :convex.aws.loadnet/dir "/private/tmp/loadnet/LoadNet-1689171070184"})
     nil)
 
 
