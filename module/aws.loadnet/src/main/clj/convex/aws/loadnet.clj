@@ -75,7 +75,8 @@
           etch               (get-in env
                                      [:convex.aws.loadnet.etch/stat+
                                       0])
-          block-size         (etch :block-size)
+          block-size-byte    (etch :block-size-byte)
+          block-size-trx     (etch :block-size-trx)
           finality-quartile+ (env :convex.aws.loadnet.finality/quartile+)
           region+            (env :convex.aws/region+)
           scenario-param+    (env :convex.aws.loadnet.scenario/param+)
@@ -118,10 +119,16 @@
                                  "Consensus point"
                                  "Proposal point"
                                  "Load duration (sec)"
+                                 "Block size min (bytes)"
+                                 "Block size q1 (bytes)"
+                                 "Block size median (bytes)"
+                                 "Block size q3 (bytes)"
+                                 "Block size max (bytes)"
+                                 "Block size iqr (trx)"
                                  "Block size min (trx)"
                                  "Block size q1 (trx)"
                                  "Block size median (trx)"
-                                 "Block size q3(trx)"
+                                 "Block size q3 (trx)"
                                  "Block size max (trx)"
                                  "Block size iqr (trx)"
                                  "N blocks"
@@ -181,12 +188,18 @@
                               (etch :point.proposal)
                               (format "%.2f"
                                       (etch :duration))
-                              (block-size :min)
-                              (block-size :q1)
-                              (block-size :median)
-                              (block-size :q3)
-                              (block-size :max)
-                              (block-size :iqr)
+                              (block-size-byte :min)
+                              (block-size-byte :q1)
+                              (block-size-byte :median)
+                              (block-size-byte :q3)
+                              (block-size-byte :max)
+                              (block-size-byte :iqr)
+                              (block-size-trx :min)
+                              (block-size-trx :q1)
+                              (block-size-trx :median)
+                              (block-size-trx :q3)
+                              (block-size-trx :max)
+                              (block-size-trx :iqr)
                               (etch :n.block)
                               (etch :bps)
                               (etch :n.trx.consensus)

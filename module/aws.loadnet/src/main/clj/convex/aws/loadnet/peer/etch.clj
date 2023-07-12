@@ -99,6 +99,9 @@
          (let [etch-size        ($.db/size)
                block+           ($.std/get order
                                            ($.cell/* :blocks))
+               block-size-byte  (transduce (map $.std/memory-size)
+                                           kixi.stats/summary
+                                           block+)
                n-block          ($.std/count block+)
                n-trx+           (mapv (fn [block]
                                         (-> (get-in block
@@ -106,7 +109,7 @@
                                                      ($.cell/* :transactions)])
                                             ($.std/count)))
                                       block+)
-               block-size       (transduce identity
+               block-size-trx   (transduce identity
                                            kixi.stats/summary
                                            n-trx+)
                cp               ($.clj/long ($.std/get order
@@ -116,7 +119,8 @@
                n-trx-consensus (reduce +
                                        (take cp
                                              n-trx+))
-               result          {:block-size      block-size
+               result          {:block-size-byte block-size-byte
+                                :block-size-trx  block-size-trx
                                 :etch-size       etch-size
                                 :n.block         n-block
                                 :n.trx.consensus n-trx-consensus
@@ -133,8 +137,10 @@
                              pp))
            (log/info (format "Number of transactions in consensus = %d"
                              n-trx-consensus))
-           (log/info (format "Block size quartiles = %s"
-                             block-size))
+           (log/info (format "Block size quartiles (bytes) = %s"
+                             block-size-byte))
+           (log/info (format "Block size quartiles (trx) = %s"
+                             block-size-trx))
            (let [result-2 (if (<= n-block
                                   1)
                             (do
