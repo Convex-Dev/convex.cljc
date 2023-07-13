@@ -54,6 +54,32 @@
                              ($.cell/* "Cannot transact for an actor")))))
 
 
+
+(defn- -new-multi
+
+  ;; Used by requests creating multi-transactions.
+
+  [ctx f-mode [origin sequence-id trx+]]
+
+  (or (-ensure-origin ctx
+                      origin)
+      (-ensure-sequence-id ctx
+                           sequence-id)
+      (when-not ($.std/vector? trx+)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Child transactions must be in a Vector")))
+      (when-not (every? $.std/transaction?
+                        trx+)
+        ($.cvm/exception-set ctx
+                             ($.cell/code-std* :ARGUMENT)
+                             ($.cell/* "Vector of transactions must contain only transactions")))
+      ($.cvm/result-set ctx
+                        (f-mode origin
+                                ($.clj/long sequence-id)
+                                trx+))))
+
+
 ;;;;;;;;;; Requests for applying transactions
 
 
@@ -142,6 +168,54 @@
                         ($.cell/invoke origin
                                        ($.clj/long sequence-id)
                                        command))))
+
+
+
+(defn new-multi-all
+
+  "Request for creating an \"ALL\" multi-transaction."
+
+  [ctx arg+]
+
+  (-new-multi ctx
+              $.cell/multitrx-all
+              arg+))
+
+
+
+(defn new-multi-any
+
+  "Request for creating an \"ANY\" multi-transaction."
+
+  [ctx arg+]
+
+  (-new-multi ctx
+              $.cell/multitrx-any
+              arg+))
+
+
+
+(defn new-multi-first
+
+  "Request for creating a \"FIRST\" multi-transaction."
+
+  [ctx arg+]
+
+  (-new-multi ctx
+              $.cell/multitrx-first
+              arg+))
+
+
+
+(defn new-multi-until
+
+  "Request for creating a \"UNTIL\" multi-transaction."
+
+  [ctx arg+]
+
+  (-new-multi ctx
+              $.cell/multitrx-until
+              arg+))
 
 
 

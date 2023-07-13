@@ -7393,6 +7393,94 @@
 
 
 
+(defn .trx.new.multi.all
+
+  ^:private?
+
+
+  ([origin trx+]
+
+   (recur origin
+          trx+
+          nil))
+
+
+  ([origin trx+ option+]
+
+   (.shell.invoke '.trx.new.multi.all
+                  origin
+                  (or (:sequence option+)
+                      (inc (:sequence (account origin))))
+                  trx+)))
+
+
+
+(defn .trx.new.multi.any
+
+  ^:private?
+
+
+  ([origin trx+]
+
+   (recur origin
+          trx+
+          nil))
+
+
+  ([origin trx+ option+]
+
+   (.shell.invoke '.trx.new.multi.any
+                  origin
+                  (or (:sequence option+)
+                      (inc (:sequence (account origin))))
+                  trx+)))
+
+
+
+(defn .trx.new.multi.first
+
+  ^:private?
+
+
+  ([origin trx+]
+
+   (recur origin
+          trx+
+          nil))
+
+
+  ([origin trx+ option+]
+
+   (.shell.invoke '.trx.new.multi.first
+                  origin
+                  (or (:sequence option+)
+                      (inc (:sequence (account origin))))
+                  trx+)))
+
+
+
+(defn .trx.new.multi.until
+
+  ^:private?
+
+
+  ([origin trx+]
+
+   (recur origin
+          trx+
+          nil))
+
+
+  ([origin trx+ option+]
+
+   (.shell.invoke '.trx.new.multi.until
+                  origin
+                  (or (:sequence option+)
+                      (inc (:sequence (account origin))))
+                  trx+)))
+
+
+
 (defn .trx.new.transfer
 
   ^{:doc {:description ["Creates a transaction for a transfer of Convex Coins that can be executed"

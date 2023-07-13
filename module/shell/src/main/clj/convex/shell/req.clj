@@ -311,6 +311,10 @@
    ($.cell/* .trx.noop)                    $.shell.req.trx/trx-noop
    ($.cell/* .trx.new.call)                $.shell.req.trx/new-call
    ($.cell/* .trx.new.invoke)              $.shell.req.trx/new-invoke
+   ($.cell/* .trx.new.multi.all)           $.shell.req.trx/new-multi-all
+   ($.cell/* .trx.new.multi.any)           $.shell.req.trx/new-multi-any
+   ($.cell/* .trx.new.multi.first)         $.shell.req.trx/new-multi-first
+   ($.cell/* .trx.new.multi.until)         $.shell.req.trx/new-multi-until
    ($.cell/* .trx.new.transfer)            $.shell.req.trx/new-transfer
    ($.cell/* .trx.with.sequence)           $.shell.req.trx/with-sequence})
 

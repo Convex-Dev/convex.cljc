@@ -194,6 +194,107 @@
 
 
 
+(defn -new.multi
+
+  ^:private?
+
+  [f-multitrx mode]
+
+  (def trx-0
+       (.trx.new.transfer #1
+                          #2
+                          100
+                          {:sequence 0}))
+
+  (def trx-1
+       (.trx.new.transfer #1
+                          #2
+                          100
+                          {:sequence 1}))
+
+  (def trx+
+       [trx-0
+        trx-1])
+
+  (def option+
+       {:sequence 3})
+
+  (def multitrx
+       (f-multitrx #1
+                   trx+
+                   option+))
+
+  (.t.is (= mode
+            (:mode multitrx))
+         "Mode")
+
+  (.t.is (= #1
+            (:origin multitrx))
+         "Origin")
+
+  (.t.is (= 3
+            (:sequence multitrx))
+         "Sequence ID")
+
+  (.t.is (= [trx-0
+             trx-1]
+            (:txs multitrx))
+         "Child transactions")
+
+  (.t.is (.t.ex :ARGUMENT
+                (f-multitrx :fail
+                            trx+
+                            option+))
+         "Not an origin")
+
+  (.t.is (.t.ex :ARGUMENT
+                (f-multitrx #1
+                            :fail
+                            option+))
+         "Not a Vector of transactions")
+
+   (.t.is (.t.ex :ARGUMENT
+                (f-multitrx #1
+                            [42]
+                            option+))
+         "Vector of transactions mistyped")
+
+   (.t.is (.t.ex :ARGUMENT
+                (f-multitrx #1
+                            trx+
+                            {:sequence :fail}))
+          "Not a sequence ID"))
+
+
+
+(.t.def ..trx.new.multi.all
+
+  (-new.multi .trx.new.multi.all
+              1))
+
+
+
+(.t.def ..trx.new.multi.any
+
+  (-new.multi .trx.new.multi.any
+              0))
+
+
+
+(.t.def ..trx.new.multi.first
+
+  (-new.multi .trx.new.multi.first
+              2))
+
+
+
+(.t.def ..trx.new.multi.until
+
+  (-new.multi .trx.new.multi.until
+              3))
+
+
+
 (.t.def ..trx.new.transfer
 
   (def trx
