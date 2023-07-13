@@ -4,7 +4,9 @@
    
    See [[create]]."
 
-  (:import (java.util Locale))
+  (:import (java.io FileOutputStream
+                    OutputStreamWriter)
+           (java.util Locale))
   (:require [babashka.fs                       :as bb.fs]
             [clojure.data.csv                  :as csv]
             [clojure.edn                       :as edn]
@@ -89,9 +91,11 @@
       (log/info (format "Writing data to master file: %s"
                         (.getCanonicalPath master-file)))
       (bb.fs/create-dirs (.getParent master-file))
-      (with-open [out (java.io/writer master-file
-                                      :append true)]
-        (csv/write-csv out
+      (with-open [out   (FileOutputStream. master-file
+                                           true)
+                  out-2 (OutputStreamWriter. out)
+                  _lock (.lock (.getChannel out))]
+        (csv/write-csv out-2
                        (conj (if exists?
                                []
                                [["Name"
@@ -625,6 +629,9 @@
 
   ($.aws.loadnet.peer.etch/stat+ env)
   ($.aws.loadnet.peer/log+ env)
+
+
+  (-master env)
 
 
   (future
