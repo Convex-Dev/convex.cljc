@@ -589,22 +589,22 @@
                   :convex.aws.loadnet/comment           "Test"
                   :convex.aws.loadnet/dir               "/tmp/loadnet"
                   :convex.aws.loadnet/master            "/tmp/loadnet/master.csv"
-                  :convex.aws.loadnet/timer             1
+                  :convex.aws.loadnet/timer             10
                   :convex.aws.loadnet.load/distr        [0.6 0.2]
-                  :convex.aws.loadnet.load/multitrx     10
+                  :convex.aws.loadnet.load/multitrx     2
                   ;:convex.aws.loadnet.load/n.client     10
-                  ;:convex.aws.loadnet.load/n.iter.trx   10
+                  :convex.aws.loadnet.load/n.iter.trx   1
                   ;:convex.aws.loadnet.peer/external-ip+ ["42.42.42.42"]
                   ;:convex.aws.loadnet.peer/native?      true
                   :convex.aws.loadnet.peer/stake        [1 0.25 0.01]
                   :convex.aws.loadnet.scenario/path     '(lib sim scenario torus)
                   :convex.aws.loadnet.scenario/param+   {:n.token 5
-                                                         :n.user  20}
-                  :convex.aws.region/n.load             2
-                  :convex.aws.region/n.peer             2
-                  :convex.aws.stack/parameter+          {:DetailedMonitoring "false"
+                                                         :n.user  2000}
+                  :convex.aws.region/n.load             20
+                  :convex.aws.region/n.peer             10
+                  :convex.aws.stack/parameter+          {;:DetailedMonitoring "false"
                                                          :KeyName            "Test"
-                                                         :InstanceTypePeer   "t2.micro"
+                                                         ;:InstanceTypePeer   "t2.micro"
                                                          }
                   :convex.aws.stack/tag+                {:Project "Ontochain"}})))
 
