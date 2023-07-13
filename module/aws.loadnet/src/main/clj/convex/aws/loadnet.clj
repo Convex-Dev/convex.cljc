@@ -251,15 +251,15 @@
    Env is a Map providing options:
 
      `:convex.aws/account`
-        AWS account number.
-        Loadnet will be deployed as an AWS CloudFormation stack set in this account.
+       AWS account number.
+       Loadnet will be deployed as an AWS CloudFormation stack set in this account.
 
-        It must have self-managed permissions by granting it the `AWSCloudFormationStackSetAdministrationRole`
-        role and the `AWSCloudFormationStackSetExecutionRole` role.
+       It must have self-managed permissions by granting it the `AWSCloudFormationStackSetAdministrationRole`
+       role and the `AWSCloudFormationStackSetExecutionRole` role.
 
-        See [this guide](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/stacksets-prereqs-self-managed.html).
+       See [this guide](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/stacksets-prereqs-self-managed.html).
 
-        Mandatory.
+       Mandatory.
 
      `:convex.aws/region+`
        Vector of supported AWS regions (as Strings).
@@ -272,8 +272,8 @@
        Mandatory.
 
      `:convex.aws.loadnet/comment`
-      A comment (String) that will appear in the master file.
-      See the `:convex.aws.loadnet/master` option.
+       A comment (String) that will appear in the master file.
+       See the `:convex.aws.loadnet/master` option.
 
      `:convex.aws.loadnet/dir`
        Path to directory where all data, metrics, and statistics will be persisted.
@@ -290,32 +290,35 @@
        See [[stop]].
 
      `:convex.aws.loadnet.load/distr`
-      Vector of probabilities corresponding to peers per region.
-      Used by load generators when creating connections to those peers according to that distribution.
-      If missing, connections will be created uniformly.
+       Vector of probabilities corresponding to peers per region.
+       Used by load generators when creating connections to those peers according to that distribution.
+       If missing, connections will be created uniformly.
+
+     `:convex.aws.loadnet.load/multi`
+       Long specifying that load generators will create multi-transactions packaging that many transactions.
 
      `:convex.aws.loadnet.load/n.client`
-      Number of clients per load generator.
-      Defaults to the number of users in the load generator bucket.
-
+       Number of clients per load generator.
+       Defaults to the number of users in the load generator bucket.
+ 
      `:convex.aws.loadnet.load/n.iter.trx`
-      Number of times the transaction code is looped within each transaction (as supported by some scenarios).
-      Defaults to 1.
+       Number of times the transaction code is looped within each transaction (as supported by some scenarios).
+       Defaults to 1.
 
      `:convex.aws.loadnet.peer/external-ip+`
-      Vector of IP addresses of external peers that are not part of the stack set.
-      After all peers from the stack set are synced, the user must sync those external peers
-      and then call [[start-load]] to continue the simulation.
+       Vector of IP addresses of external peers that are not part of the stack set.
+       After all peers from the stack set are synced, the user must sync those external peers
+       and then call [[start-load]] to continue the simulation.
 
      `:convex.aws.loadnet.peer/native?`
        If `true` (default), Peers will run on the JVM (advised for much better performance).
        If `false`, they will run natively, compiled with GraalVM Native-Image.
 
      `:convex.aws.loadnet.peer/stake`
-      Vector of coefficients for staking peers within a region, default stake being `1e14`.
-      E.g. `[1 0.5 0.1]`
-           First peer in the region will be staked at `1e14`, second at half that, and all other
-           peers at `1e13`.
+       Vector of coefficients for staking peers within a region, default stake being `1e14`.
+       E.g. `[1 0.5 0.1]`
+            First peer in the region will be staked at `1e14`, second at half that, and all other
+            peers at `1e13`.
       
      `:convex.aws.loadnet.scenario/path`
        Actor path to a simulation scenario from the following repository (as a List).
@@ -573,6 +576,7 @@
                   :convex.aws.loadnet/master            "/tmp/loadnet/master.csv"
                   :convex.aws.loadnet/timer             1
                   :convex.aws.loadnet.load/distr        [0.6 0.2]
+                  :convex.aws.loadnet.load/multitrx     10
                   ;:convex.aws.loadnet.load/n.client     10
                   ;:convex.aws.loadnet.load/n.iter.trx   10
                   ;:convex.aws.loadnet.peer/external-ip+ ["42.42.42.42"]

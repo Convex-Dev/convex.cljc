@@ -48,6 +48,12 @@
             _             (log/info (format "Iterations per transaction = %d"
                                             n-iter-trx))
             n-iter-trx-2  ($.cell/long n-iter-trx)
+            multi         (env :convex.aws.loadnet.load/multitrx)
+            _             (when multi
+                            (log/info (format "Multi-transactions will be used (packaging %d transactions)"
+                                              multi)))
+            multi-2       (some-> multi
+                                  ($.cell/long))
             process+      (mapv (fn [i-load]
                                   (log/info (format "Starting load generator %d"
                                                     i-load))
@@ -77,6 +83,7 @@
                                                              :host         ~($.cell/string (get ip-peer+
                                                                                                 (mod i-load
                                                                                                      n-peer)))
+                                                             :multi        ~multi-2
                                                              :n.client     ~n-client-2
                                                              :n.iter.trx   ~n-iter-trx-2
                                                              :region       ~($.cell/long (quot i-load
