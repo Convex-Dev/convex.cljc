@@ -37,8 +37,10 @@
                                   CVMDouble
                                   CVMLong)
            (convex.core.lang RT)
-           (convex.core.transactions Call
+           (convex.core.transactions ATransaction
+                                     Call
                                      Invoke
+                                     Multi
                                      Transfer)
            (java.util Collection
                       List))
@@ -503,6 +505,90 @@
                                           (MapEntry/create k
                                                            v))
                                         kvs))))
+
+
+(defn- -multitrx
+
+  ;; Used by [[multitrx-*]] functions.
+
+  [^Address origin ^Long sequence-id mode trx+]
+
+  (Multi/create origin
+                sequence-id
+                mode
+                (into-array ATransaction
+                            trx+)))
+
+
+
+(defn multitrx-all
+
+  "Creates a multi-transaction from a Vector of transactions to be executed
+   according to a mode.
+
+   The \"ALL\" mode is all or nothing: either all transactions succeeded or
+   the state is reverted.
+
+   Child transactions must have either the same origin as the parent multi-
+   transaction or be controlled by the parent origin. Individual sequence IDs
+   are ignored."
+
+  ^Multi
+
+  [^Address origin ^Long sequence-id trx+]
+
+  (-multitrx origin
+             sequence-id
+             Multi/MODE_ALL
+             trx+))
+
+
+
+(defn multitrx-any
+
+  "Like [[multitrx-all]] but the \"ANY\" mode executes all transactions
+   regardless of individual results."
+
+  ^Multi
+
+  [^Address origin ^Long sequence-id trx+]
+
+  (-multitrx origin
+             sequence-id
+             Multi/MODE_ANY
+             trx+))
+
+
+
+(defn multitrx-first
+
+  "Like [[multitrx-all]] but the \"FIRST\" mode executes transactions until
+   one succeeds."
+
+  ^Multi
+
+  [^Address origin ^Long sequence-id trx+]
+
+  (-multitrx origin
+             sequence-id
+             Multi/MODE_FIRST
+             trx+))
+
+
+
+(defn multitrx-until
+
+  "Like [[multitrx-until]] but the \"UNTIL\" mode executes transactions until
+   one fails."
+
+  ^Multi
+
+  [^Address origin ^Long sequence-id trx+]
+
+  (-multitrx origin
+             sequence-id
+             Multi/MODE_UNTIL
+             trx+))
 
 
 
