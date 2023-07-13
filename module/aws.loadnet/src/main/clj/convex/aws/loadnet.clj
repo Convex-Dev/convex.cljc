@@ -17,7 +17,7 @@
             [convex.aws.loadnet.default        :as $.aws.loadnet.default]
             [convex.aws.loadnet.load           :as $.aws.loadnet.load]
             [convex.aws.loadnet.load.log       :as $.aws.loadnet.load.log]
-            [convex.aws.loadnet.log]
+            [convex.aws.loadnet.log            :as $.aws.loadnet.log]
             [convex.aws.loadnet.peer           :as $.aws.loadnet.peer]
             [convex.aws.loadnet.peer.etch      :as $.aws.loadnet.peer.etch]
             [convex.aws.loadnet.rpc            :as $.aws.loadnet.rpc]
@@ -63,6 +63,7 @@
                   ($.aws.loadnet.stack-set/delete)
                   (-master))]
     (log/info "Simulation is finished")
+    ($.aws.loadnet.log/file-close)
     env-2))
 
 
@@ -251,6 +252,8 @@
    will simulate User transactions. Logs the whole process and collects a
    whole series of performance metrics.
 
+   Do only 1 run / JVM at a time.
+
 
    Env is a Map providing options:
 
@@ -281,6 +284,7 @@
 
      `:convex.aws.loadnet/dir`
        Path to directory where all data, metrics, and statistics will be persisted.
+       Logging is piped to `run.log` in that directory.
        Defaults to `\"./\"`.
 
      `:convex.aws.loadnet/master`
@@ -416,6 +420,8 @@
                               (bb.fs/canonicalize)
                               (str))]
       (bb.fs/create-dirs dir-2)
+      ($.aws.loadnet.log/file-set (format "%s/run.log"
+                                          dir-2))
       (-> env
           (assoc :convex.aws.loadnet/dir            dir-2
                  :convex.aws.loadnet/*stopped?      (atom false)
