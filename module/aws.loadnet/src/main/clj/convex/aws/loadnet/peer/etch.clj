@@ -161,8 +161,16 @@
                                                              duration))
                                   tps             (double (/ n-trx-consensus
                                                              duration))
-                                  ops             (* tps
-                                                     (env :convex.aws.loadnet.load/n.iter.trx))]
+                                  ops-n-iter      (* tps
+                                                     (env :convex.aws.loadnet.load/n.iter.trx))
+                                  multitrx        (env :convex.aws.loadnet.load/multitrx)
+                                  multitps        (when multitrx
+                                                    (* tps
+                                                       multitrx))
+                                  ops             (if multitrx
+                                                    (* ops-n-iter
+                                                       multitrx)
+                                                    ops-n-iter)]
                               (log/info (if (< duration
                                                60000)
                                           (format "Load duration (seconds) = %.2f"
@@ -174,12 +182,19 @@
                                                 bps))
                               (log/info (format "Transactions / second = %.2f"
                                                 tps))
-                              (log/info (format "Operations / second = %.2f"
+                              (when multitrx
+                                (log/info (format "Transactions / second (multitrx) = %.2f"
+                                                  multitps)))
+                              (log/info (format "Operations / second (N iter trx) = %.2f"
+                                                ops-n-iter))
+                              (log/info (format "Operations / second (total) = %.2f"
                                                 ops))
                               (assoc result
                                      :bps             bps
                                      :duration        duration
+                                     :multitps        multitps
                                      :ops             ops
+                                     :ops-n-iter      ops-n-iter
                                      :timestamp.first timestamp-first
                                      :timestamp.last  timestamp-last
                                      :tps             tps)))]

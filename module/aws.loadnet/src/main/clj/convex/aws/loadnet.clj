@@ -146,7 +146,9 @@
                                  "Blocks / second"
                                  "N trx confirmed"
                                  "Transactions / second"
-                                 "Operations / second"
+                                 "Transactions / second (multitrx)"
+                                 "Operations / second (N iter)"
+                                 "Operations / second (total)"
                                  "CPU min (percent)"
                                  "CPU q1 (percent)"
                                  "CPU median (percent)"
@@ -219,6 +221,8 @@
                               (etch :bps)
                               (etch :n.trx.consensus)
                               (etch :tps)
+                              (etch :multitps)
+                              (etch :ops-n-iter)
                               (etch :ops)
                               (cpu :min)
                               (cpu :q1)
@@ -302,8 +306,9 @@
        Used by load generators when creating connections to those peers according to that distribution.
        If missing, connections will be created uniformly.
 
-     `:convex.aws.loadnet.load/multi`
+     `:convex.aws.loadnet.load/multitrx`
        Long specifying that load generators will create multi-transactions packaging that many transactions.
+       Mode is `ANY`.
 
      `:convex.aws.loadnet.load/n.client`
        Number of clients per load generator.
