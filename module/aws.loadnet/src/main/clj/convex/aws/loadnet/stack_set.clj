@@ -25,10 +25,14 @@
   (let [stack-set-name (env :convex.aws.stack/name)
         region+        (env :convex.aws/region+)
         parameter+     (env :convex.aws.stack/parameter+)
+        comment-       (env :convex.aws.loadnet/comment)
         _              (do
                          (log/info (format "Creating stack set named '%s' for %d region(s)"
                                            stack-set-name
                                            (count region+)))
+                         (when comment-
+                           (log/info (format "Comment: %s"
+                                             comment-)))
                          (doseq [[i-region
                                   region]  (partition 2
                                                       (interleave (range)
@@ -85,6 +89,7 @@
                                 :convex.aws.loadnet.peer/stake
                                 :convex.aws.loadnet.scenario/param+
                                 :convex.aws.loadnet.scenario/path
+                                :convex.aws.loadnet/comment
                                 :convex.aws.loadnet/timer
                                 :convex.aws.loadnet.peer/external-ip+
                                 :convex.aws.region/n.load
