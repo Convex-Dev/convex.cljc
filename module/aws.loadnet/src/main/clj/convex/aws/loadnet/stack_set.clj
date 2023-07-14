@@ -31,7 +31,7 @@
                                            stack-set-name
                                            (count region+)))
                          (when comment-
-                           (log/info (format "Comment: %s"
+                           (log/info (format "Comment = %s"
                                              comment-)))
                          (doseq [[i-region
                                   region]  (partition 2

@@ -245,6 +245,57 @@
       env)))
 
 
+
+(defn- -run
+
+  [path code]
+
+  (with-open [reader (java.io/reader path)]
+    (let [run      (some (fn [run]
+                           (when (= (first run)
+                                    code)
+                             run))
+                         (csv/read-csv reader))
+          _        (when-not run
+                     (throw (IllegalArgumentException. "Run not found")))
+          region+  (edn/read-string (nth run
+                                         5))
+          n-region (count region+)
+          n-peer       (edn/read-string (nth run
+                                             4))
+          _        (when-not (zero? (rem n-peer
+                                         n-region))
+                     (throw (IllegalArgumentException. "N peer must be divisible by N region")))
+          n-user   (edn/read-string (nth run
+                                         3))]
+      (into {}
+            (filter (fn [[_k v]]
+                      (some? v)))
+            {:convex.aws/region+                 region+
+             :convex.aws.loadnet/comment         (nth run
+                                                      1)
+             :convex.aws.loadnet/timer           (edn/read-string (nth run
+                                                                       2))
+             :convex.aws.loadnet.load/multitrx   (edn/read-string (nth run
+                                                                       9))
+             :convex.aws.loadnet.load/n.iter.trx (edn/read-string (nth run
+                                                                       8))
+             :convex.aws.loadnet.scenario/param+ (assoc (edn/read-string (nth run
+                                                                              7))
+                                                        :n.user
+                                                        n-user)
+             :convex.aws.loadnet.scenario/path   (list* (concat '(lib sim scenario)
+                                                                (list (edn/read-string (nth run
+                                                                                            6)))))
+             :convex.aws.region/n.load           (long (Math/ceil (/ n-user
+                                                                     100
+                                                                     n-region)))
+             :convex.aws.region/n.peer           (long (/ n-peer
+                                                          (count region+)))
+             :convex.aws.stack/name              (nth run
+                                                      0)}))))
+
+
 ;;;;;;;;;; Public
 
 
@@ -577,36 +628,53 @@
 (comment
 
 
+  (def config
+       {:convex.aws/account            (System/getenv "CONVEX_AWS_ACCOUNT")
+        :convex.aws.key/file           "/Users/adam/Code/convex/clj/private/Test"
+        :convex.aws.loadnet/dir        "/tmp/loadnet"
+        :convex.aws.loadnet.load/distr [0.6 0.3]
+        :convex.aws.loadnet.peer/stake [1 0.25 0.01]
+        :convex.aws.stack/parameter+   {;:DetailedMonitoring "false"
+                                        :KeyName            "Test"
+                                        ;:InstanceTypePeer   "t2.micro"
+                                        }
+        :convex.aws.stack/tag+         {:Project "Ontochain"}})
+
+
   (future
     (def env
-         (create {:convex.aws/account                   (System/getenv "CONVEX_AWS_ACCOUNT")
-                  :convex.aws/region+                   ["eu-central-1"
-                                                         ;"us-east-1"
-                                                         ;"us-west-1"
-                                                         ;"ap-southeast-1"
-                                                         ]
-                  :convex.aws.key/file                  "/Users/adam/Code/convex/clj/private/Test"
-                  :convex.aws.loadnet/comment           "Test"
-                  :convex.aws.loadnet/dir               "/tmp/loadnet"
-                  :convex.aws.loadnet/master            "/tmp/loadnet/master.csv"
-                  :convex.aws.loadnet/timer             10
-                  :convex.aws.loadnet.load/distr        [0.6 0.2]
-                  :convex.aws.loadnet.load/multitrx     2
-                  ;:convex.aws.loadnet.load/n.client     10
-                  :convex.aws.loadnet.load/n.iter.trx   1
-                  ;:convex.aws.loadnet.peer/external-ip+ ["42.42.42.42"]
-                  ;:convex.aws.loadnet.peer/native?      true
-                  :convex.aws.loadnet.peer/stake        [1 0.25 0.01]
-                  :convex.aws.loadnet.scenario/path     '(lib sim scenario torus)
-                  :convex.aws.loadnet.scenario/param+   {:n.token 5
-                                                         :n.user  2000}
-                  :convex.aws.region/n.load             20
-                  :convex.aws.region/n.peer             10
-                  :convex.aws.stack/parameter+          {;:DetailedMonitoring "false"
-                                                         :KeyName            "Test"
-                                                         ;:InstanceTypePeer   "t2.micro"
-                                                         }
-                  :convex.aws.stack/tag+                {:Project "Ontochain"}})))
+         (create (merge config
+                        (-run "/Users/adam/Desktop/runs.csv"
+                              "U500")
+                        {:convex.aws.loadnet/dir    "./private/ontochain"
+                         :convex.aws.loadnet/master "./private/ontochain/master.csv"
+                         :convex.aws.loadnet/timer  1
+                         })))
+    nil)
+
+
+  (future
+    (def env
+         (create (assoc config
+                        :convex.aws/region+                   ["eu-central-1"
+                                                               ;"us-east-1"
+                                                               ;"us-west-1"
+                                                               ;"ap-southeast-1"
+                                                               ]
+                        :convex.aws.loadnet/comment           "Test"
+                        :convex.aws.loadnet/dir               "/tmp/loadnet"
+                        :convex.aws.loadnet/master            "/tmp/loadnet/master.csv"
+                        :convex.aws.loadnet/timer             1
+                        ;:convex.aws.loadnet.load/multitrx     2
+                        ;:convex.aws.loadnet.load/n.client     25
+                        :convex.aws.loadnet.load/n.iter.trx   1
+                        ;:convex.aws.loadnet.peer/external-ip+ ["42.42.42.42"]
+                        ;:convex.aws.loadnet.peer/native?      true
+                        :convex.aws.loadnet.scenario/path     '(lib sim scenario torus)
+                        :convex.aws.loadnet.scenario/param+   {:n.token 5
+                                                               :n.user  20}
+                        :convex.aws.region/n.load             1
+                        :convex.aws.region/n.peer             1))))
 
 
   ;; If awaiting SSH servers fail, run this to start the load.
@@ -630,12 +698,14 @@
 
   (future
     (delete {:convex.aws/account     (System/getenv "CONVEX_AWS_ACCOUNT")
-             :convex.aws.loadnet/dir "/private/tmp/loadnet/LoadNet-1689171070184"})
+             :convex.aws.loadnet/dir "/private/tmp/loadnet/LoadNet-1689274426144"})
     nil)
 
 
   ($.aws.loadnet.load/stop env)
-  ($.aws.loadnet.peer/stop env)
+  (future
+    ($.aws.loadnet.peer/stop env)
+    nil)
 
 
   ($.aws.loadnet.peer.etch/stat+ env)
