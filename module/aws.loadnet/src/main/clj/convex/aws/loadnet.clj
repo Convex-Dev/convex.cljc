@@ -126,7 +126,7 @@
                                  "Finality q3 (millis)"
                                  "Finality max (millis)"
                                  "Finality iqr (millis)"
-                                 "Etch size (GB)"
+                                 "Etch size (MB)"
                                  "Consensus point"
                                  "Proposal point"
                                  "Load duration (sec)"
