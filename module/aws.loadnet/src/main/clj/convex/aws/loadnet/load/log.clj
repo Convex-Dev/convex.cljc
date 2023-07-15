@@ -65,7 +65,7 @@
 
   (log/info "Starting finality analysis from load generator logs")
   (let [dir            (dir env)
-        entry+         (into []
+        rtt+           (into []
                              (comp (mapcat (fn [i-load]
                                              ($.read/file (format "%s/%d.cvx"
                                                                   dir
@@ -73,27 +73,25 @@
                                    (keep (fn [entry]
                                            (let [data ($.std/nth entry
                                                                  3)]
-                                             (when ($.std/vector? data)
-                                               data)))))
+                                             (when (and ($.std/vector? data)
+                                                        (= ($.std/nth data
+                                                                      0)
+                                                           ($.cell/* :client.result)))
+                                               (-> data
+                                                   ($.std/nth 1)
+                                                   (get ($.cell/* :rtt))
+                                                   ($.clj/double)))))))
                              (range (* (count (env :convex.aws/region+))
                                        (env :convex.aws.region/n.load))))
-       xform-finality  (keep (fn [data]
-                               (when (= ($.std/nth data
-                                                   0)
-                                        ($.cell/* :client.result))
-                                 (let [result ($.std/nth data
-                                                         1)]
-                                   ($.clj/double (get result
-                                                      ($.cell/* :rtt)))))))
-       finality-avg    (transduce xform-finality
+       finality-avg    (transduce identity
                                   kixi.stats/mean
-                                  entry+)
-       finality-quart  (transduce xform-finality
+                                  rtt+)
+       finality-quart  (transduce identity
                                   kixi.stats/summary
-                                  entry+)
-       finality-stddev (transduce xform-finality
+                                  rtt+)
+       finality-stddev (transduce identity
                                   kixi.stats/standard-deviation
-                                  entry+)
+                                  rtt+)
        path-result     (format "%s/finality.edn"
                                (env :convex.aws.loadnet/dir))
        result          {:convex.aws.loadnet.finality/avg       finality-avg
