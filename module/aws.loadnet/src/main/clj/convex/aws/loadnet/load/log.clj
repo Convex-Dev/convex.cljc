@@ -2,7 +2,9 @@
 
   "Log analysis of load generators for computing finality."
 
+  (:import (java.io BufferedReader))
   (:require [babashka.fs            :as bb.fs]
+            [clojure.java.io        :as java.io]
             [convex.aws.loadnet.rpc :as $.aws.loadnet.rpc]
             [convex.cell            :as $.cell]
             [convex.clj             :as $.clj]
@@ -65,24 +67,29 @@
 
   (log/info "Starting finality analysis from load generator logs")
   (let [dir            (dir env)
-        rtt+           (into []
-                             (comp (mapcat (fn [i-load]
-                                             ($.read/file (format "%s/%d.cvx"
-                                                                  dir
-                                                                  i-load))))
-                                   (keep (fn [entry]
-                                           (let [data ($.std/nth entry
-                                                                 3)]
-                                             (when (and ($.std/vector? data)
-                                                        (= ($.std/nth data
-                                                                      0)
-                                                           ($.cell/* :client.result)))
-                                               (-> data
-                                                   ($.std/nth 1)
-                                                   (get ($.cell/* :rtt))
-                                                   ($.clj/double)))))))
-                             (range (* (count (env :convex.aws/region+))
-                                       (env :convex.aws.region/n.load))))
+
+        rtt+           (reduce (fn [acc i-load]
+                                 (with-open [reader (BufferedReader. (java.io/reader (format "%s/%d.cvx"
+                                                                                             dir
+                                                                                             i-load)))]
+                                   (into acc
+                                         (comp (map first)
+                                               (take-while some?)
+                                               (keep (fn [entry]
+                                                       (let [data ($.std/nth entry
+                                                                             3)]
+                                                         (when (and ($.std/vector? data)
+                                                                    (= ($.std/nth data
+                                                                                  0)
+                                                                       ($.cell/* :client.result)))
+                                                           (-> data
+                                                               ($.std/nth 1)
+                                                               (get ($.cell/* :rtt))
+                                                               ($.clj/double)))))))
+                                         (repeatedly #($.read/line reader)))))
+                               []
+                               (range (* (count (env :convex.aws/region+))
+                                         (env :convex.aws.region/n.load))))
        finality-avg    (transduce identity
                                   kixi.stats/mean
                                   rtt+)
