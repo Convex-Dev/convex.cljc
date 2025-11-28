@@ -6,10 +6,15 @@
 
   (:import (clojure.lang IDeref)
            (convex.core ErrorCodes)
-           (convex.core.data AccountKey
-                             Address
+           (convex.core.cvm Address
+                            Keywords
+                            Syntax)
+           (convex.core.data ABlob
+
                              ABlob
-                             ABlobMap
+                             AccountKey
+                             Index
+
                              ACell
                              AList
                              AMap
@@ -17,19 +22,18 @@
                              AString
                              AVector
                              Blob
-                             BlobMaps
                              Blobs
                              Format
                              Hash
                              Keyword
-                             Keywords
+                             
                              Lists
                              MapEntry
                              Maps
                              Sets
                              Strings
                              Symbol
-                             Syntax
+                             
                              Vectors)
            (convex.core.data.prim CVMBigInteger
                                   CVMBool
@@ -37,9 +41,9 @@
                                   CVMDouble
                                   CVMLong)
            (convex.core.lang RT)
-           (convex.core.transactions Call
-                                     Invoke
-                                     Transfer)
+           (convex.core.cvm.transactions Call
+                                         Invoke
+                                         Transfer)
            (java.util Collection
                       List))
   (:refer-clojure :exclude [*
@@ -168,14 +172,17 @@
   "Creates a blob map from a collection of `[blob value]`."
 
 
-  (^ABlobMap []
+  (
+   ^Index
+   []
+   Index/EMPTY)
 
-   (BlobMaps/empty))
 
+  (^Index
+   [kvs]
 
-  (^ABlobMap [kvs]
-
-   (reduce (fn [^ABlobMap bm [^ACell k ^ACell v]]
+   (reduce (fn [^Index
+                bm [^ACell k ^ACell v]]
              (let [bm-2 (.assoc bm
                                 k
                                 v)]
@@ -330,8 +337,8 @@
   ^Blob
 
   [cell]
-
-  (Format/encodedBlob cell))
+  ;; REVIEW correctly ported from 0.7.11 to 0.8.2 Was: (Format/encodedBlob cell)
+  (Format/encodeMultiCell cell true))
 
 
 
@@ -345,7 +352,7 @@
 
   [^ACell cell]
 
-  (Hash/compute cell))
+  (Hash/get cell))
 
 
 

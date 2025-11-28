@@ -42,7 +42,7 @@
                              Hash)
            (convex.core.store Stores)
            (java.io File)
-           (etch EtchStore))
+           (convex.etch EtchStore))
   (:refer-clojure :exclude [flush
                             read]))
 
@@ -226,8 +226,9 @@
   ^ACell
 
   [^ACell cell]
-
-  (let [^Ref r (ACell/createPersisted (.getValue (.getRef cell)))]
+  ;; FIXME not sure what this should be ACell/createPersisted has been removed
+  (throw (ex-info "FIXME ACell/createPersisted was removed" {}))
+  #_(let [^Ref r (ACell/createPersisted (.getValue (.getRef cell)))]
     (when (.cachedHash r)
       (.getValue r))))
 
@@ -263,8 +264,9 @@
   ^ACell
 
   [^ACell cell]
-
-  (let [^Ref r (ACell/createPersisted (.getValue (.getRef cell)))
+  ;; FIXME not sure what this should be ACell/createPersisted has been removed
+  (throw (ex-info "FIXME ACell/createPersisted was removed" {}))
+  #_(let [^Ref r (ACell/createPersisted (.getValue (.getRef cell)))
              h (.cachedHash r)]
     (when h
       (.setRootHash (.getEtch (current))
