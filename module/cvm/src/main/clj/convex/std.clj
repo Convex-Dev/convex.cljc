@@ -27,6 +27,7 @@
                              ADataStructure
                              AHashMap
                              AHashSet
+                             AIndex
                              AList
                              AMap
                              ASequence
@@ -327,7 +328,7 @@
 
   "Builds a blob map from key-values (keys must be blobs)."
 
-  ^Index
+  ^AIndex
 
   [& kvs]
 
@@ -1137,7 +1138,7 @@
 
   [x]
 
-  (instance? ABlobLike
+  (instance? AIndex
              x))
 
 
