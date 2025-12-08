@@ -24,7 +24,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: 17
+          java-version: 21
 
       - name: Caching for Clojure dependencies
         uses: actions/cache@v3
@@ -57,7 +57,7 @@ jobs:
     strategy:
       matrix:
         java-version:
-          - 17
+          - 21
         os:
           - macos-12
           - ubuntu-latest
@@ -131,7 +131,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: '17'
+          java-version: '21'
 
       - name: Caching for Clojure dependencies
         uses: actions/cache@v3
@@ -207,7 +207,7 @@ jobs:
         with:
           components:   'native-image'
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          java-version: 17
+          java-version: 21
           version:      '22.2.0'
 
       - name: Download Convex Shell uberjar
