@@ -62,9 +62,12 @@
 
   (-> path
       (clojure.java.io/resource)
-      (.openStream)
-      (InputStreamReader.)
-      (stream)))
+      ;; FIXME fix reader
+      (slurp)
+      (string)
+      #_(.openStream)
+      #_(InputStreamReader.)
+      #_(stream)))
 
 
 
@@ -76,7 +79,7 @@
   ^AList
 
   [^Reader reader]
-
+  (throw (ex-info "FIXME" {})) ;; How do we forward the reader to AntlrReader
   (AntlrReader/readAll (CharStreams/fromReader reader)))
 
 
