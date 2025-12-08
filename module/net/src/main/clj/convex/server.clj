@@ -411,4 +411,4 @@
 
   [^Server server]
 
-  (-status->map (.getStatusVector server)))
+  (-status->map (.getStatusData server)))
