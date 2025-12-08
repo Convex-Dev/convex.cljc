@@ -336,9 +336,9 @@
 
   ^Blob
 
-  [cell]
-  ;; REVIEW correctly ported from 0.7.11 to 0.8.2 Was: (Format/encodedBlob cell)
-  (Format/encodeMultiCell cell true))
+  [^ACell cell]
+
+  (.getEncoding cell))
 
 
 

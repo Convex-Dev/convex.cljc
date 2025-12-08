@@ -172,7 +172,7 @@
 
   []
 
-  (.getFileName (current)))
+  (.getCanonicalPath (.getFile (current))))
 
 
 
@@ -226,11 +226,7 @@
   ^ACell
 
   [^ACell cell]
-  ;; FIXME not sure what this should be ACell/createPersisted has been removed
-  (throw (ex-info "FIXME ACell/createPersisted was removed" {}))
-  #_(let [^Ref r (ACell/createPersisted (.getValue (.getRef cell)))]
-    (when (.cachedHash r)
-      (.getValue r))))
+  (convex.core.data.Cells/persist cell (current)))
 
 
 ;;;
@@ -264,11 +260,8 @@
   ^ACell
 
   [^ACell cell]
-  ;; FIXME not sure what this should be ACell/createPersisted has been removed
-  (throw (ex-info "FIXME ACell/createPersisted was removed" {}))
-  #_(let [^Ref r (ACell/createPersisted (.getValue (.getRef cell)))
-             h (.cachedHash r)]
+  (let [c (convex.core.data.Cells/persist cell (current))
+        h (.getHash c)]
     (when h
-      (.setRootHash (.getEtch (current))
-                    h)
-      (.getValue r))))
+      (.setRootHash (.getEtch (current)) h)
+      c)))
