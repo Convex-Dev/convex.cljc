@@ -218,16 +218,20 @@
 
   {:doc      "Launch tests for the given alias(es)"
    :requires ([protosens.maestro.process])
-   :task     (protosens.maestro.process/run {:maestro/mode            :test
-                                             :maestro.process/command ["clojure" "-M__"]})}
+   :task     (if (protosens.maestro.process/run {:maestro/mode            :test
+                                                 :maestro.process/command ["clojure" "-M__"]})
+               (System/exit 0)
+               (System/exit 1))}
 
 
   test-upstream
 
   {:doc      "Like the `test` but also tests transitively required aliases"
    :requires ([protosens.maestro.process])
-   :task     (protosens.maestro.process/run {:maestro/mode            :test-upstream
-                                             :maestro.process/command ["clojure" "-M__"]})}
+   :task     (if (protosens.maestro.process/run {:maestro/mode            :test-upstream
+                                                 :maestro.process/command ["clojure" "-M__"]})
+               (System/exit 0)
+               (System/exit 1))}
 
 
    }}
