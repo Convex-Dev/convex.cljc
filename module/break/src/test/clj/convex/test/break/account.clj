@@ -258,8 +258,8 @@
       ($.eval/true? ctx
                     ($.cell/* (= *holdings*
                                  (if (nil? holding)
-                                   (blob-map)
-                                   (assoc (blob-map)
+                                   (index)
+                                   (assoc (index)
                                           *address*
                                           holding)))))
 
@@ -279,7 +279,7 @@
                     ($.cell/* (do
                                 (set-holding *address*
                                              nil)
-                                (= (blob-map)
+                                (= (index)
                                    *holdings*)))))))
 
 
@@ -314,8 +314,8 @@
 
       ($.eval/true? ctx
                     ($.cell/* (= (if (nil? holding)
-                                   (blob-map)
-                                   (assoc (blob-map)
+                                   (index)
+                                   (assoc (index)
                                           *address*
                                           holding))
                                  (:holdings (account addr)))))
@@ -336,7 +336,7 @@
     
           "`account` shows nil in :holdings"
           ($.eval/true? ctx-2
-                        ($.cell/* (= (blob-map)
+                        ($.cell/* (= (index)
                                      (get (account addr)
                                           :holdings
                                           :convex-sentinel)))))))))
