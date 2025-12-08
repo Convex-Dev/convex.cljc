@@ -12,14 +12,15 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core Belief
-                        Peer
-                        State)
+  (:import (convex.core.cpos Belief)
+           (convex.core.cvm Address
+                            Keywords
+                            Peer
+                            State)
            (convex.core.data AccountKey
-                             Address
                              AMap
                              AVector
-                             Keywords)
+                             )
            (convex.core.store AStore)
            (convex.peer Server)
            (java.net InetSocketAddress)

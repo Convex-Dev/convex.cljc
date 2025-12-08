@@ -22,8 +22,8 @@
            (convex.core.data ACell
                              AVector
                              SignedData)
-           (convex.core.lang Symbols)
-           (convex.core.transactions ATransaction)
+           (convex.core.cvm Symbols)
+           (convex.core.cvm.transactions ATransaction)
            (convex.peer Server)
            (java.net InetSocketAddress)
            (java.util.concurrent CompletableFuture)
@@ -84,10 +84,7 @@
    (Convex/connect (InetSocketAddress. (or ^String (:convex.server/host option+)
                                                    "localhost")
                                        (long (or (:convex.server/port option+)
-                                                 Server/DEFAULT_PORT)))
-                   nil
-                   nil
-                   ($.db/current))))
+                                                 Server/DEFAULT_PORT))))))
 
 
 

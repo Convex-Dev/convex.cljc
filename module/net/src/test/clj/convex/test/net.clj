@@ -4,8 +4,8 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core Belief
-                        Peer))
+  (:import (convex.core.cpos Belief)
+           (convex.core.cvm Peer))
   (:require [clojure.test    :as T]
             [convex.cell     :as $.cell]
             [convex.client   :as $.client]

@@ -4,7 +4,7 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core.lang Symbols))
+  (:import (convex.core.cvm Symbols))
   (:refer-clojure :exclude [bigint
                             boolean
                             char
