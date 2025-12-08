@@ -4,6 +4,7 @@
 
   (:require [clojure.test :as T]
             [convex.cell  :as $.cell]
+            [convex.clj   :as clj]
             [convex.cvm   :as $.cvm]))
 
 
@@ -98,8 +99,8 @@
     (T/is (= ($.cell/address 0)
              ($.cvm/address ctx))
           "Restored input context after applying the transaction")
-
-    (T/is (= ($.cell/* {x 42})
-             ($.cvm/env ctx
-                        $.cvm/genesis-user))
+    
+    ;; REVIEW this test fails with diff {+fun 64, +torus 66, -x 42}
+    (T/is (= (clj/any ($.cell/* {x 42}))             
+             (clj/any ($.cvm/env ctx $.cvm/genesis-user)))
           "Transaction applied to target account")))
