@@ -16,8 +16,8 @@
 
 
 ;; REVIEW `defined?` needs a quoted symbol now?
-(mprop/deftest def--
-  
+(mprop/deftest def--  
+
   {:ratio-num 10}
 
   (TC.prop/for-all [sym $.gen/symbol
@@ -65,7 +65,7 @@
             ($.eval/true? ctx-2
                           ($.cell/* (if -defined?
                                       true
-                                      (not (defined? ~sym)))))
+                                      (not (defined? (quote ~sym))))))
 
 
             "Environment does not contain symbol anymore"
@@ -92,4 +92,4 @@
               (= ($.cell/code-std* :UNDECLARED)
                  ($.eval/exception-code ctx-2
                                         sym))
-              true)))))))
+              true))))))
