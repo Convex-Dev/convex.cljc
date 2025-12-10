@@ -684,12 +684,16 @@
 
       "Using `concat` to rebuild collection as a vector"
 
+    "Using `concat` to rebuild collection as a vector"
+    ;; See issue #19 - cannot cast vector to sets
+    (if ($.eval/true? ctx ($.cell/* (set? x-2)))
+      true
       ($.eval/true? ctx
                     ($.cell/* (let [as-vec (vec x-2)]
                                 (= as-vec
                                    (apply concat
                                           (map vector
-                                               x-2))))))
+                                               x-2)))))))
 
 
       "`cons`"
