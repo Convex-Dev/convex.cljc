@@ -191,7 +191,8 @@
   "Double between 0 and 1."
 
   ($.gen/double-bounded {:max 1
-                         :min 0}))
+                         :min 0
+                         :NaN? false}))
 
 
 
