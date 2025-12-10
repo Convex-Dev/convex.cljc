@@ -15,8 +15,9 @@
 ;;;;;;;;;; 
 
 
+;; REVIEW `defined?` needs a quoted symbol now?
 (mprop/deftest def--
-
+  
   {:ratio-num 10}
 
   (TC.prop/for-all [sym $.gen/symbol
@@ -24,7 +25,7 @@
     (let [ctx ($.eval/ctx $.break/ctx
                           ($.cell/* (do
                                       (def -defined?
-                                           (defined? ~sym))
+                                           (defined? (quote ~sym)))
                                       (def sym
                                            (quote ~sym))
                                       (def x
@@ -34,9 +35,8 @@
       (mprop/mult
 
         "`defined?` on input symbol returns true"
-
         ($.eval/true? ctx
-                      ($.cell/* (defined? ~sym)))
+                      ($.cell/* (defined? (quote ~sym)))))
 
 
         "Interned value is the input value"
@@ -88,7 +88,7 @@
             "Undefined symbol must result in an error when used"
 
             (if ($.eval/true? ctx-2
-                              ($.cell/* (not (defined? sym))))
+                              ($.cell/* (not (defined? (quote sym)))))
               (= ($.cell/code-std* :UNDECLARED)
                  ($.eval/exception-code ctx-2
                                         sym))
