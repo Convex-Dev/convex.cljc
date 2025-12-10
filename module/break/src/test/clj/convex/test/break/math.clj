@@ -34,13 +34,14 @@
 ;;;;;;;;;; Reusing properties
 
 
+;; REVIEW I changed longs to ints here, because multiplying longs can result in autopromotion to biginteger
 (defn prop-arithmetic
 
   "Checks applying a vector of numbers to `form` on the CVM.
   
    Tests 2 properties:
   
-   - Using only longs results in a long
+   - Using only ints results in an int
    - Using at least one double results in a double"
 
   [form]
@@ -53,7 +54,7 @@
       "Numerical computation of longs must result in a long"
 
       ($.eval/true? $.break/ctx
-                    ($.cell/* (long? (~form ~@x+))))
+                    ($.cell/* (int? (~form ~@x+))))
 
 
       "Numerical computation with at least one double must result in a double"
