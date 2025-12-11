@@ -685,8 +685,6 @@
                                 true)))
 
 
-      "Using `concat` to rebuild collection as a vector"
-
     "Using `concat` to rebuild collection as a vector"
     ;; See issue #19 & #20 - cannot cast sets and maps to vectors
     (if ($.eval/true? ctx ($.cell/* (or (set? x-2)
