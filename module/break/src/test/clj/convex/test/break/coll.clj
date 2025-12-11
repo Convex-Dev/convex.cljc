@@ -68,7 +68,7 @@
 ;;;;;;;;;; Creating collections from functions
 
 
-(mprop/deftest blob-map--
+(mprop/deftest index--
 
   (TC.prop/for-all [kv+ ($.break.gen/kv+ ($.gen/blob)
                                          $.gen/any)]
@@ -77,8 +77,8 @@
                                        (def kv+
                                             ~kv+)
                                        (def x
-                                            (blob-map ~@(mapcat identity
-                                                                kv+))))))
+                                            (index ~@(mapcat identity
+                                                             kv+))))))
                ($.cell/* (fn [_] true)))))
 
 
