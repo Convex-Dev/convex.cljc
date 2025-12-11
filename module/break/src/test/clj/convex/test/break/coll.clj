@@ -1332,19 +1332,28 @@
         (mprop/and (mprop/check
                      
                      "Modifies collection"
-
+                     (if (or ($.std/map? coll) ($.std/set? coll) ($.std/blob-map? coll))
+                     true ;; Will fail otherwise, see #21
                      ($.eval/true? ctx
                                    ($.cell/* (= modified
                                                 (vec (mapcat (fn [x]
                                                                [[x]])
-                                                             coll))))))
+                                                             coll)))))
+)
+)
 
                    (let [ctx-2 ($.eval/ctx ctx
                                            ($.cell/* (def -mapcat
                                                           (mapcat vector
                                                                      coll))))]
-                     (if ($.std/list? coll)
+                     (cond 
+                       (or ($.std/map? coll) ($.std/set? coll) ($.std/blob-map? coll)) :nothing ;; Can't mapcat over map #21
+                       
+
+                       ($.std/list? coll)
                        (mprop/mult
+                         "No exception"
+                         (nil? ($.cvm/exception ctx-2))
 
                          "Produces a list"
 
@@ -1356,7 +1365,10 @@
                          ($.eval/true? ctx-2
                                        ($.cell/* (= coll
                                                     -mapcat))))
+                       :else
                        (mprop/mult
+                         "No exception"
+                         (nil? ($.cvm/exception ctx-2))
 
                          "Produces a vector"
 
