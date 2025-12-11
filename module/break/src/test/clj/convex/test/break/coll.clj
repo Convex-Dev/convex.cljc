@@ -17,6 +17,7 @@
             [convex.break                  :as $.break]
             [convex.break.gen              :as $.break.gen]
             [convex.cell                   :as $.cell]
+            [convex.clj                    :as $.clj]
             [convex.cvm                    :as $.cvm]
             [convex.eval                   :as $.eval]
             [convex.gen                    :as $.gen]
@@ -1092,6 +1093,17 @@
                      $.gen/any]
                     -assoc-fail))
 
+(defn -hex-string? [x]
+  (and (string? x)
+       (try (Integer/parseInt x 16) true (catch Exception _ false))))
+
+;; REVIEW add to $.std ?
+(defn hex-string? [x]
+  (when (or ($.std/string? x)
+            ($.std/symbol? x)
+            ($.std/keyword? x))
+    (-hex-string? ($.clj/string ($.std/name x)))))
+
 
 
 (mprop/deftest assoc--blob-map-fail
@@ -1102,7 +1114,18 @@
                                      $.gen/any)
                      (TC.gen/such-that (fn [x]
                                          (not (or ($.std/address? x)
-                                                  ($.std/blob? x))))
+                                                  ($.std/blob? x)
+                                                  ;; REVIEW Index should only allow keys: Address, a hex String, a Long value, or another Blob value. #24
+                                                  ;($.std/long? x) ;; Should be allow was missing
+                                                  (when (or ($.std/string? x)
+                                                            ($.std/symbol? x)
+                                                            ($.std/keyword? x))
+                                                    (or (hex-string? ($.std/name x))
+                                                        ;; What about these? Incorrect?
+                                                        ($.std/empty? x)
+                                                        ;; All strings?
+                                                        true)))))
+
                                        $.gen/any
                                        100)
                      $.gen/any]
