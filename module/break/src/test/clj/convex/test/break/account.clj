@@ -314,7 +314,7 @@
 
       ($.eval/true? ctx
                     ($.cell/* (= (if (nil? holding)
-                                   (index)
+                                   nil
                                    (assoc (index)
                                           *address*
                                           holding))
@@ -335,11 +335,11 @@
                         ($.cell/* (nil? -set-holding-2)))
     
           "`account` shows nil in :holdings"
+
           ($.eval/true? ctx-2
-                        ($.cell/* (= (index)
-                                     (get (account addr)
-                                          :holdings
-                                          :convex-sentinel)))))))))
+                        ($.cell/* (nil? (get (account addr)
+                                             :holdings
+                                             :convex-sentinel)))))))))
 
 
 ;;;;;;;;;; Suites - Transfering coins
