@@ -1493,9 +1493,9 @@
                                                                   $.gen/any))]
     (= ($.cell/code-std* :ARGUMENT)
        ($.eval/exception-code $.break/ctx
-                              ($.cell/* (blob-map ~@(mapcat (partial map
-                                                                     $.cell/quoted)
-                                                            arg+)))))))
+                              ($.cell/* (index ~@(mapcat (partial map
+                                                                  $.cell/quoted)
+                                                          arg+)))))))
 
 
 
