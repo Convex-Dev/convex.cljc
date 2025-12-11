@@ -17,6 +17,7 @@
             [convex.break                  :as $.break]
             [convex.break.gen              :as $.break.gen]
             [convex.cell                   :as $.cell]
+            [convex.cvm                    :as $.cvm]
             [convex.eval                   :as $.eval]
             [convex.gen                    :as $.gen]
             [convex.std                    :as $.std]
@@ -37,6 +38,8 @@
   [ctx form-type?]
 
   (mprop/mult
+    "There is no exception"
+    (nil? ($.cvm/exception ctx))
 
     "Type is correct"
 
