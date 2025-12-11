@@ -170,15 +170,26 @@
   {:ratio-num 100}
 
   (TC.prop/for-all [x (TC.gen/one-of [$.gen/address
-                                      ;; REVIEW is this BROKEN?
+                                      ;; REVIEW is this BROKEN? No, #15
+
                                       ; $.gen/boolean
-                                      
+
                                       $.gen/char
-                                      
-                                      ;; REVIEW double needs to be withing long range (use long-bounded here instead?)
-                                      (TC.gen/fmap #(.doubleValue %) $.gen/long)
-                                      
-                                      
+
+                                      ;; REVIEW double needs to be withing long range (use long-bounded here instead?), see #16
+
+                                      ;; Test large doubles, but stay within range
+                                      (TC.gen/fmap $.cell/double
+                                                   (TC.gen/large-integer*
+                                                    {:min Long/MIN_VALUE
+                                                     :max Long/MAX_VALUE}))
+
+                                      ;; Still test smaller arbitrary doubles
+                                      ($.gen/double-bounded {:NaN? false
+                                                             :infinite? false
+                                                             :min -1e6
+                                                             :max  1e6})
+
                                       $.gen/long])]
     ($.eval/true? $.break/ctx
                   ($.cell/* (long? (long ~x))))))
