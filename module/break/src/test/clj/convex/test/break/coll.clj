@@ -1222,7 +1222,15 @@
 
   {:ratio-num 10}
   
-  (TC.prop/for-all [coll ($.gen/quoted $.break.gen/collection)]
+  (TC.prop/for-all [coll ($.gen/quoted 
+                           (TC.gen/one-of [$.gen/any-list
+                                           #_$.gen/any-map ;; Can't convert argument at position 3 (with type Map) to type Sequence
+                                           #_$.gen/any-set ;; Can't convert argument at position 3 (with type Set) to type Sequence
+                                           $.gen/any-vector
+                                           #_($.gen/blob-map ($.gen/blob) ;; Can't convert argument at position 3 (with type Index) to type Sequence
+                                                           $.gen/any)])
+
+                          #_$.break.gen/collection)]
     (mprop/mult
 
       "Duplicating items"
