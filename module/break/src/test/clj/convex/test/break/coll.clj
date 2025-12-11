@@ -1081,6 +1081,8 @@
   (TC.prop/for-all* [(TC.gen/such-that (fn [x]
                                          (not (or ($.std/list? x)
                                                   ($.std/map? x)
+                                                  ($.std/blob-map? x)
+
                                                   (nil? x)
                                                   ($.std/set? x)
                                                   ($.std/vector? x))))
