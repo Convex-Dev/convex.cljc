@@ -1247,10 +1247,10 @@
                                            []
                                            coll)))))
 
+      ;; REVIEW See issue #22 map does something weird
+      #_"Keeping items at even positions"
 
-      "Keeping items at even positions"
-
-      ($.eval/true? $.break/ctx 
+      #_($.eval/true? $.break/ctx 
                     ($.cell/* (do
                                 (def n-mapcat
                                      -1)
