@@ -44,7 +44,7 @@
                                .getParentFile
                                .mkdirs)
                            file)
-                         passphrase)))
+                         (char-array passphrase))))
 
 
 
@@ -64,7 +64,7 @@
   (^KeyStore [^String path passphrase]
 
    (PFXTools/loadStore (File. path)
-                       passphrase)))
+                       (char-array passphrase))))
 
 
 
@@ -86,7 +86,7 @@
 
    (PFXTools/saveStore key-store
                        (File. path)
-                       passphrase)))
+                       (char-array passphrase))))
 
 
 ;;;;;;;;;; Adding and retrieving keys
@@ -134,7 +134,7 @@
                           alias)
       (PFXTools/getKeyPair key-store
                            alias
-                           passphrase))))
+                           (char-array passphrase)))))
 
 
 
@@ -151,7 +151,7 @@
 
    (PFXTools/setKeyPair key-store
                         key-pair
-                        passphrase))
+                        (char-array passphrase)))
 
 
   (^KeyStore [^KeyStore key-store ^String alias ^AKeyPair key-pair passphrase]
@@ -159,5 +159,5 @@
    (PFXTools/setKeyPair key-store
                         alias
                         key-pair
-                        passphrase)
+                        (char-array passphrase))
    key-store))
