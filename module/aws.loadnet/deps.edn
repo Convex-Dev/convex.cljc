@@ -19,22 +19,25 @@
   {:exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-parent],
    :mvn/version "1.7.36"},
   protosens/process
-  {:deps/root "module/process",
+  {:local/root "module/process",
    :git/sha "2d41c8a",
    :git/tag "stable/2022-10-13",
    :git/url "https://github.com/protosens/monorepo.cljc"},
   world.convex/convex-core {:mvn/version "0.8.2"},
   world.convex/convex-peer {:mvn/version "0.8.2"},
   world.convex/cvm
-  {:deps/root "module/cvm",
-   :git/sha "a35d0a80fecd085afbca1ffb82684142da8f2e77",
-   :git/url "https://github.com/convex-dev/convex.cljc"},
+  {:local/root "../cvm",
+   ;:git/sha "a35d0a80fecd085afbca1ffb82684142da8f2e77",
+   ;:git/url "https://github.com/convex-dev/convex.cljc"
+   },
   world.convex/gen
-  {:deps/root "module/gen",
-   :git/sha "a35d0a80fecd085afbca1ffb82684142da8f2e77",
-   :git/url "https://github.com/convex-dev/convex.cljc"},
+  {:local/root "../gen",
+   ;:git/sha "a35d0a80fecd085afbca1ffb82684142da8f2e77",
+   ;:git/url "https://github.com/convex-dev/convex.cljc"
+   },
   world.convex/net
-  {:deps/root "module/net",
-   :git/sha "a35d0a80fecd085afbca1ffb82684142da8f2e77",
-   :git/url "https://github.com/convex-dev/convex.cljc"}},
+  {:local/root "../net",
+   ;:git/sha "a35d0a80fecd085afbca1ffb82684142da8f2e77",
+   ;:git/url "https://github.com/convex-dev/convex.cljc"
+   }},
  :paths ["src/main/clj"]}
