@@ -557,13 +557,20 @@
 ;;;;;;;;;; Negative tests
 
 
+(defn scoped-address? [x]
+  ($.eval/true? $.break/ctx 
+                ($.cell/* (and (vector? ~x)
+                               (= (count ~x) 2)
+                               (address? (first ~x))))))
+
+
 (mprop/deftest error-cast-address
 
   ;; Functions that should throw a CAST error when not operating over an address.
 
   {:ratio-num 5}
 
-  (TC.prop/for-all [x $.break.gen/not-address]
+  (TC.prop/for-all [x (TC.gen/such-that (fn [x] (not (scoped-address? x))) $.break.gen/not-address)]
     (mprop/mult
 
       "`account`"
