@@ -1106,6 +1106,22 @@
 
 
 
+(defn index-key? [x]
+
+  (or ($.std/address? x)
+      ($.std/blob? x)
+      ;; REVIEW Index should only allow keys: Address, a hex String, a Long value, or another Blob value. #24
+                                        ;($.std/long? x) ;; Should be allow was missing
+      (when (or ($.std/string? x)
+                ($.std/symbol? x)
+                ($.std/keyword? x))
+        (or (hex-string? ($.std/name x))
+            ;; What about these? Incorrect?
+            ($.std/empty? x)
+            ;; All strings?
+            true))))
+
+
 (mprop/deftest assoc--blob-map-fail
 
   {:ratio-num 10}
@@ -1113,18 +1129,7 @@
   (TC.prop/for-all* [($.gen/blob-map ($.gen/blob)
                                      $.gen/any)
                      (TC.gen/such-that (fn [x]
-                                         (not (or ($.std/address? x)
-                                                  ($.std/blob? x)
-                                                  ;; REVIEW Index should only allow keys: Address, a hex String, a Long value, or another Blob value. #24
-                                                  ;($.std/long? x) ;; Should be allow was missing
-                                                  (when (or ($.std/string? x)
-                                                            ($.std/symbol? x)
-                                                            ($.std/keyword? x))
-                                                    (or (hex-string? ($.std/name x))
-                                                        ;; What about these? Incorrect?
-                                                        ($.std/empty? x)
-                                                        ;; All strings?
-                                                        true)))))
+                                         (not (index-key? x)))
 
                                        $.gen/any
                                        100)
@@ -1482,8 +1487,7 @@
 (mprop/deftest blob-map--err-cast
 
   (TC.prop/for-all [arg+ ($.break.gen/mix-one-in ($.gen/tuple (TC.gen/such-that (fn [x]
-                                                                                  (not (or ($.std/address? x)
-                                                                                           ($.std/blob x))))
+                                                                                  (not (index-key? x)))
                                                                                 $.gen/any
                                                                                 100)
                                                               $.gen/any)
