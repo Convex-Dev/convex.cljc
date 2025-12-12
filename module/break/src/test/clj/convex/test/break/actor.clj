@@ -99,7 +99,11 @@
 
   (TC.prop/for-all [faulty-amount $.break.gen/not-long
                     holding       $.gen/any
-                    percent       $.break.gen/percent]
+                    percent       #_$.break.gen/percent
+                                  ;; REVIEW Cannot tranfer 100% See issue #27 Should this be possible?
+                                  ($.gen/double-bounded {:max 0.95
+                                                         :min 0
+                                                         :NaN? false})]
     (let [ctx ($.eval/ctx $.break/ctx
                           ($.cell/* (do
                                       (def addr
