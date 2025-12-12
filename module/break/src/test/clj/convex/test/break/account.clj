@@ -258,7 +258,8 @@
       ($.eval/true? ctx
                     ($.cell/* (= *holdings*
                                  (if (nil? holding)
-                                   (index)
+                                   (index) ;; REVIEW Should be nil as well? #25
+
                                    (assoc (index)
                                           *address*
                                           holding)))))
@@ -279,7 +280,8 @@
                     ($.cell/* (do
                                 (set-holding *address*
                                              nil)
-                                (= (index)
+                                (= (index) ;; REVIEW should be nil as well? #25
+
                                    *holdings*)))))))
 
 
