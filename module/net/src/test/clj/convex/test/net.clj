@@ -26,7 +26,7 @@
 
 
 (def kp
-     ($.key-pair/ed25519 ($.std/blob $.cell/key-fake)))
+     ($.key-pair/ed25519 #_($.std/blob $.cell/key-fake)))
 
 
 
