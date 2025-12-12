@@ -626,7 +626,7 @@
 
   "Sets the value of [[juice-limit]] to the requested `amount`.
 
-   Returns an update context."
+   Returns an updated context."
 
   ^Context
 
