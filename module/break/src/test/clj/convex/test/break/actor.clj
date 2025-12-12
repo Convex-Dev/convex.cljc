@@ -107,10 +107,10 @@
 
                                                       (def holding
                                                            (quote ~holding))
-
-                                                      (defn receive-coin
-                                                        ~($.cell/syntax ($.cell/* [origin offer no-arg])
-                                                                        ($.cell/* {:callable? true}))
+                                                      
+                                                      (defn ~($.cell/syntax ($.cell/* receive-coin)
+                                                                            ($.cell/* {:callable true}))
+                                                        [origin offer no-arg]
                                                         (def -caller
                                                              (= origin
                                                                 *caller*))
