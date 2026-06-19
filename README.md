@@ -2,6 +2,14 @@
 
 ![Workflow](https://github.com/convex-dev/convex.cljc/actions/workflows/workflow.yml/badge.svg)
 
+> ⚠️ **Status: requires update for the latest Convex version — outstanding work.**
+> This library currently targets Convex `0.7.11` and is **not compatible with current `0.8.x`
+> peers/networks** without an interop update. It is **not** part of the supported client-SDK set
+> until updated. For current development use the
+> [Java](https://github.com/Convex-Dev/convex/tree/develop/convex-java),
+> [TypeScript](https://github.com/Convex-Dev/convex.ts), or
+> [Python](https://github.com/Convex-Dev/convex-api-py) clients.
+
 This monorepo hosts a variety of applications and libraries written in Clojure providing access to all aspects of the
 [Convex network](https://github.com/Convex-Dev/convex).
 
