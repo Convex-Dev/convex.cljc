@@ -42,7 +42,7 @@
                              Hash)
            (convex.core.store Stores)
            (java.io File)
-           (etch EtchStore))
+           (convex.etch EtchStore))
   (:refer-clojure :exclude [flush
                             read]))
 
@@ -172,7 +172,7 @@
 
   []
 
-  (.getFileName (current)))
+  (.getCanonicalPath (.getFile (current))))
 
 
 
@@ -226,10 +226,7 @@
   ^ACell
 
   [^ACell cell]
-
-  (let [^Ref r (ACell/createPersisted (.getValue (.getRef cell)))]
-    (when (.cachedHash r)
-      (.getValue r))))
+  (convex.core.data.Cells/persist cell (current)))
 
 
 ;;;
@@ -263,10 +260,8 @@
   ^ACell
 
   [^ACell cell]
-
-  (let [^Ref r (ACell/createPersisted (.getValue (.getRef cell)))
-             h (.cachedHash r)]
+  (let [c (convex.core.data.Cells/persist cell (current))
+        h (.getHash c)]
     (when h
-      (.setRootHash (.getEtch (current))
-                    h)
-      (.getValue r))))
+      (.setRootHash (.getEtch (current)) h)
+      c)))

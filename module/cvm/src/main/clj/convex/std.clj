@@ -15,11 +15,13 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core State)
+  (:import (convex.core.cvm 
+                            State
+                            Syntax)
            (convex.core.data AccountKey
-                             Address
+                             
                              ABlob
-                             ABlobMap
+                             ABlobLike
                              ACell
                              ACountable
                              ADataStructure
@@ -32,12 +34,14 @@
                              AString
                              AVector
                              Hash
+                             Index
                              Keyword
                              Refs
                              Refs$RefTreeStats
                              SignedData
                              Symbol
-                             Syntax)
+
+                             )
            (convex.core.data.prim AInteger
                                   ANumeric
                                   CVMBigInteger
@@ -45,9 +49,10 @@
                                   CVMChar
                                   CVMDouble
                                   CVMLong)
-           (convex.core.lang IFn
-                             RT)
-           (convex.core.transactions ATransaction))
+           (convex.core.cvm IFn
+                            Address)
+           (convex.core.lang RT)
+           (convex.core.cvm.transactions ATransaction))
   (:refer-clojure :exclude [+
                             -
                             *
@@ -322,7 +327,7 @@
 
   "Builds a blob map from key-values (keys must be blobs)."
 
-  ^ABlobMap
+  ^Index
 
   [& kvs]
 
@@ -1005,7 +1010,7 @@
   [^ASequence sq]
 
   (when sq
-    (.reverse sq)))
+    (.reversed sq)))
 
 
 ;;;;;;;;;; Set
@@ -1132,7 +1137,7 @@
 
   [x]
 
-  (instance? ABlobMap
+  (instance? ABlobLike
              x))
 
 

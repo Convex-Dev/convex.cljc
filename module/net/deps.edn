@@ -9,8 +9,8 @@
   org.slf4j/slf4j-api
   {:exclusions [org.slf4j/slf4j-nop org.slf4j/slf4j-parent],
    :mvn/version "1.7.36"},
-  world.convex/convex-core {:mvn/version "0.7.11"},
-  world.convex/convex-peer {:mvn/version "0.7.11"},
+  world.convex/convex-core {:mvn/version "0.8.2"},
+  world.convex/convex-peer {:mvn/version "0.8.2"},
   world.convex/cvm
   {:deps/root "module/cvm",
    :git/sha "a35d0a80fecd085afbca1ffb82684142da8f2e77",

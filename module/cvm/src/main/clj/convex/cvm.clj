@@ -32,22 +32,24 @@
 
   {:author "Adam Helinski"}
 
-  (:import (convex.core Block
-                        State)
-           (convex.core.data ABlobMap
+  (:import (convex.core ResultContext)
+           (convex.core.cpos Block)
+           (convex.core.data ABlobLike
                              AccountKey
-                             AccountStatus
                              ACell
-                             Address
-                             AHashMap)
+                             AHashMap
+                             Index)
            (convex.core.data.prim CVMLong)
            (convex.core.init Init)
-           (convex.core.lang AFn
-                             AOp
-                             Context)
-           (convex.core.lang.impl AExceptional
-                                  ErrorValue)
-           (convex.core.transactions ATransaction))
+           (convex.core.cvm AccountStatus
+                            Address
+                            AFn
+                            AOp
+                            Context
+                            State)
+           (convex.core.cvm.exception AExceptional
+                                      ErrorValue)
+           (convex.core.cvm.transactions ATransaction))
   (:refer-clojure :exclude [compile
                             def
                             eval
@@ -116,10 +118,9 @@
 
   
   (^Context [option+]
-
-   (Context/createFake (or (:convex.cvm/state option+)
-                           (Init/createState (or (:convex.cvm/genesis-key+ option+)
-                                                 [$.cell/key-fake])))
+  (Context/create (or (:convex.cvm/state option+)
+                      (Init/createState (or (:convex.cvm/genesis-key+ option+)
+                                            [$.cell/key-fake])))
                        (or (:convex.cvm/address option+)
                            genesis-user))))
 
@@ -386,7 +387,7 @@
   
    A vector cell of size 2 vectors containing a logging address and a logged value."
 
-  ^ABlobMap
+  ^ABlobLike
   
   [^Context ctx]
 
@@ -475,14 +476,14 @@
 
 
   (^Context [^Context ctx]
-
-   (.createAccount ctx
+   ;; FIXME createAccount has been removed
+   #_(.createAccount ctx
                    nil))
 
 
   (^Context [^Context ctx key]
-
-   (.createAccount ctx
+   ;; FIXME createAccount has been removed
+   #_(.createAccount ctx
                    key)))
 
 
@@ -504,8 +505,8 @@
   (^Context [^Context ctx addr sym->value]
 
    (let [s (state ctx)
-         a (.getAccount s
-                        addr)]
+         ^AccountStatus a (.getAccount s
+                                       addr)]
      (if a
        (state-set ctx
                   (.putAccount s
@@ -928,13 +929,11 @@
 
   [^Context ctx ^ATransaction trx]
 
-  (let [ctx-2 (-> ctx
-                  (state)
-                  (.applyTransaction trx))
-        ctx-3 (state-set ctx
-                         (state ctx-2))]
-    (if (exception? ctx-2)
-      (exception-set ctx-3
-                     (exception ctx-2))
-      (result-set ctx-3
-                  (result ctx-2)))))
+  (let [^ResultContext result-ctx (-> ctx
+                                      (state)
+                                      (.applyTransaction trx))]
+    (if (.isError result-ctx)
+      (exception-set ctx
+                     (.getErrorCode result-ctx))
+      (result-set ctx
+                  (.getResult result-ctx)))))

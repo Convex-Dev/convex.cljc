@@ -15,9 +15,11 @@
                              ASet
                              AString
                              AVector
-                             Address
+                            
                              Keyword
                              Symbol
+)
+           (convex.core.cvm  Address
                              Syntax)
            (convex.core.data.prim CVMBigInteger
                                   CVMBool
